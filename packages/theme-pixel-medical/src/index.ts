@@ -9,6 +9,7 @@
 import type { ThemePack } from '@study-rpg/core'
 import { ITEM_CATALOG } from './items'
 import { SPRITE_MAP } from './sprites'
+import { SKILL_TREE_PIXEL_MEDICAL } from './skillTree'
 
 export const THEME_PIXEL_MEDICAL: ThemePack = {
   meta: {
@@ -55,7 +56,9 @@ export const THEME_PIXEL_MEDICAL: ThemePack = {
   ],
   sprites: SPRITE_MAP,
   itemCatalog: ITEM_CATALOG,
+  skillTree: SKILL_TREE_PIXEL_MEDICAL,
 }
 
 export { ITEM_CATALOG } from './items'
 export { SPRITE_MAP } from './sprites'
+export { SKILL_TREE_PIXEL_MEDICAL } from './skillTree'

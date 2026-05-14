@@ -33,3 +33,17 @@ export {
   MINI_BOSS_DURATION_MS,
   ANNUAL_BOSS_DURATION_MS,
 } from './lib/boss'
+export {
+  unlockedCount,
+  detectUnlocks,
+  resolveSkillTree,
+  thresholdForIndex,
+  ENGINE_FALLBACK_SKILL_TREE,
+  SKILL_BRANCH_ORDER,
+  SKILL_TREE_NODES_PER_BRANCH,
+  SKILL_TREE_THRESHOLD_STEP,
+  type SkillNode,
+  type SkillBranch,
+  type SkillBranchStatKey,
+  type SkillTreeContent,
+} from './lib/skillTree'

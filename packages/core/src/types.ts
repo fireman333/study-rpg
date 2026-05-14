@@ -240,6 +240,8 @@ export interface ThemePack {
   fonts: FontDef[]
   sprites: Record<string, string>                // sprite key → URL or data URI
   itemCatalog: Item[]                            // theme-specific item catalog (e.g. 醫學主題)
+  /** Optional skill tree content (4 branches × 9 nodes). Engine falls back when missing. */
+  skillTree?: import('./lib/skillTree').SkillTreeContent
   uiOverrides?: Record<string, unknown>          // optional component overrides
 }
 

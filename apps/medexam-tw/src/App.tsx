@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import {
   rollLoot,
   instanceFromRoll,
@@ -9,6 +10,8 @@ import {
   REWARD,
   FAST_ANSWER_THRESHOLD_MS,
   DEFAULT_STAT_SCHEMA,
+  detectUnlocks,
+  resolveSkillTree,
   getDB,
   newCard,
   reviewCard,
@@ -19,15 +22,18 @@ import {
   type Item,
   type ContentPack,
   type QuestionId,
+  type SkillNode,
 } from '@study-rpg/core'
 import { THEME_PIXEL_MEDICAL } from '@study-rpg/theme-pixel-medical'
 import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
+import { SkillUnlockToast } from './components/SkillUnlockToast'
 import { QuizModal, REVIEW_BATCH_SIZE, type QuizResult, type QuestionResult } from './components/QuizModal'
 import { BossModal, type BossRunResult } from './components/BossModal'
 import { PersistenceButtons } from './components/PersistenceButtons'
+import { SkillTreeRoute } from './routes/SkillTreeRoute'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
 const STARTER_NAME = '見習醫師'
@@ -45,6 +51,7 @@ const READING_IDLE_TIMEOUT_MS = 90_000
 type PauseReason = 'manual' | 'visibility' | 'idle' | null
 
 export default function App() {
+  const navigate = useNavigate()
   const [player, setPlayer] = useState<Player>(() =>
     newPlayer('p1', STARTER_NAME, STAT_SCHEMA.order),
   )
@@ -60,6 +67,10 @@ export default function App() {
   const [bossOpen, setBossOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   const [dueQuestionIds, setDueQuestionIds] = useState<QuestionId[]>([])
+  const [skillToasts, setSkillToasts] = useState<Array<{ id: number; node: SkillNode }>>([])
+  const prevStatsRef = useRef<Player['stats']>(player.stats)
+  const toastIdRef = useRef(0)
+  const skillTreeContent = useMemo(() => resolveSkillTree(THEME_PIXEL_MEDICAL), [])
 
   // Load content pack at mount
   useEffect(() => {
@@ -130,6 +141,25 @@ export default function App() {
     setPlayer(payload.player)
     setInstances(payload.instances)
   }
+
+  // Skill-tree unlock detection: enqueue toasts for newly crossed thresholds.
+  // Skipped until hydration completes so returning players don't get a flurry
+  // of toasts for thresholds already crossed in previous sessions.
+  useEffect(() => {
+    const next = player.stats
+    if (!hydrated) {
+      prevStatsRef.current = next
+      return
+    }
+    const prev = prevStatsRef.current
+    if (prev === next) return
+    const unlocked = detectUnlocks(prev, next, skillTreeContent)
+    prevStatsRef.current = next
+    if (unlocked.length) {
+      const entries = unlocked.map((node) => ({ id: ++toastIdRef.current, node }))
+      setSkillToasts((q) => [...q, ...entries])
+    }
+  }, [hydrated, player.stats, skillTreeContent])
 
   const catalog = useMemo(() => THEME_PIXEL_MEDICAL.itemCatalog, [])
   const sprites = useMemo(() => THEME_PIXEL_MEDICAL.sprites, [])
@@ -344,13 +374,8 @@ export default function App() {
     })
   }
 
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1>一階國考 RPG</h1>
-        <div className="tag">study-rpg · pixel-medical · medexam-tw</div>
-      </header>
-
+  const homeView = (
+    <>
       <div className="layout">
         <CharCard
           player={player}
@@ -364,6 +389,7 @@ export default function App() {
           onRename={handleRename}
           onSlotClick={handleSlotClick}
           onCycleVariant={cycleVariant}
+          onSkillTreeClick={() => navigate('/skills')}
         />
 
         <div className="actions">
@@ -499,6 +525,42 @@ export default function App() {
           onClose={onBossComplete}
         />
       )}
+    </>
+  )
+
+  const currentToast = skillToasts[0]
+  return (
+    <div className="app">
+      <header className="app-header">
+        <h1>一階國考 RPG</h1>
+        <div className="tag">study-rpg · pixel-medical · medexam-tw</div>
+      </header>
+
+      <Routes>
+        <Route path="/" element={homeView} />
+        <Route
+          path="/skills"
+          element={
+            <SkillTreeRoute
+              content={skillTreeContent}
+              statSchema={STAT_SCHEMA}
+              stats={player.stats}
+              sprites={sprites}
+            />
+          }
+        />
+      </Routes>
+
+      <AnimatePresence>
+        {currentToast && (
+          <SkillUnlockToast
+            key={currentToast.id}
+            node={currentToast.node}
+            spriteUrl={sprites[currentToast.node.spriteKey]}
+            onDone={() => setSkillToasts((q) => q.slice(1))}
+          />
+        )}
+      </AnimatePresence>
 
       <footer className="credits">
         Question bank © 中華民國考選部 / 詳解 © <a href="https://sites.google.com/view/ymmedexam/ans" target="_blank" rel="noreferrer">陽明國考考古題小組</a> (CC-BY-NC)

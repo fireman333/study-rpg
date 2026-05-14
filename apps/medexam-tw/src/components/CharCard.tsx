@@ -18,6 +18,7 @@ interface Props {
   onRename: (name: string) => void
   onSlotClick: (slot: EquipSlot) => void
   onCycleVariant: (direction: 1 | -1) => void
+  onSkillTreeClick: () => void
 }
 
 const SLOT_ORDER: EquipSlot[] = ['head', 'body', 'weapon', 'charm']
@@ -36,7 +37,7 @@ const STAT_TOOLTIPS: Record<string, string> = {
   stamina: '耐力 — 閱讀模式每分鐘 +1',
 }
 
-export function CharCard({ player, statSchema, sprites, catalog, instances, effectiveStats, characterSpriteKey, canCycleVariant, onRename, onSlotClick, onCycleVariant }: Props) {
+export function CharCard({ player, statSchema, sprites, catalog, instances, effectiveStats, characterSpriteKey, canCycleVariant, onRename, onSlotClick, onCycleVariant, onSkillTreeClick }: Props) {
   const [editing, setEditing] = useState(false)
   const [draftName, setDraftName] = useState(player.name)
 
@@ -132,6 +133,10 @@ export function CharCard({ player, statSchema, sprites, catalog, instances, effe
           )
         })}
       </div>
+
+      <button type="button" className="char-card-skill-btn" onClick={onSkillTreeClick}>
+        🌿 技能樹
+      </button>
     </div>
   )
 }
