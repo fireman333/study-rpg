@@ -60,7 +60,7 @@
 | Milestone | 範圍 | 狀態 |
 |---|---|---|
 | **M1（MVP）** | 藥理學 vertical slice + 1 boss + 4 屬性 + loot + IndexedDB 存檔 + GH Pages 上架（dogfood，不發 npm） | 🚧 進行中 |
-| M2 — 全科開放 | ✓ 10 科全解（3291/3600 imported, 309 上游 OCR 缺欄位 skip）+ skill tree UI + 4 屬性公式 fine-tune + daily streak + ✓ SRS due queue + 附圖題處理（placeholder banner 已上） | 🚧 進行中 |
+| M2 — 全科開放 | ✓ 10 科全解（3291/3600 imported, 309 上游 OCR 缺欄位 skip）+ skill tree UI + ✓ 4 屬性全部 wired（公式 fine-tune 待 dogfood）+ daily streak + ✓ SRS due queue + 附圖題處理（placeholder banner 已上） | 🚧 進行中 |
 | M3 — 公開 API + 範例 fork | `@study-rpg/core` 發 npm（0.1.x）+ `docs/CONTENT_SCHEMA.md` / `THEME_API.md` 完整 + minimal `content-toefl-mini` 50Q demo | ⏳ |
 | M4 — 跨裝置存檔 | Supabase Auth (Google OAuth) + 雲端 sync；IndexedDB 仍 source of truth | ⏳ |
 | M5 — 養成元素加深 | 宿舍場景 + cosmetic unlock + 導師 NPC 每日一題 + 模擬考全套（80Q / 計時 / 出歷年百分位） | ⏳ |

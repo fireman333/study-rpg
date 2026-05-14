@@ -7,6 +7,7 @@ import {
   applyXp,
   addStat,
   REWARD,
+  FAST_ANSWER_THRESHOLD_MS,
   DEFAULT_STAT_SCHEMA,
   getDB,
   newCard,
@@ -221,17 +222,26 @@ export default function App() {
 
   /** Batched reward calculation + SRS write for a multi-Q quiz session (reading or review mode). */
   function onQuizComplete(results: QuizResult[], questionResults: QuestionResult[]) {
+    const wasReview = reviewOpen
     setQuizOpen(false)
     setReviewOpen(false)
     if (results.length === 0) return
     setPlayer((p) => {
       let next = p
-      for (const r of results) {
-        const reward = r.correct ? REWARD.quizCorrect : REWARD.quizWrong
-        const stats = 'stat' in reward && reward.stat
-          ? addStat(next.stats, reward.stat.name, reward.stat.delta)
+      for (const qr of questionResults) {
+        const baseReward = qr.correct ? REWARD.quizCorrect : REWARD.quizWrong
+        let stats = 'stat' in baseReward && baseReward.stat
+          ? addStat(next.stats, baseReward.stat.name, baseReward.stat.delta)
           : next.stats
-        next = applyXp({ ...next, stats }, reward.xp).player
+        // Reflex: correct + answered fast
+        if (qr.correct && qr.elapsedMs < FAST_ANSWER_THRESHOLD_MS) {
+          stats = addStat(stats, REWARD.quizFastAnswer.stat.name, REWARD.quizFastAnswer.stat.delta)
+        }
+        // Memory: correct review-mode answer (SRS due card)
+        if (qr.correct && wasReview) {
+          stats = addStat(stats, REWARD.srsReviewCorrect.stat.name, REWARD.srsReviewCorrect.stat.delta)
+        }
+        next = applyXp({ ...next, stats }, baseReward.xp).player
       }
       return next
     })

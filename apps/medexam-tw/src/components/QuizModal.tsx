@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Question, QuestionId, SubjectId } from '@study-rpg/core'
 
 export interface QuizResult { correct: boolean }
-export interface QuestionResult { questionId: QuestionId; correct: boolean }
+export interface QuestionResult { questionId: QuestionId; correct: boolean; elapsedMs: number }
 
 /** Max questions presented in one review-mode session. */
 export const REVIEW_BATCH_SIZE = 20
@@ -50,6 +50,11 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, mode
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([])
   const [skippedCount, setSkippedCount] = useState(0)
   const [finished, setFinished] = useState(false)
+  const [questionStartedAt, setQuestionStartedAt] = useState<number>(() => Date.now())
+
+  useEffect(() => {
+    if (!finished) setQuestionStartedAt(Date.now())
+  }, [idx, finished])
 
   const results: QuizResult[] = questionResults.map((r) => ({ correct: r.correct }))
 
@@ -73,8 +78,9 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, mode
 
   function handlePick(optionKey: string) {
     if (picked !== null) return
+    const elapsedMs = Date.now() - questionStartedAt
     setPicked(optionKey)
-    setQuestionResults((prev) => [...prev, { questionId: q.id, correct: optionKey === q.answer }])
+    setQuestionResults((prev) => [...prev, { questionId: q.id, correct: optionKey === q.answer, elapsedMs }])
   }
 
   function handleNext() {

@@ -29,6 +29,13 @@ const SLOT_LABEL: Record<EquipSlot, string> = {
   consumable: '消',
 }
 
+const STAT_TOOLTIPS: Record<string, string> = {
+  knowledge: '知識力 — 答對 quiz 每題 +1',
+  reflex: '反應 — 答對且 < 10 秒 +1',
+  memory: '記憶 — SRS 複習模式答對 +1',
+  stamina: '耐力 — 閱讀模式每分鐘 +1',
+}
+
 export function CharCard({ player, statSchema, sprites, catalog, instances, effectiveStats, characterSpriteKey, canCycleVariant, onRename, onSlotClick, onCycleVariant }: Props) {
   const [editing, setEditing] = useState(false)
   const [draftName, setDraftName] = useState(player.name)
@@ -115,7 +122,7 @@ export function CharCard({ player, statSchema, sprites, catalog, instances, effe
           const eff = effectiveStats[s] ?? 0
           const bonus = eff - base
           return (
-            <div key={s} className="stat-row">
+            <div key={s} className="stat-row" title={STAT_TOOLTIPS[s] ?? statSchema.labels[s]}>
               <span>{statSchema.labels[s]}</span>
               <div className="bar-track">
                 <div className="bar-fill" style={{ width: `${Math.min(100, eff)}%`, background: statSchema.colors[s] }} />

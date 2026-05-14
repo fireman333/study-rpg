@@ -41,11 +41,18 @@ export const REWARD = {
   quizCorrect: { xp: 10, subjectXp: 2, stat: { name: 'knowledge', delta: 1 } },
   /** Quiz: per wrong answer (still tiny XP to keep loop going, push to SRS). */
   quizWrong: { xp: 2, subjectXp: 0 },
+  /** Quiz: per correct answer answered within FAST_ANSWER_THRESHOLD_MS — stat-only, no extra XP. */
+  quizFastAnswer: { xp: 0, subjectXp: 0, stat: { name: 'reflex', delta: 1 } },
+  /** SRS: per correct review-mode answer (due card) — stat-only, no extra XP. */
+  srsReviewCorrect: { xp: 0, subjectXp: 0, stat: { name: 'memory', delta: 1 } },
   /** Mini-boss pass bonus. */
   bossMiniPass: { xp: 50, subjectXp: 20 },
   /** Annual-boss pass bonus. */
   bossAnnualPass: { xp: 200, subjectXp: 60 },
 } as const
+
+/** Threshold for awarding reflex on a correct quiz answer (milliseconds). */
+export const FAST_ANSWER_THRESHOLD_MS = 10000
 
 // ─── Pure stat mutation helpers ──────────────────────────────────────────────
 

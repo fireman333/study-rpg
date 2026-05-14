@@ -19,6 +19,7 @@ export {
   addStat,
   newPlayer,
   REWARD,
+  FAST_ANSWER_THRESHOLD_MS,
   type XpGainResult,
 } from './lib/xp'
 export { newCard, reviewCard, dueCards } from './lib/srs'
