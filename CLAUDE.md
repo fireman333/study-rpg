@@ -36,6 +36,14 @@ auto-git commit             # only after archive — see auto-git skill rules
 - Trivial typo / one-line fix → just edit, no propose
 - User explicitly says "skip verify" / "just commit"
 
+### Dual-worktree development (M_2nd parallel track)
+
+M2（一階）+ M_2nd（二階 hospital mode）並行用 git worktree 隔離。完整 workflow / naming convention / sync protocol / git ops policy 詳見 `openspec/project.md` § Development Workflow。
+
+- **一階 session**: `cd ~/coding-scratch/study-rpg` (main branch)
+- **二階 session**: `cd ~/coding-scratch/study-rpg-m2` (track-m2 branch)
+- **Merge 二階 → main**: `cd ~/coding-scratch/study-rpg && git merge track-m2` (post-archive; needs explicit confirm)
+
 ### Curator rules (hard)
 
 - **Never** `git commit` without explicit user confirmation

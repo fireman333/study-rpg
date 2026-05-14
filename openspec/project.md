@@ -70,6 +70,52 @@
 | M6 — Social light | 朋友 leaderboard（純 read-time / mastery%）+ 公開分享角色卡 OG image | ⏳ |
 | M7 (stretch) | 社群 content/theme PR + maintain awesome-study-rpg list | ⏳ |
 
+## Development Workflow
+
+### Dual-worktree pattern (2026-05-15 onwards)
+
+M2（一階 medexam-tw）跟 M_2nd（二階 medexam2-hospital-tw）並行開發，用 git worktree 隔離：
+
+| Worktree path | Branch | 用途 |
+|---|---|---|
+| `~/coding-scratch/study-rpg/` | `main` | 一階 M2 開發；core / theme-pixel-medical / content-medexam-tw / apps/medexam-tw；所有 track 的 merge target |
+| `~/coding-scratch/study-rpg-m2/` | `track-m2` | 二階 M_2nd 開發；theme-pixel-hospital / content-medexam2-tw / apps/medexam2-hospital-tw；所有 `add-hospital-*` / `wire-hospital-*` / `*-medexam2-*` / `*-doctor-*` changes 在這跑 |
+
+`.claude/worktrees/<random>/` 是 Claude Code agent 自動建的暫用 worktree（M1 dev 期間用過），ephemeral，merge 完可移除。
+
+### Naming convention（避免 OpenSpec change folder 撞）
+
+- 二階 changes：含 `hospital` / `medexam2` / `doctor` 字眼（例 `add-hospital-mode-scaffold`、`ingest-medexam2-tw-corpus`、`wire-recruitment-gacha`、`add-doctor-sprite-roster`）
+- 一階 changes：含 `medexam-tw` 或 generic feature name（例 `expand-content-build-to-all-subjects`、`wire-srs-queue`、`add-gh-pages-deploy`）
+- Generic cross-track changes（core engine / deps）允許但 commit message 要標明影響範圍
+
+### Sync protocol
+
+```bash
+# 二階 ship 進度回 main (post-archive, 每 1–3 個 changes 同步一次)
+cd ~/coding-scratch/study-rpg && git merge track-m2
+
+# 二階 catch up main 變動 (main 有 一階 commit 時)
+cd ~/coding-scratch/study-rpg-m2 && git merge main
+```
+
+Merge 衝突最常見點：`openspec/project.md` Roadmap row（M2 vs M_2nd 同檔不同行）+ root `package.json` scripts。Merge 完兩 worktree 各自 `pnpm install` 對齊 lockfile。
+
+### Planning home (non-git)
+
+`~/claude_domain/vibe-coding/2nd-study-rpg/` 是 二階 設計筆記資料夾：
+
+- **不在 git repo**、不接 `/spec resume`、不放 code
+- 只放 CLAUDE.md（pointer）+ README.md（design overview）
+- 任何實際開發一定要 cd 進 worktree
+
+### Git ops policy
+
+- `git commit`：依「Curator rules (hard)」需 explicit user confirmation；template = `spec(archive): merge <change> — <headline>`
+- `git merge track-m2`（二階 → main）：destructive caliber、需 confirm、建議 working tree 乾淨時跑
+- `git push` / `git reset --hard` / `git push --force`：永遠 confirm；後兩者實質禁用（即使 confirm 也不做，除非顯式 emergency）
+- `git worktree remove`：confirm（worktree 內可能有 uncommitted work）
+
 ## Deploy & Distribution
 
 - **取得方式**: 直接打開 https://fireman333.github.io/study-rpg/（暫定 URL；待 repo 上 GitHub）
