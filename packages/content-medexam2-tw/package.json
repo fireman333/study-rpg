@@ -1,8 +1,8 @@
 {
   "name": "@study-rpg/content-medexam2-tw",
   "version": "0.0.1",
-  "description": "Content pack: Taiwan Stage-2 medical board exam past questions (二階醫師國考, 醫學三–六, 14 subjects, ~12,160 questions). Scaffold — ingestion pending (see openspec/changes/ingest-medexam2-tw-corpus).",
-  "license": "SEE LICENSE.md",
+  "description": "Content pack: Taiwan Stage-2 medical board exam past questions (二階醫師國考, 醫學三–六, 14 subjects). Built from public 考選部 exam records + LLM-supervised explanations by 康瑋麟 (WLK).",
+  "license": "CC-BY-4.0",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -11,7 +11,7 @@
     "./questions.json": "./dist/questions.json"
   },
   "scripts": {
-    "build": "echo 'content-medexam2-tw: ingestion not yet implemented — see openspec/changes/ingest-medexam2-tw-corpus' && exit 0",
+    "build": "tsx scripts/build.ts",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
