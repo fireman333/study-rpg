@@ -8,6 +8,7 @@ import {
   addStat,
   REWARD,
   DEFAULT_STAT_SCHEMA,
+  getDB,
   type Player,
   type RollResult,
   type EquipSlot,
@@ -21,9 +22,12 @@ import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
 import { QuizModal, type QuizResult } from './components/QuizModal'
+import { PersistenceButtons } from './components/PersistenceButtons'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
 const STARTER_NAME = '見習醫師'
+const PLAYER_ID = 'p1'
+const SAVE_SCHEMA_VERSION = 1
 
 /** Ordered list of character sprite variants the player can cycle through. */
 const CHARACTER_VARIANTS = ['character-base', 'character-base-female'] as const
@@ -47,6 +51,7 @@ export default function App() {
   const [pauseReason, setPauseReason] = useState<PauseReason>(null)
   const [content, setContent] = useState<ContentPack | null>(null)
   const [quizOpen, setQuizOpen] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
 
   // Load content pack at mount
   useEffect(() => {
@@ -56,6 +61,53 @@ export default function App() {
         console.error('Failed to load content pack:', err)
       })
   }, [])
+
+  // Hydrate player + instances from IndexedDB on mount (once)
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const db = getDB()
+        const saved = await db.players.get(PLAYER_ID)
+        if (cancelled) return
+        if (saved) {
+          const insts = await db.itemInstances.toArray()
+          if (cancelled) return
+          setPlayer(saved)
+          setInstances(insts)
+        }
+      } catch (err) {
+        console.error('Hydrate failed:', err)
+      } finally {
+        if (!cancelled) setHydrated(true)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Persist player on change (only after hydration so we don't overwrite saved
+  // state with the initial newPlayer default)
+  useEffect(() => {
+    if (!hydrated) return
+    getDB().players.put(player).catch((err) => console.error('Player persist failed:', err))
+  }, [hydrated, player])
+
+  // Persist instances on change (MVP: clear + bulkAdd; instance count is small)
+  useEffect(() => {
+    if (!hydrated) return
+    const db = getDB()
+    db.transaction('rw', db.itemInstances, async () => {
+      await db.itemInstances.clear()
+      if (instances.length) await db.itemInstances.bulkAdd(instances)
+    }).catch((err) => console.error('Instances persist failed:', err))
+  }, [hydrated, instances])
+
+  function handleImport(payload: { player: Player; instances: ItemInstance[] }) {
+    setPlayer(payload.player)
+    setInstances(payload.instances)
+  }
 
   const catalog = useMemo(() => THEME_PIXEL_MEDICAL.itemCatalog, [])
   const sprites = useMemo(() => THEME_PIXEL_MEDICAL.sprites, [])
@@ -283,6 +335,13 @@ export default function App() {
             <span className="label">🎒 開啟背包</span>
             <span className="hint">{instances.length} 件 · 點 item 裝備到對應 slot</span>
           </button>
+
+          <PersistenceButtons
+            player={player}
+            instances={instances}
+            schemaVersion={SAVE_SCHEMA_VERSION}
+            onImport={handleImport}
+          />
         </div>
       </div>
 
