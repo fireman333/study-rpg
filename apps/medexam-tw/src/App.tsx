@@ -182,18 +182,20 @@ export default function App() {
   }, [reading])
 
   function doRoll(source: 'read' | 'quiz' | 'boss-mini') {
-    setPlayer((p) => {
-      const r = rollLoot(catalog, p.lootStats)
-      if (!r) return p
-      const inst = instanceFromRoll(r, source)
-      setInstances((prev) => [...prev, inst.instance])
-      setReveal(r)
-      return {
-        ...p,
-        lootStats: r.newStats,
-        inventory: [...p.inventory, inst.instance.id],
-      }
-    })
+    // Side effects MUST happen OUTSIDE the setPlayer updater — StrictMode runs
+    // updaters twice, which would double-fire instanceFromRoll (random UUID)
+    // and setInstances. See spec loot-mechanics §"Callers SHALL NOT invoke
+    // loot functions inside React state updaters".
+    const r = rollLoot(catalog, player.lootStats)
+    if (!r) return
+    const { instance } = instanceFromRoll(r, source)
+    setReveal(r)
+    setInstances((prev) => [...prev, instance])
+    setPlayer((p) => ({
+      ...p,
+      lootStats: r.newStats,
+      inventory: [...p.inventory, instance.id],
+    }))
   }
 
   /** Batched reward calculation for a multi-Q quiz session. */
