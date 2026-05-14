@@ -1,0 +1,267 @@
+{
+  "generatedAt": "2026-05-14T13:11:04.677Z",
+  "cdxModel": "codex-cli/gpt-image-2",
+  "results": [
+    {
+      "key": "character-base",
+      "filename": "character-base.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/character-base.png",
+      "status": "ok",
+      "bytes": 164099,
+      "sha256": "7607889ad025a3bd8140ce8a0630cfbac041d3a0f1441f222aad5b5d30b8e8fe",
+      "generatedAt": "2026-05-14T11:52:01.878Z",
+      "elapsedMs": 145996
+    },
+    {
+      "key": "character-base-female",
+      "filename": "character-base-female.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/character-base-female.png",
+      "status": "ok",
+      "bytes": 176216,
+      "sha256": "f4118451c4222eacd002cea5281f16f32f38c20bf16bb7c38907b5c90e04c249",
+      "generatedAt": "2026-05-14T13:16:27.810Z",
+      "elapsedMs": 323131
+    },
+    {
+      "key": "hairband",
+      "filename": "items/alpha1-adrenergic.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/alpha1-adrenergic.png",
+      "status": "ok",
+      "bytes": 2364,
+      "sha256": "8801d8cfc8d201930002c7b5b2e74c4d92eb0ee5fc0bb07e6b30c114c5007f35",
+      "generatedAt": "2026-05-14T12:01:07.746Z",
+      "elapsedMs": 155001
+    },
+    {
+      "key": "goggles",
+      "filename": "items/nmda-receptor.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/nmda-receptor.png",
+      "status": "ok",
+      "bytes": 663,
+      "sha256": "843138f33b0e131d9b8511d553dc75a88db733cd1f4360ff5b2c221574664682",
+      "generatedAt": "2026-05-14T12:13:38.173Z",
+      "elapsedMs": 167995
+    },
+    {
+      "key": "graduation-cap",
+      "filename": "items/gaba-a-receptor.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/gaba-a-receptor.png",
+      "status": "ok",
+      "bytes": 782,
+      "sha256": "e0bcfa0be6aa674d6f4584ed3ae87432a8a683a9cff89b2d6d74f70fee835612",
+      "generatedAt": "2026-05-14T12:14:57.440Z",
+      "elapsedMs": 247259
+    },
+    {
+      "key": "scrubs",
+      "filename": "items/nsaid.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/nsaid.png",
+      "status": "ok",
+      "bytes": 1157,
+      "sha256": "58d844c9a8eb6e9720b170fd0f80d73897f7d29efd47b6cfdb0578e4863c7628",
+      "generatedAt": "2026-05-14T12:13:19.259Z",
+      "elapsedMs": 149075
+    },
+    {
+      "key": "whitecoat",
+      "filename": "items/beta-blocker.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/beta-blocker.png",
+      "status": "ok",
+      "bytes": 1084,
+      "sha256": "0da85eee865f2f3fb78df62579f08e65e891f08e9c7f44aded3676d0ef9fb189",
+      "generatedAt": "2026-05-14T12:17:25.216Z",
+      "elapsedMs": 147772
+    },
+    {
+      "key": "gold-whitecoat",
+      "filename": "items/statin.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/statin.png",
+      "status": "ok",
+      "bytes": 1246,
+      "sha256": "8e2a99d48c82139d0b23f2a4d944a306fe1215c6ebadfae8d229f220a91870ec",
+      "generatedAt": "2026-05-14T12:18:26.860Z",
+      "elapsedMs": 209416
+    },
+    {
+      "key": "pencil",
+      "filename": "items/acetaminophen.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/acetaminophen.png",
+      "status": "ok",
+      "bytes": 666,
+      "sha256": "ea1bb2d884d741ad2b64c7f247d7fea9e1ee320d4d85b359506b1f22e306eaf1",
+      "generatedAt": "2026-05-14T12:17:40.869Z",
+      "elapsedMs": 163424
+    },
+    {
+      "key": "reflex-hammer",
+      "filename": "items/atropine.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/atropine.png",
+      "status": "ok",
+      "bytes": 578,
+      "sha256": "bfa71f563ce94e0aef229b869106895f3435c90d21fbaeff23cae065da02ee30",
+      "generatedAt": "2026-05-14T12:20:23.042Z",
+      "elapsedMs": 116179
+    },
+    {
+      "key": "stethoscope",
+      "filename": "items/aspirin.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/aspirin.png",
+      "status": "ok",
+      "bytes": 646,
+      "sha256": "1c95dba2d37b7409b9825ad5206882aef92d182af0c82576f584c6b32dab3609",
+      "generatedAt": "2026-05-14T12:21:26.450Z",
+      "elapsedMs": 179587
+    },
+    {
+      "key": "scalpel",
+      "filename": "items/morphine.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/morphine.png",
+      "status": "ok",
+      "bytes": 1331,
+      "sha256": "54284333609497c7fcd6d67d995ad67608069277d9c1e45fcff24977e7d86352",
+      "generatedAt": "2026-05-14T12:20:39.097Z",
+      "elapsedMs": 132233
+    },
+    {
+      "key": "littmann-cardio",
+      "filename": "items/warfarin.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/warfarin.png",
+      "status": "ok",
+      "bytes": 886,
+      "sha256": "815870dfafd43c1c28e5486a7039dbd85f28a7d00b2680eec204611d3dae21d8",
+      "generatedAt": "2026-05-14T12:23:37.328Z",
+      "elapsedMs": 130876
+    },
+    {
+      "key": "notebook",
+      "filename": "items/cox-2.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/cox-2.png",
+      "status": "ok",
+      "bytes": 4289,
+      "sha256": "6900d87ac1322f0f3672bbb64d59f444ddde4777523d47c9348044908b40c4d6",
+      "generatedAt": "2026-05-14T12:23:43.544Z",
+      "elapsedMs": 137091
+    },
+    {
+      "key": "school-badge",
+      "filename": "items/partial-agonist.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/partial-agonist.png",
+      "status": "ok",
+      "bytes": 974,
+      "sha256": "3007c8e84ca44abdafe938edc05985c694dd2b6cdd856e1c5dba15c78d81a08f",
+      "generatedAt": "2026-05-14T12:24:10.173Z",
+      "elapsedMs": 163719
+    },
+    {
+      "key": "gauze",
+      "filename": "items/hmg-coa-reductase.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/hmg-coa-reductase.png",
+      "status": "ok",
+      "bytes": 1210,
+      "sha256": "b560cb944e68e653be2b4e8eb0fe4b19e3cab93f3cb47be01e7ef264220affbc",
+      "generatedAt": "2026-05-14T12:27:32.136Z",
+      "elapsedMs": 201961
+    },
+    {
+      "key": "robbins",
+      "filename": "items/cyclooxygenase.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/cyclooxygenase.png",
+      "status": "ok",
+      "bytes": 4802,
+      "sha256": "fe86b0a12fbc77843424afd914209d6f9048c8fdabebd86f180ab027035bf5b5",
+      "generatedAt": "2026-05-14T12:26:51.322Z",
+      "elapsedMs": 161146
+    },
+    {
+      "key": "signed-pass",
+      "filename": "items/digoxin-window.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/digoxin-window.png",
+      "status": "ok",
+      "bytes": 1269,
+      "sha256": "37bd0019d417eaa31a0197aa8789adad5e90dd037614888c6d610ba7c29e13b8",
+      "generatedAt": "2026-05-14T12:26:16.933Z",
+      "elapsedMs": 126756
+    },
+    {
+      "key": "hippocrates-charm",
+      "filename": "items/cytochrome-p450.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/cytochrome-p450.png",
+      "status": "ok",
+      "bytes": 1892,
+      "sha256": "5e706df9cc13daf7bc2e3cfd350a412c38dc8ec4ca92c4976001abea45dd4ed4",
+      "generatedAt": "2026-05-14T11:57:43.862Z",
+      "elapsedMs": 180027,
+      "note": "codex exec exceeded script timeout but completed downsampling and wrote file; checksum patched post-hoc"
+    },
+    {
+      "key": "coffee",
+      "filename": "items/first-pass-effect.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/first-pass-effect.png",
+      "status": "ok",
+      "bytes": 500,
+      "sha256": "1c7092dfd26b88200a29a4e0f9a8f443cc8e7d0da3208e78398f661ecde7c7b2",
+      "generatedAt": "2026-05-14T12:30:23.926Z",
+      "elapsedMs": 171789
+    },
+    {
+      "key": "apple",
+      "filename": "items/tolerance.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/tolerance.png",
+      "status": "ok",
+      "bytes": 1062,
+      "sha256": "23fbad05a5b92b9de602e613c80635b9c2c1f9ec630ad67f1417947b8f62a085",
+      "generatedAt": "2026-05-14T12:29:50.257Z",
+      "elapsedMs": 138118
+    },
+    {
+      "key": "senior-notes",
+      "filename": "items/serotonin-syndrome.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/items/serotonin-syndrome.png",
+      "status": "ok",
+      "bytes": 877,
+      "sha256": "7ef8a73e650d711978c187d7dc1f154b4a49e402ffc4bdd8189e0c965554e844",
+      "generatedAt": "2026-05-14T12:30:59.919Z",
+      "elapsedMs": 207780
+    },
+    {
+      "key": "slot-placeholder-head",
+      "filename": "slot-placeholders/head.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/slot-placeholders/head.png",
+      "status": "ok",
+      "bytes": 985,
+      "sha256": "70581ab30060505bdabbf201e5e083b954f9dc16a40da0fa94317138af71a6b2",
+      "generatedAt": "2026-05-14T12:33:11.239Z",
+      "elapsedMs": 131319
+    },
+    {
+      "key": "slot-placeholder-body",
+      "filename": "slot-placeholders/body.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/slot-placeholders/body.png",
+      "status": "ok",
+      "bytes": 327,
+      "sha256": "e7bc3d39a8699b2bf2f5b9aeb7000c2cc3ab84e78b8f8fe03dc25264c786cc70",
+      "generatedAt": "2026-05-14T12:33:22.672Z",
+      "elapsedMs": 142751
+    },
+    {
+      "key": "slot-placeholder-weapon",
+      "filename": "slot-placeholders/weapon.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/slot-placeholders/weapon.png",
+      "status": "ok",
+      "bytes": 542,
+      "sha256": "b11619e1f5988043a4a986c57437517ab50efc152086e6fd8ca7028169548bf2",
+      "generatedAt": "2026-05-14T12:33:25.210Z",
+      "elapsedMs": 145288
+    },
+    {
+      "key": "slot-placeholder-charm",
+      "filename": "slot-placeholders/charm.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/slot-placeholders/charm.png",
+      "status": "ok",
+      "bytes": 1011,
+      "sha256": "fbc3f7309e2175b5f6c9dd8d26378452773ac452866f6f7a40a6513232e57b4a",
+      "generatedAt": "2026-05-14T12:35:50.927Z",
+      "elapsedMs": 145715
+    }
+  ]
+}

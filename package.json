@@ -1,0 +1,21 @@
+{
+  "name": "study-rpg",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Open-source gamified study RPG engine. Default content pack: Taiwan Stage-1 medical board exam (一階醫師國考).",
+  "license": "AGPL-3.0-or-later",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @study-rpg/medexam-tw dev",
+    "build": "pnpm -r build",
+    "build:content": "pnpm --filter @study-rpg/content-medexam-tw build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

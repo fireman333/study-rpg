@@ -1,0 +1,137 @@
+/*
+ * Pixel-medical theme — global CSS.
+ *
+ * Hard rules (see DESIGN.md):
+ *   - no gradients, no border-radius, no drop-shadows
+ *   - image-rendering: pixelated on all <img>
+ *   - integer-only px values
+ *   - font scale: 8 / 12 / 16 / 24 / 32
+ */
+
+@font-face {
+  font-family: 'Cubic 11';
+  src: url('/study-rpg/fonts/Cubic_11.woff2') format('woff2'),
+       url('/study-rpg/fonts/Cubic_11.woff') format('woff');
+  font-display: swap;
+  font-style: normal;
+  font-weight: normal;
+}
+
+:root {
+  --bg-cream: #f4ecd8;
+  --bg-dark: #2d1f1a;
+  --ink: #1a1410;
+  --accent-leaf: #6a8c3f;
+  --accent-rose: #c44d4d;
+  --accent-gold: #d4a04d;
+  --accent-sky: #6a9bc4;
+  --frame-wood-light: #8c6d4a;
+  --frame-wood-dark: #5a3f29;
+
+  --rarity-n: #ffffff;
+  --rarity-r: #6a9bc4;
+  --rarity-sr: #a06ac4;
+  --rarity-ssr: #d4a04d;
+  --rarity-ur: #c44d4d;
+
+  --font-pixel-en: 'Press Start 2P', 'Courier New', monospace;
+  --font-pixel-num: 'VT323', 'Courier New', monospace;
+  --font-pixel-cjk: 'Cubic 11', 'Noto Sans TC', sans-serif;
+  --font-body-cjk: 'Noto Sans TC', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg-cream);
+  color: var(--ink);
+  font-family: var(--font-body-cjk);
+  font-size: 16px;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: none;
+}
+
+img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+}
+
+button {
+  font-family: var(--font-pixel-cjk);
+  font-size: 16px;
+  background: var(--bg-cream);
+  color: var(--ink);
+  border: 2px solid var(--frame-wood-dark);
+  padding: 8px 16px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+  transition: none;
+}
+button:hover {
+  background: #ebe2c8;
+}
+button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--frame-wood-dark);
+}
+button:disabled {
+  opacity: 1;
+  background: #c8c0a8;
+  cursor: not-allowed;
+}
+
+/* Pixel-wood frame utility */
+.frame {
+  background: var(--bg-cream);
+  border: 4px solid var(--frame-wood-dark);
+  box-shadow:
+    inset 0 0 0 2px var(--frame-wood-light),
+    4px 4px 0 var(--frame-wood-dark);
+  padding: 16px;
+}
+
+.frame-dark {
+  background: var(--bg-dark);
+  color: var(--bg-cream);
+  border: 4px solid var(--frame-wood-light);
+  box-shadow:
+    inset 0 0 0 2px var(--frame-wood-dark),
+    4px 4px 0 var(--frame-wood-dark);
+  padding: 16px;
+}
+
+/* Bars */
+.bar-track {
+  background: var(--frame-wood-dark);
+  border: 1px solid var(--ink);
+  height: 16px;
+  position: relative;
+}
+.bar-fill {
+  background: var(--accent-leaf);
+  height: 100%;
+  transition: width 0.2s steps(8);
+}
+
+/* Headings */
+h1, h2, h3 {
+  font-family: var(--font-pixel-cjk);
+  font-weight: normal;
+  margin: 0;
+  letter-spacing: 1px;
+}
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+h3 { font-size: 16px; }
+
+/* Rarity outline */
+.rarity-N  { border-color: var(--rarity-n); }
+.rarity-R  { border-color: var(--rarity-r); }
+.rarity-SR { border-color: var(--rarity-sr); }
+.rarity-SSR { border-color: var(--rarity-ssr); }
+.rarity-UR { border-color: var(--rarity-ur); }

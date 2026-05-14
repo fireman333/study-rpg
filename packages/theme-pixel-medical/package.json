@@ -1,0 +1,26 @@
+{
+  "name": "@study-rpg/theme-pixel-medical",
+  "version": "0.0.1",
+  "description": "Pixel-art adventure-RPG theme pack for study-rpg (GBA-era Pokémon / Stardew Valley vibe). Medical-themed item catalog (lab coat, stethoscope, etc).",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles/*": "./styles/*",
+    "./design.md": "./design.md"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "extract-terms": "tsx scripts/extract-pharma-terms.ts",
+    "generate-sprites": "tsx scripts/generate-sprites.ts"
+  },
+  "peerDependencies": {
+    "@study-rpg/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  }
+}

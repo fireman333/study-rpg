@@ -1,0 +1,1002 @@
+{
+  "extractedAt": "2026-05-14T11:35:04.696Z",
+  "sourceQuestionsCount": 418,
+  "categories": {
+    "receptor": [
+      {
+        "term": "muscarinic receptor",
+        "count": 22,
+        "questions": 15,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q59",
+          "106-2-醫學二-藥理學-Q56",
+          "106-2-醫學二-藥理學-Q73",
+          "107-2-醫學二-藥理學-Q68",
+          "108-1-醫學二-藥理學-Q54"
+        ],
+        "inAnswerContext": 11,
+        "suggestedRarity": "N",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "D2 receptor",
+        "count": 17,
+        "questions": 8,
+        "sourceQuestionIds": [
+          "108-1-醫學二-藥理學-Q54",
+          "108-1-醫學二-藥理學-Q60",
+          "108-1-醫學二-藥理學-Q74",
+          "109-1-醫學二-藥理學-Q72",
+          "110-1-醫學二-藥理學-Q72"
+        ],
+        "inAnswerContext": 7,
+        "suggestedRarity": "N",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "calcium channel",
+        "count": 8,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "107-2-醫學二-藥理學-Q57",
+          "107-2-醫學二-藥理學-Q66",
+          "109-1-醫學二-藥理學-Q54",
+          "109-1-醫學二-藥理學-Q58",
+          "111-2-醫學二-藥理學-Q64"
+        ],
+        "inAnswerContext": 5,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "estrogen receptor",
+        "count": 12,
+        "questions": 6,
+        "sourceQuestionIds": [
+          "107-1-醫學二-藥理學-Q53",
+          "108-1-醫學二-藥理學-Q64",
+          "109-1-醫學二-藥理學-Q52",
+          "109-2-醫學二-藥理學-Q59",
+          "110-2-醫學二-藥理學-Q62"
+        ],
+        "inAnswerContext": 6,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "dopamine receptor",
+        "count": 10,
+        "questions": 6,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q74",
+          "108-1-醫學二-藥理學-Q54",
+          "109-1-醫學二-藥理學-Q72",
+          "110-1-醫學二-藥理學-Q63",
+          "111-1-醫學二-藥理學-Q73"
+        ],
+        "inAnswerContext": 4,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "sodium channel",
+        "count": 10,
+        "questions": 6,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q54",
+          "111-1-醫學二-藥理學-Q65",
+          "111-2-醫學二-藥理學-Q73",
+          "112-1-醫學二-藥理學-Q66",
+          "113-2-醫學二-藥理學-Q72"
+        ],
+        "inAnswerContext": 6,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "androgen receptor",
+        "count": 8,
+        "questions": 6,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q54",
+          "107-1-醫學二-藥理學-Q53",
+          "108-1-醫學二-藥理學-Q64",
+          "110-1-醫學二-藥理學-Q68",
+          "110-2-醫學二-藥理學-Q62"
+        ],
+        "inAnswerContext": 6,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "nicotinic receptor",
+        "count": 10,
+        "questions": 5,
+        "sourceQuestionIds": [
+          "108-1-醫學二-藥理學-Q67",
+          "109-1-醫學二-藥理學-Q71",
+          "110-1-醫學二-藥理學-Q66",
+          "110-2-醫學二-藥理學-Q66",
+          "112-1-醫學二-藥理學-Q66"
+        ],
+        "inAnswerContext": 5,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "PPAR-γ",
+        "count": 7,
+        "questions": 5,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q53",
+          "109-1-醫學二-藥理學-Q53",
+          "110-1-醫學二-藥理學-Q57",
+          "112-2-醫學二-藥理學-Q60",
+          "114-2-醫學二-藥理學-Q59"
+        ],
+        "inAnswerContext": 5,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "SGLT2",
+        "count": 8,
+        "questions": 4,
+        "sourceQuestionIds": [
+          "110-1-醫學二-藥理學-Q61",
+          "113-2-醫學二-藥理學-Q61",
+          "113-2-醫學二-藥理學-Q63",
+          "114-2-醫學二-藥理學-Q59"
+        ],
+        "inAnswerContext": 4,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "GABA-A receptor",
+        "count": 6,
+        "questions": 4,
+        "sourceQuestionIds": [
+          "107-1-醫學二-藥理學-Q72",
+          "108-1-醫學二-藥理學-Q73",
+          "109-1-醫學二-藥理學-Q58",
+          "109-1-醫學二-藥理學-Q71"
+        ],
+        "inAnswerContext": 4,
+        "suggestedRarity": "R",
+        "flavorDraft": "失眠、抗焦慮、麻醉都認它。"
+      },
+      {
+        "term": "opioid receptor",
+        "count": 8,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "113-1-醫學二-藥理學-Q73",
+          "113-2-醫學二-藥理學-Q72",
+          "113-2-醫學二-藥理學-Q74"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      },
+      {
+        "term": "NMDA receptor",
+        "count": 4,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q59",
+          "109-1-醫學二-藥理學-Q58",
+          "113-2-醫學二-藥理學-Q74"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "ketamine 跟記憶都靠它。"
+      },
+      {
+        "term": "H2 receptor",
+        "count": 4,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "110-1-醫學二-藥理學-Q68",
+          "111-1-醫學二-藥理學-Q70",
+          "114-2-醫學二-藥理學-Q70"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "考過的 receptor，記得 downstream。"
+      }
+    ],
+    "drug_class": [
+      {
+        "term": "NSAID",
+        "count": 32,
+        "questions": 18,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q71",
+          "107-2-醫學二-藥理學-Q71",
+          "108-1-醫學二-藥理學-Q68",
+          "109-1-醫學二-藥理學-Q57",
+          "109-1-醫學二-藥理學-Q70"
+        ],
+        "inAnswerContext": 18,
+        "suggestedRarity": "N",
+        "flavorDraft": "消炎止痛，胃會痛、腎會壞。"
+      },
+      {
+        "term": "β-blocker",
+        "count": 23,
+        "questions": 18,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q67",
+          "106-2-醫學二-藥理學-Q69",
+          "107-2-醫學二-藥理學-Q66",
+          "108-1-醫學二-藥理學-Q66",
+          "108-2-醫學二-藥理學-Q63"
+        ],
+        "inAnswerContext": 17,
+        "suggestedRarity": "N",
+        "flavorDraft": "心衰、高血壓、表現焦慮萬靈丹。"
+      },
+      {
+        "term": "penicillin",
+        "count": 51,
+        "questions": 14,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q62",
+          "106-2-醫學二-藥理學-Q63",
+          "107-1-醫學二-藥理學-Q61",
+          "108-1-醫學二-藥理學-Q61",
+          "108-1-醫學二-藥理學-Q62"
+        ],
+        "inAnswerContext": 13,
+        "suggestedRarity": "N",
+        "flavorDraft": "1928 培養皿污染，改變人類歷史。"
+      },
+      {
+        "term": "SSRI",
+        "count": 16,
+        "questions": 14,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q73",
+          "109-2-醫學二-藥理學-Q65",
+          "110-1-醫學二-藥理學-Q56",
+          "110-2-醫學二-藥理學-Q69",
+          "110-2-醫學二-藥理學-Q74"
+        ],
+        "inAnswerContext": 13,
+        "suggestedRarity": "N",
+        "flavorDraft": "抗憂鬱第一線，起效要等兩週。"
+      },
+      {
+        "term": "opioid",
+        "count": 30,
+        "questions": 12,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q70",
+          "107-2-醫學二-藥理學-Q58",
+          "108-2-醫學二-藥理學-Q69",
+          "111-2-醫學二-藥理學-Q74",
+          "111-2-醫學二-藥理學-Q75"
+        ],
+        "inAnswerContext": 12,
+        "suggestedRarity": "N",
+        "flavorDraft": "一線藥，主治會考。"
+      },
+      {
+        "term": "insulin",
+        "count": 28,
+        "questions": 9,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q53",
+          "106-1-醫學二-藥理學-Q66",
+          "107-2-醫學二-藥理學-Q54",
+          "109-1-醫學二-藥理學-Q53",
+          "110-1-醫學二-藥理學-Q61"
+        ],
+        "inAnswerContext": 8,
+        "suggestedRarity": "N",
+        "flavorDraft": "從狗胰臟萃出來的諾貝爾獎。"
+      },
+      {
+        "term": "thiazide",
+        "count": 13,
+        "questions": 8,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q54",
+          "106-2-醫學二-藥理學-Q55",
+          "108-2-醫學二-藥理學-Q54",
+          "109-2-醫學二-藥理學-Q63",
+          "110-1-醫學二-藥理學-Q64"
+        ],
+        "inAnswerContext": 6,
+        "suggestedRarity": "R",
+        "flavorDraft": "一線藥，主治會考。"
+      },
+      {
+        "term": "statin",
+        "count": 12,
+        "questions": 8,
+        "sourceQuestionIds": [
+          "107-2-醫學二-藥理學-Q65",
+          "108-2-醫學二-藥理學-Q61",
+          "108-2-醫學二-藥理學-Q63",
+          "108-2-醫學二-藥理學-Q75",
+          "110-2-醫學二-藥理學-Q51"
+        ],
+        "inAnswerContext": 8,
+        "suggestedRarity": "R",
+        "flavorDraft": "降膽固醇神器，注意肌肉痛。"
+      },
+      {
+        "term": "ARB",
+        "count": 14,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "108-1-醫學二-藥理學-Q66",
+          "109-2-醫學二-藥理學-Q62",
+          "109-2-醫學二-藥理學-Q63",
+          "110-2-醫學二-藥理學-Q63",
+          "112-1-醫學二-藥理學-Q63"
+        ],
+        "inAnswerContext": 7,
+        "suggestedRarity": "R",
+        "flavorDraft": "一線藥，主治會考。"
+      },
+      {
+        "term": "SNRI",
+        "count": 12,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q73",
+          "109-2-醫學二-藥理學-Q65",
+          "110-2-醫學二-藥理學-Q74",
+          "111-1-醫學二-藥理學-Q72",
+          "111-2-醫學二-藥理學-Q73"
+        ],
+        "inAnswerContext": 7,
+        "suggestedRarity": "R",
+        "flavorDraft": "一線藥，主治會考。"
+      },
+      {
+        "term": "TCA",
+        "count": 12,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q73",
+          "109-2-醫學二-藥理學-Q65",
+          "110-2-醫學二-藥理學-Q74",
+          "111-1-醫學二-藥理學-Q67",
+          "111-1-醫學二-藥理學-Q72"
+        ],
+        "inAnswerContext": 7,
+        "suggestedRarity": "R",
+        "flavorDraft": "一線藥，主治會考。"
+      },
+      {
+        "term": "cephalosporin",
+        "count": 11,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q62",
+          "106-2-醫學二-藥理學-Q63",
+          "108-1-醫學二-藥理學-Q62",
+          "109-1-醫學二-藥理學-Q63",
+          "110-2-醫學二-藥理學-Q54"
+        ],
+        "inAnswerContext": 7,
+        "suggestedRarity": "R",
+        "flavorDraft": "一線藥，主治會考。"
+      },
+      {
+        "term": "tetracycline",
+        "count": 10,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q60",
+          "107-1-醫學二-藥理學-Q61",
+          "108-2-醫學二-藥理學-Q60",
+          "109-1-醫學二-藥理學-Q62",
+          "113-1-醫學二-藥理學-Q52"
+        ],
+        "inAnswerContext": 6,
+        "suggestedRarity": "R",
+        "flavorDraft": "一線藥，主治會考。"
+      },
+      {
+        "term": "sulfonylurea",
+        "count": 10,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q66",
+          "107-2-醫學二-藥理學-Q54",
+          "110-1-醫學二-藥理學-Q61",
+          "112-1-醫學二-藥理學-Q63",
+          "112-2-醫學二-藥理學-Q60"
+        ],
+        "inAnswerContext": 6,
+        "suggestedRarity": "R",
+        "flavorDraft": "一線藥，主治會考。"
+      }
+    ],
+    "specific_drug": [
+      {
+        "term": "dopamine",
+        "count": 76,
+        "questions": 25,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q55",
+          "106-1-醫學二-藥理學-Q73",
+          "106-1-醫學二-藥理學-Q74",
+          "106-2-醫學二-藥理學-Q58",
+          "108-1-醫學二-藥理學-Q54"
+        ],
+        "inAnswerContext": 22,
+        "suggestedRarity": "N",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "norepinephrine",
+        "count": 24,
+        "questions": 16,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q68",
+          "106-2-醫學二-藥理學-Q73",
+          "108-1-醫學二-藥理學-Q70",
+          "109-2-醫學二-藥理學-Q65",
+          "109-2-醫學二-藥理學-Q66"
+        ],
+        "inAnswerContext": 13,
+        "suggestedRarity": "N",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "penicillin",
+        "count": 51,
+        "questions": 14,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q62",
+          "106-2-醫學二-藥理學-Q63",
+          "107-1-醫學二-藥理學-Q61",
+          "108-1-醫學二-藥理學-Q61",
+          "108-1-醫學二-藥理學-Q62"
+        ],
+        "inAnswerContext": 13,
+        "suggestedRarity": "UR",
+        "flavorDraft": "1928 培養皿污染，改變人類歷史。"
+      },
+      {
+        "term": "aspirin",
+        "count": 25,
+        "questions": 14,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q57",
+          "107-2-醫學二-藥理學-Q71",
+          "108-1-醫學二-藥理學-Q53",
+          "108-2-醫學二-藥理學-Q66",
+          "109-1-醫學二-藥理學-Q70"
+        ],
+        "inAnswerContext": 14,
+        "suggestedRarity": "N",
+        "flavorDraft": "心梗、預防、止痛，全能老兵。"
+      },
+      {
+        "term": "aspirin",
+        "count": 25,
+        "questions": 14,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q57",
+          "107-2-醫學二-藥理學-Q71",
+          "108-1-醫學二-藥理學-Q53",
+          "108-2-醫學二-藥理學-Q66",
+          "109-1-醫學二-藥理學-Q70"
+        ],
+        "inAnswerContext": 14,
+        "suggestedRarity": "N",
+        "flavorDraft": "心梗、預防、止痛，全能老兵。"
+      },
+      {
+        "term": "atropine",
+        "count": 23,
+        "questions": 14,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q56",
+          "107-2-醫學二-藥理學-Q70",
+          "108-1-醫學二-藥理學-Q67",
+          "108-2-醫學二-藥理學-Q65",
+          "109-2-醫學二-藥理學-Q66"
+        ],
+        "inAnswerContext": 11,
+        "suggestedRarity": "N",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "doxorubicin",
+        "count": 24,
+        "questions": 12,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q63",
+          "108-1-醫學二-藥理學-Q52",
+          "109-2-醫學二-藥理學-Q53",
+          "111-2-醫學二-藥理學-Q54",
+          "111-2-醫學二-藥理學-Q55"
+        ],
+        "inAnswerContext": 12,
+        "suggestedRarity": "N",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "cyclophosphamide",
+        "count": 30,
+        "questions": 11,
+        "sourceQuestionIds": [
+          "108-1-醫學二-藥理學-Q52",
+          "109-2-醫學二-藥理學-Q53",
+          "110-1-醫學二-藥理學-Q54",
+          "111-1-醫學二-藥理學-Q55",
+          "111-2-醫學二-藥理學-Q55"
+        ],
+        "inAnswerContext": 11,
+        "suggestedRarity": "N",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "carbamazepine",
+        "count": 23,
+        "questions": 10,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q72",
+          "107-1-醫學二-藥理學-Q70",
+          "107-2-醫學二-藥理學-Q74",
+          "110-1-醫學二-藥理學-Q51",
+          "110-2-醫學二-藥理學-Q51"
+        ],
+        "inAnswerContext": 10,
+        "suggestedRarity": "SR",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "propranolol",
+        "count": 22,
+        "questions": 10,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q65",
+          "106-2-醫學二-藥理學-Q57",
+          "108-2-醫學二-藥理學-Q63",
+          "109-1-醫學二-藥理學-Q54",
+          "110-1-醫學二-藥理學-Q60"
+        ],
+        "inAnswerContext": 9,
+        "suggestedRarity": "N",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "vancomycin",
+        "count": 18,
+        "questions": 10,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q63",
+          "106-2-醫學二-藥理學-Q64",
+          "108-2-醫學二-藥理學-Q51",
+          "110-2-醫學二-藥理學-Q53",
+          "111-1-醫學二-藥理學-Q54"
+        ],
+        "inAnswerContext": 9,
+        "suggestedRarity": "N",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "methotrexate",
+        "count": 24,
+        "questions": 9,
+        "sourceQuestionIds": [
+          "107-2-醫學二-藥理學-Q51",
+          "108-1-醫學二-藥理學-Q52",
+          "109-1-醫學二-藥理學-Q64",
+          "110-1-醫學二-藥理學-Q54",
+          "110-1-醫學二-藥理學-Q55"
+        ],
+        "inAnswerContext": 5,
+        "suggestedRarity": "SR",
+        "flavorDraft": "考古題常客，背起來。"
+      },
+      {
+        "term": "acetaminophen",
+        "count": 21,
+        "questions": 9,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q71",
+          "108-1-醫學二-藥理學-Q68",
+          "108-2-醫學二-藥理學-Q66",
+          "109-1-醫學二-藥理學-Q70",
+          "110-2-醫學二-藥理學-Q61"
+        ],
+        "inAnswerContext": 9,
+        "suggestedRarity": "N",
+        "flavorDraft": "發燒先吃這顆，肝不要爆。"
+      },
+      {
+        "term": "morphine",
+        "count": 20,
+        "questions": 9,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q70",
+          "106-2-醫學二-藥理學-Q58",
+          "107-2-醫學二-藥理學-Q58",
+          "109-1-醫學二-藥理學-Q59",
+          "109-2-醫學二-藥理學-Q73"
+        ],
+        "inAnswerContext": 8,
+        "suggestedRarity": "N",
+        "flavorDraft": "止痛之王，呼吸抑制要小心。"
+      }
+    ],
+    "mechanism": [
+      {
+        "term": "COX-2",
+        "count": 17,
+        "questions": 9,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q57",
+          "106-1-醫學二-藥理學-Q70",
+          "106-2-醫學二-藥理學-Q71",
+          "107-1-醫學二-藥理學-Q57",
+          "109-1-醫學二-藥理學-Q57"
+        ],
+        "inAnswerContext": 8,
+        "suggestedRarity": "N",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "partial agonist",
+        "count": 19,
+        "questions": 8,
+        "sourceQuestionIds": [
+          "107-1-醫學二-藥理學-Q53",
+          "108-2-醫學二-藥理學-Q58",
+          "109-1-醫學二-藥理學-Q72",
+          "109-2-醫學二-藥理學-Q59",
+          "110-1-醫學二-藥理學-Q74"
+        ],
+        "inAnswerContext": 8,
+        "suggestedRarity": "N",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "HMG-CoA reductase",
+        "count": 12,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "107-2-醫學二-藥理學-Q65",
+          "108-2-醫學二-藥理學-Q63",
+          "108-2-醫學二-藥理學-Q75",
+          "111-1-醫學二-藥理學-Q59",
+          "111-2-醫學二-藥理學-Q58"
+        ],
+        "inAnswerContext": 7,
+        "suggestedRarity": "R",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "COX-1",
+        "count": 8,
+        "questions": 6,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q57",
+          "106-1-醫學二-藥理學-Q70",
+          "106-2-醫學二-藥理學-Q71",
+          "107-1-醫學二-藥理學-Q57",
+          "109-1-醫學二-藥理學-Q70"
+        ],
+        "inAnswerContext": 6,
+        "suggestedRarity": "R",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "MAO",
+        "count": 8,
+        "questions": 4,
+        "sourceQuestionIds": [
+          "108-1-醫學二-藥理學-Q54",
+          "109-2-醫學二-藥理學-Q53",
+          "111-2-醫學二-藥理學-Q73",
+          "114-2-醫學二-藥理學-Q74"
+        ],
+        "inAnswerContext": 4,
+        "suggestedRarity": "R",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "cyclooxygenase",
+        "count": 4,
+        "questions": 4,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q57",
+          "113-1-醫學二-藥理學-Q71",
+          "113-2-醫學二-藥理學-Q69",
+          "114-2-醫學二-藥理學-Q75"
+        ],
+        "inAnswerContext": 0,
+        "suggestedRarity": "R",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "cytochrome P450",
+        "count": 4,
+        "questions": 4,
+        "sourceQuestionIds": [
+          "109-2-醫學二-藥理學-Q51",
+          "112-1-醫學二-藥理學-Q52",
+          "112-2-醫學二-藥理學-Q55",
+          "114-2-醫學二-藥理學-Q75"
+        ],
+        "inAnswerContext": 2,
+        "suggestedRarity": "SSR",
+        "flavorDraft": "所有藥物交互作用的元兇。"
+      },
+      {
+        "term": "CYP2C9",
+        "count": 3,
+        "questions": 2,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q72",
+          "111-2-醫學二-藥理學-Q51"
+        ],
+        "inAnswerContext": 2,
+        "suggestedRarity": "R",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "half-life",
+        "count": 2,
+        "questions": 2,
+        "sourceQuestionIds": [
+          "110-2-醫學二-藥理學-Q68",
+          "112-1-醫學二-藥理學-Q56"
+        ],
+        "inAnswerContext": 1,
+        "suggestedRarity": "R",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "bioavailability",
+        "count": 2,
+        "questions": 2,
+        "sourceQuestionIds": [
+          "110-1-醫學二-藥理學-Q67",
+          "112-2-醫學二-藥理學-Q51"
+        ],
+        "inAnswerContext": 0,
+        "suggestedRarity": "R",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "volume of distribution",
+        "count": 3,
+        "questions": 1,
+        "sourceQuestionIds": [
+          "112-1-醫學二-藥理學-Q75"
+        ],
+        "inAnswerContext": 1,
+        "suggestedRarity": "N",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "acetylcholinesterase",
+        "count": 2,
+        "questions": 1,
+        "sourceQuestionIds": [
+          "114-1-醫學二-藥理學-Q65"
+        ],
+        "inAnswerContext": 1,
+        "suggestedRarity": "N",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "competitive antagonism",
+        "count": 2,
+        "questions": 1,
+        "sourceQuestionIds": [
+          "114-1-醫學二-藥理學-Q51"
+        ],
+        "inAnswerContext": 1,
+        "suggestedRarity": "N",
+        "flavorDraft": "記住機轉，題目自己解。"
+      },
+      {
+        "term": "CYP2D6",
+        "count": 1,
+        "questions": 1,
+        "sourceQuestionIds": [
+          "111-2-醫學二-藥理學-Q51"
+        ],
+        "inAnswerContext": 0,
+        "suggestedRarity": "N",
+        "flavorDraft": "記住機轉，題目自己解。"
+      }
+    ],
+    "adverse_effect": [
+      {
+        "term": "thrombocytopenia",
+        "count": 11,
+        "questions": 7,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q66",
+          "107-1-醫學二-藥理學-Q66",
+          "108-2-醫學二-藥理學-Q59",
+          "110-2-醫學二-藥理學-Q58",
+          "112-2-醫學二-藥理學-Q58"
+        ],
+        "inAnswerContext": 5,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "serotonin syndrome",
+        "count": 5,
+        "questions": 5,
+        "sourceQuestionIds": [
+          "110-1-醫學二-藥理學-Q56",
+          "110-2-醫學二-藥理學-Q69",
+          "111-1-醫學二-藥理學-Q72",
+          "113-2-醫學二-藥理學-Q69",
+          "114-2-醫學二-藥理學-Q71"
+        ],
+        "inAnswerContext": 4,
+        "suggestedRarity": "SSR",
+        "flavorDraft": "兩種抗憂鬱合用的死亡警告。"
+      },
+      {
+        "term": "tolerance",
+        "count": 6,
+        "questions": 4,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q58",
+          "109-2-醫學二-藥理學-Q73",
+          "113-2-醫學二-藥理學-Q68",
+          "114-1-醫學二-藥理學-Q63"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "hepatotoxicity",
+        "count": 5,
+        "questions": 4,
+        "sourceQuestionIds": [
+          "108-2-醫學二-藥理學-Q59",
+          "108-2-醫學二-藥理學-Q60",
+          "114-1-醫學二-藥理學-Q52",
+          "114-2-醫學二-藥理學-Q75"
+        ],
+        "inAnswerContext": 4,
+        "suggestedRarity": "SR",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "dependence",
+        "count": 10,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q58",
+          "109-1-醫學二-藥理學-Q54",
+          "110-1-醫學二-藥理學-Q73"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "ototoxicity",
+        "count": 4,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "108-1-醫學二-藥理學-Q56",
+          "108-2-醫學二-藥理學-Q59",
+          "114-1-醫學二-藥理學-Q52"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "nephrotoxicity",
+        "count": 3,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "108-2-醫學二-藥理學-Q59",
+          "112-2-醫學二-藥理學-Q54",
+          "113-1-醫學二-藥理學-Q53"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "withdrawal",
+        "count": 3,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "106-2-醫學二-藥理學-Q58",
+          "111-2-醫學二-藥理學-Q74",
+          "111-2-醫學二-藥理學-Q75"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "pulmonary fibrosis",
+        "count": 3,
+        "questions": 3,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q67",
+          "112-2-醫學二-藥理學-Q54",
+          "113-1-醫學二-藥理學-Q53"
+        ],
+        "inAnswerContext": 3,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "neuroleptic malignant syndrome",
+        "count": 3,
+        "questions": 2,
+        "sourceQuestionIds": [
+          "107-2-醫學二-藥理學-Q72",
+          "109-1-醫學二-藥理學-Q72"
+        ],
+        "inAnswerContext": 2,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "gynecomastia",
+        "count": 3,
+        "questions": 2,
+        "sourceQuestionIds": [
+          "109-1-醫學二-藥理學-Q56",
+          "110-1-醫學二-藥理學-Q68"
+        ],
+        "inAnswerContext": 2,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "cardiotoxicity",
+        "count": 2,
+        "questions": 2,
+        "sourceQuestionIds": [
+          "109-1-醫學二-藥理學-Q72",
+          "113-2-醫學二-藥理學-Q53"
+        ],
+        "inAnswerContext": 2,
+        "suggestedRarity": "R",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "tardive dyskinesia",
+        "count": 2,
+        "questions": 2,
+        "sourceQuestionIds": [
+          "109-1-醫學二-藥理學-Q72",
+          "111-2-醫學二-藥理學-Q72"
+        ],
+        "inAnswerContext": 2,
+        "suggestedRarity": "SR",
+        "flavorDraft": "副作用題眼，看到就選。"
+      },
+      {
+        "term": "metabolic acidosis",
+        "count": 2,
+        "questions": 1,
+        "sourceQuestionIds": [
+          "106-1-醫學二-藥理學-Q75"
+        ],
+        "inAnswerContext": 1,
+        "suggestedRarity": "N",
+        "flavorDraft": "副作用題眼，看到就選。"
+      }
+    ]
+  }
+}

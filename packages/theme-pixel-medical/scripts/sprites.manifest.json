@@ -1,0 +1,165 @@
+{
+  "$schema": "./sprites.manifest.schema.json",
+  "version": "1.0.0",
+  "generatedBy": "cdx image (codex CLI + gpt-image-2)",
+  "styleAnchor": "16-bit pixel art, GBA-era JRPG icon, NES-limited 16-color palette (cream parchment background #f4ecd8, deep brown outline #2d1f1a, hard pixel edges, NO gradients, NO anti-aliasing, NO drop shadow, NO glow), Pokémon Emerald / Stardew Valley aesthetic, single subject centered with generous parchment-cream margin around it, no text, no signature, no border decoration, integer-pixel forms only",
+  "negativePrompt": "blurry, photorealistic, gradient, anti-aliased, modern flat icon, glossy 3D, watercolor, soft shadow, drop shadow, glow, text overlay, lettering, signature, watermark, frame border, vignette, depth of field, lens blur",
+  "sprites": [
+    {
+      "key": "character-base",
+      "filename": "character-base.png",
+      "size": "384x384",
+      "prompt": "front-facing pixel art portrait of a young East Asian medical student standing in a cozy study room, white short-sleeve scrubs over a plain t-shirt, holding a small notebook at chest level, neutral confident expression, short dark-brown hair, light parchment background, full upper body framing"
+    },
+    {
+      "key": "character-base-female",
+      "filename": "character-base-female.png",
+      "size": "384x384",
+      "prompt": "front-facing pixel art portrait of a young East Asian female medical student standing in a cozy study room, white short-sleeve scrubs over a plain t-shirt, holding a small notebook at chest level, neutral confident expression, long black hair tied back in a ponytail, light parchment background, full upper body framing, same lamp and bookshelf and small potted plant visible in the background to match the male variant"
+    },
+    {
+      "key": "hairband",
+      "filename": "items/alpha1-adrenergic.png",
+      "size": "64x64",
+      "prompt": "pixel art icon representing the alpha-1 adrenergic receptor — a stylized G-protein-coupled receptor as a seven-helix bundle embedded in a small cell membrane fragment, with a tiny norepinephrine-shaped molecule docking from above, cool red accent to imply vasoconstriction"
+    },
+    {
+      "key": "goggles",
+      "filename": "items/nmda-receptor.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of the NMDA receptor — a stylized tetrameric ion channel protein crossing a cell membrane fragment, central pore open with a small blue magnesium ion popping out, faint cyan glow inside the pore to imply calcium influx"
+    },
+    {
+      "key": "graduation-cap",
+      "filename": "items/gaba-a-receptor.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of the GABA-A receptor — a stylized pentameric chloride channel embedded in a small membrane fragment, central pore tinted teal, a tiny GABA molecule shape docking on the rim, calm sleepy color palette (muted purple and teal)"
+    },
+    {
+      "key": "scrubs",
+      "filename": "items/nsaid.png",
+      "size": "64x64",
+      "prompt": "pixel art icon representing an NSAID drug class — a small orange-and-white capsule beside a stylized COX enzyme ribbon crossed out with a thin red line, anti-inflammatory motif"
+    },
+    {
+      "key": "whitecoat",
+      "filename": "items/beta-blocker.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of a beta-blocker drug class — a small green-and-white capsule with a stylized greek letter beta symbol on its side, faint heart silhouette behind it implying cardiac action"
+    },
+    {
+      "key": "gold-whitecoat",
+      "filename": "items/statin.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of a statin drug class — a small yellow-and-white tablet with a stylized downward cholesterol molecule arrow next to it, golden cream highlights"
+    },
+    {
+      "key": "pencil",
+      "filename": "items/acetaminophen.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of a single round white acetaminophen tablet with a clean cross-line scoring on its face, soft red rim highlight implying fever reduction"
+    },
+    {
+      "key": "reflex-hammer",
+      "filename": "items/atropine.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of an atropine glass ampoule — a clear pixel-art vial with a colorless liquid and a small dilated-pupil eye motif beside it, hinting at anticholinergic effect"
+    },
+    {
+      "key": "stethoscope",
+      "filename": "items/aspirin.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of a single round white aspirin tablet with a clean cross-line scoring on its face, faint red heart silhouette behind it implying antiplatelet cardiac use"
+    },
+    {
+      "key": "scalpel",
+      "filename": "items/morphine.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of a morphine glass ampoule — a clear pixel-art vial with deep amber liquid and a tiny poppy flower motif beside it, classic opioid imagery"
+    },
+    {
+      "key": "littmann-cardio",
+      "filename": "items/warfarin.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of a warfarin tablet — a small pink rectangular pill with a faint blood-drop motif and a stylized INR dial behind it, anticoagulant warning palette"
+    },
+    {
+      "key": "notebook",
+      "filename": "items/cox-2.png",
+      "size": "64x64",
+      "prompt": "pixel art icon representing the COX-2 enzyme — a stylized pixel ribbon enzyme curl in deep blue with a small selective binding pocket highlighted in orange, mechanism-keyword charm style"
+    },
+    {
+      "key": "school-badge",
+      "filename": "items/partial-agonist.png",
+      "size": "64x64",
+      "prompt": "pixel art icon representing a partial agonist mechanism — a stylized receptor outline with a docking molecule only half illuminated (left half bright orange, right half dim brown), implying intermediate efficacy"
+    },
+    {
+      "key": "gauze",
+      "filename": "items/hmg-coa-reductase.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of HMG-CoA reductase enzyme — a stylized pixel ribbon enzyme in teal with a small chained substrate molecule locked in its active site by a tiny red padlock, statin-inhibition motif"
+    },
+    {
+      "key": "robbins",
+      "filename": "items/cyclooxygenase.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of the cyclooxygenase enzyme — a stylized pixel ribbon enzyme in deep purple with arachidonic-acid substrate threading through its active site, classic prostaglandin pathway imagery"
+    },
+    {
+      "key": "signed-pass",
+      "filename": "items/digoxin-window.png",
+      "size": "64x64",
+      "prompt": "pixel art icon for digoxin therapeutic window — a vertical pixel gauge with a narrow green safe zone sandwiched between red zones, a tiny digoxin tablet floating beside the gauge, warning-charm style"
+    },
+    {
+      "key": "hippocrates-charm",
+      "filename": "items/cytochrome-p450.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of cytochrome P450 — a heme-iron porphyrin ring centered, golden-yellow color, with a small red iron atom in the center, faint cream halo to imply enzyme catalysis, charm-tier highlight"
+    },
+    {
+      "key": "coffee",
+      "filename": "items/first-pass-effect.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of the first-pass effect — a small brown liver silhouette with a downward arrow of tablets shrinking as they pass through it, hepatic metabolism motif, consumable style"
+    },
+    {
+      "key": "apple",
+      "filename": "items/tolerance.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of drug tolerance — three identical pills lined up with a rising dose-curve arrow above them, the rightmost pill faded to imply diminishing response, consumable style"
+    },
+    {
+      "key": "senior-notes",
+      "filename": "items/serotonin-syndrome.png",
+      "size": "64x64",
+      "prompt": "pixel art icon of serotonin syndrome — two SSRI tablets clashing with a small red warning spark between them, a tiny thermometer rising beside, consumable warning style"
+    },
+    {
+      "key": "slot-placeholder-head",
+      "filename": "slot-placeholders/head.png",
+      "size": "64x64",
+      "prompt": "pixel art empty equipment slot placeholder for the head slot — a flat grayed silhouette of a generic head outline centered on the cream parchment background, low-contrast charcoal-on-cream, no detail beyond outline, indicating an unequipped slot"
+    },
+    {
+      "key": "slot-placeholder-body",
+      "filename": "slot-placeholders/body.png",
+      "size": "64x64",
+      "prompt": "pixel art empty equipment slot placeholder for the body slot — a flat grayed silhouette of a generic shirt / torso outline centered on the cream parchment background, low-contrast charcoal-on-cream, no detail beyond outline, indicating an unequipped slot"
+    },
+    {
+      "key": "slot-placeholder-weapon",
+      "filename": "slot-placeholders/weapon.png",
+      "size": "64x64",
+      "prompt": "pixel art empty equipment slot placeholder for the weapon slot — a flat grayed silhouette of a generic short-sword outline centered on the cream parchment background, low-contrast charcoal-on-cream, no detail beyond outline, indicating an unequipped slot"
+    },
+    {
+      "key": "slot-placeholder-charm",
+      "filename": "slot-placeholders/charm.png",
+      "size": "64x64",
+      "prompt": "pixel art empty equipment slot placeholder for the charm slot — a flat grayed silhouette of a generic teardrop amulet outline centered on the cream parchment background, low-contrast charcoal-on-cream, no detail beyond outline, indicating an unequipped slot"
+    }
+  ]
+}
