@@ -25,6 +25,7 @@ import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
 import { QuizModal, type QuizResult, type QuestionResult } from './components/QuizModal'
+import { BossModal, type BossRunResult } from './components/BossModal'
 import { PersistenceButtons } from './components/PersistenceButtons'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
@@ -54,6 +55,7 @@ export default function App() {
   const [pauseReason, setPauseReason] = useState<PauseReason>(null)
   const [content, setContent] = useState<ContentPack | null>(null)
   const [quizOpen, setQuizOpen] = useState(false)
+  const [bossOpen, setBossOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   const [dueQuestionIds, setDueQuestionIds] = useState<QuestionId[]>([])
 
@@ -253,14 +255,42 @@ export default function App() {
     })()
   }
 
-  function fightMiniBoss() {
-    const correctCount = Math.round(30 * 0.7)
-    setPlayer((p) => ({
-      ...applyXp(p, REWARD.bossMiniPass.xp).player,
-      badges: [...p.badges, 'boss:藥理學:mini'],
-    }))
-    for (let i = 0; i < 3; i++) setTimeout(() => doRoll('boss-mini'), i * 200)
-    alert(`Mini-boss 通關！答對 ${correctCount}/30，獲得 3 次抽卡。`)
+  function onBossComplete(result: BossRunResult | null) {
+    setBossOpen(false)
+    if (!result) return
+    const passedRun = result.passed
+    const xpGain = passedRun
+      ? REWARD.bossMiniPass.xp
+      : Math.floor(REWARD.bossMiniPass.xp / 2)
+    const rollsToFire = passedRun ? 3 : 1
+    const BADGE_ID = 'boss:藥理學:mini'
+
+    setPlayer((p) => {
+      const nextBadges = passedRun && !p.badges.includes(BADGE_ID)
+        ? [...p.badges, BADGE_ID]
+        : p.badges
+      return { ...applyXp(p, xpGain).player, badges: nextBadges }
+    })
+    for (let i = 0; i < rollsToFire; i++) setTimeout(() => doRoll('boss-mini'), i * 200)
+
+    // Persist boss run record
+    ;(async () => {
+      try {
+        const db = getDB()
+        await db.bossRuns.put({
+          id: `boss-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          mode: 'mini',
+          subject: '藥理學',
+          startTs: Date.now() - result.timeSpentMs,
+          endTs: Date.now(),
+          totalQ: result.totalQ,
+          correctQ: result.correctQ,
+          passed: passedRun,
+        })
+      } catch (err) {
+        console.error('Boss run persist failed:', err)
+      }
+    })()
   }
 
   /** Click on an equip slot: occupied → unequip; empty → open inventory filtered to that slot */
@@ -357,9 +387,12 @@ export default function App() {
             </span>
           </button>
 
-          <button onClick={fightMiniBoss}>
+          <button
+            onClick={() => setBossOpen(true)}
+            disabled={!content || content.questions.length === 0}
+          >
             <span className="label">⚔ 挑戰 mini-boss（藥理學）</span>
-            <span className="hint">demo：直接通關 + 3 次抽卡</span>
+            <span className="hint">30 題 · 30 分 · ≥ 60% 拿徽章</span>
           </button>
 
           <button onClick={() => doRoll('read')}>
@@ -420,6 +453,14 @@ export default function App() {
           count={5}
           dueQuestionIds={dueQuestionIds}
           onClose={onQuizComplete}
+        />
+      )}
+
+      {bossOpen && content && (
+        <BossModal
+          pool={content.questions}
+          subject="藥理學"
+          onClose={onBossComplete}
         />
       )}
 
