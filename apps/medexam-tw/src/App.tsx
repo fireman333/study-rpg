@@ -28,6 +28,13 @@ const STARTER_NAME = '見習醫師'
 /** Ordered list of character sprite variants the player can cycle through. */
 const CHARACTER_VARIANTS = ['character-base', 'character-base-female'] as const
 
+/** Per-tick reward cap. Demo: 10s = "1 minute"; M2 prod can bump to 60_000. */
+const READING_TICK_MS = 10_000
+/** Idle pause threshold (no mousemove/keydown/touchstart). */
+const READING_IDLE_TIMEOUT_MS = 90_000
+
+type PauseReason = 'manual' | 'visibility' | 'idle' | null
+
 export default function App() {
   const [player, setPlayer] = useState<Player>(() =>
     newPlayer('p1', STARTER_NAME, STAT_SCHEMA.order),
@@ -37,6 +44,7 @@ export default function App() {
   const [inventoryFor, setInventoryFor] = useState<EquipSlot | null | 'all'>(null)
   const [readMs, setReadMs] = useState(0)
   const [reading, setReading] = useState(false)
+  const [pauseReason, setPauseReason] = useState<PauseReason>(null)
   const [content, setContent] = useState<ContentPack | null>(null)
   const [quizOpen, setQuizOpen] = useState(false)
 
@@ -70,15 +78,17 @@ export default function App() {
     return out
   }, [player, instances, catalog])
 
-  // Reading timer — every 10s simulated minute → +5 XP, +1 stamina
+  // Reading timer — tick every 1s while reading; pause clears reason on resume
   useEffect(() => {
     if (!reading) return
+    setPauseReason(null)
     const t = setInterval(() => setReadMs((m) => m + 1000), 1000)
     return () => clearInterval(t)
   }, [reading])
 
+  // Per-READING_TICK_MS reward (per-minute cap enforced via modulo)
   useEffect(() => {
-    if (readMs > 0 && readMs % 10_000 === 0) {
+    if (readMs > 0 && readMs % READING_TICK_MS === 0) {
       setPlayer((p) => {
         const stats = addStat(p.stats, REWARD.readPerMinute.stat.name, REWARD.readPerMinute.stat.delta)
         return applyXp({ ...p, stats }, REWARD.readPerMinute.xp).player
@@ -86,6 +96,38 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readMs])
+
+  // Pause on tab-hide (誠信防護: 切到別 tab 不該繼續累積 XP)
+  useEffect(() => {
+    function onVis() {
+      if (document.hidden && reading) {
+        setReading(false)
+        setPauseReason('visibility')
+      }
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [reading])
+
+  // Idle pause: 90s without mousemove/keydown/touchstart auto-pauses
+  useEffect(() => {
+    if (!reading) return
+    let idleTimer: ReturnType<typeof setTimeout>
+    function resetIdle() {
+      clearTimeout(idleTimer)
+      idleTimer = setTimeout(() => {
+        setReading(false)
+        setPauseReason('idle')
+      }, READING_IDLE_TIMEOUT_MS)
+    }
+    resetIdle()
+    const evs: Array<keyof DocumentEventMap> = ['mousemove', 'keydown', 'touchstart']
+    for (const e of evs) document.addEventListener(e, resetIdle, { passive: true })
+    return () => {
+      clearTimeout(idleTimer)
+      for (const e of evs) document.removeEventListener(e, resetIdle)
+    }
+  }, [reading])
 
   function doRoll(source: 'read' | 'quiz' | 'boss-mini') {
     setPlayer((p) => {
@@ -195,12 +237,23 @@ export default function App() {
         />
 
         <div className="actions">
-          <button onClick={() => setReading((r) => !r)}>
+          <button
+            onClick={() => {
+              setReading((r) => {
+                if (r) setPauseReason('manual')
+                return !r
+              })
+            }}
+          >
             <span className="label">{reading ? '⏸ 暫停閱讀' : '📖 開始閱讀'}</span>
             <span className="hint">
               {reading
                 ? `已累積 ${Math.floor(readMs / 1000)} s (demo: 10s = 1 min)`
-                : '閱讀累積經驗值與耐力'}
+                : pauseReason === 'visibility'
+                  ? '⏸ 自動暫停（離開分頁）— 點我繼續'
+                  : pauseReason === 'idle'
+                    ? '⏸ 自動暫停（離桌太久）— 點我繼續'
+                    : '閱讀累積經驗值與耐力'}
             </span>
           </button>
 
