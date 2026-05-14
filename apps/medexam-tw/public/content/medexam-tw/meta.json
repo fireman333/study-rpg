@@ -2,14 +2,14 @@
   "id": "medexam-tw",
   "displayName": "台灣一階醫師國考",
   "locale": "zh-TW",
-  "builtAt": "2026-05-14T11:04:30.950Z",
+  "builtAt": "2026-05-14T16:13:45.315Z",
   "sourceCredit": "陽明國考考古題小組",
   "sourceUrl": "https://sites.google.com/view/ymmedexam/ans",
   "license": "CC-BY-NC-4.0",
   "stats": {
-    "totalQuestions": 418,
-    "parsedFiles": 18,
+    "totalQuestions": 3291,
+    "parsedFiles": 180,
     "totalFiles": 180,
-    "subjects": 1
+    "subjects": 10
   }
 }

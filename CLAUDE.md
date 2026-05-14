@@ -48,8 +48,9 @@ auto-git commit             # only after archive — see auto-git skill rules
 ## Repo-specific build / dev quick reference
 
 ```bash
-# Re-build 題庫 (defaults to 藥理學 only; set MEDEXAM_SUBJECTS=all for full 3505)
-pnpm --filter @study-rpg/content-medexam-tw build
+# Re-build 題庫 (defaults to all 10 subjects, ~3291 imported / 309 上游 OCR 缺欄位 skip;
+# set MEDEXAM_SUBJECTS=藥理學 for vertical-slice fast iteration)
+MEDEXAM_ALLOW_SKIPS=1 pnpm --filter @study-rpg/content-medexam-tw build
 
 # Copy built questions.json to app public/
 cp packages/content-medexam-tw/dist/*.json apps/medexam-tw/public/content/medexam-tw/

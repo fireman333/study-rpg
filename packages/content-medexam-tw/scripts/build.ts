@@ -37,8 +37,11 @@ const SOURCE_ROOT =
 
 const OUT_DIR = resolve(import.meta.dirname, '..', 'dist')
 
-// Subjects to keep in the MVP build. Set MEDEXAM_SUBJECTS=all to ingest everything.
-const MVP_SUBJECTS = (process.env.MEDEXAM_SUBJECTS ?? '藥理學').split(',').map((s) => s.trim())
+// Subjects to ingest. Defaults to all 10 subjects (~3505 Q).
+// Set MEDEXAM_SUBJECTS=藥理學 (or comma-separated list) for vertical-slice fast iteration.
+// MEDEXAM_SUBJECTS=all is an explicit synonym of the default.
+const MVP_SUBJECTS = (process.env.MEDEXAM_SUBJECTS ?? 'all').split(',').map((s) => s.trim())
+const ALLOW_SKIPS = process.env.MEDEXAM_ALLOW_SKIPS === '1'
 
 const SOURCE_CREDIT = '陽明國考考古題小組'
 const SOURCE_URL = 'https://sites.google.com/view/ymmedexam/ans'
@@ -77,7 +80,11 @@ function splitFrontMatter(raw: string): { fm: FrontMatter; body: string } {
   return { fm: parseYaml(m[1]) as FrontMatter, body: m[2] }
 }
 
-function parseQuestionBlocks(body: string, fm: FrontMatter, fileLabel: string): ParsedQuestion[] {
+function parseQuestionBlocks(
+  body: string,
+  fm: FrontMatter,
+  fileLabel: string,
+): { questions: ParsedQuestion[]; totalBlocks: number } {
   // Split on `## Qn` headers (Q-numbered blocks)
   const re = /^## Q(\d+)\s*$/gm
   const matches: Array<{ qn: number; start: number }> = []
@@ -93,7 +100,7 @@ function parseQuestionBlocks(body: string, fm: FrontMatter, fileLabel: string): 
     const q = parseSingleBlock(block, qn, fm, fileLabel)
     if (q) result.push(q)
   }
-  return result
+  return { questions: result, totalBlocks: matches.length }
 }
 
 function parseSingleBlock(block: string, qn: number, fm: FrontMatter, fileLabel: string): ParsedQuestion | null {
@@ -205,13 +212,15 @@ function main() {
   const questions: ParsedQuestion[] = []
   const subjectsSet = new Map<string, { displayName: string; group: string; count: number }>()
   let parsedFiles = 0
+  let totalBlocksSeen = 0
 
   for (const f of all) {
     try {
       const raw = readFileSync(f, 'utf8')
       const { fm, body } = splitFrontMatter(raw)
       if (!MVP_SUBJECTS.includes('all') && !MVP_SUBJECTS.includes(fm.subject)) continue
-      const qs = parseQuestionBlocks(body, fm, f.replace(SOURCE_ROOT, ''))
+      const { questions: qs, totalBlocks } = parseQuestionBlocks(body, fm, f.replace(SOURCE_ROOT, ''))
+      totalBlocksSeen += totalBlocks
       questions.push(...qs)
       const existing = subjectsSet.get(fm.subject)
       subjectsSet.set(fm.subject, {
@@ -224,6 +233,9 @@ function main() {
       console.warn(`[skip] ${f}: ${(err as Error).message}`)
     }
   }
+
+  const importedQ = questions.length
+  const skippedQ = totalBlocksSeen - importedQ
 
   const subjects = [...subjectsSet.entries()].map(([id, v]) => ({
     id,
@@ -256,9 +268,18 @@ function main() {
   )
 
   console.log(`[build] parsed ${parsedFiles} / ${all.length} files`)
-  console.log(`[build] questions: ${questions.length} across ${subjects.length} subjects`)
+  console.log(`[build] questions: ${importedQ} across ${subjects.length} subjects`)
   for (const s of subjects) console.log(`         ${s.id} (${s.group}): ${s.totalQuestions}`)
   console.log(`[build] wrote ${OUT_DIR}/`)
+  console.log(`[build] imported: ${importedQ}, skipped: ${skippedQ}, total: ${totalBlocksSeen}`)
+
+  if (skippedQ > 0 && !ALLOW_SKIPS) {
+    console.error(
+      `[build] FAIL: ${skippedQ} question block(s) skipped. ` +
+        `Fix the source/parser, or re-run with MEDEXAM_ALLOW_SKIPS=1 if intentional.`,
+    )
+    process.exit(1)
+  }
 }
 
 function subjectColor(id: string): string {

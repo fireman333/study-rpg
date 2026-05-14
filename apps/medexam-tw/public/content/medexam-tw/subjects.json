@@ -1,5 +1,77 @@
 [
   {
+    "id": "生物化學",
+    "displayName": "生物化學",
+    "group": "醫學一",
+    "color": "#6a8c3f",
+    "iconKey": "subject:生物化學",
+    "totalQuestions": 445
+  },
+  {
+    "id": "生理學",
+    "displayName": "生理學",
+    "group": "醫學一",
+    "color": "#6a9bc4",
+    "iconKey": "subject:生理學",
+    "totalQuestions": 449
+  },
+  {
+    "id": "組織學",
+    "displayName": "組織學",
+    "group": "醫學一",
+    "color": "#a06ac4",
+    "iconKey": "subject:組織學",
+    "totalQuestions": 160
+  },
+  {
+    "id": "胚胎學",
+    "displayName": "胚胎學",
+    "group": "醫學一",
+    "color": "#d4a04d",
+    "iconKey": "subject:胚胎學",
+    "totalQuestions": 82
+  },
+  {
+    "id": "解剖學",
+    "displayName": "解剖學",
+    "group": "醫學一",
+    "color": "#c44d4d",
+    "iconKey": "subject:解剖學",
+    "totalQuestions": 517
+  },
+  {
+    "id": "公共衛生學",
+    "displayName": "公共衛生學",
+    "group": "醫學二",
+    "color": "#5fa57e",
+    "iconKey": "subject:公共衛生學",
+    "totalQuestions": 237
+  },
+  {
+    "id": "寄生蟲學",
+    "displayName": "寄生蟲學",
+    "group": "醫學二",
+    "color": "#7a8c4d",
+    "iconKey": "subject:寄生蟲學",
+    "totalQuestions": 101
+  },
+  {
+    "id": "微生物暨免疫學",
+    "displayName": "微生物暨免疫學",
+    "group": "醫學二",
+    "color": "#4d8cc4",
+    "iconKey": "subject:微生物暨免疫學",
+    "totalQuestions": 461
+  },
+  {
+    "id": "病理學",
+    "displayName": "病理學",
+    "group": "醫學二",
+    "color": "#8c5a3f",
+    "iconKey": "subject:病理學",
+    "totalQuestions": 421
+  },
+  {
     "id": "藥理學",
     "displayName": "藥理學",
     "group": "醫學二",
