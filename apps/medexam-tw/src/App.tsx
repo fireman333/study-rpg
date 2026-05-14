@@ -9,19 +9,22 @@ import {
   REWARD,
   DEFAULT_STAT_SCHEMA,
   getDB,
+  newCard,
+  reviewCard,
   type Player,
   type RollResult,
   type EquipSlot,
   type ItemInstance,
   type Item,
   type ContentPack,
+  type QuestionId,
 } from '@study-rpg/core'
 import { THEME_PIXEL_MEDICAL } from '@study-rpg/theme-pixel-medical'
 import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
-import { QuizModal, type QuizResult } from './components/QuizModal'
+import { QuizModal, type QuizResult, type QuestionResult } from './components/QuizModal'
 import { PersistenceButtons } from './components/PersistenceButtons'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
@@ -52,6 +55,7 @@ export default function App() {
   const [content, setContent] = useState<ContentPack | null>(null)
   const [quizOpen, setQuizOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
+  const [dueQuestionIds, setDueQuestionIds] = useState<QuestionId[]>([])
 
   // Load content pack at mount
   useEffect(() => {
@@ -62,7 +66,7 @@ export default function App() {
       })
   }, [])
 
-  // Hydrate player + instances from IndexedDB on mount (once)
+  // Hydrate player + instances + SRS due queue from IndexedDB on mount (once)
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -76,6 +80,9 @@ export default function App() {
           setPlayer(saved)
           setInstances(insts)
         }
+        const now = Date.now()
+        const dueCards = await db.srs.where('dueAt').belowOrEqual(now).toArray()
+        if (!cancelled) setDueQuestionIds(dueCards.map((c) => c.questionId))
       } catch (err) {
         console.error('Hydrate failed:', err)
       } finally {
@@ -86,6 +93,17 @@ export default function App() {
       cancelled = true
     }
   }, [])
+
+  /** Refresh due queue from db.srs after a quiz writes new cards. */
+  async function refreshDueQueue() {
+    try {
+      const now = Date.now()
+      const due = await getDB().srs.where('dueAt').belowOrEqual(now).toArray()
+      setDueQuestionIds(due.map((c) => c.questionId))
+    } catch (err) {
+      console.error('Refresh due queue failed:', err)
+    }
+  }
 
   // Persist player on change (only after hydration so we don't overwrite saved
   // state with the initial newPlayer default)
@@ -198,8 +216,8 @@ export default function App() {
     }))
   }
 
-  /** Batched reward calculation for a multi-Q quiz session. */
-  function onQuizComplete(results: QuizResult[]) {
+  /** Batched reward calculation + SRS write for a multi-Q quiz session. */
+  function onQuizComplete(results: QuizResult[], questionResults: QuestionResult[]) {
     setQuizOpen(false)
     if (results.length === 0) return
     setPlayer((p) => {
@@ -217,6 +235,22 @@ export default function App() {
     for (let i = 0; i < correctCount; i++) {
       setTimeout(() => doRoll('quiz'), i * 150)
     }
+    // SRS write — per-question card upsert; quality 4 if correct, 2 if wrong (lapse)
+    ;(async () => {
+      try {
+        const db = getDB()
+        const now = Date.now()
+        for (const qr of questionResults) {
+          const existing = await db.srs.get(qr.questionId)
+          const base = existing ?? newCard(qr.questionId, now)
+          const updated = reviewCard(base, qr.correct ? 4 : 2, now)
+          await db.srs.put(updated)
+        }
+        await refreshDueQueue()
+      } catch (err) {
+        console.error('SRS write failed:', err)
+      }
+    })()
   }
 
   function fightMiniBoss() {
@@ -384,6 +418,7 @@ export default function App() {
           pool={content.questions}
           subjectFilter="藥理學"
           count={5}
+          dueQuestionIds={dueQuestionIds}
           onClose={onQuizComplete}
         />
       )}

@@ -1,13 +1,16 @@
 import { useMemo, useState } from 'react'
-import type { Question, SubjectId } from '@study-rpg/core'
+import type { Question, QuestionId, SubjectId } from '@study-rpg/core'
 
 export interface QuizResult { correct: boolean }
+export interface QuestionResult { questionId: QuestionId; correct: boolean }
 
 interface Props {
   pool: Question[]
   subjectFilter?: SubjectId
   count?: number
-  onClose: (results: QuizResult[]) => void
+  /** Question IDs whose SrsCard.dueAt <= now (sourced from db.srs); prepended before fresh picks. */
+  dueQuestionIds?: QuestionId[]
+  onClose: (results: QuizResult[], questionResults: QuestionResult[]) => void
 }
 
 function shuffle<T>(arr: T[], rng: () => number = Math.random): T[] {
@@ -19,24 +22,32 @@ function shuffle<T>(arr: T[], rng: () => number = Math.random): T[] {
   return copy
 }
 
-export function QuizModal({ pool, subjectFilter, count = 5, onClose }: Props) {
+export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, onClose }: Props) {
   const questions = useMemo(() => {
     const filtered = subjectFilter ? pool.filter((q) => q.subject === subjectFilter) : pool
-    return shuffle(filtered).slice(0, count)
-  }, [pool, subjectFilter, count])
+    const dueSet = new Set(dueQuestionIds ?? [])
+    const dueInPool = filtered.filter((q) => dueSet.has(q.id))
+    const freshInPool = filtered.filter((q) => !dueSet.has(q.id))
+    const shuffledDue = shuffle(dueInPool)
+    const need = Math.max(0, count - shuffledDue.length)
+    const filler = need > 0 ? shuffle(freshInPool).slice(0, need) : []
+    return [...shuffledDue.slice(0, count), ...filler]
+  }, [pool, subjectFilter, count, dueQuestionIds])
 
   const [idx, setIdx] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
-  const [results, setResults] = useState<QuizResult[]>([])
+  const [questionResults, setQuestionResults] = useState<QuestionResult[]>([])
   const [finished, setFinished] = useState(false)
+
+  const results: QuizResult[] = questionResults.map((r) => ({ correct: r.correct }))
 
   if (questions.length === 0) {
     return (
-      <div className="modal-backdrop" onClick={() => onClose([])}>
+      <div className="modal-backdrop" onClick={() => onClose([], [])}>
         <div className="modal frame" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
             <span>題庫空了</span>
-            <button className="close-btn" onClick={() => onClose([])}>✕</button>
+            <button className="close-btn" onClick={() => onClose([], [])}>✕</button>
           </div>
           <div className="empty-state">該科目沒有可用題目。</div>
         </div>
@@ -46,12 +57,12 @@ export function QuizModal({ pool, subjectFilter, count = 5, onClose }: Props) {
 
   const q = questions[idx]
   const isLast = idx === questions.length - 1
-  const correctCount = results.filter((r) => r.correct).length
+  const correctCount = questionResults.filter((r) => r.correct).length
 
   function handlePick(optionKey: string) {
     if (picked !== null) return
     setPicked(optionKey)
-    setResults((prev) => [...prev, { correct: optionKey === q.answer }])
+    setQuestionResults((prev) => [...prev, { questionId: q.id, correct: optionKey === q.answer }])
   }
 
   function handleNext() {
@@ -65,15 +76,15 @@ export function QuizModal({ pool, subjectFilter, count = 5, onClose }: Props) {
   }
 
   function handleClose() {
-    onClose(results)
+    onClose(results, questionResults)
   }
 
   return (
-    <div className="modal-backdrop" onClick={() => onClose(results)}>
+    <div className="modal-backdrop" onClick={() => onClose(results, questionResults)}>
       <div className="modal frame quiz-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <span>藥理學 — 第 {idx + 1} / {questions.length} 題</span>
-          <button className="close-btn" onClick={() => onClose(results)}>✕</button>
+          <button className="close-btn" onClick={() => onClose(results, questionResults)}>✕</button>
         </div>
 
         {finished ? (
