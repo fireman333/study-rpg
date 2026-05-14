@@ -6,6 +6,10 @@
 
 **Status**: M1 MVP scaffold — 藥理學 vertical slice in progress.
 
+## Live demo
+
+**[https://fireman333.github.io/study-rpg/](https://fireman333.github.io/study-rpg/)** (live after first push to GitHub + Pages enabled — see [Deploy your own fork](#deploy-your-own-fork) below).
+
 ## What this is
 
 A Web game where you prepare for an exam by:
@@ -56,6 +60,17 @@ Want a 律師國考 RPG? TOEFL RPG? 學測 RPG? You don't fork the engine — yo
 4. Edit `apps/medexam-tw/src/App.tsx` to import your packs
 
 See [`docs/CONTENT_SCHEMA.md`](./docs/CONTENT_SCHEMA.md) and [`docs/THEME_API.md`](./docs/THEME_API.md).
+
+## Deploy your own fork
+
+This repo ships a ready-to-go GitHub Pages deploy workflow at [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml). After forking:
+
+1. Push to `main` (or any branch — Pages deploys only on `main`).
+2. Enable Pages: `Settings → Pages → Source = "GitHub Actions"`.
+3. Grant write permissions: `Settings → Actions → General → Workflow permissions = "Read and write"`.
+4. Next push to `main` (or manual `workflow_dispatch` from the Actions tab) deploys the site.
+
+See [`.github/workflows/README.md`](./.github/workflows/README.md) for the full setup checklist and what CI does / does not do.
 
 ## License
 
