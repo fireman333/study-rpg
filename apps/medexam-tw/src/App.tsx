@@ -24,7 +24,7 @@ import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
-import { QuizModal, type QuizResult, type QuestionResult } from './components/QuizModal'
+import { QuizModal, REVIEW_BATCH_SIZE, type QuizResult, type QuestionResult } from './components/QuizModal'
 import { BossModal, type BossRunResult } from './components/BossModal'
 import { PersistenceButtons } from './components/PersistenceButtons'
 
@@ -55,6 +55,7 @@ export default function App() {
   const [pauseReason, setPauseReason] = useState<PauseReason>(null)
   const [content, setContent] = useState<ContentPack | null>(null)
   const [quizOpen, setQuizOpen] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
   const [bossOpen, setBossOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   const [dueQuestionIds, setDueQuestionIds] = useState<QuestionId[]>([])
@@ -218,9 +219,10 @@ export default function App() {
     }))
   }
 
-  /** Batched reward calculation + SRS write for a multi-Q quiz session. */
+  /** Batched reward calculation + SRS write for a multi-Q quiz session (reading or review mode). */
   function onQuizComplete(results: QuizResult[], questionResults: QuestionResult[]) {
     setQuizOpen(false)
+    setReviewOpen(false)
     if (results.length === 0) return
     setPlayer((p) => {
       let next = p
@@ -388,6 +390,20 @@ export default function App() {
           </button>
 
           <button
+            onClick={() => setReviewOpen(true)}
+            disabled={dueQuestionIds.length === 0}
+          >
+            <span className="label">📋 複習到期（{dueQuestionIds.length} 題）</span>
+            <span className="hint">
+              {dueQuestionIds.length === 0
+                ? '目前沒有到期複習，繼續累積中'
+                : dueQuestionIds.length > REVIEW_BATCH_SIZE
+                  ? `共 ${dueQuestionIds.length} 題到期 · 一次最多複習 ${REVIEW_BATCH_SIZE} 題`
+                  : `共 ${dueQuestionIds.length} 題到期 · SRS 排程`}
+            </span>
+          </button>
+
+          <button
             onClick={() => setBossOpen(true)}
             disabled={!content || content.questions.length === 0}
           >
@@ -451,6 +467,16 @@ export default function App() {
           pool={content.questions}
           subjectFilter="藥理學"
           count={5}
+          dueQuestionIds={dueQuestionIds}
+          onClose={onQuizComplete}
+        />
+      )}
+
+      {reviewOpen && content && (
+        <QuizModal
+          pool={content.questions}
+          subjectFilter="藥理學"
+          mode="review"
           dueQuestionIds={dueQuestionIds}
           onClose={onQuizComplete}
         />

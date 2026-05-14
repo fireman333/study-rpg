@@ -586,3 +586,28 @@
 .image-placeholder-banner .ipb-skip:hover {
   background: #ebe2c8;
 }
+
+/* ─── Review-mode banner ─────────────────────────────────────────────────── */
+
+.review-mode-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(94, 110, 168, 0.16);
+  border: 2px dashed var(--accent-sky, #5e6ea8);
+  border-radius: 4px;
+  font-family: var(--font-body-cjk);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--frame-wood-dark);
+}
+
+.review-mode-banner .rmb-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.review-mode-banner .rmb-text {
+  flex: 1;
+}
