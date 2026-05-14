@@ -10,7 +10,9 @@
   },
   "scripts": {
     "dev": "pnpm --filter @study-rpg/medexam-tw dev",
+    "dev:m2": "pnpm --filter @study-rpg/medexam2-hospital-tw dev",
     "build": "pnpm -r build",
+    "build:m2": "pnpm --filter @study-rpg/medexam2-hospital-tw build",
     "build:content": "pnpm --filter @study-rpg/content-medexam-tw build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint"

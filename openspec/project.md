@@ -8,6 +8,8 @@
 
 核心 loop：**閱讀累積經驗 → 升等 → 寫考古題 = 打 boss → 抽卡（純行為觸發 gacha，無付費）→ 解鎖**。閉環 spaced-repetition feedback loop 包成 GBA-era 像素 RPG 視覺。
 
+**M_2nd track**（與 M2 並行）：第二份 content/theme dogfood — 二階醫師國考 + 經營型 tycoon idle game mode（招募各科醫師 / 醫院從診所升級到醫學中心）。同一 owner、不同 game mode、共用 core engine。完整 capability spec 見 `openspec/specs/hospital-management-mode/spec.md`。
+
 ## Target Users
 
 - **主要**：台灣一階醫師國考考生（醫五 / 醫六 / RA / 重考生），數千級潛在受眾
@@ -23,7 +25,7 @@
 - **動畫**: Framer Motion
 - **題庫 ingestion**: build-time `scripts/build.ts` 把 .md → `questions.json`
 - **Deploy**: GitHub Pages + Actions（單 URL share，零配額焦慮）
-- **Monorepo**: pnpm workspaces — `packages/core/`、`packages/theme-pixel-medical/`、`packages/content-medexam-tw/`、`apps/medexam-tw/`
+- **Monorepo**: pnpm workspaces — `packages/core/`、`packages/theme-pixel-medical/`、`packages/theme-pixel-hospital/`（二階 scaffold）、`packages/content-medexam-tw/`、`packages/content-medexam2-tw/`（二階 scaffold）、`apps/medexam-tw/`、`apps/medexam2-hospital-tw/`（二階 scaffold）
 - **License**: engine + theme = AGPL-3.0；default content pack = CC-BY-NC-4.0（詳解 © 陽明國考考古題小組）
 - **作者背景約束**: 非 CS 背景醫學生，Claude Code vibe-coding；新 dependency 要 vibe-coding-friendly（避免 Next.js SSR/RSC 過度抽象、避免學新 Tailwind utility）
 
@@ -61,7 +63,8 @@
 |---|---|---|
 | **M1（MVP）** | ✓ 藥理學 vertical slice + ✓ 1 boss + ✓ 4 屬性 + ✓ loot + ✓ IndexedDB 存檔 + ✓ GH Pages workflow（首次 push 後 live） | ✓ shipped (2026-05-15) |
 | M2 — 全科開放 | ✓ 10 科全解（3291/3600 imported, 309 上游 OCR 缺欄位 skip）+ skill tree UI + ✓ 4 屬性全部 wired（公式 fine-tune 待 dogfood）+ daily streak + ✓ SRS due queue + 附圖題處理（placeholder banner 已上） | 🚧 進行中 |
-| M3 — 公開 API + 範例 fork | `@study-rpg/core` 發 npm（0.1.x）+ `docs/CONTENT_SCHEMA.md` / `THEME_API.md` 完整 + minimal `content-toefl-mini` 50Q demo | ⏳ |
+| **M_2nd — 二階國考經營 RPG**（與 M2 並行 dogfood-the-fork track） | scaffold（3 packages + 1 app）+ 二階題庫 ingest（~12,160 Q / 14 科）+ recruitment gacha + tycoon engine + reputation formula + 三階段升級 + doctor sprite roster + GH Pages deploy。詳見 `openspec/specs/hospital-management-mode/spec.md` + 8 個 planned changes。M3 npm publish 是兩 track 合流點。 | 🚧 進行中（scaffold） |
+| M3 — 公開 API + 範例 fork | `@study-rpg/core` 發 npm（0.1.x）+ `docs/CONTENT_SCHEMA.md` / `THEME_API.md` 完整 + minimal `content-toefl-mini` 50Q demo（M_2nd 二階 hospital mode 也算 fork dogfood，但 owner-internal） | ⏳ |
 | M4 — 跨裝置存檔 | Supabase Auth (Google OAuth) + 雲端 sync；IndexedDB 仍 source of truth | ⏳ |
 | M5 — 養成元素加深 | 宿舍場景 + cosmetic unlock + 導師 NPC 每日一題 + 模擬考全套（80Q / 計時 / 出歷年百分位） | ⏳ |
 | M6 — Social light | 朋友 leaderboard（純 read-time / mastery%）+ 公開分享角色卡 OG image | ⏳ |

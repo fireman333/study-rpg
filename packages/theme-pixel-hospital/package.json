@@ -1,0 +1,22 @@
+{
+  "name": "@study-rpg/theme-pixel-hospital",
+  "version": "0.0.1",
+  "description": "Pixel-art tycoon-management theme pack for study-rpg 二階國考 mode (GBA-era vibe forked from theme-pixel-medical). Hospital scenes + 14 specialty doctor sprite roster.",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@study-rpg/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  }
+}
