@@ -546,3 +546,43 @@
   text-align: center;
 }
 .quiz-footer a { color: var(--accent-sky); }
+
+/* ─── Image placeholder banner ───────────────────────────────────────────── */
+
+.image-placeholder-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(212, 165, 60, 0.18);
+  border: 2px dashed var(--accent-gold, #d4a53c);
+  border-radius: 4px;
+  font-family: var(--font-body-cjk);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--frame-wood-dark);
+}
+
+.image-placeholder-banner .ipb-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.image-placeholder-banner .ipb-text {
+  flex: 1;
+}
+
+.image-placeholder-banner .ipb-skip {
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+  padding: 6px 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-dark);
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.image-placeholder-banner .ipb-skip:hover {
+  background: #ebe2c8;
+}

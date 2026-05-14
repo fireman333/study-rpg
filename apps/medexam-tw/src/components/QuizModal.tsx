@@ -37,6 +37,7 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, onCl
   const [idx, setIdx] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([])
+  const [skippedCount, setSkippedCount] = useState(0)
   const [finished, setFinished] = useState(false)
 
   const results: QuizResult[] = questionResults.map((r) => ({ correct: r.correct }))
@@ -75,6 +76,17 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, onCl
     }
   }
 
+  function handleSkip() {
+    if (picked !== null) return
+    setSkippedCount((c) => c + 1)
+    if (isLast) {
+      setFinished(true)
+    } else {
+      setIdx((i) => i + 1)
+      setPicked(null)
+    }
+  }
+
   function handleClose() {
     onClose(results, questionResults)
   }
@@ -90,12 +102,28 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, onCl
         {finished ? (
           <div className="quiz-summary">
             <h2 className="quiz-summary-title">完成</h2>
-            <p className="quiz-summary-score">答對 {correctCount} / {questions.length}</p>
+            <p className="quiz-summary-score">
+              答對 {correctCount} / {questionResults.length}
+              {skippedCount > 0 && ` · 跳過 ${skippedCount}`}
+            </p>
             <p className="quiz-summary-hint">關閉後會 +XP +屬性 + {correctCount} 次抽卡</p>
             <button onClick={handleClose}>完成並領取獎勵</button>
           </div>
         ) : (
           <div className="quiz-body">
+            {q.hasImage === true && (
+              <div className="image-placeholder-banner">
+                <span className="ipb-icon">📷</span>
+                <span className="ipb-text">
+                  此題原有附圖（題庫尚未匯入）。多數題目仍可從文字推測作答。
+                </span>
+                {picked === null && (
+                  <button className="ipb-skip" onClick={handleSkip}>
+                    跳過此題 →
+                  </button>
+                )}
+              </div>
+            )}
             <div className="quiz-stem">{q.stem}</div>
 
             <div className="quiz-options">

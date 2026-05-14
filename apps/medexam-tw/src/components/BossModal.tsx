@@ -141,6 +141,14 @@ export function BossModal({ pool, subject, onClose }: Props) {
           </div>
         ) : (
           <div className="quiz-body">
+            {q.hasImage === true && (
+              <div className="image-placeholder-banner">
+                <span className="ipb-icon">📷</span>
+                <span className="ipb-text">
+                  此題原有附圖（題庫尚未匯入）。Boss mode 不可跳過 — 可從文字推測或留答。
+                </span>
+              </div>
+            )}
             <div className="quiz-stem">{q.stem}</div>
             <div className="quiz-options">
               {Object.entries(q.options).map(([key, text]) => {
