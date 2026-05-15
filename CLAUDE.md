@@ -63,6 +63,11 @@ MEDEXAM_ALLOW_SKIPS=1 pnpm --filter @study-rpg/content-medexam-tw build
 # Copy built questions.json to app public/
 cp packages/content-medexam-tw/dist/*.json apps/medexam-tw/public/content/medexam-tw/
 
+# Cold checkout 第一次跑前要先 build packages/core (main/exports 已指向 dist/，不再走 src/.ts on-the-fly)
+# 之後 src/index.ts 改動也要手動再跑一次 build 才會反映到 dev server。
+# `pnpm -r build` 會 topo-sort 自動處理，但只跑 dev 時要記得：
+pnpm --filter @study-rpg/core build  # 必要 cold checkout 或 core 改動後
+
 # Dev server (http://localhost:5173/study-rpg/)
 pnpm --filter @study-rpg/medexam-tw dev
 
