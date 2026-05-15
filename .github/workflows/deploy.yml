@@ -41,6 +41,14 @@ jobs:
       - name: Build app
         run: pnpm --filter @study-rpg/medexam-tw build
 
+      - name: Build 二階 app
+        run: pnpm --filter @study-rpg/medexam2-hospital-tw build
+
+      - name: Merge 二階 dist into 一階 dist subpath
+        run: |
+          mkdir -p apps/medexam-tw/dist/hospital
+          cp -r apps/medexam2-hospital-tw/dist/. apps/medexam-tw/dist/hospital/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

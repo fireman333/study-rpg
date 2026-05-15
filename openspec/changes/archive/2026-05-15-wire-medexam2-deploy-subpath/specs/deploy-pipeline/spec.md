@@ -1,8 +1,5 @@
-# deploy-pipeline Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change add-gh-pages-deploy. Update Purpose after archive.
-## Requirements
 ### Requirement: Deploy workflow triggers on main push and manual dispatch
 
 The repository SHALL contain a GitHub Actions workflow at `.github/workflows/deploy.yml` that runs on:
@@ -86,66 +83,6 @@ Content updates SHALL flow:
 - **THEN** CI SHALL still deploy whatever is committed (it does not retroactively build)
 - **AND** this is intentional — content updates are a deliberate human gate, not an implicit CI side-effect
 
-### Requirement: Workflow uses official actions and minimum-required permissions
-
-The workflow SHALL use only official, audited actions:
-
-| Action | Purpose |
-|---|---|
-| `actions/checkout@v4` | git clone the repo |
-| `pnpm/action-setup@v4` | install pnpm (reads `packageManager` from package.json) |
-| `actions/setup-node@v4` | install Node 20 with pnpm cache |
-| `actions/upload-pages-artifact@v3` | upload `dist/` as Pages artifact |
-| `actions/deploy-pages@v4` | deploy the artifact to Pages |
-
-The workflow's `permissions:` block SHALL grant exactly:
-
-- `contents: read` (for checkout)
-- `pages: write` (for Pages deploy)
-- `id-token: write` (required by `actions/deploy-pages` for OIDC)
-
-The workflow SHALL NOT request `contents: write` or any broader permission than what is required.
-
-#### Scenario: No third-party actions in workflow
-
-- **WHEN** the deploy workflow is inspected
-- **THEN** every `uses:` line SHALL reference an action under the `actions/`, `pnpm/`, or other GitHub-blessed official namespace
-- **AND** no community / personal-account third-party action SHALL appear
-
-#### Scenario: Permissions are scoped minimum
-
-- **WHEN** the deploy workflow's `permissions:` block is inspected
-- **THEN** it SHALL contain exactly `contents: read`, `pages: write`, `id-token: write` — no more, no less
-
-### Requirement: Concurrent deploys are serialized
-
-The workflow SHALL declare `concurrency: { group: pages, cancel-in-progress: false }` so two simultaneous deploys (e.g., manual dispatch + push to main) queue rather than overwrite each other.
-
-`cancel-in-progress: false` is correct (not `true`) — we want each deploy to finish; the latter deploy waits for the former rather than killing it mid-upload.
-
-#### Scenario: Two deploys triggered in quick succession both complete
-
-- **WHEN** a push to main triggers deploy A, and 10 seconds later the user manually dispatches deploy B
-- **THEN** deploy A SHALL finish before deploy B begins
-- **AND** the final deployed site SHALL reflect the artifact from deploy B (latest wins)
-- **AND** neither deploy SHALL be cancelled
-
-### Requirement: Setup checklist documented for repo owner
-
-A markdown checklist SHALL exist at `.github/workflows/README.md` (or equivalent location referenced from main README.md) that walks the repo owner through one-time GitHub repo settings required for the workflow to actually publish:
-
-1. Settings → Pages → Source = "GitHub Actions"
-2. Settings → Actions → General → Workflow permissions = "Read and write" (required so `deploy-pages` can publish)
-3. (Optional) Settings → Pages → Custom domain (left for future change)
-
-The main `README.md` SHALL link to this setup file or inline the checklist.
-
-#### Scenario: New fork can deploy without trial-and-error
-
-- **WHEN** a third-party fork clones the repo, pushes to their fork's main, and Pages doesn't publish
-- **THEN** they SHALL find the setup checklist via README in under 30 seconds (top-level link or inline section)
-- **AND** completing the checklist SHALL make the next deploy succeed
-
 ### Requirement: SPA route fallback works on GitHub Pages for BrowserRouter apps
 
 The deployed site SHALL serve any client-side route of a **BrowserRouter-based app** (e.g. one階 `/study-rpg/skills`, future `/study-rpg/streak`) directly via URL, page refresh, or external link without GitHub Pages returning a 404. The fallback SHALL be implemented via a `404.html` redirect file (rafgraph/spa-github-pages pattern) that encodes the requested path into a query string and redirects to `index.html`, plus a small inline script in `index.html` `<head>` that restores the original URL via `history.replaceState` before React Router boots.
@@ -192,6 +129,8 @@ Apps that use **HashRouter** (e.g. 二階 medexam2-hospital-tw) SHALL NOT requir
 - **THEN** the browser SHALL re-request `https://<owner>.github.io/study-rpg/hospital/` (the path before `#`)
 - **AND** GitHub Pages SHALL serve `index.html` (no 404 fallback involved)
 - **AND** React Router SHALL re-mount on the `#/banner` route after hash parsing
+
+## ADDED Requirements
 
 ### Requirement: Subpath co-location for multi-app deployment
 

@@ -9,6 +9,19 @@ Static SPA deploy via official `actions/deploy-pages@v4`. Triggers:
 
 PR / 其他 branch push **不會** 觸發 deploy。
 
+### Subpath co-location（多 app single-site 部署）
+
+本 repo 兩個 app shell 共用同一個 GH Pages site：
+
+| App | URL | vite base |
+|---|---|---|
+| 一階 `apps/medexam-tw` | `https://<owner>.github.io/study-rpg/` | `/study-rpg/` |
+| 二階 `apps/medexam2-hospital-tw` | `https://<owner>.github.io/study-rpg/hospital/` | `/study-rpg/hospital/` |
+
+部署機制：CI build 兩 app 後把二階 `dist/` 整顆複製進一階 `dist/hospital/`，**單 artifact** 上傳（GH Pages 一個 repo 只 host 一個 site，這是唯一方式）。
+
+**未來新 game mode 沿用 `/study-rpg/<mode>/` convention**（例：`/study-rpg/surgery/`），不開 sister repo。對應的 `vite.config.ts` `base` 跟 deploy.yml 的 `cp` 目標子目錄必須對齊（spec 內 `deploy-pipeline` capability 鎖死此契約）。
+
 ## 首次使用前的一次性 repo settings（必做）
 
 新 fork 或剛 push 上 GitHub 後，workflow 會跑但 **不會實際 deploy**，除非完成以下 3 步：
