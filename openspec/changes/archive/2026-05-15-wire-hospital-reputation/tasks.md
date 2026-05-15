@@ -49,8 +49,8 @@
 
 ## 7. Wrap-up
 
-- [ ] 7.1 Update `apps/medexam2-hospital-tw/README.md` (if exists) with one-paragraph note on affinity bonus mechanic
-- [ ] 7.2 Spawn `/verify` skill for end-to-end verification before archive
-- [ ] 7.3 `/opsx:archive wire-hospital-reputation` after verify passes; confirm sync gate prompts for `hospital-tycoon-engine` MODIFIED + `hospital-reputation` ADDED merge into `openspec/specs/`
-- [ ] 7.4 Commit with template: `spec(archive): merge wire-hospital-reputation — affinity bonus + per-Q hook locked`
-- [ ] 7.5 Decide whether to merge `track-m2` → `main` now or accumulate 1–2 more changes first (per `openspec/project.md` Sync protocol)
+- [x] 7.1 (n/a — `apps/medexam2-hospital-tw/README.md` does not exist; 二階 app is still scaffold-stage; affinity mechanic documented in spec + `openspec/project.md` Roadmap)
+- [x] 7.2 `/verify` ran end-to-end: typecheck ✓ + builds ✓ + Chrome MCP static smoke ✓ + tick 0.7 ratio confirmed via forced visibility=visible ✓ + simplify pass applied 4 fixes ✓
+- [x] 7.3 `/opsx:archive wire-hospital-reputation` (this commit's action — sync gate writes delta into main specs/)
+- [x] 7.4 Commit applied: `4a051f4 feat(wire-hospital-reputation): affinity bonus + per-Q reputation hook`. Archive commit follows this archive op via `spec(archive): merge wire-hospital-reputation — ...` template.
+- [ ] 7.5 Decide whether to merge `track-m2` → `main` now or accumulate 1–2 more changes first (per `openspec/project.md` Sync protocol). Pending user decision post-archive.
