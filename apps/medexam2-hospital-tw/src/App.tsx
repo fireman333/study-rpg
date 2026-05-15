@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
-import { TIER_ROOMS, type HospitalTier, type Room } from '@study-rpg/content-medexam2-tw'
+import {
+  TIER_ROOMS,
+  createPerQReputationListener,
+  type HospitalTier,
+  type Room,
+} from '@study-rpg/content-medexam2-tw'
 import { ensureSeed, getHospitalDB, refreshDailyTickets } from './db/schema'
 import { HomePage } from './pages/HomePage'
 import { DoctorRoster } from './pages/DoctorRoster'
@@ -50,6 +55,24 @@ function App() {
     return () => {
       cancelled = true
     }
+  }, [])
+
+  useEffect(() => {
+    const db = getHospitalDB()
+    const unsubscribe = createPerQReputationListener({
+      getRooms: () => db.rooms.toArray(),
+      getDoctors: () => db.doctors.toArray(),
+      updateCounters: async ({ reputation }) =>
+        db.transaction('rw', db.gameCounters, async () => {
+          const counters = await db.gameCounters.get('singleton')
+          if (!counters) return
+          await db.gameCounters.put({
+            ...counters,
+            reputation: counters.reputation + reputation,
+          })
+        }),
+    })
+    return unsubscribe
   }, [])
 
   const handleCapped = useCallback(() => {

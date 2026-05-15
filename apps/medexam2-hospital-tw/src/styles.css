@@ -665,6 +665,19 @@ body {
   color: var(--frame-light);
 }
 
+.room-card__affinity {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 200, 80, 0.18);
+  color: var(--accent-gold, #d4a04d);
+  font-size: 13px;
+  font-weight: bold;
+}
+
 /* ── Assign modal ──────────────────────────────────────── */
 
 .modal-card--assign {

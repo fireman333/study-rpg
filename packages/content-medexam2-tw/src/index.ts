@@ -16,6 +16,8 @@ import type { ContentPack, Question, Subject } from '@study-rpg/core'
 export * from './recruitment'
 export * from './rooms'
 export * from './clinic-tiers'
+export * from './affinity'
+export * from './reputation'
 
 interface BuiltMeta {
   id: string

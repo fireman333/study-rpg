@@ -22,6 +22,7 @@ import {
   incrementReadingMinutes,
   incrementQuestionsAnswered,
   hasMetCheckInThreshold,
+  quizEvents,
   type Player,
   type RollResult,
   type EquipSlot,
@@ -341,6 +342,10 @@ export default function App() {
       return next
     })
     const correctCount = results.filter((r) => r.correct).length
+    // Shared emit code path with 二階 (no listener registered in 一階).
+    for (let i = 0; i < correctCount; i++) {
+      quizEvents.emit('correct-answer')
+    }
     for (let i = 0; i < correctCount; i++) {
       setTimeout(() => doRoll('quiz'), i * 150)
     }

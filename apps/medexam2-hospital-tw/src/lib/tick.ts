@@ -66,7 +66,8 @@ export async function runTick(): Promise<TickResult> {
     }
 
     const deltaRevenue = (totalThroughput * elapsedSec) / 60
-    const deltaReputation = deltaRevenue // 1:1 baseline; wire-hospital-reputation will refine
+    // Idle tick = 70% of reputation; per-Q hook in reputation.ts adds the other 30%.
+    const deltaReputation = deltaRevenue * 0.7
 
     const newRevenue = counters.revenue + deltaRevenue
     const newReputation = counters.reputation + deltaReputation
