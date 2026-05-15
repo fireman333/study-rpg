@@ -15,6 +15,10 @@
 import characterBase from '../sprites/character-base.png?url'
 import characterBaseFemale from '../sprites/character-base-female.png?url'
 
+// Mentor NPC (M5)
+import mentorMale from '../sprites/mentor-male.png?url'
+import mentorFemale from '../sprites/mentor-female.png?url'
+
 // Slot placeholders
 import slotHead from '../sprites/slot-placeholders/head.png?url'
 import slotBody from '../sprites/slot-placeholders/body.png?url'
@@ -47,6 +51,10 @@ export const SPRITE_MAP: Record<string, string> = {
   // Character variants
   'character-base': characterBase,
   'character-base-female': characterBaseFemale,
+
+  // Mentor NPC (M5 mentor-daily capability)
+  'mentor-male': mentorMale,
+  'mentor-female': mentorFemale,
 
   // Slot placeholders (keys per spec Requirement: Four fixed equipment slots visible)
   'slot-placeholder-head': slotHead,

@@ -211,6 +211,18 @@ export interface MockInProgress {
   lastResumedAt: number | null              // epoch ms; null = currently paused
 }
 
+// ─── Mentor daily question (M5) ─────────────────────────────────────────────
+
+/**
+ * Singleton state for mentor-daily backlog. One row in Dexie keyed by 'mentorBacklog'.
+ * Spec: openspec/specs/persistence/spec.md (Mentor backlog singleton)
+ *       openspec/specs/mentor-daily/spec.md
+ */
+export interface MentorBacklog {
+  questionIds: string[]              // FIFO queue of pending Question.id, max 5
+  lastAssignedDate: string           // ISO YYYY-MM-DD in UTC+8
+}
+
 // ─── Stat schema (theme/content can override default 4 stats) ─────────────────
 
 export interface StatSchema {

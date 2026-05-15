@@ -1450,3 +1450,247 @@
 .mock-result-card-explanation a {
   color: var(--accent-sky);
 }
+
+/* ─── Mentor daily dialog (M5) ─────────────────────────────────────── */
+
+.mentor-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 950;
+}
+
+.mentor-dialog {
+  background: var(--bg-cream);
+  border: 3px solid var(--frame-wood-dark);
+  box-shadow: 4px 4px 0 var(--frame-wood-dark);
+  max-width: 720px;
+  width: 92vw;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 18px;
+  position: relative;
+}
+
+.mentor-dialog-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px dashed var(--frame-wood-light);
+}
+
+.mentor-dialog-portrait {
+  width: 120px;
+  height: 120px;
+  image-rendering: pixelated;
+  border: 2px solid var(--frame-wood-dark);
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+  background: var(--bg-cream);
+  flex-shrink: 0;
+}
+
+.mentor-dialog-portrait-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-pixel-cjk);
+  color: var(--frame-wood-dark);
+  font-size: 14px;
+}
+
+.mentor-dialog-title-block {
+  flex: 1;
+}
+
+.mentor-dialog-title {
+  font-family: var(--font-pixel-cjk);
+  font-size: 20px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.mentor-dialog-backlog {
+  font-family: var(--font-body-cjk);
+  font-size: 12px;
+  color: var(--accent-rose);
+  margin-bottom: 2px;
+}
+
+.mentor-dialog-mastered {
+  font-family: var(--font-body-cjk);
+  font-size: 12px;
+  color: var(--accent-gold);
+}
+
+.mentor-dialog-bubble {
+  font-family: var(--font-body-cjk);
+  font-size: 14px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: var(--accent-gold);
+  border: 2px solid var(--frame-wood-dark);
+  color: var(--ink);
+  position: relative;
+}
+
+.mentor-dialog-question {
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-light);
+  padding: 14px;
+}
+
+.mentor-dialog-subject {
+  font-family: var(--font-pixel-cjk);
+  font-size: 11px;
+  color: var(--accent-leaf);
+  margin-bottom: 6px;
+}
+
+.mentor-dialog-stem {
+  font-family: var(--font-body-cjk);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+}
+
+.mentor-dialog-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mentor-dialog-option {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  text-align: left;
+  font-family: var(--font-body-cjk);
+  font-size: 13px;
+  padding: 8px 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-light);
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.mentor-dialog-option:hover:not(:disabled) {
+  background: var(--frame-wood-light);
+  color: var(--bg-cream);
+}
+
+.mentor-dialog-option:disabled { cursor: not-allowed; }
+
+.mentor-dialog-option-selected {
+  background: var(--accent-sky);
+  color: var(--bg-cream);
+  border-color: var(--frame-wood-dark);
+}
+
+.mentor-dialog-option-correct {
+  background: rgba(95, 165, 126, 0.18);
+  border-color: var(--accent-leaf);
+}
+
+.mentor-dialog-option-wrong {
+  background: rgba(196, 77, 77, 0.18);
+  border-color: var(--accent-rose);
+}
+
+.mentor-dialog-option-key {
+  font-family: var(--font-pixel-cjk);
+  min-width: 24px;
+}
+
+.mentor-dialog-option-text { flex: 1; white-space: pre-wrap; }
+
+.mentor-dialog-option-tag {
+  font-family: var(--font-pixel-cjk);
+  font-size: 10px;
+  color: var(--frame-wood-dark);
+}
+
+.mentor-dialog-explanation {
+  font-family: var(--font-body-cjk);
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 12px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.04);
+  border-top: 1px dashed var(--frame-wood-light);
+}
+
+.mentor-dialog-explanation a { color: var(--accent-sky); }
+
+.mentor-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 2px dashed var(--frame-wood-light);
+}
+
+.mentor-dialog-skip,
+.mentor-dialog-close {
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  padding: 6px 14px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-dark);
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.mentor-dialog-close {
+  background: var(--accent-sky);
+  color: var(--bg-cream);
+}
+
+.mentor-dialog-skip-confirm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-cream);
+  border: 3px solid var(--frame-wood-dark);
+  box-shadow: 4px 4px 0 var(--frame-wood-dark);
+  padding: 18px;
+  font-family: var(--font-body-cjk);
+  max-width: 320px;
+  z-index: 1;
+}
+
+.mentor-dialog-skip-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.mentor-dialog-skip-actions button {
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+  padding: 6px 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-dark);
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.mentor-dialog-skip-confirm-btn {
+  background: var(--accent-rose);
+  color: var(--bg-cream);
+}
+
+@media (max-width: 640px) {
+  .mentor-dialog-header { flex-direction: column; align-items: center; text-align: center; }
+  .mentor-dialog-portrait { width: 100px; height: 100px; }
+}

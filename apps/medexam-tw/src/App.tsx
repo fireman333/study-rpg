@@ -23,6 +23,14 @@ import {
   incrementQuestionsAnswered,
   hasMetCheckInThreshold,
   quizEvents,
+  pickDailyQuestion,
+  enqueueBacklogForMissedDays,
+  initialBacklog,
+  consumeBacklog,
+  computeMentorReward,
+  mentorToday,
+  type MentorBacklog,
+  type Attempt,
   type Player,
   type RollResult,
   type EquipSlot,
@@ -47,6 +55,8 @@ import { SkillTreeRoute } from './routes/SkillTreeRoute'
 import { MockPickerRoute } from './routes/MockPickerRoute'
 import { MockRunnerRoute } from './routes/MockRunnerRoute'
 import { MockResultRoute } from './routes/MockResultRoute'
+import { MentorDialog } from './components/MentorDialog'
+import { getBacklog, saveBacklog } from './db/mentor-backlog'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
 const STARTER_NAME = '見習醫師'
@@ -62,6 +72,14 @@ const READING_TICK_MS = 10_000
 const READING_IDLE_TIMEOUT_MS = 90_000
 
 type PauseReason = 'manual' | 'visibility' | 'idle' | null
+
+function dayDiff(fromISODate: string, toISODate: string): number {
+  const ord = (s: string) => {
+    const [y, m, d] = s.split('-').map(Number)
+    return Math.floor(Date.UTC(y, m - 1, d) / 86_400_000)
+  }
+  return ord(toISODate) - ord(fromISODate)
+}
 
 export default function App() {
   const navigate = useNavigate()
@@ -85,6 +103,10 @@ export default function App() {
   const [dueQuestionIds, setDueQuestionIds] = useState<QuestionId[]>([])
   const [skillToasts, setSkillToasts] = useState<Array<{ id: number; node: SkillNode }>>([])
   const [streakBreakToast, setStreakBreakToast] = useState(false)
+  const [mentorBacklog, setMentorBacklog] = useState<MentorBacklog | null>(null)
+  const [mentorOpen, setMentorOpen] = useState(false)
+  const [mentorPickMode, setMentorPickMode] = useState<'srs' | 'weak' | 'random'>('srs')
+  const [suppressSkipConfirm, setSuppressSkipConfirm] = useState(false)
   const streakBreakHandledRef = useRef(false)
   const prevStatsRef = useRef<Player['stats']>(player.stats)
   const toastIdRef = useRef(0)
@@ -126,6 +148,69 @@ export default function App() {
       cancelled = true
     }
   }, [])
+
+  // Hydrate + accumulate mentor backlog once player + content are ready.
+  // Runs only once (after first hydration) to avoid re-picking on every player mutation.
+  const mentorHydratedRef = useRef(false)
+  useEffect(() => {
+    if (!hydrated || !content || mentorHydratedRef.current) return
+    mentorHydratedRef.current = true
+    const cp = content // narrow capture for inner closures
+    let cancelled = false
+    ;(async () => {
+      try {
+        const db = getDB()
+        const today = mentorToday()
+        const now = Date.now()
+        const existing = await getBacklog()
+
+        async function pickOne(): Promise<string | null> {
+          const srsDue = await db.srs.where('dueAt').belowOrEqual(now).toArray()
+          const recentAttempts = await db.attempts
+            .where('ts')
+            .above(now - 30 * 24 * 3600 * 1000)
+            .toArray()
+          const pick = pickDailyQuestion({
+            srsDue,
+            player,
+            questions: cp.questions,
+            recentAttempts: recentAttempts as Attempt[],
+            now,
+          })
+          if (pick) setMentorPickMode(pick.mode)
+          return pick?.questionId ?? null
+        }
+
+        let next: MentorBacklog
+        if (!existing) {
+          const firstId = await pickOne()
+          if (firstId === null) return
+          next = initialBacklog(today, firstId)
+        } else if (existing.lastAssignedDate !== today) {
+          // Reuse core helper for missed-day accumulation by pre-fetching picks.
+          // Core fn is sync; we feed it N pre-resolved picks via a closure-with-queue.
+          const missedDayCount = Math.max(0, dayDiff(existing.lastAssignedDate, today))
+          const slots = Math.min(missedDayCount, 5 - existing.questionIds.length)
+          const newPicks: string[] = []
+          for (let i = 0; i < slots; i++) {
+            const id = await pickOne()
+            if (id === null) break
+            newPicks.push(id)
+          }
+          let idx = 0
+          next = enqueueBacklogForMissedDays(existing, today, () => newPicks[idx++] ?? null)
+        } else {
+          next = existing
+        }
+        if (cancelled) return
+        await saveBacklog(next)
+        if (!cancelled) setMentorBacklog(next)
+      } catch (err) {
+        console.error('[mentor] hydrate failed:', err)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [hydrated, content, player])
 
   /** Refresh due queue from db.srs after a quiz writes new cards. */
   async function refreshDueQueue() {
@@ -532,6 +617,16 @@ export default function App() {
             <span className="hint">挑歷年原卷 · ≈100 題 · stopwatch + 全展開詳解</span>
           </button>
 
+          {mentorBacklog && mentorBacklog.questionIds.length > 0 && content && (
+            <button onClick={() => setMentorOpen(true)} disabled={!content || content.questions.length === 0}>
+              <span className="label">
+                🧑‍⚕️ 今日導師題
+                {mentorBacklog.questionIds.length > 1 && `（尚有 ${mentorBacklog.questionIds.length} 題）`}
+              </span>
+              <span className="hint">SRS due 優先 · 答對 1.5× XP + 算 streak check-in</span>
+            </button>
+          )}
+
           <button onClick={() => doRoll('read')}>
             <span className="label">🎲 手動測試一次抽卡</span>
             <span className="hint">總抽卡：{player.lootStats.totalRolls} · 距下次 SR 保底：{30 - player.lootStats.rollsSinceLastSR}</span>
@@ -610,6 +705,86 @@ export default function App() {
           onClose={onBossComplete}
         />
       )}
+
+      {mentorOpen && mentorBacklog && content && (() => {
+        const headId = mentorBacklog.questionIds[0]
+        const question = content.questions.find((q) => q.id === headId)
+        if (!question) {
+          // Orphaned ID — silently pop and close
+          const { rest } = consumeBacklog(mentorBacklog)
+          saveBacklog(rest).catch((err) => console.error('[mentor] orphan pop failed:', err))
+          setMentorBacklog(rest)
+          setMentorOpen(false)
+          return null
+        }
+        return (
+          <MentorDialog
+            question={question}
+            backlogRemaining={mentorBacklog.questionIds.length}
+            showMasteredHint={mentorPickMode === 'random'}
+            sprites={sprites}
+            suppressSkipConfirm={suppressSkipConfirm}
+            onFirstSkipConfirm={() => setSuppressSkipConfirm(true)}
+            onAnswered={async ({ questionId, correct, elapsedMs }) => {
+              // 1. Compute reward
+              const today = getTaipeiToday()
+              setPlayer((p) => {
+                // increment quiz-answered counter + maybe check-in
+                let next = incrementQuestionsAnswered(p, today, 1)
+                if (hasMetCheckInThreshold(next, today)) {
+                  next = applyCheckIn(next, today)
+                }
+                const multiplier = getStreakMultiplier(next.currentStreak)
+                const reward = computeMentorReward(correct, elapsedMs, multiplier)
+                let stats = next.stats
+                for (const delta of reward.statDeltas) {
+                  stats = addStat(stats, delta.name, delta.delta)
+                }
+                next = applyXp({ ...next, stats }, reward.xpGain).player
+                return next
+              })
+              // 2. Write SRS card for wrong answer (mirror QuizModal pattern)
+              if (!correct) {
+                const db = getDB()
+                const now = Date.now()
+                try {
+                  const existing = await db.srs.get(questionId)
+                  if (!existing) await db.srs.put(newCard(questionId, now))
+                } catch (err) {
+                  console.error('[mentor] srs enqueue failed:', err)
+                }
+              }
+              // 3. Emit cross-app event (二階 listener may be registered)
+              if (correct) quizEvents.emit('correct-answer')
+              // 4. Record attempt
+              try {
+                await getDB().attempts.put({
+                  id: `mentor-${Date.now()}`,
+                  questionId,
+                  ts: Date.now(),
+                  picked: correct ? question.answer : 'wrong',
+                  correct,
+                  msTaken: elapsedMs,
+                  mode: 'daily',
+                })
+              } catch (err) {
+                console.error('[mentor] attempt persist failed:', err)
+              }
+              // 5. Pop backlog (after dialog auto-close / user click "繼續" / "關閉")
+              const { rest } = consumeBacklog(mentorBacklog)
+              await saveBacklog(rest)
+              setMentorBacklog(rest)
+            }}
+            onSkipped={async () => {
+              // Skip = NO streak increment, NO XP, just pop the question
+              const { rest } = consumeBacklog(mentorBacklog)
+              await saveBacklog(rest)
+              setMentorBacklog(rest)
+            }}
+            onClose={() => setMentorOpen(false)}
+          />
+        )
+      })()}
     </>
   )
 

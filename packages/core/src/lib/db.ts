@@ -12,11 +12,17 @@ import type {
   Drop,
   MockAttempt,
   MockInProgress,
+  MentorBacklog,
 } from '../types'
 
 /** Singleton wrapper for in-progress mock state. Only one row, key = 'mockInProgress'. */
 export interface MockInProgressRecord extends MockInProgress {
   key: 'mockInProgress'
+}
+
+/** Singleton wrapper for mentor-daily backlog. Only one row, key = 'mentorBacklog'. */
+export interface MentorBacklogRecord extends MentorBacklog {
+  key: 'mentorBacklog'
 }
 
 export class StudyRpgDB extends Dexie {
@@ -33,6 +39,7 @@ export class StudyRpgDB extends Dexie {
   meta!: EntityTable<{ key: string; value: unknown }, 'key'>
   mockAttempts!: EntityTable<MockAttempt, 'id'>
   mockInProgress!: EntityTable<MockInProgressRecord, 'key'>
+  mentorBacklog!: EntityTable<MentorBacklogRecord, 'key'>
 
   constructor(name = 'study-rpg') {
     super(name)
@@ -53,6 +60,10 @@ export class StudyRpgDB extends Dexie {
     this.version(2).stores({
       mockAttempts: 'id, paperId, finishedAt',
       mockInProgress: 'key',
+    })
+    // v3 — additive: mentor-daily backlog (see mentor-daily capability)
+    this.version(3).stores({
+      mentorBacklog: 'key',
     })
   }
 }
