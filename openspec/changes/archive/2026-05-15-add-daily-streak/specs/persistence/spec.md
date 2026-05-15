@@ -1,51 +1,4 @@
-# persistence Specification
-
-## Purpose
-TBD - created by archiving change wire-persistence-mvp. Update Purpose after archive.
-## Requirements
-### Requirement: Player state survives page reload
-
-The current single-player state (`Player` snapshot keyed by `PLAYER_ID = 'p1'`) and the full `ItemInstance[]` inventory SHALL be persisted to IndexedDB via Dexie (`packages/core/src/lib/db.ts`) and restored on next page load.
-
-#### Scenario: Reload preserves progression
-
-- **WHEN** a player rolls loot, gains XP, and equips an item, then reloads the page
-- **THEN** after the page finishes mounting, the rendered `Player.level`, `Player.xp`, `Player.stats`, `Player.equipment`, `Player.inventory`, and `Player.lootStats` SHALL match the values immediately before reload
-- **AND** the rendered `ItemInstance[]` (inventory list) SHALL match the items obtained before reload
-
-#### Scenario: First-ever load uses newPlayer
-
-- **WHEN** the app is loaded on a fresh browser with no IndexedDB record for `PLAYER_ID = 'p1'`
-- **THEN** the initial state SHALL come from `newPlayer('p1', '見習醫師', STAT_SCHEMA.order)`
-- **AND** the first state mutation SHALL trigger an IndexedDB write so subsequent reloads find the saved record
-
-### Requirement: Hydration completes before user interaction
-
-The hydrate-on-mount effect SHALL read the saved `Player` (and `ItemInstance[]`) from IndexedDB and call `setPlayer` + `setInstances` before any user-visible state mutation can occur.
-
-#### Scenario: Hydration race does not overwrite fresh state
-
-- **WHEN** the app mounts and the hydrate effect is in flight
-- **AND** the user clicks "🎲 手動測試一次抽卡" before hydration finishes
-- **THEN** the hydration SHALL NOT overwrite the post-roll state with the pre-roll saved state
-- **AND** this MAY be achieved by either (a) gating user actions on a `hydrated: boolean` flag, or (b) treating the hydration as a one-shot that no-ops if state has diverged from `newPlayer` defaults
-
-### Requirement: State writes are persisted within 500ms of mutation
-
-Every `setPlayer` and `setInstances` call SHALL trigger an asynchronous IndexedDB write within 500ms (in practice, the write is fire-and-forget inside a React `useEffect` that runs after commit).
-
-#### Scenario: Write happens after every mutation
-
-- **WHEN** the player picks any action that mutates state (read tick, quiz answer, loot roll, equip, name edit)
-- **THEN** the corresponding IndexedDB record SHALL be updated within 500ms
-- **AND** `db.players.get(PLAYER_ID)` queried 1 second later SHALL return the new state
-
-#### Scenario: Write failures are logged but do not crash
-
-- **WHEN** an IndexedDB write fails (quota exceeded, browser revoking storage permission, etc.)
-- **THEN** the error SHALL be logged to `console.error`
-- **AND** the in-memory state SHALL remain valid (the user can continue playing in-memory; only persistence is degraded)
-- **AND** the next successful write SHALL recover persistence
+## MODIFIED Requirements
 
 ### Requirement: Export downloads a portable JSON save file
 
@@ -124,4 +77,3 @@ Every exported save file SHALL include a `schemaVersion: 2` field. Import SHALL 
 - **WHEN** an import file has `schemaVersion: 1`
 - **THEN** import SHALL NOT reject on the version check
 - **AND** the v1 migration path defined under "Import replaces current state after user confirmation" SHALL apply
-

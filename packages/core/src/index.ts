@@ -32,6 +32,18 @@ export {
   FAST_ANSWER_THRESHOLD_MS,
   type XpGainResult,
 } from './lib/xp'
+export {
+  STREAK_CHECK_IN_THRESHOLD,
+  STREAK_MULTIPLIER_CAP_DAYS,
+  getTaipeiToday,
+  getTaipeiYesterday,
+  getStreakMultiplier,
+  applyCheckIn,
+  ensureTodayProgress,
+  incrementReadingMinutes,
+  incrementQuestionsAnswered,
+  hasMetCheckInThreshold,
+} from './lib/streak'
 export { newCard, reviewCard, dueCards } from './lib/srs'
 export {
   sampleMiniBoss,
@@ -43,3 +55,17 @@ export {
   MINI_BOSS_DURATION_MS,
   ANNUAL_BOSS_DURATION_MS,
 } from './lib/boss'
+export {
+  unlockedCount,
+  detectUnlocks,
+  resolveSkillTree,
+  thresholdForIndex,
+  ENGINE_FALLBACK_SKILL_TREE,
+  SKILL_BRANCH_ORDER,
+  SKILL_TREE_NODES_PER_BRANCH,
+  SKILL_TREE_THRESHOLD_STEP,
+  type SkillNode,
+  type SkillBranch,
+  type SkillBranchStatKey,
+  type SkillTreeContent,
+} from './lib/skillTree'

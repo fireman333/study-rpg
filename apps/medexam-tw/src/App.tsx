@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import {
   rollLoot,
   instanceFromRoll,
@@ -9,9 +10,18 @@ import {
   REWARD,
   FAST_ANSWER_THRESHOLD_MS,
   DEFAULT_STAT_SCHEMA,
+  detectUnlocks,
+  resolveSkillTree,
   getDB,
   newCard,
   reviewCard,
+  applyCheckIn,
+  getStreakMultiplier,
+  getTaipeiToday,
+  getTaipeiYesterday,
+  incrementReadingMinutes,
+  incrementQuestionsAnswered,
+  hasMetCheckInThreshold,
   type Player,
   type RollResult,
   type EquipSlot,
@@ -19,20 +29,25 @@ import {
   type Item,
   type ContentPack,
   type QuestionId,
+  type SkillNode,
 } from '@study-rpg/core'
 import { THEME_PIXEL_MEDICAL } from '@study-rpg/theme-pixel-medical'
 import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
+import { SkillUnlockToast } from './components/SkillUnlockToast'
 import { QuizModal, REVIEW_BATCH_SIZE, type QuizResult, type QuestionResult } from './components/QuizModal'
 import { BossModal, type BossRunResult } from './components/BossModal'
 import { PersistenceButtons } from './components/PersistenceButtons'
+import { StreakChip } from './components/StreakChip'
+import { StreakBreakToast } from './components/StreakBreakToast'
+import { SkillTreeRoute } from './routes/SkillTreeRoute'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
 const STARTER_NAME = '見習醫師'
 const PLAYER_ID = 'p1'
-const SAVE_SCHEMA_VERSION = 1
+const SAVE_SCHEMA_VERSION = 2
 
 /** Ordered list of character sprite variants the player can cycle through. */
 const CHARACTER_VARIANTS = ['character-base', 'character-base-female'] as const
@@ -45,6 +60,7 @@ const READING_IDLE_TIMEOUT_MS = 90_000
 type PauseReason = 'manual' | 'visibility' | 'idle' | null
 
 export default function App() {
+  const navigate = useNavigate()
   const [player, setPlayer] = useState<Player>(() =>
     newPlayer('p1', STARTER_NAME, STAT_SCHEMA.order),
   )
@@ -60,6 +76,12 @@ export default function App() {
   const [bossOpen, setBossOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
   const [dueQuestionIds, setDueQuestionIds] = useState<QuestionId[]>([])
+  const [skillToasts, setSkillToasts] = useState<Array<{ id: number; node: SkillNode }>>([])
+  const [streakBreakToast, setStreakBreakToast] = useState(false)
+  const streakBreakHandledRef = useRef(false)
+  const prevStatsRef = useRef<Player['stats']>(player.stats)
+  const toastIdRef = useRef(0)
+  const skillTreeContent = useMemo(() => resolveSkillTree(THEME_PIXEL_MEDICAL), [])
 
   // Load content pack at mount
   useEffect(() => {
@@ -131,6 +153,57 @@ export default function App() {
     setInstances(payload.instances)
   }
 
+  // Break-day detection: once per hydration, if the last check-in is older than
+  // yesterday AND the player had an active streak, pre-emptively reset
+  // currentStreak to 0 and show a soft toast. Pre-emptive reset keeps the chip
+  // honest — without this, the chip would still read the stale streak number
+  // until the player threshold-crosses again today. applyCheckIn's existing
+  // "older / undefined" branch still correctly sets to 1 when that crossing
+  // happens, so this proactive reset doesn't violate the spec invariants.
+  // NOTE on deps: this effect calls setPlayer, which mutates `player.currentStreak`
+  // — a dep. React will schedule a re-run, but `streakBreakHandledRef` short-circuits
+  // it to the no-op else branch on second entry. The ref-guard contract — not the
+  // dep array — is what guarantees we only fire the toast once.
+  useEffect(() => {
+    if (!hydrated) return
+    if (streakBreakHandledRef.current) return
+    const today = getTaipeiToday()
+    const yesterday = getTaipeiYesterday(today)
+    if (
+      player.lastCheckInDate &&
+      player.lastCheckInDate !== today &&
+      player.lastCheckInDate !== yesterday &&
+      player.currentStreak > 0
+    ) {
+      streakBreakHandledRef.current = true
+      setStreakBreakToast(true)
+      setPlayer((p) => ({ ...p, currentStreak: 0 }))
+    } else {
+      // No break to handle (fresh player, ongoing streak, or first-ever load).
+      // Still flip the ref so we don't re-evaluate on every player mutation.
+      streakBreakHandledRef.current = true
+    }
+  }, [hydrated, player.lastCheckInDate, player.currentStreak])
+
+  // Skill-tree unlock detection: enqueue toasts for newly crossed thresholds.
+  // Skipped until hydration completes so returning players don't get a flurry
+  // of toasts for thresholds already crossed in previous sessions.
+  useEffect(() => {
+    const next = player.stats
+    if (!hydrated) {
+      prevStatsRef.current = next
+      return
+    }
+    const prev = prevStatsRef.current
+    if (prev === next) return
+    const unlocked = detectUnlocks(prev, next, skillTreeContent)
+    prevStatsRef.current = next
+    if (unlocked.length) {
+      const entries = unlocked.map((node) => ({ id: ++toastIdRef.current, node }))
+      setSkillToasts((q) => [...q, ...entries])
+    }
+  }, [hydrated, player.stats, skillTreeContent])
+
   const catalog = useMemo(() => THEME_PIXEL_MEDICAL.itemCatalog, [])
   const sprites = useMemo(() => THEME_PIXEL_MEDICAL.sprites, [])
 
@@ -164,8 +237,19 @@ export default function App() {
   useEffect(() => {
     if (readMs > 0 && readMs % READING_TICK_MS === 0) {
       setPlayer((p) => {
-        const stats = addStat(p.stats, REWARD.readPerMinute.stat.name, REWARD.readPerMinute.stat.delta)
-        return applyXp({ ...p, stats }, REWARD.readPerMinute.xp).player
+        const today = getTaipeiToday()
+        // 1) bump today's reading-minute counter
+        let next = incrementReadingMinutes(p, today, 1)
+        // 2) cross threshold? applyCheckIn idempotently bumps streak (same-day re-trigger is a no-op)
+        if (hasMetCheckInThreshold(next, today)) {
+          next = applyCheckIn(next, today)
+        }
+        // 3) compute multiplier from the post-check-in streak (Design Decision 6:
+        //    threshold-crossing tick already feels the bonus)
+        const multiplier = getStreakMultiplier(next.currentStreak)
+        const xpGain = Math.floor(REWARD.readPerMinute.xp * multiplier)
+        const stats = addStat(next.stats, REWARD.readPerMinute.stat.name, REWARD.readPerMinute.stat.delta)
+        return applyXp({ ...next, stats }, xpGain).player
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -227,7 +311,15 @@ export default function App() {
     setReviewOpen(false)
     if (results.length === 0) return
     setPlayer((p) => {
-      let next = p
+      const today = getTaipeiToday()
+      // Bump today's questions-answered counter once for the whole batch, then
+      // check threshold and increment streak before computing the multiplier.
+      // Same-day re-trigger of applyCheckIn is a no-op (spec idempotence guard).
+      let next = incrementQuestionsAnswered(p, today, questionResults.length)
+      if (hasMetCheckInThreshold(next, today)) {
+        next = applyCheckIn(next, today)
+      }
+      const multiplier = getStreakMultiplier(next.currentStreak)
       for (const qr of questionResults) {
         const baseReward = qr.correct ? REWARD.quizCorrect : REWARD.quizWrong
         let stats = 'stat' in baseReward && baseReward.stat
@@ -241,7 +333,10 @@ export default function App() {
         if (qr.correct && wasReview) {
           stats = addStat(stats, REWARD.srsReviewCorrect.stat.name, REWARD.srsReviewCorrect.stat.delta)
         }
-        next = applyXp({ ...next, stats }, baseReward.xp).player
+        // Multiplier applies to quizCorrect only — quizWrong stays at the small
+        // consolation flat (spec: "Quiz-correct path is multiplied; wrong path is not").
+        const xpGain = qr.correct ? Math.floor(REWARD.quizCorrect.xp * multiplier) : REWARD.quizWrong.xp
+        next = applyXp({ ...next, stats }, xpGain).player
       }
       return next
     })
@@ -344,13 +439,8 @@ export default function App() {
     })
   }
 
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1>一階國考 RPG</h1>
-        <div className="tag">study-rpg · pixel-medical · medexam-tw</div>
-      </header>
-
+  const homeView = (
+    <>
       <div className="layout">
         <CharCard
           player={player}
@@ -364,6 +454,7 @@ export default function App() {
           onRename={handleRename}
           onSlotClick={handleSlotClick}
           onCycleVariant={cycleVariant}
+          onSkillTreeClick={() => navigate('/skills')}
         />
 
         <div className="actions">
@@ -499,6 +590,52 @@ export default function App() {
           onClose={onBossComplete}
         />
       )}
+    </>
+  )
+
+  const currentToast = skillToasts[0]
+  return (
+    <div className="app">
+      <header className="app-header">
+        <h1>一階國考 RPG</h1>
+        <div className="tag">study-rpg · pixel-medical · medexam-tw</div>
+        <StreakChip
+          currentStreak={player.currentStreak}
+          longestStreak={player.longestStreak}
+        />
+      </header>
+
+      <Routes>
+        <Route path="/" element={homeView} />
+        <Route
+          path="/skills"
+          element={
+            <SkillTreeRoute
+              content={skillTreeContent}
+              statSchema={STAT_SCHEMA}
+              stats={player.stats}
+              sprites={sprites}
+            />
+          }
+        />
+      </Routes>
+
+      <AnimatePresence>
+        {currentToast && (
+          <SkillUnlockToast
+            key={currentToast.id}
+            node={currentToast.node}
+            spriteUrl={sprites[currentToast.node.spriteKey]}
+            onDone={() => setSkillToasts((q) => q.slice(1))}
+          />
+        )}
+        {streakBreakToast && (
+          <StreakBreakToast
+            key="streak-break"
+            onDone={() => setStreakBreakToast(false)}
+          />
+        )}
+      </AnimatePresence>
 
       <footer className="credits">
         Question bank © 中華民國考選部 / 詳解 © <a href="https://sites.google.com/view/ymmedexam/ans" target="_blank" rel="noreferrer">陽明國考考古題小組</a> (CC-BY-NC)

@@ -1,18 +1,50 @@
 {
   "name": "@study-rpg/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Study-RPG engine: stats, leveling, gacha loot with pity, SRS, boss runs, and generic UI components. Content-pack agnostic.",
   "license": "AGPL-3.0-or-later",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./types": "./src/types.ts",
-    "./lib/*": "./src/lib/*.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "keywords": [
+    "rpg",
+    "exam-prep",
+    "spaced-repetition",
+    "gacha",
+    "study",
+    "engine"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fireman333/study-rpg.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/fireman333/study-rpg/tree/main/packages/core",
+  "bugs": {
+    "url": "https://github.com/fireman333/study-rpg/issues"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "tsup",
+    "prepublishOnly": "pnpm typecheck && pnpm build"
   },
   "peerDependencies": {
     "react": "^18.3.0",
@@ -26,6 +58,7 @@
   "devDependencies": {
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "tsup": "^8.3.0",
     "typescript": "^5.4.0"
   }
 }

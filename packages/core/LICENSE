@@ -1,0 +1,18 @@
+                    GNU AFFERO GENERAL PUBLIC LICENSE
+                       Version 3, 19 November 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+This project (study-rpg) is licensed under the GNU AGPL v3.0 or later.
+Full text: https://www.gnu.org/licenses/agpl-3.0.txt
+
+Copyright (C) 2026 WLK (康瑋麟) and study-rpg contributors.
+
+NOTE — content licensing differs from engine licensing:
+  - Engine + theme code (packages/core, packages/theme-pixel-medical, apps/*)
+    are AGPL-3.0-or-later.
+  - The default content pack (packages/content-medexam-tw) is CC-BY-NC-4.0
+    because 詳解 are © 陽明國考考古題小組 with a non-commercial restriction.
+    See packages/content-medexam-tw/CREDITS.md for full attribution.

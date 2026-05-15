@@ -611,3 +611,359 @@
 .review-mode-banner .rmb-text {
   flex: 1;
 }
+
+/* ─── Skill tree ─────────────────────────────────────────────────────────── */
+
+.skill-tree-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.skill-tree-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--frame-wood-light);
+}
+
+.skill-tree-header h2 {
+  font-family: var(--font-pixel-cjk);
+  font-size: 24px;
+  margin: 0;
+  color: var(--ink);
+}
+
+.skill-tree-back {
+  font-family: var(--font-pixel-cjk);
+  font-size: 14px;
+  color: var(--frame-wood-dark);
+  text-decoration: none;
+  padding: 4px 8px;
+  border: 2px solid var(--frame-wood-light);
+  background: var(--bg-cream);
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+}
+
+.skill-tree-back:hover {
+  background: var(--frame-wood-light);
+  color: var(--bg-cream);
+}
+
+.skill-tree-hint {
+  font-family: var(--font-body-cjk);
+  font-size: 12px;
+  color: var(--frame-wood-dark);
+  flex: 1;
+  text-align: right;
+}
+
+.skill-tree-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 16px;
+}
+
+@media (max-width: 767px) {
+  .skill-tree-grid {
+    grid-template-columns: repeat(4, 200px);
+    grid-auto-flow: column;
+  }
+  .skill-tree-hint {
+    text-align: left;
+    flex-basis: 100%;
+  }
+}
+
+.skill-branch {
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-light);
+  box-shadow: 3px 3px 0 var(--frame-wood-dark);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skill-branch-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 2px dashed var(--branch-accent, var(--frame-wood-light));
+}
+
+.skill-branch-stat {
+  font-family: var(--font-pixel-cjk);
+  font-size: 16px;
+  color: var(--branch-accent, var(--ink));
+}
+
+.skill-branch-value {
+  font-family: var(--font-pixel-num);
+  font-size: 18px;
+  color: var(--ink);
+}
+
+.skill-branch-track {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skill-node-wrap {
+  position: relative;
+}
+
+.skill-node {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 2px solid var(--frame-wood-light);
+  background: var(--bg-cream);
+  cursor: pointer;
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  text-align: left;
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+}
+
+.skill-node.locked {
+  border-style: dashed;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--frame-wood-dark);
+  cursor: default;
+  box-shadow: none;
+  opacity: 0.65;
+}
+
+.skill-node.unlocked {
+  border-color: var(--branch-accent, var(--frame-wood-light));
+  color: var(--ink);
+}
+
+.skill-node.unlocked:hover,
+.skill-node.expanded {
+  background: var(--branch-accent, var(--frame-wood-light));
+  color: var(--bg-cream);
+}
+
+.skill-node-art {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--frame-wood-light);
+}
+
+.skill-node-art img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.skill-node.locked .skill-node-art {
+  filter: grayscale(1);
+}
+
+.skill-node-placeholder {
+  font-family: var(--font-pixel-num);
+  font-size: 16px;
+}
+
+.skill-node-name {
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.skill-node-threshold {
+  flex: 1;
+  font-family: var(--font-pixel-num);
+  font-size: 14px;
+  color: var(--frame-wood-dark);
+  text-align: right;
+}
+
+.skill-node-flavor {
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: var(--bg-cream);
+  border: 2px solid var(--branch-accent, var(--frame-wood-light));
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+  font-family: var(--font-body-cjk);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.skill-node-flavor strong {
+  display: block;
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  color: var(--branch-accent, var(--ink));
+  margin-bottom: 4px;
+}
+
+.skill-node-flavor p {
+  margin: 0;
+}
+
+/* Skill unlock toast */
+
+.skill-unlock-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-dark);
+  color: var(--bg-cream);
+  border: 2px solid var(--accent-gold);
+  box-shadow: 4px 4px 0 var(--frame-wood-dark);
+  z-index: 80;
+  max-width: 280px;
+}
+
+.skill-unlock-toast-sprite {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-cream);
+  border: 1px solid var(--accent-gold);
+  flex-shrink: 0;
+}
+
+.skill-unlock-toast-sprite img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.skill-unlock-toast-sprite span {
+  font-family: var(--font-pixel-num);
+  font-size: 18px;
+  color: var(--accent-gold);
+}
+
+.skill-unlock-toast-text {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-pixel-cjk);
+}
+
+.skill-unlock-toast-text strong {
+  font-size: 11px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.skill-unlock-toast-text span {
+  font-size: 14px;
+}
+
+/* Character card skill tree entry button */
+
+.char-card-skill-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  font-family: var(--font-pixel-cjk);
+  font-size: 14px;
+  text-align: center;
+  border: 2px solid var(--accent-gold);
+  background: var(--bg-cream);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+}
+
+.char-card-skill-btn:hover {
+  background: var(--accent-gold);
+  color: var(--bg-cream);
+}
+
+/* ─── Streak chip (header) ──────────────────────────────────────────────── */
+
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 12px;
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--bg-cream);
+  border: 2px solid var(--accent-gold);
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+}
+
+.streak-chip-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.streak-chip-label {
+  letter-spacing: 0.02em;
+}
+
+/* ─── Streak break-day toast ────────────────────────────────────────────── */
+
+.streak-break-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-cream);
+  color: var(--ink);
+  border: 2px solid var(--frame-wood-light);
+  box-shadow: 4px 4px 0 var(--frame-wood-dark);
+  z-index: 80;
+  max-width: 280px;
+}
+
+.streak-break-toast-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.streak-break-toast-text {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-pixel-cjk);
+}
+
+.streak-break-toast-text strong {
+  font-size: 13px;
+  color: var(--frame-wood-dark);
+}
+
+.streak-break-toast-text span {
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.8;
+}

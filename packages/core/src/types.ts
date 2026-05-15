@@ -123,6 +123,21 @@ export interface Player {
   lastActiveAt: number
   /** Theme sprite key for the character portrait. Default = 'character-base'. */
   characterSpriteKey?: string
+  /** ISO YYYY-MM-DD in UTC+8. Undefined when the player has never met the check-in threshold. */
+  lastCheckInDate?: string
+  /** Consecutive UTC+8 days (counting today) where the check-in threshold was met. */
+  currentStreak: number
+  /** Highest currentStreak ever observed for this player. */
+  longestStreak: number
+  /** Per-day partial-progress counters used to decide threshold crossing. Resets on UTC+8 day roll-over. */
+  todayProgress?: {
+    /** UTC+8 date the counters belong to. */
+    date: string
+    /** Number of focused reading-minute ticks accumulated today. */
+    readingMinutes: number
+    /** Number of questions answered today (any mode, any correctness). */
+    questionsAnswered: number
+  }
 }
 
 // ─── Sessions / attempts ─────────────────────────────────────────────────────
@@ -240,6 +255,8 @@ export interface ThemePack {
   fonts: FontDef[]
   sprites: Record<string, string>                // sprite key → URL or data URI
   itemCatalog: Item[]                            // theme-specific item catalog (e.g. 醫學主題)
+  /** Optional skill tree content (4 branches × 9 nodes). Engine falls back when missing. */
+  skillTree?: import('./lib/skillTree').SkillTreeContent
   uiOverrides?: Record<string, unknown>          // optional component overrides
 }
 

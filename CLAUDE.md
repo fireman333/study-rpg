@@ -36,6 +36,14 @@ auto-git commit             # only after archive — see auto-git skill rules
 - Trivial typo / one-line fix → just edit, no propose
 - User explicitly says "skip verify" / "just commit"
 
+### Dual-worktree development (M_2nd parallel track)
+
+M2（一階）+ M_2nd（二階 hospital mode）並行用 git worktree 隔離。完整 workflow / naming convention / sync protocol / git ops policy 詳見 `openspec/project.md` § Development Workflow。
+
+- **一階 session**: `cd ~/coding-scratch/study-rpg` (main branch)
+- **二階 session**: `cd ~/coding-scratch/study-rpg-m2` (track-m2 branch)
+- **Merge 二階 → main**: `cd ~/coding-scratch/study-rpg && git merge track-m2` (post-archive; needs explicit confirm)
+
 ### Curator rules (hard)
 
 - **Never** `git commit` without explicit user confirmation
@@ -55,8 +63,15 @@ MEDEXAM_ALLOW_SKIPS=1 pnpm --filter @study-rpg/content-medexam-tw build
 # Copy built questions.json to app public/
 cp packages/content-medexam-tw/dist/*.json apps/medexam-tw/public/content/medexam-tw/
 
+# Cold checkout 第一次跑前要先 build packages/core (main/exports 已指向 dist/，不再走 src/.ts on-the-fly)。
+# core src/index.ts 改動後也要再跑一次。`pnpm -r build` 會 topo-sort 自動處理，
+# 但只跑 `pnpm dev` 時不會：
+pnpm --filter @study-rpg/core build  # 必要 cold checkout 或 core 改動後
+
 # Dev server (http://localhost:5173/study-rpg/)
 pnpm --filter @study-rpg/medexam-tw dev
+
+# medexam-tw `build` 已加 prebuild hook 會自動 rebuild core，CI deploy.yml 走這條路徑
 
 # Typecheck everything
 pnpm -r typecheck
