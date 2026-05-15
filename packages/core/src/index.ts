@@ -45,6 +45,20 @@ export {
   type MockPassRewardOutcome,
 } from './lib/mock-exam'
 export {
+  pickDailyQuestion,
+  enqueueBacklogForMissedDays,
+  initialBacklog,
+  consumeBacklog,
+  computeMentorReward,
+  mentorToday,
+  MENTOR_BACKLOG_CAP,
+  MENTOR_LOOKBACK_DAYS,
+  type MentorPickInput,
+  type MentorPickResult,
+  type MentorPickMode,
+  type MentorRewardOutcome,
+} from './lib/mentor-daily'
+export {
   STREAK_CHECK_IN_THRESHOLD,
   STREAK_MULTIPLIER_CAP_DAYS,
   getTaipeiToday,
