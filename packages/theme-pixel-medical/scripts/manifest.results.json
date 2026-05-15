@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-14T13:11:04.677Z",
+  "generatedAt": "2026-05-15T11:55:30.359Z",
   "cdxModel": "codex-cli/gpt-image-2",
   "results": [
     {
@@ -7,20 +7,21 @@
       "filename": "character-base.png",
       "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/character-base.png",
       "status": "ok",
-      "bytes": 164099,
-      "sha256": "7607889ad025a3bd8140ce8a0630cfbac041d3a0f1441f222aad5b5d30b8e8fe",
-      "generatedAt": "2026-05-14T11:52:01.878Z",
-      "elapsedMs": 145996
+      "bytes": 19852,
+      "sha256": "004624bc258a9a6cafc45800853fc1c3df8ac4bfea8b8398bdb9b60efff13daa",
+      "generatedAt": "2026-05-15T11:09:00.668Z",
+      "elapsedMs": 2935514,
+      "note": "codex exited null (signal=SIGKILL) but valid PNG was written"
     },
     {
       "key": "character-base-female",
       "filename": "character-base-female.png",
       "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/character-base-female.png",
       "status": "ok",
-      "bytes": 176216,
-      "sha256": "f4118451c4222eacd002cea5281f16f32f38c20bf16bb7c38907b5c90e04c249",
-      "generatedAt": "2026-05-14T13:16:27.810Z",
-      "elapsedMs": 323131
+      "bytes": 53534,
+      "sha256": "c1ddc8c1fcdede50fc18bfd8cc23fb62042af999bdde65e476ecb89bf46c99e6",
+      "generatedAt": "2026-05-15T10:22:35.044Z",
+      "elapsedMs": 149888
     },
     {
       "key": "hairband",
@@ -262,6 +263,169 @@
       "sha256": "fbc3f7309e2175b5f6c9dd8d26378452773ac452866f6f7a40a6513232e57b4a",
       "generatedAt": "2026-05-14T12:35:50.927Z",
       "elapsedMs": 145715
+    },
+    {
+      "key": "cosmetic-head-medical-student-glasses",
+      "filename": "cosmetic-head-medical-student-glasses.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-head-medical-student-glasses.png",
+      "status": "ok",
+      "bytes": 1921,
+      "sha256": "89387beeb702019f719ce8f36d12181c37fb1ffbaaef49311789c3ef1285e4e5",
+      "generatedAt": "2026-05-15T11:25:35.984Z",
+      "elapsedMs": 795319,
+      "note": "codex exited null (signal=SIGKILL) but valid PNG was written"
+    },
+    {
+      "key": "cosmetic-head-knowledge-glasses",
+      "filename": "cosmetic-head-knowledge-glasses.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-head-knowledge-glasses.png",
+      "status": "ok",
+      "bytes": 1264,
+      "sha256": "2fb443770c9bc7b8a9a01f31760b662fde0f9c410af62e901bfbbe648a651274",
+      "generatedAt": "2026-05-15T11:19:12.853Z",
+      "elapsedMs": 412184,
+      "note": "codex exited null (signal=SIGKILL) but valid PNG was written"
+    },
+    {
+      "key": "cosmetic-head-reflex-mirror",
+      "filename": "cosmetic-head-reflex-mirror.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-head-reflex-mirror.png",
+      "status": "ok",
+      "bytes": 3484,
+      "sha256": "9189b2d2e1cde07c51a10fea1f58c90bc60dec0d5c040dfb0d667a9aea4d1b97",
+      "generatedAt": "2026-05-15T11:19:25.489Z",
+      "elapsedMs": 424822,
+      "note": "codex exited null (signal=SIGKILL) but valid PNG was written"
+    },
+    {
+      "key": "cosmetic-head-streak7-cap",
+      "filename": "cosmetic-head-streak7-cap.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-head-streak7-cap.png",
+      "status": "ok",
+      "bytes": 5561,
+      "sha256": "ae8336b20f262fcd2a12c42179cbe9b0260234e91aebcb81e3ed5aa2889103d6",
+      "generatedAt": "2026-05-15T11:28:23.605Z",
+      "elapsedMs": 167620
+    },
+    {
+      "key": "cosmetic-body-student-coat",
+      "filename": "cosmetic-body-student-coat.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-body-student-coat.png",
+      "status": "ok",
+      "bytes": 8051,
+      "sha256": "b028e6a1a00f5206af292ddacc513228d1dc995ea16dd86090d54ab0248e4bbc",
+      "generatedAt": "2026-05-15T11:29:26.432Z",
+      "elapsedMs": 230444
+    },
+    {
+      "key": "cosmetic-body-resident-coat",
+      "filename": "cosmetic-body-resident-coat.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-body-resident-coat.png",
+      "status": "ok",
+      "bytes": 17103,
+      "sha256": "f81913e7aa328e99bed298364e08d8421aa67da2486f9d04b39f806b4e96f7d8",
+      "generatedAt": "2026-05-15T11:28:55.884Z",
+      "elapsedMs": 199896
+    },
+    {
+      "key": "cosmetic-body-attending-coat",
+      "filename": "cosmetic-body-attending-coat.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-body-attending-coat.png",
+      "status": "ok",
+      "bytes": 17001,
+      "sha256": "f62e1732f0dc5f35fbd6aba1fe0465647ccba25814d69b75d6d2d0e582de77ec",
+      "generatedAt": "2026-05-15T12:00:10.327Z",
+      "elapsedMs": 279967
+    },
+    {
+      "key": "cosmetic-body-fullmoon-coat",
+      "filename": "cosmetic-body-fullmoon-coat.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-body-fullmoon-coat.png",
+      "status": "ok",
+      "bytes": 21759,
+      "sha256": "aecebaed97ca14bd0ba3740917cbe92fcf10625133b6a7f67a38eb8cab37a4e6",
+      "generatedAt": "2026-05-15T11:59:22.719Z",
+      "elapsedMs": 232356
+    },
+    {
+      "key": "cosmetic-accessory-stethoscope",
+      "filename": "cosmetic-accessory-stethoscope.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-accessory-stethoscope.png",
+      "status": "ok",
+      "bytes": 4253,
+      "sha256": "f0c3e1a09ffa64a145ec1730531396f3a1dcc5715898d972632812bf63d73674",
+      "generatedAt": "2026-05-15T11:58:24.208Z",
+      "elapsedMs": 173844
+    },
+    {
+      "key": "cosmetic-accessory-memory-notebook",
+      "filename": "cosmetic-accessory-memory-notebook.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-accessory-memory-notebook.png",
+      "status": "ok",
+      "bytes": 2008,
+      "sha256": "f2f5b29ce2bf2733f433d2a1a440de315c8ab07c9736c5367bd1947a63bcdc77",
+      "generatedAt": "2026-05-15T12:03:04.287Z",
+      "elapsedMs": 173958
+    },
+    {
+      "key": "cosmetic-accessory-stamina-medal",
+      "filename": "cosmetic-accessory-stamina-medal.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-accessory-stamina-medal.png",
+      "status": "ok",
+      "bytes": 2563,
+      "sha256": "bda31e706992d01a7963bc60d323f3b88982b7fe3084420e54367b5c110974d5",
+      "generatedAt": "2026-05-15T12:03:45.680Z",
+      "elapsedMs": 215350
+    },
+    {
+      "key": "cosmetic-accessory-streak7-badge",
+      "filename": "cosmetic-accessory-streak7-badge.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-accessory-streak7-badge.png",
+      "status": "ok",
+      "bytes": 3080,
+      "sha256": "47f0ed6f22d617ceea7730acbf235c133f01088ccc4fdaba05ca483ed6372ce5",
+      "generatedAt": "2026-05-15T12:02:56.545Z",
+      "elapsedMs": 166215
+    },
+    {
+      "key": "cosmetic-held-exam-book",
+      "filename": "cosmetic-held-exam-book.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-held-exam-book.png",
+      "status": "ok",
+      "bytes": 4036,
+      "sha256": "4599a64fede4116c47515e3bd85a571c401275b248a7348d154f9bfd057fb848",
+      "generatedAt": "2026-05-15T12:06:22.534Z",
+      "elapsedMs": 156854
+    },
+    {
+      "key": "cosmetic-held-detailed-notes",
+      "filename": "cosmetic-held-detailed-notes.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-held-detailed-notes.png",
+      "status": "ok",
+      "bytes": 7032,
+      "sha256": "31cd890b0e91b488269e7a52e49f3e6e4adb9d14b92ea0ac84a598a28a86678d",
+      "generatedAt": "2026-05-15T12:06:52.073Z",
+      "elapsedMs": 186391
+    },
+    {
+      "key": "cosmetic-held-prescription-pad",
+      "filename": "cosmetic-held-prescription-pad.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-held-prescription-pad.png",
+      "status": "ok",
+      "bytes": 5770,
+      "sha256": "16a6040c20809ce7398c4c3514402ab51c3c4044a72ca4289b4c43f213c441c6",
+      "generatedAt": "2026-05-15T12:06:31.167Z",
+      "elapsedMs": 165485
+    },
+    {
+      "key": "cosmetic-held-boss-cert",
+      "filename": "cosmetic-held-boss-cert.png",
+      "absolutePath": "/Users/kangweiling/coding-scratch/study-rpg/packages/theme-pixel-medical/sprites/cosmetic-held-boss-cert.png",
+      "status": "ok",
+      "bytes": 3697,
+      "sha256": "5e5f008ef06ed2ba625e821d7d12a747c551b38e730131086c4c103a485749e1",
+      "generatedAt": "2026-05-15T12:10:00.726Z",
+      "elapsedMs": 188652
     }
   ]
 }
