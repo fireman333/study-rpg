@@ -88,4 +88,4 @@
 - [x] 8.2 `openspec validate wire-hospital-tycoon-engine` → valid; spec scenarios trace to implementation (room model → rooms.ts, atomic assignment → assignment.ts, tick → tick.ts, counter banner → HomePage.tsx).
 - [x] 8.3 `/verify` inline: typecheck clean across 7 packages + apps; Chrome MCP smoke proved render + assignment + tick math (§7.5–§7.11). Periodic-tick discovery: Chrome MCP tabs are `visibilityState: hidden` — correctly causes tick to suspend per spec, hence requires visibility dispatch to smoke-test in headless mode (documented in §7.9; future devs can repeat via console snippet).
 - [x] 8.4 No new doc file needed — Dexie discovery already covered by inline comments; tick-loop visibility-hidden gotcha noted in §7.9 of tasks.md (lives in archive after merge).
-- [ ] 8.5 User confirmation pending → auto-git commit `feat(wire-hospital-tycoon-engine): room assignment + 5s tick loop + revenue/reputation counters`
+- [x] 8.5 User confirmed → committed as `e069348 feat(wire-hospital-tycoon-engine): room assignment + 5s tick loop + revenue/reputation counters` (16 files / +1064 / -7)
