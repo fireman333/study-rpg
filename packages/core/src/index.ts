@@ -22,6 +22,18 @@ export {
   FAST_ANSWER_THRESHOLD_MS,
   type XpGainResult,
 } from './lib/xp'
+export {
+  STREAK_CHECK_IN_THRESHOLD,
+  STREAK_MULTIPLIER_CAP_DAYS,
+  getTaipeiToday,
+  getTaipeiYesterday,
+  getStreakMultiplier,
+  applyCheckIn,
+  ensureTodayProgress,
+  incrementReadingMinutes,
+  incrementQuestionsAnswered,
+  hasMetCheckInThreshold,
+} from './lib/streak'
 export { newCard, reviewCard, dueCards } from './lib/srs'
 export {
   sampleMiniBoss,

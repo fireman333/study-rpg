@@ -62,7 +62,7 @@
 | Milestone | 範圍 | 狀態 |
 |---|---|---|
 | **M1（MVP）** | ✓ 藥理學 vertical slice + ✓ 1 boss + ✓ 4 屬性 + ✓ loot + ✓ IndexedDB 存檔 + ✓ GH Pages workflow（首次 push 後 live） | ✓ shipped (2026-05-15) |
-| M2 — 全科開放 | ✓ 10 科全解（3291/3600 imported, 309 上游 OCR 缺欄位 skip）+ skill tree UI + ✓ 4 屬性全部 wired（公式 fine-tune 待 dogfood）+ daily streak + ✓ SRS due queue + 附圖題處理（placeholder banner 已上） | 🚧 進行中 |
+| M2 — 全科開放 | ✓ 10 科全解（3291/3600 imported, 309 上游 OCR 缺欄位 skip）+ ✓ skill tree UI + ✓ 4 屬性全部 wired（公式 fine-tune 仍待 dogfood telemetry）+ ✓ daily streak（🔥 chip + 1+0.05·min(s,10) multiplier + break-day soft toast）+ ✓ SRS due queue + ✓ 附圖題 placeholder banner | ✓ shipped (2026-05-15) |
 | **M_2nd — 二階國考經營 RPG**（與 M2 並行 dogfood-the-fork track） | scaffold（3 packages + 1 app）+ 二階題庫 ingest（~12,160 Q / 14 科）+ recruitment gacha + tycoon engine + reputation formula + 三階段升級 + doctor sprite roster + GH Pages deploy。詳見 `openspec/specs/hospital-management-mode/spec.md` + 8 個 planned changes。M3 npm publish 是兩 track 合流點。 | 🚧 進行中（scaffold） |
 | M3 — 公開 API + 範例 fork | `@study-rpg/core` 發 npm（0.1.x）+ `docs/CONTENT_SCHEMA.md` / `THEME_API.md` 完整 + minimal `content-toefl-mini` 50Q demo（M_2nd 二階 hospital mode 也算 fork dogfood，但 owner-internal） | ⏳ |
 | M4 — 跨裝置存檔 | Supabase Auth (Google OAuth) + 雲端 sync；IndexedDB 仍 source of truth | ⏳ |

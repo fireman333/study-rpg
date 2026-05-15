@@ -97,5 +97,8 @@ export function newPlayer(id: string, name: string, initialStatNames: string[]):
     lootStats: { rollsSinceLastSR: 0, rollsSinceLastSSR: 0, totalRolls: 0 },
     createdAt: now,
     lastActiveAt: now,
+    currentStreak: 0,
+    longestStreak: 0,
+    // lastCheckInDate intentionally undefined until first check-in
   }
 }
