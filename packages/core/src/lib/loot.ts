@@ -1,4 +1,5 @@
 import type { Item, ItemInstance, LootStats, Rarity, Drop } from '../types'
+import { rollGacha, type GachaConfig, type GachaStats, type PityRule, type GachaTier } from './gacha'
 
 /**
  * Default rarity weights, summing to 100.
@@ -17,8 +18,32 @@ export const PITY_SSR_THRESHOLD = 100 // 100 rolls without SSR+ → force SSR
 
 const RARITY_ORDER: Rarity[] = ['N', 'R', 'SR', 'SSR', 'UR']
 
-function rarityAtOrAbove(r: Rarity, threshold: Rarity): boolean {
-  return RARITY_ORDER.indexOf(r) >= RARITY_ORDER.indexOf(threshold)
+const LOOT_PITY_RULES: PityRule[] = [
+  { tier: 'SR', atRolls: PITY_SR_THRESHOLD },
+  { tier: 'SSR', atRolls: PITY_SSR_THRESHOLD },
+]
+
+function buildLootConfig(weights: Record<Rarity, number>): GachaConfig {
+  const tiers: GachaTier[] = RARITY_ORDER.map((id) => ({ id, weight: weights[id] ?? 0 }))
+  return { tiers, pityRules: LOOT_PITY_RULES }
+}
+
+function lootStatsToGacha(stats: LootStats): GachaStats {
+  return {
+    totalRolls: stats.totalRolls,
+    rollsSinceLast: {
+      SR: stats.rollsSinceLastSR,
+      SSR: stats.rollsSinceLastSSR,
+    },
+  }
+}
+
+function gachaStatsToLoot(s: GachaStats): LootStats {
+  return {
+    totalRolls: s.totalRolls,
+    rollsSinceLastSR: s.rollsSinceLast.SR ?? 0,
+    rollsSinceLastSSR: s.rollsSinceLast.SSR ?? 0,
+  }
 }
 
 /**
@@ -30,20 +55,8 @@ export function rollRarity(
   weights: Record<Rarity, number> = DEFAULT_RARITY_WEIGHTS,
   rng: () => number = Math.random,
 ): { rarity: Rarity; wasPity: boolean } {
-  if (stats.rollsSinceLastSSR >= PITY_SSR_THRESHOLD) {
-    return { rarity: 'SSR', wasPity: true }
-  }
-  if (stats.rollsSinceLastSR >= PITY_SR_THRESHOLD) {
-    return { rarity: 'SR', wasPity: true }
-  }
-  const total = RARITY_ORDER.reduce((s, r) => s + (weights[r] || 0), 0)
-  const target = rng() * total
-  let acc = 0
-  for (const r of RARITY_ORDER) {
-    acc += weights[r] || 0
-    if (target < acc) return { rarity: r, wasPity: false }
-  }
-  return { rarity: 'N', wasPity: false }
+  const result = rollGacha(buildLootConfig(weights), lootStatsToGacha(stats), rng)
+  return { rarity: result.tier as Rarity, wasPity: result.wasPity }
 }
 
 /** Uniform pick from items that match the rolled rarity. */
@@ -54,7 +67,6 @@ export function pickItemByRarity(
 ): Item | undefined {
   const pool = catalog.filter((i) => i.rarity === rarity)
   if (pool.length === 0) {
-    // Fallback: degrade to the next-lowest rarity available
     const idx = RARITY_ORDER.indexOf(rarity)
     for (let i = idx - 1; i >= 0; i--) {
       const fallback = catalog.filter((it) => it.rarity === RARITY_ORDER[i])
@@ -84,16 +96,18 @@ export function rollLoot(
     rng?: () => number
   },
 ): RollResult | undefined {
-  const { rarity, wasPity } = rollRarity(stats, opts?.weights, opts?.rng)
-  const item = pickItemByRarity(catalog, rarity, opts?.rng)
+  const weights = opts?.weights ?? DEFAULT_RARITY_WEIGHTS
+  const rng = opts?.rng ?? Math.random
+  const gResult = rollGacha(buildLootConfig(weights), lootStatsToGacha(stats), rng)
+  const rarity = gResult.tier as Rarity
+  const item = pickItemByRarity(catalog, rarity, rng)
   if (!item) return undefined
-
-  const newStats: LootStats = {
-    totalRolls: stats.totalRolls + 1,
-    rollsSinceLastSR: rarityAtOrAbove(rarity, 'SR') ? 0 : stats.rollsSinceLastSR + 1,
-    rollsSinceLastSSR: rarityAtOrAbove(rarity, 'SSR') ? 0 : stats.rollsSinceLastSSR + 1,
+  return {
+    item,
+    rarity,
+    wasPity: gResult.wasPity,
+    newStats: gachaStatsToLoot(gResult.newStats),
   }
-  return { item, rarity, wasPity, newStats }
 }
 
 /**
@@ -104,7 +118,7 @@ export function instanceFromRoll(
   result: RollResult,
   source: Drop['source'],
   now: number = Date.now(),
-  idFn: () => string = defaultId,
+  idFn: () => string = randomId,
 ): { instance: ItemInstance; drop: Drop } {
   const id = idFn()
   return {
@@ -120,10 +134,10 @@ export function instanceFromRoll(
   }
 }
 
-function defaultId(): string {
-  // crypto.randomUUID is available in Node 19+ and modern browsers
+/** crypto.randomUUID with a Math.random fallback for older runtimes. Safe for
+ *  client-side game IDs; do NOT use where cryptographic uniqueness matters. */
+export function randomId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
-  // Fallback (still random enough for client-side game IDs)
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 }
 

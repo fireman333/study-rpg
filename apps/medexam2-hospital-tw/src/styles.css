@@ -1,4 +1,20 @@
-/* Scaffold-only styles. Real theme styling lands with later wire-* changes. */
+:root {
+  /* GBA palette, mirrors @study-rpg/theme-pixel-hospital cssVars */
+  --bg-cream: #f4ecd8;
+  --bg-paper: #fff8ec;
+  --ink: #1a1410;
+  --frame-light: #8c6d4a;
+  --frame-dark: #5a3f29;
+  --accent-leaf: #6a8c3f;
+  --accent-rose: #c44d4d;
+  --accent-gold: #d4a04d;
+  --accent-sky: #6a9bc4;
+  --rarity-p5: #d8d8d8;
+  --rarity-p4: #6a9bc4;
+  --rarity-p3: #a06ac4;
+  --rarity-p2: #d4a04d;
+  --rarity-p1: #c44d4d;
+}
 
 * {
   box-sizing: border-box;
@@ -7,55 +23,499 @@
 body {
   margin: 0;
   font-family: 'VT323', 'Press Start 2P', 'Noto Sans TC', monospace;
-  background: #f4ecd8;
-  color: #1a1410;
+  background: var(--bg-cream);
+  color: var(--ink);
+  image-rendering: pixelated;
 }
 
-.scaffold-shell {
-  max-width: 720px;
-  margin: 40px auto;
+.app-shell {
+  max-width: 1080px;
+  margin: 0 auto;
   padding: 24px;
-  border: 4px solid #5a3f29;
-  border-radius: 8px;
-  background: #fff8ec;
-  box-shadow: 4px 4px 0 #8c6d4a;
 }
 
-.scaffold-shell h1 {
-  margin-top: 0;
+.boot-status {
+  text-align: center;
+  margin-top: 80px;
+  font-size: 24px;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--frame-dark);
+  margin-bottom: 20px;
+}
+
+.app-header h1 {
+  margin: 0;
   font-family: 'Press Start 2P', monospace;
   font-size: 20px;
-  color: #2d1f1a;
+  color: var(--frame-dark);
 }
 
-.scaffold-status {
-  font-style: italic;
-  color: #6a8c3f;
+.app-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.scaffold-section {
-  margin-top: 20px;
-  padding: 12px;
-  border: 2px dashed #8c6d4a;
+.ticket-counter {
+  font-size: 22px;
+  padding: 4px 12px;
+  background: var(--bg-paper);
+  border: 2px solid var(--frame-dark);
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--frame-light);
+}
+
+.nav-link {
+  color: var(--frame-dark);
+  text-decoration: none;
+  font-size: 18px;
+  padding: 4px 10px;
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  background: var(--bg-paper);
+}
+
+.nav-link:hover {
+  background: var(--accent-gold);
+}
+
+/* ── Banner grid ───────────────────────────────────────── */
+
+.banners {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .banners {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .banners {
+    grid-template-columns: 1fr;
+  }
+}
+
+.banner {
+  --banner-color: var(--accent-leaf);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--bg-paper);
+  border: 3px solid var(--banner-color);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 var(--frame-light);
+  transition: transform 0.1s ease;
+}
+
+.banner--locked {
+  opacity: 0.7;
+  filter: grayscale(0.6);
+}
+
+.banner--unlocked:hover {
+  transform: translate(-1px, -1px);
+}
+
+.banner__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.banner__title {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--banner-color);
+}
+
+.banner__group {
+  font-size: 14px;
+  color: var(--frame-light);
+}
+
+.banner__progress {
+  position: relative;
+  height: 22px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-dark);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.banner__progress-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--banner-color);
+  transition: width 0.25s ease;
+}
+
+.banner__progress-text {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: bold;
+  mix-blend-mode: difference;
+  color: #fff;
+}
+
+.banner__roll {
+  padding: 8px 12px;
+  font-size: 18px;
+  font-family: inherit;
+  color: var(--bg-paper);
+  background: var(--banner-color);
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--frame-dark);
+}
+
+.banner__roll:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--frame-dark);
+}
+
+.banner__roll:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.banner__locked-msg {
+  margin: 0;
+  font-size: 16px;
+  text-align: center;
+  color: var(--frame-dark);
+}
+
+.banner__locked-msg strong {
+  color: var(--accent-rose);
+}
+
+/* ── Toast ─────────────────────────────────────────────── */
+
+.toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+}
+
+.toast {
+  padding: 10px 16px;
+  font-size: 18px;
+  background: var(--bg-paper);
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--frame-light);
+  animation: toast-in 0.2s ease;
+}
+
+.toast--unlock {
+  border-color: var(--accent-gold);
+  background: #fff4d6;
+}
+
+.toast--error {
+  border-color: var(--accent-rose);
+  background: #fde0e0;
+}
+
+@keyframes toast-in {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Modal ─────────────────────────────────────────────── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 31, 26, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.modal-card {
+  --rarity-color: var(--accent-leaf);
+  position: relative;
+  width: min(420px, 100%);
+  padding: 24px;
+  background: var(--bg-paper);
+  border: 4px solid var(--rarity-color);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0 var(--frame-dark);
+  text-align: center;
+}
+
+.modal-card__rarity {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.modal-card__rarity-tier {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 22px;
+  color: var(--rarity-color);
+}
+
+.modal-card__rarity-label {
+  font-size: 22px;
+  color: var(--ink);
+}
+
+.modal-card__pity {
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-size: 14px;
+  background: var(--accent-gold);
+  border: 2px solid var(--frame-dark);
   border-radius: 4px;
 }
 
-.scaffold-section h2 {
-  margin-top: 0;
+.modal-card__sprite {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-cream);
+  border: 3px dashed var(--rarity-color);
+  border-radius: 6px;
+}
+
+.modal-card__sprite-emoji {
+  font-size: 56px;
+}
+
+.modal-card__name {
+  margin: 0 0 12px;
   font-family: 'Press Start 2P', monospace;
   font-size: 14px;
+  color: var(--frame-dark);
 }
 
-.scaffold-section code {
-  background: #d4a04d33;
-  padding: 2px 4px;
-  border-radius: 2px;
+.modal-card__meta {
+  display: flex;
+  justify-content: space-around;
+  margin: 0 0 18px;
 }
 
-ul {
-  padding-left: 20px;
+.modal-card__meta dt {
+  font-size: 14px;
+  color: var(--frame-light);
 }
 
-li {
-  margin: 4px 0;
+.modal-card__meta dd {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.modal-card__close {
+  padding: 8px 24px;
+  font-size: 18px;
+  font-family: inherit;
+  background: var(--rarity-color);
+  color: var(--bg-paper);
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--frame-dark);
+}
+
+/* ── Dev panel ─────────────────────────────────────────── */
+
+.dev-panel {
+  margin-top: 28px;
+  padding: 14px;
+  background: #2d1f1a;
+  color: var(--bg-cream);
+  border: 2px dashed var(--accent-gold);
+  border-radius: 4px;
+}
+
+.dev-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.dev-panel__badge {
+  padding: 2px 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  background: var(--accent-rose);
+  color: #fff;
+  border-radius: 3px;
+}
+
+.dev-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+
+.dev-panel__btn {
+  padding: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--bg-cream);
+  background: var(--frame-dark);
+  border: 1px solid var(--accent-gold);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.dev-panel__btn:hover {
+  background: var(--frame-light);
+}
+
+/* ── Roster ────────────────────────────────────────────── */
+
+.empty-state {
+  text-align: center;
+  margin-top: 60px;
+  padding: 24px;
+  border: 2px dashed var(--frame-light);
+  border-radius: 6px;
+}
+
+.empty-state__cta {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: var(--accent-leaf);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 10px;
+  background: var(--bg-paper);
+  border: 2px solid var(--frame-light);
+  border-radius: 4px;
+}
+
+.filter-bar label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+}
+
+.filter-bar select {
+  font-family: inherit;
+  font-size: 18px;
+  padding: 4px 6px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-dark);
+  border-radius: 3px;
+}
+
+.filter-bar__count {
+  margin-left: auto;
+  font-size: 16px;
+  color: var(--frame-light);
+}
+
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.doctor-card {
+  --rarity-color: var(--accent-leaf);
+  padding: 12px;
+  background: var(--bg-paper);
+  border: 3px solid var(--rarity-color);
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--frame-light);
+  text-align: center;
+}
+
+.doctor-card__head {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.doctor-card__rarity {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--rarity-color);
+}
+
+.doctor-card__sprite {
+  font-size: 40px;
+  margin: 0 auto 6px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-cream);
+  border: 2px dashed var(--rarity-color);
+  border-radius: 4px;
+}
+
+.doctor-card__name {
+  margin: 6px 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--frame-dark);
+}
+
+.doctor-card__meta {
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+  font-size: 16px;
+}
+
+.doctor-card__meta dt {
+  font-size: 14px;
+  color: var(--frame-light);
+}
+
+.doctor-card__meta dd {
+  margin: 2px 0 0;
+  font-weight: bold;
 }

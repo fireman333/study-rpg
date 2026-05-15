@@ -6,11 +6,21 @@ export {
   rollLoot,
   instanceFromRoll,
   initialLootStats,
+  randomId,
   DEFAULT_RARITY_WEIGHTS,
   PITY_SR_THRESHOLD,
   PITY_SSR_THRESHOLD,
   type RollResult,
 } from './lib/loot'
+export {
+  rollGacha,
+  initialGachaStats,
+  type GachaTier,
+  type PityRule,
+  type GachaConfig,
+  type GachaStats,
+  type GachaRollResult,
+} from './lib/gacha'
 export {
   xpToNext,
   xpAtLevel,

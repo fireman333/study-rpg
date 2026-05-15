@@ -13,6 +13,8 @@
 
 import type { ContentPack, Question, Subject } from '@study-rpg/core'
 
+export * from './recruitment'
+
 interface BuiltMeta {
   id: string
   displayName: string

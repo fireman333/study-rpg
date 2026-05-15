@@ -397,6 +397,25 @@ async function main(): Promise<void> {
       totalQuestions: subjectCounts[sid] ?? 0,
     }))
 
+  // Recruitment threshold parity check: every subjectId in RECRUITMENT_THRESHOLDS
+  // must exist in the built subjects. Locked literals in src/recruitment.ts must
+  // not silently drift from the corpus.
+  if (SUBJECTS_FILTER[0] === 'all') {
+    const { RECRUITMENT_THRESHOLDS } = await import('../src/recruitment')
+    const builtSubjectIds = new Set(subjects.map((s) => s.id))
+    const thresholdIds = Object.keys(RECRUITMENT_THRESHOLDS)
+    const missing = thresholdIds.filter((id) => !builtSubjectIds.has(id))
+    const extra = subjects.filter((s) => !(s.id in RECRUITMENT_THRESHOLDS)).map((s) => s.id)
+    if (missing.length > 0 || extra.length > 0) {
+      console.error(`Recruitment threshold parity check failed:`)
+      if (missing.length > 0) console.error(`  missing from corpus: ${missing.join(', ')}`)
+      if (extra.length > 0) console.error(`  extra subjects in corpus: ${extra.join(', ')}`)
+      console.error(`  imported: ${importedQ}, skipped: ${skippedQ}, total: ${totalBlocksSeen}`)
+      console.error(`  edit packages/content-medexam2-tw/src/recruitment.ts to re-lock thresholds.`)
+      process.exit(1)
+    }
+  }
+
   // Stats
   const perSubject: Record<string, PerSubjectStats> = {}
   for (const sid of Object.keys(SUBJECT_PALETTE)) {
