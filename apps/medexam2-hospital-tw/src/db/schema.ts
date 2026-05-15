@@ -6,7 +6,8 @@ import {
   INITIAL_TICKETS,
   TICKET_CAP,
   MS_PER_DAY,
-  INITIAL_ROOMS,
+  TIER_ROOMS,
+  type HospitalTier,
   type Rarity,
   type Room,
 } from '@study-rpg/content-medexam2-tw'
@@ -52,6 +53,7 @@ export interface GameCountersRow {
   revenue: number
   reputation: number
   lastTickAt: number
+  tier: HospitalTier
 }
 
 export class HospitalDB extends Dexie {
@@ -71,6 +73,17 @@ export class HospitalDB extends Dexie {
       tickets: '&id',
     })
     this.version(2).stores({
+      affinity: '&subjectId',
+      doctors: '&id, subjectId, rarity, obtainedAt',
+      gachaStats: '&id',
+      tickets: '&id',
+      rooms: '&id, type, slot',
+      gameCounters: '&id',
+    })
+    // v3 is additive at the table level — the `tier` field is a JS property
+    // on the singleton row, not an index. The version bump triggers Dexie's
+    // upgrade hook so existing saves get the migration path in ensureSeed.
+    this.version(3).stores({
       affinity: '&subjectId',
       doctors: '&id, subjectId, rarity, obtainedAt',
       gachaStats: '&id',
@@ -111,7 +124,7 @@ export async function ensureSeed(): Promise<void> {
     }
     const roomCount = await db.rooms.count()
     if (roomCount === 0) {
-      await db.rooms.bulkPut(INITIAL_ROOMS)
+      await db.rooms.bulkPut(TIER_ROOMS['診所'])
     }
     const counters = await db.gameCounters.get('singleton')
     if (!counters) {
@@ -120,7 +133,11 @@ export async function ensureSeed(): Promise<void> {
         revenue: 0,
         reputation: 0,
         lastTickAt: Date.now(),
+        tier: '診所',
       })
+    } else if ((counters as Partial<GameCountersRow>).tier === undefined) {
+      // v2 → v3 migration for existing dogfood saves missing `tier`
+      await db.gameCounters.put({ ...counters, tier: '診所' })
     }
   })
 }

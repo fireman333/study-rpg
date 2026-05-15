@@ -18,12 +18,6 @@ export interface Room {
   slot: number
 }
 
-export const INITIAL_ROOMS: Room[] = [
-  { id: 'outpatient-1', type: 'outpatient', baseRate: 10, roomFacility: 1.0, assignedDoctorId: null, slot: 1 },
-  { id: 'outpatient-2', type: 'outpatient', baseRate: 10, roomFacility: 1.0, assignedDoctorId: null, slot: 2 },
-  { id: 'outpatient-3', type: 'outpatient', baseRate: 10, roomFacility: 1.0, assignedDoctorId: null, slot: 3 },
-]
-
 /** Tick loop offline catch-up cap. 5 minutes prevents accumulation exploits. */
 export const MAX_OFFLINE_TICK_SEC = 300
 

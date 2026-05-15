@@ -5,11 +5,22 @@
  *   throughput = sum over assigned rooms of (baseRate × powerMultiplier × roomFacility)
  * into revenue + reputation counters, capped at MAX_OFFLINE_TICK_SEC of catch-up.
  *
+ * After the reputation write, check if any tier upgrade should fire. Tier
+ * transitions are atomic with the reputation increment that caused them.
+ *
  * Spec: openspec/specs/hospital-tycoon-engine/spec.md
+ *       openspec/specs/clinic-level-up/spec.md
  */
 
 import { useEffect } from 'react'
-import { MAX_OFFLINE_TICK_SEC, computeThroughput } from '@study-rpg/content-medexam2-tw'
+import {
+  MAX_OFFLINE_TICK_SEC,
+  TIER_ROOMS,
+  TIER_UPGRADE_THRESHOLDS,
+  computeThroughput,
+  getNextTier,
+  type HospitalTier,
+} from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB } from '../db/schema'
 
 const TICK_INTERVAL_MS = 5000
@@ -19,6 +30,7 @@ export interface TickResult {
   deltaReputation: number
   elapsedSec: number
   wasCapped: boolean
+  upgradedTo?: HospitalTier
 }
 
 export async function runTick(): Promise<TickResult> {
@@ -32,6 +44,7 @@ export async function runTick(): Promise<TickResult> {
         revenue: 0,
         reputation: 0,
         lastTickAt: Date.now(),
+        tier: '診所',
       })
       return { deltaRevenue: 0, deltaReputation: 0, elapsedSec: 0, wasCapped: false }
     }
@@ -55,14 +68,40 @@ export async function runTick(): Promise<TickResult> {
     const deltaRevenue = (totalThroughput * elapsedSec) / 60
     const deltaReputation = deltaRevenue // 1:1 baseline; wire-hospital-reputation will refine
 
+    const newRevenue = counters.revenue + deltaRevenue
+    const newReputation = counters.reputation + deltaReputation
+
+    // Tier upgrade: loop in case catch-up crosses multiple thresholds at once.
+    let currentTier = counters.tier
+    let upgradedTo: HospitalTier | undefined
+    while (true) {
+      const threshold = TIER_UPGRADE_THRESHOLDS[currentTier]
+      if (threshold === null || newReputation < threshold) break
+      const next = getNextTier(currentTier)
+      if (!next) break
+      // Insert only rooms whose ids don't yet exist — preserves any existing
+      // assignedDoctorId / roomFacility customizations on lower-tier rooms.
+      const existingIds = new Set((await db.rooms.toArray()).map((r) => r.id))
+      const newRooms = TIER_ROOMS[next].filter((r) => !existingIds.has(r.id))
+      if (newRooms.length > 0) {
+        await db.rooms.bulkAdd(newRooms)
+      }
+      currentTier = next
+      upgradedTo = next
+      if (import.meta.env.DEV) {
+        console.debug('[tier-upgrade]', { from: counters.tier, to: currentTier, reputation: newReputation, added: newRooms.map((r) => r.id) })
+      }
+    }
+
     await db.gameCounters.put({
       ...counters,
-      revenue: counters.revenue + deltaRevenue,
-      reputation: counters.reputation + deltaReputation,
+      revenue: newRevenue,
+      reputation: newReputation,
       lastTickAt: now,
+      tier: currentTier,
     })
 
-    return { deltaRevenue, deltaReputation, elapsedSec, wasCapped }
+    return { deltaRevenue, deltaReputation, elapsedSec, wasCapped, upgradedTo }
   })
 }
 
@@ -70,10 +109,13 @@ export async function runTick(): Promise<TickResult> {
  * Mount once at app root. Runs runTick() on mount, on visibility return,
  * and every 5s while tab is visible.
  *
- * onCapped fires whenever a tick was capped at the offline limit, so the UI
- * can surface a one-time notification.
+ * onCapped fires whenever a tick was capped at the offline limit.
+ * onUpgrade fires whenever a tier upgrade was committed in a tick.
  */
-export function useTickLoop(onCapped?: () => void): void {
+export function useTickLoop(
+  onCapped?: () => void,
+  onUpgrade?: (tier: HospitalTier) => void,
+): void {
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | undefined
 
@@ -84,6 +126,7 @@ export function useTickLoop(onCapped?: () => void): void {
             console.debug('[tick]', result)
           }
           if (result.wasCapped && onCapped) onCapped()
+          if (result.upgradedTo && onUpgrade) onUpgrade(result.upgradedTo)
         })
         .catch((err) => console.error('[tick] failed', err))
     }
@@ -116,5 +159,5 @@ export function useTickLoop(onCapped?: () => void): void {
       stop()
       document.removeEventListener('visibilitychange', handleVisibility)
     }
-  }, [onCapped])
+  }, [onCapped, onUpgrade])
 }

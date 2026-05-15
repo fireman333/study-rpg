@@ -5,6 +5,8 @@ import type { Subject } from '@study-rpg/core'
 import {
   RECRUITMENT_THRESHOLDS,
   TICKET_CAP,
+  TIER_UPGRADE_THRESHOLDS,
+  getNextTier,
 } from '@study-rpg/content-medexam2-tw'
 import { getContentPack } from '@study-rpg/content-medexam2-tw'
 import {
@@ -85,6 +87,30 @@ export function HomePage() {
           </Link>
         </div>
       </header>
+
+      {counters && (() => {
+        const tier = counters.tier
+        const reputation = counters.reputation
+        const threshold = TIER_UPGRADE_THRESHOLDS[tier]
+        const next = getNextTier(tier)
+        return (
+          <p className="home-tier-line">
+            醫院：<strong>{tier}</strong>
+            {threshold !== null && next ? (
+              <>
+                {'　'}
+                (聲望 {reputation.toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
+                {' / '}
+                {threshold.toLocaleString('zh-TW')}
+                {' → '}
+                {next})
+              </>
+            ) : (
+              <> ⭐</>
+            )}
+          </p>
+        )
+      })()}
 
       <section className="home-counters-banner" aria-label="醫院經營狀態">
         <div className="home-counters-banner__cell">
