@@ -51,6 +51,15 @@ export const RECRUITMENT_PITY_RULES: PityRule[] = [
   { tier: 'P2', atRolls: 100 },
 ]
 
+/** Starter pull (onboarding) weights — excludes P5, re-normalizes P4/P3/P2/P1
+ *  from existing 25/10/4/1 ratio (P4 62.5% / P3 25% / P2 10% / P1 2.5%). */
+export const STARTER_PULL_WEIGHTS: GachaTier[] = [
+  { id: 'P4', weight: 25 },
+  { id: 'P3', weight: 10 },
+  { id: 'P2', weight: 4 },
+  { id: 'P1', weight: 1 },
+]
+
 /** Per-subject affinity threshold to unlock that subject's recruitment banner.
  *  Locked literals — see header comment for derivation. */
 export const RECRUITMENT_THRESHOLDS: Record<SubjectId, number> = {

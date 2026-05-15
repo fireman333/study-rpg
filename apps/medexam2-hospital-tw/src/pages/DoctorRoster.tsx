@@ -10,12 +10,19 @@ import {
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB } from '../db/schema'
 import { lookupSprite } from '../lib/sprite-lookup'
+import { formatMasteryPercent } from '../lib/mastery'
 
 const RARITY_FILTER_OPTIONS: ('all' | Rarity)[] = ['all', ...[...RARITY_ORDER].reverse()]
 
 export function DoctorRoster() {
   const db = getHospitalDB()
   const doctors = useLiveQuery(() => db.doctors.orderBy('obtainedAt').reverse().toArray(), []) ?? []
+  const masteryRows = useLiveQuery(() => db.mastery.toArray(), []) ?? []
+  const masteryMap = useMemo(() => {
+    const m: Record<string, { subjectId: string; correct: number; total: number }> = {}
+    for (const r of masteryRows) m[r.subjectId] = r
+    return m
+  }, [masteryRows])
   const [subjectFilter, setSubjectFilter] = useState<string>('all')
   const [rarityFilter, setRarityFilter] = useState<'all' | Rarity>('all')
 
@@ -112,6 +119,10 @@ export function DoctorRoster() {
                   <div>
                     <dt>適合</dt>
                     <dd>{getRoomHintForSubject(d.subjectId)}</dd>
+                  </div>
+                  <div>
+                    <dt>{d.subjectId}</dt>
+                    <dd>{formatMasteryPercent(masteryMap[d.subjectId])}</dd>
                   </div>
                 </dl>
               </article>

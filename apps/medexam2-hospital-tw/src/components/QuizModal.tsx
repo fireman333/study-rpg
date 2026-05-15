@@ -1,0 +1,225 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import type { Question, SubjectId } from '@study-rpg/core'
+import { RARITY_LABELS } from '@study-rpg/content-medexam2-tw'
+import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
+import { getHospitalDB, type DoctorRow } from '../db/schema'
+import { pickRandomQuestion } from '../lib/quiz'
+import { recordCorrectAnswer, recordWrongAnswer } from '../lib/mastery'
+import { lookupSprite } from '../lib/sprite-lookup'
+
+const ALL_SUBJECT_IDS: SubjectId[] = [
+  '內科', '家醫科', '小兒科', '皮膚科', '神經內科', '精神科',
+  '外科', '泌尿科', '骨科', '婦產科', '復健科', '眼科', '耳鼻喉科', '麻醉科',
+]
+
+interface QuizModalProps {
+  initialSubject: SubjectId
+  onClose: () => void
+}
+
+export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
+  const db = getHospitalDB()
+  const [subjectId, setSubjectId] = useState<SubjectId>(initialSubject)
+  const [question, setQuestion] = useState<Question | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [poolEmpty, setPoolEmpty] = useState(false)
+  const [selectedOption, setSelectedOption] = useState<string | null>(null)
+  const [revealed, setRevealed] = useState(false)
+  const seenIdsRef = useRef<Set<string>>(new Set())
+  const [boundDoctorId, setBoundDoctorId] = useState<string | null>(null)
+  const [picking, setPicking] = useState(false)
+
+  const doctors = useLiveQuery(
+    () => db.doctors.orderBy('obtainedAt').reverse().toArray(),
+    [],
+  ) ?? []
+
+  // Default bound doctor = most recent on first render with doctors available
+  useEffect(() => {
+    if (boundDoctorId === null && doctors.length > 0) {
+      setBoundDoctorId(doctors[0].id)
+    }
+  }, [doctors, boundDoctorId])
+
+  const boundDoctor: DoctorRow | undefined = useMemo(
+    () => doctors.find((d) => d.id === boundDoctorId),
+    [doctors, boundDoctorId],
+  )
+
+  async function loadNextQuestion(forSubject: SubjectId, resetSeen = false): Promise<void> {
+    setLoading(true)
+    setSelectedOption(null)
+    setRevealed(false)
+    if (resetSeen) seenIdsRef.current = new Set()
+    const q = await pickRandomQuestion(forSubject, seenIdsRef.current)
+    if (!q) {
+      setPoolEmpty(true)
+      setQuestion(null)
+    } else {
+      setPoolEmpty(false)
+      setQuestion(q)
+    }
+    setLoading(false)
+  }
+
+  // Initial question load
+  useEffect(() => {
+    void loadNextQuestion(initialSubject, true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function handleSubjectChange(next: SubjectId): void {
+    if (next === subjectId) return
+    setSubjectId(next)
+    void loadNextQuestion(next, true)
+  }
+
+  async function handlePickOption(optionKey: string): Promise<void> {
+    if (revealed || !question || !boundDoctor) return
+    setSelectedOption(optionKey)
+    setRevealed(true)
+    const wasCorrect = optionKey === question.answer
+    const payload = { subjectId, questionId: question.id }
+    if (wasCorrect) await recordCorrectAnswer(payload)
+    else await recordWrongAnswer(payload)
+  }
+
+  async function handleNext(): Promise<void> {
+    if (!revealed || picking) return
+    setPicking(true)
+    try {
+      if (question) seenIdsRef.current.add(question.id)
+      await loadNextQuestion(subjectId, false)
+    } finally {
+      setPicking(false)
+    }
+  }
+
+  const optionKeys = useMemo(() => (question ? Object.keys(question.options).sort() : []), [question])
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-card modal-card--quiz" onClick={(e) => e.stopPropagation()}>
+        <header className="quiz-modal__head">
+          <h2 className="quiz-modal__title">📚 {subjectId}</h2>
+          <button type="button" className="quiz-modal__close" onClick={onClose} aria-label="關閉">
+            ✕
+          </button>
+        </header>
+
+        <div className="quiz-modal__partner">
+          {boundDoctor ? (
+            <>
+              <span className="quiz-modal__partner-sprite">
+                {(() => {
+                  const url = lookupSprite(
+                    boundDoctor.spriteKey,
+                    THEME_PIXEL_HOSPITAL.sprites,
+                    boundDoctor.rarity,
+                  )
+                  return url ? <img src={url} alt="" /> : <span aria-hidden>🩺</span>
+                })()}
+              </span>
+              <span className="quiz-modal__partner-info">
+                <span className="quiz-modal__partner-name">{boundDoctor.name}</span>
+                <span className="quiz-modal__partner-meta">
+                  {boundDoctor.rarity} {RARITY_LABELS[boundDoctor.rarity]} · 跟你一起練題
+                </span>
+              </span>
+              {doctors.length > 1 && (
+                <select
+                  className="quiz-modal__partner-picker"
+                  value={boundDoctor.id}
+                  onChange={(e) => setBoundDoctorId(e.target.value)}
+                  aria-label="切換練題醫師"
+                >
+                  {doctors.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name} ({d.rarity})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </>
+          ) : (
+            <p className="quiz-modal__no-doctor">請先招募醫師才能學習</p>
+          )}
+        </div>
+
+        <div className="quiz-modal__subject-row">
+          <label className="quiz-modal__subject-label">科別</label>
+          <select
+            className="quiz-modal__subject-dropdown"
+            value={subjectId}
+            onChange={(e) => handleSubjectChange(e.target.value as SubjectId)}
+          >
+            {ALL_SUBJECT_IDS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="quiz-modal__body">
+          {loading && <p className="quiz-modal__loading">載入題目中…</p>}
+          {!loading && poolEmpty && (
+            <p className="quiz-modal__empty">這個科別目前沒有題目可抽。換一科試試。</p>
+          )}
+          {!loading && question && (
+            <>
+              <p className="quiz-modal__stem">{question.stem}</p>
+              <ul className="quiz-modal__options">
+                {optionKeys.map((key) => {
+                  const isCorrect = revealed && key === question.answer
+                  const isSelected = key === selectedOption
+                  const isWrongPick = revealed && isSelected && key !== question.answer
+                  const className = [
+                    'quiz-modal__option',
+                    isCorrect ? 'quiz-modal__option--correct' : '',
+                    isWrongPick ? 'quiz-modal__option--wrong' : '',
+                    revealed && !isCorrect && !isSelected ? 'quiz-modal__option--dim' : '',
+                  ].filter(Boolean).join(' ')
+                  return (
+                    <li key={key}>
+                      <button
+                        type="button"
+                        className={className}
+                        onClick={() => void handlePickOption(key)}
+                        disabled={revealed || !boundDoctor}
+                      >
+                        <span className="quiz-modal__option-key">{key}.</span>
+                        <span className="quiz-modal__option-text">{question.options[key]}</span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+
+              {revealed && (
+                <div className="quiz-modal__explanation">
+                  <h3>解析</h3>
+                  <pre className="quiz-modal__explanation-body">
+                    {question.explanation || '（解析待補）'}
+                  </pre>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <footer className="quiz-modal__foot">
+          <button
+            type="button"
+            className="quiz-modal__next"
+            onClick={() => void handleNext()}
+            disabled={!revealed || picking}
+          >
+            下一題
+          </button>
+        </footer>
+      </div>
+    </div>
+  )
+}
