@@ -65,12 +65,23 @@ export function PersistenceButtons({ player, instances, schemaVersion, onImport 
           alert('存檔格式錯誤：缺少必要欄位 (schemaVersion / exportedAt / player / instances)')
           return
         }
-        if (parsed.schemaVersion !== schemaVersion) {
+        // Accept current (v2) natively; accept v1 with silent forward migration.
+        // Migration: default the three streak fields. Spec: persistence
+        // "Import with v1 file migrates to v2 in memory".
+        let playerPayload = parsed.player
+        if (parsed.schemaVersion === 1) {
+          playerPayload = {
+            ...parsed.player,
+            currentStreak: 0,
+            longestStreak: 0,
+            // lastCheckInDate intentionally left undefined
+          }
+        } else if (parsed.schemaVersion !== schemaVersion) {
           alert(`不支援的存檔版本 v${parsed.schemaVersion}（current: v${schemaVersion}）`)
           return
         }
         if (!confirm('這會覆蓋現有存檔，確定？')) return
-        onImport({ player: parsed.player, instances: parsed.instances })
+        onImport({ player: playerPayload, instances: parsed.instances })
       } catch (err) {
         alert(`存檔解析失敗：${err instanceof Error ? err.message : String(err)}`)
       }

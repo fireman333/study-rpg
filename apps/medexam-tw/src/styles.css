@@ -901,3 +901,69 @@
   background: var(--accent-gold);
   color: var(--bg-cream);
 }
+
+/* ─── Streak chip (header) ──────────────────────────────────────────────── */
+
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 12px;
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--bg-cream);
+  border: 2px solid var(--accent-gold);
+  box-shadow: 2px 2px 0 var(--frame-wood-dark);
+}
+
+.streak-chip-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.streak-chip-label {
+  letter-spacing: 0.02em;
+}
+
+/* ─── Streak break-day toast ────────────────────────────────────────────── */
+
+.streak-break-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-cream);
+  color: var(--ink);
+  border: 2px solid var(--frame-wood-light);
+  box-shadow: 4px 4px 0 var(--frame-wood-dark);
+  z-index: 80;
+  max-width: 280px;
+}
+
+.streak-break-toast-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.streak-break-toast-text {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-pixel-cjk);
+}
+
+.streak-break-toast-text strong {
+  font-size: 13px;
+  color: var(--frame-wood-dark);
+}
+
+.streak-break-toast-text span {
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.8;
+}
