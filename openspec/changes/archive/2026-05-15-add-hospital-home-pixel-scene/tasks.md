@@ -66,15 +66,15 @@
 
 ## 7. Prod deploy + verify
 
-- [ ] 7.1 commit + push origin track-m2（auto-git template：`feat(hospital-scene): tier-based pixel scene + subject-bound doctor slots + upgrade modal`）
-- [ ] 7.2 確認 GH Actions deploy.yml build 出來的 hospital subpath 含新 assets
-- [ ] 7.3 merge track-m2 → main、push、watch deploy run
-- [ ] 7.4 Chrome MCP prod verify on `https://fireman333.github.io/study-rpg/hospital/`：
+- [x] 7.1 commit + push origin track-m2（auto-git template：`feat(hospital-scene): tier-based pixel scene + subject-bound doctor slots + upgrade modal`）
+- [x] 7.2 確認 GH Actions deploy.yml build 出來的 hospital subpath 含新 assets
+- [x] 7.3 merge track-m2 → main、push、watch deploy run
+- [x] 7.4 Chrome MCP prod verify on `https://fireman333.github.io/study-rpg/hospital/`：
   - Scene 顯示 tier 1
   - 點 scene → modal
   - Hash route `#/roster` 還是正常（regression）
   - F5 on hash route + back to home → scene 仍 render
-- [ ] 7.5 加 `?scene=off` prod verify → fallback path 正常
+- [x] 7.5 加 `?scene=off` prod verify → fallback path 正常
 
 ## 8. Spec archive
 
