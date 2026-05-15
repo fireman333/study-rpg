@@ -60,5 +60,6 @@ export const THEME_PIXEL_MEDICAL: ThemePack = {
 }
 
 export { ITEM_CATALOG } from './items'
+export { COSMETIC_CATALOG, COSMETIC_CATALOG_SIZE } from './cosmetics'
 export { SPRITE_MAP } from './sprites'
 export { SKILL_TREE_PIXEL_MEDICAL } from './skillTree'

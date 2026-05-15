@@ -59,17 +59,17 @@ export function rollRarity(
   return { rarity: result.tier as Rarity, wasPity: result.wasPity }
 }
 
-/** Uniform pick from items that match the rolled rarity. */
+/** Uniform pick from items that match the rolled rarity. Cosmetic items are always excluded from gacha. */
 export function pickItemByRarity(
   catalog: Item[],
   rarity: Rarity,
   rng: () => number = Math.random,
 ): Item | undefined {
-  const pool = catalog.filter((i) => i.rarity === rarity)
+  const pool = catalog.filter((i) => !i.isCosmetic && i.rarity === rarity)
   if (pool.length === 0) {
     const idx = RARITY_ORDER.indexOf(rarity)
     for (let i = idx - 1; i >= 0; i--) {
-      const fallback = catalog.filter((it) => it.rarity === RARITY_ORDER[i])
+      const fallback = catalog.filter((it) => !it.isCosmetic && it.rarity === RARITY_ORDER[i])
       if (fallback.length > 0) return fallback[Math.floor(rng() * fallback.length)]
     }
     return undefined

@@ -16,7 +16,25 @@ export type BadgeId = string
 
 export type Rarity = 'N' | 'R' | 'SR' | 'SSR' | 'UR'
 
-export type EquipSlot = 'head' | 'body' | 'weapon' | 'charm' | 'consumable'
+export type EquipSlot =
+  | 'head'
+  | 'body'
+  | 'weapon'
+  | 'charm'
+  | 'consumable'
+  | 'cosmetic-head'
+  | 'cosmetic-body'
+  | 'cosmetic-accessory'
+  | 'cosmetic-held'
+  | 'cosmetic-background'
+
+export type CosmeticCategory = 'head' | 'body' | 'accessory' | 'held' | 'background'
+export type CosmeticSlot =
+  | 'cosmetic-head'
+  | 'cosmetic-body'
+  | 'cosmetic-accessory'
+  | 'cosmetic-held'
+  | 'cosmetic-background'
 
 // ─── Content domain ──────────────────────────────────────────────────────────
 
@@ -63,6 +81,8 @@ export interface Item {
   sourceCredit?: string
   /** Question IDs that contributed to this item's naming (debug / educational). Not shown in UI. */
   sourceQuestionIds?: string[]
+  /** Pure visual cosmetic — MUST have effects: []. Excluded from gacha loot pool. See cosmetic-system spec. */
+  isCosmetic?: boolean
 }
 
 export interface ItemInstance {
@@ -104,6 +124,27 @@ export interface Equipment {
   body?: ItemInstanceId
   weapon?: ItemInstanceId
   charm?: ItemInstanceId
+  /** Cosmetic slots (M5 cosmetic-and-dorm). Independent of functional slots — equip both simultaneously. */
+  'cosmetic-head'?: ItemInstanceId
+  'cosmetic-body'?: ItemInstanceId
+  'cosmetic-accessory'?: ItemInstanceId
+  'cosmetic-held'?: ItemInstanceId
+  'cosmetic-background'?: ItemInstanceId
+}
+
+/** Cosmetic catalog entry — pure milestone-unlocked visual item. */
+export interface Cosmetic {
+  id: ItemId
+  name: string
+  category: CosmeticCategory
+  /** Pure predicate against current Player state. Returns true if player has met the unlock threshold. */
+  unlockCondition: (player: Player) => boolean
+  /** Human-readable description shown in locked picker tile (e.g. "達 level 5 解鎖"). */
+  unlockDescription: string
+  /** Sprite key into ThemePack.sprites. Convention: `cosmetic-<category>-<id>`. */
+  artKey: string
+  /** Rarity tier for display only (doesn't affect drop rate; cosmetics aren't rolled). */
+  rarity?: Rarity
 }
 
 export interface Player {

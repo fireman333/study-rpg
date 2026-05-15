@@ -16,6 +16,8 @@ export function InventoryModal({ filterSlot, inventory, catalog, sprites, onClos
   const tiles = inventory
     .map((inst) => ({ inst, item: catalog.find((c) => c.id === inst.itemId) }))
     .filter((t): t is { inst: ItemInstance; item: Item } => !!t.item)
+    // Hide cosmetics from functional inventory — they live in dorm picker only.
+    .filter((t) => !t.item.isCosmetic)
     .filter((t) => (filterSlot ? t.item.slot === filterSlot : true))
 
   return (

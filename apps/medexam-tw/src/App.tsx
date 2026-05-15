@@ -29,8 +29,11 @@ import {
   consumeBacklog,
   computeMentorReward,
   mentorToday,
+  checkMilestoneUnlocks,
+  instanceFromCosmetic,
   type MentorBacklog,
   type Attempt,
+  type Cosmetic,
   type Player,
   type RollResult,
   type EquipSlot,
@@ -40,12 +43,13 @@ import {
   type QuestionId,
   type SkillNode,
 } from '@study-rpg/core'
-import { THEME_PIXEL_MEDICAL } from '@study-rpg/theme-pixel-medical'
+import { THEME_PIXEL_MEDICAL, COSMETIC_CATALOG } from '@study-rpg/theme-pixel-medical'
 import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
 import { SkillUnlockToast } from './components/SkillUnlockToast'
+import { CosmeticUnlockToast } from './components/CosmeticUnlockToast'
 import { QuizModal, REVIEW_BATCH_SIZE, type QuizResult, type QuestionResult } from './components/QuizModal'
 import { BossModal, type BossRunResult } from './components/BossModal'
 import { PersistenceButtons } from './components/PersistenceButtons'
@@ -57,6 +61,7 @@ import { MockRunnerRoute } from './routes/MockRunnerRoute'
 import { MockResultRoute } from './routes/MockResultRoute'
 import { MentorDialog } from './components/MentorDialog'
 import { getBacklog, saveBacklog } from './db/mentor-backlog'
+import { DormRoute } from './routes/DormRoute'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
 const STARTER_NAME = '見習醫師'
@@ -84,8 +89,11 @@ function dayDiff(fromISODate: string, toISODate: string): number {
 export default function App() {
   const navigate = useNavigate()
   const location = useLocation()
-  // While answering a mock, reading-loop timer must NOT double-count (spec mock-exam R3).
+  // Reading-loop must NOT double-count while user is in mock runner (spec mock-exam R3)
+  // or in dorm view (spec dorm-view "no game mechanics").
   const isInMockRunner = location.pathname.startsWith('/mock/run/')
+  const isInDorm = location.pathname.startsWith('/dorm')
+  const shouldPauseReading = isInMockRunner || isInDorm
   const [player, setPlayer] = useState<Player>(() =>
     newPlayer('p1', STARTER_NAME, STAT_SCHEMA.order),
   )
@@ -104,6 +112,8 @@ export default function App() {
   const [skillToasts, setSkillToasts] = useState<Array<{ id: number; node: SkillNode }>>([])
   const [streakBreakToast, setStreakBreakToast] = useState(false)
   const [mentorBacklog, setMentorBacklog] = useState<MentorBacklog | null>(null)
+  const [cosmeticUnlockToasts, setCosmeticUnlockToasts] = useState<Array<{ id: number; cosmetic: Cosmetic }>>([])
+  const prevPlayerForCosmeticRef = useRef<Player | null>(null)
   const [mentorOpen, setMentorOpen] = useState(false)
   const [mentorPickMode, setMentorPickMode] = useState<'srs' | 'weak' | 'random'>('srs')
   const [suppressSkipConfirm, setSuppressSkipConfirm] = useState(false)
@@ -299,6 +309,27 @@ export default function App() {
   const catalog = useMemo(() => THEME_PIXEL_MEDICAL.itemCatalog, [])
   const sprites = useMemo(() => THEME_PIXEL_MEDICAL.sprites, [])
 
+  // Cosmetic milestone unlock — detect transitions on every player change.
+  useEffect(() => {
+    if (!hydrated) return
+    if (!prevPlayerForCosmeticRef.current) {
+      prevPlayerForCosmeticRef.current = player
+      return
+    }
+    const prev = prevPlayerForCosmeticRef.current
+    if (prev === player) return
+    const newlyUnlocked = checkMilestoneUnlocks(prev, player, COSMETIC_CATALOG)
+    prevPlayerForCosmeticRef.current = player
+    if (newlyUnlocked.length === 0) return
+    // Add instances + toast queue
+    const newInstances = newlyUnlocked.map((c) => instanceFromCosmetic(c))
+    setInstances((prev) => [...prev, ...newInstances])
+    setCosmeticUnlockToasts((q) => [
+      ...q,
+      ...newlyUnlocked.map((c) => ({ id: ++toastIdRef.current, cosmetic: c })),
+    ])
+  }, [hydrated, player])
+
   /** base stats + equipment stat bonuses */
   const effectiveStats = useMemo(() => {
     const out = { ...player.stats }
@@ -318,13 +349,13 @@ export default function App() {
   }, [player, instances, catalog])
 
   // Reading timer — tick every 1s while reading; pause clears reason on resume.
-  // Hard-gated on mock-runner route to satisfy mock-exam R3 (no double-counting).
+  // Hard-gated on mock-runner / dorm route to satisfy mock-exam R3 + dorm-view (no double-counting).
   useEffect(() => {
-    if (!reading || isInMockRunner) return
+    if (!reading || shouldPauseReading) return
     setPauseReason(null)
     const t = setInterval(() => setReadMs((m) => m + 1000), 1000)
     return () => clearInterval(t)
-  }, [reading, isInMockRunner])
+  }, [reading, shouldPauseReading])
 
   // Per-READING_TICK_MS reward (per-minute cap enforced via modulo)
   useEffect(() => {
@@ -627,6 +658,11 @@ export default function App() {
             </button>
           )}
 
+          <button onClick={() => navigate('/dorm')}>
+            <span className="label">🏠 宿舍</span>
+            <span className="hint">穿 cosmetic、看裝扮間 · 純展示不影響閱讀計時</span>
+          </button>
+
           <button onClick={() => doRoll('read')}>
             <span className="label">🎲 手動測試一次抽卡</span>
             <span className="hint">總抽卡：{player.lootStats.totalRolls} · 距下次 SR 保底：{30 - player.lootStats.rollsSinceLastSR}</span>
@@ -832,6 +868,20 @@ export default function App() {
         {content && (
           <Route path="/mock/result/:attemptId" element={<MockResultRoute content={content} />} />
         )}
+        <Route
+          path="/dorm"
+          element={
+            <DormRoute
+              player={player}
+              setPlayer={setPlayer}
+              instances={instances}
+              setInstances={setInstances}
+              catalog={COSMETIC_CATALOG}
+              sprites={sprites}
+              defaultCharacterSpriteKey={CHARACTER_VARIANTS[0]}
+            />
+          }
+        />
       </Routes>
 
       <AnimatePresence>
@@ -847,6 +897,14 @@ export default function App() {
           <StreakBreakToast
             key="streak-break"
             onDone={() => setStreakBreakToast(false)}
+          />
+        )}
+        {cosmeticUnlockToasts[0] && (
+          <CosmeticUnlockToast
+            key={cosmeticUnlockToasts[0].id}
+            cosmetic={cosmeticUnlockToasts[0].cosmetic}
+            spriteUrl={sprites[cosmeticUnlockToasts[0].cosmetic.artKey]}
+            onDone={() => setCosmeticUnlockToasts((q) => q.slice(1))}
           />
         )}
       </AnimatePresence>

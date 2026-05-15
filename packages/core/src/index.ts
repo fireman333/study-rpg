@@ -59,6 +59,16 @@ export {
   type MentorRewardOutcome,
 } from './lib/mentor-daily'
 export {
+  cosmeticSlotForCategory,
+  cosmeticToItem,
+  checkMilestoneUnlocks,
+  equipCosmetic,
+  unequipCosmetic,
+  instanceFromCosmetic,
+  listUnlockedCosmetics,
+  listLockedCosmetics,
+} from './lib/cosmetic'
+export {
   STREAK_CHECK_IN_THRESHOLD,
   STREAK_MULTIPLIER_CAP_DAYS,
   getTaipeiToday,
