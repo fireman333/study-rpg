@@ -30,8 +30,20 @@ export {
   newPlayer,
   REWARD,
   FAST_ANSWER_THRESHOLD_MS,
+  MOCK_PASS_LOOT_GUARANTEED_TIER,
   type XpGainResult,
 } from './lib/xp'
+export {
+  scoreMock,
+  computeProgressDelta,
+  applyMockPassReward,
+  paperIdOf,
+  decodePaperId,
+  type MockSubmitInput,
+  type MockScoreResult,
+  type ProgressDelta,
+  type MockPassRewardOutcome,
+} from './lib/mock-exam'
 export {
   STREAK_CHECK_IN_THRESHOLD,
   STREAK_MULTIPLIER_CAP_DAYS,

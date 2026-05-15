@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import {
   rollLoot,
   instanceFromRoll,
@@ -43,6 +43,9 @@ import { PersistenceButtons } from './components/PersistenceButtons'
 import { StreakChip } from './components/StreakChip'
 import { StreakBreakToast } from './components/StreakBreakToast'
 import { SkillTreeRoute } from './routes/SkillTreeRoute'
+import { MockPickerRoute } from './routes/MockPickerRoute'
+import { MockRunnerRoute } from './routes/MockRunnerRoute'
+import { MockResultRoute } from './routes/MockResultRoute'
 
 const STAT_SCHEMA = DEFAULT_STAT_SCHEMA
 const STARTER_NAME = '見習醫師'
@@ -61,6 +64,9 @@ type PauseReason = 'manual' | 'visibility' | 'idle' | null
 
 export default function App() {
   const navigate = useNavigate()
+  const location = useLocation()
+  // While answering a mock, reading-loop timer must NOT double-count (spec mock-exam R3).
+  const isInMockRunner = location.pathname.startsWith('/mock/run/')
   const [player, setPlayer] = useState<Player>(() =>
     newPlayer('p1', STARTER_NAME, STAT_SCHEMA.order),
   )
@@ -225,13 +231,14 @@ export default function App() {
     return out
   }, [player, instances, catalog])
 
-  // Reading timer — tick every 1s while reading; pause clears reason on resume
+  // Reading timer — tick every 1s while reading; pause clears reason on resume.
+  // Hard-gated on mock-runner route to satisfy mock-exam R3 (no double-counting).
   useEffect(() => {
-    if (!reading) return
+    if (!reading || isInMockRunner) return
     setPauseReason(null)
     const t = setInterval(() => setReadMs((m) => m + 1000), 1000)
     return () => clearInterval(t)
-  }, [reading])
+  }, [reading, isInMockRunner])
 
   // Per-READING_TICK_MS reward (per-minute cap enforced via modulo)
   useEffect(() => {
@@ -287,7 +294,7 @@ export default function App() {
     }
   }, [reading])
 
-  function doRoll(source: 'read' | 'quiz' | 'boss-mini') {
+  function doRoll(source: 'read' | 'quiz' | 'boss-mini' | 'boss-annual' | 'mock') {
     // Side effects MUST happen OUTSIDE the setPlayer updater — StrictMode runs
     // updaters twice, which would double-fire instanceFromRoll (random UUID)
     // and setInstances. See spec loot-mechanics §"Callers SHALL NOT invoke
@@ -512,6 +519,14 @@ export default function App() {
             <span className="hint">30 題 · 30 分 · ≥ 60% 拿徽章</span>
           </button>
 
+          <button
+            onClick={() => navigate('/mock')}
+            disabled={!content || content.questions.length === 0}
+          >
+            <span className="label">🎯 模擬考全卷</span>
+            <span className="hint">挑歷年原卷 · ≈100 題 · stopwatch + 全展開詳解</span>
+          </button>
+
           <button onClick={() => doRoll('read')}>
             <span className="label">🎲 手動測試一次抽卡</span>
             <span className="hint">總抽卡：{player.lootStats.totalRolls} · 距下次 SR 保底：{30 - player.lootStats.rollsSinceLastSR}</span>
@@ -618,6 +633,25 @@ export default function App() {
             />
           }
         />
+        {content && (
+          <Route path="/mock" element={<MockPickerRoute content={content} />} />
+        )}
+        {content && (
+          <Route
+            path="/mock/run/:paperId"
+            element={
+              <MockRunnerRoute
+                content={content}
+                player={player}
+                setPlayer={setPlayer}
+                onGuaranteedSRRoll={() => doRoll('mock')}
+              />
+            }
+          />
+        )}
+        {content && (
+          <Route path="/mock/result/:attemptId" element={<MockResultRoute content={content} />} />
+        )}
       </Routes>
 
       <AnimatePresence>

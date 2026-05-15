@@ -10,7 +10,14 @@ import type {
   Item,
   ItemInstance,
   Drop,
+  MockAttempt,
+  MockInProgress,
 } from '../types'
+
+/** Singleton wrapper for in-progress mock state. Only one row, key = 'mockInProgress'. */
+export interface MockInProgressRecord extends MockInProgress {
+  key: 'mockInProgress'
+}
 
 export class StudyRpgDB extends Dexie {
   players!: EntityTable<Player, 'id'>
@@ -24,6 +31,8 @@ export class StudyRpgDB extends Dexie {
   itemInstances!: EntityTable<ItemInstance, 'id'>
   drops!: EntityTable<Drop, 'id'>
   meta!: EntityTable<{ key: string; value: unknown }, 'key'>
+  mockAttempts!: EntityTable<MockAttempt, 'id'>
+  mockInProgress!: EntityTable<MockInProgressRecord, 'key'>
 
   constructor(name = 'study-rpg') {
     super(name)
@@ -39,6 +48,11 @@ export class StudyRpgDB extends Dexie {
       itemInstances: 'id, itemId, obtainedAt',
       drops: 'id, ts, source, rarity',
       meta: 'key',
+    })
+    // v2 — additive: mock exam storage (see mock-exam capability)
+    this.version(2).stores({
+      mockAttempts: 'id, paperId, finishedAt',
+      mockInProgress: 'key',
     })
   }
 }

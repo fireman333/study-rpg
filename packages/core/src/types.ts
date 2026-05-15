@@ -75,7 +75,7 @@ export interface ItemInstance {
 export interface Drop {
   id: string
   ts: number
-  source: 'read' | 'quiz' | 'boss-mini' | 'boss-annual'
+  source: 'read' | 'quiz' | 'boss-mini' | 'boss-annual' | 'mock'
   rarity: Rarity
   itemId: ItemId
   wasPity: boolean
@@ -179,6 +179,36 @@ export interface BossRun {
   totalQ: number
   correctQ: number
   passed: boolean
+}
+
+// ─── Mock exam (full historical paper) ──────────────────────────────────────
+
+/** Per-question record inside a MockAttempt. `userSelection: null` = unanswered. */
+export interface MockPerQuestionAnswer {
+  questionId: QuestionId
+  userSelection: string | null
+  isCorrect: boolean
+}
+
+/** A completed mock-exam submission, persisted to Dexie for result rendering + progress curve. */
+export interface MockAttempt {
+  id: string                                // UUID v4, generated at submit
+  paperId: string                           // "<year>-<session>-<paper>" e.g. "114-1-medexam-1"
+  startedAt: number                         // epoch ms
+  finishedAt: number                        // epoch ms
+  elapsedSec: number                        // net active seconds (paused intervals excluded)
+  totalScore: number                        // count of correct answers
+  perQuestionAnswers: MockPerQuestionAnswer[]
+}
+
+/** Volatile state of a mock currently in progress; persisted as a Dexie singleton. */
+export interface MockInProgress {
+  paperId: string
+  startedAt: number
+  currentQuestionIndex: number              // 0-based
+  selections: Record<QuestionId, string>    // missing keys = unanswered
+  elapsedSecAtPause: number                 // seconds accumulated up to last freeze
+  lastResumedAt: number | null              // epoch ms; null = currently paused
 }
 
 // ─── Stat schema (theme/content can override default 4 stats) ─────────────────

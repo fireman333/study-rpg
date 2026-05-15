@@ -68,10 +68,17 @@ interface ParsedQuestion {
     year: number
     session: number
     book: string
+    paper: 'medexam-1' | 'medexam-2'
     qNumber: number
     pageRef?: string
   }
   sourceCredit: string
+}
+
+function bookToPaper(book: string): 'medexam-1' | 'medexam-2' | null {
+  if (book === '醫學一') return 'medexam-1'
+  if (book === '醫學二') return 'medexam-2'
+  return null
 }
 
 function splitFrontMatter(raw: string): { fm: FrontMatter; body: string } {
@@ -159,6 +166,12 @@ function parseSingleBlock(block: string, qn: number, fm: FrontMatter, fileLabel:
   }
   const answer = ansMatch[1]
 
+  const paper = bookToPaper(fm.book)
+  if (paper === null) {
+    console.warn(`[skip] ${fileLabel} Q${qn} — unknown book "${fm.book}" (expected 醫學一 / 醫學二)`)
+    return null
+  }
+
   const hasImage = /\*\*有附圖\*\*：\s*是/.test(block) || /<img/i.test(stem) || /!\[.*\]\(/.test(stem)
   const pageMatch = block.match(/\*\*頁碼\*\*：\s*(.+)/)
   const pageRef = pageMatch ? pageMatch[1].trim() : undefined
@@ -175,6 +188,7 @@ function parseSingleBlock(block: string, qn: number, fm: FrontMatter, fileLabel:
       year: fm.year,
       session: fm.session,
       book: fm.book,
+      paper,
       qNumber: qn,
       pageRef,
     },
@@ -270,6 +284,17 @@ function main() {
   console.log(`[build] parsed ${parsedFiles} / ${all.length} files`)
   console.log(`[build] questions: ${importedQ} across ${subjects.length} subjects`)
   for (const s of subjects) console.log(`         ${s.id} (${s.group}): ${s.totalQuestions}`)
+
+  // Mock-exam discoverability: distinct (year, session, paper) triples — each ≈ one real 國考 paper
+  const paperCounts = new Map<string, number>()
+  for (const q of questions) {
+    const key = `${q.meta.year}-${q.meta.session}-${q.meta.paper}`
+    paperCounts.set(key, (paperCounts.get(key) ?? 0) + 1)
+  }
+  const sortedPairs = [...paperCounts.entries()].sort(([a], [b]) => b.localeCompare(a))
+  console.log(`[build] mock-exam papers: ${sortedPairs.length} distinct (year, session, paper) triples`)
+  for (const [key, count] of sortedPairs) console.log(`         ${key}: ${count} Q`)
+
   console.log(`[build] wrote ${OUT_DIR}/`)
   console.log(`[build] imported: ${importedQ}, skipped: ${skippedQ}, total: ${totalBlocksSeen}`)
 

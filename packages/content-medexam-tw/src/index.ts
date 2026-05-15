@@ -38,7 +38,7 @@ export async function getContentPack(baseUrl = '/content/medexam-tw'): Promise<C
       id: meta.id,
       displayName: meta.displayName,
       locale: meta.locale,
-      examMeta: { builtAt: meta.builtAt, stats: meta.stats },
+      examMeta: { builtAt: meta.builtAt, stats: meta.stats, supportsMockExam: true },
       credits: [{ name: meta.sourceCredit, url: meta.sourceUrl, license: meta.license }],
     },
     subjects,

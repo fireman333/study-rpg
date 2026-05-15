@@ -49,10 +49,19 @@ export const REWARD = {
   bossMiniPass: { xp: 50, subjectXp: 20 },
   /** Annual-boss pass bonus. */
   bossAnnualPass: { xp: 200, subjectXp: 60 },
+  /**
+   * Mock exam pass — ultimate boss tier (one full historical paper, ~100 Q for 一階).
+   * Applied exactly once at submit; exempt from any per-minute rate caps.
+   * subjectXp targets the paper's primary subject group (handled by caller).
+   */
+  mockExamPass: { xp: 800, subjectXp: 240, stat: { name: 'knowledge', delta: 4 } },
 } as const
 
 /** Threshold for awarding reflex on a correct quiz answer (milliseconds). */
 export const FAST_ANSWER_THRESHOLD_MS = 10000
+
+/** Guaranteed loot tier granted on mock exam pass (one roll). */
+export const MOCK_PASS_LOOT_GUARANTEED_TIER = 'SR' as const
 
 // ─── Pure stat mutation helpers ──────────────────────────────────────────────
 
