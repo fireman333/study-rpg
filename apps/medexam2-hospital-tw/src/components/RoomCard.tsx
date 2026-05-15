@@ -1,4 +1,10 @@
-import { ROOM_TYPE_LABELS, computeThroughput, type Room } from '@study-rpg/content-medexam2-tw'
+import {
+  AFFINITY_MATCH_BONUS,
+  ROOM_TYPE_LABELS,
+  SUBJECT_TO_ROOM,
+  computeThroughput,
+  type Room,
+} from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { lookupSprite } from '../lib/sprite-lookup'
 import type { DoctorRow } from '../db/schema'
@@ -11,6 +17,8 @@ interface RoomCardProps {
 
 export function RoomCard({ room, doctor, onClick }: RoomCardProps) {
   const throughput = computeThroughput(room, doctor)
+  const isAffinityMatch = doctor !== null && SUBJECT_TO_ROOM[doctor.subjectId] === room.type
+  const affinityBonus = isAffinityMatch && doctor ? AFFINITY_MATCH_BONUS[doctor.rarity] : null
   const spriteUrl = doctor
     ? lookupSprite(doctor.spriteKey, THEME_PIXEL_HOSPITAL.sprites, doctor.rarity)
     : undefined
@@ -48,6 +56,11 @@ export function RoomCard({ room, doctor, onClick }: RoomCardProps) {
 
       <div className="room-card__throughput">
         {throughput.toFixed(1)} 患者/分
+        {affinityBonus !== null && (
+          <span className="room-card__affinity" aria-label={`適性加成 ${affinityBonus} 倍`}>
+            <span aria-hidden>✨</span>{affinityBonus.toFixed(1)}×
+          </span>
+        )}
       </div>
     </button>
   )

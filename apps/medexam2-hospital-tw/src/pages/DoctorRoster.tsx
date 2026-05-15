@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import {
   RARITY_LABELS,
   RARITY_ORDER,
+  getRoomHintForSubject,
   type Rarity,
 } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
@@ -107,6 +108,10 @@ export function DoctorRoster() {
                   <div>
                     <dt>×力</dt>
                     <dd>{d.powerMultiplier.toFixed(1)}</dd>
+                  </div>
+                  <div>
+                    <dt>適合</dt>
+                    <dd>{getRoomHintForSubject(d.subjectId)}</dd>
                   </div>
                 </dl>
               </article>

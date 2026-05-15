@@ -10,6 +10,7 @@ export function Hospital() {
   const db = getHospitalDB()
   const rooms = useLiveQuery(() => db.rooms.orderBy('slot').toArray(), []) ?? []
   const doctors = useLiveQuery(() => db.doctors.toArray(), []) ?? []
+  const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
   const [activeRoom, setActiveRoom] = useState<Room | null>(null)
 
   const doctorById = useMemo(() => {
@@ -27,6 +28,8 @@ export function Hospital() {
     return sum
   }, [rooms, doctorById])
 
+  const assignedCount = rooms.filter((r) => r.assignedDoctorId !== null).length
+
   const activeDoctor = activeRoom?.assignedDoctorId
     ? doctorById.get(activeRoom.assignedDoctorId) ?? null
     : null
@@ -37,7 +40,7 @@ export function Hospital() {
         <h1>醫院</h1>
         <div className="app-header__meta">
           <span className="hospital-throughput">
-            總產能 {totalThroughput.toFixed(1)} 患者/分
+            {counters?.tier ?? '診所'} · 總產能 {totalThroughput.toFixed(1)} 患者/分 · 房間 {assignedCount}/{rooms.length}
           </span>
           <Link to="/" className="nav-link">
             ← 回主畫面

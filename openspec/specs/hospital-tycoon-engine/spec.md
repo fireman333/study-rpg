@@ -38,7 +38,7 @@ The `Room` interface SHALL be exported from `@study-rpg/content-medexam2-tw` (no
 
 ### Requirement: Fresh save SHALL seed 3 outpatient rooms at 診所 tier baseline
 
-The system SHALL detect empty `rooms` table on app boot and seed it with `INITIAL_ROOMS` — exactly 3 entries:
+The system SHALL detect empty `rooms` table on app boot and seed it with `TIER_ROOMS['診所']` from the `clinic-level-up` capability — exactly 3 entries:
 
 | id | type | baseRate | roomFacility | assignedDoctorId | slot |
 |---|---|---|---|---|---|
@@ -46,7 +46,9 @@ The system SHALL detect empty `rooms` table on app boot and seed it with `INITIA
 | `outpatient-2` | outpatient | 10 | 1.0 | null | 2 |
 | `outpatient-3` | outpatient | 10 | 1.0 | null | 3 |
 
-These constants represent 診所 tier defaults. `wire-clinic-level-up` SHALL extend or replace this seeding logic when introducing 區域醫院 / 醫學中心 tiers. The seeding logic SHALL be idempotent — re-running it on a non-empty table SHALL NOT duplicate or modify existing rooms.
+These constants represent 診所 tier defaults. The `clinic-level-up` capability extends the seeding to higher tiers (區域醫院, 醫學中心) via the same `TIER_ROOMS` table; tier upgrade logic appends new rooms when reputation crosses thresholds. The seeding logic SHALL be idempotent — re-running it on a non-empty table SHALL NOT duplicate or modify existing rooms.
+
+The `INITIAL_ROOMS` named constant from `wire-hospital-tycoon-engine` is REMOVED in favor of `TIER_ROOMS['診所']` to enforce a single source of truth for the 診所 roster across both seeding and tier-upgrade code paths.
 
 #### Scenario: New save seeds 3 outpatient rooms
 
@@ -55,6 +57,7 @@ These constants represent 診所 tier defaults. `wire-clinic-level-up` SHALL ext
 - **THEN** the `rooms` table SHALL contain exactly 3 entries with `type = 'outpatient'`
 - **AND** each room's `assignedDoctorId` SHALL equal `null`
 - **AND** each room's `baseRate` SHALL equal `10`
+- **AND** the source of the seed SHALL be `TIER_ROOMS['診所']` (not a separate `INITIAL_ROOMS` constant)
 
 #### Scenario: Re-seeding is idempotent
 
@@ -107,22 +110,37 @@ The system SHALL run a tick function every 5 seconds while the browser tab is vi
 
 1. Read `gameCounters.singleton` (revenue, reputation, lastTickAt)
 2. Compute `elapsedSec = max(0, min((now - lastTickAt) / 1000, MAX_OFFLINE_TICK_SEC))` where `MAX_OFFLINE_TICK_SEC = 300`
-3. For each room with `assignedDoctorId !== null`, sum `throughput = baseRate × doctor.powerMultiplier × roomFacility`
+3. For each room with `assignedDoctorId !== null`, sum `throughput = baseRate × doctor.powerMultiplier × roomFacility × affinityBonus`, where `affinityBonus = getAffinityBonus(doctor.rarity, doctor.subjectId, room.type)` per the `hospital-reputation` capability
 4. Compute `deltaRevenue = totalThroughput × elapsedSec / 60` (throughput is patients/min; elapsedSec is seconds)
-5. Compute `deltaReputation = deltaRevenue` (1:1 baseline for this change; `wire-hospital-reputation` will refine)
+5. Compute `deltaReputation = deltaRevenue × 0.7` (idle tick contributes 70% of reputation; the remaining 30% comes from the per-question hook defined in `hospital-reputation` capability)
 6. Write `revenue += deltaRevenue`, `reputation += deltaReputation`, `lastTickAt = now` in a single Dexie transaction
 
-All counter mutations SHALL go through this tick function. Direct writes to `revenue` / `reputation` from UI code SHALL NOT be permitted.
+All counter mutations from idle tick SHALL go through this tick function. Direct writes to `revenue` / `reputation` from UI code SHALL NOT be permitted. The per-Q reputation hook is the only other authorised writer of `reputation` (and never of `revenue`).
 
-#### Scenario: Tick accumulates with one assigned doctor
+#### Scenario: Tick accumulates with one assigned doctor matched to room
 
 - **GIVEN** `gameCounters.lastTickAt` was 5000 ms ago
-- **AND** `room-A` has `baseRate = 10`, `roomFacility = 1.0`, assigned doctor with `powerMultiplier = 2.0` (P3)
+- **AND** `room-surgery-1` has `baseRate = 10`, `roomFacility = 1.0`, `type = 'surgery'`
+- **AND** the assigned doctor has `powerMultiplier = 2.0` (P3), `subjectId = '外科'` (maps to surgery → match)
 - **AND** no other rooms are assigned
 - **WHEN** `runTick()` is called
-- **THEN** `deltaRevenue` SHALL equal `(10 × 2.0 × 1.0) × 5 / 60 ≈ 1.667`
-- **AND** `gameCounters.revenue` SHALL increase by approximately `1.667`
-- **AND** `gameCounters.reputation` SHALL increase by approximately `1.667`
+- **THEN** `affinityBonus` SHALL equal `1.3` (P3 match)
+- **AND** `totalThroughput` SHALL equal `10 × 2.0 × 1.0 × 1.3 = 26`
+- **AND** `deltaRevenue` SHALL equal `26 × 5 / 60 ≈ 2.167`
+- **AND** `deltaReputation` SHALL equal `2.167 × 0.7 ≈ 1.517`
+- **AND** `gameCounters.revenue` SHALL increase by approximately `2.167`
+- **AND** `gameCounters.reputation` SHALL increase by approximately `1.517`
+
+#### Scenario: Tick accumulates with mismatched doctor (no affinity bonus)
+
+- **GIVEN** `gameCounters.lastTickAt` was 5000 ms ago
+- **AND** `room-ward-1` has `baseRate = 10`, `roomFacility = 1.0`, `type = 'ward'`
+- **AND** the assigned doctor has `powerMultiplier = 5.0` (P1), `subjectId = '外科'` (maps to surgery → mismatch)
+- **WHEN** `runTick()` is called
+- **THEN** `affinityBonus` SHALL equal `1.0` (mismatch, no penalty)
+- **AND** `totalThroughput` SHALL equal `10 × 5.0 × 1.0 × 1.0 = 50`
+- **AND** `deltaRevenue` SHALL equal `50 × 5 / 60 ≈ 4.167`
+- **AND** `deltaReputation` SHALL equal `4.167 × 0.7 ≈ 2.917`
 
 #### Scenario: Tick produces zero for empty rooms
 
@@ -247,11 +265,12 @@ Clicking an already-assigned slot SHALL display options to **swap** (open modal 
 
 Each room cell on the `/hospital` page SHALL render a `RoomCard` component showing:
 
-- Room type label (e.g., `「門診」` for outpatient)
+- Room type label (e.g., `「門診」` for outpatient, `「手術」` for surgery, `「病房」` for ward)
 - Slot number (e.g., `#1`, `#2`, `#3`)
 - Assigned doctor's sprite (via the same `lookupSprite` helper from `add-doctor-sprite-roster`) when assigned
 - An empty placeholder with `「指派醫師」` CTA when unassigned
-- Live throughput indicator showing `XX 患者/分` when assigned, `0 患者/分` when empty
+- Live throughput indicator showing `XX 患者/分` when assigned (reflecting the affinity-adjusted formula `baseRate × powerMultiplier × roomFacility × affinityBonus`), `0 患者/分` when empty
+- Affinity bonus marker when the assigned doctor's subject maps to the room's type per `hospital-reputation` capability (see that capability for marker visual + scenario details)
 
 The sprite SHALL apply `image-rendering: pixelated` consistent with the existing roster and recruitment modal.
 
@@ -263,10 +282,20 @@ The sprite SHALL apply `image-rendering: pixelated` consistent with the existing
 - **AND** the card SHALL display an empty placeholder with `「指派醫師」` CTA
 - **AND** the throughput indicator SHALL show `0`
 
-#### Scenario: Assigned room shows sprite and throughput
+#### Scenario: Assigned room shows sprite and affinity-adjusted throughput (match)
 
-- **GIVEN** `room-outpatient-1` has `assignedDoctorId = 'doctor-外科-P3-uuid'`
-- **AND** the doctor has `powerMultiplier = 2.0` and `subjectId = '外科'`
+- **GIVEN** `room-surgery-1` has `type = 'surgery'`, `baseRate = 10`, `roomFacility = 1.0`
+- **AND** `assignedDoctorId = 'doctor-外科-P3-uuid'`
+- **AND** the doctor has `powerMultiplier = 2.0`, `subjectId = '外科'` (maps to surgery → match, P3 bonus = 1.3)
 - **WHEN** the `/hospital` page renders
 - **THEN** the `RoomCard` SHALL render an `<img>` whose `src` resolves to `doctor-外科-P3` sprite
-- **AND** the throughput indicator SHALL show `20 患者/分` (= 10 × 2.0 × 1.0)
+- **AND** the throughput indicator SHALL show `26 患者/分` (= 10 × 2.0 × 1.0 × 1.3)
+- **AND** the card SHALL display the affinity match marker (per `hospital-reputation` capability)
+
+#### Scenario: Assigned room shows lower throughput on mismatch
+
+- **GIVEN** `room-ward-1` has `type = 'ward'`, `baseRate = 10`, `roomFacility = 1.0`
+- **AND** the same P3 外科 doctor is assigned (mismatch: 外科 → surgery, room is ward)
+- **WHEN** the `/hospital` page renders
+- **THEN** the throughput indicator SHALL show `20 患者/分` (= 10 × 2.0 × 1.0 × 1.0)
+- **AND** the card SHALL NOT display an affinity match marker

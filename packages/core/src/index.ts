@@ -57,6 +57,7 @@ export {
   hasMetCheckInThreshold,
 } from './lib/streak'
 export { newCard, reviewCard, dueCards } from './lib/srs'
+export { quizEvents, type QuizEventName } from './lib/quizEvents'
 export {
   sampleMiniBoss,
   passed,

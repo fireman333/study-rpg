@@ -665,6 +665,19 @@ body {
   color: var(--frame-light);
 }
 
+.room-card__affinity {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 200, 80, 0.18);
+  color: var(--accent-gold, #d4a04d);
+  font-size: 13px;
+  font-weight: bold;
+}
+
 /* ── Assign modal ──────────────────────────────────────── */
 
 .modal-card--assign {
@@ -832,6 +845,25 @@ body {
   animation: toast-in 0.2s ease;
 }
 
+/* ── Tier upgrade notice ───────────────────────────────── */
+
+.upgrade-notice {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 250;
+  padding: 14px 22px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: var(--ink);
+  background: linear-gradient(180deg, #fff4d6 0%, var(--accent-gold) 100%);
+  border: 3px solid var(--accent-rose);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 var(--frame-dark);
+  animation: toast-in 0.3s ease;
+}
+
 /* ── HomePage counters banner ──────────────────────────── */
 
 .home-counters-banner {
@@ -870,4 +902,21 @@ body {
   font-size: 14px;
   text-align: center;
   color: var(--frame-light);
+}
+
+.home-tier-line {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  font-size: 16px;
+  text-align: center;
+  color: var(--frame-dark);
+  background: var(--bg-paper);
+  border: 2px solid var(--accent-gold);
+  border-radius: 6px;
+}
+
+.home-tier-line strong {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--accent-rose);
 }

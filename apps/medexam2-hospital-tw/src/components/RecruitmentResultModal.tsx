@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { RARITY_LABELS } from '@study-rpg/content-medexam2-tw'
+import { RARITY_LABELS, getRoomHintForSubject } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { lookupSprite } from '../lib/sprite-lookup'
 import type { DoctorRow } from '../db/schema'
@@ -54,6 +54,10 @@ export function RecruitmentResultModal({ doctor, wasPity, onClose }: Props) {
               <div>
                 <dt>×力</dt>
                 <dd>{doctor.powerMultiplier.toFixed(1)}</dd>
+              </div>
+              <div>
+                <dt>適合</dt>
+                <dd>{getRoomHintForSubject(doctor.subjectId)}</dd>
               </div>
             </dl>
             <button type="button" className="modal-card__close" onClick={onClose}>

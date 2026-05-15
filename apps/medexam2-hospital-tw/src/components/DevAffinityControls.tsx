@@ -1,4 +1,4 @@
-import type { Subject } from '@study-rpg/core'
+import { quizEvents, type Subject } from '@study-rpg/core'
 
 interface Props {
   subjects: Subject[]
@@ -7,6 +7,12 @@ interface Props {
 
 export function DevAffinityControls({ subjects, onAffinityIncrement }: Props) {
   if (!import.meta.env.DEV) return null
+  const simulateCorrectAnswer = (subjectId: string) => {
+    onAffinityIncrement(subjectId)
+    // Mirror what a real quiz UI will do on correct submission — fires the
+    // per-Q reputation hook registered in App.tsx.
+    quizEvents.emit('correct-answer')
+  }
   return (
     <section className="dev-panel">
       <header className="dev-panel__head">
@@ -19,7 +25,7 @@ export function DevAffinityControls({ subjects, onAffinityIncrement }: Props) {
             key={s.id}
             type="button"
             className="dev-panel__btn"
-            onClick={() => onAffinityIncrement(s.id)}
+            onClick={() => simulateCorrectAnswer(s.id)}
           >
             +1 {s.displayName}
           </button>
