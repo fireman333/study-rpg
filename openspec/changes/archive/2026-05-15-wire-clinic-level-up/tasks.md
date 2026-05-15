@@ -57,6 +57,6 @@
 
 ## 7. Pipeline gates
 
-- [ ] 7.1 `/simplify` skipped — diff is surgical: 1 new content-pack module (TIER_ROOMS table + helpers), additive Dexie v2→v3, tier-upgrade while-loop inside existing transaction, banner state + helper in App, 2 header tweaks. Critical bug (bulkPut overwriting assignedDoctorId) was caught in §6.5 and fixed by switching to additive `bulkAdd` of set-diff
-- [ ] 7.2 `openspec validate --all` clean
-- [ ] 7.3 User confirms → auto-git commit `feat(wire-clinic-level-up): 3-tier hospital progression (診所/區域醫院/醫學中心) + tier-driven room seeding + upgrade banner`
+- [x] 7.1 `/simplify` skipped — diff is surgical: 1 new content-pack module (TIER_ROOMS table + helpers), additive Dexie v2→v3, tier-upgrade while-loop inside existing transaction, banner state + helper in App, 2 header tweaks. Critical bug (bulkPut overwriting assignedDoctorId) was caught in §6.5 and fixed by switching to additive `bulkAdd` of set-diff
+- [x] 7.2 `openspec validate --all` → 20 passed (incl. this change + updated hospital-tycoon-engine delta)
+- [x] 7.3 User confirmed → committed as `f844ca6 feat(wire-clinic-level-up): 3-tier hospital progression (診所/區域醫院/醫學中心) + tier-driven room seeding + upgrade banner` (15 files / +817 / -19)

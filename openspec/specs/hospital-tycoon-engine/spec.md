@@ -38,7 +38,7 @@ The `Room` interface SHALL be exported from `@study-rpg/content-medexam2-tw` (no
 
 ### Requirement: Fresh save SHALL seed 3 outpatient rooms at 診所 tier baseline
 
-The system SHALL detect empty `rooms` table on app boot and seed it with `INITIAL_ROOMS` — exactly 3 entries:
+The system SHALL detect empty `rooms` table on app boot and seed it with `TIER_ROOMS['診所']` from the `clinic-level-up` capability — exactly 3 entries:
 
 | id | type | baseRate | roomFacility | assignedDoctorId | slot |
 |---|---|---|---|---|---|
@@ -46,7 +46,9 @@ The system SHALL detect empty `rooms` table on app boot and seed it with `INITIA
 | `outpatient-2` | outpatient | 10 | 1.0 | null | 2 |
 | `outpatient-3` | outpatient | 10 | 1.0 | null | 3 |
 
-These constants represent 診所 tier defaults. `wire-clinic-level-up` SHALL extend or replace this seeding logic when introducing 區域醫院 / 醫學中心 tiers. The seeding logic SHALL be idempotent — re-running it on a non-empty table SHALL NOT duplicate or modify existing rooms.
+These constants represent 診所 tier defaults. The `clinic-level-up` capability extends the seeding to higher tiers (區域醫院, 醫學中心) via the same `TIER_ROOMS` table; tier upgrade logic appends new rooms when reputation crosses thresholds. The seeding logic SHALL be idempotent — re-running it on a non-empty table SHALL NOT duplicate or modify existing rooms.
+
+The `INITIAL_ROOMS` named constant from `wire-hospital-tycoon-engine` is REMOVED in favor of `TIER_ROOMS['診所']` to enforce a single source of truth for the 診所 roster across both seeding and tier-upgrade code paths.
 
 #### Scenario: New save seeds 3 outpatient rooms
 
@@ -55,6 +57,7 @@ These constants represent 診所 tier defaults. `wire-clinic-level-up` SHALL ext
 - **THEN** the `rooms` table SHALL contain exactly 3 entries with `type = 'outpatient'`
 - **AND** each room's `assignedDoctorId` SHALL equal `null`
 - **AND** each room's `baseRate` SHALL equal `10`
+- **AND** the source of the seed SHALL be `TIER_ROOMS['診所']` (not a separate `INITIAL_ROOMS` constant)
 
 #### Scenario: Re-seeding is idempotent
 
