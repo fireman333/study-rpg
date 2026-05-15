@@ -17,6 +17,7 @@ import { attemptRoll, type RollOutcome } from '../services/recruitment'
 import { RecruitmentBanner } from '../components/RecruitmentBanner'
 import { RecruitmentResultModal } from '../components/RecruitmentResultModal'
 import { DevAffinityControls } from '../components/DevAffinityControls'
+import { HospitalScene } from '../components/HospitalScene'
 
 type Toast = { id: number; text: string; kind: 'unlock' | 'error' }
 
@@ -87,6 +88,8 @@ export function HomePage() {
           </Link>
         </div>
       </header>
+
+      <HospitalScene />
 
       {counters && (() => {
         const tier = counters.tier

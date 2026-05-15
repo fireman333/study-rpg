@@ -290,6 +290,12 @@ export interface ThemePackMeta {
   style: 'pixel' | 'modern' | 'manga' | 'custom'
 }
 
+export interface SlotPosition {
+  room: 'ward' | 'outpatient' | 'surgery'
+  x: number  // 0–768 (scene PNG width)
+  y: number  // 0–384 (scene PNG height)
+}
+
 export interface ThemePack {
   meta: ThemePackMeta
   designMd: string                               // full DESIGN.md content (string)
@@ -300,6 +306,18 @@ export interface ThemePack {
   /** Optional skill tree content (4 branches × 9 nodes). Engine falls back when missing. */
   skillTree?: import('./lib/skillTree').SkillTreeContent
   uiOverrides?: Record<string, unknown>          // optional component overrides
+  /** Optional hospital-mode scene assets (3 tiers). Theme packs not used in hospital mode may omit. */
+  scenes?: {
+    tier1: string
+    tier2: string
+    tier3: string
+  }
+  /** Optional hospital-mode doctor slot positions per tier (2 / 5 / 8 slots). */
+  doctorSlotPositions?: {
+    tier1: SlotPosition[]
+    tier2: SlotPosition[]
+    tier3: SlotPosition[]
+  }
 }
 
 // ─── Engine config (resolved at runtime) ─────────────────────────────────────

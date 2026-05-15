@@ -11,8 +11,33 @@
  * are empty placeholders.
  */
 
-import type { ThemePack } from '@study-rpg/core'
+import type { ThemePack, SlotPosition } from '@study-rpg/core'
 import { SPRITES_MAP } from './sprites'
+import { HOSPITAL_SCENES } from './scenes'
+
+const DOCTOR_SLOT_POSITIONS: NonNullable<ThemePack['doctorSlotPositions']> = {
+  tier1: [
+    { room: 'ward', x: 280, y: 220 },
+    { room: 'outpatient', x: 488, y: 220 },
+  ] satisfies SlotPosition[],
+  tier2: [
+    { room: 'ward', x: 180, y: 210 },
+    { room: 'ward', x: 260, y: 210 },
+    { room: 'outpatient', x: 440, y: 210 },
+    { room: 'outpatient', x: 520, y: 210 },
+    { room: 'surgery', x: 620, y: 240 },
+  ] satisfies SlotPosition[],
+  tier3: [
+    { room: 'ward', x: 120, y: 200 },
+    { room: 'ward', x: 200, y: 200 },
+    { room: 'ward', x: 280, y: 200 },
+    { room: 'outpatient', x: 420, y: 200 },
+    { room: 'outpatient', x: 500, y: 200 },
+    { room: 'outpatient', x: 580, y: 200 },
+    { room: 'surgery', x: 660, y: 200 },
+    { room: 'surgery', x: 720, y: 240 },
+  ] satisfies SlotPosition[],
+}
 
 export const THEME_PIXEL_HOSPITAL: ThemePack = {
   meta: {
@@ -68,4 +93,6 @@ export const THEME_PIXEL_HOSPITAL: ThemePack = {
     // does — doctors ARE the "items" (Doctor card type lives in hospital-management-mode
     // capability spec, not in core Item type). itemCatalog kept empty for contract compliance.
   ],
+  scenes: HOSPITAL_SCENES,
+  doctorSlotPositions: DOCTOR_SLOT_POSITIONS,
 }
