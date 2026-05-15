@@ -6,7 +6,9 @@ import {
   RARITY_ORDER,
   type Rarity,
 } from '@study-rpg/content-medexam2-tw'
+import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB } from '../db/schema'
+import { lookupSprite } from '../lib/sprite-lookup'
 
 const RARITY_FILTER_OPTIONS: ('all' | Rarity)[] = ['all', ...[...RARITY_ORDER].reverse()]
 
@@ -86,8 +88,15 @@ export function DoctorRoster() {
                   <span className="doctor-card__rarity">{d.rarity}</span>
                   <span className="doctor-card__rarity-label">{RARITY_LABELS[d.rarity]}</span>
                 </header>
-                <div className="doctor-card__sprite" aria-hidden>
-                  🩺
+                <div className="doctor-card__sprite">
+                  {(() => {
+                    const spriteUrl = lookupSprite(d.spriteKey, THEME_PIXEL_HOSPITAL.sprites, d.rarity)
+                    return spriteUrl ? (
+                      <img src={spriteUrl} alt="" className="doctor-card__sprite-img" />
+                    ) : (
+                      <span aria-hidden>🩺</span>
+                    )
+                  })()}
                 </div>
                 <h3 className="doctor-card__name">{d.name}</h3>
                 <dl className="doctor-card__meta">

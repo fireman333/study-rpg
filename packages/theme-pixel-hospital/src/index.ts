@@ -12,6 +12,7 @@
  */
 
 import type { ThemePack } from '@study-rpg/core'
+import { SPRITES_MAP } from './sprites'
 
 export const THEME_PIXEL_HOSPITAL: ThemePack = {
   meta: {
@@ -61,9 +62,7 @@ export const THEME_PIXEL_HOSPITAL: ThemePack = {
       fallback: "'Noto Sans TC', sans-serif",
     },
   ],
-  sprites: {
-    // Scaffold: empty. Real roster populated by add-doctor-sprite-roster change.
-  },
+  sprites: SPRITES_MAP,
   itemCatalog: [
     // Scaffold: empty. Hospital mode doesn't use the items system the same way one-階
     // does — doctors ARE the "items" (Doctor card type lives in hospital-management-mode

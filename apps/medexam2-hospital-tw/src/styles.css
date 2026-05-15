@@ -315,6 +315,18 @@ body {
   font-size: 56px;
 }
 
+.modal-card__sprite-img {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+}
+
+.doctor-card__sprite-img {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+}
+
 .modal-card__name {
   margin: 0 0 12px;
   font-family: 'Press Start 2P', monospace;
