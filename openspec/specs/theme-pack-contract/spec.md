@@ -149,6 +149,8 @@ Theme packs participating in the `cosmetic-system` capability MAY include sprite
 
 Sprites SHALL be 384×384 transparent PNG, GBA pixel-art style matching the doctor + mentor sprite roster. Non-background cosmetic sprites SHALL render only the cosmetic itself (rest of canvas transparent) so they layer cleanly over the character-base sprite.
 
+Non-background cosmetic sprites SHALL comply with the bbox-per-category convention defined in the `cosmetic-system` capability's "Cosmetic sprite bbox compliance" requirement. The cosmetic's main visual content SHALL fit within the bbox declared for its category; canvas outside the bbox SHALL be transparent (alpha = 0).
+
 If a host app surfaces dorm-view but the bound theme provides NO cosmetic sprites, the dorm view SHALL still render the base character + dorm-default background — cosmetic-system gracefully degrades to milestone-toast-only without visual change.
 
 #### Scenario: theme-pixel-medical ships 20+ cosmetic sprite keys
@@ -167,9 +169,9 @@ If a host app surfaces dorm-view but the bound theme provides NO cosmetic sprite
 
 #### Scenario: Cosmetic sprite alignment with character-base
 
-- **WHEN** a `cosmetic-head-*` sprite is rendered at z-index 3 over a 384×384 character-base sprite
-- **THEN** the head cosmetic SHALL visually align with where the character's head appears (centered horizontally, top quarter of canvas)
-- **AND** alignment SHALL be checked by visual QA during sprite generation (≤ 10 px tolerance)
+- **WHEN** a `cosmetic-head-*` / `cosmetic-body-*` / `cosmetic-accessory-*` / `cosmetic-held-*` sprite is rendered at its assigned z-index over a 384×384 transparent character-base sprite
+- **THEN** the cosmetic SHALL visually align with the character's corresponding anatomy band (head / torso / chest level / left-hand grip)
+- **AND** alignment SHALL be enforced by bbox compliance per the `cosmetic-system` capability's "Cosmetic sprite bbox compliance" requirement — bbox violation is a spec-level defect, not a visual-QA tolerance
 
 ### Requirement: ThemePack SHALL accept optional hospital-mode scene fields
 
