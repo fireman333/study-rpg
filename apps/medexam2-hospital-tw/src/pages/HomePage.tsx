@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import type { Subject } from '@study-rpg/core'
+import type { Subject, SubjectId } from '@study-rpg/core'
 import {
   RECRUITMENT_THRESHOLDS,
   TICKET_CAP,
@@ -12,12 +12,16 @@ import { getContentPack } from '@study-rpg/content-medexam2-tw'
 import {
   getHospitalDB,
   incrementAffinity,
+  type DoctorRow,
 } from '../db/schema'
 import { attemptRoll, type RollOutcome } from '../services/recruitment'
 import { RecruitmentBanner } from '../components/RecruitmentBanner'
 import { RecruitmentResultModal } from '../components/RecruitmentResultModal'
 import { DevAffinityControls } from '../components/DevAffinityControls'
 import { HospitalScene } from '../components/HospitalScene'
+import { QuizModal } from '../components/QuizModal'
+import { StarterPullCard } from '../components/StarterPullCard'
+import { StarterPullModal } from '../components/StarterPullModal'
 
 type Toast = { id: number; text: string; kind: 'unlock' | 'error' }
 
@@ -26,6 +30,9 @@ export function HomePage() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [toasts, setToasts] = useState<Toast[]>([])
   const [modal, setModal] = useState<{ outcome: Extract<RollOutcome, { ok: true }> } | null>(null)
+  const [starterResult, setStarterResult] = useState<{ doctor: DoctorRow } | null>(null)
+  const [starterOpen, setStarterOpen] = useState(false)
+  const [activeQuizSubject, setActiveQuizSubject] = useState<SubjectId | null>(null)
 
   useEffect(() => {
     const base = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -38,12 +45,21 @@ export function HomePage() {
   const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
   const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
   const anyAssigned = rooms.some((r) => r.assignedDoctorId !== null)
+  const masteryRows = useLiveQuery(() => db.mastery.toArray(), []) ?? []
 
   const affinityMap = useMemo(() => {
     const m: Record<string, number> = {}
     for (const r of affinityRows) m[r.subjectId] = r.correctCount
     return m
   }, [affinityRows])
+
+  const masteryMap = useMemo(() => {
+    const m: Record<string, { subjectId: string; correct: number; total: number }> = {}
+    for (const r of masteryRows) m[r.subjectId] = r
+    return m
+  }, [masteryRows])
+
+  const showStarterCard = counters?.hasUsedStarterPull === false
 
   function pushToast(text: string, kind: Toast['kind'] = 'unlock') {
     const id = Date.now() + Math.random()
@@ -135,6 +151,10 @@ export function HomePage() {
         )}
       </section>
 
+      {showStarterCard && (
+        <StarterPullCard onOpen={() => setStarterOpen(true)} />
+      )}
+
       <section className="banners">
         {subjects.map((s) => (
           <RecruitmentBanner
@@ -143,7 +163,9 @@ export function HomePage() {
             affinity={affinityMap[s.id] ?? 0}
             threshold={RECRUITMENT_THRESHOLDS[s.id] ?? 0}
             ticketsAvailable={ticketsAvailable}
+            mastery={masteryMap[s.id]}
             onRoll={() => void handleRoll(s)}
+            onStartQuiz={() => setActiveQuizSubject(s.id as SubjectId)}
           />
         ))}
       </section>
@@ -161,6 +183,30 @@ export function HomePage() {
         wasPity={modal?.outcome.wasPity ?? false}
         onClose={() => setModal(null)}
       />
+
+      <RecruitmentResultModal
+        doctor={starterResult?.doctor ?? null}
+        wasPity={false}
+        onClose={() => setStarterResult(null)}
+      />
+
+      {starterOpen && (
+        <StarterPullModal
+          subjects={subjects}
+          onClose={() => setStarterOpen(false)}
+          onResult={(out) => {
+            setStarterOpen(false)
+            setStarterResult({ doctor: out.doctor })
+          }}
+        />
+      )}
+
+      {activeQuizSubject !== null && (
+        <QuizModal
+          initialSubject={activeQuizSubject}
+          onClose={() => setActiveQuizSubject(null)}
+        />
+      )}
     </main>
   )
 }

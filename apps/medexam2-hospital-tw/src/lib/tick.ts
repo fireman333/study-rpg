@@ -45,6 +45,7 @@ export async function runTick(): Promise<TickResult> {
         reputation: 0,
         lastTickAt: Date.now(),
         tier: '診所',
+        hasUsedStarterPull: false,
       })
       return { deltaRevenue: 0, deltaReputation: 0, elapsedSec: 0, wasCapped: false }
     }

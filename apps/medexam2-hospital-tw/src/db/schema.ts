@@ -7,6 +7,7 @@ import {
   TICKET_CAP,
   MS_PER_DAY,
   TIER_ROOMS,
+  RARITY_POWER_MULTIPLIER,
   type HospitalTier,
   type Rarity,
   type Room,
@@ -16,6 +17,11 @@ const RECRUITMENT_GACHA_CONFIG = {
   tiers: RECRUITMENT_WEIGHTS,
   pityRules: RECRUITMENT_PITY_RULES,
 }
+
+const ALL_SUBJECT_IDS = [
+  '內科', '家醫科', '小兒科', '皮膚科', '神經內科', '精神科',
+  '外科', '泌尿科', '骨科', '婦產科', '復健科', '眼科', '耳鼻喉科', '麻醉科',
+] as const
 
 export interface AffinityRow {
   subjectId: string
@@ -36,7 +42,6 @@ export interface DoctorRow {
 export interface GachaStatsRow {
   id: 'global'
   totalRolls: number
-  /** JSON-stringified Record<string, number>; Dexie indexes plain props only. */
   rollsSinceLast: Record<string, number>
 }
 
@@ -54,6 +59,25 @@ export interface GameCountersRow {
   reputation: number
   lastTickAt: number
   tier: HospitalTier
+  hasUsedStarterPull: boolean
+}
+
+export interface MasteryRow {
+  subjectId: string
+  correct: number
+  total: number
+}
+
+export interface QuestionHistoryRow {
+  questionId: string
+  subjectId: string
+  attempts: number
+  correctCount: number
+  lastAnsweredAt: number
+  lastResult: 'correct' | 'wrong'
+  nextDueAt: number | null
+  interval: number
+  easeFactor: number
 }
 
 export class HospitalDB extends Dexie {
@@ -63,6 +87,8 @@ export class HospitalDB extends Dexie {
   tickets!: EntityTable<TicketsRow, 'id'>
   rooms!: EntityTable<RoomRow, 'id'>
   gameCounters!: EntityTable<GameCountersRow, 'id'>
+  mastery!: EntityTable<MasteryRow, 'subjectId'>
+  questionHistory!: EntityTable<QuestionHistoryRow, 'questionId'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -80,9 +106,6 @@ export class HospitalDB extends Dexie {
       rooms: '&id, type, slot',
       gameCounters: '&id',
     })
-    // v3 is additive at the table level — the `tier` field is a JS property
-    // on the singleton row, not an index. The version bump triggers Dexie's
-    // upgrade hook so existing saves get the migration path in ensureSeed.
     this.version(3).stores({
       affinity: '&subjectId',
       doctors: '&id, subjectId, rarity, obtainedAt',
@@ -91,6 +114,31 @@ export class HospitalDB extends Dexie {
       rooms: '&id, type, slot',
       gameCounters: '&id',
     })
+    // v4: adds mastery + questionHistory tables; gameCounters gains
+    // `hasUsedStarterPull` (JS prop, not indexed). Existing dogfood saves get
+    // force-flagged true in ensureSeed so the starter-pull UI never appears for them.
+    this.version(4)
+      .stores({
+        affinity: '&subjectId',
+        doctors: '&id, subjectId, rarity, obtainedAt',
+        gachaStats: '&id',
+        tickets: '&id',
+        rooms: '&id, type, slot',
+        gameCounters: '&id',
+        mastery: '&subjectId',
+        questionHistory: '&questionId, subjectId, lastAnsweredAt, nextDueAt',
+      })
+      .upgrade(async (tx) => {
+        // Backfill 14 default mastery rows for upgrading saves
+        const masteryTable = tx.table<MasteryRow, string>('mastery')
+        const existing = new Set((await masteryTable.toArray()).map((r) => r.subjectId))
+        const missing = ALL_SUBJECT_IDS.filter((s) => !existing.has(s)).map((subjectId) => ({
+          subjectId,
+          correct: 0,
+          total: 0,
+        }))
+        if (missing.length > 0) await masteryTable.bulkAdd(missing)
+      })
   }
 }
 
@@ -106,40 +154,83 @@ function currentEpochDay(): number {
 
 // ─── Bootstrap & daily refresh ───────────────────────────────────────────────
 
+function makeStarterDoctor(subjectId: '內科' | '外科', seqIndex: number): DoctorRow {
+  return {
+    id: typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `starter-${subjectId}-${Date.now()}-${seqIndex}`,
+    subjectId,
+    rarity: 'P5',
+    powerMultiplier: RARITY_POWER_MULTIPLIER.P5,
+    name: `${subjectId} 醫師 #1`,
+    spriteKey: `doctor-${subjectId}-P5`,
+    obtainedAt: Date.now() + seqIndex,
+    assignedRoom: null,
+  }
+}
+
 export async function ensureSeed(): Promise<void> {
   const db = getHospitalDB()
-  await db.transaction('rw', db.tickets, db.gachaStats, db.rooms, db.gameCounters, async () => {
-    const t = await db.tickets.get('global')
-    if (!t) {
-      await db.tickets.put({
-        id: 'global',
-        available: INITIAL_TICKETS,
-        lastRefreshDay: currentEpochDay(),
-      })
-    }
-    const s = await db.gachaStats.get('global')
-    if (!s) {
-      const init = initialGachaStats(RECRUITMENT_GACHA_CONFIG)
-      await db.gachaStats.put({ id: 'global', ...init })
-    }
-    const roomCount = await db.rooms.count()
-    if (roomCount === 0) {
-      await db.rooms.bulkPut(TIER_ROOMS['診所'])
-    }
-    const counters = await db.gameCounters.get('singleton')
-    if (!counters) {
-      await db.gameCounters.put({
-        id: 'singleton',
-        revenue: 0,
-        reputation: 0,
-        lastTickAt: Date.now(),
-        tier: '診所',
-      })
-    } else if ((counters as Partial<GameCountersRow>).tier === undefined) {
-      // v2 → v3 migration for existing dogfood saves missing `tier`
-      await db.gameCounters.put({ ...counters, tier: '診所' })
-    }
-  })
+  await db.transaction(
+    'rw',
+    [db.tickets, db.gachaStats, db.rooms, db.gameCounters, db.doctors, db.mastery],
+    async () => {
+      const t = await db.tickets.get('global')
+      if (!t) {
+        await db.tickets.put({
+          id: 'global',
+          available: INITIAL_TICKETS,
+          lastRefreshDay: currentEpochDay(),
+        })
+      }
+      const s = await db.gachaStats.get('global')
+      if (!s) {
+        const init = initialGachaStats(RECRUITMENT_GACHA_CONFIG)
+        await db.gachaStats.put({ id: 'global', ...init })
+      }
+      const roomCount = await db.rooms.count()
+      if (roomCount === 0) {
+        await db.rooms.bulkPut(TIER_ROOMS['診所'])
+      }
+
+      const doctorCount = await db.doctors.count()
+      const counters = await db.gameCounters.get('singleton')
+
+      if (!counters) {
+        // Fresh save — seed 2 P5 starter doctors + starter pull available
+        await db.gameCounters.put({
+          id: 'singleton',
+          revenue: 0,
+          reputation: 0,
+          lastTickAt: Date.now(),
+          tier: '診所',
+          hasUsedStarterPull: false,
+        })
+        if (doctorCount === 0) {
+          await db.doctors.bulkPut([makeStarterDoctor('內科', 0), makeStarterDoctor('外科', 1)])
+        }
+      } else {
+        const c = counters as Partial<GameCountersRow>
+        const patches: Partial<GameCountersRow> = {}
+        if (c.tier === undefined) patches.tier = '診所'
+        // v3 → v4: existing save did not have hasUsedStarterPull; force true so
+        // dogfood users don't suddenly see a starter pull card.
+        if (c.hasUsedStarterPull === undefined) patches.hasUsedStarterPull = true
+        if (Object.keys(patches).length > 0) {
+          await db.gameCounters.put({ ...counters, ...patches } as GameCountersRow)
+        }
+      }
+
+      // Backfill mastery for any subject missing (safety net beyond upgrade hook)
+      const existingMastery = new Set((await db.mastery.toArray()).map((r) => r.subjectId))
+      const missing = ALL_SUBJECT_IDS.filter((s) => !existingMastery.has(s)).map((subjectId) => ({
+        subjectId,
+        correct: 0,
+        total: 0,
+      }))
+      if (missing.length > 0) await db.mastery.bulkAdd(missing)
+    },
+  )
 }
 
 export async function refreshDailyTickets(): Promise<void> {

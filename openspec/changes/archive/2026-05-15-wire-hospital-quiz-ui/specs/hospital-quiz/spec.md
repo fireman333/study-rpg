@@ -1,0 +1,223 @@
+## ADDED Requirements
+
+### Requirement: Quiz modal SHALL launch from per-subject banner 「📚 學習」 button
+
+The HomePage `RecruitmentBanner` component SHALL render a「📚 學習」 button alongside the existing「🎫 招募」 roll button. Clicking the 「📚 學習」 button SHALL open a `QuizModal` overlay covering the HomePage without unmounting it. The 「📚 學習」 button SHALL be enabled regardless of `affinity[subjectId]` value (i.e., locked banners still allow study entry); the「🎫 招募」 button's existing locked/unlocked behavior SHALL be unchanged by this change.
+
+#### Scenario: Click 學習 button on unlocked banner opens quiz modal
+
+- **GIVEN** the HomePage is rendered with 14 banners
+- **AND** `affinity[外科] ≥ threshold[外科]`
+- **WHEN** the player clicks the 「📚 學習」 button on the 外科 banner
+- **THEN** a `QuizModal` SHALL render as an overlay
+- **AND** the modal's subject dropdown SHALL be pre-selected to `外科`
+- **AND** the HomePage SHALL remain mounted underneath the modal
+
+#### Scenario: Click 學習 button on locked banner still opens quiz modal
+
+- **GIVEN** `affinity[眼科] = 4` and `threshold[眼科] = 10`
+- **AND** the 眼科 banner is in locked state
+- **WHEN** the player clicks the 「📚 學習」 button on the 眼科 banner
+- **THEN** the `QuizModal` SHALL open
+- **AND** the modal SHALL accept question answering (this is how the player accumulates affinity to unlock)
+
+#### Scenario: 招募 button behavior unchanged
+
+- **GIVEN** the player clicks the 「🎫 招募」 button on a banner
+- **WHEN** the banner is unlocked and `tickets.available ≥ 1`
+- **THEN** the existing recruitment roll flow SHALL execute per `recruitment-gacha` spec
+- **AND** no `QuizModal` SHALL open
+
+### Requirement: Quiz modal SHALL display question stem, options, doctor partner, and close affordance
+
+The `QuizModal` SHALL render the following elements at all times during a quiz session:
+
+- Modal header containing the current quiz subject (e.g., `📚 外科`) and a close button (X)
+- Doctor partner section showing the bound doctor's sprite + name (purely cosmetic, does not affect scoring)
+- Subject dropdown allowing switching to any of 14 subjects mid-session
+- Question stem (text from `corpus.stem`, supports CJK and line breaks)
+- 4 option buttons labeled A / B / C / D rendering `corpus.options.A` through `corpus.options.D`
+- A status / result region below the options (initially empty; reveals explanation after answer)
+- A 「下一題」 button (initially disabled; enabled after answering)
+
+The close button SHALL close the modal immediately without confirmation. The 「下一題」 button SHALL load a fresh random question from the current subject's corpus pool.
+
+#### Scenario: Modal initial render shows question + 4 options
+
+- **GIVEN** the player opens `QuizModal` from the 外科 banner
+- **AND** the 外科 corpus contains at least 1 question
+- **WHEN** the modal first renders
+- **THEN** the modal SHALL display the doctor partner sprite + name
+- **AND** the modal SHALL display the question stem text
+- **AND** the modal SHALL display 4 option buttons (A / B / C / D) with text from `corpus.options`
+- **AND** the result region SHALL be empty
+- **AND** the 「下一題」 button SHALL be disabled
+
+#### Scenario: Close button immediately dismisses modal
+
+- **GIVEN** the player is mid-question in `QuizModal`
+- **WHEN** the player clicks the close (X) button
+- **THEN** the modal SHALL unmount without confirmation
+- **AND** the HomePage SHALL be visible underneath
+- **AND** any in-progress question state SHALL be discarded (no auto-save of partial answer)
+
+### Requirement: Quiz session SHALL require a roster doctor selected as narrative partner
+
+The `QuizModal` SHALL require the player to have selected a roster doctor before answer buttons become interactive. The selected doctor SHALL be referenced as `boundDoctor`. The `boundDoctor.subjectId` SHALL NOT affect any reward calculation — it is purely a visual / narrative element. If no doctor is bound, the option buttons SHALL be disabled and a doctor picker SHALL be displayed prominently.
+
+The modal SHALL default `boundDoctor` to the most recently obtained roster doctor at modal open time. The player MAY change `boundDoctor` mid-session via an in-modal doctor picker. Changing `boundDoctor` SHALL NOT reset the current question or session state.
+
+#### Scenario: No doctor bound disables answer buttons
+
+- **GIVEN** the `doctors` table contains 0 roster doctors (impossible after onboarding, but defensive)
+- **WHEN** the `QuizModal` opens
+- **THEN** the option buttons (A/B/C/D) SHALL be disabled
+- **AND** a message SHALL display: `「請先招募醫師才能學習」`
+
+#### Scenario: Default bound doctor is most recent
+
+- **GIVEN** the `doctors` table contains 5 doctors with various `obtainedAt` timestamps
+- **WHEN** the `QuizModal` opens for the first time in the session
+- **THEN** `boundDoctor` SHALL be the doctor with the highest `obtainedAt` value
+- **AND** the modal header SHALL display that doctor's name and sprite
+
+#### Scenario: Changing doctor mid-session does not reset question
+
+- **GIVEN** the player is viewing question Q1 in `QuizModal` and has not yet answered
+- **WHEN** the player changes `boundDoctor` from doctor A to doctor B
+- **THEN** the modal SHALL update the displayed doctor sprite + name to doctor B
+- **AND** the question stem and option buttons SHALL remain Q1's content
+
+#### Scenario: boundDoctor.subjectId does not affect affinity gain
+
+- **GIVEN** `boundDoctor.subjectId = 內科` and the current quiz subject is `外科`
+- **WHEN** the player answers an 外科 question correctly
+- **THEN** `affinity[外科]` SHALL increment by exactly 1 (per `recruitment-gacha` spec)
+- **AND** `affinity[內科]` SHALL be unchanged
+- **AND** no multiplier or bonus SHALL apply based on doctor-subject mismatch
+
+### Requirement: Subject dropdown SHALL default to banner subject and allow free switching
+
+The `QuizModal` SHALL include a subject dropdown selector populated with all 14 二階國考 subjects. When the modal is opened from a banner, the dropdown SHALL be pre-selected to that banner's `subjectId`. The player MAY switch to any other subject at any time during the session. Switching subjects SHALL:
+
+- Discard the currently displayed question
+- Reset the session's `seenQuestionIds` set
+- Load a fresh random question from the new subject's pool
+- NOT reset `boundDoctor`
+- NOT clear or modify any mastery / affinity counters
+
+#### Scenario: Dropdown defaults to banner subject
+
+- **GIVEN** the player clicks the 「📚 學習」 button on the 婦產科 banner
+- **WHEN** the `QuizModal` opens
+- **THEN** the subject dropdown SHALL show `婦產科` as the selected value
+
+#### Scenario: Switch subject loads new question
+
+- **GIVEN** the player is viewing an 外科 question Q1 in `QuizModal`
+- **WHEN** the player changes the subject dropdown to `內科`
+- **THEN** Q1 SHALL be discarded
+- **AND** a new random 內科 question SHALL be loaded
+- **AND** `boundDoctor` SHALL be unchanged
+- **AND** `seenQuestionIds` SHALL be reset to a new empty set
+
+### Requirement: Quiz session SHALL be continuous single-question with no batch boundary
+
+The `QuizModal` SHALL operate in continuous single-question mode. There SHALL be no concept of "round", "batch", "score screen", or "session timer". After each question is answered, the player MAY click 「下一題」 to load a fresh question or close the modal to end the session. Closing the modal SHALL be permitted at any time, including immediately after opening with no questions answered. The modal SHALL NOT display any progress counter (e.g., "3/10"), score total, or completion celebration.
+
+Within a single modal-open session, the system SHALL maintain a `seenQuestionIds: Set<string>` to avoid immediate repetition. When loading a new question, the picker SHALL re-roll up to 3 times if the candidate `questionId` is in `seenQuestionIds`; on the 3rd repeat the candidate SHALL be accepted to prevent infinite loops on small subject pools.
+
+#### Scenario: Continuous flow after correct answer
+
+- **GIVEN** the player answered question Q1 correctly
+- **WHEN** the player clicks 「下一題」
+- **THEN** a new random question Q2 SHALL load
+- **AND** Q2.questionId SHALL NOT equal Q1.questionId (if subject pool has > 1 question)
+- **AND** no score screen or "round complete" UI SHALL display
+
+#### Scenario: Close after one question
+
+- **GIVEN** the player answered Q1 and is viewing the explanation
+- **WHEN** the player clicks the close button
+- **THEN** the modal SHALL dismiss immediately
+- **AND** the HomePage SHALL be visible
+- **AND** Q1's mastery / affinity / history side effects (from prior requirement) SHALL persist
+
+#### Scenario: seenQuestionIds prevents short-term repetition
+
+- **GIVEN** the player has answered Q1, Q2, Q3 in this session
+- **WHEN** the player clicks 「下一題」 for Q4
+- **THEN** the picker SHALL attempt to select a question whose id is not in {Q1.id, Q2.id, Q3.id}
+- **AND** if the random pick is in the set, the picker SHALL re-roll
+- **AND** the picker SHALL accept the candidate after the 3rd re-roll regardless of repetition
+
+### Requirement: Correct answer SHALL increment affinity, update mastery, and write history
+
+When the player selects the correct option (matching `corpus.answer`), the system SHALL perform the following side effects in order, all within a single Dexie transaction where possible:
+
+1. Increment `affinity[currentSubjectId]` by exactly 1 (delegates to `recruitment-gacha` spec affinity counter)
+2. Increment `mastery[currentSubjectId].correct` by 1 and `mastery[currentSubjectId].total` by 1
+3. Upsert the `questionHistory[questionId]` row: increment `attempts`, increment `correctCount`, set `lastAnsweredAt = Date.now()`, set `lastResult = 'correct'`; leave `nextDueAt` / `interval` / `easeFactor` at existing values or defaults if first insert
+4. Reveal explanation in the modal result region
+5. Enable the 「下一題」 button
+6. Disable the option buttons to prevent re-answer
+
+The reputation `createPerQReputationListener` SHALL fire as currently wired (hospital-tycoon-engine behavior); this requirement does NOT modify that listener.
+
+#### Scenario: Correct answer increments all three counters
+
+- **GIVEN** `affinity[外科] = 12`, `mastery[外科] = {correct: 5, total: 8}`, no prior history for question Q_X
+- **WHEN** the player selects the correct option for Q_X (an 外科 question)
+- **THEN** `affinity[外科]` SHALL equal `13`
+- **AND** `mastery[外科]` SHALL equal `{correct: 6, total: 9}`
+- **AND** `questionHistory[Q_X.id]` SHALL exist with `attempts=1, correctCount=1, lastResult='correct'`
+- **AND** `questionHistory[Q_X.id].nextDueAt` SHALL be `null` (default, SRS scheduler will set later)
+- **AND** the modal result region SHALL display the explanation text
+
+#### Scenario: Repeat correct answer updates history attempts/correct
+
+- **GIVEN** `questionHistory[Q_X.id] = {attempts: 2, correctCount: 1, lastResult: 'wrong', ...}`
+- **WHEN** the player answers Q_X correctly again
+- **THEN** `questionHistory[Q_X.id]` SHALL become `{attempts: 3, correctCount: 2, lastResult: 'correct', lastAnsweredAt: <new ms>, ...}`
+- **AND** `nextDueAt / interval / easeFactor` SHALL be unchanged by this requirement (SRS scheduler concern)
+
+### Requirement: Wrong answer SHALL reveal explanation, update mastery and history, with no penalty
+
+When the player selects an incorrect option (not matching `corpus.answer`), the system SHALL:
+
+1. NOT modify `affinity[currentSubjectId]` (per `recruitment-gacha` spec "never decrement")
+2. NOT modify `reputation` (no reputation penalty)
+3. Increment `mastery[currentSubjectId].total` by 1 (correct counter unchanged)
+4. Upsert `questionHistory[questionId]`: increment `attempts`, leave `correctCount` unchanged, set `lastAnsweredAt = Date.now()`, set `lastResult = 'wrong'`
+5. Reveal explanation in the modal result region (rendered from `corpus.explanation`; supports markdown including `### 選項詳解` headings and `**A.** ... ✓ / ✗ [P_N XXX] 詳解...` patterns produced by the corpus build)
+6. Enable the 「下一題」 button
+7. Disable the option buttons to prevent re-answer
+8. Visually highlight the correct option (e.g., green border) and the incorrectly selected option (e.g., red border)
+
+If `corpus.explanation` is empty, null, or undefined, the result region SHALL display the placeholder text `「（解析待補）」` instead of erroring.
+
+#### Scenario: Wrong answer increments only mastery.total and history.attempts
+
+- **GIVEN** `affinity[內科] = 45`, `mastery[內科] = {correct: 10, total: 20}`, `questionHistory[Q_Y] = {attempts: 1, correctCount: 1, lastResult: 'correct', ...}`
+- **WHEN** the player selects an incorrect option for Q_Y (an 內科 question)
+- **THEN** `affinity[內科]` SHALL remain `45`
+- **AND** `reputation` SHALL be unchanged (apart from any existing `createPerQReputationListener` no-op behavior on wrong)
+- **AND** `mastery[內科]` SHALL equal `{correct: 10, total: 21}`
+- **AND** `questionHistory[Q_Y]` SHALL equal `{attempts: 2, correctCount: 1, lastResult: 'wrong', lastAnsweredAt: <new ms>, ...}`
+
+#### Scenario: Explanation rendered from corpus
+
+- **GIVEN** the player selects an incorrect option
+- **AND** `corpus.explanation` for the question contains `### 選項詳解\n\n**A. ...**\n  - ✗ 錯誤 [P1 夯]\n  - 詳解：...`
+- **WHEN** the modal result region renders
+- **THEN** the explanation SHALL display the full text with markdown rendering (headings, bold, bullet points)
+- **AND** the correct option button SHALL receive a "correct" visual treatment
+- **AND** the selected wrong option SHALL receive a "wrong" visual treatment
+
+#### Scenario: Missing explanation falls back to placeholder
+
+- **GIVEN** a question has `corpus.explanation = ""` (empty string) or missing field
+- **WHEN** the player answers and the result region renders
+- **THEN** the result region SHALL display the placeholder text `「（解析待補）」`
+- **AND** no error SHALL be thrown
+- **AND** the flow SHALL proceed (「下一題」 enabled normally)
