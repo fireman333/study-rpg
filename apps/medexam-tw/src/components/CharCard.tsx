@@ -22,7 +22,7 @@ interface Props {
 }
 
 const SLOT_ORDER: EquipSlot[] = ['head', 'body', 'weapon', 'charm']
-const SLOT_LABEL: Record<EquipSlot, string> = {
+const SLOT_LABEL: Partial<Record<EquipSlot, string>> = {
   head: '頭',
   body: '身',
   weapon: '手',

@@ -47,6 +47,29 @@ import firstPassEffect from '../sprites/items/first-pass-effect.png?url'
 import tolerance from '../sprites/items/tolerance.png?url'
 import serotoninSyndrome from '../sprites/items/serotonin-syndrome.png?url'
 
+// Cosmetic sprites (M5 cosmetic-and-dorm)
+import cosmHeadStudentGlasses from '../sprites/cosmetic-head-medical-student-glasses.png?url'
+import cosmHeadKnowledgeGlasses from '../sprites/cosmetic-head-knowledge-glasses.png?url'
+import cosmHeadReflexMirror from '../sprites/cosmetic-head-reflex-mirror.png?url'
+import cosmHeadStreak7Cap from '../sprites/cosmetic-head-streak7-cap.png?url'
+import cosmBodyStudentCoat from '../sprites/cosmetic-body-student-coat.png?url'
+import cosmBodyResidentCoat from '../sprites/cosmetic-body-resident-coat.png?url'
+import cosmBodyAttendingCoat from '../sprites/cosmetic-body-attending-coat.png?url'
+import cosmBodyFullmoonCoat from '../sprites/cosmetic-body-fullmoon-coat.png?url'
+import cosmAccessoryStethoscope from '../sprites/cosmetic-accessory-stethoscope.png?url'
+import cosmAccessoryMemoryNotebook from '../sprites/cosmetic-accessory-memory-notebook.png?url'
+import cosmAccessoryStaminaMedal from '../sprites/cosmetic-accessory-stamina-medal.png?url'
+import cosmAccessoryStreak7Badge from '../sprites/cosmetic-accessory-streak7-badge.png?url'
+import cosmHeldExamBook from '../sprites/cosmetic-held-exam-book.png?url'
+import cosmHeldDetailedNotes from '../sprites/cosmetic-held-detailed-notes.png?url'
+import cosmHeldPrescriptionPad from '../sprites/cosmetic-held-prescription-pad.png?url'
+import cosmHeldBossCert from '../sprites/cosmetic-held-boss-cert.png?url'
+import cosmBackgroundTextbookMountain from '../sprites/cosmetic-background-textbook-mountain.png?url'
+import cosmBackgroundLateNightDesk from '../sprites/cosmetic-background-late-night-desk.png?url'
+import cosmBackgroundPartyRoom from '../sprites/cosmetic-background-party-room.png?url'
+import cosmBackgroundWeekendRest from '../sprites/cosmetic-background-weekend-rest.png?url'
+import dormDefault from '../sprites/dorm-default.png?url'
+
 export const SPRITE_MAP: Record<string, string> = {
   // Character variants
   'character-base': characterBase,
@@ -83,4 +106,27 @@ export const SPRITE_MAP: Record<string, string> = {
   coffee: firstPassEffect,
   apple: tolerance,
   'senior-notes': serotoninSyndrome,
+
+  // Cosmetic sprites (M5 cosmetic-and-dorm)
+  'cosmetic-head-medical-student-glasses': cosmHeadStudentGlasses,
+  'cosmetic-head-knowledge-glasses': cosmHeadKnowledgeGlasses,
+  'cosmetic-head-reflex-mirror': cosmHeadReflexMirror,
+  'cosmetic-head-streak7-cap': cosmHeadStreak7Cap,
+  'cosmetic-body-student-coat': cosmBodyStudentCoat,
+  'cosmetic-body-resident-coat': cosmBodyResidentCoat,
+  'cosmetic-body-attending-coat': cosmBodyAttendingCoat,
+  'cosmetic-body-fullmoon-coat': cosmBodyFullmoonCoat,
+  'cosmetic-accessory-stethoscope': cosmAccessoryStethoscope,
+  'cosmetic-accessory-memory-notebook': cosmAccessoryMemoryNotebook,
+  'cosmetic-accessory-stamina-medal': cosmAccessoryStaminaMedal,
+  'cosmetic-accessory-streak7-badge': cosmAccessoryStreak7Badge,
+  'cosmetic-held-exam-book': cosmHeldExamBook,
+  'cosmetic-held-detailed-notes': cosmHeldDetailedNotes,
+  'cosmetic-held-prescription-pad': cosmHeldPrescriptionPad,
+  'cosmetic-held-boss-cert': cosmHeldBossCert,
+  'cosmetic-background-textbook-mountain': cosmBackgroundTextbookMountain,
+  'cosmetic-background-late-night-desk': cosmBackgroundLateNightDesk,
+  'cosmetic-background-party-room': cosmBackgroundPartyRoom,
+  'cosmetic-background-weekend-rest': cosmBackgroundWeekendRest,
+  'dorm-default': dormDefault,
 }
