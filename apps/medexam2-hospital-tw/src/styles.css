@@ -531,3 +531,343 @@ body {
   margin: 2px 0 0;
   font-weight: bold;
 }
+
+/* ── Hospital page ─────────────────────────────────────── */
+
+.hospital-throughput {
+  font-size: 18px;
+  padding: 4px 12px;
+  background: var(--bg-paper);
+  border: 2px solid var(--accent-leaf);
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--frame-light);
+}
+
+.hospital-hint {
+  margin: 0 0 18px;
+  padding: 8px 12px;
+  font-size: 16px;
+  color: var(--frame-dark);
+  background: var(--bg-paper);
+  border-left: 4px solid var(--accent-gold);
+  border-radius: 4px;
+}
+
+.hospital-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .hospital-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .hospital-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.room-card {
+  --rarity-color: var(--frame-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg-paper);
+  border: 3px solid var(--rarity-color);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 var(--frame-light);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.room-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--frame-light);
+}
+
+.room-card--empty {
+  --rarity-color: var(--frame-light);
+  opacity: 0.85;
+}
+
+.room-card--empty:hover {
+  opacity: 1;
+}
+
+.room-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 14px;
+  color: var(--frame-dark);
+}
+
+.room-card__type {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+}
+
+.room-card__slot {
+  font-size: 14px;
+  color: var(--frame-light);
+}
+
+.room-card__sprite {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-cream);
+  border: 3px dashed var(--rarity-color);
+  border-radius: 6px;
+  font-size: 56px;
+}
+
+.room-card__sprite-img {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+}
+
+.room-card__empty-icon {
+  color: var(--frame-light);
+  font-weight: bold;
+}
+
+.room-card__name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--frame-dark);
+  text-align: center;
+}
+
+.room-card--empty .room-card__name {
+  color: var(--frame-light);
+}
+
+.room-card__throughput {
+  font-size: 16px;
+  color: var(--accent-leaf);
+  font-weight: bold;
+}
+
+.room-card--empty .room-card__throughput {
+  color: var(--frame-light);
+}
+
+/* ── Assign modal ──────────────────────────────────────── */
+
+.modal-card--assign {
+  width: min(540px, 100%);
+  text-align: left;
+}
+
+.assign-modal__head {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.assign-modal__title {
+  margin: 0 0 6px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: var(--frame-dark);
+}
+
+.assign-modal__subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--frame-light);
+}
+
+.assign-modal__empty {
+  margin: 24px 0;
+  font-size: 16px;
+  text-align: center;
+  color: var(--frame-light);
+}
+
+.assign-modal__list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.assign-modal__row {
+  --rarity-color: var(--frame-light);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg-cream);
+  border: 2px solid var(--rarity-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.05s ease;
+}
+
+.assign-modal__row:hover:not(:disabled) {
+  transform: translateX(2px);
+  background: var(--bg-paper);
+}
+
+.assign-modal__row:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.assign-modal__row--current {
+  background: #fff4d6;
+  border-style: dashed;
+}
+
+.assign-modal__sprite {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-paper);
+  border: 2px solid var(--rarity-color);
+  border-radius: 4px;
+  font-size: 28px;
+}
+
+.assign-modal__sprite img {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+}
+
+.assign-modal__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.assign-modal__name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--frame-dark);
+}
+
+.assign-modal__meta {
+  font-size: 14px;
+  color: var(--frame-light);
+}
+
+.assign-modal__throughput {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--accent-leaf);
+}
+
+.assign-modal__throughput small {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--frame-light);
+}
+
+.assign-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.assign-modal__unassign {
+  padding: 8px 16px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--bg-paper);
+  background: var(--accent-rose);
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--frame-dark);
+}
+
+.assign-modal__unassign:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+/* ── Offline cap notice ────────────────────────────────── */
+
+.offline-cap-notice {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  padding: 10px 18px;
+  font-size: 16px;
+  background: var(--accent-gold);
+  color: var(--ink);
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--frame-light);
+  animation: toast-in 0.2s ease;
+}
+
+/* ── HomePage counters banner ──────────────────────────── */
+
+.home-counters-banner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--bg-paper);
+  border: 3px solid var(--frame-dark);
+  border-radius: 6px;
+  box-shadow: 3px 3px 0 var(--frame-light);
+}
+
+.home-counters-banner__cell {
+  text-align: center;
+}
+
+.home-counters-banner__label {
+  display: block;
+  font-size: 14px;
+  color: var(--frame-light);
+}
+
+.home-counters-banner__value {
+  display: block;
+  margin-top: 4px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: var(--frame-dark);
+}
+
+.home-counters-banner__hint {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  font-size: 14px;
+  text-align: center;
+  color: var(--frame-light);
+}

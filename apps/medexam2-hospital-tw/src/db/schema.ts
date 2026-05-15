@@ -6,7 +6,9 @@ import {
   INITIAL_TICKETS,
   TICKET_CAP,
   MS_PER_DAY,
+  INITIAL_ROOMS,
   type Rarity,
+  type Room,
 } from '@study-rpg/content-medexam2-tw'
 
 const RECRUITMENT_GACHA_CONFIG = {
@@ -43,11 +45,22 @@ export interface TicketsRow {
   lastRefreshDay: number
 }
 
+export type RoomRow = Room
+
+export interface GameCountersRow {
+  id: 'singleton'
+  revenue: number
+  reputation: number
+  lastTickAt: number
+}
+
 export class HospitalDB extends Dexie {
   affinity!: EntityTable<AffinityRow, 'subjectId'>
   doctors!: EntityTable<DoctorRow, 'id'>
   gachaStats!: EntityTable<GachaStatsRow, 'id'>
   tickets!: EntityTable<TicketsRow, 'id'>
+  rooms!: EntityTable<RoomRow, 'id'>
+  gameCounters!: EntityTable<GameCountersRow, 'id'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -56,6 +69,14 @@ export class HospitalDB extends Dexie {
       doctors: '&id, subjectId, rarity, obtainedAt',
       gachaStats: '&id',
       tickets: '&id',
+    })
+    this.version(2).stores({
+      affinity: '&subjectId',
+      doctors: '&id, subjectId, rarity, obtainedAt',
+      gachaStats: '&id',
+      tickets: '&id',
+      rooms: '&id, type, slot',
+      gameCounters: '&id',
     })
   }
 }
@@ -74,7 +95,7 @@ function currentEpochDay(): number {
 
 export async function ensureSeed(): Promise<void> {
   const db = getHospitalDB()
-  await db.transaction('rw', db.tickets, db.gachaStats, async () => {
+  await db.transaction('rw', db.tickets, db.gachaStats, db.rooms, db.gameCounters, async () => {
     const t = await db.tickets.get('global')
     if (!t) {
       await db.tickets.put({
@@ -87,6 +108,19 @@ export async function ensureSeed(): Promise<void> {
     if (!s) {
       const init = initialGachaStats(RECRUITMENT_GACHA_CONFIG)
       await db.gachaStats.put({ id: 'global', ...init })
+    }
+    const roomCount = await db.rooms.count()
+    if (roomCount === 0) {
+      await db.rooms.bulkPut(INITIAL_ROOMS)
+    }
+    const counters = await db.gameCounters.get('singleton')
+    if (!counters) {
+      await db.gameCounters.put({
+        id: 'singleton',
+        revenue: 0,
+        reputation: 0,
+        lastTickAt: Date.now(),
+      })
     }
   })
 }

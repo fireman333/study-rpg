@@ -32,6 +32,9 @@ export function HomePage() {
   const affinityRows = useLiveQuery(() => db.affinity.toArray(), []) ?? []
   const ticketsRow = useLiveQuery(() => db.tickets.get('global'), [])
   const ticketsAvailable = ticketsRow?.available ?? 0
+  const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
+  const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
+  const anyAssigned = rooms.some((r) => r.assignedDoctorId !== null)
 
   const affinityMap = useMemo(() => {
     const m: Record<string, number> = {}
@@ -74,11 +77,34 @@ export function HomePage() {
           <span className="ticket-counter">
             🎟️ {ticketsAvailable} / {TICKET_CAP}
           </span>
+          <Link to="/hospital" className="nav-link">
+            醫院 →
+          </Link>
           <Link to="/roster" className="nav-link">
             醫師名冊 →
           </Link>
         </div>
       </header>
+
+      <section className="home-counters-banner" aria-label="醫院經營狀態">
+        <div className="home-counters-banner__cell">
+          <span className="home-counters-banner__label">營收</span>
+          <span className="home-counters-banner__value">
+            {(counters?.revenue ?? 0).toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
+          </span>
+        </div>
+        <div className="home-counters-banner__cell">
+          <span className="home-counters-banner__label">聲望</span>
+          <span className="home-counters-banner__value">
+            {(counters?.reputation ?? 0).toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
+          </span>
+        </div>
+        {!anyAssigned && (counters?.revenue ?? 0) === 0 && (
+          <p className="home-counters-banner__hint">
+            指派招募來的醫師到診間開始累積營收與聲望
+          </p>
+        )}
+      </section>
 
       <section className="banners">
         {subjects.map((s) => (
