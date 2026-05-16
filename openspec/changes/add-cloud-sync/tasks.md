@@ -75,7 +75,8 @@
 
 ## 8. Tests / verification
 
-- [ ] 8.1 Manual test in dev: sign in → see migration modal → upload local → cross-device sign-in (Chrome incognito as 2nd device) → verify pulled state matches
+- [x] 8.1a Smoke test (auth-only, pre-sync-engine): localhost:5173/study-rpg/ → AuthButton renders top-right unauthed `☁ Sign in` → click → Google consent → redirect back authed `☁️ tony85314@gmail.com` → refresh persists. ✅ 2026-05-16, Chrome MCP. Spec auth Req 1 / 2 / 3 / 4 / 5 all green.
+- [ ] 8.1 Manual test in dev (full pipeline, after sync engine): sign in → see migration modal → upload local → cross-device sign-in (Chrome incognito as 2nd device) → verify pulled state matches
 - [ ] 8.2 Manual test: offline → write 10 quiz answers → reconnect → verify queue flushes; cloud rows match local
 - [ ] 8.3 Manual test: 2 tabs same user → tab A writes → tab B focuses → verify B pulls A's changes within 5s
 - [ ] 8.4 Manual test: account deletion → cloud rows gone (verify via Supabase dashboard) → local IndexedDB intact
