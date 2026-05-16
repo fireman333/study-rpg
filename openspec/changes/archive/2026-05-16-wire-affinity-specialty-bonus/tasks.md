@@ -44,6 +44,6 @@
 
 ## 7. Archive & commit gates
 
-- [ ] 7.1 跑 `/opsx:archive wire-affinity-specialty-bonus`（會 sync delta 進 `openspec/specs/affinity-specialty-bonus/spec.md`）— **needs explicit user confirm per Curator rule**
-- [ ] 7.2 auto-git commit（template: `spec(archive): merge wire-affinity-specialty-bonus — affinity 同步套 rarity-tiered specialty multiplier`）— **needs explicit user confirm per Curator rule**
-- [ ] 7.3 **不**馬上 merge track-m2 → main；handoff 提醒下次 session 看 dogfood telemetry 再決定
+- [x] 7.1 跑 `/opsx:archive wire-affinity-specialty-bonus`（會 sync delta 進 `openspec/specs/affinity-specialty-bonus/spec.md`）— **needs explicit user confirm per Curator rule**
+- [x] 7.2 auto-git commit（template: `spec(archive): merge wire-affinity-specialty-bonus — affinity 同步套 rarity-tiered specialty multiplier`）— **needs explicit user confirm per Curator rule**
+- [x] 7.3 **不**馬上 merge track-m2 → main；handoff 提醒下次 session 看 dogfood telemetry 再決定
