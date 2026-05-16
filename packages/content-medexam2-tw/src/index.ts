@@ -18,6 +18,7 @@ export * from './rooms'
 export * from './clinic-tiers'
 export * from './affinity'
 export * from './reputation'
+export * from './specialty'
 
 interface BuiltMeta {
   id: string

@@ -1382,6 +1382,17 @@ body {
   border-radius: 4px;
 }
 
+.quiz-modal__partner-bonus {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--frame-dark);
+  background: var(--accent-gold, #f3d77a);
+  border-radius: 10px;
+  padding: 3px 8px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 .quiz-modal__no-doctor {
   color: var(--accent-rose);
   font-size: 14px;

@@ -1,9 +1,15 @@
 import { reviewCardBinary, type SubjectId } from '@study-rpg/core'
+import { getSpecialtyMultiplier, type Rarity } from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB, type MasteryRow, type QuestionHistoryRow } from '../db/schema'
 
 interface AnswerRecord {
   subjectId: SubjectId
   questionId: string
+}
+
+interface PartnerInfo {
+  subjectId: SubjectId
+  rarity: Rarity
 }
 
 async function upsertHistory(
@@ -48,18 +54,20 @@ async function upsertMastery(
   db: ReturnType<typeof getHospitalDB>,
   subjectId: SubjectId,
   wasCorrect: boolean,
+  multiplier: number = 1.0,
 ): Promise<void> {
+  const delta = wasCorrect ? multiplier : 0
   const existing = await db.mastery.get(subjectId)
   if (existing) {
     await db.mastery.put({
       subjectId,
-      correct: existing.correct + (wasCorrect ? 1 : 0),
+      correct: existing.correct + delta,
       total: existing.total + 1,
     })
   } else {
     await db.mastery.put({
       subjectId,
-      correct: wasCorrect ? 1 : 0,
+      correct: delta,
       total: 1,
     })
   }
@@ -67,12 +75,22 @@ async function upsertMastery(
 
 /**
  * Correct answer: bumps mastery (correct + total) + questionHistory + affinity.
- * Single Dexie transaction across mastery / questionHistory / affinity tables.
+ * Mastery.correct delta is multiplied by the specialty-match multiplier when
+ * `partner.subjectId === record.subjectId` (per hospital-specialty-bonus spec).
+ * Affinity and SRS state are unaffected by the multiplier.
  */
-export async function recordCorrectAnswer(record: AnswerRecord): Promise<void> {
+export async function recordCorrectAnswer(
+  record: AnswerRecord,
+  partner: PartnerInfo | null = null,
+): Promise<void> {
   const db = getHospitalDB()
+  const multiplier = getSpecialtyMultiplier(
+    partner?.subjectId ?? null,
+    partner?.rarity ?? null,
+    record.subjectId,
+  )
   await db.transaction('rw', db.mastery, db.questionHistory, db.affinity, async () => {
-    await upsertMastery(db, record.subjectId, true)
+    await upsertMastery(db, record.subjectId, true, multiplier)
     await upsertHistory(db, record, true)
     const aff = await db.affinity.get(record.subjectId)
     await db.affinity.put({
