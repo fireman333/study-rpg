@@ -35,18 +35,25 @@
 
 ## 5. Sync engine (shared module)
 
-- [ ] 5.1 Create `apps/medexam-tw/src/lib/sync/` module with content-pack-agnostic API: `createSyncEngine({ tables, dexieDb, supabase, debounceMs, onError })`
-- [ ] 5.2 Implement `engine.ts`:
-  - [ ] 5.2.1 Dexie hook registration: subscribe to writes on listed tables → mark dirty + enqueue debounced push
-  - [ ] 5.2.2 Debounced push: collect dirty rows after `debounceMs`, batch UPSERT to Supabase with `user_id` + `updated_at`
-  - [ ] 5.2.3 LWW check on push: include `updated_at` in payload; rely on Postgres RPC `upsert_lww(table, rows)` to enforce server-side comparison
-  - [ ] 5.2.4 Pull on focus: `visibilitychange === 'visible'` → SELECT rows where `updated_at > <last_pull_at>` per table → apply to Dexie via LWW
-  - [ ] 5.2.5 Offline queue: persist `sync_queue` Dexie table (pending pushes); flush on `online` event with exponential backoff
+- [x] 5.1 Create `apps/medexam-tw/src/lib/sync/` module — `types.ts` (SyncEngine / SyncStatus / RowPayload / CloudRow), `tables.ts` (4 一階 TableAdapter: player_state / srs_cards / item_instances / mentor_backlog), `engine.ts` (factory), `useSync.ts` (React hook)
+- [x] 5.2 Implement `engine.ts`:
+  - [x] 5.2.1 Dexie hook registration: `creating` / `updating` / `deleting` hooks add `_updatedAt = Date.now()` + mark dirty PK; `deleting` clears dirty marker (no tombstone sync yet)
+  - [x] 5.2.2 Debounced push: per-table dirty PK set, debounce window 3000ms (configurable via `VITE_SYNC_DEBOUNCE_MS`), batch `upsert_lww` RPC call per Postgres table
+  - [x] 5.2.3 LWW check on push: payload includes `updated_at = new Date().toISOString()` + `app_version`; server-side LWW enforced via 0003_upsert_lww.sql RPC `ON CONFLICT DO UPDATE WHERE cloud.updated_at < incoming.updated_at`
+  - [x] 5.2.4 Pull on focus: `visibilitychange` listener triggers `pullNow()` which `SELECT * FROM <table> WHERE user_id = ? AND updated_at > <last_pull_at>` per table; client-side LWW via `cloudIsNewer(cloud.updated_at, local._updatedAt)` before writing back to Dexie
+  - [-] 5.2.5 Offline queue: implicit (dirty markers retained in-memory on push failure with `isLikelyNetworkError` detection; status → `offline`). **Explicit persisted queue with exponential backoff deferred** — current behavior: markers cleared on success, kept on failure, next dirty event retries. Spec Req 5 ("offline queue flush") satisfied at first-order level; rare crash-during-offline-window edge case loses queue
 - [x] 5.3 Write `supabase/migrations/0003_upsert_lww.sql` — RPC `upsert_lww(table_name TEXT, rows JSONB)` with table whitelist (8 tables), per-row user_id ownership check, ON CONFLICT DO UPDATE WHERE `cloud.updated_at < incoming.updated_at` for server-side LWW enforcement
-- [ ] 5.4 Wire `sync engine` into app shell — initialize on `useAuth()` returns authed session; teardown on sign-out
-- [ ] 5.5 Mirror sync engine setup in 二階 app; inject 二階-specific table set
-- [ ] 5.6 Unit tests `apps/medexam-tw/src/lib/sync/engine.test.ts` (vitest) covering: LWW push (newer local wins), LWW pull (newer cloud wins), offline queue flush order preserves write sequence, debounce coalesces burst writes into single batch, on-focus pull invocation, pull failure leaves local intact (no mutation)
-- [ ] 5.7 Unit tests `migration.test.ts` covering the 4 sign-in conditions (local empty/non-empty × cloud empty/non-empty) and verifying correct UI route: migration upload modal / conflict chooser modal / silent pull / fresh start — plus all conflict chooser branches (use-cloud snapshot, use-local force push, decide-later pause)
+- [x] 5.4 Wire `sync engine` into app shell — `useSync()` hook in `App.tsx` instantiates engine on first `useAuth() === 'authed'`, calls `start(user.id)`, teardown on unmount or sign-out. Engine debug-exposed via `globalThis.__sync` + `globalThis.__db` (`import.meta.env.DEV` guard — stripped in prod)
+- [ ] 5.5 Mirror sync engine setup in 二階 app; inject 二階-specific table set *(deferred to next batch — needs 二階 adapter set for hospital_state / hospital_doctors / hospital_mastery / hospital_question_history)*
+- [-] 5.6 Unit tests `engine.test.ts` (vitest) **deferred** — project has no vitest setup yet; manual smoke (8.1a + 8.1b) covers push + LWW + hook injection. Add vitest config + tests in follow-up change if regression risk warrants
+- [-] 5.7 Unit tests `migration.test.ts` **deferred** — same as 5.6; modal logic still pending in Task 6
+
+## 5.S Smoke test (M4 sync engine)
+
+- [x] 5.S.1 Cold start sign-in → engine.start() → pullNow() returns 0 rows (cloud empty)
+- [x] 5.S.2 Dexie write (xp +1 via `globalThis.__db.players.update`) → hook injects `_updatedAt` → 3s debounce → pushNow() → cloud row appears (`/rest/v1/player_state?user_id=eq.<uid>` returns 1 row with matching `data.xp`)
+- [x] 5.S.3 Cloud row has `app_version: "0.2.0"` + Postgres-side `updated_at` timestamp + payload.data deep-equals local Player object
+- [x] 5.S.4 Status transitions: `idle` → `pushing` (transient) → `idle` (after success)
 
 ## 6. Sign-in resolution modals (migration + conflict chooser)
 

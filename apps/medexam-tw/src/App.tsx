@@ -46,6 +46,7 @@ import {
 import { THEME_PIXEL_MEDICAL, COSMETIC_CATALOG } from '@study-rpg/theme-pixel-medical'
 import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { AuthButton } from './components/AuthButton'
+import { useSync } from './lib/sync/useSync'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
@@ -90,6 +91,8 @@ function dayDiff(fromISODate: string, toISODate: string): number {
 export default function App() {
   const navigate = useNavigate()
   const location = useLocation()
+  // M4 cloud sync — starts when authed, idle when unauthed.
+  useSync()
   // Reading-loop must NOT double-count while user is in mock runner (spec mock-exam R3)
   // or in dorm view (spec dorm-view "no game mechanics").
   const isInMockRunner = location.pathname.startsWith('/mock/run/')
