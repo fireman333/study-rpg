@@ -12,3 +12,9 @@ coverage
 # build artifacts
 packages/content-medexam-tw/dist/questions.json
 apps/*/dist
+
+# sprite rollback backups (temporary, removed after change verification)
+packages/theme-pixel-medical/sprites.v1-backup/
+
+# codex imagegen intermediate alpha PNGs (working artifacts)
+packages/theme-pixel-medical/tmp/

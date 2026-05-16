@@ -9,13 +9,13 @@
       "key": "character-base",
       "filename": "character-base.png",
       "size": "384x384",
-      "prompt": "front-facing pixel art portrait of a young East Asian medical student standing in a cozy study room, white short-sleeve scrubs over a plain t-shirt, holding a small notebook at chest level, neutral confident expression, short dark-brown hair, light parchment background, full upper body framing"
+      "prompt": "front-facing pixel art portrait of a young East Asian male medical student, short dark-brown hair, neutral confident expression. Strict paper-doll compliant — transparent background (alpha=0 outside character silhouette), NO baked-in accessories (no stethoscope, no book, no notebook, no glasses, no hat), NO baked-in furniture (no desk, no shelf, no lamp, no plants, no curtain). Character ONLY: head, torso, arms, hands, legs. Anatomy anchor (±5 px): head center X=192 Y=100 (face Y 40–160), torso center X=190 Y=220 (shoulders Y 140, hips Y 300), left hand grip X=130 Y=290, right hand X=250 Y=290 at side. Wears plain white short-sleeve T-shirt (will be covered by body cosmetics). Full upper body framing, full-body visible from head to thigh, centered vertically."
     },
     {
       "key": "character-base-female",
       "filename": "character-base-female.png",
       "size": "384x384",
-      "prompt": "front-facing pixel art portrait of a young East Asian female medical student standing in a cozy study room, white short-sleeve scrubs over a plain t-shirt, holding a small notebook at chest level, neutral confident expression, long black hair tied back in a ponytail, light parchment background, full upper body framing, same lamp and bookshelf and small potted plant visible in the background to match the male variant"
+      "prompt": "front-facing pixel art portrait of a young East Asian female medical student, long black hair tied back in a ponytail, neutral confident expression. Strict paper-doll compliant — transparent background (alpha=0 outside character silhouette), NO baked-in accessories (no stethoscope, no book, no notebook, no glasses, no hat), NO baked-in furniture (no desk, no shelf, no lamp, no plants, no curtain). Character ONLY: head, torso, arms, hands, legs. Anatomy anchor (±5 px): head center X=192 Y=100 (face Y 40–160), torso center X=190 Y=220 (shoulders Y 140, hips Y 300), left hand grip X=130 Y=290, right hand X=250 Y=290 at side. Wears plain white short-sleeve T-shirt (will be covered by body cosmetics). Full upper body framing, full-body visible from head to thigh, centered vertically."
     },
     {
       "key": "hairband",
@@ -160,6 +160,102 @@
       "filename": "slot-placeholders/charm.png",
       "size": "64x64",
       "prompt": "pixel art empty equipment slot placeholder for the charm slot — a flat grayed silhouette of a generic teardrop amulet outline centered on the cream parchment background, low-contrast charcoal-on-cream, no detail beyond outline, indicating an unequipped slot"
+    },
+    {
+      "key": "cosmetic-head-medical-student-glasses",
+      "filename": "cosmetic-head-medical-student-glasses.png",
+      "size": "384x384",
+      "prompt": "Pixel art pair of round wire-frame eyeglasses appropriate for a medical student, thin dark-brown frames with clear lenses showing faint cyan reflection highlight, horizontal orientation as if worn on a face. Strictly placed within pixel bbox X=130–254 Y=40–160 (the head band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Frame width about 100 px, height about 35 px, centered horizontally within the bbox at the eye level Y=80-100."
+    },
+    {
+      "key": "cosmetic-head-knowledge-glasses",
+      "filename": "cosmetic-head-knowledge-glasses.png",
+      "size": "384x384",
+      "prompt": "Pixel art pair of scholarly eyeglasses with thicker rectangular black frames, clear lenses with subtle warm yellow tint implying long study hours, horizontal orientation as if worn on a face. Strictly placed within pixel bbox X=130–254 Y=40–160 (the head band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Frame width about 110 px, height about 40 px, centered horizontally within the bbox at eye level Y=80-100."
+    },
+    {
+      "key": "cosmetic-head-reflex-mirror",
+      "filename": "cosmetic-head-reflex-mirror.png",
+      "size": "384x384",
+      "prompt": "Pixel art clinician's head mirror (classic ENT reflex mirror) — a circular silver concave mirror with small central hole, mounted on a thin headband strap, faint cool reflection highlight. Strictly placed within pixel bbox X=130–254 Y=40–160 (the head band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Mirror diameter about 60 px, positioned on the forehead area Y=50-110, centered horizontally."
+    },
+    {
+      "key": "cosmetic-head-streak7-cap",
+      "filename": "cosmetic-head-streak7-cap.png",
+      "size": "384x384",
+      "prompt": "Pixel art small celebratory cap in warm gold and deep brown, with a tiny '7' digit embroidered on the front, soft brim curving slightly upward, hat shape only — no head visible. Strictly placed within pixel bbox X=130–254 Y=40–160 (the head band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Cap width about 110 px, height about 70 px, positioned in upper part of bbox Y=40-110."
+    },
+    {
+      "key": "cosmetic-body-student-coat",
+      "filename": "cosmetic-body-student-coat.png",
+      "size": "384x384",
+      "prompt": "Pixel art short white medical student coat (waist-length), V-neck collar, two front pockets, draped as if worn over shoulders and chest — open in front like a lab coat, torso-shaped silhouette, no body visible inside. Strictly placed within pixel bbox X=100–280 Y=140–300 (the body band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Coat width about 170 px at shoulders tapering slightly, height about 150 px from shoulder Y=140 to waist Y=290."
+    },
+    {
+      "key": "cosmetic-body-resident-coat",
+      "filename": "cosmetic-body-resident-coat.png",
+      "size": "384x384",
+      "prompt": "Pixel art mid-length white resident physician coat (hip-length), V-neck collar with subtle blue trim, two front pockets each with a small pen clip detail, torso-shaped silhouette, no body visible inside. Strictly placed within pixel bbox X=100–280 Y=140–300 (the body band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Coat width about 175 px at shoulders, height about 155 px from Y=140 to Y=295."
+    },
+    {
+      "key": "cosmetic-body-attending-coat",
+      "filename": "cosmetic-body-attending-coat.png",
+      "size": "384x384",
+      "prompt": "Pixel art long white attending physician coat (knee-length suggestion within bbox), V-neck collar with deep navy trim, two front pockets with subtle gold pen and stethoscope clip details, more authoritative cut, torso-shaped silhouette, no body visible inside. Strictly placed within pixel bbox X=100–280 Y=140–300 (the body band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Coat width about 180 px, height filling Y=140-300."
+    },
+    {
+      "key": "cosmetic-body-fullmoon-coat",
+      "filename": "cosmetic-body-fullmoon-coat.png",
+      "size": "384x384",
+      "prompt": "Pixel art ornate ceremonial robe in deep purple and gold, with embroidered crescent moon motifs on lapels, rich fabric folds, ceremonial regalia feeling, torso-shaped silhouette, no body visible inside. Strictly placed within pixel bbox X=100–280 Y=140–300 (the body band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Robe width about 180 px, height filling Y=140-300, dramatic visual but stays within bbox."
+    },
+    {
+      "key": "cosmetic-accessory-stethoscope",
+      "filename": "cosmetic-accessory-stethoscope.png",
+      "size": "384x384",
+      "prompt": "Pixel art classic black stethoscope draped around a neck — U-shaped tubing curve at top (neck-band shape) with the chest piece hanging at center-bottom of the bbox, binaural earpieces visible at upper ends, no body visible. Strictly placed within pixel bbox X=100–280 Y=160–260 (the accessory band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Tubing curve spans X=120-260, chest piece centered at X=190 Y=240 (lower-center of bbox)."
+    },
+    {
+      "key": "cosmetic-accessory-memory-notebook",
+      "filename": "cosmetic-accessory-memory-notebook.png",
+      "size": "384x384",
+      "prompt": "Pixel art small spiral-bound notebook clipped to a lanyard around a neck, navy blue cover with small white label, lanyard cord forming a U-curve, notebook hanging at center-bottom of bbox. Strictly placed within pixel bbox X=100–280 Y=160–260 (the accessory band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Lanyard curve spans X=130-250, notebook centered at X=190 Y=235, notebook about 50×60 px."
+    },
+    {
+      "key": "cosmetic-accessory-stamina-medal",
+      "filename": "cosmetic-accessory-stamina-medal.png",
+      "size": "384x384",
+      "prompt": "Pixel art bronze stamina medal hanging from a red-and-white striped ribbon around a neck, circular medallion with embossed runner / endurance motif, ribbon curving over shoulders, medal centered low in bbox. Strictly placed within pixel bbox X=100–280 Y=160–260 (the accessory band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Ribbon curve spans X=120-260, medal centered at X=190 Y=240, medal diameter about 50 px."
+    },
+    {
+      "key": "cosmetic-accessory-streak7-badge",
+      "filename": "cosmetic-accessory-streak7-badge.png",
+      "size": "384x384",
+      "prompt": "Pixel art enamel pin badge with a stylized '7' digit and tiny flame motif, warm gold and orange palette, attached at upper-right chest area as if pinned to clothing, small celebratory pin shape only. Strictly placed within pixel bbox X=100–280 Y=160–260 (the accessory band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Badge centered around X=220 Y=200, about 50×50 px, no ribbon — single pin badge only."
+    },
+    {
+      "key": "cosmetic-held-exam-book",
+      "filename": "cosmetic-held-exam-book.png",
+      "size": "384x384",
+      "prompt": "Pixel art thick exam preparation book — teal cover with white label reading nothing legible, spiral binding visible on the left edge, slight 3D depth showing book thickness, held as if grasped from below. Strictly placed within pixel bbox X=80–200 Y=240–340 (the held band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Book width about 80 px, height about 90 px, centered at X=140 Y=290 (left-hand grip position)."
+    },
+    {
+      "key": "cosmetic-held-detailed-notes",
+      "filename": "cosmetic-held-detailed-notes.png",
+      "size": "384x384",
+      "prompt": "Pixel art stack of bound study notes with colorful sticky tabs along the right edge, warm beige cover, faint horizontal lines suggesting text on visible top page, held as if grasped from below. Strictly placed within pixel bbox X=80–200 Y=240–340 (the held band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Notes width about 80 px, height about 80 px, centered at X=140 Y=290."
+    },
+    {
+      "key": "cosmetic-held-prescription-pad",
+      "filename": "cosmetic-held-prescription-pad.png",
+      "size": "384x384",
+      "prompt": "Pixel art prescription pad — small rectangular pale-yellow notepad with faint Rx symbol watermark, torn perforation along top edge, small pen tucked behind it, held as if grasped from below. Strictly placed within pixel bbox X=80–200 Y=240–340 (the held band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Pad width about 75 px, height about 85 px, centered at X=140 Y=290."
+    },
+    {
+      "key": "cosmetic-held-boss-cert",
+      "filename": "cosmetic-held-boss-cert.png",
+      "size": "384x384",
+      "prompt": "Pixel art rolled certificate scroll tied with a red ribbon, partially unfurled showing ornate gold seal and faint script lines, ceremonial achievement document, held as if grasped from below. Strictly placed within pixel bbox X=80–200 Y=240–340 (the held band) on a 384x384 fully transparent canvas. The main object MUST occupy less than 70% of the bbox area (leave clear margins). All pixels outside the bbox MUST be fully transparent (alpha=0). No baked-in scene, no shadow, no ground, no surrounding character body parts visible — only the cosmetic item itself inside the bbox. Scroll height about 95 px, width about 70 px, centered at X=140 Y=290."
     }
   ]
 }
