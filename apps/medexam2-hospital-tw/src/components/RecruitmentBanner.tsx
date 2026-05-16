@@ -8,6 +8,8 @@ interface Props {
   threshold: number
   ticketsAvailable: number
   mastery?: MasteryRow
+  /** Number of due SRS cards available for this subject today (post-cap allocation). */
+  dueCount?: number
   onRoll: () => void
   onStartQuiz: () => void
 }
@@ -18,6 +20,7 @@ export function RecruitmentBanner({
   threshold,
   ticketsAvailable,
   mastery,
+  dueCount = 0,
   onRoll,
   onStartQuiz,
 }: Props) {
@@ -43,7 +46,14 @@ export function RecruitmentBanner({
         </span>
       </div>
 
-      <div className="banner__mastery">{formatMasteryPercent(mastery)}</div>
+      <div className="banner__chip-row">
+        <span className="banner__mastery">{formatMasteryPercent(mastery)}</span>
+        {dueCount > 0 && (
+          <span className="banner__due-chip" title={`今日待複習 ${dueCount} 題`}>
+            🔴 {dueCount > 99 ? '99+' : dueCount}
+          </span>
+        )}
+      </div>
 
       <div className="banner__actions">
         <button type="button" className="banner__study" onClick={onStartQuiz}>

@@ -1093,12 +1093,30 @@ body {
 
 /* ── Banner mastery + double-button (wire-hospital-quiz-ui) ────────── */
 
+.banner__chip-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 4px 0;
+}
+
 .banner__mastery {
   font-size: 14px;
   color: var(--frame-dark);
   text-align: center;
-  margin: 0 0 4px 0;
   opacity: 0.85;
+}
+
+.banner__due-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #d9534f;
+  border-radius: 10px;
+  padding: 2px 8px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .banner__actions {

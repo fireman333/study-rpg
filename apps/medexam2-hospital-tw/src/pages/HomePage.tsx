@@ -15,6 +15,7 @@ import {
   type DoctorRow,
 } from '../db/schema'
 import { attemptRoll, type RollOutcome } from '../services/recruitment'
+import { allocateDailyCap, getDueQueueAllSubjects } from '../lib/srs-scheduler'
 import { RecruitmentBanner } from '../components/RecruitmentBanner'
 import { RecruitmentResultModal } from '../components/RecruitmentResultModal'
 import { DevAffinityControls } from '../components/DevAffinityControls'
@@ -46,6 +47,19 @@ export function HomePage() {
   const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
   const anyAssigned = rooms.some((r) => r.assignedDoctorId !== null)
   const masteryRows = useLiveQuery(() => db.mastery.toArray(), []) ?? []
+  const dueCountMap = useLiveQuery(async () => {
+    // useLiveQuery re-runs whenever questionHistory changes (Dexie observes
+    // the tables touched inside the query function). One pass per quiz answer
+    // is acceptable — full table read is <10ms even at 6066Q corpus dogfood
+    // scale because questionHistory only contains rows the user has answered.
+    const grouped = await getDueQueueAllSubjects()
+    const allocated = allocateDailyCap(grouped)
+    const m: Record<string, number> = {}
+    for (const [subject, rows] of allocated.entries()) {
+      m[subject] = rows.length
+    }
+    return m
+  }, []) ?? {}
 
   const affinityMap = useMemo(() => {
     const m: Record<string, number> = {}
@@ -164,6 +178,7 @@ export function HomePage() {
             threshold={RECRUITMENT_THRESHOLDS[s.id] ?? 0}
             ticketsAvailable={ticketsAvailable}
             mastery={masteryMap[s.id]}
+            dueCount={dueCountMap[s.id] ?? 0}
             onRoll={() => void handleRoll(s)}
             onStartQuiz={() => setActiveQuizSubject(s.id as SubjectId)}
           />

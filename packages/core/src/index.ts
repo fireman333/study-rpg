@@ -80,7 +80,19 @@ export {
   incrementQuestionsAnswered,
   hasMetCheckInThreshold,
 } from './lib/streak'
-export { newCard, reviewCard, dueCards } from './lib/srs'
+export {
+  newCard,
+  reviewCard,
+  reviewCardBinary,
+  dueCards,
+  WRONG_INTERVAL_MULTIPLIER,
+  WRONG_EASE_MULTIPLIER,
+  STANDARD_INITIAL_INTERVALS,
+  SRS_DAILY_CAP,
+  type BinaryReviewInput,
+  type BinaryReviewPrev,
+  type BinaryReviewResult,
+} from './lib/srs'
 export { quizEvents, type QuizEventName } from './lib/quizEvents'
 export {
   sampleMiniBoss,
