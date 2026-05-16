@@ -77,6 +77,75 @@ pnpm --filter @study-rpg/medexam-tw dev
 pnpm -r typecheck
 ```
 
+## Supabase cloud sync (M4)
+
+`apps/medexam-tw` mirrors gameplay state to Supabase Postgres via opt-in Google OAuth. IndexedDB stays source of truth; cloud is additive.
+
+### Project + env
+
+| Resource | Value |
+|---|---|
+| Project ref | `jakdyjxojokyqxeiuukx` (Tokyo `ap-northeast-1`, free tier) |
+| Dashboard | https://supabase.com/dashboard/project/jakdyjxojokyqxeiuukx |
+| Anon key format | `sb_publishable_*` (new format, replaces legacy anon JWT; both supported by `@supabase/supabase-js@^2.105.4`) |
+| OAuth provider | Google only (Client ID `554492800193-1gp4...`, scope `study-rpg-web`) |
+
+Env vars (`.env.local` per app, gitignored; `.env.example` committed):
+
+```
+VITE_SUPABASE_URL=https://jakdyjxojokyqxeiuukx.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_eWafgmt2wbELXnnIAYENOg_pL0aE5yN
+VITE_CLOUD_SYNC_ENABLED=true        # set 'false' to disable client-side (kill switch)
+VITE_SYNC_DEBOUNCE_MS=3000          # debounce window for batched push
+```
+
+GH Actions secrets (still TBD before next prod deploy — Task 3.3): add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` to repo Secrets → expose to `.github/workflows/deploy.yml`.
+
+### Schema (8 sync tables + 4 RPCs)
+
+Migrations live in `supabase/migrations/`:
+
+- `0001_init_cloud_sync.sql` — 一階 (`player_state` / `srs_cards` / `item_instances` / `mentor_backlog`) + 二階 (`hospital_state` / `hospital_doctors` / `hospital_mastery` / `hospital_question_history`) tables + 32 RLS policies (`auth.uid() = user_id`)
+- `0002_account_lifecycle.sql` — RPCs `delete_my_data()` / `delete_my_account()` / `export_my_data()` (SECURITY DEFINER, scoped to caller's `auth.uid()`)
+- `0003_upsert_lww.sql` — RPC `upsert_lww(table_name, rows)` with 8-table whitelist + server-side LWW (`ON CONFLICT WHERE cloud.updated_at < incoming.updated_at`)
+
+### Architecture pointers
+
+| Concern | Location |
+|---|---|
+| Sync engine factory | `apps/medexam-tw/src/lib/sync/engine.ts` |
+| Table adapters (per-table snapshot + apply) | `apps/medexam-tw/src/lib/sync/tables.ts` |
+| Migration / conflict gate state machine | `apps/medexam-tw/src/lib/sync/migration.ts` |
+| React hook wiring | `apps/medexam-tw/src/lib/sync/useSync.ts` |
+| Auth context + Supabase client singleton | `apps/medexam-tw/src/lib/auth/{AuthContext,client}.ts` |
+| Sign-in resolution modals | `apps/medexam-tw/src/components/{MigrationUploadPrompt,ConflictChooserModal,SettingsPanel}.tsx` |
+| Dexie schema (v4 with `localBackup` table) | `packages/core/src/lib/db.ts` |
+
+二階 app (`apps/medexam2-hospital-tw`) currently has schema + env but client-side wiring still pending (Tasks 4.6 + 5.5).
+
+### DEV-only debug handles
+
+When the engine is running (authed + gate state ∈ `fresh-start` / `silent-pull` / `resolved` / non-keep-separate):
+
+```js
+globalThis.__sync   // SyncEngine instance — getStatus(), pushNow(), pullNow(), pushAllNow(), pullAllNow(), pause(), resume()
+globalThis.__db     // StudyRpgDB Dexie instance
+```
+
+Both gated by `import.meta.env.DEV`; stripped from prod build.
+
+### RLS sanity check (run in dashboard SQL editor)
+
+```sql
+-- Should return only your own rows under any active session
+select count(*), user_id from player_state group by user_id;
+
+-- Should fail (no auth context) — confirms RLS is enforced
+set role anon;
+select count(*) from player_state;
+reset role;
+```
+
 ## Source data path
 
 題庫原始 .md 在使用者本機（**不在 repo 內**）：

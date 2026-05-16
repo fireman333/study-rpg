@@ -105,10 +105,10 @@
 
 ## 9. Documentation
 
-- [ ] 9.1 Update `<project>/CLAUDE.md`: add Supabase setup quick reference (env vars, migration command, RLS test query)
-- [ ] 9.2 Update `openspec/project.md` Roadmap row M4 from `⏳` to in-progress, then `✓ shipped` after archive
-- [ ] 9.3 Update `docs/CONTENT_SCHEMA.md`: document the cloud sync interface for fork authors (optional; can skip if sync engine stays internal)
-- [ ] 9.4 Add `docs/CLOUD_SYNC.md`: deployment guide for new forks (Supabase project setup steps, env vars, RLS template)
+- [x] 9.1 `CLAUDE.md` — new "Supabase cloud sync (M4)" section with project ref / dashboard URL / env var table, schema layout (3 migrations / 8 tables / 4 RPCs), architecture file pointers, DEV-only `globalThis.__sync` + `__db` debug handles, RLS sanity SQL
+- [x] 9.2 `openspec/project.md` Roadmap M4 row → `🚧 ~85%` with sub-bullet breakdown of done vs remaining
+- [-] 9.3 `docs/CONTENT_SCHEMA.md` cloud-sync section *(intentionally skipped)* — sync engine is app-level (per design D4), NOT exposed via `@study-rpg/core` public API. External fork authors who only consume `@study-rpg/core@0.x` don't see sync types. Coverage moved to dedicated `docs/CLOUD_SYNC.md` (9.4) which explains the app-level integration path.
+- [x] 9.4 `docs/CLOUD_SYNC.md` — full deploy guide for forks: architecture summary, 5-step bootstrap (Supabase project / env / client wiring / schema extension / verify), cost expectations, troubleshooting table (5 common symptoms), out-of-scope clarifications
 
 ## 10. Archive prep
 
