@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@study-rpg/core": "workspace:*",
+    "@study-rpg/core": "^0.2.0",
     "@study-rpg/theme-pixel-hospital": "workspace:*",
     "@study-rpg/content-medexam2-tw": "workspace:*",
     "react": "^18.3.1",

@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@study-rpg/core": "workspace:*"
+    "@study-rpg/core": "^0.2.0"
   },
   "devDependencies": {
     "@types/node": "^25.7.0",
