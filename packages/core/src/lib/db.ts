@@ -25,6 +25,27 @@ export interface MentorBacklogRecord extends MentorBacklog {
   key: 'mentorBacklog'
 }
 
+/**
+ * One-time snapshot of cloud-synced gameplay state taken before destructive
+ * sign-in resolution actions (e.g. "Use cloud overwrites local"). Append-only;
+ * never auto-cleared. See cloud-sync spec Req "Conflict chooser".
+ */
+export interface LocalBackupRecord {
+  /** e.g. `snapshot-2026-05-16T20:33:00.000Z`. Unique. */
+  key: string
+  /** Wall-clock ms when snapshot taken. */
+  takenAt: number
+  /** Supabase auth.uid() at snapshot time (sign-in trigger). */
+  userId: string
+  /** Free-form provenance, e.g. `'use-cloud-overwrite-local'`. */
+  reason: string
+  /** Snapshotted gameplay state — only the cloud-synced tables. */
+  player: Player | null
+  itemInstances: ItemInstance[]
+  srsCards: SrsCard[]
+  mentorBacklog: MentorBacklogRecord | null
+}
+
 export class StudyRpgDB extends Dexie {
   players!: EntityTable<Player, 'id'>
   questions!: EntityTable<Question, 'id'>
@@ -40,6 +61,7 @@ export class StudyRpgDB extends Dexie {
   mockAttempts!: EntityTable<MockAttempt, 'id'>
   mockInProgress!: EntityTable<MockInProgressRecord, 'key'>
   mentorBacklog!: EntityTable<MentorBacklogRecord, 'key'>
+  localBackup!: EntityTable<LocalBackupRecord, 'key'>
 
   constructor(name = 'study-rpg') {
     super(name)
@@ -64,6 +86,11 @@ export class StudyRpgDB extends Dexie {
     // v3 — additive: mentor-daily backlog (see mentor-daily capability)
     this.version(3).stores({
       mentorBacklog: 'key',
+    })
+    // v4 — additive: local backup snapshot for cloud-sync conflict resolution
+    // (cloud-sync capability, "Use cloud overwrites local" path).
+    this.version(4).stores({
+      localBackup: 'key, takenAt',
     })
   }
 }

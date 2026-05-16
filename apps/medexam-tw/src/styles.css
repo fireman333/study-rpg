@@ -320,6 +320,135 @@
   gap: 8px;
 }
 
+/* ─── Migration / conflict modals (M4 cloud sync) ───────────────────────── */
+
+.migration-modal {
+  max-width: 520px;
+}
+
+.migration-body {
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 8px 0;
+  color: var(--frame-wood-dark);
+}
+
+.migration-email {
+  background: var(--bg-cream);
+  border: 1px solid var(--frame-wood-light);
+  padding: 1px 6px;
+  margin: 0 4px;
+  font-family: var(--font-pixel-num);
+  font-size: 12px;
+}
+
+.migration-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.migration-compare-side {
+  border: 2px solid var(--frame-wood-light);
+  padding: 8px;
+  background: var(--bg-cream);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.migration-compare-side--fresh {
+  border-color: var(--rarity-SR, #d4af37);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.migration-compare-label {
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.migration-compare-ts {
+  font-family: var(--font-pixel-num);
+  font-size: 11px;
+  color: var(--frame-wood-dark);
+}
+
+.migration-compare-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--rarity-SR, #d4af37);
+  color: white;
+  font-family: var(--font-pixel-cjk);
+  font-size: 10px;
+  padding: 2px 6px;
+  border: 1px solid var(--frame-wood-dark);
+}
+
+.migration-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.migration-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-dark);
+  cursor: pointer;
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  text-align: left;
+  gap: 4px;
+}
+
+.migration-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.migration-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.migration-btn--primary {
+  border-color: var(--rarity-SR, #d4af37);
+}
+
+.migration-btn--secondary {
+  border-color: var(--frame-wood-light);
+}
+
+.migration-btn--neutral {
+  border-style: dashed;
+}
+
+.migration-hint {
+  font-family: var(--font-pixel-cjk);
+  font-size: 11px;
+  color: var(--frame-wood-dark);
+  opacity: 0.8;
+  font-weight: normal;
+}
+
+.migration-error {
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(196, 77, 77, 0.1);
+  border: 1px solid #c44d4d;
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+  color: #c44d4d;
+}
+
 .inv-tile {
   background: var(--bg-cream);
   border: 3px solid;

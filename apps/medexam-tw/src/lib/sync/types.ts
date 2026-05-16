@@ -11,6 +11,7 @@ export type SyncStatus =
   | 'pulling'       // pull-on-focus in flight
   | 'offline'       // network error; queue holds pending pushes
   | 'error'         // last operation failed (non-network)
+  | 'paused'        // user picked "Decide later" on conflict chooser
 
 export interface SyncEngine {
   /** Start engine: install hooks, listen for visibility, kick off first pull. Idempotent. */
@@ -21,6 +22,24 @@ export interface SyncEngine {
   pushNow(): Promise<void>
   /** Force a pull from cloud now. */
   pullNow(): Promise<void>
+  /**
+   * Bulk push every cloud-synced local row to cloud, regardless of dirty
+   * markers. Used by "Upload local progress" and "Use local overwrites cloud"
+   * paths in the sign-in migration flow. `updatedAt` defaults to now() —
+   * caller can pass an ISO string to override (LWW guarantees local wins
+   * if newer).
+   */
+  pushAllNow(updatedAt?: string): Promise<void>
+  /**
+   * Bulk pull every cloud row for this user from the dawn of time
+   * (ignores the incremental cursor). Used by "Use cloud overwrites local".
+   * Local-side LWW is suppressed via `force=true` to guarantee replace.
+   */
+  pullAllNow(opts?: { force?: boolean }): Promise<void>
+  /** Pause both push and pull (sign-in conflict chooser "Decide later"). */
+  pause(): void
+  /** Resume from `pause`. Triggers an immediate pull. */
+  resume(): void
   /** Current status snapshot. */
   getStatus(): SyncStatus
   /** Last successful push wall-clock ms. */

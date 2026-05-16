@@ -1,5 +1,10 @@
 export * from './types'
 export { getDB, resetDB, StudyRpgDB } from './lib/db'
+export type {
+  LocalBackupRecord,
+  MentorBacklogRecord,
+  MockInProgressRecord,
+} from './lib/db'
 export {
   rollRarity,
   pickItemByRarity,

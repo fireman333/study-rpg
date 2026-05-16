@@ -36,10 +36,25 @@ export interface TableAdapter {
     appVersion: string,
   ): Promise<RowPayload[]>
   /**
-   * Apply a cloud row to local Dexie if cloud is newer than local.
-   * Returns true if write happened (for telemetry).
+   * Snapshot ALL local rows for bulk push (regardless of dirty markers).
+   * Used by "Upload local progress" and "Use local overwrites cloud" paths.
    */
-  applyToLocal(db: StudyRpgDB, cloudRow: CloudRow): Promise<boolean>
+  snapshotAll(
+    db: StudyRpgDB,
+    userId: string,
+    updatedAt: string,
+    appVersion: string,
+  ): Promise<RowPayload[]>
+  /**
+   * Apply a cloud row to local Dexie. By default LWW: only writes if cloud is
+   * newer than local. Pass `force: true` to bypass LWW (for "Use cloud
+   * overwrites local" path). Returns true if write happened.
+   */
+  applyToLocal(
+    db: StudyRpgDB,
+    cloudRow: CloudRow,
+    opts?: { force?: boolean },
+  ): Promise<boolean>
 }
 
 /** Compare cloud `updated_at` (ISO) to local `_updatedAt` (ms). */
@@ -60,12 +75,20 @@ const PLAYER_STATE: TableAdapter = {
     if (!player) return []
     return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: player }]
   },
-  async applyToLocal(db, cloudRow) {
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const player = await db.players.get(PLAYER_ID)
+    if (!player) return []
+    return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: player }]
+  },
+  async applyToLocal(db, cloudRow, opts) {
     const data = cloudRow.data as WithUpdatedAt<Record<string, unknown>> | undefined
     if (!data) return false
-    const local = await db.players.get(PLAYER_ID)
-    const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
-    if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    const force = opts?.force ?? false
+    if (!force) {
+      const local = await db.players.get(PLAYER_ID)
+      const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
     // Stamp cloud's _updatedAt so future pulls compare correctly without re-triggering push.
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at) }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,13 +117,29 @@ const SRS_CARDS: TableAdapter = {
     }
     return rows
   },
-  async applyToLocal(db, cloudRow) {
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const rows: RowPayload[] = []
+    await db.srs.each((card) => {
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        question_id: (card as { questionId: string }).questionId,
+        data: card,
+      })
+    })
+    return rows
+  },
+  async applyToLocal(db, cloudRow, opts) {
     const pk = cloudRow.question_id
     const data = cloudRow.data as WithUpdatedAt<Record<string, unknown>> | undefined
     if (!pk || !data) return false
-    const local = await db.srs.get(pk)
-    const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
-    if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    const force = opts?.force ?? false
+    if (!force) {
+      const local = await db.srs.get(pk)
+      const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at) }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await db.srs.put(next as any)
@@ -128,13 +167,29 @@ const ITEM_INSTANCES: TableAdapter = {
     }
     return rows
   },
-  async applyToLocal(db, cloudRow) {
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const rows: RowPayload[] = []
+    await db.itemInstances.each((item) => {
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        id: (item as { id: string }).id,
+        data: item,
+      })
+    })
+    return rows
+  },
+  async applyToLocal(db, cloudRow, opts) {
     const pk = cloudRow.id
     const data = cloudRow.data as WithUpdatedAt<Record<string, unknown>> | undefined
     if (!pk || !data) return false
-    const local = await db.itemInstances.get(pk)
-    const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
-    if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    const force = opts?.force ?? false
+    if (!force) {
+      const local = await db.itemInstances.get(pk)
+      const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at) }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await db.itemInstances.put(next as any)
@@ -152,12 +207,20 @@ const MENTOR_BACKLOG: TableAdapter = {
     if (!row) return []
     return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: row }]
   },
-  async applyToLocal(db, cloudRow) {
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const row = await db.mentorBacklog.get('mentorBacklog')
+    if (!row) return []
+    return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: row }]
+  },
+  async applyToLocal(db, cloudRow, opts) {
     const data = cloudRow.data as WithUpdatedAt<Record<string, unknown>> | undefined
     if (!data) return false
-    const local = await db.mentorBacklog.get('mentorBacklog')
-    const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
-    if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    const force = opts?.force ?? false
+    if (!force) {
+      const local = await db.mentorBacklog.get('mentorBacklog')
+      const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at), key: 'mentorBacklog' as const }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await db.mentorBacklog.put(next as any)

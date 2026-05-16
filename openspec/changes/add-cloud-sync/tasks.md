@@ -57,21 +57,29 @@
 
 ## 6. Sign-in resolution modals (migration + conflict chooser)
 
-- [ ] 6.1 Post-sign-in trigger logic in `useAuth.ts`:
-  - [ ] 6.1.1 Compute `local_has_nondefault_state` (compare IndexedDB to `newPlayer()` defaults)
-  - [ ] 6.1.2 Compute `cloud_has_rows` (HEAD count on cloud sync tables filtered by `user_id`)
-  - [ ] 6.1.3 Route to one of four states: `migration-upload` (local non-empty + cloud empty) / `conflict-chooser` (both non-empty) / `silent-pull` (local empty + cloud non-empty) / `fresh-start` (both empty)
-- [ ] 6.2 `MigrationUploadPrompt.tsx` modal (Upload / Keep separate / Decide later)
-  - [ ] 6.2.1 "Upload" action: bulk push every local row with `user_id = auth.uid()` and current `updated_at`
-  - [ ] 6.2.2 "Keep separate" action: persist `migration_choice = 'keep_separate'` in Dexie; sync engine skips this user until manual toggle
-  - [ ] 6.2.3 "Decide later" action: no-op (re-prompt next sign-in)
-- [ ] 6.3 `ConflictChooserModal.tsx` modal (Use cloud / Use local / Decide later)
-  - [ ] 6.3.1 Display max `updated_at` per side so user can tell which is newer
-  - [ ] 6.3.2 "Use cloud" action: snapshot local rows into `local_backup` Dexie table → full pull → replace local → resume sync
-  - [ ] 6.3.3 "Use local" action: push every local row with `updated_at = now()` (LWW guarantees local wins) → resume sync
-  - [ ] 6.3.4 "Decide later" action: pause sync engine (no auto push / no auto pull) until user re-opens chooser from settings
-  - [ ] 6.3.5 Add `local_backup` Dexie table schema (one-time snapshot, never auto-cleared)
-- [ ] 6.4 Re-open conflict chooser from settings: surface entry in Settings → 資料管理 when sync is paused due to "Decide later"
+- [x] 6.1 Post-sign-in trigger logic — implemented in `lib/sync/useSync.ts` + `lib/sync/migration.ts`:
+  - [x] 6.1.1 `hasNonDefaultLocalState(db)` — inspects `player.xp/level/totalRolls/badges/unlocks/currentStreak` + `itemInstances.count` + `srs.count` + `attempts.count` + `mentorBacklog` existence
+  - [x] 6.1.2 `cloudHasAnyRows(supabase, userId)` — HEAD count with `Range: 0-0` across all 4 cloud-sync tables (`player_state` / `srs_cards` / `item_instances` / `mentor_backlog`); short-circuits on first hit
+  - [x] 6.1.3 `computeGateState` returns one of: `fresh-start` / `silent-pull` / `migration-upload` / `conflict-chooser` / `keep-separate` (persisted choice) / `resolved` (persisted choice) / `paused` (persisted from previous "Decide later")
+- [x] 6.2 `MigrationUploadPrompt.tsx` modal (Upload / Keep separate / Decide later)
+  - [x] 6.2.1 "Upload" → `engine.pushAllNow()` (bulk-push every local row, `updated_at=now()`) → persist `migration_choice: 'uploaded'` → resume engine
+  - [x] 6.2.2 "Keep separate" → persist `migration_choice: 'keep-separate'` → `engine.stop()` → engine ref nulled; gate state goes to `keep-separate` (no modal next sign-in)
+  - [x] 6.2.3 "Decide later" → modal dismissed for current session via gateState='resolved' transition; no persisted choice; re-evaluates on next sign-in
+- [x] 6.3 `ConflictChooserModal.tsx` modal (Use cloud / Use local / Decide later)
+  - [x] 6.3.1 Display max `updated_at` per side via `getMaxLocalUpdatedAt(db)` + `getMaxCloudUpdatedAt(supabase, userId)`; fresher side highlighted with SR-color border + "較新" badge
+  - [x] 6.3.2 "Use cloud" → `snapshotLocalToBackup()` (writes `LocalBackupRecord` with reason='use-cloud-overwrite-local') → `wipeLocalSyncedTables()` (clears `players` + `itemInstances` + `srs` + `mentorBacklog`) → `engine.pullAllNow({force:true})` (no time filter, `applyingFromCloud=true` so hooks don't echo) → persist `migration_choice: 'cloud-chosen'` → resume
+  - [x] 6.3.3 "Use local" → `engine.pushAllNow(new Date().toISOString())` (LWW server-side rejects nothing since incoming.updated_at > cloud's) → persist `migration_choice: 'local-chosen'` → resume. Smoke verified cloud `updated_at` advanced 11:45 → 13:44
+  - [x] 6.3.4 "Decide later" → `setPausedForUser(true)` writes meta `migration_paused:<uid>` → `engine.pause()` → modal stays mounted via state='paused'. Smoke verified persistence (refresh re-shows modal in paused state)
+  - [x] 6.3.5 `localBackup` table added in `packages/core/src/lib/db.ts` as Dexie v4 schema bump (additive; primary key `key`, indexed by `takenAt`). `LocalBackupRecord` type re-exported from `@study-rpg/core`
+- [-] 6.4 Re-open conflict chooser from settings *(deferred to Task 7)* — currently the paused-state ConflictChooserModal is shown again on every sign-in (passable UX). Task 7 will add a Settings entry that surfaces the chooser on demand.
+
+**Smoke evidence (Chrome MCP, 2026-05-16 ~21:45)**:
+- Cold reload (cloud + local both non-empty) → conflict-chooser modal renders with both timestamps + "較新" badge on cloud side
+- "Decide later" click → status='paused', meta has `migration_paused:<uid>`, modal stays
+- Refresh after "Decide later" → modal re-shown immediately (paused state persists)
+- "Use local" click → cloud `updated_at` advanced from 11:45 → 13:44 (push fired), meta has `migration_choice: 'local-chosen'`, status='idle', modal gone
+- Refresh after "Use local" → modal stays gone (resolved state honored)
+- "Use cloud" click → `localBackup` table has snapshot `{key:'snapshot-2026-05-16T13:45:55.673Z', reason:'use-cloud-overwrite-local', backedUpXp:999}`, local `_updatedAt` overwritten with cloud's timestamp, status='idle', modal gone, meta has `migration_choice: 'cloud-chosen'`
 
 ## 7. Account settings UI
 

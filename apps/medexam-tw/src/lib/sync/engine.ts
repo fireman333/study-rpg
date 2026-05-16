@@ -34,6 +34,13 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
 
   let userId: string | null = null
   let status: SyncStatus = 'unauthed'
+  let paused = false
+  /**
+   * Set to true while applying cloud → local writes; hooks check this and
+   * skip both `_updatedAt = Date.now()` stamping and dirty-marker bookkeeping
+   * so pulled rows don't immediately push back to cloud (echo loop).
+   */
+  let applyingFromCloud = false
   let _lastPushAt: number | null = null
   let _lastPullAt: number | null = readLastPullAt()
   let pushTimer: ReturnType<typeof setTimeout> | null = null
@@ -55,6 +62,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
 
   function scheduleDebouncedPush(): void {
     if (status === 'unauthed' || status === 'disabled') return
+    if (paused) return
     if (pushTimer) clearTimeout(pushTimer)
     pushTimer = setTimeout(() => {
       pushTimer = null
@@ -73,11 +81,13 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       //   updating(mods, primKey, obj, trans) — returns object of additional mods
       //   deleting(primKey, obj, trans)
       const creatingFn = (primKey: any, obj: any) => {
+        if (applyingFromCloud) return // cloud → local apply path: keep cloud's _updatedAt, no dirty mark
         obj._updatedAt = Date.now()
         const pk = stringifyPk(primKey, adapter.shape)
         markDirty(tableName, pk)
       }
       const updatingFn = (mods: any, primKey: any) => {
+        if (applyingFromCloud) return // see creatingFn note
         const pk = stringifyPk(primKey, adapter.shape)
         markDirty(tableName, pk)
         return { ...mods, _updatedAt: Date.now() }
@@ -128,6 +138,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
   async function pushNow(): Promise<void> {
     if (!userId) return
     if (status === 'disabled') return
+    if (paused) return
     const totalDirty = Array.from(dirty.perTable.values()).reduce((s, set) => s + set.size, 0)
     if (totalDirty === 0) return
 
@@ -171,32 +182,37 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     if (error) throw error
   }
 
-  async function pullNow(): Promise<void> {
+  async function pullNow(opts?: { sinceIso?: string; force?: boolean }): Promise<void> {
     if (!userId) return
     if (status === 'disabled') return
+    if (paused && !opts?.force) return
 
     status = 'pulling'
-    const sinceMs = _lastPullAt ?? 0
-    const sinceIso = new Date(sinceMs).toISOString()
+    const sinceIso = opts?.sinceIso ?? new Date(_lastPullAt ?? 0).toISOString()
     let anyOffline = false
 
-    for (const adapter of adapters) {
-      try {
-        const { data, error } = await supabase
-          .from(adapter.postgresTable)
-          .select('*')
-          .eq('user_id', userId)
-          .gt('updated_at', sinceIso)
-        if (error) throw error
-        if (!data) continue
-        for (const cloudRow of data as CloudRow[]) {
-          await adapter.applyToLocal(db, cloudRow)
+    applyingFromCloud = true
+    try {
+      for (const adapter of adapters) {
+        try {
+          let q = supabase.from(adapter.postgresTable).select('*').eq('user_id', userId)
+          if (sinceIso !== undefined && !opts?.force) {
+            q = q.gt('updated_at', sinceIso)
+          }
+          const { data, error } = await q
+          if (error) throw error
+          if (!data) continue
+          for (const cloudRow of data as CloudRow[]) {
+            await adapter.applyToLocal(db, cloudRow, { force: opts?.force })
+          }
+        } catch (err) {
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          onError(err, `pull:${adapter.postgresTable}`)
         }
-      } catch (err) {
-        const isNetwork = isLikelyNetworkError(err)
-        anyOffline ||= isNetwork
-        onError(err, `pull:${adapter.postgresTable}`)
       }
+    } finally {
+      applyingFromCloud = false
     }
 
     if (anyOffline) {
@@ -204,19 +220,79 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     } else {
       _lastPullAt = Date.now()
       writeLastPullAt(_lastPullAt)
-      status = 'idle'
+      status = paused ? 'paused' : 'idle'
     }
+  }
+
+  async function pushAllNow(updatedAtOverride?: string): Promise<void> {
+    if (!userId) return
+    if (status === 'disabled') return
+    // Note: pushAllNow intentionally ignores `paused` because it's called
+    // explicitly by the migration UI ("Upload local" / "Use local") which
+    // are user-initiated unpause actions.
+
+    status = 'pushing'
+    const updatedAt = updatedAtOverride ?? new Date().toISOString()
+    let anyOffline = false
+
+    for (const adapter of adapters) {
+      try {
+        const payloads = await adapter.snapshotAll(db, userId, updatedAt, appVersion)
+        if (!payloads.length) continue
+        await pushBatch(adapter.postgresTable, payloads)
+      } catch (err) {
+        const isNetwork = isLikelyNetworkError(err)
+        anyOffline ||= isNetwork
+        onError(err, `pushAll:${adapter.postgresTable}`)
+      }
+    }
+
+    // Clear dirty markers — pushAll covers everything pending.
+    for (const set of dirty.perTable.values()) set.clear()
+
+    if (anyOffline) {
+      status = 'offline'
+    } else {
+      _lastPushAt = Date.now()
+      status = paused ? 'paused' : 'idle'
+    }
+  }
+
+  async function pullAllNow(opts?: { force?: boolean }): Promise<void> {
+    return pullNow({ sinceIso: new Date(0).toISOString(), force: opts?.force })
+  }
+
+  function pause(): void {
+    paused = true
+    if (pushTimer) {
+      clearTimeout(pushTimer)
+      pushTimer = null
+    }
+    status = 'paused'
+  }
+
+  function resume(): void {
+    if (!paused) return
+    paused = false
+    status = 'idle'
+    // Kick off a pull on resume so any cross-device changes during pause land.
+    pullNow().catch((err) => onError(err, 'resumePull'))
+    // If there's any in-memory dirty work, flush it.
+    const totalDirty = Array.from(dirty.perTable.values()).reduce((s, set) => s + set.size, 0)
+    if (totalDirty > 0) scheduleDebouncedPush()
   }
 
   return {
     start(uid: string) {
       if (userId === uid) return
       userId = uid
-      status = 'idle'
+      status = paused ? 'paused' : 'idle'
       installHooks()
       installVisibilityListener()
-      // Kick off first pull so cross-device updates land immediately.
-      pullNow().catch((err) => onError(err, 'startupPull'))
+      if (!paused) {
+        // Kick off first pull so cross-device updates land immediately.
+        pullNow().catch((err) => onError(err, 'startupPull'))
+      }
     },
     stop() {
       if (pushTimer) {
@@ -227,10 +303,15 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       uninstallVisibilityListener()
       dirty.perTable.clear()
       userId = null
+      paused = false
       status = 'unauthed'
     },
     pushNow,
-    pullNow,
+    pullNow: () => pullNow(),
+    pushAllNow,
+    pullAllNow,
+    pause,
+    resume,
     getStatus() {
       return status
     },
