@@ -1,16 +1,10 @@
-import type { SubjectId } from '@study-rpg/core'
+import { reviewCardBinary, type SubjectId } from '@study-rpg/core'
 import { getHospitalDB, type MasteryRow, type QuestionHistoryRow } from '../db/schema'
 
 interface AnswerRecord {
   subjectId: SubjectId
   questionId: string
 }
-
-const QUESTION_HISTORY_DEFAULTS = {
-  nextDueAt: null,
-  interval: 0,
-  easeFactor: 2.5,
-} as const
 
 async function upsertHistory(
   db: ReturnType<typeof getHospitalDB>,
@@ -19,6 +13,10 @@ async function upsertHistory(
 ): Promise<void> {
   const now = Date.now()
   const existing = await db.questionHistory.get(record.questionId)
+  const prevSrs = existing
+    ? { interval: existing.interval, easeFactor: existing.easeFactor, nextDueAt: existing.nextDueAt }
+    : { interval: 0, easeFactor: 2.5, nextDueAt: null }
+  const srs = reviewCardBinary({ correct: wasCorrect, prev: prevSrs, now })
   if (existing) {
     await db.questionHistory.put({
       ...existing,
@@ -26,6 +24,9 @@ async function upsertHistory(
       correctCount: existing.correctCount + (wasCorrect ? 1 : 0),
       lastAnsweredAt: now,
       lastResult: wasCorrect ? 'correct' : 'wrong',
+      interval: srs.interval,
+      easeFactor: srs.easeFactor,
+      nextDueAt: srs.nextDueAt,
     })
   } else {
     const row: QuestionHistoryRow = {
@@ -35,7 +36,9 @@ async function upsertHistory(
       correctCount: wasCorrect ? 1 : 0,
       lastAnsweredAt: now,
       lastResult: wasCorrect ? 'correct' : 'wrong',
-      ...QUESTION_HISTORY_DEFAULTS,
+      interval: srs.interval,
+      easeFactor: srs.easeFactor,
+      nextDueAt: srs.nextDueAt,
     }
     await db.questionHistory.put(row)
   }

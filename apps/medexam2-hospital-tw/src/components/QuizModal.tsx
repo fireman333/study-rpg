@@ -4,8 +4,9 @@ import type { Question, SubjectId } from '@study-rpg/core'
 import { RARITY_LABELS } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
-import { pickRandomQuestion } from '../lib/quiz'
+import { pickQuestionById, pickRandomQuestion } from '../lib/quiz'
 import { recordCorrectAnswer, recordWrongAnswer } from '../lib/mastery'
+import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
 
 const ALL_SUBJECT_IDS: SubjectId[] = [
@@ -27,6 +28,8 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
   const seenIdsRef = useRef<Set<string>>(new Set())
+  const consumedDueIdsRef = useRef<Set<string>>(new Set())
+  const wasFromDueRef = useRef<boolean>(false)
   const [boundDoctorId, setBoundDoctorId] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
 
@@ -51,7 +54,32 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     setLoading(true)
     setSelectedOption(null)
     setRevealed(false)
-    if (resetSeen) seenIdsRef.current = new Set()
+    if (resetSeen) {
+      seenIdsRef.current = new Set()
+      consumedDueIdsRef.current = new Set()
+    }
+
+    // Due-first: walk the cap-allocated due queue for this subject, skipping
+    // orphans (questionHistory rows whose questionId no longer exists in the
+    // content pack).
+    let dueRow = await getNextDueCardForSubject(forSubject, consumedDueIdsRef.current)
+    while (dueRow) {
+      const dueQuestion = await pickQuestionById(dueRow.questionId)
+      if (dueQuestion) {
+        consumedDueIdsRef.current.add(dueRow.questionId)
+        wasFromDueRef.current = true
+        setPoolEmpty(false)
+        setQuestion(dueQuestion)
+        setLoading(false)
+        return
+      }
+      // Orphan: mark consumed and try next due row.
+      consumedDueIdsRef.current.add(dueRow.questionId)
+      dueRow = await getNextDueCardForSubject(forSubject, consumedDueIdsRef.current)
+    }
+
+    // No due card available → fall back to random new question.
+    wasFromDueRef.current = false
     const q = await pickRandomQuestion(forSubject, seenIdsRef.current)
     if (!q) {
       setPoolEmpty(true)
@@ -89,7 +117,9 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     if (!revealed || picking) return
     setPicking(true)
     try {
-      if (question) seenIdsRef.current.add(question.id)
+      // Only add new-picker questions to seenIds. Due cards stay out so they
+      // can re-appear immediately if their next interval falls due again.
+      if (question && !wasFromDueRef.current) seenIdsRef.current.add(question.id)
       await loadNextQuestion(subjectId, false)
     } finally {
       setPicking(false)

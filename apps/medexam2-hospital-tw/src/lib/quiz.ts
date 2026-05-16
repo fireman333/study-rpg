@@ -1,23 +1,46 @@
 import type { Question, SubjectId } from '@study-rpg/core'
 import { getContentPack } from '@study-rpg/content-medexam2-tw'
 
-let _packPromise: Promise<{ questions: Question[]; bySubject: Map<string, Question[]> }> | undefined
+let _packPromise:
+  | Promise<{
+      questions: Question[]
+      bySubject: Map<string, Question[]>
+      byId: Map<string, Question>
+    }>
+  | undefined
 
-async function loadPack(): Promise<{ questions: Question[]; bySubject: Map<string, Question[]> }> {
+async function loadPack(): Promise<{
+  questions: Question[]
+  bySubject: Map<string, Question[]>
+  byId: Map<string, Question>
+}> {
   if (!_packPromise) {
     _packPromise = (async () => {
       const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       const pack = await getContentPack(`${base}/content/medexam2-tw`)
       const bySubject = new Map<string, Question[]>()
+      const byId = new Map<string, Question>()
       for (const q of pack.questions) {
         const arr = bySubject.get(q.subject) ?? []
         arr.push(q)
         bySubject.set(q.subject, arr)
+        byId.set(q.id, q)
       }
-      return { questions: pack.questions, bySubject }
+      return { questions: pack.questions, bySubject, byId }
     })()
   }
   return _packPromise
+}
+
+/**
+ * Look up a question by id. Used by the SRS due-first picker to materialize
+ * a `Question` from a stored `questionHistory` row. Returns null when the
+ * question id doesn't exist in the current content pack (e.g. an orphan
+ * row left over from an older corpus build).
+ */
+export async function pickQuestionById(questionId: string): Promise<Question | null> {
+  const { byId } = await loadPack()
+  return byId.get(questionId) ?? null
 }
 
 /**
