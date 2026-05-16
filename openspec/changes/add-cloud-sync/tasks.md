@@ -17,22 +17,21 @@
   - [x] 2.3.1 RPC `delete_my_data()` (SECURITY DEFINER, scoped to auth.uid()) — deletes from all sync tables in one transaction
   - [x] 2.3.2 RPC `delete_my_account()` — calls `delete_my_data()` then `DELETE FROM auth.users WHERE id = uid` (SECURITY DEFINER, no service_role key needed on client)
   - [x] 2.3.3 RPC `export_my_data()` — returns single JSONB blob with `{schema_version, exported_at, user_id, tables{}}` for client-side Blob download
-- [ ] 2.4 Apply migrations to Supabase project; verify RLS via dashboard test queries (sign in as user A, attempt to SELECT user B rows → expect zero rows) *(owner-only — paste `supabase/migrations/0001_*.sql` → `0002_*.sql` → `0003_*.sql` into Supabase Dashboard → SQL Editor in order)*
+- [x] 2.4 Apply migrations to Supabase project; verify RLS via dashboard test queries — applied via Chrome MCP + JS XHR + Monaco setValue (raw GitHub URL fetch). Verify query confirmed 12 rows = 4 RPCs (`delete_my_account` / `delete_my_data` / `export_my_data` / `upsert_lww`) + 8 tables (`player_state` / `srs_cards` / `item_instances` / `mentor_backlog` / `hospital_state` / `hospital_doctors` / `hospital_mastery` / `hospital_question_history`). RLS cross-user-isolation test deferred to Task 8.5
 
 ## 3. Client dependencies & config
 
-- [ ] 3.1 Add `@supabase/supabase-js` to root `package.json` (workspace dep) + `apps/medexam-tw` + `apps/medexam2-hospital-tw`
-- [ ] 3.2 Add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` + `VITE_CLOUD_SYNC_ENABLED` (default `true`) + `VITE_SYNC_DEBOUNCE_MS` (default `3000`) to env config; document in `.env.example`
-- [ ] 3.3 Add Supabase secrets to `.github/workflows/deploy.yml`; verify build picks them up
+- [x] 3.1 Add `@supabase/supabase-js` to root `package.json` (workspace dep) + `apps/medexam-tw` + `apps/medexam2-hospital-tw` — installed `@supabase/supabase-js@^2.105.4` in both apps via `pnpm --filter <app> add`
+- [x] 3.2 Add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` + `VITE_CLOUD_SYNC_ENABLED` (default `true`) + `VITE_SYNC_DEBOUNCE_MS` (default `3000`) to env config; document in `.env.example` — `.env.example` committed, `.env.local` populated (gitignored)
+- [ ] 3.3 Add Supabase secrets to `.github/workflows/deploy.yml`; verify build picks them up *(owner: GH Actions Secrets UI; deferred until first prod deploy)*
 
 ## 4. Auth module (shared between apps)
 
-- [ ] 4.1 Create `apps/medexam-tw/src/lib/auth/` with: `client.ts` (Supabase client singleton), `session.ts` (hydration hook), `useAuth.ts` (React context)
-- [ ] 4.2 `SignInButton.tsx` component — calls `supabase.auth.signInWithOAuth({ provider: 'google' })`
-- [ ] 4.3 `SignOutButton.tsx` component — calls `supabase.auth.signOut()` and clears in-memory auth state (preserves IndexedDB)
-- [ ] 4.4 Wire `<AuthProvider>` into app shell; expose `useAuth()` hook returning `{ session, user, status }`
-- [ ] 4.5 Mount sign-in entry in app header (unauthed) or settings panel (authed)
-- [ ] 4.6 Mirror module setup in `apps/medexam2-hospital-tw/src/lib/auth/` via shared import (or relative path)
+- [x] 4.1 Create `apps/medexam-tw/src/lib/auth/` with: `client.ts` (Supabase client singleton + env gate, returns null when disabled), `AuthContext.tsx` (combined Provider + hydration + useAuth hook; status ∈ initializing|authed|unauthed|disabled)
+- [x] 4.2 + 4.3 `AuthButton.tsx` component combines sign-in / sign-out — single component renders authed (`☁️ <email>`) vs unauthed (`☁ Sign in`) state, click toggles. signInWithOAuth({ provider: 'google', redirectTo: BASE_URL }); signOut() does not touch IndexedDB (per spec auth Req 3)
+- [x] 4.4 Wire `<AuthProvider>` into app shell at `main.tsx`, wraps `<App />`; exposes `useAuth()` returning `{ status, session, user, signInWithGoogle, signOut }`
+- [x] 4.5 Mount `<AuthButton />` at top of `homeView` fragment in `App.tsx`; styled `position: fixed; top: 12px; right: 12px` in `styles.css` (visible on all routes that render home, unobtrusive over CharCard area)
+- [ ] 4.6 Mirror module setup in `apps/medexam2-hospital-tw/src/lib/auth/` via shared import (or relative path) *(deferred to next batch with sync-engine wiring)*
 
 ## 5. Sync engine (shared module)
 

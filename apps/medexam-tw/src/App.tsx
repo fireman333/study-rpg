@@ -45,6 +45,7 @@ import {
 } from '@study-rpg/core'
 import { THEME_PIXEL_MEDICAL, COSMETIC_CATALOG } from '@study-rpg/theme-pixel-medical'
 import { getContentPack } from '@study-rpg/content-medexam-tw'
+import { AuthButton } from './components/AuthButton'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
@@ -569,6 +570,7 @@ export default function App() {
 
   const homeView = (
     <>
+      <AuthButton />
       <div className="layout">
         <CharCard
           player={player}
