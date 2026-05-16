@@ -71,7 +71,7 @@
   - [x] 6.3.3 "Use local" → `engine.pushAllNow(new Date().toISOString())` (LWW server-side rejects nothing since incoming.updated_at > cloud's) → persist `migration_choice: 'local-chosen'` → resume. Smoke verified cloud `updated_at` advanced 11:45 → 13:44
   - [x] 6.3.4 "Decide later" → `setPausedForUser(true)` writes meta `migration_paused:<uid>` → `engine.pause()` → modal stays mounted via state='paused'. Smoke verified persistence (refresh re-shows modal in paused state)
   - [x] 6.3.5 `localBackup` table added in `packages/core/src/lib/db.ts` as Dexie v4 schema bump (additive; primary key `key`, indexed by `takenAt`). `LocalBackupRecord` type re-exported from `@study-rpg/core`
-- [-] 6.4 Re-open conflict chooser from settings *(deferred to Task 7)* — currently the paused-state ConflictChooserModal is shown again on every sign-in (passable UX). Task 7 will add a Settings entry that surfaces the chooser on demand.
+- [x] 6.4 Re-open conflict chooser from settings — `useSync.reopenConflictChooser()` exposed; SettingsPanel 同步狀態 section shows "重新解決衝突" button when `gateState === 'paused' || status === 'paused'`; click recomputes fresh `gateSnapshot` (refreshes timestamps) + force-renders ConflictChooserModal. Also exposed `resetMigrationPreference()` for the "重置同步偏好（重新詢問）" button which clears persisted `migration_choice` + `migration_paused` and re-runs full gate detection.
 
 **Smoke evidence (Chrome MCP, 2026-05-16 ~21:45)**:
 - Cold reload (cloud + local both non-empty) → conflict-chooser modal renders with both timestamps + "較新" badge on cloud side
@@ -83,10 +83,13 @@
 
 ## 7. Account settings UI
 
-- [ ] 7.1 Create `SettingsPanel.tsx` or extend existing settings route — sections: 帳號 (email + sign-out) / 同步狀態 (last_sync_at + queue length) / 資料管理 (export + delete)
-- [ ] 7.2 "Export cloud data" button → calls `supabase.rpc('export_my_data')` (or client-side aggregation) → `Blob` download `study-rpg-export-<date>.json`
-- [ ] 7.3 "Delete account data" button → confirm dialog → calls `delete_my_account()` RPC → sign out → toast
-- [ ] 7.4 "Last sync" indicator pulls from `sync engine` last-success timestamp; refresh every 30s
+- [x] 7.1 `apps/medexam-tw/src/components/SettingsPanel.tsx` — modal with 3 sections (帳號 / 同步狀態 / 資料管理), opened by clicking the authed AuthButton (previously the button signed-out directly; now opens settings). Reused existing `.modal-backdrop + .frame` pattern + new `.settings-*` CSS classes.
+- [x] 7.2 "匯出雲端資料 JSON" button → `supabase.rpc('export_my_data')` → wrap returned JSONB in `Blob`, trigger anchor click for `study-rpg-export-YYYY-MM-DD.json`, revoke object URL. Smoke verified blob size 51370 bytes with structure `{tables: {srs_cards: [...], ...}}`.
+- [x] 7.3 "刪除帳號雲端資料" button → `window.confirm` dialog with full disclosure → `supabase.rpc('delete_my_account')` → forced sign out → settings panel auto-closes. Verified UI rendering only (didn't fire RPC in smoke to keep dogfood account intact).
+- [x] 7.4 "最後上傳" + "最後下載" indicators pull from `engine.lastPushAt()` + `engine.lastPullAt()`; `formatRelative()` helper shows 剛剛 / N 秒前 / N 分鐘前 / N 小時前 / ISO timestamp; 30-second `setInterval` rerender keeps freshness without re-querying engine
+- [x] 7.5 (bonus) "重置同步偏好（重新詢問）" button → `useSync.resetMigrationPreference()` clears persisted `migration_choice:<uid>` + `migration_paused:<uid>` + re-runs `computeGateState`. Settings panel stays open with success toast; closing it reveals the appropriate fresh-detection modal. Smoke verified: before metaKeys `['migration_choice:<uid>']` → after `[]` → close panel → conflict-chooser modal shown.
+- [x] 7.6 Status chip uses semantic colors per `SyncStatus`: idle=green / pushing-pulling=blue / offline=orange / paused-error=red / unauthed-disabled=gray
+- [x] 7.7 AuthButton click semantics changed: authed click now opens SettingsPanel (less destructive than immediate sign-out); sign-out moved to a button inside the panel. Unauthed click unchanged (triggers Google OAuth).
 
 ## 8. Tests / verification
 

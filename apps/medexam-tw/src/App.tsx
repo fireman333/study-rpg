@@ -48,6 +48,7 @@ import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { AuthButton } from './components/AuthButton'
 import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
 import { ConflictChooserModal } from './components/ConflictChooserModal'
+import { SettingsPanel } from './components/SettingsPanel'
 import { useSync } from './lib/sync/useSync'
 import { useAuth } from './lib/auth/AuthContext'
 import { CharCard } from './components/CharCard'
@@ -95,8 +96,19 @@ export default function App() {
   const navigate = useNavigate()
   const location = useLocation()
   // M4 cloud sync — starts when authed, idle when unauthed.
-  const { gateState, gateSnapshot, resolveUploadPrompt, resolveConflictChooser } = useSync()
-  const { user: authUser } = useAuth()
+  const {
+    status: syncStatus,
+    lastPushAt,
+    lastPullAt,
+    gateState,
+    gateSnapshot,
+    resolveUploadPrompt,
+    resolveConflictChooser,
+    reopenConflictChooser,
+    resetMigrationPreference,
+  } = useSync()
+  const { user: authUser, signOut } = useAuth()
+  const [settingsOpen, setSettingsOpen] = useState(false)
   // Reading-loop must NOT double-count while user is in mock runner (spec mock-exam R3)
   // or in dorm view (spec dorm-view "no game mechanics").
   const isInMockRunner = location.pathname.startsWith('/mock/run/')
@@ -577,7 +589,7 @@ export default function App() {
 
   const homeView = (
     <>
-      <AuthButton />
+      <AuthButton onOpenSettings={() => setSettingsOpen(true)} />
       <div className="layout">
         <CharCard
           player={player}
@@ -930,8 +942,28 @@ export default function App() {
           email={authUser?.email ?? null}
           localMaxUpdatedAt={gateSnapshot.localMaxUpdatedAt}
           cloudMaxUpdatedAt={gateSnapshot.cloudMaxUpdatedAt}
-          hasSettingsEntry={false}
+          hasSettingsEntry
           onChoose={resolveConflictChooser}
+        />
+      )}
+
+      {settingsOpen && (
+        <SettingsPanel
+          email={authUser?.email ?? null}
+          status={syncStatus}
+          lastPushAt={lastPushAt}
+          lastPullAt={lastPullAt}
+          gateState={gateState}
+          onSignOut={async () => {
+            await signOut()
+            setSettingsOpen(false)
+          }}
+          onReopenConflictChooser={async () => {
+            await reopenConflictChooser()
+            setSettingsOpen(false)
+          }}
+          onResetMigrationPreference={resetMigrationPreference}
+          onClose={() => setSettingsOpen(false)}
         />
       )}
 

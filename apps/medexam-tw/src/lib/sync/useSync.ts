@@ -40,6 +40,17 @@ export interface UseSyncReturn {
   resolveUploadPrompt: (choice: UploadChoice) => Promise<void>
   /** Handler invoked by ConflictChooserModal. */
   resolveConflictChooser: (choice: ConflictChoice) => Promise<void>
+  /**
+   * Settings UI entry: re-render the conflict chooser with fresh timestamps.
+   * Only meaningful when current state is `paused`. Engine stays paused.
+   */
+  reopenConflictChooser: () => Promise<void>
+  /**
+   * Settings UI entry: clear all persisted migration preferences for current
+   * user (choice + paused flag) and re-run gate detection. Useful when user
+   * regrets keep-separate or wants to re-evaluate from scratch.
+   */
+  resetMigrationPreference: () => Promise<void>
 }
 
 export function useSync(): UseSyncReturn {
@@ -197,6 +208,37 @@ export function useSync(): UseSyncReturn {
     [user],
   )
 
+  const reopenConflictChooser = useCallback(async (): Promise<void> => {
+    const supabase = getSupabase()
+    if (!supabase || !user) return
+    const snapshot = await computeGateState(supabase, user.id)
+    setGateSnapshot(snapshot)
+    // Always re-show conflict chooser even if computed state was 'resolved',
+    // because the user explicitly clicked from settings.
+    setGateState('conflict-chooser')
+    engineRef.current?.pause()
+  }, [user])
+
+  const resetMigrationPreference = useCallback(async (): Promise<void> => {
+    if (!user) return
+    const db = getDB()
+    await db.meta.delete('migration_choice:' + user.id)
+    await db.meta.delete('migration_paused:' + user.id)
+    const supabase = getSupabase()
+    if (!supabase) return
+    const snapshot = await computeGateState(supabase, user.id)
+    setGateSnapshot(snapshot)
+    setGateState(snapshot.state)
+    // Engine lifecycle is driven by useEffect, but we may need to re-pause
+    // if state transitioned to a needs-modal one.
+    const needsModal =
+      snapshot.state === 'migration-upload' ||
+      snapshot.state === 'conflict-chooser' ||
+      snapshot.state === 'paused'
+    if (needsModal) engineRef.current?.pause()
+    else engineRef.current?.resume()
+  }, [user])
+
   const engine = engineRef.current
   return {
     status: engine?.getStatus() ?? (authStatus === 'disabled' ? 'disabled' : 'unauthed'),
@@ -206,5 +248,7 @@ export function useSync(): UseSyncReturn {
     gateSnapshot,
     resolveUploadPrompt,
     resolveConflictChooser,
+    reopenConflictChooser,
+    resetMigrationPreference,
   }
 }

@@ -1,10 +1,18 @@
-// Sign-in / sign-out entry. Floats top-right of the home view.
+// Sign-in / settings entry. Floats top-right of the home view.
 // Hidden when auth is disabled (no Supabase env vars / sync feature flag off).
+//
+// - Unauthed: clicking triggers Google OAuth sign-in.
+// - Authed: clicking opens the SettingsPanel (caller passes onOpenSettings).
+//   Sign-out moved into the settings panel itself (less destructive).
 
 import { useAuth } from '../lib/auth/AuthContext'
 
-export function AuthButton() {
-  const { status, user, signInWithGoogle, signOut } = useAuth()
+interface Props {
+  onOpenSettings: () => void
+}
+
+export function AuthButton({ onOpenSettings }: Props) {
+  const { status, user, signInWithGoogle } = useAuth()
 
   if (status === 'disabled') return null
   if (status === 'initializing') {
@@ -21,8 +29,8 @@ export function AuthButton() {
       <button
         type="button"
         className="auth-button auth-button--authed"
-        onClick={signOut}
-        title={`已登入：${label}　點此登出`}
+        onClick={onOpenSettings}
+        title={`已登入：${label}　點此開啟同步設定`}
       >
         ☁️ {label}
       </button>
