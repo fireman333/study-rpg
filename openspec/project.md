@@ -64,11 +64,11 @@
 | **M1（MVP）** | ✓ 藥理學 vertical slice + ✓ 1 boss + ✓ 4 屬性 + ✓ loot + ✓ IndexedDB 存檔 + ✓ GH Pages workflow（首次 push 後 live） | ✓ shipped (2026-05-15) |
 | M2 — 全科開放 | ✓ 10 科全解（3291/3600 imported, 309 上游 OCR 缺欄位 skip）+ ✓ skill tree UI + ✓ 4 屬性全部 wired（公式 fine-tune 仍待 dogfood telemetry）+ ✓ daily streak（🔥 chip + 1+0.05·min(s,10) multiplier + break-day soft toast）+ ✓ SRS due queue + ✓ 附圖題 placeholder banner | ✓ shipped (2026-05-15) |
 | **M_2nd — 二階國考經營 RPG**（與 M2 並行 dogfood-the-fork track） | ✓ scaffold（3 packages + 1 app）+ ✓ 二階題庫 ingest（6066 Q / 14 科）+ ✓ recruitment gacha + ✓ tycoon engine + ✓ reputation formula + ✓ 三階段升級 + ✓ doctor sprite roster + ✓ subpath co-location deploy（live at `/study-rpg/hospital/`）。詳見 `openspec/specs/hospital-management-mode/spec.md` + 8 個 archived changes。M3 npm publish 是兩 track 合流點。 | ✓ shipped (2026-05-15) |
-| M3 — 公開 API + 範例 fork | `@study-rpg/core` 發 npm（0.1.x）+ `docs/CONTENT_SCHEMA.md` / `THEME_API.md` 完整 + minimal `content-toefl-mini` 50Q demo（M_2nd 二階 hospital mode 也算 fork dogfood，但 owner-internal） | ⏳ |
+| M3 — 公開 API + dogfood fork validation | ✓ `@study-rpg/core@0.1.0` + `@0.2.0` 發 npm (2026-05-16) + ✓ `docs/CONTENT_SCHEMA.md` / `THEME_API.md` 完整 + ✓ migrate-m2nd-to-published-core（二階 fork `workspace:*` → `^0.2.0` 真實 consume published pkg） | ✓ shipped (2026-05-16) |
 | M4 — 跨裝置存檔 | Supabase Auth (Google OAuth) + 雲端 sync；IndexedDB 仍 source of truth | ⏳ |
 | **M5 — 養成元素加深** | ✓ **模擬考全套**（36 papers / stopwatch / auto-pause / 全展開詳解 / 進步曲線 / boss-tier reward / SRS enqueue）+ ✓ **導師 NPC 每日一題**（Hybrid SRS/weak picker / MentorDialog / 1.5× reward / 跨天 backlog / skip semantics）+ ✓ **宿舍 + cosmetic**（20 cosmetic 5 categories milestone unlock / DormRoute sprite layer overlay / 「?」剪影 locked preview / CosmeticPicker 裝扮間） | ✓ shipped (2026-05-15) |
 | M6 — Social light | 朋友 leaderboard（純 read-time / mastery%）+ 公開分享角色卡 OG image | ⏳ |
-| M7 (stretch) | 社群 content/theme PR + maintain awesome-study-rpg list | ⏳ |
+| M7 (stretch) | 社群 content/theme PR + maintain awesome-study-rpg list + `content-toefl-mini` 50Q demo（external-facing forkability example — 從 M3 降級至此，等真有外部 contributor 才啟動） | ⏳ |
 
 ## Development Workflow
 

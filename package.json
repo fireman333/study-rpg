@@ -15,7 +15,8 @@
     "build:m2": "pnpm --filter @study-rpg/medexam2-hospital-tw build",
     "build:content": "pnpm --filter @study-rpg/content-medexam-tw build",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "gen-status": "node scripts/gen-status.mjs"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
