@@ -64,8 +64,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/content-medexam2-tw
       '@study-rpg/core':
-        specifier: workspace:*
-        version: link:../../packages/core
+        specifier: ^0.2.0
+        version: 0.2.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@study-rpg/theme-pixel-hospital':
         specifier: workspace:*
         version: link:../../packages/theme-pixel-hospital
@@ -126,8 +126,8 @@ importers:
   packages/content-medexam2-tw:
     dependencies:
       '@study-rpg/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.2.0
+        version: 0.2.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^25.7.0
@@ -176,8 +176,8 @@ importers:
   packages/theme-pixel-hospital:
     dependencies:
       '@study-rpg/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^0.2.0
+        version: 0.2.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       tsx:
         specifier: ^4.19.0
@@ -725,6 +725,13 @@ packages:
     resolution: {integrity: sha512-hPt/bgL5cE+Qp+/TPHBqptcAgPzgj46mPcg/16zNUmbQk0j+mOEQV/+Lqu8QRtDV3Ek95Q6FeFITpuhl6OTsAA==}
     cpu: [x64]
     os: [win32]
+
+  '@study-rpg/core@0.2.0':
+    resolution: {integrity: sha512-HESX6IXsXDh+UWTw9GePenU8rzHyUxGT9N0xxtaZk32qnVIc0rdwQ5w+DDgzXR51m3OEgbaWwd6dE+pGJlTpUw==}
+    engines: {node: '>=20.19'}
+    peerDependencies:
+      react: ^18.3.0
+      react-dom: ^18.3.0
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -1515,6 +1522,17 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.60.3':
     optional: true
+
+  '@study-rpg/core@0.2.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      dexie: 4.4.2
+      dexie-react-hooks: 1.1.7(@types/react@18.3.28)(dexie@4.4.2)(react@18.3.1)
+      framer-motion: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - '@types/react'
 
   '@types/babel__core@7.20.5':
     dependencies:

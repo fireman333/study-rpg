@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { Question, SubjectId } from '@study-rpg/core'
-import { RARITY_LABELS } from '@study-rpg/content-medexam2-tw'
+import { RARITY_LABELS, getSpecialtyMultiplier } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
 import { pickQuestionById, pickRandomQuestion } from '../lib/quiz'
@@ -109,8 +109,14 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     setRevealed(true)
     const wasCorrect = optionKey === question.answer
     const payload = { subjectId, questionId: question.id }
-    if (wasCorrect) await recordCorrectAnswer(payload)
-    else await recordWrongAnswer(payload)
+    if (wasCorrect) {
+      await recordCorrectAnswer(payload, {
+        subjectId: boundDoctor.subjectId,
+        rarity: boundDoctor.rarity,
+      })
+    } else {
+      await recordWrongAnswer(payload)
+    }
   }
 
   async function handleNext(): Promise<void> {
@@ -128,6 +134,10 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
 
   const optionKeys = useMemo(() => (question ? Object.keys(question.options).sort() : []), [question])
 
+  const specialtyMultiplier = boundDoctor
+    ? getSpecialtyMultiplier(boundDoctor.subjectId, boundDoctor.rarity, subjectId)
+    : 1.0
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card modal-card--quiz" onClick={(e) => e.stopPropagation()}>
@@ -138,7 +148,14 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
           </button>
         </header>
 
-        <div className="quiz-modal__partner">
+        <div
+          className="quiz-modal__partner"
+          style={
+            boundDoctor
+              ? { borderLeft: `4px solid var(--rarity-${boundDoctor.rarity.toLowerCase()})` }
+              : undefined
+          }
+        >
           {boundDoctor ? (
             <>
               <span className="quiz-modal__partner-sprite">
@@ -157,6 +174,11 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
                   {boundDoctor.rarity} {RARITY_LABELS[boundDoctor.rarity]} · 跟你一起練題
                 </span>
               </span>
+              {specialtyMultiplier > 1.0 && (
+                <span className="quiz-modal__partner-bonus" title={`同科 ${boundDoctor.subjectId} 醫師 — 掌握加成 ${specialtyMultiplier}×`}>
+                  ✨ {specialtyMultiplier}×
+                </span>
+              )}
               {doctors.length > 1 && (
                 <select
                   className="quiz-modal__partner-picker"
