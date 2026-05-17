@@ -14,6 +14,9 @@ import { useTickLoop } from './lib/tick'
 import { checkAssignmentInvariants } from './lib/assignment'
 import { useSync } from './lib/sync/useSync'
 import { AuthButton } from './components/AuthButton'
+import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
+import { ConflictChooserModal } from './components/ConflictChooserModal'
+import { useAuth } from './lib/auth/AuthContext'
 
 const TIER_DELTA_LABEL: Record<Room['type'], string> = {
   outpatient: '門診',
@@ -98,8 +101,9 @@ function App() {
     ready ? handleUpgrade : undefined,
   )
 
-  // M4 cloud sync: mounts engine on authed status, no-op otherwise.
-  useSync()
+  // M4 cloud sync: mounts engine on authed + drives migration / conflict modals.
+  const sync = useSync()
+  const { user } = useAuth()
 
   if (!ready) {
     return (
@@ -112,6 +116,21 @@ function App() {
   return (
     <HashRouter>
       <AuthButton />
+      {sync.gateState === 'migration-upload' && (
+        <MigrationUploadPrompt
+          email={user?.email ?? null}
+          onChoose={sync.resolveUploadPrompt}
+        />
+      )}
+      {(sync.gateState === 'conflict-chooser' || sync.gateState === 'paused') && (
+        <ConflictChooserModal
+          email={user?.email ?? null}
+          localMaxUpdatedAt={sync.gateSnapshot?.localMaxUpdatedAt ?? null}
+          cloudMaxUpdatedAt={sync.gateSnapshot?.cloudMaxUpdatedAt ?? null}
+          hasSettingsEntry={false}
+          onChoose={sync.resolveConflictChooser}
+        />
+      )}
       {upgradeNotice && (
         <div className="upgrade-notice" role="status">
           {upgradeNotice}

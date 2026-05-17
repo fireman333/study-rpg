@@ -101,7 +101,8 @@
 - [ ] 8.5 RLS test: use Supabase JS to query without `user_id` filter → expect only own rows
 - [ ] 8.6 Chrome MCP smoke (one-stage app): sign in / sign out / migration modal flow at localhost
 - [ ] 8.7 Chrome MCP SPA 三件套（per `~/.claude/imports/chrome_mcp_preflight.md`）: in-app navigation + direct URL + F5 reload all work at production
-- [x] 8.8 二階 app: smoke verified on localhost:5175/study-rpg/hospital/ — Google OAuth silent re-consent (shared Supabase project), `__hospitalSync` status idle on authed, gameCounters write +1 → 3-sec debounce push → cloud `hospital_state` row appears with revenue/tier/rooms/affinity correctly nested; pushAllNow bootstraps 2 starter doctors + 14 mastery rows; reload → fresh engine → pull runs status idle; 0 console errors. Full migration-modal flow (8.1) deferred until 二階 modal mirror lands
+- [x] 8.8 二階 app: smoke verified on localhost:5175/study-rpg/hospital/ — Google OAuth silent re-consent (shared Supabase project), `__hospitalSync` status idle on authed, gameCounters write +1 → 3-sec debounce push → cloud `hospital_state` row appears with revenue/tier/rooms/affinity correctly nested; pushAllNow bootstraps 2 starter doctors + 14 mastery rows; reload → fresh engine → pull runs status idle; 0 console errors
+- [x] 8.8a 二階 migration UI smoke: ConflictChooserModal renders when local + cloud both non-default; bilingual timestamps + 3 buttons (使用雲端/本機/待會再決定); click「使用本機」 → pushAllNow + persist migration_choice='local-chosen' → modal closes, syncStatus idle; reload preserves resolution (no re-prompt). MigrationUploadPrompt path not exercised on dogfood account but logic mirrors 一階 verbatim
 
 ## 9. Documentation
 
