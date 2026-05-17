@@ -2,7 +2,7 @@
 
 ## Purpose
 
-唸書 session surface — 玩家進入後 tick 才跑、退出立刻停。內建 anti-cheat：visibilitychange + idle > 90s 自動 pause（仿一階 reading timer）。tick 全部寫進 monotonicCounters.totalStudyMinutes（永久累積，MAX-merge）。
+唸書 session surface — 玩家進入後 tick 才跑、退出立刻停。內建 anti-cheat：visibilitychange 自動 pause + 回來自動 resume（Pomodoro-style，無 idle threshold）。tick 全部寫進 monotonicCounters.totalStudyMinutes（永久累積，MAX-merge）。
 
 ## Requirements
 ### Requirement: Study session SHALL be the sole source of reputation and revenue accumulation
@@ -25,29 +25,50 @@ The system SHALL provide a study session mode where the player explicitly enters
 - **AND** `gameCounters.reputation` SHALL increase by approximately 40
 - **AND** `gameCounters.totalStudyMinutes` SHALL increase by approximately 1
 
-### Requirement: Session SHALL auto-pause on visibility change and 90s idle
+### Requirement: Session SHALL auto-pause on visibility hidden and auto-resume on visibility return
 
-The system SHALL pause the active study session when (a) the tab visibility transitions to `'hidden'` OR (b) the player has been inactive (no mousemove / keypress / touchstart / scroll event) for ≥ 90 seconds. While paused, the tick loop SHALL NOT accumulate revenue / reputation / totalStudyMinutes. The system SHALL resume tick accumulation when the tab regains visibility AND a user interaction is detected within 5 seconds, OR explicitly when the player taps a 「繼續唸書」 button.
+The system SHALL pause the active study session when the tab visibility transitions to `'hidden'`. While paused, the tick loop SHALL NOT accumulate revenue / reputation / totalStudyMinutes. The controller SHALL track the most recent pause reason in a private `lastPauseReason` variable. When the tab visibility returns to `'visible'`, the system SHALL auto-resume the session IF AND ONLY IF the current state is `'paused'` AND the most recent pause reason was `'visibility-hidden'`. Sessions paused by other reasons (manual player action, or future reasons) SHALL remain paused on visibility-return and require an explicit 「繼續唸書」 click. The system SHALL NOT auto-pause for any inactivity-based threshold — once a session is `'active'`, only an explicit visibility transition or an explicit player click (`pause()` / `stop()`) SHALL change its state.
 
-#### Scenario: Tab hidden pauses session
+#### Scenario: Tab hidden pauses active session
 
-- **GIVEN** a study session is active
+- **GIVEN** a study session is active (`state === 'active'`)
 - **WHEN** `document.visibilityState` transitions to `'hidden'`
-- **THEN** `studySession.state` SHALL transition to `'paused'`
+- **THEN** `state` SHALL transition to `'paused'`
 - **AND** the tick loop SHALL NOT increment counters until the session resumes
+- **AND** the controller SHALL record `lastPauseReason = 'visibility-hidden'`
 
-#### Scenario: 90 seconds idle pauses session
+#### Scenario: Tab returns to visible after visibility-hidden pause auto-resumes
 
-- **GIVEN** a study session is active and the player has not produced any interaction event for 89 seconds
-- **WHEN** 1 additional second elapses with no event
-- **THEN** `studySession.state` SHALL transition to `'paused'`
+- **GIVEN** a study session was active and is now `'paused'` because of `'visibility-hidden'`
+- **WHEN** `document.visibilityState` transitions back to `'visible'`
+- **THEN** `state` SHALL transition to `'active'`
+- **AND** the controller SHALL invoke `onResume('visibility-return')`
+- **AND** the tick loop SHALL resume accumulating counters
 
-#### Scenario: Mousemove on resume continues session
+#### Scenario: Manual pause survives tab visibility cycle
 
-- **GIVEN** a study session is paused due to idle timeout
-- **WHEN** the player produces a mousemove event AND clicks 「繼續唸書」
-- **THEN** `studySession.state` SHALL transition back to `'active'`
-- **AND** tick accumulation SHALL resume
+- **GIVEN** a study session was active and was paused by the player clicking 「暫停」 (`pause('manual')`)
+- **AND** `lastPauseReason` is `'manual'`
+- **WHEN** the player switches to another tab (`visibility → 'hidden'`) and switches back (`visibility → 'visible'`)
+- **THEN** `state` SHALL remain `'paused'`
+- **AND** the controller SHALL NOT invoke `onResume`
+- **AND** the player SHALL be required to click 「繼續唸書」 to resume
+
+#### Scenario: Session remains active indefinitely without keyboard / mouse input
+
+- **GIVEN** a study session is active (`state === 'active'`)
+- **AND** the tab remains visible
+- **WHEN** 30 minutes elapse with no `mousemove` / `keydown` / `touchstart` / `scroll` events on `document`
+- **THEN** `state` SHALL remain `'active'`
+- **AND** the tick loop SHALL continue accumulating revenue / reputation / totalStudyMinutes throughout
+
+#### Scenario: Auto-resume does not fire on legacy paused sessions after deploy
+
+- **GIVEN** a session was paused under the prior implementation (no `lastPauseReason` persisted)
+- **AND** after deploy the controller initializes with `lastPauseReason = null`
+- **WHEN** the player loads the app and `document.visibilityState` transitions to `'visible'`
+- **THEN** `state` SHALL remain `'paused'`
+- **AND** the player SHALL click 「繼續唸書」 to resume manually
 
 ### Requirement: Study session SHALL render a 看診 scene with assigned doctor sprites
 
