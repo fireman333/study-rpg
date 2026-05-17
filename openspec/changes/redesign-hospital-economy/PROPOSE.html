@@ -1,0 +1,3995 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="dcterms.date" content="2026-05-17" />
+  <title>redesign-hospital-economy — Propose Artifacts</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans CJK TC', sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 2em; line-height: 1.6; color: #24292e; }
+  h1 { border-bottom: 2px solid #ddd; padding-bottom: 0.3em; margin-top: 2em; color: #1f497d; }
+  h2 { border-bottom: 1px solid #eee; padding-bottom: 0.2em; margin-top: 1.5em; }
+  h3 { margin-top: 1.2em; color: #2c5282; }
+  h4 { color: #4a5568; }
+  code { background: #f6f8fa; padding: 0.15em 0.4em; border-radius: 3px; font-family: 'SF Mono', Menlo, monospace; font-size: 0.9em; }
+  pre { background: #f6f8fa; padding: 1em; border-radius: 6px; overflow-x: auto; }
+  pre code { background: transparent; padding: 0; }
+  table { border-collapse: collapse; margin: 1em 0; width: 100%; }
+  table th { background: #f6f8fa; padding: 0.5em 1em; border: 1px solid #d1d5da; text-align: left; }
+  table td { padding: 0.5em 1em; border: 1px solid #d1d5da; vertical-align: top; }
+  blockquote { border-left: 4px solid #dfe2e5; padding-left: 1em; color: #6a737d; margin-left: 0; }
+  #TOC { background: #f6f8fa; padding: 1em 2em; border-radius: 6px; margin-bottom: 2em; }
+  #TOC ul { padding-left: 1.5em; }
+  hr { border: 0; border-top: 1px solid #ddd; margin: 2em 0; }
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">redesign-hospital-economy — Propose Artifacts</h1>
+<p class="date">2026-05-17</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#why" id="toc-why">Why</a></li>
+<li><a href="#what-changes" id="toc-what-changes">What Changes</a></li>
+<li><a href="#capabilities" id="toc-capabilities">Capabilities</a>
+<ul>
+<li><a href="#new-capabilities" id="toc-new-capabilities">New
+Capabilities</a></li>
+<li><a href="#modified-capabilities"
+id="toc-modified-capabilities">Modified Capabilities</a></li>
+</ul></li>
+<li><a href="#impact" id="toc-impact">Impact</a></li>
+<li><a href="#context" id="toc-context">Context</a></li>
+<li><a href="#goals-non-goals" id="toc-goals-non-goals">Goals /
+Non-Goals</a></li>
+<li><a href="#decisions" id="toc-decisions">Decisions</a>
+<ul>
+<li><a
+href="#d1.-study-session-pure-timer-mode-option-b-over-a-or-ab-hybrid"
+id="toc-d1.-study-session-pure-timer-mode-option-b-over-a-or-ab-hybrid">D1.
+Study session = pure timer mode (option B over A or A+B hybrid)</a></li>
+<li><a href="#d2.-tier-upgrade-dual-gate-reputation-diversification-and"
+id="toc-d2.-tier-upgrade-dual-gate-reputation-diversification-and">D2.
+Tier upgrade dual-gate — reputation + diversification (AND)</a></li>
+<li><a href="#d3.-第-4-個-tier國家級教學醫院"
+id="toc-d3.-第-4-個-tier國家級教學醫院">D3. 第 4 個
+tier「國家級教學醫院」</a></li>
+<li><a href="#d4.-醫師進修probability-pity不掉-rarity"
+id="toc-d4.-醫師進修probability-pity不掉-rarity">D4.
+醫師進修：probability + pity，<strong>不掉 rarity</strong></a></li>
+<li><a
+href="#d5.-醫師薪水proportional-powermultiplier保證-default-不破產"
+id="toc-d5.-醫師薪水proportional-powermultiplier保證-default-不破產">D5.
+醫師薪水：proportional × powerMultiplier，保證 default 不破產</a></li>
+<li><a
+href="#d6.-reputation-overflow-命運卡-fate-cards-with-consecutive-bad-luck-pity"
+id="toc-d6.-reputation-overflow-命運卡-fate-cards-with-consecutive-bad-luck-pity">D6.
+Reputation overflow → 命運卡 (fate cards) with consecutive-bad-luck
+pity</a></li>
+<li><a href="#d7.-schema-migration-v4-v6-with-lww-max-merge-row-split"
+id="toc-d7.-schema-migration-v4-v6-with-lww-max-merge-row-split">D7.
+Schema migration v4 → v6 (with LWW / MAX-merge row split)</a></li>
+<li><a href="#d8.-看診-scene-assets-codex-imagegen"
+id="toc-d8.-看診-scene-assets-codex-imagegen">D8. 看診 scene assets —
+codex <code>$imagegen</code></a></li>
+<li><a href="#d9.-anti-cheat-for-session-timer"
+id="toc-d9.-anti-cheat-for-session-timer">D9. Anti-cheat for session
+timer</a></li>
+<li><a href="#d10.-教學提示系統hospital-tutorial三層次設計"
+id="toc-d10.-教學提示系統hospital-tutorial三層次設計">D10.
+教學提示系統（hospital-tutorial）三層次設計</a></li>
+</ul></li>
+<li><a href="#risks-trade-offs" id="toc-risks-trade-offs">Risks /
+Trade-offs</a></li>
+<li><a href="#migration-plan" id="toc-migration-plan">Migration
+Plan</a></li>
+<li><a href="#open-questions" id="toc-open-questions">Open
+Questions</a></li>
+<li><a href="#prerequisites" id="toc-prerequisites">0.
+Prerequisites</a></li>
+<li><a href="#content-pack-economy-constants-and-helpers"
+id="toc-content-pack-economy-constants-and-helpers">1. Content pack:
+economy constants and helpers</a></li>
+<li><a href="#app-schema-hospitaldb-v6-migration"
+id="toc-app-schema-hospitaldb-v6-migration">2. App schema: HospitalDB v6
+migration</a></li>
+<li><a href="#app-tick-refactor-session-gated-totalstudyminutes-salary"
+id="toc-app-tick-refactor-session-gated-totalstudyminutes-salary">3. App
+tick refactor: session-gated, totalStudyMinutes, salary</a></li>
+<li><a href="#app-pages-study-session-ui"
+id="toc-app-pages-study-session-ui">4. App pages: study session
+UI</a></li>
+<li><a href="#app-pages-training-ui" id="toc-app-pages-training-ui">5.
+App pages: training UI</a></li>
+<li><a href="#app-pages-events-ui" id="toc-app-pages-events-ui">6. App
+pages: events UI</a></li>
+<li><a href="#app-pages-fate-card-ui" id="toc-app-pages-fate-card-ui">7.
+App pages: fate card UI</a></li>
+<li><a href="#app-pages-facility-extension-ui"
+id="toc-app-pages-facility-extension-ui">8. App pages: facility /
+extension UI</a></li>
+<li><a href="#homepage-update" id="toc-homepage-update">9. HomePage
+update</a></li>
+<li><a href="#sprites-generation-codex"
+id="toc-sprites-generation-codex">10. Sprites generation
+(codex)</a></li>
+<li><a href="#tutorial-system-implementation"
+id="toc-tutorial-system-implementation">9.5 Tutorial system
+implementation</a></li>
+<li><a href="#verification" id="toc-verification">11.
+Verification</a></li>
+<li><a href="#documentation-roadmap-update"
+id="toc-documentation-roadmap-update">12. Documentation + roadmap
+update</a></li>
+<li><a href="#archive" id="toc-archive">13. Archive</a></li>
+<li><a href="#added-requirements" id="toc-added-requirements">ADDED
+Requirements</a>
+<ul>
+<li><a
+href="#requirement-study-session-shall-be-the-sole-source-of-reputation-and-revenue-accumulation"
+id="toc-requirement-study-session-shall-be-the-sole-source-of-reputation-and-revenue-accumulation">Requirement:
+Study session SHALL be the sole source of reputation and revenue
+accumulation</a></li>
+<li><a
+href="#requirement-session-shall-auto-pause-on-visibility-change-and-90s-idle"
+id="toc-requirement-session-shall-auto-pause-on-visibility-change-and-90s-idle">Requirement:
+Session SHALL auto-pause on visibility change and 90s idle</a></li>
+<li><a
+href="#requirement-study-session-shall-render-a-看診-scene-with-assigned-doctor-sprites"
+id="toc-requirement-study-session-shall-render-a-看診-scene-with-assigned-doctor-sprites">Requirement:
+Study session SHALL render a 看診 scene with assigned doctor
+sprites</a></li>
+<li><a
+href="#requirement-study-session-metadata-shall-persist-in-gamecounters"
+id="toc-requirement-study-session-metadata-shall-persist-in-gamecounters">Requirement:
+Study session metadata SHALL persist in gameCounters</a></li>
+</ul></li>
+<li><a href="#added-requirements-1" id="toc-added-requirements-1">ADDED
+Requirements</a>
+<ul>
+<li><a
+href="#requirement-doctor-training-shall-upgrade-rarity-probabilistically-with-revenue-cost"
+id="toc-requirement-doctor-training-shall-upgrade-rarity-probabilistically-with-revenue-cost">Requirement:
+Doctor training SHALL upgrade rarity probabilistically with revenue
+cost</a></li>
+<li><a
+href="#requirement-insufficient-revenue-shall-block-training-attempt"
+id="toc-requirement-insufficient-revenue-shall-block-training-attempt">Requirement:
+Insufficient revenue SHALL block training attempt</a></li>
+<li><a
+href="#requirement-per-doctor-pity-counter-shall-guarantee-success-after-5-consecutive-failures"
+id="toc-requirement-per-doctor-pity-counter-shall-guarantee-success-after-5-consecutive-failures">Requirement:
+Per-doctor pity counter SHALL guarantee success after 5 consecutive
+failures</a></li>
+<li><a
+href="#requirement-training-history-shall-be-persisted-for-telemetry"
+id="toc-requirement-training-history-shall-be-persisted-for-telemetry">Requirement:
+Training history SHALL be persisted for telemetry</a></li>
+</ul></li>
+<li><a href="#added-requirements-2" id="toc-added-requirements-2">ADDED
+Requirements</a>
+<ul>
+<li><a
+href="#requirement-salary-shall-drain-revenue-per-minute-proportional-to-doctor-powermultiplier-all-owned"
+id="toc-requirement-salary-shall-drain-revenue-per-minute-proportional-to-doctor-powermultiplier-all-owned">Requirement:
+Salary SHALL drain revenue per-minute proportional to doctor
+powerMultiplier, all owned</a></li>
+<li><a
+href="#requirement-facility-upgrade-shall-increase-room.roomfacility-via-revenue-spend"
+id="toc-requirement-facility-upgrade-shall-increase-room.roomfacility-via-revenue-spend">Requirement:
+Facility upgrade SHALL increase room.roomFacility via revenue
+spend</a></li>
+<li><a
+href="#requirement-room-extension-shall-allow-adding-extra-rooms-within-current-tier"
+id="toc-requirement-room-extension-shall-allow-adding-extra-rooms-within-current-tier">Requirement:
+Room extension SHALL allow adding extra rooms within current
+tier</a></li>
+<li><a
+href="#requirement-voluntary-doctor-retirement-shall-allow-payroll-relief-with-24-hour-diversification-grace"
+id="toc-requirement-voluntary-doctor-retirement-shall-allow-payroll-relief-with-24-hour-diversification-grace">Requirement:
+Voluntary doctor retirement SHALL allow payroll relief with 24-hour
+diversification grace</a></li>
+<li><a
+href="#requirement-finance-dashboard-shall-display-revenue-breakdown"
+id="toc-requirement-finance-dashboard-shall-display-revenue-breakdown">Requirement:
+Finance dashboard SHALL display revenue breakdown</a></li>
+</ul></li>
+<li><a href="#added-requirements-3" id="toc-added-requirements-3">ADDED
+Requirements</a>
+<ul>
+<li><a
+href="#requirement-special-events-shall-trigger-probabilistically-during-active-sessions-with-reputation-scaled-rate"
+id="toc-requirement-special-events-shall-trigger-probabilistically-during-active-sessions-with-reputation-scaled-rate">Requirement:
+Special events SHALL trigger probabilistically during active sessions
+with reputation-scaled rate</a></li>
+<li><a
+href="#requirement-medical-malpractice-event-shall-offer-spend-revenue-resolution"
+id="toc-requirement-medical-malpractice-event-shall-offer-spend-revenue-resolution">Requirement:
+Medical malpractice event SHALL offer spend-revenue resolution</a></li>
+<li><a
+href="#requirement-vip-patient-event-shall-grant-temporary-throughput-boost"
+id="toc-requirement-vip-patient-event-shall-grant-temporary-throughput-boost">Requirement:
+VIP patient event SHALL grant temporary throughput boost</a></li>
+<li><a
+href="#requirement-event-ui-shall-distinguish-actionable-modal-from-passive-toast-events"
+id="toc-requirement-event-ui-shall-distinguish-actionable-modal-from-passive-toast-events">Requirement:
+Event UI SHALL distinguish actionable (modal) from passive (toast)
+events</a></li>
+</ul></li>
+<li><a href="#added-requirements-4" id="toc-added-requirements-4">ADDED
+Requirements</a>
+<ul>
+<li><a href="#requirement-fate-cards-shall-be-unlocked-at-醫學中心-tier"
+id="toc-requirement-fate-cards-shall-be-unlocked-at-醫學中心-tier">Requirement:
+Fate cards SHALL be unlocked at 醫學中心 tier</a></li>
+<li><a
+href="#requirement-four-card-pack-tiers-shall-be-available-with-locked-costs"
+id="toc-requirement-four-card-pack-tiers-shall-be-available-with-locked-costs">Requirement:
+Four card-pack tiers SHALL be available with locked costs</a></li>
+<li><a href="#requirement-fate-card-draw-history-shall-be-persisted"
+id="toc-requirement-fate-card-draw-history-shall-be-persisted">Requirement:
+Fate card draw history SHALL be persisted</a></li>
+<li><a
+href="#requirement-bad-luck-penalty-shall-never-reduce-reputation-below-zero"
+id="toc-requirement-bad-luck-penalty-shall-never-reduce-reputation-below-zero">Requirement:
+Bad luck penalty SHALL never reduce reputation below zero</a></li>
+<li><a
+href="#requirement-fate-card-shall-apply-consecutive-bad-luck-pity-at-threshold-3"
+id="toc-requirement-fate-card-shall-apply-consecutive-bad-luck-pity-at-threshold-3">Requirement:
+Fate card SHALL apply consecutive-bad-luck pity at threshold 3</a></li>
+</ul></li>
+<li><a href="#added-requirements-5" id="toc-added-requirements-5">ADDED
+Requirements</a>
+<ul>
+<li><a
+href="#requirement-first-time-onboarding-flow-shall-introduce-core-mechanics-in-sequence"
+id="toc-requirement-first-time-onboarding-flow-shall-introduce-core-mechanics-in-sequence">Requirement:
+First-time onboarding flow SHALL introduce core mechanics in
+sequence</a></li>
+<li><a
+href="#requirement-contextual-hints-shall-appear-on-first-encounter-of-each-major-surface"
+id="toc-requirement-contextual-hints-shall-appear-on-first-encounter-of-each-major-surface">Requirement:
+Contextual hints SHALL appear on first-encounter of each major
+surface</a></li>
+<li><a
+href="#requirement-always-available-help-menu-shall-list-all-mechanic-explanations"
+id="toc-requirement-always-available-help-menu-shall-list-all-mechanic-explanations">Requirement:
+Always-available help menu SHALL list all mechanic explanations</a></li>
+<li><a
+href="#requirement-v6-first-launch-shall-show-a-what-changed-modal-for-existing-players"
+id="toc-requirement-v6-first-launch-shall-show-a-what-changed-modal-for-existing-players">Requirement:
+V6 first-launch SHALL show a “what changed” modal for existing
+players</a></li>
+<li><a
+href="#requirement-tip-notifications-shall-appear-on-key-game-state-milestones"
+id="toc-requirement-tip-notifications-shall-appear-on-key-game-state-milestones">Requirement:
+Tip notifications SHALL appear on key game-state milestones</a></li>
+</ul></li>
+<li><a href="#modified-requirements"
+id="toc-modified-requirements">MODIFIED Requirements</a>
+<ul>
+<li><a
+href="#requirement-tick-loop-shall-accumulate-revenue-reputation-only-during-active-study-session"
+id="toc-requirement-tick-loop-shall-accumulate-revenue-reputation-only-during-active-study-session">Requirement:
+Tick loop SHALL accumulate revenue + reputation only during active study
+session</a></li>
+<li><a
+href="#requirement-tick-loop-shall-cap-session-active-accumulation-at-5-minutes-defense-against-clock-skew"
+id="toc-requirement-tick-loop-shall-cap-session-active-accumulation-at-5-minutes-defense-against-clock-skew">Requirement:
+Tick loop SHALL cap session-active accumulation at 5 minutes (defense
+against clock skew)</a></li>
+<li><a
+href="#requirement-tick-loop-shall-pause-whenever-study-session-is-paused-or-idle"
+id="toc-requirement-tick-loop-shall-pause-whenever-study-session-is-paused-or-idle">Requirement:
+Tick loop SHALL pause whenever study session is paused or idle</a></li>
+<li><a
+href="#requirement-game-counters-shall-split-lww-fields-and-monotonic-fields-into-separate-rows"
+id="toc-requirement-game-counters-shall-split-lww-fields-and-monotonic-fields-into-separate-rows">Requirement:
+Game counters SHALL split LWW fields and monotonic fields into separate
+rows</a></li>
+</ul></li>
+<li><a href="#removed-requirements"
+id="toc-removed-requirements">REMOVED Requirements</a>
+<ul>
+<li><a
+href="#requirement-tick-loop-shall-accumulate-revenue-reputation-per-visible-5-second-tick"
+id="toc-requirement-tick-loop-shall-accumulate-revenue-reputation-per-visible-5-second-tick">Requirement:
+Tick loop SHALL accumulate revenue + reputation per visible 5-second
+tick</a></li>
+</ul></li>
+<li><a href="#modified-requirements-1"
+id="toc-modified-requirements-1">MODIFIED Requirements</a>
+<ul>
+<li><a
+href="#requirement-hospital-tier-progression-shall-follow-exactly-four-monotonic-tiers"
+id="toc-requirement-hospital-tier-progression-shall-follow-exactly-four-monotonic-tiers">Requirement:
+Hospital tier progression SHALL follow exactly four monotonic
+tiers</a></li>
+<li><a
+href="#requirement-tier-upgrade-thresholds-shall-be-locked-literal-constants"
+id="toc-requirement-tier-upgrade-thresholds-shall-be-locked-literal-constants">Requirement:
+Tier upgrade thresholds SHALL be locked literal constants</a></li>
+<li><a
+href="#requirement-each-tier-shall-declare-its-full-room-roster-as-a-room-array"
+id="toc-requirement-each-tier-shall-declare-its-full-room-roster-as-a-room-array">Requirement:
+Each tier SHALL declare its full room roster as a Room array</a></li>
+<li><a
+href="#requirement-tier-upgrade-shall-fire-when-reputation-and-diversification-dual-gate-both-satisfied-during-a-tick"
+id="toc-requirement-tier-upgrade-shall-fire-when-reputation-and-diversification-dual-gate-both-satisfied-during-a-tick">Requirement:
+Tier upgrade SHALL fire when reputation AND diversification dual-gate
+both satisfied during a tick</a></li>
+<li><a
+href="#requirement-homepage-shall-display-current-tier-and-dual-gate-progress"
+id="toc-requirement-homepage-shall-display-current-tier-and-dual-gate-progress">Requirement:
+HomePage SHALL display current tier and dual-gate progress</a></li>
+</ul></li>
+<li><a href="#removed-requirements-1"
+id="toc-removed-requirements-1">REMOVED Requirements</a>
+<ul>
+<li><a
+href="#requirement-per-question-reputation-hook-shall-fire-on-quiz-runner-correct-answer-event"
+id="toc-requirement-per-question-reputation-hook-shall-fire-on-quiz-runner-correct-answer-event">Requirement:
+Per-question reputation hook SHALL fire on quiz-runner correct-answer
+event</a></li>
+</ul></li>
+</ul>
+</nav>
+<h2 id="why">Why</h2>
+<p>二階 hospital mode 目前的經濟體系存在三個結構性缺陷：(1) 營收
+(<code>revenue</code>) 是純擺設 — 整個 codebase 沒有任何 subtraction /
+spend / cost site；(2) idle tick 累積 reputation
+跟玩家是否真的在念書脫鉤，導致掛機通關，違背「養成型 RPG for exam
+prep」的核心承諾；(3) 升級門檻只看 reputation，被抽運放大 — lucky P1
+玩家比 unlucky P5 玩家快 10 倍通關。本 change 把營收 / 聲望 /
+升級重新對齊「念書時間就是進度」的主軸，並用 dual-gate（聲望 +
+不同科別醫師收集數）穩定 pacing 到約 30 天 endgame。</p>
+<h2 id="what-changes">What Changes</h2>
+<ul>
+<li><strong>新增「唸書 session」surface</strong> — 計時 reading
+mode，玩家進入後 tick 才跑、退出立刻停。仿一階 reading
+timer：visibilitychange + idle &gt; 90s auto-pause
+防作弊。視覺呈現「醫師看診畫面」（codex 生 sprites）</li>
+<li><strong>移除 idle 自動 tick</strong> — <code>runTick()</code> 不再每
+5 秒自動觸發；改為 study session 啟動期間才 tick</li>
+<li><strong>新增 <code>totalStudyMinutes</code> counter</strong> —
+累積讀書分鐘數，供 telemetry / 命運卡 cap / dogfood 調整參考；不直接
+gate tier（gate 仍走 reputation）</li>
+<li><strong>移除 per-Q reputation hook</strong> — 答題正確只增加
+<code>affinity.correctCount</code>（招募 gate），不再
++reputation。reputation 來源唯一是 study session tick</li>
+<li><strong>加第 4 個 tier「國家級教學醫院」</strong> — 拉長
+endgame；<code>TIER_ORDER</code> 變 4 entries</li>
+<li><strong>Tier upgrade dual-gate</strong> — 聲望門檻校準 (48k / 192k /
+2,000,000) + 不同科別醫師收集數（5 / 8 / 12，後兩階要求 P3+ / P2+ 且含
+P1）</li>
+<li><strong>新增「醫師進修」</strong> — 消耗營收以機率升級醫師
+rarity（P5→P4 50% / P4→P3 30% / P3→P2 15% / P2→P1
+5%）；失敗只損營收、不掉 rarity；同醫師連續失敗 N 次後 pity 必中</li>
+<li><strong>新增「醫師薪水」recurring drain</strong> —
+<strong>全員制</strong>（含 bench）+ proportional salary =
+<code>powerMultiplier × 4 / min</code>；診所 0% grace + 區域以上 100%
+rate；數值校準成 default 配置每階都 net positive（無需 0 floor clamp
+觸發）。設計意圖：用 payroll 壓力獎勵擴建 + facility
+投資，但不會破產</li>
+<li><strong>新增「設施升級」</strong> — 消耗營收提升
+<code>room.roomFacility</code> 倍率（1.0 → 1.5 → 2.0 → …）</li>
+<li><strong>新增「房間擴建」</strong> — 在 tier 內額外購買 outpatient /
+surgery / ward 房間</li>
+<li><strong>新增「特殊事件」</strong> — 觸發率隨 reputation
+scale（0.5–3.0×），含醫療糾紛 / 負面新聞 / 學會質疑（負面，扣 rep）/ VIP
+病人 / 急診加開 / 醫療評鑑 / 學會獎項（正面）。負面隨機 rep 損失
+1k–10k，總比率 ≤ 5%</li>
+<li><strong>新增「命運卡」抽卡</strong> — 消耗 reputation 抽 4
+階卡包，內容池含招募券 / 進修保證券 / facility / throughput 加成 /
+衰運。<strong>Pity 3：連續 3 次衰運後第 4 次必中
+reward</strong>（每階獨立 counter）</li>
+<li><strong>新增「教學提示機制」</strong> — 首次玩 7 步 onboarding 流程
++ 每個 surface 首訪 contextual hint + 隨時可開的 <code>❓</code> help
+menu + state-trigger toast tips（如 revenue 達 1000 / pity 達 5）</li>
+</ul>
+<h2 id="capabilities">Capabilities</h2>
+<h3 id="new-capabilities">New Capabilities</h3>
+<ul>
+<li><code>hospital-study-session</code>: 唸書 surface 行為定義 — session
+啟動 / 暫停 / 停止語意、tick 跟 session 綁定、visibilitychange + idle
+auto-pause、看診 scene assets</li>
+<li><code>doctor-training</code>: 醫師進修機制 —
+消耗營收、機率升級、失敗保護、pity counter</li>
+<li><code>hospital-finances</code>: 整合營收 sink —
+醫師薪水（assigned-only drain）+ 設施升級 + 房間擴建</li>
+<li><code>hospital-events</code>: 隨機特殊事件 — 醫療糾紛 + VIP
+病人，trigger 條件、解析機率、reward / penalty</li>
+<li><code>hospital-fate-cards</code>: 命運卡抽卡 — 4
+階卡包定義、reputation 消耗、內容池、consecutive-bad-luck pity 3</li>
+<li><code>hospital-tutorial</code>: 遊戲教學系統 — 7 步 onboarding flow
++ per-surface contextual hint + always-available help menu +
+state-milestone toast tips</li>
+</ul>
+<h3 id="modified-capabilities">Modified Capabilities</h3>
+<ul>
+<li><code>hospital-tycoon-engine</code>: idle tick 拿掉，改成
+session-tick only；新增 <code>totalStudyMinutes</code> 欄；移除 per-Q
+reputation hook 引用；薪水扣款掛在 tick 內</li>
+<li><code>clinic-level-up</code>: TIER_ORDER 加第 4
+個「國家級教學醫院」；tier gate 從單一 reputation 改成 reputation +
+diversification dual-gate</li>
+<li><code>hospital-reputation</code>: per-Q hook 移除（reputation 只來自
+session tick）</li>
+</ul>
+<h2 id="impact">Impact</h2>
+<ul>
+<li><strong>Code</strong>：
+<ul>
+<li><code>apps/medexam2-hospital-tw/src/lib/tick.ts</code> — 拿掉自動
+setInterval、改成 session-gated</li>
+<li><code>apps/medexam2-hospital-tw/src/db/schema.ts</code> —
+<code>gameCounters</code> 加 <code>totalStudyMinutes</code>；新表
+<code>trainingHistory</code> / <code>eventLog</code> /
+<code>fateCardHistory</code></li>
+<li><code>apps/medexam2-hospital-tw/src/pages/</code> — 新增
+<code>StudySessionPage.tsx</code>（看診 scene）/
+<code>TrainingPage.tsx</code> / <code>FateCardPage.tsx</code></li>
+<li><code>packages/content-medexam2-tw/src/</code> — 新增
+<code>training.ts</code> / <code>finances.ts</code> /
+<code>events.ts</code> / <code>fate-cards.ts</code>；改
+<code>reputation.ts</code>（移除 per-Q listener）/
+<code>clinic-tiers.ts</code>（加 tier + diversification helper）</li>
+</ul></li>
+<li><strong>Schema</strong>: gameCounters 加欄、3 新 table；HospitalDB
+version bump v4 → v6（v5 預留給 cloud sync 用，已在 add-cloud-sync
+規劃）</li>
+<li><strong>Assets</strong>: codex 生看診場景
+sprites（醫師看病人、診間互動）— 至少 4 種 room type × 1 種狀態</li>
+<li><strong>Spec dependencies</strong>: 影響
+<code>hospital-management-mode</code> capability 的某些 high-level
+假設（如「rooms auto-process patients」），但不改
+hospital-management-mode 本身（top-level capability 描述仍成立）</li>
+<li><strong>Backwards compat</strong>: v4 → v6 migration patcher 加進
+<code>db/schema.ts</code> upgrade chain；既有玩家保留進度，新欄位
+default 0</li>
+<li><strong>Pacing target</strong>: dogfood 對齊「中位數玩家 30
+天通關」(20 / 50 / 200 hr 累積讀書 → 區域 / 醫學 / 國家級)；variance
+±20%</li>
+</ul>
+<h2 id="context">Context</h2>
+<p>二階 hospital mode 自 2026-05-15 shipped 後（M_2nd <code>✓</code> per
+<code>openspec/project.md</code>），已實裝 8 個
+capability（recruitment-gacha / hospital-quiz / hospital-reputation /
+hospital-tycoon-engine / clinic-level-up / affinity-specialty-bonus
+等）。但實際 dogfood 過程觀察到三個結構性問題：</p>
+<ol type="1">
+<li><strong><code>revenue</code>
+是死欄位</strong>：<code>grep -rn "revenue.*-=" apps/ packages/</code>
+零個 match。<code>tick.ts:101</code>
+只寫進去、<code>HomePage.tsx:152</code> 只顯示，沒有任何 sink
+消耗。</li>
+<li><strong>idle tick 跟玩家行為脫鉤</strong>：<code>runTick()</code> 每
+5
+秒自動跑（<code>TICK_INTERVAL_MS = 5000</code>），即使玩家不在念書也累積
+reputation；offline cap 5 min 但只要回開 app 就補貨。違背「養成型 RPG
+for exam prep」中「念書 = 進度」的承諾。</li>
+<li><strong>單一 reputation gate 被抽運放大</strong>：tier 升級只看
+<code>reputation &gt;= threshold</code>，但 reputation 累積率 =
+throughput × time，throughput 又被 <code>powerMultiplier</code> 拉開（P1
+= 5.0 × P5 = 0.5 → 10 倍差距）。lucky P1 玩家 1.2
+小時通關第二階；unlucky P5 玩家 24 小時 —
+同一個遊戲玩出截然不同的體驗。</li>
+</ol>
+<p>本 change 重新設計營收體系、學習
+loop、升級門檻、終局延長機制，目標把中位數玩家 endgame pacing 對齊「30
+天累積讀書 200 hr」的承諾。</p>
+<h2 id="goals-non-goals">Goals / Non-Goals</h2>
+<p><strong>Goals:</strong></p>
+<ul>
+<li>「念書」變成 hospital tycoon 的唯一進度引擎 — 不念書 =
+醫院零產出</li>
+<li><code>revenue</code> 有真實 sink — 進修 + 設施 + 擴建 + 薪水形成「賺
+→ 花 → 累積 → 賺」閉環</li>
+<li>Tier upgrade pacing dogfood-tunable，中位數玩家 ±20% 命中 30 天
+endgame</li>
+<li>Endgame reputation 不會「溢出無用」— 命運卡持續吸收</li>
+<li>改動 backwards-compatible — 既有玩家 IndexedDB save 不丟失，僅
+schema 加欄</li>
+<li>不破壞 M3 npm publish 的 <code>@study-rpg/core</code> 公開
+API（economy 機制全部住在
+<code>@study-rpg/content-medexam2-tw</code>，core 不動）</li>
+</ul>
+<p><strong>Non-Goals:</strong></p>
+<ul>
+<li>不改 recruitment gacha 機率分佈（P5 60% / P4 25% / …）— 這由
+<code>recruitment-gacha</code> capability 鎖死，不在本 change 範圍</li>
+<li>不引入「真實貨幣」內購 — 所有 sink 都是 in-game currency（per
+<code>openspec/project.md</code> out-of-scope rules）</li>
+<li>不做 multiplayer leaderboard 比較 endgame 速度（純單人養成）</li>
+<li>不改 一階（一階 reading timer 模式跟 二階 study session 是
+sibling，共用設計概念但不共用程式碼）</li>
+<li>不在這個 change 內動 cloud sync — <code>add-cloud-sync</code> 是獨立
+change，sync engine refactor 跟本 change 互相獨立</li>
+</ul>
+<h2 id="decisions">Decisions</h2>
+<h3
+id="d1.-study-session-pure-timer-mode-option-b-over-a-or-ab-hybrid">D1.
+Study session = pure timer mode (option B over A or A+B hybrid)</h3>
+<p><strong>Decision</strong>: 唸書 session
+是純計時模式，<strong>沒有</strong> quiz /
+答題行為。玩家點「開始唸書」進入 reading scene，session 開著期間 tick
+跑、reputation/revenue 累積；session 結束 tick 停。答題流程留在
+recruitment 招募 banner 內（與 study session 分離），答題正確只增加
+<code>affinity.correctCount</code>，不再增加 reputation。</p>
+<p><strong>Rationale</strong>: - 跟一階 reading timer 機制完全 parallel
+— 設計心智可移植、玩家學一次就懂 - Reading scene
+純視覺呈現「醫師看診」氛圍，不額外要求玩家邊讀邊答題（cognitive
+overload） - Per-Q reputation hook 跟 idle tick 兩個 reputation source
+太分裂；移除 per-Q hook 後 reputation 公式單純化為「session minutes ×
+totalThroughput」 - Quiz 行為的核心激勵已經由
+<code>affinity.correctCount</code> → 解鎖招募 banner 提供，不需要另外
++reputation 強化</p>
+<p><strong>Alternatives considered</strong>: - <strong>A. 答題 =
+唸書</strong>：每答對一題給 reputation/revenue。Pros: 直接接現有 quiz
+flow。Cons: 模糊了「reading session」跟「answering
+quiz」的設計界線，玩家不知道哪個比較重要。 - <strong>A+B
+混合</strong>：scene 內可選看書或答題。Pros: 最完整。Cons: 兩個 reward
+channel 校準成本翻倍，dogfood 變數爆炸。</p>
+<h3 id="d2.-tier-upgrade-dual-gate-reputation-diversification-and">D2.
+Tier upgrade dual-gate — reputation + diversification (AND)</h3>
+<p><strong>Decision</strong>: tier upgrade 要同時滿足
+<code>reputation &gt;= threshold</code> AND
+<code>distinctSubjectsAtRarity(&gt;=R).count &gt;= N</code>。</p>
+<table>
+<thead>
+<tr>
+<th>Tier transition</th>
+<th>Reputation</th>
+<th>Diversification (AND)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>診所 → 區域醫院</td>
+<td>48,000</td>
+<td>≥ 5 不同科別（任何 rarity）</td>
+</tr>
+<tr>
+<td>區域醫院 → 醫學中心</td>
+<td>192,000</td>
+<td>≥ 8 不同科別 P3+</td>
+</tr>
+<tr>
+<td>醫學中心 → 國家級教學醫院</td>
+<td>2,000,000</td>
+<td>≥ 12 不同科別 P2+ AND ≥ 1 P1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rationale</strong>: - Reputation 單一 gate
+被抽運放大；diversification gate 把「廣度」變強制 → P3+ pity 在 30
+抽，要 8 個 P3+ 不同科別 = ~240+ rolls，自然延伸 pacing - 跟 exam prep
+主題契合 — 國考要會 10 科不是猛背一科 - Reputation 仍存在以保留 idle
+game flavor（玩家看到數字一直跳）+ 命運卡 sink 需要它</p>
+<p><strong>Numbers calibration</strong>: - 假設前期 avg throughput
+40/min（3 房 × avg P3-P4 mix）→ 48,000 / 40 = 1,200 min = 20 hr - 中期
+avg 80/min（5 房 × avg P3）→ 192,000 / 80 = 2,400 min = 40 hr 額外（累積
+60 hr 但我們對齊 50 hr，留 ±20% buffer） - 後期 avg 200/min（7 房 × avg
+P2）→ 2,000,000 / 200 = 10,000 min = 167 hr 額外（累積 217 hr 對齊 200
+hr）</p>
+<p><strong>Alternatives considered</strong>: - 純
+<code>totalStudyMinutes</code> gate：deterministic pacing 但 reputation
+失去存在感 - OR gate（reputation OR diversification）：玩家會找最弱條件
+sprint，破壞 dual-gate 設計意圖</p>
+<h3 id="d3.-第-4-個-tier國家級教學醫院">D3. 第 4 個
+tier「國家級教學醫院」</h3>
+<p><strong>Decision</strong>: <code>TIER_ORDER</code> 從
+<code>['診所', '區域醫院', '醫學中心']</code> 擴成
+<code>['診所', '區域醫院', '醫學中心', '國家級教學醫院']</code>。</p>
+<p><strong>Rationale</strong>: - User 要求 3 個 tier transition（對應
+20/50/200 hr 三個 milestone）— 現有 3 tier 只有 2
+transition，補一個才湊滿 -
+醫學中心已是現實中「次頂端」醫院定位（台大、長庚等），國家級教學醫院做為虛擬
+endgame 合理（如美國 NIH Clinical Center / Mayo Clinic 等級 metaphor） -
+第 4 tier 新增房間：8 outpatient + 3 surgery + 2 ward = 13 rooms（vs
+醫學中心 7 rooms）</p>
+<p><strong>Risk</strong>: - 增加
+<code>TIER_ROOMS['國家級教學醫院']</code> 資料 —
+<code>clinic-level-up</code> spec 的「Per-tier room rosters are
+cumulative supersets (deterministic ids)」必須維持 → 13 個 room id
+含前一 tier 7 個 + 6 新 id</p>
+<h3 id="d4.-醫師進修probability-pity不掉-rarity">D4.
+醫師進修：probability + pity，<strong>不掉 rarity</strong></h3>
+<p><strong>Decision</strong>: spend revenue 試升
+rarity，失敗只損營收，醫師留原 rarity。同醫師連續失敗
+<code>N_PITY = 5</code> 次後第 6 次必中。Pity counter 跨 session
+持久化、跨進修等級<strong>不重置</strong>（即 P3 升 P2 失敗 5
+次後即使下次先試 P5 升 P4，仍計入 pity）— 確保「醫師個體 ≥ 5
+次失敗保護」是強約束。</p>
+<p><strong>Cost / probability table</strong>:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tier 升級</th>
+<th>Revenue cost</th>
+<th>Base success rate</th>
+<th>Pity (連續失敗 ≥ 5 → 第 6 次)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P5 → P4</td>
+<td>1,000</td>
+<td>50%</td>
+<td>必中</td>
+</tr>
+<tr>
+<td>P4 → P3</td>
+<td>5,000</td>
+<td>30%</td>
+<td>必中</td>
+</tr>
+<tr>
+<td>P3 → P2</td>
+<td>25,000</td>
+<td>15%</td>
+<td>必中</td>
+</tr>
+<tr>
+<td>P2 → P1</td>
+<td>125,000</td>
+<td>5%</td>
+<td>必中</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rationale</strong>: - 「失敗不掉
+rarity」避免純挫折感（D2/MapleStory 強化卷軸最大痛點是降級） - Pity 5
+次保底符合 recruitment-gacha pity 設計慣例（同 codebase 已有 pity 概念 —
+<code>RECRUITMENT_PITY_RULES</code>） - Revenue cost 設計成 endgame
+玩家在 200 hr 累積後可挑戰 1-2 次 P2 → P1（依後期 200/min × 12,000 min =
+2,400,000 revenue，扣掉 facility / 薪水 / 事件後剩
+~500,000-1,000,000）</p>
+<p><strong>Alternatives considered</strong>: - <strong>Affinity-locked
+insurance</strong> (我前期提議): 消耗 affinity
+換失敗保護。<strong>已撤回</strong> — affinity 是「科別 → 招募」unlock
+機制，跟「單一醫師進修」邏輯不接，UX 怪。 - <strong>Material-cost
+(consume tickets)</strong>: 進修成本含招募券。Cons: 過早切斷招募流程 —
+後期玩家會 hoard tickets 不去抽。</p>
+<h3 id="d5.-醫師薪水proportional-powermultiplier保證-default-不破產">D5.
+醫師薪水：proportional × powerMultiplier，保證 default 不破產</h3>
+<p><strong>Decision</strong>: 薪水跟醫師 <code>powerMultiplier</code>
+成正比 — 強者拿高薪、弱者便宜。每分鐘扣款 =
+<code>Σ over ALL owned doctors of (powerMultiplier × SALARY_BASE)</code>。<strong>Bench
+醫師也扣薪</strong>。</p>
+<pre><code>SALARY_BASE = 4   (per powerMultiplier per minute)</code></pre>
+<p>衍生薪水率表：</p>
+<table>
+<thead>
+<tr>
+<th>Rarity</th>
+<th>powerMultiplier</th>
+<th>Salary per minute</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>5.0</td>
+<td>20</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>3.5</td>
+<td>14</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>2.0</td>
+<td>8</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>1.0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>0.5</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tier-staged activation</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Salary rate multiplier</th>
+<th>Onboarding 意圖</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>診所</td>
+<td><strong>0%</strong> (grace)</td>
+<td>教學期，純練手</td>
+</tr>
+<tr>
+<td>區域醫院</td>
+<td>100%</td>
+<td>全速 economy 啟動</td>
+</tr>
+<tr>
+<td>醫學中心</td>
+<td>100%</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>國家級教學醫院</td>
+<td>100%</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<p><strong>No-zero invariant</strong>: default 配置在每個 tier 都 net
+positive。Revenue 不會被 clamp 觸發。<strong>Defensive 0 floor
+仍保留</strong>（防 edge case：玩家手動退一堆 P1 醫師 / 修改 IDB /
+抽運奇差），但正常玩法絕對不會觸發。</p>
+<p><strong>Rationale</strong>: - 把 salary 寫成
+<code>powerMultiplier × CONST</code> → throughput 公式裡也有
+powerMultiplier → <strong>assigned 醫師永遠 net positive
+contribution</strong>（throughput 10 × pm vs salary 4 × pm → 6 × pm
+淨收入） - Bench 醫師才會「光花錢」 — 但 diversification gate 要求
+collection，所以 bench 數量受 gate 約束（區域 3 個 bench / 醫學中心 6 個
+bench / 國家級 5 個 bench） - Tier 1 grace 仍保留，給新手 onboarding
+時間集滿 diversification gate - 不需用 tier rate 漸進（70% / 100%）—
+proportional salary 本身已內建「強者高薪、弱者低薪」的平衡感</p>
+<p><strong>Math check (default config，無 facility 升級 / 無 room
+擴建)</strong>:</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>階段</th>
+<th>Doctors / Assigned (default)</th>
+<th>Assigned throughput</th>
+<th>全員 payroll</th>
+<th>Net</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>診所</strong> — 5 doctors avg P5, 3 assigned</td>
+<td>5 / 3</td>
+<td>3 × 10 × 0.5 × 1.0 = 15/min</td>
+<td><strong>0</strong> (grace)</td>
+<td><strong>+15</strong> ✓</td>
+</tr>
+<tr>
+<td><strong>區域醫院</strong> — 8 doctors avg P3, 5 assigned</td>
+<td>8 / 5</td>
+<td>5 × 10 × 2.0 × 1.0 = 100/min</td>
+<td>8 × 8 = 64/min</td>
+<td><strong>+36</strong> ✓</td>
+</tr>
+<tr>
+<td><strong>醫學中心</strong> — 13 doctors avg P2, 7 assigned</td>
+<td>13 / 7</td>
+<td>7 × 10 × 3.5 × 1.0 = 245/min</td>
+<td>13 × 14 = 182/min</td>
+<td><strong>+63</strong> ✓</td>
+</tr>
+<tr>
+<td><strong>國家級教學醫院</strong> — 15 doctors (3 P1 + 12 P2), 10
+assigned</td>
+<td>15 / 10</td>
+<td>3 × 10 × 5.0 + 7 × 10 × 3.5 = 395/min</td>
+<td>3 × 20 + 12 × 14 = 228/min</td>
+<td><strong>+167</strong> ✓</td>
+</tr>
+</tbody>
+</table>
+<p>每個 tier <strong>不投資也微正</strong>。投資（facility /
+extension）只是放大正值，不是「不投資就破產」。</p>
+<p><strong>Math check (full investment)</strong>:</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>階段</th>
+<th>配置</th>
+<th>Throughput</th>
+<th>Payroll</th>
+<th>Net</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>區域醫院 + 8 房 + facility 2.0</td>
+<td>8 P3 assigned</td>
+<td>8 × 10 × 2.0 × 2.0 = 320/min</td>
+<td>64</td>
+<td><strong>+256</strong></td>
+</tr>
+<tr>
+<td>醫學中心 + 10 房 + facility 3.0</td>
+<td>10 P2 + 3 P2 bench</td>
+<td>10 × 10 × 3.5 × 3.0 = 1050/min</td>
+<td>182</td>
+<td><strong>+868</strong></td>
+</tr>
+<tr>
+<td>國家級 + 15 房 + facility 3.0 + P1 mix</td>
+<td>7 P1 + 3 P2 + 5 bench</td>
+<td>7 × 10 × 5.0 × 3.0 + 3 × 10 × 3.5 × 3.0 = 1365/min</td>
+<td>228</td>
+<td><strong>+1137</strong></td>
+</tr>
+</tbody>
+</table>
+<p>投資後 net rate 翻倍 ~6 倍，玩家有強烈動機升級。</p>
+<p><strong>Alternatives considered</strong>: - <strong>Fixed salary
+table (P1 100, P2 60, …)</strong>: default 配置會 net negative（例 區域
+-68/min）→ 違反 user「不能扣到歸零」rule。<strong>已拒</strong> -
+<strong>Tier-rate ramp 0/70/100/100%</strong>: 區域階段仍
+-18/min，仍違反 no-zero invariant。<strong>已拒</strong> -
+<strong>Assigned-only salary</strong>: 缺乏擴張壓力，diversification
+gate 沒對應的 economy 壓力。<strong>已拒</strong> -
+<strong>強制退休機制</strong>: 違反 diversification gate
+設計。<strong>已拒</strong></p>
+<h3
+id="d6.-reputation-overflow-命運卡-fate-cards-with-consecutive-bad-luck-pity">D6.
+Reputation overflow → 命運卡 (fate cards) with consecutive-bad-luck
+pity</h3>
+<p><strong>Decision</strong>: 4 階卡包消耗 reputation，內容池含正向
+(招募券 / 進修保證券 / facility / throughput buff) + 中性 (微量營收) +
+衰運 (-rep)。<strong>加 pity counter：每階獨立追蹤 consecutive bad luck
+次數，連續 3 次衰運後第 4 次強制 reward</strong>。</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>卡包</th>
+<th>Cost</th>
+<th>Pool</th>
+<th>衰運機率</th>
+<th>Pity threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通命運（白）</td>
+<td>1,000 rep</td>
+<td>招募券 ×3 / 微量 revenue / 事件免疫卡</td>
+<td>5% (-1,000 rep)</td>
+<td>3 連衰運後第 4 次必中 reward</td>
+</tr>
+<tr>
+<td>稀有命運（藍）</td>
+<td>10,000 rep</td>
+<td>招募券 ×10 / 進修保證券 ×1 / 事件正向觸發券</td>
+<td>5% (-10,000 rep)</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>史詩命運（紫）</td>
+<td>100,000 rep</td>
+<td>指定科 P3+ 招募券 / facility +0.5 永久 / 1 週薪水免除</td>
+<td>5% (-50,000 rep)</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>傳奇命運（金）</td>
+<td>1,000,000 rep</td>
+<td>指定科 P2 招募券 / 全院 facility +1 / 1 週 throughput ×2</td>
+<td>0%</td>
+<td>N/A（無衰運）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pity mechanics</strong>: - 每階獨立追蹤
+<code>consecutiveBadLuckCount[tier]</code> - 衰運抽到 →
+<code>consecutiveBadLuckCount[tier] += 1</code> - Reward 抽到 →
+<code>consecutiveBadLuckCount[tier] = 0</code> - 抽前 if
+<code>consecutiveBadLuckCount[tier] &gt;= 3</code> → 強制 reward（跳過
+5% 衰運判定）→ counter reset 0</p>
+<p><strong>Rationale</strong>: - Endgame 玩家累積 reputation
+持續增加（達標後仍 study session 跑）→ 必須有 sink，否則「reputation
+1,000,000 後沒事做」 - 內容池跟其他 sink 整合（招募券 / 進修券 /
+facility / 事件 / throughput）— 不開新系統 - 衰運機率 ≤ 5%
+維持「正向期望值」，符合 gacha 慣例 - <strong>Pity 3
+加上來保護重複衰運</strong>：5% × 5% × 5% = 0.0125%
+的「三連衰」機率本來就低，但 pity 確保不會出現「8
+連衰運讓玩家爆怒」的災難 - 傳奇卡包 cost 1M = endgame 玩家每 ~80 hr
+抽一次，剛好夠玩到下次</p>
+<p><strong>Risk</strong>: 內容池設計不平衡 → 傳奇 facility +1 永久 vs
+史詩 facility +0.5 永久 倍率差距 → dogfood tune</p>
+<h3 id="d7.-schema-migration-v4-v6-with-lww-max-merge-row-split">D7.
+Schema migration v4 → v6 (with LWW / MAX-merge row split)</h3>
+<p><strong>Decision</strong>: HospitalDB version bump 走兩段： -
+<strong>v5</strong>: <code>add-cloud-sync</code> change 預留（meta +
+localBackup 表）— 跟本 change 互不衝突 - <strong>v6</strong>: 本 change
+加新表 <code>monotonicCounters</code> (MAX merge),
+<code>trainingHistory</code>, <code>eventLog</code>,
+<code>fateCardHistory</code>, <code>retirementLog</code>；patch
+<code>gameCounters.singleton</code> 加 tutorial / session 欄</p>
+<p><strong>Row split rationale (per audit B3)</strong>: -
+<code>gameCounters</code> LWW: revenue, reputation, lastTickAt, tier,
+hasUsedStarterPull, session metadata, tutorial state -
+<code>monotonicCounters</code> MAX merge: totalStudyMinutes,
+fateCardBadLuckPity（這兩個 monotonic field，LWW 會 lose progress on
+conflict — 換機後讀書時間/pity 可能被「shorter」cloud value 蓋掉） - 分
+row 是為了避開 sync engine per-field merge hook 的 infra 改動 —
+<code>add-cloud-sync</code> 走 row-level merge strategy 就好</p>
+<p><strong>Upgrade hook</strong>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span><span class="fu">version</span>(<span class="dv">6</span>)<span class="op">.</span><span class="fu">stores</span>({</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ... existing v5 stores</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  monotonicCounters<span class="op">:</span> <span class="st">&#39;&amp;id&#39;</span><span class="op">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  trainingHistory<span class="op">:</span> <span class="st">&#39;++id, doctorId, attemptedAt&#39;</span><span class="op">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  eventLog<span class="op">:</span> <span class="st">&#39;++id, triggeredAt&#39;</span><span class="op">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  fateCardHistory<span class="op">:</span> <span class="st">&#39;++id, drawnAt&#39;</span><span class="op">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  retirementLog<span class="op">:</span> <span class="st">&#39;++id, retiredAt, doctorId&#39;</span><span class="op">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>})<span class="op">.</span><span class="fu">upgrade</span>(<span class="kw">async</span> (tx) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 1. Create monotonicCounters singleton if missing</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> monotonic <span class="op">=</span> <span class="cf">await</span> tx<span class="op">.</span><span class="fu">table</span>(<span class="st">&#39;monotonicCounters&#39;</span>)<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;singleton&#39;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>monotonic) {</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> tx<span class="op">.</span><span class="fu">table</span>(<span class="st">&#39;monotonicCounters&#39;</span>)<span class="op">.</span><span class="fu">put</span>({</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      id<span class="op">:</span> <span class="st">&#39;singleton&#39;</span><span class="op">,</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      totalStudyMinutes<span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      fateCardBadLuckPity<span class="op">:</span> { common<span class="op">:</span> <span class="dv">0</span><span class="op">,</span> rare<span class="op">:</span> <span class="dv">0</span><span class="op">,</span> epic<span class="op">:</span> <span class="dv">0</span> }<span class="op">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 2. Patch existing gameCounters with new LWW fields</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> counters <span class="op">=</span> <span class="cf">await</span> tx<span class="op">.</span><span class="fu">table</span>(<span class="st">&#39;gameCounters&#39;</span>)<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;singleton&#39;</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (counters) {</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> tx<span class="op">.</span><span class="fu">table</span>(<span class="st">&#39;gameCounters&#39;</span>)<span class="op">.</span><span class="fu">put</span>({</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="op">...</span>counters<span class="op">,</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      currentSessionStartedAt<span class="op">:</span> counters<span class="op">.</span><span class="at">currentSessionStartedAt</span> <span class="op">??</span> <span class="dt">null</span><span class="op">,</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      lastSessionEndedAt<span class="op">:</span> counters<span class="op">.</span><span class="at">lastSessionEndedAt</span> <span class="op">??</span> <span class="dt">null</span><span class="op">,</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>      tutorial<span class="op">:</span> counters<span class="op">.</span><span class="at">tutorial</span> <span class="op">??</span> { completedSteps<span class="op">:</span> {}<span class="op">,</span> firstVisit<span class="op">:</span> {}<span class="op">,</span> firedTips<span class="op">:</span> {} }<span class="op">,</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 3. Patch doctors with pityCounter = 0 if missing</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> tx<span class="op">.</span><span class="fu">table</span>(<span class="st">&#39;doctors&#39;</span>)<span class="op">.</span><span class="fu">toCollection</span>()<span class="op">.</span><span class="fu">modify</span>((d) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (d<span class="op">.</span><span class="at">pityCounter</span> <span class="op">===</span> <span class="kw">undefined</span>) d<span class="op">.</span><span class="at">pityCounter</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 4. Patch rooms with facilityLevel = 1 if missing</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> tx<span class="op">.</span><span class="fu">table</span>(<span class="st">&#39;rooms&#39;</span>)<span class="op">.</span><span class="fu">toCollection</span>()<span class="op">.</span><span class="fu">modify</span>((r) <span class="kw">=&gt;</span> {</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (r<span class="op">.</span><span class="at">facilityLevel</span> <span class="op">===</span> <span class="kw">undefined</span>) r<span class="op">.</span><span class="at">facilityLevel</span> <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p><strong>Cloud sync table mapping</strong> (per
+<code>add-cloud-sync</code> capability): - <code>gameCounters</code> →
+existing <code>hospital_state</code> cloud table (LWW) -
+<code>monotonicCounters</code> → <strong>new cloud table</strong>
+<code>hospital_monotonic_counters</code>（須在
+<code>add-cloud-sync</code> schema 加；sync engine 對此 table 走
+max(local, cloud) 而非 LWW）</p>
+<p><strong>Backwards compat</strong>: 既有玩家 v4 → v6 走 chain
+upgrade。Migration patcher 全部 additive，不會丟資料。</p>
+<h3 id="d8.-看診-scene-assets-codex-imagegen">D8. 看診 scene assets —
+codex <code>$imagegen</code></h3>
+<p><strong>Decision</strong>: 用 codex CLI <code>$imagegen</code>（per
+<code>~/.claude/imports/codex_image_gen.md</code> 配方）生成看診
+sprites： - 至少 3 種 room type × 1 種狀態（outpatient / surgery /
+ward）= 3 張底圖 - 加 8-12 個 doctor sprite overlay（per rarity tier ×
+per common subject）— 已部分存在於 <code>add-doctor-sprite-roster</code>
+change shipped - 風格繼承 <code>add-doctor-sprite-roster</code> 的
+GBA-era 像素 8-bit，384×384 PNG transparent bg</p>
+<p><strong>Cost estimate</strong>: 3 + 8 = 11 sprites × ~3 min/sprite =
+~33 min codex CLI time。</p>
+<p><strong>Risk</strong>: codex CLI 跑在 hook-injection
+干擾下偶有失敗（per <code>codex_image_gen.md</code> 反例教訓）→ 從
+<code>/tmp</code> 跑 batch、避開 SessionStart hook 注入。</p>
+<h3 id="d9.-anti-cheat-for-session-timer">D9. Anti-cheat for session
+timer</h3>
+<p><strong>Decision</strong>: 沿用一階 reading timer 設計（per
+<code>openspec/project.md</code> Failure Modes &amp; Constraints
+“reading timer must catch visibilitychange + idle &gt; 90s
+auto-pause”）： - <code>document.visibilityState === 'hidden'</code> →
+暫停 tick - 90 秒無互動（mousemove / scroll / keypress 任一）→ 暫停 tick
+- 每分鐘最多 +1 reputation 累積率 cap（per project.md “防刷”）— but 本
+change 走 throughput 公式，cap 改成「session minutes 累積不能超過
+wall-clock minutes × 1.0」（即不能超過 100% real time）</p>
+<p><strong>Risk</strong>: 玩家可寫腳本模擬 mousemove；接受此風險（per
+一階先例），不額外加 captcha。</p>
+<h3 id="d10.-教學提示系統hospital-tutorial三層次設計">D10.
+教學提示系統（hospital-tutorial）三層次設計</h3>
+<p><strong>Decision</strong>: 三層次提示 — 不同強度給不同情境：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>層次</th>
+<th>觸發</th>
+<th>強度</th>
+<th>UI 形式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L1 · 首次玩 onboarding</strong></td>
+<td>全新 save（無 gameCounters）</td>
+<td>強制 sequential</td>
+<td>7 步 modal flow，每步 gate 在小 action</td>
+</tr>
+<tr>
+<td><strong>L2 · Surface 首訪 hint</strong></td>
+<td>進入新頁第 1 次</td>
+<td>一次性、可 dismiss</td>
+<td>浮層卡片，講 surface 的核心機制</td>
+</tr>
+<tr>
+<td><strong>L3 · State milestone tip</strong></td>
+<td>revenue / pity / tier 跨門檻</td>
+<td>通知性、自動消失</td>
+<td>Toast，8 秒 auto-dismiss</td>
+</tr>
+</tbody>
+</table>
+<p>加上<strong>隨時可開的 <code>❓</code> help menu</strong>
+列全機制，給已 onboard 但忘了的玩家 fallback。</p>
+<p><strong>Rationale</strong>: - 6 個新 capability + 雙 gate + 4 個 sink
++ pity 系統 = 玩家認知負荷高 - 一次塞滿 onboarding 會嚇跑新玩家 → L1
+漸進、L2 just-in-time、L3 emergent - L3 toast tips
+是「自動展開」mechanic —
+不會的玩家不會被打擾、會的玩家可主動察覺臨界事件 - Help menu 跟 settings
+panel 整合（仿一階）— 不另開新 surface -
+<code>tutorial.completedSteps</code> / <code>firstVisit.*</code> /
+<code>firedTips.*</code> 全存 <code>gameCounters</code> JSON
+blob，不開新 table</p>
+<p><strong>Cost estimate</strong>: 寫 ~20 個 hint 文案 + 7 個 modal + 1
+個 help menu + 5 個 toast trigger ≈ 1-2 個 session 的 UI 工。Cloud sync
+也需要同步 tutorial state（避免換機後又看一次教學）。</p>
+<p><strong>Alternatives considered</strong>: - <strong>只做 L1
+onboarding，沒 L2/L3</strong>: 玩家忘了機制只能翻 OpenSpec 文件 → 不可行
+- <strong>L1 強制全部步驟，不能跳過</strong>: 趕緊上手的玩家會被卡 →
+加「跳過」link - <strong>把所有 hint 包進 sidebar</strong>: 一階沒這個
+pattern，學新 UI 反而更累 → 用 modal + toast 跟一階一致</p>
+<h2 id="risks-trade-offs">Risks / Trade-offs</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>數值未經 dogfood，第一版 pacing 可能偏離 30 天 target</td>
+<td>clinic-tiers.ts / training.ts / finances.ts 等常數集中在
+<code>@study-rpg/content-medexam2-tw</code>，一個 PR 改值，重 build
+就好</td>
+</tr>
+<tr>
+<td>Diversification gate 過硬 → 玩家挫折</td>
+<td>P3+ 10 不同科別 → 8（first dogfood）；可 telemetry
+收集中位數玩家通關時間，3 個月內第二版調整</td>
+</tr>
+<tr>
+<td>命運卡內容池失衡（傳奇卡包太強或太弱）</td>
+<td>命運卡 unlock 條件設在「醫學中心 tier 才解鎖」—
+中前期玩家不接觸、降低設計風險</td>
+</tr>
+<tr>
+<td>進修保底跨等級不重置可能反直覺</td>
+<td>UI 顯式顯示「該醫師已連續失敗 N 次（達 5 必中）」— pity 透明化</td>
+</tr>
+<tr>
+<td>醫師薪水可能讓新玩家被 revenue 卡 deadlock（薪水 &gt; 收入）</td>
+<td>第 1 階「診所」薪水率打 70% 折扣（玩家還在 onboarding）—
+累積保護</td>
+</tr>
+<tr>
+<td>第 4 tier「國家級教學醫院」visual assets 增加開發負擔</td>
+<td>第一版可重用 醫學中心 scene + 加 banner / 字樣差異化；專屬 sprites
+留 follow-up</td>
+</tr>
+<tr>
+<td>Study session 強制 visibility check 可能讓行動裝置玩家挫折（切 app
+一下就 pause）</td>
+<td>visibility pause 改成 5 秒 grace period，避免誤觸</td>
+</tr>
+<tr>
+<td>跟 <code>add-cloud-sync</code> change 順序問題：兩 change 都改
+schema</td>
+<td>本 change 顯式 require add-cloud-sync 先 archive（v5 → v6
+chain）；tasks.md prereq 寫清楚</td>
+</tr>
+</tbody>
+</table>
+<h2 id="migration-plan">Migration Plan</h2>
+<ol type="1">
+<li><strong>Prereq</strong>: <code>add-cloud-sync</code> archive
+完（HospitalDB v5 已 deployed）</li>
+<li><strong>Stage 1 — content pack
+純改動</strong>（<code>@study-rpg/content-medexam2-tw</code>）：新增
+<code>training.ts</code> / <code>finances.ts</code> /
+<code>events.ts</code> / <code>fate-cards.ts</code> /
+<code>study-session.ts</code>；改 <code>clinic-tiers.ts</code>（加 tier
++ diversification helper）/ <code>reputation.ts</code>（移除 per-Q
+listener）</li>
+<li><strong>Stage 2 — app schema +
+tick</strong>：<code>apps/medexam2-hospital-tw/src/db/schema.ts</code>
+加 v6 upgrade chain；<code>tick.ts</code> 從 setInterval 改
+session-gated；移除 per-Q listener 註冊</li>
+<li><strong>Stage 3 — UI pages</strong>：新增
+<code>StudySessionPage.tsx</code> / <code>TrainingPage.tsx</code> /
+<code>EventPage.tsx</code> / <code>FateCardPage.tsx</code>；改
+<code>HomePage.tsx</code>（banner 加 totalStudyMinutes /
+tier-gate-progress 顯示）</li>
+<li><strong>Stage 4 — assets</strong>：codex 生看診 sprites；放
+<code>apps/medexam2-hospital-tw/public/sprites/scenes/</code></li>
+<li><strong>Stage 5 — verify</strong>：Chrome MCP smoke（cold start →
+study session 開 → 5 min 後 reputation 增加 → 進修一筆 → 設施升一級 →
+命運卡抽一張）</li>
+<li><strong>Stage 6 — archive</strong>：<code>/opsx:verify</code> 4-dim
+→ <code>/opsx:archive</code></li>
+</ol>
+<p><strong>Rollback</strong>: 純 client-side change + IDB schema
+上加（不破壞舊資料）。可隨時用 git revert + 重 deploy。若 v6 upgrade
+中發現 bug，patcher 可加 try/catch 跳過、保 v5 行為 fallback。</p>
+<h2 id="open-questions">Open Questions</h2>
+<ol type="1">
+<li><strong>TIER 4 房間數量是否合理？</strong> 13 房（vs 醫學中心 7）—
+是否會讓 UI 太擁擠？建議第一版 10 房（8 outpatient + 1 surgery + 1
+ward），endgame extension 再加</li>
+<li><strong>命運卡是否需要「pity counter」</strong>（連抽 N
+張普通卡未出大獎後保底大獎）？目前設計沒 pity，純機率 —
+是否需要保護？</li>
+<li><strong>特殊事件 trigger 模型</strong> — 純隨機（每 N 分鐘 1%
+機率）vs 跟 reputation/throughput 掛鉤（VIP 病人在高 rep
+機率更高）？傾向後者但需要 dogfood</li>
+<li><strong><code>totalStudyMinutes</code> 在 cloud sync 怎麼處理 —
+RESOLVED</strong>：採 <code>max(local, cloud)</code> 而非
+LWW（讀書時間是
+monotonic，不能下降）。<code>fateCardBadLuckPity.*</code> 同理用 max
+防止換機後 pity 重置。其他 fields（revenue / reputation / 醫師
+rarity）走標準 LWW。Sync engine 需要 per-field merge strategy hook</li>
+<li><strong>進修 UI 怎麼呈現「機率」</strong> — 顯示 success rate%
+對玩家是否會引起賭徒心理？建議顯示但加「pity counter 距離保底 X
+次」緩解</li>
+</ol>
+<h2 id="prerequisites">0. Prerequisites</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />0.1 <code>add-cloud-sync</code>
+change archived (HospitalDB v5 deployed with <code>meta</code> +
+<code>localBackup</code> tables) — required to chain v6
+migration</label></li>
+<li><label><input type="checkbox" />0.2 Confirm working tree clean on
+<code>track-m2</code> branch; create dedicated dev branch
+<code>feat/redesign-hospital-economy</code> off track-m2</label></li>
+</ul>
+<h2 id="content-pack-economy-constants-and-helpers">1. Content pack:
+economy constants and helpers</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />1.1
+<code>packages/content-medexam2-tw/src/clinic-tiers.ts</code> — add
+<code>'國家級教學醫院'</code> to <code>HospitalTier</code> union and
+<code>TIER_ORDER</code></label></li>
+<li><label><input type="checkbox" />1.2 Recalibrate
+<code>TIER_UPGRADE_THRESHOLDS</code> to
+<code>{診所: 48_000, 區域醫院: 192_000, 醫學中心: 2_000_000, 國家級教學醫院: null}</code></label></li>
+<li><label><input type="checkbox" />1.3 Add
+<code>TIER_ROOMS['國家級教學醫院']</code> = 10 rooms (5 outpatient + 3
+surgery + 2 ward, deterministic ids, supersets 醫學中心)</label></li>
+<li><label><input type="checkbox" />1.4 Add
+<code>TIER_DIVERSIFICATION_REQUIREMENTS</code>: per-tier
+<code>{minRarity, requiredCount, requireP1?}</code> table</label></li>
+<li><label><input type="checkbox" />1.5 Add
+<code>countDistinctSubjectsAtRarity(doctors, minRarity)</code> helper
+exported from <code>clinic-tiers.ts</code></label></li>
+<li><label><input type="checkbox" />1.6 Create
+<code>packages/content-medexam2-tw/src/study-session.ts</code> with
+<code>createStudySessionController({onStart, onPause, onResume, onStop})</code>
+factory — encapsulates idle/visibility detection</label></li>
+<li><label><input type="checkbox" />1.7 Create
+<code>packages/content-medexam2-tw/src/training.ts</code> with
+<code>TRAINING_COSTS</code>, <code>TRAINING_BASE_SUCCESS_RATES</code>,
+<code>TRAINING_PITY_THRESHOLD = 5</code>,
+<code>attemptTraining(doctor, opts)</code> pure function</label></li>
+<li><label><input type="checkbox" />1.8 Create
+<code>packages/content-medexam2-tw/src/finances.ts</code> with
+<code>SALARY_BASE = 4</code> (proportional × powerMultiplier),
+<code>TIER_SALARY_RATE</code> (0% / 100% / 100% / 100%),
+<code>FACILITY_UPGRADE_COSTS</code>, <code>ROOM_EXTENSION_COSTS</code>,
+<code>computeSalaryDrain(allOwnedDoctors, tier)</code> helper
+(<code>Σ doctor.powerMultiplier × 4 × tierRate</code>),
+<code>applySalaryClamp(currentRev, gross, salary)</code> defensive
+helper (<code>max(0, ...)</code>, normally never triggers)</label></li>
+<li><label><input type="checkbox" />1.9 Create
+<code>packages/content-medexam2-tw/src/events.ts</code> with
+<code>EVENT_TRIGGER_RATES</code>, <code>EVENT_DEFINITIONS</code>,
+<code>rollEvent(opts)</code> pure function</label></li>
+<li><label><input type="checkbox" />1.10 Create
+<code>packages/content-medexam2-tw/src/fate-cards.ts</code> with
+<code>FATE_CARD_COSTS</code>, <code>FATE_CARD_POOLS</code>,
+<code>FATE_CARD_PITY_THRESHOLD = 3</code>,
+<code>drawFateCard(tier, rng, consecutiveBadLuck)</code> pure function
+(consumes/resets pity counter)</label></li>
+<li><label><input type="checkbox" />1.10a Create
+<code>packages/content-medexam2-tw/src/tutorial.ts</code> with
+<code>TUTORIAL_STEPS</code> (7 steps in order),
+<code>SURFACE_HINTS</code> (5 surfaces), <code>MILESTONE_TIPS</code> (5
+triggers) — all are plain string + condition definitions</label></li>
+<li><label><input type="checkbox" />1.11 Edit
+<code>packages/content-medexam2-tw/src/reputation.ts</code> — delete
+<code>createPerQReputationListener</code>,
+<code>PER_Q_REPUTATION_SHARE</code>; keep <code>affinityBonus</code>
+helper (still needed by tick + UI)</label></li>
+<li><label><input type="checkbox" />1.12
+<code>pnpm --filter @study-rpg/content-medexam2-tw build</code> passes;
+typecheck zero errors</label></li>
+</ul>
+<h2 id="app-schema-hospitaldb-v6-migration">2. App schema: HospitalDB v6
+migration</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />2.1
+<code>apps/medexam2-hospital-tw/src/db/schema.ts</code> — bump
+HospitalDB to v6</label></li>
+<li><label><input type="checkbox" />2.2 Update
+<code>GameCountersRow</code> (LWW row): add
+<code>currentSessionStartedAt: number | null</code> +
+<code>lastSessionEndedAt: number | null</code> +
+<code>tutorial: { completedSteps: Record&lt;string, true&gt;, firstVisit: Record&lt;string, true&gt;, firedTips: Record&lt;string, true&gt; }</code>
+(NOT <code>totalStudyMinutes</code> or pity — those move to
+monotonicCounters per audit B3)</label></li>
+<li><label><input type="checkbox" />2.2a Create new
+<code>MonotonicCountersRow</code> type with
+<code>id: 'singleton'</code>, <code>totalStudyMinutes: number</code>,
+<code>fateCardBadLuckPity: { common: number, rare: number, epic: number }</code>
+— separate row for MAX-merge cloud sync strategy</label></li>
+<li><label><input type="checkbox" />2.3 Add
+<code>TrainingHistoryRow</code> + <code>EventLogRow</code> +
+<code>FateCardHistoryRow</code> + <code>RetirementLogRow</code>
+types</label></li>
+<li><label><input type="checkbox" />2.4 Add v6 store definitions:
+<code>monotonicCounters: '&amp;id'</code>,
+<code>trainingHistory: '++id, doctorId, attemptedAt'</code>,
+<code>eventLog: '++id, triggeredAt'</code>,
+<code>fateCardHistory: '++id, drawnAt'</code>,
+<code>retirementLog: '++id, retiredAt, doctorId'</code></label></li>
+<li><label><input type="checkbox" />2.5 Write v6 upgrade hook per design
+D7: create <code>monotonicCounters.singleton</code> with zeros; patch
+<code>gameCounters.singleton</code> to add new LWW-only fields; patch
+doctors with <code>pityCounter = 0</code>; patch rooms with
+<code>facilityLevel = 1</code></label></li>
+<li><label><input type="checkbox" />2.6 Update <code>ensureSeed</code>
+to initialize both <code>gameCounters</code> AND
+<code>monotonicCounters</code> rows on fresh save</label></li>
+<li><label><input type="checkbox" />2.7 Add
+<code>pityCounter: number</code> field to <code>DoctorRow</code> type
+with default 0; update v6 upgrade to backfill existing
+doctors</label></li>
+<li><label><input type="checkbox" />2.8 Add
+<code>facilityLevel: number</code> (1-5) field to <code>Room</code> type
+with default 1; v6 upgrade backfills</label></li>
+<li><label><input type="checkbox" />2.9
+<code>pnpm --filter @study-rpg/medexam2-hospital-tw typecheck</code>
+passes</label></li>
+</ul>
+<h2 id="app-tick-refactor-session-gated-totalstudyminutes-salary">3. App
+tick refactor: session-gated, totalStudyMinutes, salary</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />3.1
+<code>apps/medexam2-hospital-tw/src/lib/tick.ts</code> — rewrite
+<code>runTick</code> to:</label>
+<ul>
+<li>Read totalThroughput (assigned doctors only — bench doesn’t
+produce)</li>
+<li>Compute deltaRevenueGross = throughput × elapsedSec / 60</li>
+<li>Compute deltaSalary via
+<code>finances.computeSalaryDrain(ALL_OWNED_DOCTORS, tier)</code> (per
+D5: <code>Σ doctor.powerMultiplier × 4 × tierRate</code>; tierRate: 0% /
+100% / 100% / 100%)</li>
+<li>Compute deltaReputation = throughput × elapsedSec / 60 (no 0.7
+multiplier)</li>
+<li>Compute deltaTotalStudyMinutes = elapsedSec / 60</li>
+<li>Write revenue = max(0, currentRevenue + gross - salary) (defensive 0
+floor; per design D5, default config never triggers it)</li>
+<li><strong>Roll event</strong> (every 60 ticks): use reputation-scaled
+trigger rate <code>baseRate × clamp(reputation / 100k, 0.5, 3.0)</code>,
+cap effective rate at 0.5</li>
+<li><strong>Roll negative-rep event</strong> subset (負面新聞 /
+學會質疑) — deduct uniform random <code>[1000, 10000]</code> reputation;
+combined effective rate ≤ 5%</li>
+</ul></li>
+<li><label><input type="checkbox" />3.2 Remove the always-on
+<code>setInterval</code> in <code>useTickLoop</code>; replace with
+<code>useStudySessionTick</code> that observes
+<code>studySession.state</code> and schedules interval only during
+<code>'active'</code></label></li>
+<li><label><input type="checkbox" />3.3 Wire visibilitychange + idle
+detection through <code>study-session.ts</code> controller (NOT directly
+on tick.ts anymore)</label></li>
+<li><label><input type="checkbox" />3.4 Update tier-upgrade logic in
+tick to check dual-gate: reputation threshold AND
+<code>countDistinctSubjectsAtRarity</code> returns ≥ requiredCount AND
+(if 國家級教學醫院) at least 1 P1</label></li>
+<li><label><input type="checkbox" />3.5 Unregister
+<code>createPerQReputationListener</code> in <code>main.tsx</code> /
+<code>App.tsx</code> (delete the import and the call)</label></li>
+</ul>
+<h2 id="app-pages-study-session-ui">4. App pages: study session UI</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />4.1 Create
+<code>apps/medexam2-hospital-tw/src/pages/StudySessionPage.tsx</code> —
+top-level study scene route at <code>/study</code></label></li>
+<li><label><input type="checkbox" />4.2 Implement
+<code>&lt;DoctorSceneSprite&gt;</code> overlay component — renders
+assigned doctor sprite in each room’s position</label></li>
+<li><label><input type="checkbox" />4.3 Implement start / pause / stop
+buttons + session status banner</label></li>
+<li><label><input type="checkbox" />4.4 Implement paused overlay state
+when session is auto-paused</label></li>
+<li><label><input type="checkbox" />4.5 Wire
+<code>useStudySessionTick</code> hook from §3.2 to mount on
+<code>/study</code> route</label></li>
+<li><label><input type="checkbox" />4.6 Add nav link from HomePage to
+<code>/study</code></label></li>
+<li><label><input type="checkbox" />4.7 Style with existing
+pixel-hospital theme</label></li>
+</ul>
+<h2 id="app-pages-training-ui">5. App pages: training UI</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />5.1 Create
+<code>apps/medexam2-hospital-tw/src/pages/TrainingPage.tsx</code> —
+<code>/training</code> route</label></li>
+<li><label><input type="checkbox" />5.2 List all owned doctors with
+current rarity + pity counter + button to train</label></li>
+<li><label><input type="checkbox" />5.3 Confirmation modal — show cost,
+base success rate, “pity in N tries” indicator</label></li>
+<li><label><input type="checkbox" />5.4 Resolve attempt via
+<code>training.attemptTraining()</code> → write
+<code>trainingHistory</code> row → update doctor.rarity +
+pityCounter</label></li>
+<li><label><input type="checkbox" />5.5 Animate success/failure
+outcome</label></li>
+<li><label><input type="checkbox" />5.6 Add nav link from
+HomePage</label></li>
+<li><label><input type="checkbox" />5.7 Doctor detail panel — add
+「退休醫師」button with confirmation modal (per audit B2); on confirm:
+delete from <code>db.doctors</code>, null <code>assignedDoctorId</code>
+in affected room, refund <code>powerMultiplier × 1000</code> revenue,
+write <code>retirementLog</code> row</label></li>
+<li><label><input type="checkbox" />5.8 Diversification gate counter —
+implement 24-hour grace via <code>retirementLog</code> lookup:
+<code>(now - retiredAt) &lt; 24*60*60*1000</code> doctors still count
+toward diversification</label></li>
+</ul>
+<h2 id="app-pages-events-ui">6. App pages: events UI</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />6.1 Implement
+<code>&lt;EventModal&gt;</code> component for actionable events
+(醫療糾紛 / VIP / 急診 / 評鑑) that floats above all pages until
+resolved</label></li>
+<li><label><input type="checkbox" />6.1a Implement
+<code>&lt;EventToast&gt;</code> component for passive events (負面新聞 /
+學會質疑 / 學會獎項) — 5-sec auto-dismiss, applies outcome
+immediately</label></li>
+<li><label><input type="checkbox" />6.2 Render different action sets per
+event type; for 醫療糾紛, disable 私下和解 button when
+<code>revenue &lt; 10_000</code> (audit C4)</label></li>
+<li><label><input type="checkbox" />6.3 Event roll integrated into tick
+— every Nth tick roll an event if conditions met; respect 5-min
+post-resolution cooldown (audit C2); cap effective rate at 30% (audit
+C2)</label></li>
+<li><label><input type="checkbox" />6.4 Active VIP boost applied via
+multiplier in <code>tick.ts</code></label></li>
+<li><label><input type="checkbox" />6.5 Auto-resolve timeout logic for
+醫療糾紛 (24-hour wall-clock check on tick)</label></li>
+</ul>
+<h2 id="app-pages-fate-card-ui">7. App pages: fate card UI</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />7.1 Create
+<code>apps/medexam2-hospital-tw/src/pages/FateCardPage.tsx</code> —
+<code>/fate-cards</code> route</label></li>
+<li><label><input type="checkbox" />7.2 Lock route behind
+<code>tier === '醫學中心' || tier === '國家級教學醫院'</code>; pre-tier
+shows placeholder</label></li>
+<li><label><input type="checkbox" />7.3 Render 4 card-pack tiles with
+cost + content preview</label></li>
+<li><label><input type="checkbox" />7.4 Draw animation reveal + reward
+application</label></li>
+<li><label><input type="checkbox" />7.5 History log view (last 20
+draws)</label></li>
+</ul>
+<h2 id="app-pages-facility-extension-ui">8. App pages: facility /
+extension UI</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />8.1 Add facility upgrade button to
+RoomCard in <code>/hospital</code> route</label></li>
+<li><label><input type="checkbox" />8.2 Show current
+<code>facilityLevel</code>, next cost, max-level disabled
+state</label></li>
+<li><label><input type="checkbox" />8.3 Add room-extension panel
+(separate section, lock behind tier ≥ 區域醫院)</label></li>
+<li><label><input type="checkbox" />8.4 Wire all UI to
+<code>finances.ts</code> helpers + Dexie writes</label></li>
+</ul>
+<h2 id="homepage-update">9. HomePage update</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />9.1 Add totalStudyMinutes counter to
+banner (display as <code>「累積唸書 1,234 min」</code>)</label></li>
+<li><label><input type="checkbox" />9.2 Add diversification progress
+line under reputation progress (e.g.,
+<code>「(P3+ 科別 5 / 8)」</code>)</label></li>
+<li><label><input type="checkbox" />9.3 Add finance panel: net rate per
+minute + salary breakdown</label></li>
+<li><label><input type="checkbox" />9.4 Update tier-upgrade banner copy
+to reflect new tier names</label></li>
+</ul>
+<h2 id="sprites-generation-codex">10. Sprites generation (codex)</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />10.1 Generate
+<code>outpatient-scene.png</code> background (codex
+<code>$imagegen</code>, GBA pixel style, transparent bg,
+384×384)</label></li>
+<li><label><input type="checkbox" />10.2 Generate
+<code>surgery-scene.png</code> background</label></li>
+<li><label><input type="checkbox" />10.3 Generate
+<code>ward-scene.png</code> background</label></li>
+<li><label><input type="checkbox" />10.4 Generate 8 doctor sprites (per
+rarity / common subjects) for scene overlay — reuse
+<code>add-doctor-sprite-roster</code> shipped style</label></li>
+<li><label><input type="checkbox" />10.5 Place all in
+<code>apps/medexam2-hospital-tw/public/sprites/scenes/</code></label></li>
+<li><label><input type="checkbox" />10.6 Reference in StudySessionPage
+and DoctorSceneSprite components</label></li>
+</ul>
+<h2 id="tutorial-system-implementation">9.5 Tutorial system
+implementation</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />9.5.1 Create
+<code>apps/medexam2-hospital-tw/src/components/TutorialOnboarding.tsx</code>
+— modal sequence (7 steps), reads/writes
+<code>gameCounters.tutorial.completedSteps</code></label></li>
+<li><label><input type="checkbox" />9.5.2 Create
+<code>apps/medexam2-hospital-tw/src/components/SurfaceHint.tsx</code> —
+overlay card; consumes <code>tutorial.firstVisit[surfaceId]</code>,
+dismiss writes flag</label></li>
+<li><label><input type="checkbox" />9.5.3 Create
+<code>apps/medexam2-hospital-tw/src/components/HelpMenu.tsx</code> —
+<code>❓</code> icon + modal with 8 collapsible accordion sections;
+mount in page header</label></li>
+<li><label><input type="checkbox" />9.5.4 Create
+<code>apps/medexam2-hospital-tw/src/components/MilestoneTipToast.tsx</code>
+— toast component</label></li>
+<li><label><input type="checkbox" />9.5.5 Wire
+<code>useMilestoneTips</code> hook — watches counters via liveQuery,
+fires tips on threshold cross + writes
+<code>firedTips[tipId]</code></label></li>
+<li><label><input type="checkbox" />9.5.6 Settings panel adds
+「重新顯示所有提示」button — resets all <code>firstVisit.*</code> +
+<code>firedTips.*</code> flags</label></li>
+<li><label><input type="checkbox" />9.5.7 「跳過教學」link in step 1 —
+sets all <code>completedSteps[*] = true</code> in one write</label></li>
+<li><label><input type="checkbox" />9.5.8 V6 migration modal for
+existing players (audit C5) — detect <code>gameCounters.singleton</code>
+existing + <code>tier !== '診所'</code> +
+<code>firedTips.v6_welcome</code> undefined →
+show「醫院系統大改版」modal explaining new mechanics; dismiss writes
+<code>firedTips.v6_welcome = true</code></label></li>
+</ul>
+<h2 id="verification">11. Verification</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />11.1 Typecheck all packages + apps:
+<code>pnpm -r typecheck</code> zero errors</label></li>
+<li><label><input type="checkbox" />11.2 Build all packages:
+<code>pnpm -r build</code> succeeds</label></li>
+<li><label><input type="checkbox" />11.3 Chrome MCP smoke — fresh cold
+start: navigate to /, see “no session” state, click start session, scene
+renders, tick begins, revenue + reputation + totalStudyMinutes all
+increment after 60s</label></li>
+<li><label><input type="checkbox" />11.4 Chrome MCP smoke — pause on
+visibility hide; resume on visibility return + click 繼續</label></li>
+<li><label><input type="checkbox" />11.5 Chrome MCP smoke — training
+attempt: fail first time (verify pityCounter increment), pass after 5
+fails (pity)</label></li>
+<li><label><input type="checkbox" />11.6 Chrome MCP smoke — facility
+upgrade outpatient-1 to level 2, throughput visibly
+increases</label></li>
+<li><label><input type="checkbox" />11.6a Chrome MCP smoke — salary 0%
+at 診所 (5 doctors owned, revenue grows pure throughput); upgrade to
+區域醫院 → 100% kicks in; verify revenue net positive at default config
+(5 P3 assigned + 3 P3 bench = 100/min throughput - 64/min salary =
++36/min)</label></li>
+<li><label><input type="checkbox" />11.6b Chrome MCP smoke — onboarding
+tutorial: fresh save renders step 1 modal, completing each step unlocks
+next, reload mid-tutorial resumes at correct step</label></li>
+<li><label><input type="checkbox" />11.6c Chrome MCP smoke —
+「跳過教學」link sets all completedSteps, modal closes, future visits
+don’t re-show</label></li>
+<li><label><input type="checkbox" />11.6d Chrome MCP smoke —
+<code>❓</code> help menu opens from any page, sections expand/collapse,
+「重新顯示提示」button resets first-visit flags</label></li>
+<li><label><input type="checkbox" />11.6e Chrome MCP smoke — milestone
+tip fires when revenue first crosses 1000; subsequent crossings don’t
+re-fire</label></li>
+<li><label><input type="checkbox" />11.6f Chrome MCP smoke — voluntary
+retire: retire a P3 doctor → refund 2,000 revenue, doctor removed, room
+freed, <code>retirementLog</code> has entry; diversification count
+unchanged for next 24 hr (mock clock)</label></li>
+<li><label><input type="checkbox" />11.6g Chrome MCP smoke — passive
+event toast: trigger 負面新聞 via dev hook → reputation drops
+immediately, toast appears, auto-dismisses 5s, no modal blocks
+page</label></li>
+<li><label><input type="checkbox" />11.6h Chrome MCP smoke — event
+cooldown: resolve 醫療糾紛, verify next event roll skipped for 5 min
+(force via dev clock advance), then next roll allowed</label></li>
+<li><label><input type="checkbox" />11.6i Chrome MCP smoke — settlement
+disabled at low revenue: trigger 醫療糾紛 with revenue 5,000 → 私下和解
+button disabled with label</label></li>
+<li><label><input type="checkbox" />11.6j Chrome MCP smoke — v6
+migration modal: load existing v5 save → modal appears once; dismiss →
+never appears again; fresh save → modal NOT shown, only
+onboarding</label></li>
+<li><label><input type="checkbox" />11.7 Chrome MCP smoke — tier upgrade
+dual-gate: at 47,999 rep with 4 distinct subjects, no upgrade; gain 5th
+subject and trickle to 48,000, upgrade fires</label></li>
+<li><label><input type="checkbox" />11.8 Chrome MCP smoke — fate cards
+locked pre-醫學中心; unlocked after; one draw resolves and history row
+appears</label></li>
+<li><label><input type="checkbox" />11.9 Chrome MCP smoke — event
+trigger via dev hook (force-trigger 醫療糾紛); resolve via settlement
+deducts revenue</label></li>
+<li><label><input type="checkbox" />11.10
+<code>pnpm --filter @study-rpg/medexam2-hospital-tw build</code>
+produces deployable bundle</label></li>
+<li><label><input type="checkbox" />11.11 Run
+<code>/opsx:verify redesign-hospital-economy</code> — 4-dim check all
+green</label></li>
+</ul>
+<h2 id="documentation-roadmap-update">12. Documentation + roadmap
+update</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />12.1
+<code>openspec/project.md</code> Roadmap — add M_2nd “economy overhaul”
+milestone; check off after archive</label></li>
+<li><label><input type="checkbox" />12.2 Add
+<code>openspec/decisions/&lt;date&gt;.md</code> entry — summary of 7
+spec capability deltas + dogfood numbers calibration
+approach</label></li>
+<li><label><input type="checkbox" />12.3 Update
+<code>apps/medexam2-hospital-tw/README.md</code> if
+relevant</label></li>
+<li><label><input type="checkbox" />12.4 <code>pnpm gen-status</code>
+refresh dashboard</label></li>
+</ul>
+<h2 id="archive">13. Archive</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />13.1 Run
+<code>openspec validate redesign-hospital-economy</code> — must
+pass</label></li>
+<li><label><input type="checkbox" />13.2 All checkboxes 1.x–12.x
+ticked</label></li>
+<li><label><input type="checkbox" />13.3
+<code>/opsx:verify redesign-hospital-economy</code> — implementation
+matches spec</label></li>
+<li><label><input type="checkbox" />13.4
+<code>/opsx:archive redesign-hospital-economy</code> (Curator gate:
+explicit user confirm) — merges deltas into main specs</label></li>
+<li><label><input type="checkbox" />13.5 Auto-git commit (Curator gate:
+explicit user confirm)</label></li>
+</ul>
+<h2 id="added-requirements">ADDED Requirements</h2>
+<h3
+id="requirement-study-session-shall-be-the-sole-source-of-reputation-and-revenue-accumulation">Requirement:
+Study session SHALL be the sole source of reputation and revenue
+accumulation</h3>
+<p>The system SHALL provide a study session mode where the player
+explicitly enters (<code>startStudySession()</code>) and exits
+(<code>stopStudySession()</code>). While the session is active, the tick
+loop SHALL accumulate revenue + reputation per minute per assigned
+doctor throughput. While no session is active, the tick loop SHALL NOT
+accumulate any revenue or reputation. The previous idle tick semantics
+(<code>runTick</code> firing on <code>setInterval(5000)</code>
+regardless of player activity) SHALL be removed.</p>
+<h4 id="scenario-session-off-produces-zero-tick-output">Scenario:
+Session-off produces zero tick output</h4>
+<ul>
+<li><strong>GIVEN</strong> no study session is active
+(<code>studySession.state === 'idle'</code>)</li>
+<li><strong>WHEN</strong> 60 seconds of wall-clock time pass</li>
+<li><strong>THEN</strong> <code>gameCounters.revenue</code> SHALL remain
+unchanged</li>
+<li><strong>AND</strong> <code>gameCounters.reputation</code> SHALL
+remain unchanged</li>
+<li><strong>AND</strong> <code>gameCounters.totalStudyMinutes</code>
+SHALL remain unchanged</li>
+</ul>
+<h4 id="scenario-session-on-accumulates-per-minute-tick">Scenario:
+Session-on accumulates per-minute tick</h4>
+<ul>
+<li><strong>GIVEN</strong> a study session has been active for 60
+seconds with <code>totalThroughput = 40</code></li>
+<li><strong>WHEN</strong> the tick loop fires</li>
+<li><strong>THEN</strong> <code>gameCounters.revenue</code> SHALL
+increase by approximately 40</li>
+<li><strong>AND</strong> <code>gameCounters.reputation</code> SHALL
+increase by approximately 40</li>
+<li><strong>AND</strong> <code>gameCounters.totalStudyMinutes</code>
+SHALL increase by approximately 1</li>
+</ul>
+<h3
+id="requirement-session-shall-auto-pause-on-visibility-change-and-90s-idle">Requirement:
+Session SHALL auto-pause on visibility change and 90s idle</h3>
+<p>The system SHALL pause the active study session when (a) the tab
+visibility transitions to <code>'hidden'</code> OR (b) the player has
+been inactive (no mousemove / keypress / touchstart / scroll event) for
+≥ 90 seconds. While paused, the tick loop SHALL NOT accumulate revenue /
+reputation / totalStudyMinutes. The system SHALL resume tick
+accumulation when the tab regains visibility AND a user interaction is
+detected within 5 seconds, OR explicitly when the player taps a
+「繼續唸書」 button.</p>
+<h4 id="scenario-tab-hidden-pauses-session">Scenario: Tab hidden pauses
+session</h4>
+<ul>
+<li><strong>GIVEN</strong> a study session is active</li>
+<li><strong>WHEN</strong> <code>document.visibilityState</code>
+transitions to <code>'hidden'</code></li>
+<li><strong>THEN</strong> <code>studySession.state</code> SHALL
+transition to <code>'paused'</code></li>
+<li><strong>AND</strong> the tick loop SHALL NOT increment counters
+until the session resumes</li>
+</ul>
+<h4 id="scenario-90-seconds-idle-pauses-session">Scenario: 90 seconds
+idle pauses session</h4>
+<ul>
+<li><strong>GIVEN</strong> a study session is active and the player has
+not produced any interaction event for 89 seconds</li>
+<li><strong>WHEN</strong> 1 additional second elapses with no event</li>
+<li><strong>THEN</strong> <code>studySession.state</code> SHALL
+transition to <code>'paused'</code></li>
+</ul>
+<h4 id="scenario-mousemove-on-resume-continues-session">Scenario:
+Mousemove on resume continues session</h4>
+<ul>
+<li><strong>GIVEN</strong> a study session is paused due to idle
+timeout</li>
+<li><strong>WHEN</strong> the player produces a mousemove event AND
+clicks 「繼續唸書」</li>
+<li><strong>THEN</strong> <code>studySession.state</code> SHALL
+transition back to <code>'active'</code></li>
+<li><strong>AND</strong> tick accumulation SHALL resume</li>
+</ul>
+<h3
+id="requirement-study-session-shall-render-a-看診-scene-with-assigned-doctor-sprites">Requirement:
+Study session SHALL render a 看診 scene with assigned doctor
+sprites</h3>
+<p>The <code>/study</code> route SHALL render a hospital scene
+background depicting medical consultation. Each room with
+<code>assignedDoctorId !== null</code> SHALL render its doctor sprite in
+the corresponding room area. The scene SHALL include at least 3
+room-type variants (outpatient / surgery / ward) and animate doctor
+sprites with idle animation (e.g., subtle bob) while the session is
+active. While paused, sprites SHALL freeze with a translucent overlay
+indicating paused state.</p>
+<h4 id="scenario-scene-renders-one-doctor-per-assigned-room">Scenario:
+Scene renders one doctor per assigned room</h4>
+<ul>
+<li><strong>GIVEN</strong> the player has 3 assigned doctors across 5
+rooms</li>
+<li><strong>WHEN</strong> <code>/study</code> renders during an active
+session</li>
+<li><strong>THEN</strong> exactly 3 doctor sprites SHALL be visible</li>
+<li><strong>AND</strong> the remaining 2 rooms SHALL appear empty (no
+sprite)</li>
+</ul>
+<h4 id="scenario-paused-state-shows-translucent-overlay">Scenario:
+Paused state shows translucent overlay</h4>
+<ul>
+<li><strong>GIVEN</strong> a study session has been paused due to
+visibility hidden</li>
+<li><strong>WHEN</strong> the player returns to the tab and
+<code>/study</code> re-renders</li>
+<li><strong>THEN</strong> the scene SHALL display a
+<code>「session paused」</code> overlay</li>
+<li><strong>AND</strong> doctor sprite animations SHALL be frozen</li>
+</ul>
+<h3
+id="requirement-study-session-metadata-shall-persist-in-gamecounters">Requirement:
+Study session metadata SHALL persist in gameCounters</h3>
+<p>The system SHALL persist study session state via:</p>
+<ul>
+<li><code>gameCounters.totalStudyMinutes: number</code> — monotonically
+increasing minutes</li>
+<li><code>gameCounters.currentSessionStartedAt: number | null</code> —
+Unix ms timestamp when current session began, or <code>null</code> if no
+active session</li>
+<li><code>gameCounters.lastSessionEndedAt: number | null</code> — for
+telemetry / display</li>
+</ul>
+<p>The fields SHALL persist across app reloads. On cold start,
+<code>currentSessionStartedAt</code> SHALL be cleared to
+<code>null</code> (crash-recovery — no implicit resume).</p>
+<h4 id="scenario-totalstudyminutes-monotonic-across-sessions">Scenario:
+totalStudyMinutes monotonic across sessions</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>totalStudyMinutes = 120</code> and a
+new session runs for 30 minutes</li>
+<li><strong>WHEN</strong> the session ends</li>
+<li><strong>THEN</strong> <code>totalStudyMinutes</code> SHALL equal 150
+(no decrement)</li>
+</ul>
+<h4 id="scenario-cold-start-clears-active-session">Scenario: Cold start
+clears active session</h4>
+<ul>
+<li><strong>GIVEN</strong> the player ended their browser tab during an
+active session
+(<code>currentSessionStartedAt = 1234567890000</code>)</li>
+<li><strong>WHEN</strong> the app reloads</li>
+<li><strong>THEN</strong> <code>currentSessionStartedAt</code> SHALL
+equal <code>null</code></li>
+<li><strong>AND</strong> <code>studySession.state</code> SHALL be
+<code>'idle'</code> until the player explicitly starts a new
+session</li>
+</ul>
+<h2 id="added-requirements-1">ADDED Requirements</h2>
+<h3
+id="requirement-doctor-training-shall-upgrade-rarity-probabilistically-with-revenue-cost">Requirement:
+Doctor training SHALL upgrade rarity probabilistically with revenue
+cost</h3>
+<p>The system SHALL provide a doctor training mechanic where the player
+selects a target doctor and pays revenue to attempt a rarity upgrade.
+Cost and base success rate SHALL follow this locked table:</p>
+<table>
+<thead>
+<tr>
+<th>Current rarity</th>
+<th>Target rarity</th>
+<th>Revenue cost</th>
+<th>Base success rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P5</td>
+<td>P4</td>
+<td>1,000</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>P3</td>
+<td>5,000</td>
+<td>30%</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>P2</td>
+<td>25,000</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>P1</td>
+<td>125,000</td>
+<td>5%</td>
+</tr>
+</tbody>
+</table>
+<p>P1 doctors SHALL NOT be upgradeable (terminal rarity). On attempt
+resolution: if success, the doctor’s rarity SHALL advance one tier and
+<code>powerMultiplier</code> SHALL recalculate from
+<code>RARITY_POWER_MULTIPLIER</code>. If failure, the revenue SHALL be
+deducted but rarity SHALL remain unchanged (no downgrade).</p>
+<h4 id="scenario-successful-p3-p2-upgrade">Scenario: Successful P3 → P2
+upgrade</h4>
+<ul>
+<li><strong>GIVEN</strong> a P3 doctor and
+<code>gameCounters.revenue = 30,000</code></li>
+<li><strong>WHEN</strong> the player initiates training and the RNG
+resolves to success (15% probability hit)</li>
+<li><strong>THEN</strong> the doctor’s rarity SHALL equal
+<code>'P2'</code></li>
+<li><strong>AND</strong> the doctor’s <code>powerMultiplier</code> SHALL
+equal <code>3.5</code></li>
+<li><strong>AND</strong> <code>gameCounters.revenue</code> SHALL equal
+<code>5,000</code></li>
+</ul>
+<h4 id="scenario-failed-p3-p2-attempt-preserves-rarity">Scenario: Failed
+P3 → P2 attempt preserves rarity</h4>
+<ul>
+<li><strong>GIVEN</strong> a P3 doctor and
+<code>gameCounters.revenue = 30,000</code></li>
+<li><strong>WHEN</strong> the player initiates training and the RNG
+resolves to failure (85% probability)</li>
+<li><strong>THEN</strong> the doctor’s rarity SHALL still equal
+<code>'P3'</code></li>
+<li><strong>AND</strong> <code>gameCounters.revenue</code> SHALL equal
+<code>5,000</code></li>
+</ul>
+<h4 id="scenario-p1-doctor-cannot-be-trained">Scenario: P1 doctor cannot
+be trained</h4>
+<ul>
+<li><strong>GIVEN</strong> a P1 doctor</li>
+<li><strong>WHEN</strong> the player opens the training UI for this
+doctor</li>
+<li><strong>THEN</strong> the training button SHALL be disabled</li>
+<li><strong>AND</strong> a message SHALL state「已達最高級別」or
+equivalent</li>
+</ul>
+<h3
+id="requirement-insufficient-revenue-shall-block-training-attempt">Requirement:
+Insufficient revenue SHALL block training attempt</h3>
+<p>The system SHALL verify <code>gameCounters.revenue &gt;= cost</code>
+BEFORE deducting and rolling. If the check fails, the attempt SHALL
+abort with no state mutation, and the UI SHALL display an
+insufficient-funds message.</p>
+<h4 id="scenario-insufficient-revenue-aborts-training">Scenario:
+Insufficient revenue aborts training</h4>
+<ul>
+<li><strong>GIVEN</strong> a P3 doctor and
+<code>gameCounters.revenue = 20,000</code> (cost is 25,000)</li>
+<li><strong>WHEN</strong> the player initiates training</li>
+<li><strong>THEN</strong> no RNG roll SHALL occur</li>
+<li><strong>AND</strong> <code>gameCounters.revenue</code> SHALL remain
+at <code>20,000</code></li>
+<li><strong>AND</strong> the doctor’s rarity SHALL remain at
+<code>'P3'</code></li>
+<li><strong>AND</strong> the UI SHALL display an error message</li>
+</ul>
+<h3
+id="requirement-per-doctor-pity-counter-shall-guarantee-success-after-5-consecutive-failures">Requirement:
+Per-doctor pity counter SHALL guarantee success after 5 consecutive
+failures</h3>
+<p>The system SHALL track <code>pityCounter: number</code> per doctor
+(default 0). On each training attempt:</p>
+<ul>
+<li>If the attempt fails, <code>pityCounter</code> SHALL increment by
+1</li>
+<li>If the attempt succeeds, <code>pityCounter</code> SHALL reset to
+0</li>
+<li>If <code>pityCounter &gt;= 5</code> before the roll, the attempt
+SHALL deterministically succeed (skip RNG); revenue still deducted; pity
+reset to 0</li>
+</ul>
+<p>The pity counter SHALL persist across game sessions and SHALL NOT
+reset when the target rarity changes (e.g., 5 failed P3→P2 attempts on
+doctor X applies to the next attempt regardless of whether it targets P2
+or a different upgrade).</p>
+<h4 id="scenario-6th-attempt-auto-succeeds-after-5-failures">Scenario:
+6th attempt auto-succeeds after 5 failures</h4>
+<ul>
+<li><strong>GIVEN</strong> a P3 doctor with <code>pityCounter = 5</code>
+(from 5 prior failed P3→P2 attempts)</li>
+<li><strong>WHEN</strong> the player initiates a 6th training attempt
+with sufficient revenue</li>
+<li><strong>THEN</strong> the attempt SHALL succeed regardless of
+RNG</li>
+<li><strong>AND</strong> the doctor’s rarity SHALL equal
+<code>'P2'</code></li>
+<li><strong>AND</strong> the doctor’s <code>pityCounter</code> SHALL
+reset to <code>0</code></li>
+</ul>
+<h4 id="scenario-pity-counter-persists-across-reload">Scenario: Pity
+counter persists across reload</h4>
+<ul>
+<li><strong>GIVEN</strong> a doctor with
+<code>pityCounter = 3</code></li>
+<li><strong>WHEN</strong> the app reloads</li>
+<li><strong>THEN</strong> the doctor’s <code>pityCounter</code> SHALL
+still equal <code>3</code> after rehydration from IndexedDB</li>
+</ul>
+<h3
+id="requirement-training-history-shall-be-persisted-for-telemetry">Requirement:
+Training history SHALL be persisted for telemetry</h3>
+<p>The system SHALL append a row to <code>trainingHistory</code> table
+for every training attempt with:</p>
+<ul>
+<li><code>attemptedAt: number</code> — Unix ms timestamp</li>
+<li><code>doctorId: string</code> — target doctor</li>
+<li><code>fromRarity: Rarity</code> — rarity before attempt</li>
+<li><code>toRarityIfSuccess: Rarity</code> — target rarity</li>
+<li><code>success: boolean</code> — outcome</li>
+<li><code>pityTriggered: boolean</code> — true if pity short-circuited
+the RNG</li>
+<li><code>revenueSpent: number</code> — cost paid</li>
+</ul>
+<h4 id="scenario-each-attempt-creates-a-history-row">Scenario: Each
+attempt creates a history row</h4>
+<ul>
+<li><strong>GIVEN</strong> a clean <code>trainingHistory</code>
+table</li>
+<li><strong>WHEN</strong> the player completes 3 training attempts on
+the same doctor (2 failed, 1 succeeded)</li>
+<li><strong>THEN</strong> <code>trainingHistory</code> SHALL contain
+exactly 3 rows</li>
+<li><strong>AND</strong> the rows SHALL be ordered by
+<code>attemptedAt</code></li>
+<li><strong>AND</strong> exactly 2 rows SHALL have
+<code>success: false</code></li>
+<li><strong>AND</strong> exactly 1 row SHALL have
+<code>success: true</code></li>
+</ul>
+<h2 id="added-requirements-2">ADDED Requirements</h2>
+<h3
+id="requirement-salary-shall-drain-revenue-per-minute-proportional-to-doctor-powermultiplier-all-owned">Requirement:
+Salary SHALL drain revenue per-minute proportional to doctor
+powerMultiplier, all owned</h3>
+<p>The system SHALL deduct salary from <code>gameCounters.revenue</code>
+for <strong>every owned doctor</strong> (regardless of
+<code>assignedRoomId</code>). Bench (unassigned) doctors SHALL also
+contribute. Salary per doctor per minute =
+<code>doctor.powerMultiplier × SALARY_BASE</code> where
+<code>SALARY_BASE = 4</code>. Derived rates:</p>
+<table>
+<thead>
+<tr>
+<th>Rarity</th>
+<th>powerMultiplier</th>
+<th>Salary per minute</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>5.0</td>
+<td>20</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>3.5</td>
+<td>14</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>2.0</td>
+<td>8</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>1.0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>0.5</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>Salary rate SHALL be multiplied by a tier-staged activation
+factor:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Salary rate multiplier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>診所</td>
+<td>0% (grace period — salary not yet active)</td>
+</tr>
+<tr>
+<td>區域醫院</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>醫學中心</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>國家級教學醫院</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<p>Effective per-doctor salary per minute =
+<code>doctor.powerMultiplier × SALARY_BASE × TIER_SALARY_RATE[currentTier]</code>.
+The deduction SHALL occur within the same study session tick that
+accumulates revenue. When no study session is active, salary SHALL NOT
+be deducted.</p>
+<p>The system SHALL include a defensive 0-floor clamp — if
+<code>revenue + deltaRevenueGross - deltaSalary &lt; 0</code>,
+<code>revenue</code> SHALL be set to 0. However, the design invariant is
+that the 0-floor clamp MUST NOT trigger under default play (per design
+D5 math check: every tier’s default config yields net positive revenue).
+The clamp is a safety net for edge cases (e.g., manual save
+manipulation) not a primary mechanic.</p>
+<h4 id="scenario-tier-1-診所-has-zero-salary-drain">Scenario: Tier 1
+診所 has zero salary drain</h4>
+<ul>
+<li><strong>GIVEN</strong> 5 doctors owned (3 assigned, 2 bench), tier
+<code>'診所'</code>, 1 minute of active session</li>
+<li><strong>WHEN</strong> the tick fires</li>
+<li><strong>THEN</strong> salary drain SHALL equal 0</li>
+<li><strong>AND</strong> <code>revenue</code> SHALL increase by the full
+throughput amount</li>
+</ul>
+<h4
+id="scenario-tier-2-區域醫院-applies-proportional-salary-to-all-owned-doctors">Scenario:
+Tier 2 區域醫院 applies proportional salary to all owned doctors</h4>
+<ul>
+<li><strong>GIVEN</strong> 8 P3 doctors owned (5 assigned, 3 bench),
+tier <code>'區域醫院'</code>, throughput 100/min, 1 minute elapsed</li>
+<li><strong>WHEN</strong> the tick fires</li>
+<li><strong>THEN</strong> salary drain SHALL equal
+<code>8 × 2.0 × 4 × 1.0 = 64/min</code></li>
+<li><strong>AND</strong> <code>revenue</code> SHALL change by
+approximately <code>100 - 64 = +36</code> per minute (always net
+positive at default config)</li>
+</ul>
+<h4
+id="scenario-bench-doctor-contributes-salary-proportional-to-powermultiplier">Scenario:
+Bench doctor contributes salary proportional to powerMultiplier</h4>
+<ul>
+<li><strong>GIVEN</strong> 5 P1 doctors owned (3 assigned, 2 bench),
+tier <code>'醫學中心'</code>, throughput 150/min, 1 minute elapsed</li>
+<li><strong>WHEN</strong> the tick fires</li>
+<li><strong>THEN</strong> salary drain SHALL equal
+<code>5 × 5.0 × 4 × 1.0 = 100/min</code> (all 5 owned, including 2
+bench)</li>
+<li><strong>AND</strong> <code>revenue</code> SHALL change by
+approximately <code>150 - 100 = +50</code> per minute</li>
+</ul>
+<h4 id="scenario-default-config-endgame-remains-net-positive">Scenario:
+Default-config endgame remains net positive</h4>
+<ul>
+<li><strong>GIVEN</strong> 15 doctors owned (12 P2 + 3 P1), 10 assigned
+(7 P2 + 3 P1), tier <code>'國家級教學醫院'</code>, default facility
+1.0</li>
+<li><strong>WHEN</strong> the tick fires for 1 minute</li>
+<li><strong>THEN</strong> assigned throughput SHALL equal
+<code>7 × 10 × 3.5 × 1.0 + 3 × 10 × 5.0 × 1.0 = 245 + 150 = 395/min</code></li>
+<li><strong>AND</strong> salary drain SHALL equal
+<code>12 × 3.5 × 4 + 3 × 5.0 × 4 = 168 + 60 = 228/min</code></li>
+<li><strong>AND</strong> <code>revenue</code> SHALL change by
+approximately <code>+167</code> per minute</li>
+</ul>
+<h4 id="scenario-0-floor-clamp-triggers-only-in-edge-case">Scenario:
+0-floor clamp triggers only in edge case</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>revenue = 50</code>, throughput
+100/min, salary drain 200/min (only possible if player manually
+manipulated state)</li>
+<li><strong>WHEN</strong> the tick fires</li>
+<li><strong>THEN</strong> <code>revenue</code> SHALL equal
+<code>0</code> (clamped from <code>-50</code>)</li>
+<li><strong>AND</strong> no doctor SHALL be auto-fired</li>
+</ul>
+<h4 id="scenario-no-tick-no-salary">Scenario: No tick no salary</h4>
+<ul>
+<li><strong>GIVEN</strong> 13 owned doctors and no active study
+session</li>
+<li><strong>WHEN</strong> 60 minutes of wall-clock time pass</li>
+<li><strong>THEN</strong> <code>revenue</code> SHALL remain
+unchanged</li>
+</ul>
+<h3
+id="requirement-facility-upgrade-shall-increase-room.roomfacility-via-revenue-spend">Requirement:
+Facility upgrade SHALL increase room.roomFacility via revenue spend</h3>
+<p>The system SHALL provide a facility upgrade action per room. Each
+upgrade level SHALL increment <code>room.roomFacility</code> by a fixed
+step, with cost scaling:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>roomFacility value</th>
+<th>Revenue cost to reach this level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 (default)</td>
+<td>1.0</td>
+<td>— (free seed)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1.5</td>
+<td>10,000</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2.0</td>
+<td>50,000</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2.5</td>
+<td>200,000</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.0 (max)</td>
+<td>1,000,000</td>
+</tr>
+</tbody>
+</table>
+<p>Once a room reaches level 5, the upgrade button SHALL be disabled.
+Throughput formula remains
+<code>baseRate × powerMultiplier × roomFacility × affinityBonus</code> —
+increased <code>roomFacility</code> lifts all assigned doctors’ output
+proportionally.</p>
+<h4 id="scenario-upgrade-outpatient-1-from-level-1-to-level-2">Scenario:
+Upgrade outpatient-1 from level 1 to level 2</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>room.roomFacility = 1.0</code> and
+<code>revenue = 15,000</code></li>
+<li><strong>WHEN</strong> the player upgrades the room</li>
+<li><strong>THEN</strong> <code>roomFacility</code> SHALL equal
+<code>1.5</code></li>
+<li><strong>AND</strong> <code>revenue</code> SHALL equal
+<code>5,000</code></li>
+</ul>
+<h4 id="scenario-upgrade-blocked-when-revenue-insufficient">Scenario:
+Upgrade blocked when revenue insufficient</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>room.roomFacility = 1.0</code> and
+<code>revenue = 5,000</code> (cost is 10,000)</li>
+<li><strong>WHEN</strong> the player attempts the upgrade</li>
+<li><strong>THEN</strong> <code>roomFacility</code> SHALL remain
+<code>1.0</code></li>
+<li><strong>AND</strong> <code>revenue</code> SHALL remain
+<code>5,000</code></li>
+<li><strong>AND</strong> the UI SHALL display an insufficient-funds
+error</li>
+</ul>
+<h4 id="scenario-max-level-room-shows-disabled-upgrade">Scenario:
+Max-level room shows disabled upgrade</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>room.roomFacility = 3.0</code> (level
+5)</li>
+<li><strong>WHEN</strong> the upgrade UI renders</li>
+<li><strong>THEN</strong> the upgrade button SHALL be disabled</li>
+<li><strong>AND</strong> a label SHALL state「已達最高設施等級」or
+equivalent</li>
+</ul>
+<h3
+id="requirement-room-extension-shall-allow-adding-extra-rooms-within-current-tier">Requirement:
+Room extension SHALL allow adding extra rooms within current tier</h3>
+<p>The system SHALL allow the player to purchase additional rooms beyond
+the tier-default roster. Available room types and costs:</p>
+<table>
+<thead>
+<tr>
+<th>Room type</th>
+<th>Cost per additional unit</th>
+<th>Max per tier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>outpatient</td>
+<td>20,000</td>
+<td>tier default + 3</td>
+</tr>
+<tr>
+<td>surgery</td>
+<td>100,000</td>
+<td>tier default + 2</td>
+</tr>
+<tr>
+<td>ward</td>
+<td>300,000</td>
+<td>tier default + 2</td>
+</tr>
+</tbody>
+</table>
+<p>Room extension SHALL only be available when current tier ≥ 區域醫院
+(locked at 診所). Extended room ids SHALL follow
+<code>${type}-${slot}</code> pattern; <code>slot</code> SHALL be the
+next available integer. The cost calibration targets ~17 hr of saving
+for outpatient payback (default-config 區域醫院 +36/min net × ~17 hr ≈
+36,000 revenue → 20k cost recouped quickly and remaining revenue
+accelerates further expansion).</p>
+<h4 id="scenario-buy-extra-outpatient-at-區域醫院-tier">Scenario: Buy
+extra outpatient at 區域醫院 tier</h4>
+<ul>
+<li><strong>GIVEN</strong> tier <code>'區域醫院'</code>, 4 existing
+outpatient rooms (slots 1-4), and <code>revenue = 30,000</code></li>
+<li><strong>WHEN</strong> the player purchases 1 extra outpatient</li>
+<li><strong>THEN</strong> <code>db.rooms</code> SHALL contain 5
+outpatient rooms (slot 5 added)</li>
+<li><strong>AND</strong> the new room SHALL have
+<code>roomFacility = 1.0</code> and
+<code>assignedDoctorId = null</code></li>
+<li><strong>AND</strong> <code>revenue</code> SHALL equal
+<code>10,000</code></li>
+</ul>
+<h4 id="scenario-room-extension-blocked-at-診所-tier">Scenario: Room
+extension blocked at 診所 tier</h4>
+<ul>
+<li><strong>GIVEN</strong> tier <code>'診所'</code> and
+<code>revenue = 100,000</code></li>
+<li><strong>WHEN</strong> the player opens room extension UI</li>
+<li><strong>THEN</strong> the extension actions SHALL be disabled</li>
+<li><strong>AND</strong> a label SHALL state「需升級至 區域醫院
+以上才能擴建」or equivalent</li>
+</ul>
+<h3
+id="requirement-voluntary-doctor-retirement-shall-allow-payroll-relief-with-24-hour-diversification-grace">Requirement:
+Voluntary doctor retirement SHALL allow payroll relief with 24-hour
+diversification grace</h3>
+<p>The system SHALL allow the player to manually retire (fire) an owned
+doctor at any time via a「退休醫師」button on the doctor detail panel.
+The retired doctor SHALL:</p>
+<ul>
+<li>Be removed from <code>db.doctors</code> (record deleted)</li>
+<li>If currently assigned to a room, the room’s
+<code>assignedDoctorId</code> SHALL be set to <code>null</code> in the
+same transaction</li>
+<li>A <code>retirementLog</code> row SHALL be appended with
+<code>{retiredAt, doctorId, rarity, subjectId}</code></li>
+<li>Refund:
+<code>retirement_refund = doctor.powerMultiplier × 1000</code> revenue
+(e.g., P1 → 5,000, P5 → 500)</li>
+</ul>
+<p><strong>24-hour diversification grace</strong>: For 24 wall-clock
+hours after retirement, the retired doctor’s
+<code>subjectId + rarity</code> SHALL still count toward the
+diversification gate as if the doctor still existed. After 24 hours, the
+credit expires and the player may fall back below the gate threshold (no
+tier regression — tier stays, but next-tier upgrade is blocked).</p>
+<p>The retirement button SHALL be guarded by a confirmation modal
+showing: - Refund amount - Diversification impact (which gate this
+doctor contributes to, when the 24-hour credit expires) - “Cannot be
+undone” warning</p>
+<h4
+id="scenario-retire-p3-doctor-refunds-revenue-and-frees-room">Scenario:
+Retire P3 doctor refunds revenue and frees room</h4>
+<ul>
+<li><strong>GIVEN</strong> a P3 doctor with
+<code>assignedRoomId = 'outpatient-2'</code> and
+<code>revenue = 1,000</code></li>
+<li><strong>WHEN</strong> the player retires this doctor via
+confirmation</li>
+<li><strong>THEN</strong> <code>db.doctors</code> SHALL no longer
+contain this doctor</li>
+<li><strong>AND</strong> room <code>outpatient-2.assignedDoctorId</code>
+SHALL equal <code>null</code></li>
+<li><strong>AND</strong> <code>revenue</code> SHALL equal
+<code>3,000</code> (1,000 + P3 refund 2,000)</li>
+<li><strong>AND</strong> <code>retirementLog</code> SHALL contain a new
+row with the retired doctor’s data</li>
+</ul>
+<h4
+id="scenario-24-hour-grace-preserves-diversification-credit">Scenario:
+24-hour grace preserves diversification credit</h4>
+<ul>
+<li><strong>GIVEN</strong> the player has exactly 8 distinct P3+
+subjects (meeting 區域 → 醫學中心 gate)</li>
+<li><strong>WHEN</strong> the player retires one of those P3
+doctors</li>
+<li><strong>THEN</strong> for the next 24 hours, the diversification
+count SHALL still report <code>8 distinct P3+ subjects</code></li>
+<li><strong>AND</strong> after 24 hours, the count SHALL drop to
+<code>7</code> (if no new P3+ in that subject was recruited)</li>
+</ul>
+<h4 id="scenario-grace-doesnt-cause-tier-regression">Scenario: Grace
+doesn’t cause tier regression</h4>
+<ul>
+<li><strong>GIVEN</strong> the player is at tier <code>'醫學中心'</code>
+(already upgraded with 8 P3+ subjects)</li>
+<li><strong>WHEN</strong> the player retires a P3 doctor and 24 hours
+pass without replacement</li>
+<li><strong>THEN</strong> <code>gameCounters.tier</code> SHALL still
+equal <code>'醫學中心'</code> (no regression per
+<code>clinic-level-up</code> monotonicity)</li>
+<li><strong>AND</strong> the diversification count SHALL drop to 7</li>
+<li><strong>AND</strong> the player SHALL NOT be eligible to upgrade to
+<code>'國家級教學醫院'</code> until they re-collect that subject at
+P2+</li>
+</ul>
+<h3
+id="requirement-finance-dashboard-shall-display-revenue-breakdown">Requirement:
+Finance dashboard SHALL display revenue breakdown</h3>
+<p>The HomePage finance panel SHALL display:</p>
+<ul>
+<li>Current <code>revenue</code> (large number)</li>
+<li>Net rate per minute (revenue gain - salary drain at current
+throughput)</li>
+<li>Salary breakdown (count × rate per rarity tier)</li>
+<li>Last-minute delta (visible during active session)</li>
+</ul>
+<p>The display SHALL be reactive to counter updates via
+<code>liveQuery</code>.</p>
+<h4 id="scenario-finance-panel-shows-net-rate">Scenario: Finance panel
+shows net rate</h4>
+<ul>
+<li><strong>GIVEN</strong> active session, throughput 100/min, salary
+drain 60/min</li>
+<li><strong>WHEN</strong> the HomePage renders</li>
+<li><strong>THEN</strong> the finance panel SHALL display a net rate of
+<code>+40/min</code></li>
+</ul>
+<h2 id="added-requirements-3">ADDED Requirements</h2>
+<h3
+id="requirement-special-events-shall-trigger-probabilistically-during-active-sessions-with-reputation-scaled-rate">Requirement:
+Special events SHALL trigger probabilistically during active sessions
+with reputation-scaled rate</h3>
+<p>The system SHALL roll for a special event at the end of every Nth
+tick during an active study session (default
+<code>EVENT_TICK_INTERVAL = 60</code> ticks ≈ 5 minutes of session
+time). Event base trigger rates SHALL be scaled by current reputation
+via
+<code>reputationScaleFactor = clamp(reputation / 100_000, 0.5, 3.0)</code>.
+Higher reputation → more events (good and bad both more frequent).</p>
+<p>Effective trigger rate per roll =
+<code>baseRate × reputationScaleFactor</code>, <strong>capped at
+<code>0.3</code> (30% per roll)</strong> to avoid event spam. A
+<strong>post-resolution cooldown</strong> SHALL prevent the event roll
+from firing for at least 5 minutes of active session time after any
+event resolves —
+<code>nextEventRollAllowedAt = lastResolvedAt + 5 minutes (session time, not wall-clock)</code>.
+Event categories:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Event</th>
+<th>Polarity</th>
+<th>Base rate</th>
+<th>Conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>醫療糾紛 (medical-malpractice)</td>
+<td>Negative (-revenue OR -reputation)</td>
+<td>8%</td>
+<td>tier ≥ 區域醫院, totalThroughput ≥ 50</td>
+</tr>
+<tr>
+<td>負面新聞 (negative-news)</td>
+<td>Negative (-reputation only)</td>
+<td>3%</td>
+<td>tier ≥ 區域醫院</td>
+</tr>
+<tr>
+<td>學會質疑 (peer-criticism)</td>
+<td>Negative (-reputation only)</td>
+<td>2%</td>
+<td>tier ≥ 醫學中心</td>
+</tr>
+<tr>
+<td>VIP 病人 (vip-patient)</td>
+<td>Positive</td>
+<td>5%</td>
+<td>tier ≥ 區域醫院</td>
+</tr>
+<tr>
+<td>急診加開 (emergency-shift)</td>
+<td>Positive</td>
+<td>3%</td>
+<td>tier ≥ 醫學中心</td>
+</tr>
+<tr>
+<td>醫療評鑑 (audit-event)</td>
+<td>Mixed</td>
+<td>2%</td>
+<td>tier ≥ 醫學中心</td>
+</tr>
+<tr>
+<td>學會獎項 (research-award)</td>
+<td>Positive</td>
+<td>2%</td>
+<td>tier ≥ 醫學中心</td>
+</tr>
+</tbody>
+</table>
+<p>At most one event SHALL be active at a time. If an event roll occurs
+while one is already pending resolution, the new roll SHALL be skipped.
+Each event SHALL persist a row in <code>eventLog</code> with
+<code>triggeredAt</code>, <code>eventType</code>,
+<code>resolution</code>, <code>resolvedAt</code>.</p>
+<p>The combined negative-reputation event rates
+(<code>負面新聞 + 學會質疑</code>) SHALL NOT exceed 5% effective at any
+reputation level — these “random rep loss” events are intended to be a
+minor pressure, not a dominant mechanic. Each negative-rep event SHALL
+deduct between 1,000 and 10,000 reputation per occurrence (drawn
+uniformly).</p>
+<h4 id="scenario-tier-1-clinic-immune-to-events">Scenario: Tier 1 clinic
+immune to events</h4>
+<ul>
+<li><strong>GIVEN</strong> tier <code>'診所'</code> and active
+session</li>
+<li><strong>WHEN</strong> the event tick roll fires</li>
+<li><strong>THEN</strong> no event SHALL trigger (all event conditions
+require ≥ 區域醫院)</li>
+</ul>
+<h4 id="scenario-reputation-scales-event-rate">Scenario: Reputation
+scales event rate</h4>
+<ul>
+<li><strong>GIVEN</strong> tier <code>'醫學中心'</code>, reputation
+500,000 (so <code>reputationScaleFactor = 3.0</code> capped)</li>
+<li><strong>WHEN</strong> an event roll fires</li>
+<li><strong>THEN</strong> the effective trigger rate of 醫療糾紛 SHALL
+equal <code>min(8% × 3.0, 30%) = 24%</code></li>
+<li><strong>AND</strong> the effective trigger rate of 學會獎項 SHALL
+equal <code>2% × 3.0 = 6%</code></li>
+</ul>
+<h4
+id="scenario-post-resolution-cooldown-blocks-immediate-re-trigger">Scenario:
+Post-resolution cooldown blocks immediate re-trigger</h4>
+<ul>
+<li><strong>GIVEN</strong> an event resolved 3 minutes ago (session
+time)</li>
+<li><strong>WHEN</strong> the next event tick (5 min) fires</li>
+<li><strong>THEN</strong> the event roll SHALL be skipped (cooldown not
+elapsed; need ≥ 5 min since last resolve)</li>
+<li><strong>AND</strong> the next roll SHALL be attempted 2 minutes
+later (at the 5-min cooldown mark)</li>
+</ul>
+<h4 id="scenario-negative-news-deducts-random-reputation">Scenario:
+Negative news deducts random reputation</h4>
+<ul>
+<li><strong>GIVEN</strong> active session at tier
+<code>'區域醫院'</code>, reputation 100,000</li>
+<li><strong>WHEN</strong> a 負面新聞 event triggers and resolves
+(auto-resolves immediately, no player choice)</li>
+<li><strong>THEN</strong> reputation SHALL decrement by a uniform random
+value in <code>[1000, 10000]</code></li>
+<li><strong>AND</strong> the event SHALL be logged in
+<code>eventLog</code></li>
+</ul>
+<h4 id="scenario-single-event-at-a-time">Scenario: Single event at a
+time</h4>
+<ul>
+<li><strong>GIVEN</strong> an active 醫療糾紛 event awaiting
+resolution</li>
+<li><strong>WHEN</strong> the next event tick roll fires and would
+normally trigger VIP 病人</li>
+<li><strong>THEN</strong> no new event SHALL be queued</li>
+<li><strong>AND</strong> the existing 醫療糾紛 SHALL remain the only
+active event</li>
+</ul>
+<h3
+id="requirement-medical-malpractice-event-shall-offer-spend-revenue-resolution">Requirement:
+Medical malpractice event SHALL offer spend-revenue resolution</h3>
+<p>The 醫療糾紛 event SHALL present the player with two resolution
+choices:</p>
+<ul>
+<li><strong>(a) 私下和解 — spend revenue</strong>: cost =
+<code>min(max(10_000, revenue × 10%), revenue)</code> — at least 10k or
+10% whichever larger, but capped at current revenue (cannot drive
+negative). If <code>revenue &lt; 10_000</code>, this option SHALL be
+disabled with a「營收不足」label and only path (b) is selectable.</li>
+<li><strong>(b) 接受懲處 — lose reputation</strong>: no revenue cost,
+but <code>reputation -= 5,000</code>. Event resolved.</li>
+</ul>
+<p>The event SHALL auto-resolve to choice (b) if the player does not
+respond within 24 hours (wall-clock since <code>triggeredAt</code>).</p>
+<h4 id="scenario-player-chooses-settlement">Scenario: Player chooses
+settlement</h4>
+<ul>
+<li><strong>GIVEN</strong> an active 醫療糾紛 and
+<code>revenue = 200,000</code></li>
+<li><strong>WHEN</strong> the player selects 私下和解</li>
+<li><strong>THEN</strong> <code>revenue</code> SHALL equal
+<code>180,000</code> (10% deducted)</li>
+<li><strong>AND</strong> the event SHALL transition to
+<code>resolution: 'settled'</code></li>
+<li><strong>AND</strong> <code>reputation</code> SHALL remain
+unchanged</li>
+</ul>
+<h4 id="scenario-settlement-disabled-when-revenue-below-10k">Scenario:
+Settlement disabled when revenue below 10k</h4>
+<ul>
+<li><strong>GIVEN</strong> an active 醫療糾紛 and
+<code>revenue = 5,000</code></li>
+<li><strong>WHEN</strong> the modal renders</li>
+<li><strong>THEN</strong> the 私下和解 button SHALL be disabled</li>
+<li><strong>AND</strong> the modal SHALL display
+<code>「營收不足，無法和解」</code></li>
+<li><strong>AND</strong> only the 接受懲處 path SHALL be selectable</li>
+</ul>
+<h4 id="scenario-player-accepts-penalty">Scenario: Player accepts
+penalty</h4>
+<ul>
+<li><strong>GIVEN</strong> an active 醫療糾紛 and
+<code>reputation = 100,000</code></li>
+<li><strong>WHEN</strong> the player selects 接受懲處</li>
+<li><strong>THEN</strong> <code>reputation</code> SHALL equal
+<code>95,000</code></li>
+<li><strong>AND</strong> the event SHALL transition to
+<code>resolution: 'penalized'</code></li>
+<li><strong>AND</strong> <code>revenue</code> SHALL remain
+unchanged</li>
+</ul>
+<h4 id="scenario-timeout-defaults-to-penalty">Scenario: Timeout defaults
+to penalty</h4>
+<ul>
+<li><strong>GIVEN</strong> an active 醫療糾紛 that triggered 25 hours
+ago without response</li>
+<li><strong>WHEN</strong> the next tick fires</li>
+<li><strong>THEN</strong> the event SHALL auto-resolve as
+<code>resolution: 'penalized'</code></li>
+<li><strong>AND</strong> <code>reputation</code> SHALL decrement by
+<code>5,000</code></li>
+</ul>
+<h3
+id="requirement-vip-patient-event-shall-grant-temporary-throughput-boost">Requirement:
+VIP patient event SHALL grant temporary throughput boost</h3>
+<p>The VIP 病人 event SHALL grant
+<code>throughputMultiplier = 2.0</code> for the next 10 minutes of
+active session time (paused on session-pause; resumes on
+session-resume). The boost SHALL apply to all rooms equally. When the
+boost expires, the event SHALL transition to
+<code>resolution: 'completed'</code>.</p>
+<h4 id="scenario-vip-boost-doubles-throughput">Scenario: VIP boost
+doubles throughput</h4>
+<ul>
+<li><strong>GIVEN</strong> an active session with
+<code>totalThroughput = 100/min</code> and a VIP event just
+triggered</li>
+<li><strong>WHEN</strong> the next minute of session elapses</li>
+<li><strong>THEN</strong> revenue SHALL increase by approximately
+<code>200</code> (2× normal rate)</li>
+<li><strong>AND</strong> reputation SHALL increase by approximately
+<code>200</code></li>
+</ul>
+<h4 id="scenario-vip-boost-pauses-with-session">Scenario: VIP boost
+pauses with session</h4>
+<ul>
+<li><strong>GIVEN</strong> a VIP event has 7 minutes remaining and the
+session pauses</li>
+<li><strong>WHEN</strong> the session resumes 10 minutes later</li>
+<li><strong>THEN</strong> the VIP event SHALL still have 7 minutes
+remaining</li>
+<li><strong>AND</strong> the boost SHALL re-apply</li>
+</ul>
+<h3
+id="requirement-event-ui-shall-distinguish-actionable-modal-from-passive-toast-events">Requirement:
+Event UI SHALL distinguish actionable (modal) from passive (toast)
+events</h3>
+<p>The system SHALL classify events into two UI categories:</p>
+<p><strong>Actionable events</strong> (modal required — player choice
+impacts outcome): - 醫療糾紛 (revenue vs reputation choice) - VIP 病人
+(acknowledge to start boost) - 急診加開 (acknowledge to start boost) -
+醫療評鑑 (mixed outcome with choice)</p>
+<p>For these, the system SHALL display a modal at the top of the
+viewport with title / description / action buttons / countdown. The
+modal SHALL persist across page navigation until resolved or
+auto-resolved.</p>
+<p><strong>Passive events</strong> (toast notification — auto-resolve,
+no player input): - 負面新聞 (auto-deduct rep) - 學會質疑 (auto-deduct
+rep) - 學會獎項 (auto-add rep)</p>
+<p>For these, the system SHALL show a toast notification at the
+top-right corner with title / brief description / outcome (e.g.,
+<code>「負面新聞：-3,520 聲望」</code>). The toast SHALL auto-dismiss
+after 5 seconds. The event SHALL be applied to counters immediately (no
+waiting for player acknowledgment) and SHALL still be logged in
+<code>eventLog</code>.</p>
+<h4 id="scenario-actionable-event-shows-modal">Scenario: Actionable
+event shows modal</h4>
+<ul>
+<li><strong>GIVEN</strong> a 醫療糾紛 event triggers</li>
+<li><strong>WHEN</strong> the event UI renders</li>
+<li><strong>THEN</strong> a modal SHALL appear with 私下和解 / 接受懲處
+buttons</li>
+<li><strong>AND</strong> the player SHALL be required to choose (or wait
+for 24-hour auto-resolution)</li>
+</ul>
+<h4 id="scenario-passive-event-shows-toast-and-auto-applies">Scenario:
+Passive event shows toast and auto-applies</h4>
+<ul>
+<li><strong>GIVEN</strong> a 負面新聞 event triggers, current reputation
+100,000</li>
+<li><strong>WHEN</strong> the event resolves</li>
+<li><strong>THEN</strong> a toast notification SHALL appear with the rep
+loss amount</li>
+<li><strong>AND</strong> <code>reputation</code> SHALL decrement
+immediately (no player action required)</li>
+<li><strong>AND</strong> the toast SHALL auto-dismiss after 5
+seconds</li>
+<li><strong>AND</strong> <code>eventLog</code> SHALL record the event
+with <code>resolution: 'auto-applied'</code></li>
+</ul>
+<h4 id="scenario-modal-persists-across-navigation">Scenario: Modal
+persists across navigation</h4>
+<ul>
+<li><strong>GIVEN</strong> a 醫療糾紛 modal is showing on
+<code>/study</code></li>
+<li><strong>WHEN</strong> the player navigates to
+<code>/hospital</code></li>
+<li><strong>THEN</strong> the modal SHALL remain visible on
+<code>/hospital</code></li>
+<li><strong>AND</strong> the player SHALL still be able to resolve from
+any page</li>
+</ul>
+<h2 id="added-requirements-4">ADDED Requirements</h2>
+<h3
+id="requirement-fate-cards-shall-be-unlocked-at-醫學中心-tier">Requirement:
+Fate cards SHALL be unlocked at 醫學中心 tier</h3>
+<p>The system SHALL gate fate card draws behind
+<code>gameCounters.tier &gt;= '醫學中心'</code>. The fate card UI SHALL
+be hidden (no nav link visible, route returns 404 if accessed directly)
+until the player reaches this tier. Once unlocked, the UI SHALL remain
+available even if the tier definition changes (no regression possible
+due to monotonic tiers).</p>
+<h4 id="scenario-pre-醫學中心-player-cannot-access-fate-cards">Scenario:
+Pre-醫學中心 player cannot access fate cards</h4>
+<ul>
+<li><strong>GIVEN</strong> tier <code>'區域醫院'</code></li>
+<li><strong>WHEN</strong> the player navigates the app</li>
+<li><strong>THEN</strong> no fate card nav link SHALL be visible</li>
+<li><strong>AND</strong> directly navigating to <code>/fate-cards</code>
+SHALL render a “tier-locked” placeholder</li>
+</ul>
+<h4 id="scenario-醫學中心-player-sees-fate-card-nav">Scenario: 醫學中心
+player sees fate card nav</h4>
+<ul>
+<li><strong>GIVEN</strong> tier <code>'醫學中心'</code></li>
+<li><strong>WHEN</strong> the player views the home navigation</li>
+<li><strong>THEN</strong> a fate card nav entry SHALL be visible</li>
+</ul>
+<h3
+id="requirement-four-card-pack-tiers-shall-be-available-with-locked-costs">Requirement:
+Four card-pack tiers SHALL be available with locked costs</h3>
+<p>The system SHALL provide exactly 4 card-pack tiers with locked
+reputation costs and content pools:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Pack</th>
+<th>Reputation cost</th>
+<th>Content pool</th>
+<th>Bad-luck rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通命運（白）</td>
+<td>1,000</td>
+<td>recruitment ticket ×3 / minor revenue / event-immunity card</td>
+<td>5% (penalty: <code>-1,000 rep</code>)</td>
+</tr>
+<tr>
+<td>稀有命運（藍）</td>
+<td>10,000</td>
+<td>recruitment ticket ×10 / training guarantee voucher ×1 /
+event-positive trigger</td>
+<td>5% (penalty: <code>-10,000 rep</code>)</td>
+</tr>
+<tr>
+<td>史詩命運（紫）</td>
+<td>100,000</td>
+<td>targeted P3+ recruitment ticket / facility +0.5 permanent / 1-week
+salary waiver</td>
+<td>5% (penalty: <code>-50,000 rep</code>)</td>
+</tr>
+<tr>
+<td>傳奇命運（金）</td>
+<td>1,000,000</td>
+<td>targeted P2 recruitment ticket / all-room facility +1 / 1-week
+throughput ×2</td>
+<td>0%</td>
+</tr>
+</tbody>
+</table>
+<p>The costs SHALL be recorded as literals in
+<code>packages/content-medexam2-tw/src/fate-cards.ts</code>.
+Insufficient-reputation attempts SHALL be blocked client-side BEFORE the
+draw.</p>
+<h4 id="scenario-common-pack-draw-deducts-reputation">Scenario: Common
+pack draw deducts reputation</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>reputation = 5,000</code> and player
+initiates a 普通命運 draw</li>
+<li><strong>WHEN</strong> the draw completes</li>
+<li><strong>THEN</strong> <code>reputation</code> SHALL equal
+<code>4,000</code> (1,000 deducted regardless of result)</li>
+<li><strong>AND</strong> a row SHALL appear in
+<code>fateCardHistory</code></li>
+</ul>
+<h4 id="scenario-insufficient-reputation-blocks-draw">Scenario:
+Insufficient reputation blocks draw</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>reputation = 5,000</code> and player
+attempts a 稀有命運 draw (cost 10,000)</li>
+<li><strong>WHEN</strong> the draw button is pressed</li>
+<li><strong>THEN</strong> no reputation deduction SHALL occur</li>
+<li><strong>AND</strong> the UI SHALL display an insufficient-reputation
+error</li>
+</ul>
+<h3
+id="requirement-fate-card-draw-history-shall-be-persisted">Requirement:
+Fate card draw history SHALL be persisted</h3>
+<p>The system SHALL append a row to <code>fateCardHistory</code> table
+for every draw with:</p>
+<ul>
+<li><code>drawnAt: number</code> — Unix ms timestamp</li>
+<li><code>packTier: 'common' | 'rare' | 'epic' | 'legendary'</code></li>
+<li><code>resultType: 'reward' | 'badLuck'</code></li>
+<li><code>rewardKey: string | null</code> — which reward pool item was
+drawn (null if bad luck)</li>
+<li><code>costPaid: number</code> — reputation deducted</li>
+</ul>
+<h4 id="scenario-each-draw-creates-history-row">Scenario: Each draw
+creates history row</h4>
+<ul>
+<li><strong>GIVEN</strong> a clean <code>fateCardHistory</code>
+table</li>
+<li><strong>WHEN</strong> the player completes 5 fate card draws</li>
+<li><strong>THEN</strong> <code>fateCardHistory</code> SHALL contain
+exactly 5 rows</li>
+<li><strong>AND</strong> the rows SHALL be ordered by
+<code>drawnAt</code></li>
+</ul>
+<h3
+id="requirement-bad-luck-penalty-shall-never-reduce-reputation-below-zero">Requirement:
+Bad luck penalty SHALL never reduce reputation below zero</h3>
+<p>If a bad-luck penalty would drive <code>reputation</code> below 0,
+the system SHALL clamp to 0 (not negative). The player’s tier SHALL
+never regress due to a bad-luck event (tier progression is monotonic per
+<code>clinic-level-up</code>).</p>
+<h4 id="scenario-penalty-clamps-at-zero">Scenario: Penalty clamps at
+zero</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>reputation = 500</code> and a 普通命運
+draw resolves to bad luck (-1,000 rep penalty)</li>
+<li><strong>WHEN</strong> the penalty applies</li>
+<li><strong>THEN</strong> <code>reputation</code> SHALL equal
+<code>0</code></li>
+<li><strong>AND</strong> the player SHALL be notified of the penalty
+cap</li>
+</ul>
+<h3
+id="requirement-fate-card-shall-apply-consecutive-bad-luck-pity-at-threshold-3">Requirement:
+Fate card SHALL apply consecutive-bad-luck pity at threshold 3</h3>
+<p>The system SHALL track a per-pack-tier
+<code>consecutiveBadLuckCount</code> counter (initialized 0 for each of
+<code>'common' / 'rare' / 'epic'</code>; the legendary tier has 0% bad
+luck rate and no counter). On each draw at a tier:</p>
+<ol type="1">
+<li>Before rolling, if
+<code>consecutiveBadLuckCount[tier] &gt;= 3</code>, the draw SHALL skip
+the bad-luck roll and force a reward result (drawn from the reward pool
+with uniform probability). The counter SHALL then reset to 0.</li>
+<li>Otherwise, the system SHALL roll bad-luck-vs-reward per the standard
+probability table.</li>
+<li>If the result is bad luck,
+<code>consecutiveBadLuckCount[tier] += 1</code>.</li>
+<li>If the result is reward (including pity-forced reward),
+<code>consecutiveBadLuckCount[tier] = 0</code>.</li>
+</ol>
+<p>The counter SHALL be persistent across app reloads (stored in
+<code>gameCounters.singleton</code> or similar). The counter SHALL be
+independent per pack tier — bad luck at 普通命運 does NOT increment the
+counter for 稀有命運.</p>
+<h4
+id="scenario-pity-triggers-reward-after-3-consecutive-bad-luck">Scenario:
+Pity triggers reward after 3 consecutive bad luck</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>consecutiveBadLuckCount['common'] = 3</code> (from 3 prior
+bad-luck draws at 普通命運)</li>
+<li><strong>WHEN</strong> the player initiates another 普通命運
+draw</li>
+<li><strong>THEN</strong> the draw SHALL skip the 5% bad-luck roll</li>
+<li><strong>AND</strong> the result SHALL be a reward drawn from the
+common reward pool</li>
+<li><strong>AND</strong> <code>consecutiveBadLuckCount['common']</code>
+SHALL reset to <code>0</code></li>
+</ul>
+<h4 id="scenario-reward-resets-the-counter">Scenario: Reward resets the
+counter</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>consecutiveBadLuckCount['common'] = 2</code></li>
+<li><strong>WHEN</strong> the player initiates a 普通命運 draw and the
+result is a reward (95% probability)</li>
+<li><strong>THEN</strong> <code>consecutiveBadLuckCount['common']</code>
+SHALL reset to <code>0</code></li>
+</ul>
+<h4 id="scenario-counter-is-independent-per-tier">Scenario: Counter is
+independent per tier</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>consecutiveBadLuckCount['common'] = 3</code> and
+<code>consecutiveBadLuckCount['rare'] = 0</code></li>
+<li><strong>WHEN</strong> the player draws a 稀有命運 card</li>
+<li><strong>THEN</strong> the draw SHALL use the standard 5% bad-luck
+roll (no pity)</li>
+<li><strong>AND</strong> if the result is bad luck,
+<code>consecutiveBadLuckCount['rare']</code> SHALL equal
+<code>1</code></li>
+<li><strong>AND</strong> <code>consecutiveBadLuckCount['common']</code>
+SHALL remain <code>3</code></li>
+</ul>
+<h4 id="scenario-pity-counter-persists-across-reload-1">Scenario: Pity
+counter persists across reload</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>consecutiveBadLuckCount['epic'] = 2</code></li>
+<li><strong>WHEN</strong> the app reloads</li>
+<li><strong>THEN</strong> after rehydration,
+<code>consecutiveBadLuckCount['epic']</code> SHALL still equal
+<code>2</code></li>
+</ul>
+<h2 id="added-requirements-5">ADDED Requirements</h2>
+<h3
+id="requirement-first-time-onboarding-flow-shall-introduce-core-mechanics-in-sequence">Requirement:
+First-time onboarding flow SHALL introduce core mechanics in
+sequence</h3>
+<p>The system SHALL run a sequenced first-time tutorial when a new
+player starts the game (no <code>gameCounters.singleton</code> exists
+yet). The tutorial SHALL gate each step on the player completing a small
+action, not on time elapsed. Tutorial sequence (in order):</p>
+<ol type="1">
+<li><strong>Welcome + concept</strong> — modal explaining「在這裡，念書
+= 醫院賺錢 = 升級」 (~1 paragraph)</li>
+<li><strong>Starter pull</strong> — guide to recruitment screen with
+“免費抽 P4+” highlight</li>
+<li><strong>First doctor assignment</strong> — guide to drag doctor into
+outpatient room</li>
+<li><strong>First study session</strong> — guide to click 「開始唸書」
+button, scene opens, 1-min minimum study</li>
+<li><strong>First revenue check</strong> — guide back to home, show
+revenue counter and pulse-highlight</li>
+<li><strong>Tier upgrade preview</strong> — explain dual-gate concept
+(reputation + diversification)</li>
+<li><strong>Done banner</strong> —
+“你已掌握基本操作，繼續念書解鎖更多功能”</li>
+</ol>
+<p>Each step SHALL persist
+<code>tutorial.completedSteps[stepId] = true</code> in
+<code>gameCounters</code> so reloads resume at the next pending step.
+The player SHALL be able to skip the entire tutorial via
+a「跳過教學」link in step 1 (sets all steps to completed; no return to
+tutorial).</p>
+<h4 id="scenario-fresh-player-sees-step-1-on-first-load">Scenario: Fresh
+player sees step 1 on first load</h4>
+<ul>
+<li><strong>GIVEN</strong> no <code>gameCounters.singleton</code> exists
+in IndexedDB</li>
+<li><strong>WHEN</strong> the app first renders</li>
+<li><strong>THEN</strong> the welcome modal (step 1) SHALL be
+visible</li>
+<li><strong>AND</strong> no other game UI elements SHALL be interactive
+yet (modal blocks)</li>
+</ul>
+<h4 id="scenario-skip-dismisses-all-steps">Scenario: Skip dismisses all
+steps</h4>
+<ul>
+<li><strong>GIVEN</strong> the welcome modal is showing</li>
+<li><strong>WHEN</strong> the player clicks「跳過教學」</li>
+<li><strong>THEN</strong> all <code>tutorial.completedSteps</code> SHALL
+be set to <code>true</code></li>
+<li><strong>AND</strong> the modal SHALL close</li>
+<li><strong>AND</strong> the player SHALL NOT see tutorial prompts again
+on this save</li>
+</ul>
+<h4 id="scenario-reload-resumes-at-first-incomplete-step">Scenario:
+Reload resumes at first incomplete step</h4>
+<ul>
+<li><strong>GIVEN</strong> the player completed steps 1-3 then closed
+the browser</li>
+<li><strong>WHEN</strong> the app reloads</li>
+<li><strong>THEN</strong> the next interaction SHALL surface the step 4
+prompt (first study session guide)</li>
+</ul>
+<h3
+id="requirement-contextual-hints-shall-appear-on-first-encounter-of-each-major-surface">Requirement:
+Contextual hints SHALL appear on first-encounter of each major
+surface</h3>
+<p>The system SHALL track per-surface “first-visit” flags
+(<code>tutorial.firstVisit.&lt;surface&gt;</code>). When the player
+navigates to a major surface for the first time, the system SHALL show a
+contextual hint card explaining that surface. Surfaces requiring
+first-visit hints:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Hint message focus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/study</code></td>
+<td>「session 計時、自動暫停、看診畫面就是你的醫院」</td>
+</tr>
+<tr>
+<td><code>/training</code></td>
+<td>「進修機率 + pity 5 保底 + 失敗不掉等級」</td>
+</tr>
+<tr>
+<td><code>/hospital</code> (room management)</td>
+<td>「facility 升級放大 throughput，房間擴建容納更多醫師」</td>
+</tr>
+<tr>
+<td><code>/fate-cards</code> (when unlocked)</td>
+<td>「reputation 溢出消耗、4 階卡包、pity 3 防連衰」</td>
+</tr>
+<tr>
+<td>Event modal (first occurrence)</td>
+<td>「正面事件接受，負面事件選擇付錢或扣聲望」</td>
+</tr>
+</tbody>
+</table>
+<p>Each hint SHALL be dismissible and SHALL NOT appear again on the same
+save. A「重新顯示提示」option SHALL exist in settings panel for players
+who want to re-read all hints.</p>
+<h4 id="scenario-first-visit-to-training-shows-hint">Scenario: First
+visit to /training shows hint</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>tutorial.firstVisit.training = undefined</code></li>
+<li><strong>WHEN</strong> the player navigates to <code>/training</code>
+for the first time</li>
+<li><strong>THEN</strong> a hint card SHALL appear explaining training
+mechanics</li>
+<li><strong>AND</strong> after the player dismisses,
+<code>tutorial.firstVisit.training = true</code></li>
+</ul>
+<h4 id="scenario-second-visit-does-not-show-hint">Scenario: Second visit
+does NOT show hint</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>tutorial.firstVisit.training = true</code></li>
+<li><strong>WHEN</strong> the player navigates to <code>/training</code>
+again</li>
+<li><strong>THEN</strong> no hint SHALL appear</li>
+</ul>
+<h4 id="scenario-settings-show-hints-again-resets-all-flags">Scenario:
+Settings “show hints again” resets all flags</h4>
+<ul>
+<li><strong>GIVEN</strong> all <code>tutorial.firstVisit.*</code> flags
+are <code>true</code></li>
+<li><strong>WHEN</strong> the player clicks「重新顯示提示」in
+settings</li>
+<li><strong>THEN</strong> all <code>tutorial.firstVisit.*</code> flags
+SHALL reset to <code>undefined</code></li>
+<li><strong>AND</strong> the next surface visit SHALL trigger that
+surface’s hint</li>
+</ul>
+<h3
+id="requirement-always-available-help-menu-shall-list-all-mechanic-explanations">Requirement:
+Always-available help menu SHALL list all mechanic explanations</h3>
+<p>The system SHALL provide a help menu (icon: <code>❓</code>)
+accessible from any page header. Clicking SHALL open a modal listing all
+major mechanics with short explanations + estimated time/cost numbers.
+Sections:</p>
+<ul>
+<li><strong>念書 session</strong>: how to start, auto-pause rules, scene
+meaning</li>
+<li><strong>醫師招募</strong>: gacha rates, pity P3/P2, diversification
+gate</li>
+<li><strong>房間 + 醫師指派</strong>: tier rooms, facility upgrade,
+extension</li>
+<li><strong>薪水 + 營收</strong>: proportional salary, tier-1 grace,
+default-net-positive guarantee</li>
+<li><strong>進修</strong>: success rates per rarity, cost, pity 5</li>
+<li><strong>特殊事件</strong>: trigger conditions, reputation scaling,
+negative events</li>
+<li><strong>命運卡</strong>: unlocked at 醫學中心, cost per tier, pity
+3</li>
+<li><strong>升級 tier</strong>: dual-gate (reputation +
+diversification), 4 tiers, study time targets (20 / 50 / 200 hr)</li>
+</ul>
+<p>Each section SHALL be a collapsible accordion. The help modal SHALL
+NOT block gameplay — player can dismiss without losing context.</p>
+<h4 id="scenario-help-menu-accessible-from-home">Scenario: Help menu
+accessible from home</h4>
+<ul>
+<li><strong>GIVEN</strong> the player is on the <code>/</code> home
+route</li>
+<li><strong>WHEN</strong> the player clicks <code>❓</code> icon</li>
+<li><strong>THEN</strong> the help modal SHALL open</li>
+<li><strong>AND</strong> all 8 sections SHALL be listed</li>
+<li><strong>AND</strong> clicking a section header SHALL expand its
+content</li>
+</ul>
+<h4 id="scenario-help-menu-accessible-from-any-page">Scenario: Help menu
+accessible from any page</h4>
+<ul>
+<li><strong>GIVEN</strong> the player is on <code>/training</code></li>
+<li><strong>WHEN</strong> the player clicks <code>❓</code> icon</li>
+<li><strong>THEN</strong> the same help modal SHALL be available</li>
+</ul>
+<h3
+id="requirement-v6-first-launch-shall-show-a-what-changed-modal-for-existing-players">Requirement:
+V6 first-launch SHALL show a “what changed” modal for existing
+players</h3>
+<p>When a player who previously played the v4/v5 hospital app launches
+v6 for the first time (detected by <code>gameCounters.singleton</code>
+existing AND <code>tutorial.firedTips.v6_welcome</code> being undefined
+AND <code>gameCounters.tier !== '診所'</code> indicating they’re past
+onboarding), the system SHALL display a one-time modal explaining the
+redesign:</p>
+<ul>
+<li>Title: 「醫院系統大改版」</li>
+<li>Body: 簡述新增的「念書 session 模式 / 醫師薪水 / 設施升級 / 命運卡 /
+教學提示」幾個重點機制</li>
+<li>Outcome impact: 提醒「進入區域醫院後醫師會開始扣薪，記得
+<code>❓</code> 看明細」+「目前 default 配置一定 net
+positive，不會破產」</li>
+<li>Single dismiss button「我知道了」 — sets
+<code>tutorial.firedTips.v6_welcome = true</code></li>
+</ul>
+<p>The modal SHALL NOT block gameplay or counters — purely
+informational. New players (whose <code>gameCounters.singleton</code>
+was just created by ensureSeed) SHALL NOT see this modal; they go
+through the standard 7-step onboarding flow instead.</p>
+<h4
+id="scenario-existing-v5-player-sees-migration-modal-on-first-v6-boot">Scenario:
+Existing v5 player sees migration modal on first v6 boot</h4>
+<ul>
+<li><strong>GIVEN</strong> a save with
+<code>gameCounters.tier = '區域醫院'</code> (mid-game) and
+<code>tutorial.firedTips.v6_welcome</code> undefined</li>
+<li><strong>WHEN</strong> the app boots after v6 upgrade</li>
+<li><strong>THEN</strong> the migration modal SHALL appear</li>
+<li><strong>AND</strong> after dismissal,
+<code>tutorial.firedTips.v6_welcome = true</code></li>
+<li><strong>AND</strong> the modal SHALL NOT appear on subsequent
+launches</li>
+</ul>
+<h4 id="scenario-new-player-skips-migration-modal">Scenario: New player
+skips migration modal</h4>
+<ul>
+<li><strong>GIVEN</strong> a fresh save (no prior gameCounters)</li>
+<li><strong>WHEN</strong> ensureSeed creates the singleton</li>
+<li><strong>THEN</strong> the 7-step onboarding tutorial SHALL run (per
+Requirement 1)</li>
+<li><strong>AND</strong> the v6 migration modal SHALL NOT appear (only
+the onboarding flow)</li>
+</ul>
+<h3
+id="requirement-tip-notifications-shall-appear-on-key-game-state-milestones">Requirement:
+Tip notifications SHALL appear on key game-state milestones</h3>
+<p>The system SHALL fire toast-style notifications when the player
+reaches state thresholds, to teach them about emerging mechanics. Tip
+triggers:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Tip message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First time <code>revenue &gt;= 1000</code> and revenue not yet
+spent</td>
+<td>「營收 ≥ 1000 — 試試到 /training 升等醫師」</td>
+</tr>
+<tr>
+<td>First time <code>reputation &gt;= 48,000</code> but diversification
+gate not met</td>
+<td>「聲望已達 區域醫院 門檻，但還需 N 不同科別醫師（目前 M）」</td>
+</tr>
+<tr>
+<td>First time tier upgraded to 醫學中心</td>
+<td>「醫學中心已解鎖命運卡（/fate-cards）— 用 reputation 抽獎」</td>
+</tr>
+<tr>
+<td>First time <code>revenue</code> net drops below <code>+10/min</code>
+for 5 consecutive ticks</td>
+<td>「營收成長變慢 — 考慮升級 facility 或擴建房間」</td>
+</tr>
+<tr>
+<td>First time a doctor reaches pity threshold 5 in training</td>
+<td>「N 次失敗後下次必中 — 別放棄」</td>
+</tr>
+</tbody>
+</table>
+<p>Each tip SHALL fire at most once per save (tracked via
+<code>tutorial.firedTips[tipId]</code>). Tips SHALL be ≤ 80 characters,
+auto-dismiss after 8 seconds, dismissible by click.</p>
+<h4 id="scenario-revenue-tip-fires-at-1000">Scenario: Revenue tip fires
+at 1000</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>revenue = 999</code> and
+<code>tutorial.firedTips.revenue_1000 = undefined</code></li>
+<li><strong>WHEN</strong> the next tick increments revenue to &gt;=
+1000</li>
+<li><strong>THEN</strong> a toast tip SHALL appear suggesting
+training</li>
+<li><strong>AND</strong> <code>tutorial.firedTips.revenue_1000</code>
+SHALL be set to <code>true</code></li>
+<li><strong>AND</strong> subsequent crossings of 1000 SHALL NOT
+re-trigger the tip</li>
+</ul>
+<h2 id="modified-requirements">MODIFIED Requirements</h2>
+<h3
+id="requirement-tick-loop-shall-accumulate-revenue-reputation-only-during-active-study-session">Requirement:
+Tick loop SHALL accumulate revenue + reputation only during active study
+session</h3>
+<p>The system SHALL run a tick function every 5 seconds <strong>only
+while a study session is active</strong> (see
+<code>hospital-study-session</code> capability). When no session is
+active, the tick interval SHALL NOT be scheduled, and counters SHALL NOT
+change. Each session-active tick SHALL:</p>
+<ol type="1">
+<li>Read <code>gameCounters.singleton</code> (revenue, reputation,
+lastTickAt, totalStudyMinutes)</li>
+<li>Compute
+<code>elapsedSec = max(0, min((now - lastTickAt) / 1000, MAX_OFFLINE_TICK_SEC))</code>
+where <code>MAX_OFFLINE_TICK_SEC = 300</code></li>
+<li>For each room with <code>assignedDoctorId !== null</code>, sum
+<code>throughput = baseRate × doctor.powerMultiplier × roomFacility × affinityBonus</code>,
+where
+<code>affinityBonus = getAffinityBonus(doctor.rarity, doctor.subjectId, room.type)</code>
+per the <code>hospital-reputation</code> capability</li>
+<li>Compute
+<code>deltaRevenueGross = totalThroughput × elapsedSec / 60</code></li>
+<li>Compute <code>deltaSalary</code> per <code>hospital-finances</code>
+(ALL owned doctors × tier-staged salary rate: 0% / 70% / 100% /
+100%)</li>
+<li>Compute
+<code>deltaReputation = totalThroughput × elapsedSec / 60</code> (full
+throughput; idle 70%/per-Q 30% split removed since per-Q hook is
+removed)</li>
+<li>Compute <code>deltaTotalStudyMinutes = elapsedSec / 60</code></li>
+<li>Write
+<code>revenue = max(0, revenue + deltaRevenueGross - deltaSalary)</code>
+(clamp at 0 floor), <code>reputation += deltaReputation</code>,
+<code>totalStudyMinutes += deltaTotalStudyMinutes</code>,
+<code>lastTickAt = now</code> in a single Dexie transaction</li>
+</ol>
+<p>All counter mutations from tick SHALL go through this tick function.
+Direct writes to <code>revenue</code> / <code>reputation</code> /
+<code>totalStudyMinutes</code> from UI code SHALL NOT be permitted,
+except via the spend actions defined in <code>doctor-training</code> /
+<code>hospital-finances</code> / <code>hospital-events</code> /
+<code>hospital-fate-cards</code>.</p>
+<h4 id="scenario-tick-accumulates-only-during-active-session">Scenario:
+Tick accumulates only during active session</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>gameCounters.lastTickAt</code> was 60
+seconds ago, study session is <code>'active'</code>,
+<code>totalThroughput = 40</code>, no salary (all P5 in 診所 with 30%
+discount + zero rooms assigned baseline for simplicity)</li>
+<li><strong>WHEN</strong> the next tick fires</li>
+<li><strong>THEN</strong> <code>revenue</code> SHALL increase by
+approximately <code>40 - salaryDeducted</code></li>
+<li><strong>AND</strong> <code>reputation</code> SHALL increase by
+approximately <code>40</code></li>
+<li><strong>AND</strong> <code>totalStudyMinutes</code> SHALL increase
+by approximately <code>1</code></li>
+</ul>
+<h4 id="scenario-tick-zero-when-session-idle">Scenario: Tick zero when
+session idle</h4>
+<ul>
+<li><strong>GIVEN</strong> study session is <code>'idle'</code></li>
+<li><strong>WHEN</strong> 60 seconds pass</li>
+<li><strong>THEN</strong> the tick interval SHALL NOT have been
+scheduled</li>
+<li><strong>AND</strong> <code>revenue</code> / <code>reputation</code>
+/ <code>totalStudyMinutes</code> SHALL all be unchanged</li>
+</ul>
+<h4
+id="scenario-tick-zero-for-empty-rooms-during-active-session">Scenario:
+Tick zero for empty rooms during active session</h4>
+<ul>
+<li><strong>GIVEN</strong> session active, all rooms have
+<code>assignedDoctorId = null</code></li>
+<li><strong>WHEN</strong> the tick fires</li>
+<li><strong>THEN</strong> <code>revenue</code> SHALL remain
+unchanged</li>
+<li><strong>AND</strong> <code>reputation</code> SHALL remain
+unchanged</li>
+<li><strong>AND</strong> <code>totalStudyMinutes</code> SHALL still
+increment by the elapsed minutes (counts as “time studied” even with no
+doctors)</li>
+</ul>
+<h3
+id="requirement-tick-loop-shall-cap-session-active-accumulation-at-5-minutes-defense-against-clock-skew">Requirement:
+Tick loop SHALL cap session-active accumulation at 5 minutes (defense
+against clock skew)</h3>
+<p>The system SHALL enforce <code>MAX_OFFLINE_TICK_SEC = 300</code> even
+during active sessions to defend against system clock anomalies (e.g.,
+suspend / hibernate during session). No single tick SHALL advance by
+more than 300 seconds of accumulated throughput.</p>
+<p>The previous “offline accumulation” semantics (offline tick accruing
+when player returns) SHALL be removed — since tick only runs during
+active session, “offline” no longer applies. The UI SHALL display a
+notification only if a single tick exceeds the cap (rare: indicates
+suspend or clock skew).</p>
+<h4 id="scenario-suspend-mid-session-triggers-cap-notice">Scenario:
+Suspend mid-session triggers cap notice</h4>
+<ul>
+<li><strong>GIVEN</strong> active session, <code>lastTickAt</code> was
+30 minutes ago (player suspended laptop without ending session — see
+hospital-study-session auto-pause requirements)</li>
+<li><strong>WHEN</strong> the tab regains focus and the next tick
+fires</li>
+<li><strong>THEN</strong> <code>elapsedSec</code> SHALL be capped at
+<code>300</code></li>
+<li><strong>AND</strong> the UI SHALL display a notification mentioning
+clock-skew cap</li>
+</ul>
+<h3
+id="requirement-tick-loop-shall-pause-whenever-study-session-is-paused-or-idle">Requirement:
+Tick loop SHALL pause whenever study session is paused or idle</h3>
+<p>The system SHALL clear the tick <code>setInterval</code> whenever
+<code>studySession.state !== 'active'</code>. Specifically:</p>
+<ul>
+<li><code>studySession.state</code> transitions to <code>'paused'</code>
+(visibility / idle / explicit) → clear interval</li>
+<li><code>studySession.state</code> transitions to <code>'idle'</code>
+(explicit stop) → clear interval</li>
+<li><code>studySession.state</code> transitions to <code>'active'</code>
+(start / resume) → schedule interval</li>
+</ul>
+<p>Visibility transitions SHALL be handled via the study session pause
+logic (see <code>hospital-study-session</code>), NOT directly here. This
+removes the previous direct <code>visibilitychange</code> handler on the
+tick loop.</p>
+<h4 id="scenario-visibility-hide-pauses-session-tick-clears">Scenario:
+Visibility hide pauses session, tick clears</h4>
+<ul>
+<li><strong>GIVEN</strong> active session and tick interval
+scheduled</li>
+<li><strong>WHEN</strong> <code>document.visibilityState</code>
+transitions to <code>'hidden'</code></li>
+<li><strong>THEN</strong> <code>studySession.state</code> SHALL
+transition to <code>'paused'</code> (via hospital-study-session)</li>
+<li><strong>AND</strong> the tick interval SHALL be cleared as a
+downstream effect</li>
+</ul>
+<h3
+id="requirement-game-counters-shall-split-lww-fields-and-monotonic-fields-into-separate-rows">Requirement:
+Game counters SHALL split LWW fields and monotonic fields into separate
+rows</h3>
+<p>The system SHALL persist game state across TWO rows in dedicated
+tables to support different cloud sync merge strategies:</p>
+<ol type="1">
+<li><strong><code>gameCounters.singleton</code></strong> (LWW merge —
+last-write-wins):
+<ul>
+<li><code>revenue: number</code></li>
+<li><code>reputation: number</code></li>
+<li><code>lastTickAt: number</code></li>
+<li><code>tier: HospitalTier</code></li>
+<li><code>hasUsedStarterPull: boolean</code></li>
+<li><code>currentSessionStartedAt: number | null</code></li>
+<li><code>lastSessionEndedAt: number | null</code></li>
+<li><code>tutorial: { completedSteps: Record&lt;string, true&gt;, firstVisit: Record&lt;string, true&gt;, firedTips: Record&lt;string, true&gt; }</code></li>
+</ul></li>
+<li><strong><code>monotonicCounters.singleton</code></strong> (MAX merge
+— strictly non-decreasing):
+<ul>
+<li><code>totalStudyMinutes: number</code></li>
+<li><code>fateCardBadLuckPity: { common: number, rare: number, epic: number }</code></li>
+</ul></li>
+</ol>
+<p>Each row SHALL be created on first read if missing (auto-seed both
+rows with default zero values + <code>tier = '診所'</code> /
+<code>hasUsedStarterPull = false</code>).</p>
+<p>Existing saves (pre-redesign-hospital-economy v6) SHALL be patched by
+the v6 upgrade hook to: - Create
+<code>monotonicCounters.singleton</code> with
+<code>totalStudyMinutes = 0</code> and
+<code>fateCardBadLuckPity = {common: 0, rare: 0, epic: 0}</code> - Add
+<code>currentSessionStartedAt = null</code> /
+<code>lastSessionEndedAt = null</code> /
+<code>tutorial = { completedSteps: {}, firstVisit: {}, firedTips: {} }</code>
+to existing <code>gameCounters.singleton</code> if missing</p>
+<p>This split SHALL allow cloud sync (per <code>add-cloud-sync</code>
+capability) to apply different merge strategies per row —
+<code>gameCounters</code> uses standard LWW,
+<code>monotonicCounters</code> uses field-wise max — without requiring
+per-field merge hook infrastructure in the sync engine.</p>
+<h4 id="scenario-fresh-save-initializes-both-rows">Scenario: Fresh save
+initializes both rows</h4>
+<ul>
+<li><strong>GIVEN</strong> a new hospital save (no prior rows in either
+table)</li>
+<li><strong>WHEN</strong> the app boots and ensureSeed runs</li>
+<li><strong>THEN</strong> <code>gameCounters.singleton.tier</code> SHALL
+equal <code>'診所'</code></li>
+<li><strong>AND</strong>
+<code>monotonicCounters.singleton.totalStudyMinutes</code> SHALL equal
+<code>0</code></li>
+<li><strong>AND</strong>
+<code>monotonicCounters.singleton.fateCardBadLuckPity</code> SHALL equal
+<code>{common: 0, rare: 0, epic: 0}</code></li>
+</ul>
+<h4
+id="scenario-existing-v5-save-upgrades-to-v6-with-new-monotonic-row">Scenario:
+Existing v5 save upgrades to v6 with new monotonic row</h4>
+<ul>
+<li><strong>GIVEN</strong> a v5 save with
+<code>gameCounters.singleton = { revenue: 100, reputation: 50, ... }</code>
+(no monotonicCounters row)</li>
+<li><strong>WHEN</strong> the app upgrades to v6</li>
+<li><strong>THEN</strong>
+<code>monotonicCounters.singleton.totalStudyMinutes</code> SHALL equal
+<code>0</code></li>
+<li><strong>AND</strong>
+<code>monotonicCounters.singleton.fateCardBadLuckPity</code> SHALL equal
+<code>{common: 0, rare: 0, epic: 0}</code></li>
+<li><strong>AND</strong> <code>gameCounters.singleton</code> LWW fields
+SHALL remain unchanged</li>
+</ul>
+<h4 id="scenario-cloud-sync-max-merge-for-monotonic-counters">Scenario:
+Cloud sync max-merge for monotonic counters</h4>
+<ul>
+<li><strong>GIVEN</strong> local <code>totalStudyMinutes = 100</code>
+and cloud <code>totalStudyMinutes = 80</code> (player studied 20 min
+offline on this device)</li>
+<li><strong>WHEN</strong> the sync engine pulls</li>
+<li><strong>THEN</strong> the local value SHALL remain <code>100</code>
+(max(local, cloud))</li>
+<li><strong>AND</strong> the cloud value SHALL be pushed up to
+<code>100</code> on next push (LWW won’t downgrade since this row uses
+max merge)</li>
+</ul>
+<h4 id="scenario-cloud-sync-lww-for-gamecounters-revenue">Scenario:
+Cloud sync LWW for gameCounters revenue</h4>
+<ul>
+<li><strong>GIVEN</strong> local
+<code>gameCounters.singleton.revenue = 5000</code> (updated 1 min ago)
+and cloud value <code>revenue = 8000</code> (updated 10 seconds ago,
+fresher)</li>
+<li><strong>WHEN</strong> the sync engine pulls</li>
+<li><strong>THEN</strong> the local value SHALL become <code>8000</code>
+(cloud fresher → LWW wins)</li>
+</ul>
+<h2 id="removed-requirements">REMOVED Requirements</h2>
+<h3
+id="requirement-tick-loop-shall-accumulate-revenue-reputation-per-visible-5-second-tick">Requirement:
+Tick loop SHALL accumulate revenue + reputation per visible 5-second
+tick</h3>
+<p><strong>Reason</strong>: Replaced by session-active-only tick (see
+new MODIFIED requirement above). The “always-on” idle accumulation
+contradicts the “study to progress” design intent of the
+redesign-hospital-economy change.</p>
+<p><strong>Migration</strong>: Existing saves continue to function —
+<code>lastTickAt</code> field is preserved and reused. The behavioral
+difference is that ticks no longer fire automatically when the app is
+open without an active study session. Players who relied on idle
+accumulation must explicitly start a study session.</p>
+<h2 id="modified-requirements-1">MODIFIED Requirements</h2>
+<h3
+id="requirement-hospital-tier-progression-shall-follow-exactly-four-monotonic-tiers">Requirement:
+Hospital tier progression SHALL follow exactly four monotonic tiers</h3>
+<p>The system SHALL define a <code>HospitalTier</code> union with
+exactly four values: <code>'診所'</code>, <code>'區域醫院'</code>,
+<code>'醫學中心'</code>, <code>'國家級教學醫院'</code>. The system SHALL
+export <code>TIER_ORDER</code> as the ordered array
+<code>['診所', '區域醫院', '醫學中心', '國家級教學醫院']</code>. Tier
+progression SHALL be strictly monotonic — once advanced, a tier SHALL
+NOT regress regardless of reputation changes. Reputation itself is
+monotonic by design (see <code>hospital-tycoon-engine</code>
+capability), so this property is preserved trivially.</p>
+<h4
+id="scenario-tier-order-is-exported-as-canonical-array-of-length-4">Scenario:
+Tier order is exported as canonical array of length 4</h4>
+<ul>
+<li><strong>GIVEN</strong> a developer imports <code>TIER_ORDER</code>
+from <code>@study-rpg/content-medexam2-tw</code></li>
+<li><strong>WHEN</strong> the import resolves</li>
+<li><strong>THEN</strong> the array SHALL equal
+<code>['診所', '區域醫院', '醫學中心', '國家級教學醫院']</code></li>
+<li><strong>AND</strong> the array SHALL have exactly 4 elements</li>
+</ul>
+<h4 id="scenario-tier-never-regresses">Scenario: Tier never
+regresses</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>gameCounters.tier = '醫學中心'</code>
+and <code>reputation = 100,000</code></li>
+<li><strong>WHEN</strong> a future change attempts to set
+<code>tier = '區域醫院'</code> outside of test/migration code paths</li>
+<li><strong>THEN</strong> the type system SHALL reject the assignment
+(TypeScript ensures this via <code>HospitalTier</code> typing)</li>
+<li><strong>AND</strong> no runtime code path SHALL include such a
+downgrade</li>
+</ul>
+<h3
+id="requirement-tier-upgrade-thresholds-shall-be-locked-literal-constants">Requirement:
+Tier upgrade thresholds SHALL be locked literal constants</h3>
+<p>The system SHALL export
+<code>TIER_UPGRADE_THRESHOLDS: Record&lt;HospitalTier, number | null&gt;</code>
+with the following locked values, recalibrated to align with the 30-day
+endgame pacing target:</p>
+<table>
+<thead>
+<tr>
+<th>Current tier</th>
+<th>Reputation threshold to advance</th>
+<th>Next tier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>診所</td>
+<td>48,000</td>
+<td>區域醫院</td>
+</tr>
+<tr>
+<td>區域醫院</td>
+<td>192,000</td>
+<td>醫學中心</td>
+</tr>
+<tr>
+<td>醫學中心</td>
+<td>2,000,000</td>
+<td>國家級教學醫院</td>
+</tr>
+<tr>
+<td>國家級教學醫院</td>
+<td><code>null</code> (terminal)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>These thresholds SHALL be recorded as literals in
+<code>packages/content-medexam2-tw/src/clinic-tiers.ts</code>.
+Subsequent tuning SHALL replace them via a new change, not silently
+recompute them.</p>
+<h4 id="scenario-threshold-lookup-returns-locked-value">Scenario:
+Threshold lookup returns locked value</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>TIER_UPGRADE_THRESHOLDS['診所']</code></li>
+<li><strong>WHEN</strong> the value is read</li>
+<li><strong>THEN</strong> it SHALL equal <code>48000</code></li>
+</ul>
+<h4 id="scenario-terminal-tier-has-null-threshold">Scenario: Terminal
+tier has null threshold</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>TIER_UPGRADE_THRESHOLDS['國家級教學醫院']</code></li>
+<li><strong>WHEN</strong> the value is read</li>
+<li><strong>THEN</strong> it SHALL be <code>null</code></li>
+</ul>
+<h3
+id="requirement-each-tier-shall-declare-its-full-room-roster-as-a-room-array">Requirement:
+Each tier SHALL declare its full room roster as a Room array</h3>
+<p>The system SHALL export
+<code>TIER_ROOMS: Record&lt;HospitalTier, Room[]&gt;</code> describing
+the complete room roster for each tier (cumulative — higher tiers
+include all rooms from lower tiers, plus new ones):</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Rooms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>診所</td>
+<td>3 outpatient (slots 1, 2, 3) — total 3</td>
+</tr>
+<tr>
+<td>區域醫院</td>
+<td>4 outpatient (slots 1, 2, 3, 4) + 1 surgery (slot 1) — total 5</td>
+</tr>
+<tr>
+<td>醫學中心</td>
+<td>4 outpatient (slots 1–4) + 2 surgery (slots 1, 2) + 1 ward (slot 1)
+— total 7</td>
+</tr>
+<tr>
+<td>國家級教學醫院</td>
+<td>5 outpatient (slots 1–5) + 3 surgery (slots 1, 2, 3) + 2 ward (slots
+1, 2) — total 10</td>
+</tr>
+</tbody>
+</table>
+<p>All rooms SHALL have <code>baseRate = 10</code>,
+<code>roomFacility = 1.0</code>, and
+<code>assignedDoctorId = null</code> as initial values. Room ids SHALL
+be deterministic per <code>${type}-${index}</code> pattern. Slot field
+SHALL be 1-indexed within each room type for display ordering. Higher
+tiers SHALL be supersets of lower tiers (same ids preserved across
+upgrades).</p>
+<h4 id="scenario-國家級教學醫院-tier-is-the-largest-roster">Scenario:
+國家級教學醫院 tier is the largest roster</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>TIER_ROOMS['國家級教學醫院']</code></li>
+<li><strong>WHEN</strong> the array is read</li>
+<li><strong>THEN</strong> it SHALL have length 10</li>
+<li><strong>AND</strong> exactly 5 entries SHALL have
+<code>type === 'outpatient'</code></li>
+<li><strong>AND</strong> exactly 3 entries SHALL have
+<code>type === 'surgery'</code></li>
+<li><strong>AND</strong> exactly 2 entries SHALL have
+<code>type === 'ward'</code></li>
+</ul>
+<h4
+id="scenario-國家級教學醫院-superset-preserves-醫學中心-ids">Scenario:
+國家級教學醫院 superset preserves 醫學中心 ids</h4>
+<ul>
+<li><strong>GIVEN</strong> <code>TIER_ROOMS['醫學中心']</code> and
+<code>TIER_ROOMS['國家級教學醫院']</code></li>
+<li><strong>WHEN</strong> the ids of 醫學中心 rooms are extracted</li>
+<li><strong>THEN</strong> every id from 醫學中心 SHALL appear in
+國家級教學醫院’s roster</li>
+</ul>
+<h3
+id="requirement-tier-upgrade-shall-fire-when-reputation-and-diversification-dual-gate-both-satisfied-during-a-tick">Requirement:
+Tier upgrade SHALL fire when reputation AND diversification dual-gate
+both satisfied during a tick</h3>
+<p>The system SHALL check tier advancement at the end of every
+<code>runTick()</code> transaction. Upgrade SHALL fire ONLY if BOTH
+gates pass:</p>
+<ol type="1">
+<li><strong>Reputation gate</strong>:
+<code>reputation &gt;= TIER_UPGRADE_THRESHOLDS[currentTier]</code></li>
+<li><strong>Diversification gate</strong>:
+<code>countDistinctSubjectsAtRarity(minRarity) &gt;= requiredDiversification</code></li>
+</ol>
+<p>Diversification requirements per tier:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Current tier → Next</th>
+<th>Required: distinct subjects with rarity ≥ R, count ≥ N</th>
+<th>Additional</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>診所 → 區域醫院</td>
+<td>5 distinct subjects (any rarity)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>區域醫院 → 醫學中心</td>
+<td>8 distinct subjects with rarity ≥ P3</td>
+<td>—</td>
+</tr>
+<tr>
+<td>醫學中心 → 國家級教學醫院</td>
+<td>10 distinct subjects with rarity ≥ P2</td>
+<td>AND ≥ 1 P1 doctor (any subject — duplicate-subject P1 counts)</td>
+</tr>
+</tbody>
+</table>
+<p>The relaxation from 12 → 10 P2+ subjects (and P1 not requiring unique
+subject) reflects 二階 corpus having only 14 subjects total — 85%
+coverage at P2 rarity was infeasible within the 30-day endgame target.
+The P1 requirement remains as a “must have at least one top-tier doctor”
+gate but does not bottleneck on subject collection.</p>
+<p><code>countDistinctSubjectsAtRarity(minRarity)</code> SHALL return
+the count of unique <code>subjectId</code> values across all doctors
+(assigned or bench) where
+<code>rarityIsAtLeast(doctor.rarity, minRarity)</code>. Rarity ordering:
+<code>P1 &gt; P2 &gt; P3 &gt; P4 &gt; P5</code>.</p>
+<p>If reputation gate passes but diversification gate fails, the upgrade
+SHALL NOT fire; the player SHALL continue accumulating reputation but
+the UI SHALL display the diversification shortfall. The player SHALL
+never “lose” excess reputation accumulated past the threshold.</p>
+<p>Multiple tier crossings in one tick (e.g., reputation jumps from 500
+to 250,000 during a long session) SHALL evaluate dual-gate for each
+intermediate tier independently — a tier SHALL advance only if its
+diversification gate is also satisfied at that moment.</p>
+<h4 id="scenario-both-gates-satisfied-advances-tier">Scenario: Both
+gates satisfied advances tier</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>gameCounters = { tier: '診所', reputation: 47,950 }</code>, 5
+distinct subjects with any rarity, and a tick computes
+<code>deltaReputation = 100</code></li>
+<li><strong>WHEN</strong> <code>runTick()</code> completes</li>
+<li><strong>THEN</strong> <code>gameCounters.tier</code> SHALL equal
+<code>'區域醫院'</code></li>
+<li><strong>AND</strong> <code>gameCounters.reputation</code> SHALL
+equal <code>48,050</code></li>
+<li><strong>AND</strong> <code>db.rooms</code> SHALL contain all 5
+entries from <code>TIER_ROOMS['區域醫院']</code></li>
+<li><strong>AND</strong> the returned <code>TickResult.upgradedTo</code>
+SHALL equal <code>'區域醫院'</code></li>
+</ul>
+<h4
+id="scenario-reputation-gate-met-but-diversification-fails-no-upgrade">Scenario:
+Reputation gate met but diversification fails — no upgrade</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>gameCounters = { tier: '診所', reputation: 60,000 }</code>, only 3
+distinct subjects (need 5 for 區域醫院)</li>
+<li><strong>WHEN</strong> <code>runTick()</code> completes</li>
+<li><strong>THEN</strong> <code>gameCounters.tier</code> SHALL still
+equal <code>'診所'</code></li>
+<li><strong>AND</strong> <code>TickResult.upgradedTo</code> SHALL be
+<code>undefined</code></li>
+<li><strong>AND</strong> the HomePage banner SHALL display a
+diversification shortfall message (e.g.,
+<code>需 5 不同科別醫師（目前 3）</code>)</li>
+</ul>
+<h4
+id="scenario-diversification-gate-met-but-reputation-fails-no-upgrade">Scenario:
+Diversification gate met but reputation fails — no upgrade</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>gameCounters = { tier: '診所', reputation: 30,000 }</code>, 8
+distinct subjects with P3+</li>
+<li><strong>WHEN</strong> <code>runTick()</code> completes</li>
+<li><strong>THEN</strong> <code>gameCounters.tier</code> SHALL still
+equal <code>'診所'</code></li>
+<li><strong>AND</strong> the player SHALL continue accumulating
+reputation toward 48,000</li>
+</ul>
+<h4 id="scenario-國家級教學醫院-p1-requirement-enforced">Scenario:
+國家級教學醫院 P1 requirement enforced</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>gameCounters = { tier: '醫學中心', reputation: 2,500,000 }</code>,
+10 distinct P2+ subjects, but 0 doctors at P1 rarity</li>
+<li><strong>WHEN</strong> <code>runTick()</code> completes</li>
+<li><strong>THEN</strong> <code>gameCounters.tier</code> SHALL still
+equal <code>'醫學中心'</code></li>
+<li><strong>AND</strong> the UI SHALL display the missing P1
+requirement</li>
+</ul>
+<h4
+id="scenario-duplicate-subject-p1-satisfies-p1-requirement">Scenario:
+Duplicate-subject P1 satisfies P1 requirement</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>gameCounters = { tier: '醫學中心', reputation: 2,500,000 }</code>,
+10 distinct P2+ subjects, and 2 P1 doctors that are both
+<code>subjectId = '內科'</code> (same subject)</li>
+<li><strong>WHEN</strong> <code>runTick()</code> completes</li>
+<li><strong>THEN</strong> the P1 requirement SHALL be satisfied (≥ 1 P1
+of any subject, including duplicates of subjects already covered by P2+
+count)</li>
+<li><strong>AND</strong> if reputation gate also met, tier SHALL upgrade
+to <code>'國家級教學醫院'</code></li>
+</ul>
+<h3
+id="requirement-homepage-shall-display-current-tier-and-dual-gate-progress">Requirement:
+HomePage SHALL display current tier and dual-gate progress</h3>
+<p>The HomePage banner SHALL display, in addition to revenue /
+reputation / totalStudyMinutes counters, a tier line showing:</p>
+<ul>
+<li>Current tier name (e.g., <code>「醫院：診所」</code>)</li>
+<li>Reputation progress to next tier as a fraction (e.g.,
+<code>「(聲望 234 / 48,000 → 區域醫院)」</code>)</li>
+<li>Diversification progress as a separate line (e.g.,
+<code>「(科別 3 / 5)」</code> or <code>「(P3+ 科別 5 / 8)」</code>)</li>
+<li>If current tier is <code>'國家級教學醫院'</code> (terminal): just
+show the tier name with a ⭐ suffix indicating max tier</li>
+</ul>
+<p>Both progress indicators SHALL turn green (or use a “ready”
+indicator) when their respective gate passes; the actual upgrade fires
+at the next tick.</p>
+<h4 id="scenario-tier-badge-shows-both-gates">Scenario: Tier badge shows
+both gates</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>gameCounters = { tier: '診所', reputation: 30,000 }</code> and 3
+distinct subjects</li>
+<li><strong>WHEN</strong> the HomePage renders</li>
+<li><strong>THEN</strong> the tier line SHALL contain
+<code>'診所'</code>, <code>'30,000'</code>, <code>'48,000'</code>,
+<code>'區域醫院'</code></li>
+<li><strong>AND</strong> the diversification line SHALL show
+<code>'3 / 5'</code></li>
+<li><strong>AND</strong> neither line SHALL display the “ready”
+indicator</li>
+</ul>
+<h4 id="scenario-terminal-tier-shows-star">Scenario: Terminal tier shows
+star</h4>
+<ul>
+<li><strong>GIVEN</strong>
+<code>gameCounters.tier = '國家級教學醫院'</code></li>
+<li><strong>WHEN</strong> the HomePage renders</li>
+<li><strong>THEN</strong> the tier line SHALL contain
+<code>'國家級教學醫院'</code> and <code>'⭐'</code></li>
+<li><strong>AND</strong> the diversification line SHALL be hidden</li>
+</ul>
+<h2 id="removed-requirements-1">REMOVED Requirements</h2>
+<h3
+id="requirement-per-question-reputation-hook-shall-fire-on-quiz-runner-correct-answer-event">Requirement:
+Per-question reputation hook SHALL fire on quiz-runner correct-answer
+event</h3>
+<p><strong>Reason</strong>: Replaced by the study-session-driven tick
+model introduced by <code>redesign-hospital-economy</code>. Reputation
+source SHALL be exclusively the study session tick — answering quiz
+questions correctly only updates <code>affinity.correctCount</code>
+(which gates recruitment banners) and SHALL NOT additionally write to
+<code>gameCounters.reputation</code>. This eliminates the dual
+reputation source (idle tick 70% + per-Q hook 30%) and simplifies the
+reputation formula to a single channel.</p>
+<p><strong>Migration</strong>: - <code>apps/medexam2-hospital-tw</code>
+SHALL unregister the listener registered via
+<code>createPerQReputationListener</code> (typically in
+<code>main.tsx</code> or <code>App.tsx</code>). - The factory function
+<code>createPerQReputationListener</code> in
+<code>packages/content-medexam2-tw/src/reputation.ts</code> SHALL be
+deleted along with the <code>PER_Q_REPUTATION_SHARE = 0.3</code>
+constant. - The <code>quiz:correct-answer</code> event emitter in
+<code>@study-rpg/core</code> SHALL remain — it is consumed by 一階
+(recruitment affinity) and continues to be useful as a generic quiz
+signal. - No data migration is required: existing
+<code>gameCounters.reputation</code> values are monotonic and represent
+past accumulation under the old formula; future accumulation uses the
+new session-tick formula. There is no rollback. - All scenarios in this
+requirement are obsolete and SHALL NOT be ported to any new
+requirement.</p>
+</body>
+</html>
