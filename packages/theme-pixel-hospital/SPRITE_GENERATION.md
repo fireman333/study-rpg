@@ -9,10 +9,10 @@ Each row records the accepted prompt + filename + generation timestamp + attempt
 | Filename | Rarity | Pose descriptor | Generated | Attempts |
 |---|---|---|---|---|
 | `doctor-default-P5.png` | P5 拉完了 | wrinkled white coat, slumped tired posture, exhausted expression, dark circles, drooping shoulders | 2026-05-15 09:39 | 1 |
-| `doctor-default-P4.png` | P4 NPC | white coat, neutral standing pose, blank expression, generic appearance, plain coat | _pending_ | — |
+| `doctor-default-P4.png` | P4 NPC | white coat, neutral standing pose, blank expression, generic appearance, plain coat | 2026-05-15 09:51 | 1 |
 | `doctor-default-P3.png` | P3 人上人 | white coat, alert competent posture, slight confident smile, well-kept coat | 2026-05-15 09:35 | 1 |
-| `doctor-default-P2.png` | P2 頂級 | pristine white coat, confident pose, slight proud smile, faint gold-tinted glow, well-groomed | _pending_ | — |
-| `doctor-default-P1.png` | P1 夯 | gleaming white coat, dynamic heroic pose, intense charismatic gaze, glowing red/gold sparkle aura, dramatic lighting | _pending_ | — |
+| `doctor-default-P2.png` | P2 頂級 | pristine white coat, confident pose, slight proud smile, faint gold-tinted glow, well-groomed | 2026-05-15 09:51 | 1 |
+| `doctor-default-P1.png` | P1 夯 | gleaming white coat, dynamic heroic pose, intense charismatic gaze, glowing red/gold sparkle aura, dramatic lighting | 2026-05-15 09:53 | 1 |
 
 Common prompt stem (all default-rarity sprites):
 
@@ -29,20 +29,20 @@ Front-facing, centered, full body visible.
 
 | Filename | Subject | Specialty prop | Generated | Attempts |
 |---|---|---|---|---|
-| `doctor-內科-P3.png` | 內科 | stethoscope + patient chart | _pending_ | — |
-| `doctor-外科-P3.png` | 外科 | surgical mask + scalpel | _pending_ | — |
-| `doctor-小兒科-P3.png` | 小兒科 | small teddy bear + child-friendly stethoscope | _pending_ | — |
-| `doctor-婦產科-P3.png` | 婦產科 | ultrasound wand + clipboard | _pending_ | — |
-| `doctor-精神科-P3.png` | 精神科 | clipboard + thoughtful gesture | _pending_ | — |
-| `doctor-復健科-P3.png` | 復健科 | resistance band + walker icon | _pending_ | — |
-| `doctor-神經內科-P3.png` | 神經內科 | reflex hammer + brain diagram chart | _pending_ | — |
-| `doctor-家醫科-P3.png` | 家醫科 | doctor bag + family-friendly pose | _pending_ | — |
-| `doctor-皮膚科-P3.png` | 皮膚科 | magnifying glass + dermatoscope | _pending_ | — |
-| `doctor-麻醉科-P3.png` | 麻醉科 | anesthesia mask + IV bag | _pending_ | — |
-| `doctor-骨科-P3.png` | 骨科 | X-ray of bone + hammer | _pending_ | — |
-| `doctor-耳鼻喉科-P3.png` | 耳鼻喉科 | otoscope + tongue depressor | _pending_ | — |
-| `doctor-眼科-P3.png` | 眼科 | ophthalmoscope + eye chart | _pending_ | — |
-| `doctor-泌尿科-P3.png` | 泌尿科 | catheter symbol + clipboard | _pending_ | — |
+| `doctor-內科-P3.png` | 內科 | stethoscope + patient chart | 2026-05-15 batch | 1 |
+| `doctor-外科-P3.png` | 外科 | surgical mask + scalpel | 2026-05-15 batch | 1 |
+| `doctor-小兒科-P3.png` | 小兒科 | small teddy bear + child-friendly stethoscope | 2026-05-15 batch | 1 |
+| `doctor-婦產科-P3.png` | 婦產科 | ultrasound wand + clipboard | 2026-05-15 batch | 1 |
+| `doctor-精神科-P3.png` | 精神科 | clipboard + thoughtful gesture | 2026-05-15 batch | 1 |
+| `doctor-復健科-P3.png` | 復健科 | resistance band + walker icon | 2026-05-15 batch | 1 |
+| `doctor-神經內科-P3.png` | 神經內科 | reflex hammer + brain diagram chart | 2026-05-15 batch | 1 |
+| `doctor-家醫科-P3.png` | 家醫科 | doctor bag + family-friendly pose | 2026-05-15 batch | 1 |
+| `doctor-皮膚科-P3.png` | 皮膚科 | magnifying glass + dermatoscope | 2026-05-15 batch | 1 |
+| `doctor-麻醉科-P3.png` | 麻醉科 | anesthesia mask + IV bag | 2026-05-15 batch | 1 |
+| `doctor-骨科-P3.png` | 骨科 | X-ray of bone + hammer | 2026-05-15 batch | 1 |
+| `doctor-耳鼻喉科-P3.png` | 耳鼻喉科 | otoscope + tongue depressor | 2026-05-15 batch | 1 |
+| `doctor-眼科-P3.png` | 眼科 | ophthalmoscope + eye chart | 2026-05-15 batch | 1 |
+| `doctor-泌尿科-P3.png` | 泌尿科 | catheter symbol + clipboard | 2026-05-15 batch | 1 |
 
 Common prompt stem (all per-subject P3 sprites):
 
@@ -107,6 +107,59 @@ entrance lined with national flags, rooftop helipad with helicopter, manicured p
 with central sculpture, glass-walled lobby visible at ground level. Nearest-neighbor
 pixel rendering, no anti-aliasing, no smooth gradients. Wide landscape composition.
 ```
+
+## Room scenes (StudySessionPage hero backdrop, 2026-05-17 §10 follow-up)
+
+384×384 opaque interior scenes used as the StudySessionPage hero panel backdrop. Picked dynamically by most-represented assigned room type. Exported via `theme-pixel-hospital/src/room-scenes.ts` → `ROOM_SCENES` object.
+
+| Filename | Room type | Generated | Attempts | Notes |
+|---|---|---|---|---|
+| `outpatient-scene.png` | outpatient | 2026-05-17 22:56 | 1 | Clean first-pass |
+| `surgery-scene.png` | surgery | 2026-05-17 23:14 | 2 | First attempt (22:56) deliberation-looped past 13 min on patient-covered + anesthesia trigger — sanitized prompt removed all sensitive elements (empty room, no patient) and shipped in ~1 min |
+| `ward-scene.png` | ward | 2026-05-17 23:08 | 1 | Clean first-pass |
+
+Outpatient prompt:
+
+```
+A GBA-era pixel art interior of a clinic outpatient exam room, 384x384 pixels,
+opaque background, 16-color palette matching Game Boy Advance medical RPG style.
+Single small consultation room interior view: examination table on right side with
+white sheet, doctor's desk on left with computer monitor and patient chart papers,
+ophthalmoscope and stethoscope hanging on wall, blood pressure cuff on desk, small
+medical poster on back wall, light wood floor, white walls. Top-down isometric or
+3/4 perspective. Nearest-neighbor pixel rendering, no anti-aliasing, no smooth
+gradients.
+```
+
+Surgery prompt (sanitized — empty room, no patient or procedure):
+
+```
+A GBA-era pixel art interior of an empty hospital operating room ready for procedures,
+384x384 pixels, opaque background, 16-color palette matching Game Boy Advance medical
+RPG style. Empty room with: large overhead surgical light dome ceiling fixture
+(round multi-lamp design) hanging center, empty stainless steel operating table with
+clean white sheet folded neatly, instrument tray cart on wheels with neatly arranged
+tools, vital signs monitor on stand showing flat baseline, IV stand, blue medical
+drapes folded on shelf, light teal sterile floor tiles, white tiled walls, large
+clock on wall. Top-down isometric or 3/4 perspective. Clean, professional, no people
+present. Nearest-neighbor pixel rendering, no anti-aliasing, no smooth gradients.
+```
+
+Ward prompt:
+
+```
+A GBA-era pixel art interior of a hospital inpatient ward room, 384x384 pixels,
+opaque background, 16-color palette matching Game Boy Advance medical RPG style.
+Wide view of a hospital ward with 2 patient beds parallel facing camera, each with
+white linens and pillow, IV drip stands beside each bed with hanging clear bags and
+tubes, vital signs monitors on rolling stands, privacy curtain rail above, large
+window at back showing daylight, light blue tile floor, white walls with framed
+medical certificate, nurse call buttons by each bed, bedside tables with water
+pitcher and chart. Top-down isometric or 3/4 perspective. Nearest-neighbor pixel
+rendering, no anti-aliasing, no smooth gradients.
+```
+
+**Gotcha for future regen** — codex `gpt-image-2` safety gate trips on certain medical scene compositions. If a prompt contains "patient covered with sheet" + "anesthesia machine" + "scalpel" together, the agent may deliberation-loop past 10 minutes without producing output. Workaround: split sensitive elements across prompts, or describe **empty / pre-procedure** rooms instead of mid-procedure scenes. Past 10 min wall, kill and retry with sanitized prompt.
 
 ## Regeneration procedure
 

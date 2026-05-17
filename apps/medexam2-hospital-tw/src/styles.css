@@ -2207,6 +2207,26 @@ body {
   text-align: center;
 }
 
+/* Study session hero panel (redesign-hospital-economy §10 follow-up) */
+.study-session__hero {
+  margin: 12px auto;
+  max-width: 480px;
+  background: var(--bg-card, #ece2b6);
+  border: 3px solid var(--frame-dark);
+  box-shadow: 3px 3px 0 var(--frame-dark);
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+}
+.study-session__hero-img {
+  display: block;
+  width: 100%;
+  max-width: 384px;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+}
+
 /* Surface hint card (redesign-hospital-economy §9.5.2) */
 .surface-hint {
   display: flex;

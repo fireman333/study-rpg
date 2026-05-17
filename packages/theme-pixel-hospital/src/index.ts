@@ -15,6 +15,8 @@ import type { ThemePack, SlotPosition } from '@study-rpg/core'
 import { SPRITES_MAP } from './sprites'
 import { HOSPITAL_SCENES } from './scenes'
 
+export { ROOM_SCENES } from './room-scenes'
+
 const DOCTOR_SLOT_POSITIONS: NonNullable<ThemePack['doctorSlotPositions']> = {
   tier1: [
     { room: 'ward', x: 280, y: 220 },

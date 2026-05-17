@@ -20,6 +20,7 @@ import {
   computeThroughput,
   ROOM_TYPE_LABELS,
 } from '@study-rpg/content-medexam2-tw'
+import { ROOM_SCENES } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB } from '../db/schema'
 import { getStudySessionController, useStudySessionTick } from '../lib/tick'
 import { SurfaceHint } from '../components/SurfaceHint'
@@ -57,6 +58,26 @@ export function StudySessionPage() {
     [rooms],
   )
 
+  // §10 follow-up: pick a room-scene backdrop based on the most-represented
+  // assigned room type. Falls back to outpatient (the default first-tier room)
+  // when nothing is assigned. ROOM_SCENES is undefined until codex sprites
+  // ship — hero panel hides gracefully in that case.
+  const heroScene = useMemo(() => {
+    if (!ROOM_SCENES) return null
+    if (assignedRooms.length === 0) return ROOM_SCENES.outpatient
+    const counts: Record<string, number> = { outpatient: 0, surgery: 0, ward: 0 }
+    for (const r of assignedRooms) counts[r.type] = (counts[r.type] ?? 0) + 1
+    let topType: 'outpatient' | 'surgery' | 'ward' = 'outpatient'
+    let topCount = -1
+    for (const t of ['outpatient', 'surgery', 'ward'] as const) {
+      if (counts[t] > topCount) {
+        topType = t
+        topCount = counts[t]
+      }
+    }
+    return ROOM_SCENES[topType]
+  }, [assignedRooms])
+
   function fmt(n: number, digits = 0): string {
     return n.toLocaleString('zh-TW', { maximumFractionDigits: digits })
   }
@@ -73,6 +94,16 @@ export function StudySessionPage() {
       </header>
 
       <SurfaceHint surfaceId="study" />
+
+      {heroScene && (
+        <section className="study-session__hero" aria-label="當前主要看診類型場景">
+          <img
+            src={heroScene}
+            alt="目前主要看診類型場景"
+            className="study-session__hero-img"
+          />
+        </section>
+      )}
 
       <section className="study-session__banner" aria-label="Session 狀態">
         <div className={`study-session__state study-session__state--${state}`}>
