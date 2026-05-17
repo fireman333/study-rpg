@@ -12,6 +12,7 @@ import { getDB } from '@study-rpg/core'
 import { getSupabase } from '../auth/client'
 import { useAuth } from '../auth/AuthContext'
 import { createSyncEngine } from './engine'
+import { ONE_STAGE_ADAPTERS } from './tables'
 import {
   computeGateState,
   setMigrationChoice,
@@ -102,6 +103,7 @@ export function useSync(): UseSyncReturn {
           engineRef.current = createSyncEngine({
             supabase,
             db: getDB(),
+            adapters: ONE_STAGE_ADAPTERS,
             debounceMs: DEBOUNCE_MS,
           })
         }

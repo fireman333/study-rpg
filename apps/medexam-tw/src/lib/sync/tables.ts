@@ -3,7 +3,12 @@
 // Each adapter knows how to snapshot a Dexie row into a payload for upsert_lww
 // RPC, and how to apply a cloud row back into Dexie. Adapters are 一階 (medexam-tw)
 // specific; 二階 (medexam2-hospital-tw) will need its own adapter set.
+//
+// TableAdapter callbacks receive a generic `Dexie` instance (per design D4 of
+// add-cloud-sync — engine stays content-pack-agnostic). Each adapter body casts
+// to `StudyRpgDB` for typed table access.
 
+import type Dexie from 'dexie'
 import type { StudyRpgDB } from '@study-rpg/core'
 import type { CloudRow, RowPayload } from './types'
 
@@ -22,14 +27,14 @@ export interface TableAdapter {
   dexieTable: string
   /**
    * Snapshot all dirty rows for push.
-   * @param db StudyRpgDB instance
+   * @param db Dexie instance (adapter casts to its concrete DB subclass internally)
    * @param dirtyPks Set of primary keys flagged dirty since last push
    * @param userId Supabase auth.uid()
    * @param updatedAt ISO timestamp to stamp on push
    * @param appVersion forward-compat version marker
    */
   snapshotDirty(
-    db: StudyRpgDB,
+    db: Dexie,
     dirtyPks: ReadonlySet<string>,
     userId: string,
     updatedAt: string,
@@ -40,7 +45,7 @@ export interface TableAdapter {
    * Used by "Upload local progress" and "Use local overwrites cloud" paths.
    */
   snapshotAll(
-    db: StudyRpgDB,
+    db: Dexie,
     userId: string,
     updatedAt: string,
     appVersion: string,
@@ -51,7 +56,7 @@ export interface TableAdapter {
    * overwrites local" path). Returns true if write happened.
    */
   applyToLocal(
-    db: StudyRpgDB,
+    db: Dexie,
     cloudRow: CloudRow,
     opts?: { force?: boolean },
   ): Promise<boolean>
@@ -71,12 +76,12 @@ const PLAYER_STATE: TableAdapter = {
   dexieTable: 'players',
   async snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion) {
     if (!dirtyPks.size) return []
-    const player = await db.players.get(PLAYER_ID)
+    const player = await (db as StudyRpgDB).players.get(PLAYER_ID)
     if (!player) return []
     return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: player }]
   },
   async snapshotAll(db, userId, updatedAt, appVersion) {
-    const player = await db.players.get(PLAYER_ID)
+    const player = await (db as StudyRpgDB).players.get(PLAYER_ID)
     if (!player) return []
     return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: player }]
   },
@@ -85,14 +90,14 @@ const PLAYER_STATE: TableAdapter = {
     if (!data) return false
     const force = opts?.force ?? false
     if (!force) {
-      const local = await db.players.get(PLAYER_ID)
+      const local = await (db as StudyRpgDB).players.get(PLAYER_ID)
       const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
       if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
     }
     // Stamp cloud's _updatedAt so future pulls compare correctly without re-triggering push.
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at) }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await db.players.put(next as any)
+    await (db as StudyRpgDB).players.put(next as any)
     return true
   },
 }
@@ -105,7 +110,7 @@ const SRS_CARDS: TableAdapter = {
     if (!dirtyPks.size) return []
     const rows: RowPayload[] = []
     for (const pk of dirtyPks) {
-      const card = await db.srs.get(pk)
+      const card = await (db as StudyRpgDB).srs.get(pk)
       if (!card) continue
       rows.push({
         user_id: userId,
@@ -119,7 +124,7 @@ const SRS_CARDS: TableAdapter = {
   },
   async snapshotAll(db, userId, updatedAt, appVersion) {
     const rows: RowPayload[] = []
-    await db.srs.each((card) => {
+    await (db as StudyRpgDB).srs.each((card) => {
       rows.push({
         user_id: userId,
         updated_at: updatedAt,
@@ -136,13 +141,13 @@ const SRS_CARDS: TableAdapter = {
     if (!pk || !data) return false
     const force = opts?.force ?? false
     if (!force) {
-      const local = await db.srs.get(pk)
+      const local = await (db as StudyRpgDB).srs.get(pk)
       const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
       if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
     }
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at) }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await db.srs.put(next as any)
+    await (db as StudyRpgDB).srs.put(next as any)
     return true
   },
 }
@@ -155,7 +160,7 @@ const ITEM_INSTANCES: TableAdapter = {
     if (!dirtyPks.size) return []
     const rows: RowPayload[] = []
     for (const pk of dirtyPks) {
-      const item = await db.itemInstances.get(pk)
+      const item = await (db as StudyRpgDB).itemInstances.get(pk)
       if (!item) continue
       rows.push({
         user_id: userId,
@@ -169,7 +174,7 @@ const ITEM_INSTANCES: TableAdapter = {
   },
   async snapshotAll(db, userId, updatedAt, appVersion) {
     const rows: RowPayload[] = []
-    await db.itemInstances.each((item) => {
+    await (db as StudyRpgDB).itemInstances.each((item) => {
       rows.push({
         user_id: userId,
         updated_at: updatedAt,
@@ -186,13 +191,13 @@ const ITEM_INSTANCES: TableAdapter = {
     if (!pk || !data) return false
     const force = opts?.force ?? false
     if (!force) {
-      const local = await db.itemInstances.get(pk)
+      const local = await (db as StudyRpgDB).itemInstances.get(pk)
       const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
       if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
     }
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at) }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await db.itemInstances.put(next as any)
+    await (db as StudyRpgDB).itemInstances.put(next as any)
     return true
   },
 }
@@ -203,12 +208,12 @@ const MENTOR_BACKLOG: TableAdapter = {
   dexieTable: 'mentorBacklog',
   async snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion) {
     if (!dirtyPks.size) return []
-    const row = await db.mentorBacklog.get('mentorBacklog')
+    const row = await (db as StudyRpgDB).mentorBacklog.get('mentorBacklog')
     if (!row) return []
     return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: row }]
   },
   async snapshotAll(db, userId, updatedAt, appVersion) {
-    const row = await db.mentorBacklog.get('mentorBacklog')
+    const row = await (db as StudyRpgDB).mentorBacklog.get('mentorBacklog')
     if (!row) return []
     return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: row }]
   },
@@ -217,13 +222,13 @@ const MENTOR_BACKLOG: TableAdapter = {
     if (!data) return false
     const force = opts?.force ?? false
     if (!force) {
-      const local = await db.mentorBacklog.get('mentorBacklog')
+      const local = await (db as StudyRpgDB).mentorBacklog.get('mentorBacklog')
       const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
       if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
     }
     const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at), key: 'mentorBacklog' as const }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await db.mentorBacklog.put(next as any)
+    await (db as StudyRpgDB).mentorBacklog.put(next as any)
     return true
   },
 }

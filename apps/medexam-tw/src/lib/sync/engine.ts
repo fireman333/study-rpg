@@ -7,7 +7,7 @@
 // - IndexedDB remains source of truth; cloud failures never mutate local
 // - Offline = queue lives implicitly in IndexedDB (rows still there, dirty markers re-built on reconnect)
 
-import { ONE_STAGE_ADAPTERS, type TableAdapter } from './tables'
+import type { TableAdapter } from './tables'
 import type {
   CloudRow,
   CreateSyncEngineOptions,
@@ -48,7 +48,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
   let installedHooks: Array<{ table: any; event: string; fn: any }> = [] // for teardown
   const dirty: DirtySet = { perTable: new Map() }
 
-  const adapters: ReadonlyArray<TableAdapter> = ONE_STAGE_ADAPTERS
+  const adapters: ReadonlyArray<TableAdapter> = opts.adapters
 
   function markDirty(dexieTable: string, pk: string): void {
     let set = dirty.perTable.get(dexieTable)

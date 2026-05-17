@@ -1,7 +1,8 @@
 // Sync engine types (M4 cloud sync).
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { StudyRpgDB } from '@study-rpg/core'
+import type Dexie from 'dexie'
+import type { TableAdapter } from './tables'
 
 export type SyncStatus =
   | 'disabled'      // env vars missing or feature flag off
@@ -50,7 +51,18 @@ export interface SyncEngine {
 
 export interface CreateSyncEngineOptions {
   supabase: SupabaseClient
-  db: StudyRpgDB
+  /**
+   * Dexie database instance. Adapter callbacks cast this to their concrete
+   * DB subclass (e.g. `StudyRpgDB` / `HospitalDB`). Engine itself stays
+   * content-pack-agnostic (per design D4 of add-cloud-sync).
+   */
+  db: Dexie
+  /**
+   * Table adapters describing which Dexie tables sync to which Postgres tables.
+   * Injected per app: 一階 passes `ONE_STAGE_ADAPTERS`, 二階 passes
+   * `HOSPITAL_ADAPTERS`. Engine has no hardcoded knowledge of which set is used.
+   */
+  adapters: ReadonlyArray<TableAdapter>
   /** Debounce window for batched push, ms. Default 3000. */
   debounceMs?: number
   /** Sent as app_version on every row push (for forward-compat per design D5). */
