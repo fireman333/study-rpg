@@ -123,6 +123,9 @@ export function HomePage() {
           <Link to="/hospital" className="nav-link">
             醫院 →
           </Link>
+          <Link to="/training" className="nav-link">
+            進修 →
+          </Link>
           <Link to="/roster" className="nav-link">
             醫師名冊 →
           </Link>

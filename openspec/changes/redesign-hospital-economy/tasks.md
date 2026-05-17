@@ -60,12 +60,12 @@
 
 ## 5. App pages: training UI
 
-- [ ] 5.1 Create `apps/medexam2-hospital-tw/src/pages/TrainingPage.tsx` — `/training` route
-- [ ] 5.2 List all owned doctors with current rarity + pity counter + button to train
-- [ ] 5.3 Confirmation modal — show cost, base success rate, "pity in N tries" indicator
-- [ ] 5.4 Resolve attempt via `training.attemptTraining()` → write `trainingHistory` row → update doctor.rarity + pityCounter
-- [ ] 5.5 Animate success/failure outcome
-- [ ] 5.6 Add nav link from HomePage
+- [x] 5.1 Create `apps/medexam2-hospital-tw/src/pages/TrainingPage.tsx` — `/training` route
+- [x] 5.2 List all owned doctors with current rarity + pity counter + button to train
+- [x] 5.3 Confirmation modal — show cost, base success rate, "pity in N tries" indicator
+- [x] 5.4 Resolve attempt via `training.attemptTraining()` → write `trainingHistory` row → update doctor.rarity + pityCounter
+- [x] 5.5 Animate success/failure outcome — outcome modal with rarity-up / pity-triggered display
+- [x] 5.6 Add nav link from HomePage
 - [ ] 5.7 Doctor detail panel — add 「退休醫師」button with confirmation modal (per audit B2); on confirm: delete from `db.doctors`, null `assignedDoctorId` in affected room, refund `powerMultiplier × 1000` revenue, write `retirementLog` row
 - [ ] 5.8 Diversification gate counter — implement 24-hour grace via `retirementLog` lookup: `(now - retiredAt) < 24*60*60*1000` doctors still count toward diversification
 
@@ -126,7 +126,7 @@
 - [ ] 11.2 Build all packages: `pnpm -r build` succeeds
 - [x] 11.3 Chrome MCP smoke — fresh cold start: P5 outpatient assigned, 開始唸書 click, 65s wait, revenue +7.93 / reputation +7.93 / totalStudyMinutes 1.59 (matches 5/min math); UI cells render 累積唸書 / 毛 / 薪 / 淨 correctly after reload: navigate to /, see "no session" state, click start session, scene renders, tick begins, revenue + reputation + totalStudyMinutes all increment after 60s
 - [ ] 11.4 Chrome MCP smoke — pause on visibility hide; resume on visibility return + click 繼續
-- [ ] 11.5 Chrome MCP smoke — training attempt: fail first time (verify pityCounter increment), pass after 5 fails (pity)
+- [x] 11.5 Chrome MCP smoke — training attempt: success path (RNG ≤ rate) / 5× failure pity accumulator / pity-triggered success at attempt 6 (rarity P5→P4 + powerMultiplier 0.5→1.0 + pityCounter 0; 6 trainingHistory rows correct shape; revenue −1000×6 = −6000): fail first time (verify pityCounter increment), pass after 5 fails (pity)
 - [ ] 11.6 Chrome MCP smoke — facility upgrade outpatient-1 to level 2, throughput visibly increases
 - [ ] 11.6a Chrome MCP smoke — salary 0% at 診所 (5 doctors owned, revenue grows pure throughput); upgrade to 區域醫院 → 100% kicks in; verify revenue net positive at default config (5 P3 assigned + 3 P3 bench = 100/min throughput - 64/min salary = +36/min)
 - [ ] 11.6b Chrome MCP smoke — onboarding tutorial: fresh save renders step 1 modal, completing each step unlocks next, reload mid-tutorial resumes at correct step

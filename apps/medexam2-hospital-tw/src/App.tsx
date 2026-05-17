@@ -10,6 +10,7 @@ import { HomePage } from './pages/HomePage'
 import { DoctorRoster } from './pages/DoctorRoster'
 import { Hospital } from './pages/Hospital'
 import { StudySessionPage } from './pages/StudySessionPage'
+import { TrainingPage } from './pages/TrainingPage'
 import { useStudySessionTick } from './lib/tick'
 import { checkAssignmentInvariants } from './lib/assignment'
 import { useSync } from './lib/sync/useSync'
@@ -128,6 +129,7 @@ function App() {
         <Route path="/roster" element={<DoctorRoster />} />
         <Route path="/hospital" element={<Hospital />} />
         <Route path="/study" element={<StudySessionPage />} />
+        <Route path="/training" element={<TrainingPage />} />
       </Routes>
     </HashRouter>
   )

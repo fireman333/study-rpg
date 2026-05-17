@@ -1827,3 +1827,113 @@ body {
   opacity: 0.85;
   margin-top: -4px;
 }
+
+/* ─── Training page (redesign-hospital-economy §5) ──────────────────────── */
+
+.training-info {
+  margin: 12px 0 20px;
+  padding: 12px;
+  background: rgba(255,255,255,0.3);
+  border: 2px solid var(--frame-dark);
+  font-size: 13px;
+}
+
+.training-doctor-list { margin-top: 16px; }
+.training-doctor-list__items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.training-doctor-card {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.3);
+  border: 2px solid var(--frame-dark);
+}
+.training-doctor-card__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.training-doctor-card__mid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+.training-doctor-card__right {
+  display: flex;
+  justify-content: flex-end;
+}
+.training-rate { opacity: 0.85; }
+.training-pity { font-size: 12px; opacity: 0.75; }
+.training-terminal { opacity: 0.6; font-style: italic; }
+
+.rarity-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  font-weight: bold;
+  font-size: 12px;
+  border: 1px solid var(--frame-dark);
+  min-width: 32px;
+  text-align: center;
+}
+.rarity-badge--P1 { background: var(--accent-gold); color: #1a1a1a; }
+.rarity-badge--P2 { background: rgba(180, 100, 200, 0.4); color: #5b2666; }
+.rarity-badge--P3 { background: rgba(100, 150, 220, 0.4); color: #1d3a66; }
+.rarity-badge--P4 { background: rgba(120, 200, 120, 0.4); color: #2a4d2a; }
+.rarity-badge--P5 { background: rgba(200, 200, 200, 0.4); color: #444; }
+
+.training-confirm-modal,
+.training-outcome-modal {
+  max-width: 420px;
+  margin: 8% auto;
+  padding: 24px;
+  background: var(--bg-paper, #f3ead6);
+  border: 4px solid var(--frame-dark);
+  box-shadow: 4px 4px 0 var(--frame-dark);
+}
+.modal__title {
+  margin: 0 0 12px;
+  font-size: 20px;
+  text-align: center;
+}
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+.rarity-up { color: var(--accent-gold); font-size: 1.2em; }
+.muted { opacity: 0.7; font-size: 12px; }
+.training-outcome-modal--success { border-color: var(--accent-gold); }
+.training-outcome-modal--failure { border-color: var(--accent-rose); }
+
+.training-history { margin-top: 20px; }
+.training-history__items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.training-history__item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid var(--frame-dark);
+}
+.training-history__item--success { border-left: 3px solid var(--accent-gold); }
+.training-history__item--failure { border-left: 3px solid var(--accent-rose); opacity: 0.85; }
+.training-history__transition { font-weight: bold; }
+.training-history__cost { text-align: right; opacity: 0.7; }
