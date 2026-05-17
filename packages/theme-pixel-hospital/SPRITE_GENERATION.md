@@ -221,8 +221,8 @@ magick "$src" -fuzz 12% -transparent "$corner" -trim +repage \
 | P2 (頂級) | Gemini MCP | 14 × 2 = 28 | ✓ Shipped (2026-05-18) |
 | P3 (人上人) | codex `gpt-image-2` | 14 × 2 = 28 | ✓ Shipped (2026-05-15 / 17) |
 | P4 (NPC) | Gemini MCP | 14 × 2 = 28 | ✓ Shipped (2026-05-18) |
-| P5 (拉完了) | Gemini MCP | 14 × 2 = 28 | 🟡 Partial: 13/14 male shipped (2026-05-18); 1 male (泌尿科) + 14 female blocked by Gemini daily quota — regenerate after quota reset |
-| **Total new** | | **112 sprites** | **97 shipped today (28 P1 + 28 P2 + 28 P4 + 13 P5 male); 15 remaining (1 P5 male + 14 P5 female) blocked by Gemini quota** |
+| P5 (拉完了) | Gemini MCP (13 male) + codex (1 male + 7 female) + Gemini web UI (7 female overrides) | 14 × 2 = 28 | ✓ Shipped (2026-05-18, mixed-source completion path — see § "Mixed source recovery" below) |
+| **Total new** | | **112 sprites** | **112 shipped (full 14 subjects × 5 rarities × 2 genders = 140 coverage achieved)** |
 
 ### Tool routing rationale
 
@@ -242,7 +242,22 @@ These are the **hard-won lessons from the 2026-05-18 canary iteration (V1→V8)*
 7. **Fire shape (P1 only)**: "narrow streamlined flame tongues licking dynamically UPWARD, slim elegant calligraphic strokes, NOT a bulky enveloping fire cloud" — without this, V6 rendered a fire blob. Streamlined fire matches codex P1 reference.
 8. **Japanese GBA RPG style anchor**: explicit "Pokemon Emerald, Fire Emblem GBA, Final Fantasy Tactics Advance aesthetic" — V4 (no style anchor) rendered Western comic style; V5+ (with anchor) rendered the right Japanese anime pixel-art mood.
 9. **Adult anime proportions**: "head-to-body about 1:6, slightly larger expressive anime eyes" — without this Gemini drifts toward Western realistic 1:7-1:8 (per its own self-analysis of codex refs via gemini-cli vision).
-10. **Gemini daily quota cap (hit 2026-05-18 batch run)**: MCP `gemini_generate_image` enforces an undocumented per-day image generation cap. Symptom: returns `{"paths": [], "text": "Sorry, I can't generate more images for you today, but come back tomorrow and we can make more.", "image_count": 0}` with HTTP 200 (NOT an error code). **No transparent partial-credit** — once hit, all subsequent calls in same day return the same empty payload. Cap appears to be ~70-80 images / day per Gmail account on the gemini-cli free OAuth tier. Workaround: (a) wait until 00:00 UTC next day, (b) use a different Gmail (`nlm login switch <profile>`-style multi-account, untested for gemini-cli), or (c) fall back to codex for the remaining batch (at cost of style inconsistency — Gemini = continuous-tone post-processed to pixel-art, codex = native 16-color pixel art). **Mitigation rule**: when running 60+ sprite Gemini batch, monitor for the `image_count: 0` payload after each call and abort early if seen. Don't trust the absence of an error code — check `image_count` field.
+10. **Gemini daily quota cap + auth-path confusion (hit 2026-05-18 batch run)**: MCP `gemini_generate_image` enforces an undocumented per-day image generation cap. Symptom: returns `{"paths": [], "text": "Sorry, I can't generate more images for you today, but come back tomorrow and we can make more.", "image_count": 0}` with HTTP 200 (NOT an error code). **No transparent partial-credit** — once hit, all subsequent calls in same day return the same empty payload. Cap appears to be ~70-80 images / day per Google account.
+
+    **Quota is per-Google-account, NOT per-endpoint** (verified live 2026-05-18 by cross-checking web UI behavior: tony85314 was exhausted in both web UI and MCP simultaneously, while b09401048 still worked in web UI). The image-gen quota counter is shared across the web UI at `gemini.google.com` AND the `gemini-webapi` Python library used by `gemini_server.py`. So once exhausted on web UI, MCP is also blocked for that same Google account, and vice versa.
+
+    **Auth-path confusion** (cost: ~15 min misdirection during 2026-05-18 batch run, including one wrong correction-attempt before the per-account-quota model was verified): The Gemini ecosystem has **two completely independent auth paths** that are easy to conflate:
+    - **gemini CLI** (`@google/gemini-cli`, `~/.gemini/oauth_creds.json` + `google_accounts.json`): OAuth flow with Google account picker. Used for `gemini -p ...`, interactive `gemini`, chat history. **NOT used by the MCP image-gen server.**
+    - **`gemini_server.py` MCP server**: reads Chrome cookies directly via `browser_cookie3.chrome()` (`__Secure-1PSID` + `__Secure-1PSIDTS` on `.google.com`), with 30 min in-process cache TTL, falls back to `~/gemini-mcp/cookies.json` if Chrome cookies unavailable. **Hardcoded to Chrome only** — Edge / Firefox / Safari cookies are never read.
+
+    Switching `~/.gemini/google_accounts.json` (CLI OAuth account) does **nothing** for MCP quota. To switch MCP server's effective account, the underlying Chrome Default profile's signed-in primary user must change (i.e. `__Secure-1PSID` cookie value rotates). In-page Google account swaps (clicking avatar in gemini.google.com to switch active page-level account) do **NOT** rotate that cookie — they only switch which account the page interacts with, leaving the Chrome profile's primary signed-in user unchanged. To actually rotate: Chrome → Settings → People → sign out the current primary user → sign in as the desired account; then `kill <gemini_server.py PID>` (Claude Code auto-respawns it — verified safe pattern) so the new process picks up fresh cookies on first call.
+
+    **Workaround priority for daily quota exhaustion**:
+    (a) **Wait until quota reset** (~24h, UTC midnight boundary) — cleanest, zero risk
+    (b) **Fall back to codex `gpt-image-2`** for the remaining batch (at cost of style inconsistency — Gemini = continuous-tone post-processed to pixel-art, codex = native 16-color pixel art). Note codex Plus tier also has a daily quota (~30 sprites/day at high reasoning effort, observed 2026-05-18) and resets at a different time (in this case 07:07 AM local). Both quotas can be hit on the same day if running large batches.
+    (c) **Web-UI manual override**: Have the user sign into a *different* Google account in the browser, manually generate images in `gemini.google.com` (which has the same per-account quota; verify that account has room), download as PNGs, and run them through the same post-process pipeline. Style stays consistent with prior Gemini-generated sprites because the same backend model is used. This is the "weird hack but works" path when both bot accounts are tapped — used 2026-05-18 to ship 7 of the 15 residual P5 female sprites after the main quota + codex both hit limits.
+
+    **Mitigation rule for future large batches**: when running 60+ sprite Gemini batch, monitor for the `image_count: 0` payload after each call and abort early if seen. Don't trust the absence of an error code — check the `image_count` field. Same applies to codex batches — watch for "You've hit your usage limit" in stderr / log.
 
 ### Gemini V7 prompt template (final, for P2 / P4 / P5)
 
@@ -324,6 +339,19 @@ Visual reference of what the V7 Gemini template produces (NOT used as final spri
 - `/tmp/v8-p1f.png` — female P1 內科 with streamlined fire + long dark/red-streak hair + dark vest under open coat (V8 = V7 + stronger bg guard to avoid grid artifact)
 
 If `/tmp` is cleared, regenerate by running the V7 Gemini prompt for 內科 P1 male/female.
+
+### Mixed source recovery (2026-05-18 P5 batch)
+
+The P5 rarity ended up generated via 3 sources due to cascading quota hits:
+
+| Subject + gender | Source | Notes |
+|---|---|---|
+| All 13 male except 泌尿科 | Gemini MCP V7 | Generated in first batch run before MCP quota hit |
+| 泌尿科 male | codex `gpt-image-2` | Generated in first codex P5 batch attempt before codex quota hit |
+| 內科 / 外科 / 小兒科 / 婦產科 / 精神科 / 復健科 / 神經內科 female | codex `gpt-image-2` | Generated after codex 07:07 quota reset |
+| 家醫科 / 皮膚科 / 麻醉科 / 骨科 / 耳鼻喉科 / 眼科 / 泌尿科 female | Gemini web UI manual | Generated via gemini.google.com signed in as a Google account with remaining web-UI image-gen quota, downloaded as PNG, run through standard post-process pipeline. Replaces codex versions for 家醫科 / 皮膚科 / 麻醉科 (originally generated by codex, overwritten for style consistency with the 7 remaining female slots) |
+
+The mixed-source result is visually slightly inconsistent within the P5 female set (codex native pixel-art vs Gemini-post-processed continuous-tone), but the overall P5 tier reads as "burnt-out" cohesively. Future maintainers who want strict source-uniformity should regenerate all 14 P5 female via a single tool when quotas are fresh.
 
 ### Stale outputs (do NOT use)
 
