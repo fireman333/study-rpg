@@ -154,7 +154,7 @@ function App() {
           onChoose={sync.resolveUploadPrompt}
         />
       )}
-      {(sync.gateState === 'conflict-chooser' || sync.gateState === 'paused') && (
+      {sync.gateState === 'conflict-chooser' && (
         <ConflictChooserModal
           email={user?.email ?? null}
           localMaxUpdatedAt={sync.gateSnapshot?.localMaxUpdatedAt ?? null}
@@ -162,6 +162,21 @@ function App() {
           hasSettingsEntry={false}
           onChoose={sync.resolveConflictChooser}
         />
+      )}
+      {sync.gateState === 'paused' && (
+        <div className="sync-paused-banner" role="status" aria-live="polite">
+          <span className="sync-paused-banner__icon" aria-hidden>⏸</span>
+          <span className="sync-paused-banner__text">
+            雲端同步已暫停（你選擇待會再決定）。
+          </span>
+          <button
+            type="button"
+            className="sync-paused-banner__btn"
+            onClick={() => void sync.reopenConflictChooser()}
+          >
+            重新開啟對話
+          </button>
+        </div>
       )}
       {v6Migration && (
         <V6MigrationModal counters={v6Migration} onDismiss={() => setV6Migration(null)} />

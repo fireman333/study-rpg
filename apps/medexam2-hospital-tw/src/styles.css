@@ -845,6 +845,36 @@ body {
   animation: toast-in 0.2s ease;
 }
 
+/* ── Sync paused banner (user chose 待會再決定) ─────────── */
+
+.sync-paused-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 180;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  background: rgba(255, 248, 220, 0.96);
+  border: 2px solid var(--frame-dark);
+  box-shadow: 2px 2px 0 var(--frame-dark);
+  max-width: 92vw;
+}
+.sync-paused-banner__icon { font-size: 16px; }
+.sync-paused-banner__text { flex: 1; }
+.sync-paused-banner__btn {
+  background: var(--accent-gold);
+  border: 2px solid var(--frame-dark);
+  box-shadow: 1px 1px 0 var(--frame-dark);
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 /* ── Tier upgrade notice ───────────────────────────────── */
 
 .upgrade-notice {

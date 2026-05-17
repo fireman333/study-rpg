@@ -937,7 +937,7 @@ export default function App() {
         />
       )}
 
-      {(gateState === 'conflict-chooser' || gateState === 'paused') && gateSnapshot && (
+      {gateState === 'conflict-chooser' && gateSnapshot && (
         <ConflictChooserModal
           email={authUser?.email ?? null}
           localMaxUpdatedAt={gateSnapshot.localMaxUpdatedAt}
