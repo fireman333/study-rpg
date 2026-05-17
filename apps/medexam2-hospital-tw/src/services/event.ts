@@ -26,8 +26,14 @@ import { getHospitalDB } from '../db/schema'
 
 export type MalpracticeAction = 'settle' | 'accept-penalty'
 
+/**
+ * `'stale'` fires when the pending event in DB no longer matches what the
+ * caller expected (e.g. tick.ts auto-resolved the malpractice at 24h while the
+ * player still had the modal open). UI should treat this as "already handled,
+ * dismiss without claiming a state change occurred".
+ */
 export interface MalpracticeOutcome {
-  kind: 'settled' | 'accepted-penalty' | 'insufficient-revenue'
+  kind: 'settled' | 'accepted-penalty' | 'insufficient-revenue' | 'stale'
   revenueDelta: number
   reputationDelta: number
   settlementCost?: number
@@ -46,7 +52,7 @@ export async function resolveMalpractice(action: MalpracticeAction): Promise<Mal
   return db.transaction('rw', [db.gameCounters, db.eventLog], async () => {
     const counters = await db.gameCounters.get('singleton')
     if (!counters || counters.pendingEventId !== 'medical-malpractice') {
-      return { kind: 'accepted-penalty', revenueDelta: 0, reputationDelta: 0 }
+      return { kind: 'stale', revenueDelta: 0, reputationDelta: 0 }
     }
     const now = Date.now()
 
@@ -96,6 +102,7 @@ export async function resolveMalpractice(action: MalpracticeAction): Promise<Mal
 }
 
 export interface VipOutcome {
+  kind: 'accepted' | 'stale'
   vipBoostUntil: number
   durationMs: number
 }
@@ -107,7 +114,7 @@ export async function resolveVipPatient(): Promise<VipOutcome> {
     const now = Date.now()
     const vipBoostUntil = now + VIP_BOOST_DURATION_MS
     if (!counters || counters.pendingEventId !== 'vip-patient') {
-      return { vipBoostUntil, durationMs: VIP_BOOST_DURATION_MS }
+      return { kind: 'stale', vipBoostUntil: 0, durationMs: 0 }
     }
     await db.gameCounters.put({
       ...counters,
@@ -123,11 +130,12 @@ export async function resolveVipPatient(): Promise<VipOutcome> {
       reputationDelta: 0,
       revenueDelta: 0,
     })
-    return { vipBoostUntil, durationMs: VIP_BOOST_DURATION_MS }
+    return { kind: 'accepted', vipBoostUntil, durationMs: VIP_BOOST_DURATION_MS }
   })
 }
 
 export interface EmergencyShiftOutcome {
+  kind: 'accepted' | 'stale'
   revenueDelta: number
   reputationDelta: number
 }
@@ -138,7 +146,7 @@ export async function resolveEmergencyShift(): Promise<EmergencyShiftOutcome> {
     const counters = await db.gameCounters.get('singleton')
     const now = Date.now()
     if (!counters || counters.pendingEventId !== 'emergency-shift') {
-      return { revenueDelta: 0, reputationDelta: 0 }
+      return { kind: 'stale', revenueDelta: 0, reputationDelta: 0 }
     }
     await db.gameCounters.put({
       ...counters,
@@ -156,6 +164,7 @@ export async function resolveEmergencyShift(): Promise<EmergencyShiftOutcome> {
       revenueDelta: EMERGENCY_SHIFT_REVENUE_BONUS,
     })
     return {
+      kind: 'accepted',
       revenueDelta: EMERGENCY_SHIFT_REVENUE_BONUS,
       reputationDelta: EMERGENCY_SHIFT_REPUTATION_BONUS,
     }
@@ -163,7 +172,7 @@ export async function resolveEmergencyShift(): Promise<EmergencyShiftOutcome> {
 }
 
 export interface AuditOutcome {
-  kind: 'pass' | 'fail'
+  kind: 'pass' | 'fail' | 'stale'
   reputationDelta: number
 }
 
@@ -175,7 +184,7 @@ export async function resolveAudit(): Promise<AuditOutcome> {
     const passed = Math.random() < AUDIT_PASS_PROBABILITY
     const repDelta = passed ? AUDIT_PASS_REPUTATION : -AUDIT_FAIL_REPUTATION_LOSS
     if (!counters || counters.pendingEventId !== 'audit-event') {
-      return { kind: passed ? 'pass' : 'fail', reputationDelta: repDelta }
+      return { kind: 'stale', reputationDelta: 0 }
     }
     await db.gameCounters.put({
       ...counters,

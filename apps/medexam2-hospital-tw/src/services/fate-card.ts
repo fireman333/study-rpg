@@ -68,6 +68,7 @@ export async function drawFateCardAtTier(tier: FateCardTier): Promise<FateCardSe
       // Deduct cost
       const costPaid = result.costPaid
       let newReputation = counters.reputation - costPaid
+      let newRevenue = counters.revenue
 
       let appliedEffect = ''
 
@@ -94,10 +95,14 @@ export async function drawFateCardAtTier(tier: FateCardTier): Promise<FateCardSe
             },
           })
         }
-        appliedEffect = await applyRewardEffect(result.reward.key, result.reward.label)
+        const effect = await applyRewardEffect(result.reward.key, result.reward.label)
+        appliedEffect = effect.description
+        newRevenue += effect.revenueDelta
       }
 
-      await db.gameCounters.put({ ...counters, reputation: newReputation })
+      // Re-read counters defensively in case any reward effect mutated other
+      // fields we don't know about (currently only revenue is delta-tracked).
+      await db.gameCounters.put({ ...counters, revenue: newRevenue, reputation: newReputation })
 
       await db.fateCardHistory.add({
         drawnAt: Date.now(),
@@ -113,49 +118,63 @@ export async function drawFateCardAtTier(tier: FateCardTier): Promise<FateCardSe
   )
 }
 
-async function applyRewardEffect(key: string, label: string): Promise<string> {
-  const db = getHospitalDB()
+interface RewardEffectResult {
+  description: string
+  /**
+   * Delta to apply to `gameCounters.revenue` in the main transaction's final
+   * `put`. Non-zero only for monetary rewards (minor-revenue-5k). Returning a
+   * delta — rather than self-writing — avoids the stale-clobber bug where the
+   * outer `put({ ...counters, ... })` overwrites this side-effect with the
+   * original revenue read at txn start.
+   */
+  revenueDelta: number
+}
+
+async function applyRewardEffect(key: string, label: string): Promise<RewardEffectResult> {
   switch (key) {
     case 'recruitment-ticket-x3': {
       await grantTickets(3)
-      return '+3 招募券'
+      return { description: '+3 招募券', revenueDelta: 0 }
     }
     case 'recruitment-ticket-x10': {
       await grantTickets(10)
-      return '+10 招募券'
+      return { description: '+10 招募券', revenueDelta: 0 }
     }
-    case 'minor-revenue-5k': {
-      const counters = await db.gameCounters.get('singleton')
-      if (counters) {
-        await db.gameCounters.put({ ...counters, revenue: counters.revenue + 5_000 })
-      }
-      return '+5,000 💰'
-    }
+    case 'minor-revenue-5k':
+      return { description: '+5,000 💰', revenueDelta: 5_000 }
     case 'targeted-p3-ticket':
     case 'targeted-p2-ticket': {
       await grantTickets(1)
-      return `${label}（暫以一般招募券發放，定向券待後續實作）`
+      return {
+        description: `${label}（暫以一般招募券發放，定向券待後續實作）`,
+        revenueDelta: 0,
+      }
     }
     case 'facility-plus-0.5': {
       const bumped = await bumpRandomRoomFacility()
-      return bumped !== null
-        ? `${bumped} 設施 +0.5（→ ×${FACILITY_LEVEL_TO_FACILITY[bumped[1]]}）`
-        : '無可升級房間（全部已滿）'
+      return {
+        description:
+          bumped !== null
+            ? `${bumped[0]} 設施 +0.5（→ ×${FACILITY_LEVEL_TO_FACILITY[bumped[1]]}）`
+            : '無可升級房間（全部已滿）',
+        revenueDelta: 0,
+      }
     }
     case 'facility-all-plus-1': {
       const count = await bumpAllRoomsFacility()
-      return count > 0
-        ? `全院 ${count} 間房間 facility +1 級`
-        : '無可升級房間（全部已滿）'
+      return {
+        description: count > 0 ? `全院 ${count} 間房間 facility +1 級` : '無可升級房間（全部已滿）',
+        revenueDelta: 0,
+      }
     }
     case 'training-guarantee-x1':
     case 'event-immunity-1':
     case 'event-positive-trigger':
     case 'salary-waiver-1-week':
     case 'throughput-x2-1-week':
-      return `${label}（已紀錄；庫存系統實裝後生效）`
+      return { description: `${label}（已紀錄；庫存系統實裝後生效）`, revenueDelta: 0 }
     default:
-      return label
+      return { description: label, revenueDelta: 0 }
   }
 }
 

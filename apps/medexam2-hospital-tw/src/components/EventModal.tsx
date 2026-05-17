@@ -36,6 +36,13 @@ import {
   type VipOutcome,
 } from '../services/event'
 
+const KNOWN_EVENT_IDS = new Set([
+  'medical-malpractice',
+  'vip-patient',
+  'emergency-shift',
+  'audit-event',
+])
+
 type Outcome =
   | { kind: 'malpractice'; result: MalpracticeOutcome }
   | { kind: 'vip'; result: VipOutcome }
@@ -85,42 +92,101 @@ export function EventModal() {
 
   async function handleMalpracticeSettle() {
     setBusy(true)
-    const result = await resolveMalpractice('settle')
-    setBusy(false)
-    if (result.kind === 'insufficient-revenue') return // keep modal open
-    setOutcome({ kind: 'malpractice', result })
+    try {
+      const result = await resolveMalpractice('settle')
+      if (result.kind === 'insufficient-revenue') return // keep modal open
+      setOutcome({ kind: 'malpractice', result })
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function handleMalpracticeAccept() {
     setBusy(true)
-    const result = await resolveMalpractice('accept-penalty')
-    setBusy(false)
-    setOutcome({ kind: 'malpractice', result })
+    try {
+      const result = await resolveMalpractice('accept-penalty')
+      setOutcome({ kind: 'malpractice', result })
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function handleVip() {
     setBusy(true)
-    const result = await resolveVipPatient()
-    setBusy(false)
-    setOutcome({ kind: 'vip', result })
+    try {
+      const result = await resolveVipPatient()
+      setOutcome({ kind: 'vip', result })
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function handleEmergency() {
     setBusy(true)
-    const result = await resolveEmergencyShift()
-    setBusy(false)
-    setOutcome({ kind: 'emergency', result })
+    try {
+      const result = await resolveEmergencyShift()
+      setOutcome({ kind: 'emergency', result })
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function handleAudit() {
     setBusy(true)
-    const result = await resolveAudit()
-    setBusy(false)
-    setOutcome({ kind: 'audit', result })
+    try {
+      const result = await resolveAudit()
+      setOutcome({ kind: 'audit', result })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function dismissUnknownEvent() {
+    const db = getHospitalDB()
+    await db.transaction('rw', db.gameCounters, async () => {
+      const row = await db.gameCounters.get('singleton')
+      if (!row) return
+      await db.gameCounters.put({
+        ...row,
+        pendingEventId: null,
+        pendingEventTriggeredAt: null,
+        lastEventResolvedAt: Date.now(),
+      })
+    })
   }
 
   function closeOutcome() {
     setOutcome(null)
+  }
+
+  // §6.1 LOW fix — unknown pendingEventId (corrupted row, future content-pack id
+  // not covered by any branch below) would render an empty backdrop with no
+  // close button. Fallback to a "dismiss" UI that clears the stuck state.
+  if (!KNOWN_EVENT_IDS.has(eventId)) {
+    return (
+      <div className="modal-backdrop" role="dialog" aria-label="未知事件" aria-modal="true">
+        <div className="modal frame event-modal">
+          <header className="event-modal__head">
+            <h2>⚠️ 未知事件</h2>
+          </header>
+          <div className="event-modal__body">
+            <p>
+              偵測到不明的待處理事件 id：<code>{eventId}</code>。可能是舊存檔或未來新事件殘留。
+              點下方按鈕清除這個狀態繼續遊玩。
+            </p>
+          </div>
+          <footer className="event-modal__foot">
+            <button
+              type="button"
+              className="event-modal__primary-btn"
+              onClick={() => void dismissUnknownEvent()}
+            >
+              清除並繼續
+            </button>
+          </footer>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -178,8 +244,8 @@ export function EventModal() {
             <div className="event-modal__body">
               <p>
                 一位高知名度的病患來院尋求最高品質的醫療服務。接待他將讓醫院 throughput{' '}
-                <strong>×{VIP_BOOST_MULTIPLIER}</strong>，持續{' '}
-                {Math.round(VIP_BOOST_DURATION_MS / 60_000)} 分鐘 session 時間。
+                <strong>×{VIP_BOOST_MULTIPLIER}</strong>，持續 {Math.round(VIP_BOOST_DURATION_MS / 60_000)} 分鐘
+                （wall-clock；暫停 session 仍會倒數）。
               </p>
             </div>
             <footer className="event-modal__foot">
@@ -252,27 +318,37 @@ export function EventModal() {
 
 function outcomeTitle(o: Outcome): string {
   if (o.kind === 'malpractice') {
+    if (o.result.kind === 'stale') return '事件已自動處理'
     if (o.result.kind === 'settled') return '✓ 已私下和解'
     return '已接受懲處'
   }
-  if (o.kind === 'vip') return '✓ VIP 接待完成'
-  if (o.kind === 'emergency') return '✓ 急診加開完成'
+  if (o.kind === 'vip') {
+    return o.result.kind === 'stale' ? '事件已自動處理' : '✓ VIP 接待完成'
+  }
+  if (o.kind === 'emergency') {
+    return o.result.kind === 'stale' ? '事件已自動處理' : '✓ 急診加開完成'
+  }
+  if (o.result.kind === 'stale') return '事件已自動處理'
   return o.result.kind === 'pass' ? '🏆 評鑑通過' : '⚠️ 評鑑失敗'
 }
 
 function outcomeMessage(o: Outcome): string {
   if (o.kind === 'malpractice') {
+    if (o.result.kind === 'stale') return '事件已被自動處理或過期，無需再操作。'
     if (o.result.kind === 'settled') {
       return `已支付 ${fmt(o.result.settlementCost ?? 0)} 💰 和解金。糾紛圓滿落幕。`
     }
     return `聲望 −${fmt(MALPRACTICE_PENALTY_REP)}。雖然不愉快，但醫院營收不受影響。`
   }
   if (o.kind === 'vip') {
+    if (o.result.kind === 'stale') return '事件已被自動處理或過期，無需再操作。'
     return `Throughput ×${VIP_BOOST_MULTIPLIER} 已啟動，將持續 ${Math.round(o.result.durationMs / 60_000)} 分鐘。`
   }
   if (o.kind === 'emergency') {
+    if (o.result.kind === 'stale') return '事件已被自動處理或過期，無需再操作。'
     return `+${fmt(o.result.revenueDelta)} 💰 / +${fmt(o.result.reputationDelta)} 聲望。`
   }
+  if (o.result.kind === 'stale') return '事件已被自動處理或過期，無需再操作。'
   if (o.result.kind === 'pass') {
     return `恭喜！聲望 +${fmt(o.result.reputationDelta)}。`
   }

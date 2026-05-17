@@ -36,6 +36,30 @@ This guide walks a content/theme fork through wiring its own Supabase project.
    - 32 RLS policies exist (4 ops × 8 tables, all on `auth.uid() = user_id`)
    - 4 RPCs exist (`delete_my_data` / `delete_my_account` / `export_my_data` /
      `upsert_lww`)
+5. **Configure Auth → URL Configuration** (https://supabase.com/dashboard/project/<project-ref>/auth/url-configuration):
+   - **Site URL**: set to your production host (used as default redirect when
+     a request lacks `redirectTo` or fails whitelist). Example:
+     `https://<your-username>.github.io/<repo-name>/`
+   - **Additional Redirect URLs**: whitelist every `redirectTo` your app will
+     ever pass. Supabase silently falls back to Site URL when an OAuth
+     redirect target isn't in this list — so missing entries quietly break
+     production sign-in even though the code is correct. Add at minimum:
+     ```
+     https://<your-username>.github.io/<repo-name>/
+     https://<your-username>.github.io/<repo-name>/<subpath>/
+     http://localhost:5173/<repo-name>/
+     http://localhost:5174/<repo-name>/<subpath>/
+     ```
+     (Adjust ports + subpaths to match your actual dev/prod URLs. Each line
+     is matched as a prefix in newer Supabase, but listing exact URLs is
+     safer.)
+   - **Why this matters**: `signInWithOAuth({ options: { redirectTo } })` in
+     code resolves `window.location.origin + import.meta.env.BASE_URL` at
+     runtime — but Supabase rejects unrecognized redirect URLs server-side
+     and falls back to Site URL. If Site URL is still the default
+     `http://localhost:3000/`, your production OAuth completes successfully
+     but lands on a dead port with the access_token in the URL hash that
+     nobody is listening for.
 
 ## Step 2 — Client env
 

@@ -69,17 +69,20 @@ export function FateCardPage() {
   async function handleDraw(tier: FateCardTier) {
     setDrawing(true)
     setErrMsg(null)
-    const res = await drawFateCardAtTier(tier)
-    setDrawing(false)
-    if (!res.ok) {
-      if (res.reason === 'insufficient-reputation') {
-        setErrMsg(`聲望不足。需要 ${fmt(res.required ?? 0)}。`)
-      } else {
-        setErrMsg('抽卡失敗，請稍後再試。')
+    try {
+      const res = await drawFateCardAtTier(tier)
+      if (!res.ok) {
+        if (res.reason === 'insufficient-reputation') {
+          setErrMsg(`聲望不足。需要 ${fmt(res.required ?? 0)}。`)
+        } else {
+          setErrMsg('抽卡失敗，請稍後再試。')
+        }
+        return
       }
-      return
+      setOutcome(res)
+    } finally {
+      setDrawing(false)
     }
-    setOutcome(res)
   }
 
   return (
