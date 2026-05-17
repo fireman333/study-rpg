@@ -1,8 +1,5 @@
-# hospital-onboarding Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change wire-hospital-quiz-ui. Update Purpose after archive.
-## Requirements
 ### Requirement: New save SHALL seed 2 P5 starter doctors covering ward and surgery
 
 `ensureSeed` SHALL insert two starter doctors into the `doctors` IndexedDB table when a fresh save is created (i.e., when the table is empty AND `gameCounters.hasUsedStarterPull === false`):
@@ -63,58 +60,6 @@ In both sub-cases, the recovery branch is self-terminating: after firing once, `
 - **AND** `gameCounters.hasUsedStarterPull` SHALL be reset to `false`
 - **AND** the `StarterPullCard` SHALL re-appear in the HomePage UI (Dexie liveQuery re-emits)
 
-### Requirement: Starter pull SHALL be single-use with guaranteed P4-or-higher rarity bypassing thresholds and tickets
-
-The system SHALL provide a one-time "starter pull" mechanism for new saves. When `gameCounters.hasUsedStarterPull === false`, the HomePage SHALL render a prominent `StarterPullCard` UI affordance. Clicking the card SHALL open a `StarterPullModal` allowing the player to select 1 of the 14 二階國考 subjects. Confirming the selection SHALL execute a roll with the following properties:
-
-- **Bypass affinity threshold check**: The roll SHALL succeed regardless of `affinity[subjectId]` value (even at 0)
-- **Bypass ticket consumption**: The roll SHALL NOT decrement `tickets.available`
-- **Guaranteed rarity ≥ P4**: The result rarity SHALL be drawn from the distribution `{P4: 62.5%, P3: 25%, P2: 10%, P1: 2.5%}` (re-normalized from existing P4/P3/P2/P1 weights of 25/10/4/1 with P5 excluded)
-- **Single-use**: Upon roll completion, `gameCounters.hasUsedStarterPull` SHALL be set to `true`, and the `StarterPullCard` SHALL never reappear for this save
-- **Doctor creation**: The resulting doctor SHALL be persisted in the `doctors` table following the same schema as `recruitment-gacha` (id, subjectId, rarity, powerMultiplier per `RARITY_POWER_MULTIPLIER`, name auto-generated as `"<subjectDisplayName> 醫師 #<seq>"`, spriteKey, obtainedAt, assignedRoom = null)
-
-The starter pull SHALL NOT trigger pity counters for regular gacha rolls (rollsSinceLast tracking is independent).
-
-#### Scenario: StarterPullCard visible when flag false
-
-- **GIVEN** `gameCounters.hasUsedStarterPull = false`
-- **WHEN** the HomePage renders
-- **THEN** the `StarterPullCard` SHALL be visible
-- **AND** the card SHALL be prominently placed (e.g., above or alongside the banner grid)
-
-#### Scenario: StarterPullCard hidden after use
-
-- **GIVEN** `gameCounters.hasUsedStarterPull = true`
-- **WHEN** the HomePage renders
-- **THEN** the `StarterPullCard` SHALL NOT render
-
-#### Scenario: Starter pull on locked subject still succeeds
-
-- **GIVEN** `affinity[泌尿科] = 0` (locked) and `tickets.available = 10`
-- **AND** `gameCounters.hasUsedStarterPull = false`
-- **WHEN** the player selects 泌尿科 via the `StarterPullModal` and confirms
-- **THEN** the roll SHALL succeed (not rejected by threshold gate)
-- **AND** `tickets.available` SHALL remain `10` (no ticket consumed)
-- **AND** `affinity[泌尿科]` SHALL remain `0` (no affinity change from starter pull itself)
-- **AND** a new doctor SHALL be added to the roster with `subjectId = "泌尿科"`
-- **AND** the doctor's rarity SHALL be one of `P4 | P3 | P2 | P1` (never `P5`)
-- **AND** `gameCounters.hasUsedStarterPull` SHALL become `true`
-
-#### Scenario: Starter pull rarity distribution within tolerance
-
-- **GIVEN** 10,000 simulated starter pulls with a fixed PRNG seed across multiple synthetic saves
-- **WHEN** the rarity outcomes are tallied
-- **THEN** the P4 count SHALL fall within `[6000, 6500]` (62.5% ± ~3%)
-- **AND** the P1 count SHALL fall within `[150, 400]` (2.5% ± ~1.5%)
-- **AND** no result SHALL be rarity `P5`
-
-#### Scenario: Starter pull does not affect regular pity counters
-
-- **GIVEN** `gachaStats.rollsSinceLastP3 = 5` before starter pull
-- **WHEN** the player completes a starter pull yielding a P4 doctor
-- **THEN** `gachaStats.rollsSinceLastP3` SHALL remain `5` (starter pull does not count toward pity)
-- **AND** `gachaStats.totalRolls` SHALL be unchanged
-
 ### Requirement: hasUsedStarterPull flag SHALL persist across the gameCounters table
 
 The `gameCounters` table singleton row SHALL include a `hasUsedStarterPull: boolean` field. The field SHALL be set as follows:
@@ -160,4 +105,3 @@ The Dexie schema migration to v4 SHALL include a hook (in `ensureSeed`, NOT in t
 - **THEN** `hasUsedStarterPull` SHALL remain `true`
 - **AND** no codepath OTHER THAN `ensureSeed`'s recovery branch SHALL set the flag back to `false`
 - **AND** `ensureSeed`'s recovery branch SHALL NOT fire when `doctors.count() > 0`
-
