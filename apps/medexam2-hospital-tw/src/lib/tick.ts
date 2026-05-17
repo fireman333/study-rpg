@@ -3,8 +3,9 @@
  * per `redesign-hospital-economy` change).
  *
  * Tick only accumulates progress while a study session is active. The session
- * controller (from content-pack `study-session.ts`) owns lifecycle + anti-cheat
- * (visibility + idle); this module owns DB writes + tier-upgrade evaluation.
+ * controller (from content-pack `study-session.ts`) owns lifecycle (Pomodoro-
+ * style timer + visibility auto-pause / auto-resume); this module owns DB
+ * writes + tier-upgrade evaluation.
  *
  * Spec: openspec/changes/redesign-hospital-economy/design.md D1/D5/D9
  *       openspec/specs/hospital-tycoon-engine/spec.md
@@ -286,7 +287,7 @@ let _controller: StudySessionController | null = null
 
 /**
  * Singleton study-session controller. Lazy-created on first use; survives route
- * changes inside the SPA. Anti-cheat (visibility + idle 90s) handled by the
+ * changes inside the SPA. Visibility auto-pause / auto-resume handled by the
  * controller; this module wires lifecycle callbacks to DB writes.
  */
 export function getStudySessionController(): StudySessionController {

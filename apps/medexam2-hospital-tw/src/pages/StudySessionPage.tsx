@@ -4,8 +4,8 @@
  * accumulates revenue / reputation / totalStudyMinutes. Outside a session,
  * the hospital is idle (no auto-tick).
  *
- * Anti-cheat: visibility-hidden + 90s idle auto-pause are handled by the
- * content-pack `StudySessionController` (subscribed via `useStudySessionTick`).
+ * Visibility-hidden auto-pause + visibility-return auto-resume are handled by
+ * the content-pack `StudySessionController` (subscribed via `useStudySessionTick`).
  *
  * MVP slice today: text-based scene (no sprites yet). Doctor-scene overlay
  * sprites and per-room-type backgrounds deferred to follow-up change after
@@ -109,7 +109,7 @@ export function StudySessionPage() {
         <div className={`study-session__state study-session__state--${state}`}>
           {state === 'idle' && '🌙 醫院休息中（沒有念書，零產出）'}
           {state === 'active' && '📖 念書中 — 醫師看診、聲望累積中'}
-          {state === 'paused' && '⏸️ 已暫停（離開分頁或閒置 ≥ 90 秒）'}
+          {state === 'paused' && '⏸️ 已暫停（離開分頁，回來會自動繼續）'}
         </div>
 
         <div className="study-session__controls">
@@ -142,7 +142,7 @@ export function StudySessionPage() {
 
         {state === 'paused' && (
           <p className="study-session__hint">
-            移動滑鼠或點任意處不會自動繼續，請按「繼續唸書」回到 active。
+            離開分頁造成的暫停會在回到分頁時自動繼續；若是你手動按下暫停，請點「繼續唸書」回到 active。
           </p>
         )}
       </section>

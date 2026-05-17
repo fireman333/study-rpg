@@ -1,11 +1,21 @@
 /**
  * Study session controller for the 二階 medexam2 content pack.
  *
- * Encapsulates the "reading mode" lifecycle (start / pause / resume / stop) plus
- * the two anti-cheat guards from `openspec/project.md` Failure Modes:
+ * Encapsulates the "reading mode" lifecycle (start / pause / resume / stop)
+ * as a Pomodoro-style player-controlled timer. Two automatic behaviors:
  *
- * 1. `document.visibilityState === 'hidden'` → auto-pause
- * 2. ≥ 90s without mousemove / keypress / touchstart / scroll → auto-pause
+ * 1. `document.visibilityState === 'hidden'` → auto-pause (so the player
+ *    doesn't accumulate revenue while reading another tab for reference).
+ * 2. `document.visibilityState === 'visible'` after a visibility-hidden
+ *    pause → auto-resume (saves a manual click on tab return).
+ *
+ * Manual pauses (`pause('manual')`) survive visibility cycles and require an
+ * explicit `resume()` from the UI — the controller tracks `lastPauseReason`
+ * to enforce this contract.
+ *
+ * No idle / inactivity-based pause. The session is expected to run unattended
+ * while the player reads a paper textbook; the rate cap from `reading-loop`
+ * (`MAX_ATTRIBUTE_PER_MINUTE = 1`) bounds the anti-cheat upside.
  *
  * Per design D9 + spec `hospital-study-session`, only an active session SHALL
  * cause the tick loop to accumulate revenue / reputation / totalStudyMinutes.
@@ -14,8 +24,8 @@
  * accordingly.
  *
  * This is the one module in the content pack allowed to touch `document` /
- * `window` (per audit B-style decision: idle detection lives in content pack,
- * not the app, so future content packs can ship their own anti-cheat policy).
+ * `window` (per audit B-style decision: visibility detection lives in content
+ * pack, not the app, so future content packs can ship their own policy).
  *
  * Pure on `globalThis` shape — degrades to a no-op controller in SSR / Node /
  * test environments where `document` is undefined.
@@ -23,7 +33,7 @@
 
 export type StudySessionState = 'idle' | 'active' | 'paused'
 
-export type StudySessionPauseReason = 'visibility-hidden' | 'idle-timeout' | 'manual'
+export type StudySessionPauseReason = 'visibility-hidden' | 'manual'
 export type StudySessionResumeReason = 'visibility-return' | 'interaction' | 'manual'
 
 export interface StudySessionControllerOptions {
@@ -35,11 +45,6 @@ export interface StudySessionControllerOptions {
   onResume?: (reason: StudySessionResumeReason) => void
   /** Fired when the player explicitly stops the session (returns to idle). */
   onStop?: () => void
-  /**
-   * Idle-timeout threshold in milliseconds. Defaults to 90,000 (90s) per
-   * design D9 / 一階 reading-timer parity. Tunable for testing.
-   */
-  idleTimeoutMs?: number
 }
 
 export interface StudySessionController {
@@ -60,102 +65,74 @@ export interface StudySessionController {
   dispose(): void
 }
 
-const DEFAULT_IDLE_TIMEOUT_MS = 90_000
-
-const ACTIVITY_EVENTS: ReadonlyArray<keyof DocumentEventMap> = [
-  'mousemove',
-  'keydown',
-  'touchstart',
-  'scroll',
-]
-
 export function createStudySessionController(
   opts: StudySessionControllerOptions = {},
 ): StudySessionController {
-  const idleTimeoutMs = opts.idleTimeoutMs ?? DEFAULT_IDLE_TIMEOUT_MS
-
   let state: StudySessionState = 'idle'
-  let idleTimer: ReturnType<typeof setTimeout> | null = null
+  let lastPauseReason: StudySessionPauseReason | null = null
 
   // SSR / Node fallback — no document = no listeners, just lifecycle without anti-cheat.
   const hasDocument = typeof document !== 'undefined'
-
-  function clearIdleTimer() {
-    if (idleTimer !== null) {
-      clearTimeout(idleTimer)
-      idleTimer = null
-    }
-  }
-
-  function armIdleTimer() {
-    clearIdleTimer()
-    if (state !== 'active') return
-    idleTimer = setTimeout(() => {
-      if (state === 'active') pause('idle-timeout')
-    }, idleTimeoutMs)
-  }
-
-  function onActivity() {
-    if (state === 'active') armIdleTimer()
-  }
 
   function onVisibilityChange() {
     if (!hasDocument) return
     if (document.visibilityState === 'hidden' && state === 'active') {
       pause('visibility-hidden')
+      return
+    }
+    if (
+      document.visibilityState === 'visible' &&
+      state === 'paused' &&
+      lastPauseReason === 'visibility-hidden'
+    ) {
+      resume('visibility-return')
     }
   }
 
   function attachListeners() {
     if (!hasDocument) return
-    for (const evt of ACTIVITY_EVENTS) {
-      document.addEventListener(evt, onActivity, { passive: true })
-    }
     document.addEventListener('visibilitychange', onVisibilityChange)
   }
 
   function detachListeners() {
     if (!hasDocument) return
-    for (const evt of ACTIVITY_EVENTS) {
-      document.removeEventListener(evt, onActivity)
-    }
     document.removeEventListener('visibilitychange', onVisibilityChange)
   }
 
   function start() {
     if (state === 'active') return
     state = 'active'
+    lastPauseReason = null
     attachListeners()
-    armIdleTimer()
     opts.onStart?.()
   }
 
   function pause(reason: StudySessionPauseReason = 'manual') {
     if (state !== 'active') return
     state = 'paused'
-    clearIdleTimer()
+    lastPauseReason = reason
     opts.onPause?.(reason)
   }
 
   function resume(reason: StudySessionResumeReason = 'manual') {
     if (state !== 'paused') return
     state = 'active'
-    armIdleTimer()
+    lastPauseReason = null
     opts.onResume?.(reason)
   }
 
   function stop() {
     if (state === 'idle') return
     state = 'idle'
-    clearIdleTimer()
+    lastPauseReason = null
     detachListeners()
     opts.onStop?.()
   }
 
   function dispose() {
-    clearIdleTimer()
     detachListeners()
     state = 'idle'
+    lastPauseReason = null
   }
 
   return {

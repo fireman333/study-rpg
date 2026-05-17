@@ -56,8 +56,7 @@ export function V6MigrationModal({ counters, onDismiss }: V6MigrationModalProps)
           <li>
             <strong>📖 唸書 session</strong>
             <p>
-              掛機不再產出聲望／營收。從首頁點「📖 唸書」進入 session，期間醫師才會看診賺收益。離開分頁
-              90 秒會自動暫停。
+              掛機不再產出聲望／營收。從首頁點「📖 唸書」進入 session，期間醫師才會看診賺收益。離開分頁會自動暫停、回到分頁自動繼續。
             </p>
           </li>
           <li>

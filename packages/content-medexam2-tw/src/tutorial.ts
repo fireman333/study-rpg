@@ -67,7 +67,7 @@ export const TUTORIAL_STEPS: ReadonlyArray<TutorialStep> = Object.freeze([
   {
     id: 'first-study-session',
     title: '開始第一次唸書 session',
-    body: '點「開始唸書」進入看診畫面，醫師會自動運作。離開分頁或閒置 90 秒會自動暫停，回來再繼續即可。',
+    body: '點「開始唸書」進入看診畫面，醫師會自動運作。離開分頁會自動暫停、回來自動繼續；按右上「結束 Session」可手動結算。',
     completeOn: 'study-session-started-1min',
   },
   {
@@ -111,7 +111,7 @@ export const SURFACE_HINTS: ReadonlyArray<SurfaceHint> = Object.freeze([
   {
     id: 'study',
     title: '唸書 session 怎麼運作',
-    body: '看診畫面就是你的醫院。session 計時、tab 切走或 90 秒沒互動會自動暫停，回來點「繼續」即可。',
+    body: '看診畫面就是你的醫院。session 計時跑著，切到別的 tab 會自動暫停、回來自動繼續；想停下來按「暫停」或「結束 Session」。',
   },
   {
     id: 'training',
