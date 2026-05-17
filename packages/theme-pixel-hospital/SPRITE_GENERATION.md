@@ -217,12 +217,12 @@ magick "$src" -fuzz 12% -transparent "$corner" -trim +repage \
 
 | Rarity | Tool | Count | Status |
 |---|---|---|---|
-| P1 (夢級夯) | codex `gpt-image-2` | 14 × 2 = 28 | ⏳ Pending (canary V7/V8 validated) |
-| P2 (頂級) | Gemini MCP | 14 × 2 = 28 | ⏳ Pending |
+| P1 (夢級夯) | codex `gpt-image-2` | 14 × 2 = 28 | ✓ Shipped (2026-05-18; batch ran 02:14–03:39, avg 3.15 min/sprite, no content-gate failures; 麻醉科-P1 male needed magick `+dither -colors 16` re-quantize because codex emitted 33K-color continuous-tone PNG) |
+| P2 (頂級) | Gemini MCP | 14 × 2 = 28 | ✓ Shipped (2026-05-18) |
 | P3 (人上人) | codex `gpt-image-2` | 14 × 2 = 28 | ✓ Shipped (2026-05-15 / 17) |
-| P4 (NPC) | Gemini MCP | 14 × 2 = 28 | ⏳ Pending |
-| P5 (拉完了) | Gemini MCP | 14 × 2 = 28 | ⏳ Pending |
-| **Total new** | | **112 sprites** | |
+| P4 (NPC) | Gemini MCP | 14 × 2 = 28 | ✓ Shipped (2026-05-18) |
+| P5 (拉完了) | Gemini MCP | 14 × 2 = 28 | 🟡 Partial: 13/14 male shipped (2026-05-18); 1 male (泌尿科) + 14 female blocked by Gemini daily quota — regenerate after quota reset |
+| **Total new** | | **112 sprites** | **97 shipped today (28 P1 + 28 P2 + 28 P4 + 13 P5 male); 15 remaining (1 P5 male + 14 P5 female) blocked by Gemini quota** |
 
 ### Tool routing rationale
 
@@ -242,6 +242,7 @@ These are the **hard-won lessons from the 2026-05-18 canary iteration (V1→V8)*
 7. **Fire shape (P1 only)**: "narrow streamlined flame tongues licking dynamically UPWARD, slim elegant calligraphic strokes, NOT a bulky enveloping fire cloud" — without this, V6 rendered a fire blob. Streamlined fire matches codex P1 reference.
 8. **Japanese GBA RPG style anchor**: explicit "Pokemon Emerald, Fire Emblem GBA, Final Fantasy Tactics Advance aesthetic" — V4 (no style anchor) rendered Western comic style; V5+ (with anchor) rendered the right Japanese anime pixel-art mood.
 9. **Adult anime proportions**: "head-to-body about 1:6, slightly larger expressive anime eyes" — without this Gemini drifts toward Western realistic 1:7-1:8 (per its own self-analysis of codex refs via gemini-cli vision).
+10. **Gemini daily quota cap (hit 2026-05-18 batch run)**: MCP `gemini_generate_image` enforces an undocumented per-day image generation cap. Symptom: returns `{"paths": [], "text": "Sorry, I can't generate more images for you today, but come back tomorrow and we can make more.", "image_count": 0}` with HTTP 200 (NOT an error code). **No transparent partial-credit** — once hit, all subsequent calls in same day return the same empty payload. Cap appears to be ~70-80 images / day per Gmail account on the gemini-cli free OAuth tier. Workaround: (a) wait until 00:00 UTC next day, (b) use a different Gmail (`nlm login switch <profile>`-style multi-account, untested for gemini-cli), or (c) fall back to codex for the remaining batch (at cost of style inconsistency — Gemini = continuous-tone post-processed to pixel-art, codex = native 16-color pixel art). **Mitigation rule**: when running 60+ sprite Gemini batch, monitor for the `image_count: 0` payload after each call and abort early if seen. Don't trust the absence of an error code — check `image_count` field.
 
 ### Gemini V7 prompt template (final, for P2 / P4 / P5)
 
@@ -326,11 +327,7 @@ If `/tmp` is cleared, regenerate by running the V7 Gemini prompt for 內科 P1 m
 
 ### Stale outputs (do NOT use)
 
-`/tmp/sprite-batch/` (2026-05-18 ~01:08) contains 8 Gemini sprites generated with an OLDER prompt template (pre-V5, pre-Japanese-GBA-style pivot). They are stylistically inconsistent with the V7 template — **discard when re-batching**:
-
-- doctor-內科-P1-female.png, doctor-內科-P5.png
-- doctor-外科-P1.png, doctor-外科-P1-female.png, doctor-外科-P5.png, doctor-外科-P5-female.png
-- doctor-婦產科-P1.png, doctor-婦產科-P1-female.png
+Stale `/tmp/sprite-batch/` from canary phase was cleaned 2026-05-18 02:23 during rarity expansion batch run. Going forward: keep `/tmp` clean of any `doctor-*-P{N}{,-female}.png` files between batch runs — the codex script's `rm -f $TMP_OUT` per-iteration guard handles in-flight cleanup, but stale files from cancelled / failed earlier runs can confuse the mv-on-success logic if left in /tmp.
 
 ## Regeneration procedure
 
