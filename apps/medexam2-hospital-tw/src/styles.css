@@ -2079,3 +2079,37 @@ body {
   margin: 0;
   font-size: 13px;
 }
+
+/* Milestone tip toast (redesign-hospital-economy §9.5.4) */
+.milestone-tip-toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 248, 220, 0.96);
+  border: 2px solid var(--accent-gold);
+  box-shadow: 2px 2px 0 var(--frame-dark);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  z-index: 950;
+  max-width: 480px;
+  animation: tip-slide 0.25s ease-out;
+}
+@keyframes tip-slide {
+  from { transform: translate(-50%, -16px); opacity: 0; }
+  to   { transform: translateX(-50%); opacity: 1; }
+}
+.milestone-tip-toast__icon { font-size: 16px; }
+.milestone-tip-toast__body { flex: 1; }
+.milestone-tip-toast__close {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.6;
+}
+.milestone-tip-toast__close:hover { opacity: 1; }

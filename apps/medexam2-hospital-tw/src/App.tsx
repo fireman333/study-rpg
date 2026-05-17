@@ -19,6 +19,8 @@ import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
 import { ConflictChooserModal } from './components/ConflictChooserModal'
 import { V6MigrationModal } from './components/V6MigrationModal'
 import { TutorialOnboarding } from './components/TutorialOnboarding'
+import { MilestoneTipToast } from './components/MilestoneTipToast'
+import { useMilestoneTips } from './lib/useMilestoneTips'
 import { TUTORIAL_STEPS } from '@study-rpg/content-medexam2-tw'
 import { useAuth } from './lib/auth/AuthContext'
 
@@ -108,6 +110,7 @@ function App() {
   // M4 cloud sync: mounts engine on authed + drives migration / conflict modals.
   const sync = useSync()
   const { user } = useAuth()
+  const milestoneTip = useMilestoneTips()
 
   if (!ready) {
     return (
@@ -140,6 +143,13 @@ function App() {
       )}
       {onboarding && (
         <TutorialOnboarding counters={onboarding} onComplete={() => setOnboarding(null)} />
+      )}
+      {milestoneTip.pending && (
+        <MilestoneTipToast
+          tipId={milestoneTip.pending.id}
+          message={milestoneTip.pending.message}
+          onDismiss={() => void milestoneTip.dismiss()}
+        />
       )}
       {upgradeNotice && (
         <div className="upgrade-notice" role="status">
