@@ -22,6 +22,7 @@ import {
   FATE_CARD_TIER_ORDER,
   type FateCardTier,
 } from '@study-rpg/content-medexam2-tw'
+import { FATE_CARD_ART } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB } from '../db/schema'
 import { drawFateCardAtTier, type FateCardResolvedDraw } from '../services/fate-card'
 import { SurfaceHint } from '../components/SurfaceHint'
@@ -121,6 +122,14 @@ export function FateCardPage() {
               className={`fate-card ${insufficient ? 'fate-card--insufficient' : ''}`}
               style={{ borderColor: tierColor(tier) }}
             >
+              {FATE_CARD_ART && (
+                <img
+                  className="fate-card__art"
+                  src={FATE_CARD_ART[tier]}
+                  alt=""
+                  aria-hidden="true"
+                />
+              )}
               <h3 className="fate-card__title" style={{ color: tierColor(tier) }}>
                 {FATE_CARD_LABELS[tier]}
               </h3>

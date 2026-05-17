@@ -17,6 +17,7 @@ import { HOSPITAL_SCENES } from './scenes'
 
 export { ROOM_SCENES } from './room-scenes'
 export { EVENT_ICONS } from './event-icons'
+export { FATE_CARD_ART } from './fate-card-art'
 
 const DOCTOR_SLOT_POSITIONS: NonNullable<ThemePack['doctorSlotPositions']> = {
   tier1: [

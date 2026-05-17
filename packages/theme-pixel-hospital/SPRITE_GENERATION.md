@@ -184,6 +184,33 @@ anti-aliasing, no smooth gradients.
 
 Why sanitized: earlier surgery-scene gen with `patient covered + anesthesia + scalpels` deliberation-looped past 13 min before bring killed. For event icons we pre-emptively chose object-only compositions and got 4/4 clean first-pass results in ~10 min total.
 
+## Fate-card pack art (FateCardPage card-back thumbnails, 2026-05-18 §7 follow-up)
+
+`packages/theme-pixel-hospital/sprites/fate-cards/` — 192×256 (3:4 portrait) transparent PNGs, one per fate-card tier. Wired into `FateCardPage` as the visual header above each tier's draw button. Exported via `theme-pixel-hospital/src/fate-card-art.ts` → `FATE_CARD_ART` object.
+
+| Filename | Tier | Theme | Generated | Tool | Notes |
+|---|---|---|---|---|---|
+| `fate-card-common.png` | common | plain wooden frame + small gold star, soft brown | 2026-05-18 00:02 | Gemini MCP | Clean first-pass |
+| `fate-card-rare.png` | rare | polished silver frame + crescent moon, cool blue | 2026-05-18 00:03 | Gemini MCP | Clean first-pass |
+| `fate-card-epic.png` | epic | ornate gold frame + crown, gold/red filigree | 2026-05-18 00:04 | Gemini MCP | Clean first-pass |
+| `fate-card-legendary.png` | legendary | platinum frame + rainbow gem + radial light beams | 2026-05-18 00:04 | Gemini MCP | Clean first-pass |
+
+**Tool choice — Gemini-first for this batch**: simple frame + center icon composition, no people, no medical context → no codex content-gate risk. Gemini MCP gave 4 clean parallel first-passes in ~2 min total wallclock vs codex's ~12 min sequential estimate. See [~/.claude/imports/image_gen_routing.md](~/.claude/imports/image_gen_routing.md) for the general routing rule (simple-to-medium icons → Gemini, complex scenes → codex).
+
+**Gemini-specific gotchas**:
+- Native output is 1:1 / 2048×2048 with **solid pastel bg** (not transparent) — must chroma-key the corner pixel during post-process
+- Renders true 3:4 portrait frame inside the 1:1 canvas; trim after chroma-key recovers the actual content bbox
+- Not native pixel-art rendering — `magick -filter point` (nearest-neighbor) + `-colors 16` quantize required to match GBA aesthetic
+
+**Post-process pipeline** (per fate-card, applied to raw Gemini PNG):
+```bash
+src="/tmp/gemini_img_<timestamp>_0.png"
+corner=$(magick "$src" -format "%[pixel:p{0,0}]" info:)
+magick "$src" -fuzz 12% -transparent "$corner" -trim +repage \
+  -filter point -resize 192x256! +dither -colors 16 \
+  "PNG32:/tmp/fate-card-<tier>.png"
+```
+
 ## Regeneration procedure
 
 To regenerate any sprite, run codex from a non-project directory (per

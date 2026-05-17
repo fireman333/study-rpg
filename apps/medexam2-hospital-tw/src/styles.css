@@ -2457,6 +2457,14 @@ body {
   gap: 6px;
 }
 .fate-card--insufficient { opacity: 0.6; }
+.fate-card__art {
+  align-self: center;
+  width: 96px;
+  height: 128px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  margin-bottom: 4px;
+}
 .fate-card__title { margin: 0; font-size: 15px; }
 .fate-card__cost, .fate-card__badluck { margin: 0; font-size: 12px; }
 .fate-card__pity { opacity: 0.7; }
