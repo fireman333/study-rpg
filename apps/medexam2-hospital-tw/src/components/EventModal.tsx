@@ -24,6 +24,7 @@ import {
   VIP_BOOST_DURATION_MS,
   VIP_BOOST_MULTIPLIER,
 } from '@study-rpg/content-medexam2-tw'
+import { EVENT_ICONS } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB } from '../db/schema'
 import {
   resolveAudit,
@@ -195,6 +196,14 @@ export function EventModal() {
         {eventId === 'medical-malpractice' && (
           <>
             <header className="event-modal__head event-modal__head--negative">
+              {EVENT_ICONS && (
+                <img
+                  src={EVENT_ICONS.malpractice}
+                  alt=""
+                  aria-hidden
+                  className="event-modal__icon"
+                />
+              )}
               <h2>⚠️ 醫療糾紛</h2>
             </header>
             <div className="event-modal__body">
@@ -239,6 +248,14 @@ export function EventModal() {
         {eventId === 'vip-patient' && (
           <>
             <header className="event-modal__head event-modal__head--positive">
+              {EVENT_ICONS && (
+                <img
+                  src={EVENT_ICONS.vip}
+                  alt=""
+                  aria-hidden
+                  className="event-modal__icon"
+                />
+              )}
               <h2>🌟 VIP 病人</h2>
             </header>
             <div className="event-modal__body">
@@ -264,6 +281,14 @@ export function EventModal() {
         {eventId === 'emergency-shift' && (
           <>
             <header className="event-modal__head event-modal__head--positive">
+              {EVENT_ICONS && (
+                <img
+                  src={EVENT_ICONS.emergency}
+                  alt=""
+                  aria-hidden
+                  className="event-modal__icon"
+                />
+              )}
               <h2>🚑 急診加開</h2>
             </header>
             <div className="event-modal__body">
@@ -289,6 +314,14 @@ export function EventModal() {
         {eventId === 'audit-event' && (
           <>
             <header className="event-modal__head event-modal__head--mixed">
+              {EVENT_ICONS && (
+                <img
+                  src={EVENT_ICONS.audit}
+                  alt=""
+                  aria-hidden
+                  className="event-modal__icon"
+                />
+              )}
               <h2>📋 醫療評鑑</h2>
             </header>
             <div className="event-modal__body">

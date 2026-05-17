@@ -2358,8 +2358,18 @@ body {
 .event-modal__head {
   padding: 12px 20px;
   border-bottom: 2px solid var(--frame-dark);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.event-modal__head h2 { margin: 0; font-size: 16px; }
+.event-modal__head h2 { margin: 0; font-size: 16px; flex: 1; }
+.event-modal__icon {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  flex-shrink: 0;
+}
 .event-modal__head--negative { background: rgba(196, 77, 77, 0.18); }
 .event-modal__head--positive { background: rgba(96, 167, 96, 0.22); }
 .event-modal__head--mixed    { background: rgba(196, 136, 77, 0.20); }

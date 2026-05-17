@@ -16,6 +16,7 @@ import { SPRITES_MAP } from './sprites'
 import { HOSPITAL_SCENES } from './scenes'
 
 export { ROOM_SCENES } from './room-scenes'
+export { EVENT_ICONS } from './event-icons'
 
 const DOCTOR_SLOT_POSITIONS: NonNullable<ThemePack['doctorSlotPositions']> = {
   tier1: [

@@ -161,6 +161,29 @@ rendering, no anti-aliasing, no smooth gradients.
 
 **Gotcha for future regen** — codex `gpt-image-2` safety gate trips on certain medical scene compositions. If a prompt contains "patient covered with sheet" + "anesthesia machine" + "scalpel" together, the agent may deliberation-loop past 10 minutes without producing output. Workaround: split sensitive elements across prompts, or describe **empty / pre-procedure** rooms instead of mid-procedure scenes. Past 10 min wall, kill and retry with sanitized prompt.
 
+## Event modal icons (EventModal header thumbnails, 2026-05-17 §6 follow-up)
+
+`packages/theme-pixel-hospital/sprites/events/` — 192×192 transparent PNGs, one per modal event id. Wired into `EventModal` header next to the h2 title. Exported via `theme-pixel-hospital/src/event-icons.ts` → `EVENT_ICONS` object. Toast events (negative-news / peer-criticism / research-award) omit dedicated icons since their 5-sec auto-dismiss is too brief for icons to register.
+
+| Filename | Event id | Theme | Generated | Attempts | Notes |
+|---|---|---|---|---|---|
+| `event-malpractice.png` | medical-malpractice | paperwork dispute (gavel + sealed docs) | 2026-05-17 23:30 | 1 | Clean first-pass |
+| `event-vip.png` | vip-patient | crystal vase + VIP plaque, no people | 2026-05-17 23:33 | 1 | Clean first-pass (left a 1.4 MB pre-quantize source PNG in /tmp; removed during move) |
+| `event-emergency.png` | emergency-shift | ER sign + ambulance silhouette, night | 2026-05-17 23:36 | 1 | Clean first-pass |
+| `event-audit.png` | audit-event | clipboard + checklist + magnifying glass + stamp | 2026-05-17 23:39 | 1 | Clean first-pass |
+
+Common prompt principles (all sanitized — **no people**, **no medical procedures**, **no body parts**):
+
+```
+A GBA-era pixel art icon of <object composition>, 192x192 pixels, transparent
+background, 16-color palette matching Game Boy Advance medical RPG style.
+Composition: <detailed object list>. No people. <mood descriptor>.
+Top-down or 3/4 perspective. Nearest-neighbor pixel rendering, no
+anti-aliasing, no smooth gradients.
+```
+
+Why sanitized: earlier surgery-scene gen with `patient covered + anesthesia + scalpels` deliberation-looped past 13 min before bring killed. For event icons we pre-emptively chose object-only compositions and got 4/4 clean first-pass results in ~10 min total.
+
 ## Regeneration procedure
 
 To regenerate any sprite, run codex from a non-project directory (per
