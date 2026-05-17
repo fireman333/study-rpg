@@ -175,6 +175,26 @@ study-rpg M1–M3 已 ship 純 client-side SPA：Vite + React + Dexie (IndexedDB
 
 **Rollback**：如果 cloud sync 出大 bug，client 端透過 feature flag `VITE_CLOUD_SYNC_ENABLED=false` 一鍵關閉（保留 sign-in UI 但 sync engine 不啟動），不影響 local gameplay。GH Pages 重 deploy 5 分鐘內生效。
 
+## Decisions
+
+### 2026-05-17 00:08 — Chrome MCP click reliability for migration modals (Task 6 smoke)
+
+Chrome MCP `computer.left_click` with `ref` (即 `mcp__Claude_in_Chrome__computer + action: left_click + ref: ref_N`) **沒有可靠地觸發 React `onClick`** for the three migration modals (`MigrationUploadPrompt` / `ConflictChooserModal` / `SettingsPanel`). 點擊事件在 MCP layer 註冊（tool 回報「Clicked on element ref_X」），但 React handler 從未執行 — `migration_paused:<uid>` meta row 沒寫進去、engine 沒進 paused 狀態（雖然狀態剛好是 paused 但那是初始狀態不是這次點擊的結果）。
+
+**Workaround**：改用 `javascript_tool` 直接 `element.click()` 觸發 synthetic native click。立即工作 — meta 寫入、engine pause/resume、UI 跳轉全部如預期。
+
+**可能 root cause**（未深究）：
+1. `.modal-backdrop` 上沒 onClick 但 `.modal` 內 wrapper 有 `onClick={(e) => e.stopPropagation()}` — Chrome MCP 的 `ref` 點擊可能透過某個 accessibility-tree path 派發事件，路徑被 stopPropagation 攔到？
+2. Chrome MCP 的 ref-based click 可能是模擬 `pointerdown/pointerup` 而非完整 native click，碰到 React 17+ event delegation 對 capture phase 的處理不一致。
+3. 與 React 同步狀態 timing 競爭（Chrome MCP 在 React render 前點擊）。
+
+**Recommendation for future SPA smoke tests**（特別是要驗證 React modal 行為時）：
+- **First try**: `mcp__Claude_in_Chrome__find` → `javascript_tool .click()` 透過 query + native click。比 ref-based 更可靠
+- **Fallback**: 只在需要真實 pointer event（hover、drag、focus-on-click）才用 `computer.left_click ref`
+- **Verification 一律寫**: 用 `javascript_tool` await + 直接讀取預期副作用（Dexie row、localStorage、Redux store state），不要只看 DOM diff（DOM 可能因 stopPropagation 沒變但 state 反而變）
+
+**為什麼記在這**：Task 6 smoke 花了 ~15 min 才意識到 click 沒 fire（first symptom: meta 表是空的、但 button disabled 狀態看起來像 react 接到了）。Task 7 + future 二階 mirror smoke 都會遇到同樣的 modal — 記下來下次直接走 `.click()`。
+
 ## Open Questions
 
 1. **Mock exam history 是否 sync**（grill F1.1）— 預設不做，但 dogfood 換 device 後可能想看「上次模擬考第 12 題我選哪個」。Follow-up change `add-mock-exam-history-sync` 評估
