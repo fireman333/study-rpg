@@ -371,7 +371,8 @@ function outcomeMessage(o: Outcome): string {
     if (o.result.kind === 'settled') {
       return `已支付 ${fmt(o.result.settlementCost ?? 0)} 💰 和解金。糾紛圓滿落幕。`
     }
-    return `聲望 −${fmt(MALPRACTICE_PENALTY_REP)}。雖然不愉快，但醫院營收不受影響。`
+    // Use resolver's actualDelta (negative) — reflects floor clamping when rep < penalty
+    return `聲望 ${fmt(o.result.reputationDelta)}。雖然不愉快，但醫院營收不受影響。`
   }
   if (o.kind === 'vip') {
     if (o.result.kind === 'stale') return '事件已被自動處理或過期，無需再操作。'
