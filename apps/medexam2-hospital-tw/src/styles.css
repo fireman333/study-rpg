@@ -1546,3 +1546,41 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ─── M4 cloud sync auth button ─────────────────────────────────────────── */
+.auth-button {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+  padding: 6px 12px;
+  font-family: var(--font-pixel-cjk, sans-serif);
+  font-size: 12px;
+  background: rgba(20, 20, 20, 0.75);
+  color: #e6edf3;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s;
+}
+.auth-button:hover {
+  background: rgba(40, 40, 40, 0.9);
+}
+.auth-button--loading {
+  opacity: 0.5;
+  cursor: progress;
+  pointer-events: none;
+}
+.auth-button--authed {
+  border-color: rgba(63, 185, 80, 0.5);
+  color: #3fb950;
+}
+.auth-button--unauthed {
+  border-color: rgba(88, 166, 255, 0.5);
+  color: #58a6ff;
+}

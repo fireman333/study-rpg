@@ -12,6 +12,8 @@ import { DoctorRoster } from './pages/DoctorRoster'
 import { Hospital } from './pages/Hospital'
 import { useTickLoop } from './lib/tick'
 import { checkAssignmentInvariants } from './lib/assignment'
+import { useSync } from './lib/sync/useSync'
+import { AuthButton } from './components/AuthButton'
 
 const TIER_DELTA_LABEL: Record<Room['type'], string> = {
   outpatient: '門診',
@@ -96,6 +98,9 @@ function App() {
     ready ? handleUpgrade : undefined,
   )
 
+  // M4 cloud sync: mounts engine on authed status, no-op otherwise.
+  useSync()
+
   if (!ready) {
     return (
       <main className="app-shell">
@@ -106,6 +111,7 @@ function App() {
 
   return (
     <HashRouter>
+      <AuthButton />
       {upgradeNotice && (
         <div className="upgrade-notice" role="status">
           {upgradeNotice}

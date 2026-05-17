@@ -80,6 +80,32 @@ export interface QuestionHistoryRow {
   easeFactor: number
 }
 
+// v5 cloud-sync support tables — meta (migration choice/paused flags) +
+// localBackup (snapshot before destructive sign-in resolution).
+export interface HospitalMetaRow {
+  key: string
+  value: unknown
+}
+
+/** Snapshot of hospital state pre-destructive sign-in resolution. */
+export interface HospitalLocalBackupRecord {
+  key: string  // e.g. snapshot-2026-05-17T12:00:00.000Z
+  takenAt: number
+  userId: string
+  reason: string
+  // Snapshotted hospital state — all cloud-synced 二階 tables
+  hospitalState: {
+    gameCounters: GameCountersRow | null
+    gachaStats: GachaStatsRow | null
+    tickets: TicketsRow | null
+    rooms: RoomRow[]
+    affinity: AffinityRow[]
+  }
+  doctors: DoctorRow[]
+  mastery: MasteryRow[]
+  questionHistory: QuestionHistoryRow[]
+}
+
 export class HospitalDB extends Dexie {
   affinity!: EntityTable<AffinityRow, 'subjectId'>
   doctors!: EntityTable<DoctorRow, 'id'>
@@ -89,6 +115,8 @@ export class HospitalDB extends Dexie {
   gameCounters!: EntityTable<GameCountersRow, 'id'>
   mastery!: EntityTable<MasteryRow, 'subjectId'>
   questionHistory!: EntityTable<QuestionHistoryRow, 'questionId'>
+  meta!: EntityTable<HospitalMetaRow, 'key'>
+  localBackup!: EntityTable<HospitalLocalBackupRecord, 'key'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -139,6 +167,21 @@ export class HospitalDB extends Dexie {
         }))
         if (missing.length > 0) await masteryTable.bulkAdd(missing)
       })
+    // v5: cloud-sync support tables — meta (migration choice/paused per-user)
+    // + localBackup (snapshot before destructive sign-in resolution). Both
+    // tables are additive; no upgrade hook needed.
+    this.version(5).stores({
+      affinity: '&subjectId',
+      doctors: '&id, subjectId, rarity, obtainedAt',
+      gachaStats: '&id',
+      tickets: '&id',
+      rooms: '&id, type, slot',
+      gameCounters: '&id',
+      mastery: '&subjectId',
+      questionHistory: '&questionId, subjectId, lastAnsweredAt, nextDueAt',
+      meta: '&key',
+      localBackup: '&key, takenAt',
+    })
   }
 }
 
