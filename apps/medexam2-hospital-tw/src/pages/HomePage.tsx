@@ -126,6 +126,9 @@ export function HomePage() {
           <Link to="/training" className="nav-link">
             進修 →
           </Link>
+          <Link to="/fate-cards" className="nav-link">
+            命運卡 →
+          </Link>
           <Link to="/roster" className="nav-link">
             醫師名冊 →
           </Link>

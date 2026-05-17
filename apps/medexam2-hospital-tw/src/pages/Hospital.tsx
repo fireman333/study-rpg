@@ -13,6 +13,7 @@ import { getHospitalDB } from '../db/schema'
 import { RoomCard } from '../components/RoomCard'
 import { AssignDoctorModal } from '../components/AssignDoctorModal'
 import { purchaseRoomExtension, type ExtensionResult } from '../services/room-extension'
+import { SurfaceHint } from '../components/SurfaceHint'
 
 const EXTRA_PREFIX = 'extra-'
 const ROOM_TYPES_ORDERED: ReadonlyArray<RoomType> = ['outpatient', 'surgery', 'ward']
@@ -64,6 +65,8 @@ export function Hospital() {
           </Link>
         </div>
       </header>
+
+      <SurfaceHint surfaceId="hospital" />
 
       <p className="hospital-hint">
         指派招募來的醫師到診間。每 5 秒結算一次：產能 = 基礎 × 醫師 ×力 × 設施。

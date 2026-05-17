@@ -22,6 +22,7 @@ import {
 } from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB } from '../db/schema'
 import { getStudySessionController, useStudySessionTick } from '../lib/tick'
+import { SurfaceHint } from '../components/SurfaceHint'
 
 export function StudySessionPage() {
   const db = getHospitalDB()
@@ -70,6 +71,8 @@ export function StudySessionPage() {
           </Link>
         </div>
       </header>
+
+      <SurfaceHint surfaceId="study" />
 
       <section className="study-session__banner" aria-label="Session 狀態">
         <div className={`study-session__state study-session__state--${state}`}>

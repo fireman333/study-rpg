@@ -11,6 +11,7 @@ import { DoctorRoster } from './pages/DoctorRoster'
 import { Hospital } from './pages/Hospital'
 import { StudySessionPage } from './pages/StudySessionPage'
 import { TrainingPage } from './pages/TrainingPage'
+import { FateCardPage } from './pages/FateCardPage'
 import { useStudySessionTick } from './lib/tick'
 import { checkAssignmentInvariants } from './lib/assignment'
 import { useSync } from './lib/sync/useSync'
@@ -21,9 +22,16 @@ import { V6MigrationModal } from './components/V6MigrationModal'
 import { TutorialOnboarding } from './components/TutorialOnboarding'
 import { MilestoneTipToast } from './components/MilestoneTipToast'
 import { HelpMenu } from './components/HelpMenu'
+import { EventModal } from './components/EventModal'
+import { EventToast } from './components/EventToast'
 import { useMilestoneTips } from './lib/useMilestoneTips'
-import { TUTORIAL_STEPS } from '@study-rpg/content-medexam2-tw'
+import {
+  TUTORIAL_STEPS,
+  type EventDefinition,
+  type ToastEventOutcome,
+} from '@study-rpg/content-medexam2-tw'
 import { useAuth } from './lib/auth/AuthContext'
+import type { TickEventToastInfo } from './lib/tick'
 
 const TIER_DELTA_LABEL: Record<Room['type'], string> = {
   outpatient: '門診',
@@ -52,6 +60,10 @@ function App() {
   const [upgradeNotice, setUpgradeNotice] = useState<string | null>(null)
   const [v6Migration, setV6Migration] = useState<GameCountersRow | null>(null)
   const [onboarding, setOnboarding] = useState<GameCountersRow | null>(null)
+  const [eventToast, setEventToast] = useState<{
+    event: EventDefinition
+    outcome: ToastEventOutcome
+  } | null>(null)
   const lastNoticeAtRef = useRef<number>(0)
   const prevTierRef = useRef<HospitalTier>('診所')
 
@@ -103,9 +115,21 @@ function App() {
     setTimeout(() => setUpgradeNotice(null), 8000)
   }, [])
 
+  const handleToastEvent = useCallback((info: TickEventToastInfo) => {
+    setEventToast({ event: info.event, outcome: info.outcome })
+  }, [])
+
+  // modal-event trigger relies on Dexie liveQuery in <EventModal/>; no React
+  // state needed here, but accept the callback to flush console logs in dev.
+  const handleModalEvent = useCallback((_event: EventDefinition) => {
+    // Modal renders via liveQuery on gameCounters.pendingEventId
+  }, [])
+
   useStudySessionTick(
     ready ? handleCapped : undefined,
     ready ? handleUpgrade : undefined,
+    ready ? handleToastEvent : undefined,
+    ready ? handleModalEvent : undefined,
   )
 
   // M4 cloud sync: mounts engine on authed + drives migration / conflict modals.
@@ -152,6 +176,14 @@ function App() {
           onDismiss={() => void milestoneTip.dismiss()}
         />
       )}
+      <EventModal />
+      {eventToast && (
+        <EventToast
+          event={eventToast.event}
+          outcome={eventToast.outcome}
+          onDismiss={() => setEventToast(null)}
+        />
+      )}
       <HelpMenu />
       {upgradeNotice && (
         <div className="upgrade-notice" role="status">
@@ -169,6 +201,7 @@ function App() {
         <Route path="/hospital" element={<Hospital />} />
         <Route path="/study" element={<StudySessionPage />} />
         <Route path="/training" element={<TrainingPage />} />
+        <Route path="/fate-cards" element={<FateCardPage />} />
       </Routes>
     </HashRouter>
   )

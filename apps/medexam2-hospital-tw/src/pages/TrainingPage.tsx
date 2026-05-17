@@ -22,6 +22,7 @@ import { getHospitalDB, type DoctorRow } from '../db/schema'
 import { trainDoctor } from '../services/training'
 import { retireDoctor, type RetireResult } from '../services/retire'
 import type { TrainingAttemptResult } from '@study-rpg/content-medexam2-tw'
+import { SurfaceHint } from '../components/SurfaceHint'
 
 type Confirming = { doctor: DoctorRow }
 type RetireConfirming = { doctor: DoctorRow }
@@ -97,6 +98,8 @@ export function TrainingPage() {
           </Link>
         </div>
       </header>
+
+      <SurfaceHint surfaceId="training" />
 
       <section className="training-info">
         <p className="training-info__text">

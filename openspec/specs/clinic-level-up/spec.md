@@ -2,37 +2,38 @@
 
 ## Purpose
 
-Defines the three-tier hospital progression system for the 二階 hospital management mode: tier definitions (診所 / 區域醫院 / 醫學中心), locked reputation thresholds, per-tier room rosters, the tick-time upgrade detection logic with additive room insertion, and the UI surfaces (upgrade banner, HomePage tier badge, Hospital page header) that communicate tier state. Lives in `@study-rpg/content-medexam2-tw` alongside `hospital-tycoon-engine` since tier progression is hospital-mode-specific content, not engine-level concern.
+Defines the four-tier hospital progression system for the 二階 hospital management mode: tier definitions (診所 / 區域醫院 / 醫學中心 / 國家級教學醫院), locked reputation thresholds, per-tier room rosters, the tick-time upgrade detection logic with additive room insertion, and the UI surfaces (upgrade banner, HomePage tier badge, Hospital page header) that communicate tier state. Lives in `@study-rpg/content-medexam2-tw` alongside `hospital-tycoon-engine` since tier progression is hospital-mode-specific content, not engine-level concern.
 
 ## Requirements
 
-### Requirement: Hospital tier progression SHALL follow exactly three monotonic tiers
+### Requirement: Hospital tier progression SHALL follow exactly four monotonic tiers
 
-The system SHALL define a `HospitalTier` union with exactly three values: `'診所'`, `'區域醫院'`, `'醫學中心'`. The system SHALL export `TIER_ORDER` as the ordered array `['診所', '區域醫院', '醫學中心']`. Tier progression SHALL be strictly monotonic — once advanced, a tier SHALL NOT regress regardless of reputation changes. Reputation itself is monotonic by design (see `hospital-tycoon-engine` capability), so this property is preserved trivially.
+The system SHALL define a `HospitalTier` union with exactly four values: `'診所'`, `'區域醫院'`, `'醫學中心'`, `'國家級教學醫院'`. The system SHALL export `TIER_ORDER` as the ordered array `['診所', '區域醫院', '醫學中心', '國家級教學醫院']`. Tier progression SHALL be strictly monotonic — once advanced, a tier SHALL NOT regress regardless of reputation changes. Reputation itself is monotonic by design (see `hospital-tycoon-engine` capability), so this property is preserved trivially.
 
-#### Scenario: Tier order is exported as canonical array
+#### Scenario: Tier order is exported as canonical array of length 4
 
 - **GIVEN** a developer imports `TIER_ORDER` from `@study-rpg/content-medexam2-tw`
 - **WHEN** the import resolves
-- **THEN** the array SHALL equal `['診所', '區域醫院', '醫學中心']`
-- **AND** the array SHALL have exactly 3 elements
+- **THEN** the array SHALL equal `['診所', '區域醫院', '醫學中心', '國家級教學醫院']`
+- **AND** the array SHALL have exactly 4 elements
 
 #### Scenario: Tier never regresses
 
-- **GIVEN** `gameCounters.tier = '區域醫院'` and `reputation = 5000`
-- **WHEN** a future change attempts to set `tier = '診所'` outside of test/migration code paths
+- **GIVEN** `gameCounters.tier = '醫學中心'` and `reputation = 100,000`
+- **WHEN** a future change attempts to set `tier = '區域醫院'` outside of test/migration code paths
 - **THEN** the type system SHALL reject the assignment (TypeScript ensures this via `HospitalTier` typing)
 - **AND** no runtime code path SHALL include such a downgrade
 
 ### Requirement: Tier upgrade thresholds SHALL be locked literal constants
 
-The system SHALL export `TIER_UPGRADE_THRESHOLDS: Record<HospitalTier, number | null>` with the following locked values:
+The system SHALL export `TIER_UPGRADE_THRESHOLDS: Record<HospitalTier, number | null>` with the following locked values, recalibrated to align with the 30-day endgame pacing target:
 
 | Current tier | Reputation threshold to advance | Next tier |
 |---|---|---|
-| 診所 | 1,000 | 區域醫院 |
-| 區域醫院 | 10,000 | 醫學中心 |
-| 醫學中心 | `null` (terminal) | — |
+| 診所 | 48,000 | 區域醫院 |
+| 區域醫院 | 192,000 | 醫學中心 |
+| 醫學中心 | 2,000,000 | 國家級教學醫院 |
+| 國家級教學醫院 | `null` (terminal) | — |
 
 These thresholds SHALL be recorded as literals in `packages/content-medexam2-tw/src/clinic-tiers.ts`. Subsequent tuning SHALL replace them via a new change, not silently recompute them.
 
@@ -40,11 +41,11 @@ These thresholds SHALL be recorded as literals in `packages/content-medexam2-tw/
 
 - **GIVEN** `TIER_UPGRADE_THRESHOLDS['診所']`
 - **WHEN** the value is read
-- **THEN** it SHALL equal `1000`
+- **THEN** it SHALL equal `48000`
 
 #### Scenario: Terminal tier has null threshold
 
-- **GIVEN** `TIER_UPGRADE_THRESHOLDS['醫學中心']`
+- **GIVEN** `TIER_UPGRADE_THRESHOLDS['國家級教學醫院']`
 - **WHEN** the value is read
 - **THEN** it SHALL be `null`
 
@@ -54,168 +55,111 @@ The system SHALL export `TIER_ROOMS: Record<HospitalTier, Room[]>` describing th
 
 | Tier | Rooms |
 |---|---|
-| 診所 | 3 outpatient (slots 1, 2, 3) |
-| 區域醫院 | 4 outpatient (slots 1, 2, 3, 4) + 1 surgery (slot 1) — total 5 rooms |
-| 醫學中心 | 4 outpatient (slots 1–4) + 2 surgery (slots 1, 2) + 1 ward (slot 1) — total 7 rooms |
+| 診所 | 3 outpatient (slots 1, 2, 3) — total 3 |
+| 區域醫院 | 4 outpatient (slots 1, 2, 3, 4) + 1 surgery (slot 1) — total 5 |
+| 醫學中心 | 4 outpatient (slots 1–4) + 2 surgery (slots 1, 2) + 1 ward (slot 1) — total 7 |
+| 國家級教學醫院 | 5 outpatient (slots 1–5) + 3 surgery (slots 1, 2, 3) + 2 ward (slots 1, 2) — total 10 |
 
-All rooms SHALL have `baseRate = 10`, `roomFacility = 1.0`, and `assignedDoctorId = null` as initial values. Room ids SHALL be deterministic per `${type}-${index}` pattern (e.g., `outpatient-3`, `surgery-1`, `ward-1`). Slot field SHALL be 1-indexed within each room type for display ordering.
+All rooms SHALL have `baseRate = 10`, `roomFacility = 1.0`, and `assignedDoctorId = null` as initial values. Room ids SHALL be deterministic per `${type}-${index}` pattern. Slot field SHALL be 1-indexed within each room type for display ordering. Higher tiers SHALL be supersets of lower tiers (same ids preserved across upgrades).
 
-`wire-hospital-reputation` SHALL be the change that introduces per-type throughput differences (surgery weight, ward weight); until then all room types use identical `baseRate = 10`.
+#### Scenario: 國家級教學醫院 tier is the largest roster
 
-#### Scenario: 診所 tier has 3 outpatient rooms
-
-- **GIVEN** `TIER_ROOMS['診所']`
+- **GIVEN** `TIER_ROOMS['國家級教學醫院']`
 - **WHEN** the array is read
-- **THEN** it SHALL have length 3
-- **AND** every entry SHALL have `type === 'outpatient'`
-- **AND** the slots SHALL be `[1, 2, 3]`
+- **THEN** it SHALL have length 10
+- **AND** exactly 5 entries SHALL have `type === 'outpatient'`
+- **AND** exactly 3 entries SHALL have `type === 'surgery'`
+- **AND** exactly 2 entries SHALL have `type === 'ward'`
 
-#### Scenario: 區域醫院 tier adds surgery and an extra outpatient
+#### Scenario: 國家級教學醫院 superset preserves 醫學中心 ids
 
-- **GIVEN** `TIER_ROOMS['區域醫院']`
-- **WHEN** the array is read
-- **THEN** it SHALL have length 5
-- **AND** exactly 4 entries SHALL have `type === 'outpatient'`
-- **AND** exactly 1 entry SHALL have `type === 'surgery'`
-- **AND** the surgery entry's id SHALL equal `'surgery-1'`
+- **GIVEN** `TIER_ROOMS['醫學中心']` and `TIER_ROOMS['國家級教學醫院']`
+- **WHEN** the ids of 醫學中心 rooms are extracted
+- **THEN** every id from 醫學中心 SHALL appear in 國家級教學醫院's roster
 
-#### Scenario: 醫學中心 tier is the largest roster
+### Requirement: Tier upgrade SHALL fire when reputation AND diversification dual-gate both satisfied during a tick
 
-- **GIVEN** `TIER_ROOMS['醫學中心']`
-- **WHEN** the array is read
-- **THEN** it SHALL have length 7
-- **AND** exactly 4 entries SHALL have `type === 'outpatient'`
-- **AND** exactly 2 entries SHALL have `type === 'surgery'`
-- **AND** exactly 1 entry SHALL have `type === 'ward'`
+The system SHALL check tier advancement at the end of every `runTick()` transaction. Upgrade SHALL fire ONLY if BOTH gates pass:
 
-#### Scenario: Higher-tier rosters are supersets of lower-tier (deterministic ids)
+1. **Reputation gate**: `reputation >= TIER_UPGRADE_THRESHOLDS[currentTier]`
+2. **Diversification gate**: `countDistinctSubjectsAtRarity(minRarity) >= requiredDiversification`
 
-- **GIVEN** `TIER_ROOMS['診所']` and `TIER_ROOMS['區域醫院']`
-- **WHEN** the ids of 診所 rooms are compared to ids in 區域醫院's first 3 outpatient entries
-- **THEN** every id from 診所 SHALL appear in 區域醫院's roster (`outpatient-1`, `outpatient-2`, `outpatient-3`)
-- **AND** `TIER_ROOMS['醫學中心']` SHALL likewise contain every id from `TIER_ROOMS['區域醫院']`
+Diversification requirements per tier:
 
-### Requirement: Tier upgrade SHALL fire when reputation crosses threshold during a tick
+| Current tier → Next | Required: distinct subjects with rarity ≥ R, count ≥ N | Additional |
+|---|---|---|
+| 診所 → 區域醫院 | 5 distinct subjects (any rarity) | — |
+| 區域醫院 → 醫學中心 | 8 distinct subjects with rarity ≥ P3 | — |
+| 醫學中心 → 國家級教學醫院 | 10 distinct subjects with rarity ≥ P2 | AND ≥ 1 P1 doctor (any subject — duplicate-subject P1 counts) |
 
-The system SHALL check tier advancement at the end of every `runTick()` transaction, within the same Dexie transaction that wrote the reputation increment. Upgrade logic:
+The relaxation from 12 → 10 P2+ subjects (and P1 not requiring unique subject) reflects 二階 corpus having only 14 subjects total — 85% coverage at P2 rarity was infeasible within the 30-day endgame target. The P1 requirement remains as a "must have at least one top-tier doctor" gate but does not bottleneck on subject collection.
 
-1. Read current `gameCounters.tier` and final `reputation` after delta applied
-2. Compute `requiredThreshold = TIER_UPGRADE_THRESHOLDS[currentTier]`
-3. If `requiredThreshold !== null && reputation >= requiredThreshold`:
-   - Set `tier = nextTier` (look up via `TIER_ORDER`)
-   - Compute the set of room ids missing from the current `rooms` table relative to `TIER_ROOMS[nextTier]` and `bulkAdd` ONLY the missing ones. This SHALL NOT overwrite existing rooms — assignments and per-room customization on lower-tier rooms are preserved.
-   - Record `upgradedTo: HospitalTier` in `TickResult`
+`countDistinctSubjectsAtRarity(minRarity)` SHALL return the count of unique `subjectId` values across all doctors (assigned or bench) where `rarityIsAtLeast(doctor.rarity, minRarity)`. Rarity ordering: `P1 > P2 > P3 > P4 > P5`.
 
-Multiple tier crossings in one tick (e.g., reputation jumps from 500 to 15,000 during catch-up) SHALL advance through each tier in order, with the FINAL `upgradedTo` reflecting the latest tier reached. New rooms for every intermediate tier SHALL also be persisted via the same additive-only insert.
+If reputation gate passes but diversification gate fails, the upgrade SHALL NOT fire; the player SHALL continue accumulating reputation but the UI SHALL display the diversification shortfall. The player SHALL never "lose" excess reputation accumulated past the threshold.
 
-#### Scenario: Single tier crossing surfaces upgrade
+Multiple tier crossings in one tick (e.g., reputation jumps from 500 to 250,000 during a long session) SHALL evaluate dual-gate for each intermediate tier independently — a tier SHALL advance only if its diversification gate is also satisfied at that moment.
 
-- **GIVEN** `gameCounters = { tier: '診所', reputation: 950 }` and a tick computes `deltaReputation = 60`
+#### Scenario: Both gates satisfied advances tier
+
+- **GIVEN** `gameCounters = { tier: '診所', reputation: 47,950 }`, 5 distinct subjects with any rarity, and a tick computes `deltaReputation = 100`
 - **WHEN** `runTick()` completes
 - **THEN** `gameCounters.tier` SHALL equal `'區域醫院'`
-- **AND** `gameCounters.reputation` SHALL equal `1010`
+- **AND** `gameCounters.reputation` SHALL equal `48,050`
 - **AND** `db.rooms` SHALL contain all 5 entries from `TIER_ROOMS['區域醫院']`
 - **AND** the returned `TickResult.upgradedTo` SHALL equal `'區域醫院'`
 
-#### Scenario: No upgrade when below threshold
+#### Scenario: Reputation gate met but diversification fails — no upgrade
 
-- **GIVEN** `gameCounters = { tier: '診所', reputation: 500 }` and `deltaReputation = 100`
+- **GIVEN** `gameCounters = { tier: '診所', reputation: 60,000 }`, only 3 distinct subjects (need 5 for 區域醫院)
 - **WHEN** `runTick()` completes
 - **THEN** `gameCounters.tier` SHALL still equal `'診所'`
 - **AND** `TickResult.upgradedTo` SHALL be `undefined`
+- **AND** the HomePage banner SHALL display a diversification shortfall message (e.g., `需 5 不同科別醫師（目前 3）`)
 
-#### Scenario: Double tier crossing in catch-up tick
+#### Scenario: Diversification gate met but reputation fails — no upgrade
 
-- **GIVEN** `gameCounters = { tier: '診所', reputation: 0 }` and `deltaReputation = 11_000` (e.g., 5-minute offline cap with extreme throughput)
+- **GIVEN** `gameCounters = { tier: '診所', reputation: 30,000 }`, 8 distinct subjects with P3+
 - **WHEN** `runTick()` completes
-- **THEN** `gameCounters.tier` SHALL equal `'醫學中心'`
-- **AND** `gameCounters.reputation` SHALL equal `11_000`
-- **AND** `db.rooms` SHALL contain all 7 entries from `TIER_ROOMS['醫學中心']`
-- **AND** `TickResult.upgradedTo` SHALL equal `'醫學中心'`
+- **THEN** `gameCounters.tier` SHALL still equal `'診所'`
+- **AND** the player SHALL continue accumulating reputation toward 48,000
 
-#### Scenario: Already at terminal tier
+#### Scenario: 國家級教學醫院 P1 requirement enforced
 
-- **GIVEN** `gameCounters = { tier: '醫學中心', reputation: 50_000 }` and `deltaReputation = 1000`
+- **GIVEN** `gameCounters = { tier: '醫學中心', reputation: 2,500,000 }`, 10 distinct P2+ subjects, but 0 doctors at P1 rarity
 - **WHEN** `runTick()` completes
 - **THEN** `gameCounters.tier` SHALL still equal `'醫學中心'`
-- **AND** no new rooms SHALL be added
-- **AND** `TickResult.upgradedTo` SHALL be `undefined`
+- **AND** the UI SHALL display the missing P1 requirement
 
-#### Scenario: Idempotent upgrade re-run preserves assignments
+#### Scenario: Duplicate-subject P1 satisfies P1 requirement
 
-- **GIVEN** `gameCounters.tier = '區域醫院'` (already upgraded previously)
-- **AND** `db.rooms` already contains all 5 entries from `TIER_ROOMS['區域醫院']`
-- **AND** room `outpatient-1` has `assignedDoctorId = 'doctor-X-uuid'`
-- **WHEN** the upgrade logic re-fires (e.g., manual `runTick()` after a save reload)
-- **THEN** the rooms table SHALL still contain exactly 5 entries (no duplicates)
-- **AND** room `outpatient-1.assignedDoctorId` SHALL still equal `'doctor-X-uuid'` (additive insert leaves existing rooms untouched)
+- **GIVEN** `gameCounters = { tier: '醫學中心', reputation: 2,500,000 }`, 10 distinct P2+ subjects, and 2 P1 doctors that are both `subjectId = '內科'` (same subject)
+- **WHEN** `runTick()` completes
+- **THEN** the P1 requirement SHALL be satisfied (≥ 1 P1 of any subject, including duplicates of subjects already covered by P2+ count)
+- **AND** if reputation gate also met, tier SHALL upgrade to `'國家級教學醫院'`
 
-### Requirement: Upgrade event SHALL surface a UI notification banner
+### Requirement: HomePage SHALL display current tier and dual-gate progress
 
-The system SHALL display a celebratory banner when `TickResult.upgradedTo` is set. The banner SHALL:
-
-- Appear at the top of the viewport (similar position to offline-cap notice)
-- Display text containing the new tier name and a summary of unlocked rooms (e.g., `升級為 區域醫院！+1 門診 +1 手術房`)
-- Auto-dismiss after 8 seconds (longer than the 5-second offline-cap notice)
-- Apply throttling to prevent spam when multiple tiers cross in rapid succession — at most one banner visible at a time; the latest upgrade event replaces any in-flight banner
-
-#### Scenario: Banner displays after 區域 upgrade
-
-- **GIVEN** the player has just upgraded from 診所 to 區域醫院
-- **WHEN** `TickResult.upgradedTo = '區域醫院'` reaches the App component
-- **THEN** the banner SHALL be rendered with text containing `'區域醫院'`
-- **AND** the banner SHALL be visible for 8 seconds
-- **AND** after 8 seconds, the banner SHALL be removed from the DOM
-
-#### Scenario: Rapid double upgrade shows latest tier only
-
-- **GIVEN** a single tick produces `upgradedTo = '醫學中心'` (skipping 區域醫院 banner)
-- **WHEN** the App renders
-- **THEN** the banner SHALL display `'醫學中心'`
-- **AND** no `'區域醫院'` banner SHALL be visible
-
-### Requirement: HomePage SHALL display current tier and progress to next
-
-The HomePage banner SHALL display, in addition to revenue and reputation counters, a tier line above or within the counter banner showing:
+The HomePage banner SHALL display, in addition to revenue / reputation / totalStudyMinutes counters, a tier line showing:
 
 - Current tier name (e.g., `「醫院：診所」`)
-- Progress to next tier as a fraction (e.g., `「(聲望 234 / 1,000 → 區域醫院)」`)
-- If current tier is `'醫學中心'` (terminal): just show the tier name with a ⭐ suffix indicating max tier
+- Reputation progress to next tier as a fraction (e.g., `「(聲望 234 / 48,000 → 區域醫院)」`)
+- Diversification progress as a separate line (e.g., `「(科別 3 / 5)」` or `「(P3+ 科別 5 / 8)」`)
+- If current tier is `'國家級教學醫院'` (terminal): just show the tier name with a ⭐ suffix indicating max tier
 
-The display SHALL be reactive to counter updates via `liveQuery`.
+Both progress indicators SHALL turn green (or use a "ready" indicator) when their respective gate passes; the actual upgrade fires at the next tick.
 
-#### Scenario: Tier badge shows fraction to next
+#### Scenario: Tier badge shows both gates
 
-- **GIVEN** `gameCounters = { tier: '診所', reputation: 234 }`
+- **GIVEN** `gameCounters = { tier: '診所', reputation: 30,000 }` and 3 distinct subjects
 - **WHEN** the HomePage renders
-- **THEN** the tier line SHALL contain `'診所'`
-- **AND** the tier line SHALL contain `'234'`
-- **AND** the tier line SHALL contain `'1,000'` (or `'1000'`)
-- **AND** the tier line SHALL contain `'區域醫院'`
+- **THEN** the tier line SHALL contain `'診所'`, `'30,000'`, `'48,000'`, `'區域醫院'`
+- **AND** the diversification line SHALL show `'3 / 5'`
+- **AND** neither line SHALL display the "ready" indicator
 
 #### Scenario: Terminal tier shows star
 
-- **GIVEN** `gameCounters.tier = '醫學中心'`
+- **GIVEN** `gameCounters.tier = '國家級教學醫院'`
 - **WHEN** the HomePage renders
-- **THEN** the tier line SHALL contain `'醫學中心'`
-- **AND** the tier line SHALL contain `'⭐'`
-- **AND** the tier line SHALL NOT contain a `'→'` arrow (no next tier)
-
-### Requirement: Hospital page header SHALL display tier name alongside throughput
-
-The `/hospital` route header SHALL be enriched to display:
-
-- Current tier name
-- Total throughput across assigned rooms (existing behavior from `hospital-tycoon-engine`)
-- Room count summary (`房間 N/M` where N = assigned, M = total rooms at current tier)
-
-Example format: `診所 · 總產能 20.0 患者/分 · 房間 1/3`.
-
-#### Scenario: Hospital page header reflects current tier
-
-- **GIVEN** `gameCounters.tier = '區域醫院'`
-- **AND** 2 of 5 rooms have assigned doctors with throughput summing to 30 patients/min
-- **WHEN** the `/hospital` page renders
-- **THEN** the header SHALL contain `'區域醫院'`
-- **AND** the header SHALL contain `'30.0 患者/分'`
-- **AND** the header SHALL contain `'2/5'` (or equivalent format containing `2` and `5`)
+- **THEN** the tier line SHALL contain `'國家級教學醫院'` and `'⭐'`
+- **AND** the diversification line SHALL be hidden

@@ -79,6 +79,22 @@ export interface GameCountersRow {
     firstVisit: Record<string, true>
     firedTips: Record<string, true>
   }
+  /**
+   * Currently pending modal event id (e.g. 'medical-malpractice', 'vip-patient').
+   * `null` when no event waiting for player resolution. Toast events resolve
+   * immediately and never set this.
+   *
+   * Optional (added mid-change) — undefined for pre-event saves; treat as null.
+   */
+  pendingEventId?: string | null
+  /** Wall-clock ms when pendingEventId was set; powers 醫療糾紛 24-hr auto-resolve. */
+  pendingEventTriggeredAt?: number | null
+  /** Wall-clock ms when the last event resolved; powers 5-min cooldown. */
+  lastEventResolvedAt?: number | null
+  /** Wall-clock ms when VIP throughput-boost expires. `null` when not active. */
+  vipBoostUntil?: number | null
+  /** Roll-cadence counter; increments per tick, fires event at EVENT_TICK_INTERVAL. */
+  eventRollTickCounter?: number
 }
 
 /**
@@ -400,6 +416,11 @@ export async function ensureSeed(): Promise<void> {
           currentSessionStartedAt: null,
           lastSessionEndedAt: null,
           tutorial: { completedSteps: {}, firstVisit: {}, firedTips: {} },
+          pendingEventId: null,
+          pendingEventTriggeredAt: null,
+          lastEventResolvedAt: null,
+          vipBoostUntil: null,
+          eventRollTickCounter: 0,
         })
         if (doctorCount === 0) {
           await db.doctors.bulkPut([makeStarterDoctor('內科', 0), makeStarterDoctor('外科', 1)])

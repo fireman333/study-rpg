@@ -11,12 +11,16 @@
  *       openspec/specs/clinic-level-up/spec.md
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
+  EVENT_TICK_INTERVAL,
+  MALPRACTICE_AUTO_RESOLVE_MS,
+  MALPRACTICE_PENALTY_REP,
   MAX_OFFLINE_TICK_SEC,
   TIER_DIVERSIFICATION_REQUIREMENTS,
   TIER_ROOMS,
   TIER_UPGRADE_THRESHOLDS,
+  VIP_BOOST_MULTIPLIER,
   applySalaryClamp,
   computeSalaryDrain,
   computeThroughput,
@@ -24,11 +28,20 @@ import {
   createStudySessionController,
   getNextTier,
   rarityIsAtLeast,
+  rollEvent,
+  type EventDefinition,
   type HospitalTier,
+  type RollEventResult,
   type StudySessionController,
   type StudySessionState,
+  type ToastEventOutcome,
 } from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB } from '../db/schema'
+
+export interface TickEventToastInfo {
+  event: EventDefinition
+  outcome: ToastEventOutcome
+}
 
 const TICK_INTERVAL_MS = 5000
 
@@ -40,6 +53,10 @@ export interface TickResult {
   elapsedSec: number
   wasCapped: boolean
   upgradedTo?: HospitalTier
+  /** Toast event applied this tick (immediate-resolution events only). */
+  toastEvent?: TickEventToastInfo
+  /** Modal event triggered this tick (caller renders modal). */
+  modalEvent?: EventDefinition
 }
 
 const ZERO_TICK: TickResult = {
@@ -70,7 +87,7 @@ export async function runTick(): Promise<TickResult> {
   const db = getHospitalDB()
   return db.transaction(
     'rw',
-    [db.rooms, db.doctors, db.gameCounters, db.monotonicCounters, db.retirementLog],
+    [db.rooms, db.doctors, db.gameCounters, db.monotonicCounters, db.retirementLog, db.eventLog],
     async () => {
       const counters = await db.gameCounters.get('singleton')
       if (!counters) return ZERO_TICK
@@ -101,13 +118,16 @@ export async function runTick(): Promise<TickResult> {
       }
 
       const elapsedMin = elapsedSec / 60
-      const deltaRevenueGross = totalThroughput * elapsedMin
+      // VIP boost — doubles throughput when vipBoostUntil > now
+      const vipActive = (counters.vipBoostUntil ?? 0) > now
+      const effectiveThroughput = vipActive ? totalThroughput * VIP_BOOST_MULTIPLIER : totalThroughput
+      const deltaRevenueGross = effectiveThroughput * elapsedMin
       const deltaSalary = computeSalaryDrain(doctors, counters.tier) * elapsedMin
-      const deltaReputation = totalThroughput * elapsedMin
+      const deltaReputation = effectiveThroughput * elapsedMin
       const deltaStudyMinutes = elapsedMin
 
-      const newRevenue = applySalaryClamp(counters.revenue, deltaRevenueGross, deltaSalary)
-      const newReputation = counters.reputation + deltaReputation
+      let newRevenue = applySalaryClamp(counters.revenue, deltaRevenueGross, deltaSalary)
+      let newReputation = counters.reputation + deltaReputation
 
       // Dual-gate tier upgrade: rep threshold AND diversification req
       let currentTier = counters.tier
@@ -155,12 +175,86 @@ export async function runTick(): Promise<TickResult> {
         }
       }
 
+      // ─── Event rolling ───────────────────────────────────────────────────
+      let toastEvent: TickEventToastInfo | undefined
+      let modalEvent: EventDefinition | undefined
+      let pendingEventId = counters.pendingEventId ?? null
+      let pendingEventTriggeredAt = counters.pendingEventTriggeredAt ?? null
+      let lastEventResolvedAt = counters.lastEventResolvedAt ?? null
+      let eventRollTickCounter = (counters.eventRollTickCounter ?? 0) + 1
+
+      // Auto-resolve stuck 醫療糾紛 after MALPRACTICE_AUTO_RESOLVE_MS — applies the
+      // accept-penalty branch (lose rep, no revenue cost) so the player can't be
+      // stuck forever on an unsolved event.
+      if (
+        pendingEventId === 'medical-malpractice' &&
+        pendingEventTriggeredAt !== null &&
+        now - pendingEventTriggeredAt >= MALPRACTICE_AUTO_RESOLVE_MS
+      ) {
+        newReputation = Math.max(0, newReputation - MALPRACTICE_PENALTY_REP)
+        await db.eventLog.add({
+          triggeredAt: pendingEventTriggeredAt,
+          eventKey: 'medical-malpractice',
+          outcome: 'auto-resolved-penalty',
+          reputationDelta: -MALPRACTICE_PENALTY_REP,
+          revenueDelta: 0,
+        })
+        pendingEventId = null
+        pendingEventTriggeredAt = null
+        lastEventResolvedAt = now
+      }
+
+      // Roll a new event every EVENT_TICK_INTERVAL ticks, but only if no modal
+      // event is pending. Toast events resolve here-and-now.
+      if (eventRollTickCounter >= EVENT_TICK_INTERVAL && pendingEventId === null) {
+        eventRollTickCounter = 0
+        const result: RollEventResult = rollEvent({
+          tier: currentTier,
+          reputation: newReputation,
+          totalThroughput,
+          lastResolvedAt: lastEventResolvedAt,
+          nowSessionMs: now,
+          hasPendingEvent: false,
+          rng: Math.random,
+        })
+        if (result.kind === 'triggered') {
+          if (result.toastOutcome) {
+            // Apply toast outcome immediately
+            const delta = result.toastOutcome
+            if (delta.kind === 'reputation-loss') {
+              newReputation = Math.max(0, newReputation - delta.amount)
+            } else if (delta.kind === 'reputation-gain') {
+              newReputation += delta.amount
+            }
+            await db.eventLog.add({
+              triggeredAt: now,
+              eventKey: result.event.id,
+              outcome: delta.kind,
+              reputationDelta:
+                delta.kind === 'reputation-loss' ? -delta.amount : delta.amount,
+              revenueDelta: 0,
+            })
+            lastEventResolvedAt = now
+            toastEvent = { event: result.event, outcome: delta }
+          } else {
+            // Modal event — set pending state, app renders modal
+            pendingEventId = result.event.id
+            pendingEventTriggeredAt = now
+            modalEvent = result.event
+          }
+        }
+      }
+
       await db.gameCounters.put({
         ...counters,
         revenue: newRevenue,
         reputation: newReputation,
         lastTickAt: now,
         tier: currentTier,
+        pendingEventId,
+        pendingEventTriggeredAt,
+        lastEventResolvedAt,
+        eventRollTickCounter,
       })
 
       const mono = await db.monotonicCounters.get('singleton')
@@ -179,6 +273,8 @@ export async function runTick(): Promise<TickResult> {
         elapsedSec,
         wasCapped,
         upgradedTo,
+        toastEvent,
+        modalEvent,
       }
     },
   )
@@ -239,9 +335,13 @@ async function markSessionEnd(): Promise<void> {
 export function useStudySessionTick(
   onCapped?: () => void,
   onUpgrade?: (tier: HospitalTier) => void,
+  onToastEvent?: (info: TickEventToastInfo) => void,
+  onModalEvent?: (event: EventDefinition) => void,
 ): StudySessionState {
   const controller = getStudySessionController()
   const [state, setState] = useState<StudySessionState>(controller.getState())
+  const cbRef = useRef({ onCapped, onUpgrade, onToastEvent, onModalEvent })
+  cbRef.current = { onCapped, onUpgrade, onToastEvent, onModalEvent }
 
   useEffect(() => {
     // Re-read state on mount in case controller transitioned before mount.
@@ -264,8 +364,11 @@ export function useStudySessionTick(
       runTick()
         .then((result) => {
           if (import.meta.env.DEV) console.debug('[tick]', result)
+          const { onCapped, onUpgrade, onToastEvent, onModalEvent } = cbRef.current
           if (result.wasCapped && onCapped) onCapped()
           if (result.upgradedTo && onUpgrade) onUpgrade(result.upgradedTo)
+          if (result.toastEvent && onToastEvent) onToastEvent(result.toastEvent)
+          if (result.modalEvent && onModalEvent) onModalEvent(result.modalEvent)
         })
         .catch((err) => console.error('[tick] failed', err))
     }
@@ -278,7 +381,7 @@ export function useStudySessionTick(
     return () => {
       if (intervalId !== undefined) clearInterval(intervalId)
     }
-  }, [state, onCapped, onUpgrade])
+  }, [state])
 
   return state
 }

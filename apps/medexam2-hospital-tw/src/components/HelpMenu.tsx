@@ -10,6 +10,7 @@
  */
 
 import { useState } from 'react'
+import { getHospitalDB } from '../db/schema'
 
 interface AccordionSection {
   id: string
@@ -102,9 +103,31 @@ interface HelpMenuProps {
 export function HelpMenu({ className }: HelpMenuProps) {
   const [open, setOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [resetMsg, setResetMsg] = useState<string | null>(null)
+  const [resetting, setResetting] = useState(false)
 
   function toggle(id: string) {
     setExpandedId((cur) => (cur === id ? null : id))
+  }
+
+  // §9.5.6 — reset surface-hint + milestone-tip flags so they re-fire.
+  // `completedSteps` (onboarding) intentionally NOT touched; players who want
+  // to redo onboarding should clear local storage.
+  async function resetHints() {
+    setResetting(true)
+    setResetMsg(null)
+    const db = getHospitalDB()
+    await db.transaction('rw', db.gameCounters, async () => {
+      const row = await db.gameCounters.get('singleton')
+      if (!row) return
+      const completedSteps = row.tutorial?.completedSteps ?? {}
+      await db.gameCounters.put({
+        ...row,
+        tutorial: { completedSteps, firstVisit: {}, firedTips: {} },
+      })
+    })
+    setResetting(false)
+    setResetMsg('✓ 已重設提示。返回各頁面會再次看到 💡 卡片與里程碑 toast。')
   }
 
   return (
@@ -167,6 +190,15 @@ export function HelpMenu({ className }: HelpMenuProps) {
               <p className="muted">
                 提示：完成首次教學後可在此查閱所有機制。
               </p>
+              <button
+                type="button"
+                className="settings-modal__reset-btn"
+                onClick={() => void resetHints()}
+                disabled={resetting}
+              >
+                {resetting ? '重設中…' : '重新顯示所有提示'}
+              </button>
+              {resetMsg && <p className="settings-modal__reset-msg">{resetMsg}</p>}
             </footer>
           </div>
         </div>

@@ -152,6 +152,15 @@ export const MALPRACTICE_PENALTY_REP = 5_000
 /** Auto-resolve timeout for 醫療糾紛 (wall-clock). */
 export const MALPRACTICE_AUTO_RESOLVE_MS = 24 * 60 * 60 * 1000
 
+/** 急診加開 outcome (positive modal event — player accepts). */
+export const EMERGENCY_SHIFT_REVENUE_BONUS = 5_000
+export const EMERGENCY_SHIFT_REPUTATION_BONUS = 500
+
+/** 醫療評鑑 outcome (mixed modal event — random pass/fail on resolve). */
+export const AUDIT_PASS_PROBABILITY = 0.7
+export const AUDIT_PASS_REPUTATION = 5_000
+export const AUDIT_FAIL_REPUTATION_LOSS = 3_000
+
 export type ToastEventOutcome =
   | { kind: 'reputation-loss'; amount: number }
   | { kind: 'reputation-gain'; amount: number }
