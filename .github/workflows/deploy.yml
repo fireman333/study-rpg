@@ -39,9 +39,19 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build app
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_APP_VERSION: ${{ github.sha }}
+          VITE_CLOUD_SYNC_ENABLED: 'true'
         run: pnpm --filter @study-rpg/medexam-tw build
 
       - name: Build 二階 app
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_APP_VERSION: ${{ github.sha }}
+          VITE_CLOUD_SYNC_ENABLED: 'true'
         run: pnpm --filter @study-rpg/medexam2-hospital-tw build
 
       - name: Merge 二階 dist into 一階 dist subpath
