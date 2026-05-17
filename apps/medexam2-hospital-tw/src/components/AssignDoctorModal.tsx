@@ -167,7 +167,7 @@ export function AssignDoctorModal({ room: initialRoom, currentDoctor, onClose }:
                 disabled={busy || !canAffordUpgrade}
                 title={canAffordUpgrade ? '' : `營收不足（需要 ${fmt(upgradeCost)} 💰）`}
               >
-                升級設施
+                {canAffordUpgrade ? '升級設施' : `需要 ${fmt(upgradeCost)} 💰`}
               </button>
               {facilityError && <p className="assign-modal__facility-error">{facilityError}</p>}
             </>

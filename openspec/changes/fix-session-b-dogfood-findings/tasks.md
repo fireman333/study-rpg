@@ -1,18 +1,18 @@
 ## 1. Fix services/event.ts rep floor reporting
 
-- [ ] 1.1 `resolveMalpractice` accept-penalty branch — compute `actualDelta = newRep - oldRep` after `Math.max(0, ...)` floor, use for `eventLog.reputationDelta` + return value
-- [ ] 1.2 `resolveAudit` fail branch — same pattern (audit pass adds rep, no floor concern)
-- [ ] 1.3 Verify `resolveMalpractice` settle path unaffected (revenue check returns early before mutation; no floor)
-- [ ] 1.4 Verify `resolveEmergencyShift` / `resolveVipPatient` unaffected (both add or zero, no floor concern)
+- [x] 1.1 `resolveMalpractice` accept-penalty branch — compute `actualDelta = newRep - oldRep` after `Math.max(0, ...)` floor, use for `eventLog.reputationDelta` + return value
+- [x] 1.2 `resolveAudit` fail branch — same pattern (audit pass adds rep, no floor concern)
+- [x] 1.3 Verify `resolveMalpractice` settle path unaffected (revenue check returns early before mutation; no floor)
+- [x] 1.4 Verify `resolveEmergencyShift` / `resolveVipPatient` unaffected (both add or zero, no floor concern)
 
 ## 2. Fix AssignDoctorModal facility button copy parity
 
-- [ ] 2.1 `AssignDoctorModal.tsx:170` — dynamic visible label `{canAffordUpgrade ? '升級設施' : '需要 N 營收'}`
-- [ ] 2.2 Keep existing `title=` tooltip (a11y / hover affordance)
+- [x] 2.1 `AssignDoctorModal.tsx:170` — dynamic visible label `{canAffordUpgrade ? '升級設施' : '需要 N 營收'}`
+- [x] 2.2 Keep existing `title=` tooltip (a11y / hover affordance)
 
 ## 3. Typecheck
 
-- [ ] 3.1 `pnpm -r typecheck` zero errors
+- [x] 3.1 `pnpm -r typecheck` zero errors
 
 ## 4. Chrome MCP smoke verify on prod (post-deploy of this fix)
 

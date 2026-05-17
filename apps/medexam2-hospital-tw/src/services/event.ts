@@ -82,10 +82,15 @@ export async function resolveMalpractice(action: MalpracticeAction): Promise<Mal
     }
 
     // accept-penalty
-    const repDelta = -MALPRACTICE_PENALTY_REP
+    // Compute actualDelta after floor clamp so eventLog + return value reflect
+    // what really happened, not the intent constant. When player rep < 5000,
+    // reputation floors to 0 and actualDelta < |MALPRACTICE_PENALTY_REP|.
+    const intentDelta = -MALPRACTICE_PENALTY_REP
+    const newReputation = Math.max(0, counters.reputation + intentDelta)
+    const actualDelta = newReputation - counters.reputation
     await db.gameCounters.put({
       ...counters,
-      reputation: Math.max(0, counters.reputation + repDelta),
+      reputation: newReputation,
       pendingEventId: null,
       pendingEventTriggeredAt: null,
       lastEventResolvedAt: now,
@@ -94,10 +99,10 @@ export async function resolveMalpractice(action: MalpracticeAction): Promise<Mal
       triggeredAt: counters.pendingEventTriggeredAt ?? now,
       eventKey: 'medical-malpractice',
       outcome: 'accepted-penalty',
-      reputationDelta: repDelta,
+      reputationDelta: actualDelta,
       revenueDelta: 0,
     })
-    return { kind: 'accepted-penalty', revenueDelta: 0, reputationDelta: repDelta }
+    return { kind: 'accepted-penalty', revenueDelta: 0, reputationDelta: actualDelta }
   })
 }
 
@@ -182,13 +187,18 @@ export async function resolveAudit(): Promise<AuditOutcome> {
     const counters = await db.gameCounters.get('singleton')
     const now = Date.now()
     const passed = Math.random() < AUDIT_PASS_PROBABILITY
-    const repDelta = passed ? AUDIT_PASS_REPUTATION : -AUDIT_FAIL_REPUTATION_LOSS
+    const intentDelta = passed ? AUDIT_PASS_REPUTATION : -AUDIT_FAIL_REPUTATION_LOSS
     if (!counters || counters.pendingEventId !== 'audit-event') {
       return { kind: 'stale', reputationDelta: 0 }
     }
+    // Compute actualDelta after floor clamp — fail branch may floor at 0 when
+    // rep < AUDIT_FAIL_REPUTATION_LOSS. Pass branch only adds so actualDelta
+    // equals intentDelta there.
+    const newReputation = Math.max(0, counters.reputation + intentDelta)
+    const actualDelta = newReputation - counters.reputation
     await db.gameCounters.put({
       ...counters,
-      reputation: Math.max(0, counters.reputation + repDelta),
+      reputation: newReputation,
       pendingEventId: null,
       pendingEventTriggeredAt: null,
       lastEventResolvedAt: now,
@@ -197,9 +207,9 @@ export async function resolveAudit(): Promise<AuditOutcome> {
       triggeredAt: counters.pendingEventTriggeredAt ?? now,
       eventKey: 'audit-event',
       outcome: passed ? 'pass' : 'fail',
-      reputationDelta: repDelta,
+      reputationDelta: actualDelta,
       revenueDelta: 0,
     })
-    return { kind: passed ? 'pass' : 'fail', reputationDelta: repDelta }
+    return { kind: passed ? 'pass' : 'fail', reputationDelta: actualDelta }
   })
 }
