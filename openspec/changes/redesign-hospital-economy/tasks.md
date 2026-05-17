@@ -88,10 +88,10 @@
 
 ## 8. App pages: facility / extension UI
 
-- [ ] 8.1 Add facility upgrade button to RoomCard in `/hospital` route
-- [ ] 8.2 Show current `facilityLevel`, next cost, max-level disabled state
+- [x] 8.1 Add facility upgrade button to RoomCard in `/hospital` route — implemented inside AssignDoctorModal (RoomCard is already a button; nested-button anti-pattern avoided)
+- [x] 8.2 Show current `facilityLevel`, next cost, max-level disabled state
 - [ ] 8.3 Add room-extension panel (separate section, lock behind tier ≥ 區域醫院)
-- [ ] 8.4 Wire all UI to `finances.ts` helpers + Dexie writes
+- [x] 8.4 Wire all UI to `finances.ts` helpers + Dexie writes (services/facility.ts: atomic txn — bump facilityLevel + roomFacility + deduct revenue)
 
 ## 9. HomePage update
 
@@ -127,7 +127,7 @@
 - [x] 11.3 Chrome MCP smoke — fresh cold start: P5 outpatient assigned, 開始唸書 click, 65s wait, revenue +7.93 / reputation +7.93 / totalStudyMinutes 1.59 (matches 5/min math); UI cells render 累積唸書 / 毛 / 薪 / 淨 correctly after reload: navigate to /, see "no session" state, click start session, scene renders, tick begins, revenue + reputation + totalStudyMinutes all increment after 60s
 - [ ] 11.4 Chrome MCP smoke — pause on visibility hide; resume on visibility return + click 繼續
 - [x] 11.5 Chrome MCP smoke — training attempt: success path (RNG ≤ rate) / 5× failure pity accumulator / pity-triggered success at attempt 6 (rarity P5→P4 + powerMultiplier 0.5→1.0 + pityCounter 0; 6 trainingHistory rows correct shape; revenue −1000×6 = −6000): fail first time (verify pityCounter increment), pass after 5 fails (pity)
-- [ ] 11.6 Chrome MCP smoke — facility upgrade outpatient-1 to level 2, throughput visibly increases
+- [x] 11.6 Chrome MCP smoke — facility upgrade outpatient-1 to level 2 (revenue 50K → 40K, facilityLevel 1 → 2, roomFacility 1.0 → 1.5, modal live-updates next-level cost), throughput visibly increases
 - [ ] 11.6a Chrome MCP smoke — salary 0% at 診所 (5 doctors owned, revenue grows pure throughput); upgrade to 區域醫院 → 100% kicks in; verify revenue net positive at default config (5 P3 assigned + 3 P3 bench = 100/min throughput - 64/min salary = +36/min)
 - [ ] 11.6b Chrome MCP smoke — onboarding tutorial: fresh save renders step 1 modal, completing each step unlocks next, reload mid-tutorial resumes at correct step
 - [ ] 11.6c Chrome MCP smoke — 「跳過教學」link sets all completedSteps, modal closes, future visits don't re-show

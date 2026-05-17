@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
 import {
+  FACILITY_LEVEL_TO_FACILITY,
+  FACILITY_MAX_LEVEL,
+  FACILITY_UPGRADE_COSTS,
   RARITY_LABELS,
   ROOM_TYPE_LABELS,
   computeThroughput,
@@ -7,8 +11,9 @@ import {
 } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { lookupSprite } from '../lib/sprite-lookup'
-import type { DoctorRow } from '../db/schema'
+import { getHospitalDB, type DoctorRow } from '../db/schema'
 import { assignDoctor, unassignDoctor, getUnassignedDoctors } from '../lib/assignment'
+import { upgradeFacility } from '../services/facility'
 
 interface AssignDoctorModalProps {
   room: Room
@@ -16,9 +21,15 @@ interface AssignDoctorModalProps {
   onClose: () => void
 }
 
-export function AssignDoctorModal({ room, currentDoctor, onClose }: AssignDoctorModalProps) {
+export function AssignDoctorModal({ room: initialRoom, currentDoctor, onClose }: AssignDoctorModalProps) {
+  const db = getHospitalDB()
+  // Live-track the room so facility upgrades reflect immediately in the modal
+  const liveRoom = useLiveQuery(() => db.rooms.get(initialRoom.id), [initialRoom.id])
+  const room = liveRoom ?? initialRoom
+  const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
   const [candidates, setCandidates] = useState<DoctorRow[]>([])
   const [busy, setBusy] = useState(false)
+  const [facilityError, setFacilityError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -58,6 +69,32 @@ export function AssignDoctorModal({ room, currentDoctor, onClose }: AssignDoctor
       setBusy(false)
     }
   }
+
+  async function handleUpgradeFacility() {
+    if (busy) return
+    setBusy(true)
+    setFacilityError(null)
+    try {
+      const result = await upgradeFacility(room.id)
+      if (result.kind === 'aborted') {
+        setFacilityError(
+          result.reason === 'max-level'
+            ? '已達最高等級'
+            : `營收不足（需要 ${result.requiredRevenue.toLocaleString('zh-TW')} 💰）`,
+        )
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const currentLevel = room.facilityLevel ?? 1
+  const nextLevel = currentLevel + 1
+  const isMaxed = currentLevel >= FACILITY_MAX_LEVEL
+  const upgradeCost = isMaxed ? 0 : FACILITY_UPGRADE_COSTS[nextLevel]
+  const nextMultiplier = isMaxed ? room.roomFacility : FACILITY_LEVEL_TO_FACILITY[nextLevel]
+  const canAffordUpgrade = (counters?.revenue ?? 0) >= upgradeCost
+  const fmt = (n: number) => n.toLocaleString('zh-TW', { maximumFractionDigits: 0 })
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -109,6 +146,33 @@ export function AssignDoctorModal({ room, currentDoctor, onClose }: AssignDoctor
             })}
           </ul>
         )}
+
+        <section className="assign-modal__facility" aria-label="設施升級">
+          <h3 className="assign-modal__facility-title">設施升級</h3>
+          <p className="assign-modal__facility-current">
+            目前等級：<strong>Lv.{currentLevel}</strong>（×{room.roomFacility.toFixed(1)}）
+            {isMaxed && <span className="muted">{' '}— 已達 Lv.{FACILITY_MAX_LEVEL} 上限</span>}
+          </p>
+          {!isMaxed && (
+            <>
+              <p className="assign-modal__facility-next">
+                升級至 <strong>Lv.{nextLevel}</strong>（×{nextMultiplier.toFixed(1)}）
+                {'　成本 '}
+                <strong>{fmt(upgradeCost)} 💰</strong>
+              </p>
+              <button
+                type="button"
+                className="primary-btn assign-modal__facility-btn"
+                onClick={() => void handleUpgradeFacility()}
+                disabled={busy || !canAffordUpgrade}
+                title={canAffordUpgrade ? '' : `營收不足（需要 ${fmt(upgradeCost)} 💰）`}
+              >
+                升級設施
+              </button>
+              {facilityError && <p className="assign-modal__facility-error">{facilityError}</p>}
+            </>
+          )}
+        </section>
 
         <div className="assign-modal__actions">
           {currentDoctor && (

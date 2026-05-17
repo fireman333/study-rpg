@@ -1937,3 +1937,30 @@ body {
 .training-history__item--failure { border-left: 3px solid var(--accent-rose); opacity: 0.85; }
 .training-history__transition { font-weight: bold; }
 .training-history__cost { text-align: right; opacity: 0.7; }
+
+/* Facility upgrade section inside AssignDoctorModal (redesign-hospital-economy §8) */
+.assign-modal__facility {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.25);
+  border: 1px solid var(--frame-dark);
+}
+.assign-modal__facility-title {
+  font-size: 14px;
+  margin: 0 0 8px;
+  border-bottom: 1px solid var(--frame-dark);
+  padding-bottom: 4px;
+}
+.assign-modal__facility-current,
+.assign-modal__facility-next {
+  margin: 6px 0;
+  font-size: 13px;
+}
+.assign-modal__facility-btn {
+  margin-top: 6px;
+}
+.assign-modal__facility-error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--accent-rose);
+}
