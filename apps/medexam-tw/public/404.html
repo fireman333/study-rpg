@@ -9,15 +9,32 @@
       // Encodes the requested path into a query string and redirects to
       // index.html, where the inline restore script in <head> rewrites
       // history back to the clean URL before React Router boots.
-      var pathSegmentsToKeep = 1; // matches vite.config.ts base: '/study-rpg/'
       var l = window.location;
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash
-      );
+      // Translate /study-rpg/hospital/<sub-path> typo URLs to
+      // /study-rpg/hospital/#/<sub-path> (HashRouter equivalent). 一階
+      // BrowserRouter restore logic in else branch is untouched. See
+      // openspec/specs/deploy-pipeline/spec.md requirement「404.html SHALL
+      // redirect 二階 sub-route URLs without hash to HashRouter equivalent」.
+      var hospitalMatch = l.pathname.match(/^\/study-rpg\/hospital\/(.+)$/);
+      if (hospitalMatch) {
+        // Route-only redirect. Query string + hash fragment from the original
+        // URL are dropped — typo / bookmark URLs rarely carry meaningful
+        // query state, and preserving them across HashRouter introduced
+        // server-side path-parse hazards (mid-path `?` confuses static hosts).
+        l.replace(
+          l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+          '/study-rpg/hospital/#/' + hospitalMatch[1]
+        );
+      } else {
+        var pathSegmentsToKeep = 1; // matches vite.config.ts base: '/study-rpg/'
+        l.replace(
+          l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+          l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+          l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash
+        );
+      }
     </script>
   </head>
   <body></body>
