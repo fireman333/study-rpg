@@ -5,8 +5,13 @@ import type { Subject, SubjectId } from '@study-rpg/core'
 import {
   RECRUITMENT_THRESHOLDS,
   TICKET_CAP,
+  TIER_DIVERSIFICATION_REQUIREMENTS,
   TIER_UPGRADE_THRESHOLDS,
+  computeSalaryDrain,
+  computeThroughput,
+  countDistinctSubjectsAtRarity,
   getNextTier,
+  rarityIsAtLeast,
 } from '@study-rpg/content-medexam2-tw'
 import { getContentPack } from '@study-rpg/content-medexam2-tw'
 import {
@@ -44,7 +49,9 @@ export function HomePage() {
   const ticketsRow = useLiveQuery(() => db.tickets.get('global'), [])
   const ticketsAvailable = ticketsRow?.available ?? 0
   const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
+  const mono = useLiveQuery(() => db.monotonicCounters.get('singleton'), [])
   const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
+  const allDoctors = useLiveQuery(() => db.doctors.toArray(), []) ?? []
   const anyAssigned = rooms.some((r) => r.assignedDoctorId !== null)
   const masteryRows = useLiveQuery(() => db.mastery.toArray(), []) ?? []
   const dueCountMap = useLiveQuery(async () => {
@@ -110,6 +117,9 @@ export function HomePage() {
           <span className="ticket-counter">
             🎟️ {ticketsAvailable} / {TICKET_CAP}
           </span>
+          <Link to="/study" className="nav-link nav-link--primary">
+            📖 唸書 →
+          </Link>
           <Link to="/hospital" className="nav-link">
             醫院 →
           </Link>
@@ -126,44 +136,100 @@ export function HomePage() {
         const reputation = counters.reputation
         const threshold = TIER_UPGRADE_THRESHOLDS[tier]
         const next = getNextTier(tier)
+        const req =
+          tier === '國家級教學醫院' ? undefined : TIER_DIVERSIFICATION_REQUIREMENTS[tier]
+        const distinctAtMin = req ? countDistinctSubjectsAtRarity(allDoctors, req.minRarity) : 0
+        const hasP1 = allDoctors.some((d) => rarityIsAtLeast(d.rarity, 'P1'))
         return (
-          <p className="home-tier-line">
-            醫院：<strong>{tier}</strong>
-            {threshold !== null && next ? (
-              <>
-                {'　'}
-                (聲望 {reputation.toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
-                {' / '}
-                {threshold.toLocaleString('zh-TW')}
-                {' → '}
-                {next})
-              </>
-            ) : (
-              <> ⭐</>
+          <>
+            <p className="home-tier-line">
+              醫院：<strong>{tier}</strong>
+              {threshold !== null && next ? (
+                <>
+                  {'　'}
+                  (聲望 {reputation.toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
+                  {' / '}
+                  {threshold.toLocaleString('zh-TW')}
+                  {' → '}
+                  {next})
+                </>
+              ) : (
+                <> ⭐ 已達頂峰</>
+              )}
+            </p>
+            {req && (
+              <p className="home-tier-line home-tier-line--diversity">
+                升級門檻：科別多樣性 <strong>{distinctAtMin} / {req.requiredCount}</strong>
+                {`（${req.minRarity}+）`}
+                {req.requireP1 && (
+                  <>
+                    {' + '}
+                    <strong>{hasP1 ? '✓' : '✗'}</strong>
+                    {' 至少 1 位 P1'}
+                  </>
+                )}
+              </p>
             )}
-          </p>
+          </>
         )
       })()}
 
-      <section className="home-counters-banner" aria-label="醫院經營狀態">
-        <div className="home-counters-banner__cell">
-          <span className="home-counters-banner__label">營收</span>
-          <span className="home-counters-banner__value">
-            {(counters?.revenue ?? 0).toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
-          </span>
-        </div>
-        <div className="home-counters-banner__cell">
-          <span className="home-counters-banner__label">聲望</span>
-          <span className="home-counters-banner__value">
-            {(counters?.reputation ?? 0).toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
-          </span>
-        </div>
-        {!anyAssigned && (counters?.revenue ?? 0) === 0 && (
-          <p className="home-counters-banner__hint">
-            指派招募來的醫師到診間開始累積營收與聲望
-          </p>
-        )}
-      </section>
+      {(() => {
+        const doctorMap = new Map(allDoctors.map((d) => [d.id, d]))
+        let throughput = 0
+        for (const room of rooms) {
+          const d = room.assignedDoctorId ? doctorMap.get(room.assignedDoctorId) ?? null : null
+          throughput += computeThroughput(room, d)
+        }
+        const salary = counters ? computeSalaryDrain(allDoctors, counters.tier) : 0
+        const net = throughput - salary
+        return (
+          <section className="home-counters-banner" aria-label="醫院經營狀態">
+            <div className="home-counters-banner__cell">
+              <span className="home-counters-banner__label">營收</span>
+              <span className="home-counters-banner__value">
+                {(counters?.revenue ?? 0).toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
+              </span>
+            </div>
+            <div className="home-counters-banner__cell">
+              <span className="home-counters-banner__label">聲望</span>
+              <span className="home-counters-banner__value">
+                {(counters?.reputation ?? 0).toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
+              </span>
+            </div>
+            <div className="home-counters-banner__cell">
+              <span className="home-counters-banner__label">累積唸書</span>
+              <span className="home-counters-banner__value">
+                {(mono?.totalStudyMinutes ?? 0).toLocaleString('zh-TW', { maximumFractionDigits: 1 })} min
+              </span>
+            </div>
+            <div className="home-counters-banner__cell">
+              <span className="home-counters-banner__label">淨收 / 分鐘</span>
+              <span
+                className="home-counters-banner__value"
+                style={{ color: net >= 0 ? 'inherit' : 'crimson' }}
+              >
+                {net.toLocaleString('zh-TW', { maximumFractionDigits: 0 })}
+              </span>
+              {salary > 0 && (
+                <span className="home-counters-banner__sublabel">
+                  毛 {throughput.toFixed(0)} − 薪 {salary.toFixed(0)}
+                </span>
+              )}
+            </div>
+            {!anyAssigned && (counters?.revenue ?? 0) === 0 && (
+              <p className="home-counters-banner__hint">
+                指派招募來的醫師到診間後，前往「唸書」開始累積營收與聲望
+              </p>
+            )}
+            {anyAssigned && counters?.currentSessionStartedAt === null && (
+              <p className="home-counters-banner__hint">
+                目前沒有唸書 session — 點擊上方「📖 唸書」開始累積進度
+              </p>
+            )}
+          </section>
+        )
+      })()}
 
       {showStarterCard && (
         <StarterPullCard onOpen={() => setStarterOpen(true)} />

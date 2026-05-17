@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import {
   TIER_ROOMS,
-  createPerQReputationListener,
   type HospitalTier,
   type Room,
 } from '@study-rpg/content-medexam2-tw'
@@ -10,7 +9,8 @@ import { ensureSeed, getHospitalDB, refreshDailyTickets } from './db/schema'
 import { HomePage } from './pages/HomePage'
 import { DoctorRoster } from './pages/DoctorRoster'
 import { Hospital } from './pages/Hospital'
-import { useTickLoop } from './lib/tick'
+import { StudySessionPage } from './pages/StudySessionPage'
+import { useStudySessionTick } from './lib/tick'
 import { checkAssignmentInvariants } from './lib/assignment'
 import { useSync } from './lib/sync/useSync'
 import { AuthButton } from './components/AuthButton'
@@ -62,24 +62,6 @@ function App() {
     }
   }, [])
 
-  useEffect(() => {
-    const db = getHospitalDB()
-    const unsubscribe = createPerQReputationListener({
-      getRooms: () => db.rooms.toArray(),
-      getDoctors: () => db.doctors.toArray(),
-      updateCounters: async ({ reputation }) =>
-        db.transaction('rw', db.gameCounters, async () => {
-          const counters = await db.gameCounters.get('singleton')
-          if (!counters) return
-          await db.gameCounters.put({
-            ...counters,
-            reputation: counters.reputation + reputation,
-          })
-        }),
-    })
-    return unsubscribe
-  }, [])
-
   const handleCapped = useCallback(() => {
     const now = Date.now()
     // throttle: at most one notice per 60s
@@ -96,7 +78,7 @@ function App() {
     setTimeout(() => setUpgradeNotice(null), 8000)
   }, [])
 
-  useTickLoop(
+  useStudySessionTick(
     ready ? handleCapped : undefined,
     ready ? handleUpgrade : undefined,
   )
@@ -145,6 +127,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/roster" element={<DoctorRoster />} />
         <Route path="/hospital" element={<Hospital />} />
+        <Route path="/study" element={<StudySessionPage />} />
       </Routes>
     </HashRouter>
   )

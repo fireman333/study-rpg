@@ -37,6 +37,12 @@ export interface DoctorRow {
   spriteKey: string
   obtainedAt: number
   assignedRoom: string | null
+  /**
+   * Consecutive training failures since last success. Reset to 0 on success or
+   * voluntary retirement. Once ≥ TRAINING_PITY_THRESHOLD, the next attempt is
+   * guaranteed to succeed. v6 upgrade backfills existing doctors with 0.
+   */
+  pityCounter: number
 }
 
 export interface GachaStatsRow {
@@ -60,6 +66,75 @@ export interface GameCountersRow {
   lastTickAt: number
   tier: HospitalTier
   hasUsedStarterPull: boolean
+  /**
+   * Timestamp when the currently-running study session began. `null` when no
+   * session is active. Tick loop only accumulates progress when this is set.
+   */
+  currentSessionStartedAt: number | null
+  /** Timestamp when the last study session ended (manual stop or auto-pause). */
+  lastSessionEndedAt: number | null
+  /** Tutorial / onboarding progress. All fields are flag bags (sparse maps). */
+  tutorial: {
+    completedSteps: Record<string, true>
+    firstVisit: Record<string, true>
+    firedTips: Record<string, true>
+  }
+}
+
+/**
+ * Monotonic counters split from gameCounters per design D7 / audit B3.
+ * These fields must merge via MAX(local, cloud) — LWW would let a "shorter"
+ * cloud value overwrite local progress after sync.
+ */
+export interface MonotonicCountersRow {
+  id: 'singleton'
+  /** Cumulative minutes spent in active study sessions. Never decreases. */
+  totalStudyMinutes: number
+  /** Per-tier consecutive bad-luck pity counters for fate card draws. */
+  fateCardBadLuckPity: {
+    common: number
+    rare: number
+    epic: number
+  }
+}
+
+export interface TrainingHistoryRow {
+  id?: number
+  doctorId: string
+  attemptedAt: number
+  fromRarity: Rarity
+  toRarity: Rarity
+  cost: number
+  success: boolean
+  pityTriggered: boolean
+}
+
+export interface EventLogRow {
+  id?: number
+  triggeredAt: number
+  eventKey: string
+  outcome: string
+  reputationDelta: number
+  revenueDelta: number
+}
+
+export interface FateCardHistoryRow {
+  id?: number
+  drawnAt: number
+  tier: 'common' | 'rare' | 'epic' | 'legendary'
+  cost: number
+  rewardKey: string
+  wasBadLuck: boolean
+  pityTriggered: boolean
+}
+
+export interface RetirementLogRow {
+  id?: number
+  retiredAt: number
+  doctorId: string
+  subjectId: string
+  rarity: Rarity
+  refund: number
 }
 
 export interface MasteryRow {
@@ -117,6 +192,11 @@ export class HospitalDB extends Dexie {
   questionHistory!: EntityTable<QuestionHistoryRow, 'questionId'>
   meta!: EntityTable<HospitalMetaRow, 'key'>
   localBackup!: EntityTable<HospitalLocalBackupRecord, 'key'>
+  monotonicCounters!: EntityTable<MonotonicCountersRow, 'id'>
+  trainingHistory!: EntityTable<TrainingHistoryRow, 'id'>
+  eventLog!: EntityTable<EventLogRow, 'id'>
+  fateCardHistory!: EntityTable<FateCardHistoryRow, 'id'>
+  retirementLog!: EntityTable<RetirementLogRow, 'id'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -182,6 +262,63 @@ export class HospitalDB extends Dexie {
       meta: '&key',
       localBackup: '&key, takenAt',
     })
+    // v6: redesign-hospital-economy — adds monotonic counter row (MAX-merge cloud
+    // sync), training / event / fate-card / retirement history tables. Upgrade
+    // patches existing rows with new fields (pityCounter, facilityLevel, session
+    // metadata, tutorial flags). All additive — no destructive migration.
+    this.version(6)
+      .stores({
+        affinity: '&subjectId',
+        doctors: '&id, subjectId, rarity, obtainedAt',
+        gachaStats: '&id',
+        tickets: '&id',
+        rooms: '&id, type, slot',
+        gameCounters: '&id',
+        mastery: '&subjectId',
+        questionHistory: '&questionId, subjectId, lastAnsweredAt, nextDueAt',
+        meta: '&key',
+        localBackup: '&key, takenAt',
+        monotonicCounters: '&id',
+        trainingHistory: '++id, doctorId, attemptedAt',
+        eventLog: '++id, triggeredAt',
+        fateCardHistory: '++id, drawnAt',
+        retirementLog: '++id, retiredAt, doctorId',
+      })
+      .upgrade(async (tx) => {
+        // 1. Seed monotonicCounters singleton (MAX-merge row split per D7)
+        const monotonicTable = tx.table<MonotonicCountersRow, 'singleton'>('monotonicCounters')
+        const existing = await monotonicTable.get('singleton')
+        if (!existing) {
+          await monotonicTable.put({
+            id: 'singleton',
+            totalStudyMinutes: 0,
+            fateCardBadLuckPity: { common: 0, rare: 0, epic: 0 },
+          })
+        }
+
+        // 2. Patch gameCounters singleton with new LWW-only fields (additive)
+        const countersTable = tx.table<GameCountersRow, 'singleton'>('gameCounters')
+        const counters = await countersTable.get('singleton')
+        if (counters) {
+          const c = counters as Partial<GameCountersRow> & GameCountersRow
+          await countersTable.put({
+            ...counters,
+            currentSessionStartedAt: c.currentSessionStartedAt ?? null,
+            lastSessionEndedAt: c.lastSessionEndedAt ?? null,
+            tutorial: c.tutorial ?? { completedSteps: {}, firstVisit: {}, firedTips: {} },
+          })
+        }
+
+        // 3. Backfill doctor.pityCounter = 0
+        await tx.table<DoctorRow, string>('doctors').toCollection().modify((d) => {
+          if ((d as Partial<DoctorRow>).pityCounter === undefined) d.pityCounter = 0
+        })
+
+        // 4. Backfill room.facilityLevel = 1 (roomFacility already exists at 1.0)
+        await tx.table<RoomRow, string>('rooms').toCollection().modify((r) => {
+          if ((r as Partial<RoomRow>).facilityLevel === undefined) r.facilityLevel = 1
+        })
+      })
   }
 }
 
@@ -209,6 +346,7 @@ function makeStarterDoctor(subjectId: '內科' | '外科', seqIndex: number): Do
     spriteKey: `doctor-${subjectId}-P5`,
     obtainedAt: Date.now() + seqIndex,
     assignedRoom: null,
+    pityCounter: 0,
   }
 }
 
@@ -216,8 +354,19 @@ export async function ensureSeed(): Promise<void> {
   const db = getHospitalDB()
   await db.transaction(
     'rw',
-    [db.tickets, db.gachaStats, db.rooms, db.gameCounters, db.doctors, db.mastery],
+    [db.tickets, db.gachaStats, db.rooms, db.gameCounters, db.doctors, db.mastery, db.monotonicCounters],
     async () => {
+      // Always ensure monotonicCounters singleton exists (covers both fresh save
+      // and the rare case where v6 upgrade didn't run before ensureSeed)
+      const mono = await db.monotonicCounters.get('singleton')
+      if (!mono) {
+        await db.monotonicCounters.put({
+          id: 'singleton',
+          totalStudyMinutes: 0,
+          fateCardBadLuckPity: { common: 0, rare: 0, epic: 0 },
+        })
+      }
+
       const t = await db.tickets.get('global')
       if (!t) {
         await db.tickets.put({
@@ -248,6 +397,9 @@ export async function ensureSeed(): Promise<void> {
           lastTickAt: Date.now(),
           tier: '診所',
           hasUsedStarterPull: false,
+          currentSessionStartedAt: null,
+          lastSessionEndedAt: null,
+          tutorial: { completedSteps: {}, firstVisit: {}, firedTips: {} },
         })
         if (doctorCount === 0) {
           await db.doctors.bulkPut([makeStarterDoctor('內科', 0), makeStarterDoctor('外科', 1)])

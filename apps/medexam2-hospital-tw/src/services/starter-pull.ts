@@ -44,6 +44,7 @@ export async function attemptStarterPull(subject: Subject): Promise<StarterPullO
       spriteKey: `doctor-${subject.id}-${rarity}`,
       obtainedAt: Date.now(),
       assignedRoom: null,
+      pityCounter: 0,
     }
 
     await db.doctors.put(doctor)

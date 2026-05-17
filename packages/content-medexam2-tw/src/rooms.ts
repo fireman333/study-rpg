@@ -16,7 +16,15 @@ export interface Room {
   id: string
   type: RoomType
   baseRate: number
+  /**
+   * Multiplier applied to throughput. Derived from `facilityLevel` via
+   * `FACILITY_LEVEL_TO_FACILITY[facilityLevel]` in finances.ts. Persisted so the
+   * tick loop's hot path doesn't need to recompute from level on every tick.
+   * UI MUST write both `facilityLevel` and `roomFacility` together on upgrade.
+   */
   roomFacility: number
+  /** Discrete upgrade level (1-5). Level 1 = default; level 5 = 3.0× cap. */
+  facilityLevel: number
   assignedDoctorId: string | null
   slot: number
 }

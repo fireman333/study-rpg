@@ -10,6 +10,7 @@ const TIER_TO_KEY: Record<HospitalTier, 'tier1' | 'tier2' | 'tier3'> = {
   診所: 'tier1',
   區域醫院: 'tier2',
   醫學中心: 'tier3',
+  國家級教學醫院: 'tier3',
 }
 
 const SCENE_WIDTH = 768

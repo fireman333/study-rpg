@@ -1711,3 +1711,119 @@ body {
   font-size: 12px;
   color: var(--accent-rose);
 }
+
+/* ─── Study Session page (redesign-hospital-economy §4) ─────────────────── */
+
+.nav-link--primary {
+  background: var(--accent-gold);
+  color: #1a1a1a;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.nav-link--primary:hover { opacity: 0.85; }
+
+.primary-btn,
+.ghost-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  font-family: inherit;
+  font-size: 14px;
+  border: 2px solid var(--frame-dark);
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+.primary-btn {
+  background: var(--accent-gold);
+  color: #1a1a1a;
+  font-weight: bold;
+}
+.primary-btn:hover { opacity: 0.85; }
+.ghost-btn {
+  background: transparent;
+  color: var(--frame-dark);
+}
+.ghost-btn:hover { background: rgba(255,255,255,0.4); }
+
+.study-session__banner {
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(255,255,255,0.3);
+  border: 2px solid var(--frame-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.study-session__state {
+  font-size: 18px;
+  font-weight: bold;
+}
+.study-session__state--active { color: var(--accent-gold); }
+.study-session__state--paused { color: var(--accent-rose); }
+.study-session__state--idle { color: var(--frame-dark); opacity: 0.7; }
+.study-session__controls { display: flex; gap: 12px; }
+.study-session__hint {
+  font-size: 12px;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+.study-session__counters {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 16px 0;
+}
+@media (max-width: 720px) {
+  .study-session__counters { grid-template-columns: repeat(2, 1fr); }
+}
+
+.study-session__rooms {
+  margin-top: 20px;
+}
+.section-heading {
+  font-size: 16px;
+  margin: 12px 0;
+  border-bottom: 1px solid var(--frame-dark);
+  padding-bottom: 4px;
+}
+.study-session__room-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.study-session__room-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.25);
+  border: 1px solid var(--frame-dark);
+  font-size: 13px;
+}
+.study-session__room-item .throughput {
+  text-align: right;
+  font-weight: bold;
+}
+.study-session__empty {
+  padding: 12px;
+  text-align: center;
+  opacity: 0.75;
+}
+
+/* HomePage additions — finance sublabel + diversity line */
+.home-counters-banner__sublabel {
+  display: block;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+.home-tier-line--diversity {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-top: -4px;
+}

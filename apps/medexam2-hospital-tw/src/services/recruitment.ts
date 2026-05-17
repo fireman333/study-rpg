@@ -51,6 +51,7 @@ export async function attemptRoll(subject: Subject): Promise<RollOutcome> {
       spriteKey: `doctor-${subject.id}-${rarity}`,
       obtainedAt: Date.now(),
       assignedRoom: null,
+      pityCounter: 0,
     }
 
     await db.tickets.put({ ...ticketsRow, available: ticketsRow.available - 1 })

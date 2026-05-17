@@ -26,7 +26,7 @@ export const TIER_UPGRADE_THRESHOLDS: Record<HospitalTier, number | null> = {
 }
 
 function room(id: string, type: Room['type'], slot: number): Room {
-  return { id, type, baseRate: 10, roomFacility: 1.0, assignedDoctorId: null, slot }
+  return { id, type, baseRate: 10, roomFacility: 1.0, facilityLevel: 1, assignedDoctorId: null, slot }
 }
 
 export const TIER_ROOMS: Record<HospitalTier, Room[]> = {

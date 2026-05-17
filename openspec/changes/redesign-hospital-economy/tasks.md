@@ -21,20 +21,20 @@
 
 ## 2. App schema: HospitalDB v6 migration
 
-- [ ] 2.1 `apps/medexam2-hospital-tw/src/db/schema.ts` — bump HospitalDB to v6
-- [ ] 2.2 Update `GameCountersRow` (LWW row): add `currentSessionStartedAt: number | null` + `lastSessionEndedAt: number | null` + `tutorial: { completedSteps: Record<string, true>, firstVisit: Record<string, true>, firedTips: Record<string, true> }` (NOT `totalStudyMinutes` or pity — those move to monotonicCounters per audit B3)
-- [ ] 2.2a Create new `MonotonicCountersRow` type with `id: 'singleton'`, `totalStudyMinutes: number`, `fateCardBadLuckPity: { common: number, rare: number, epic: number }` — separate row for MAX-merge cloud sync strategy
-- [ ] 2.3 Add `TrainingHistoryRow` + `EventLogRow` + `FateCardHistoryRow` + `RetirementLogRow` types
-- [ ] 2.4 Add v6 store definitions: `monotonicCounters: '&id'`, `trainingHistory: '++id, doctorId, attemptedAt'`, `eventLog: '++id, triggeredAt'`, `fateCardHistory: '++id, drawnAt'`, `retirementLog: '++id, retiredAt, doctorId'`
-- [ ] 2.5 Write v6 upgrade hook per design D7: create `monotonicCounters.singleton` with zeros; patch `gameCounters.singleton` to add new LWW-only fields; patch doctors with `pityCounter = 0`; patch rooms with `facilityLevel = 1`
-- [ ] 2.6 Update `ensureSeed` to initialize both `gameCounters` AND `monotonicCounters` rows on fresh save
-- [ ] 2.7 Add `pityCounter: number` field to `DoctorRow` type with default 0; update v6 upgrade to backfill existing doctors
-- [ ] 2.8 Add `facilityLevel: number` (1-5) field to `Room` type with default 1; v6 upgrade backfills
-- [ ] 2.9 `pnpm --filter @study-rpg/medexam2-hospital-tw typecheck` passes
+- [x] 2.1 `apps/medexam2-hospital-tw/src/db/schema.ts` — bump HospitalDB to v6
+- [x] 2.2 Update `GameCountersRow` (LWW row): add `currentSessionStartedAt: number | null` + `lastSessionEndedAt: number | null` + `tutorial: { completedSteps: Record<string, true>, firstVisit: Record<string, true>, firedTips: Record<string, true> }` (NOT `totalStudyMinutes` or pity — those move to monotonicCounters per audit B3)
+- [x] 2.2a Create new `MonotonicCountersRow` type with `id: 'singleton'`, `totalStudyMinutes: number`, `fateCardBadLuckPity: { common: number, rare: number, epic: number }` — separate row for MAX-merge cloud sync strategy
+- [x] 2.3 Add `TrainingHistoryRow` + `EventLogRow` + `FateCardHistoryRow` + `RetirementLogRow` types
+- [x] 2.4 Add v6 store definitions: `monotonicCounters: '&id'`, `trainingHistory: '++id, doctorId, attemptedAt'`, `eventLog: '++id, triggeredAt'`, `fateCardHistory: '++id, drawnAt'`, `retirementLog: '++id, retiredAt, doctorId'`
+- [x] 2.5 Write v6 upgrade hook per design D7: create `monotonicCounters.singleton` with zeros; patch `gameCounters.singleton` to add new LWW-only fields; patch doctors with `pityCounter = 0`; patch rooms with `facilityLevel = 1`
+- [x] 2.6 Update `ensureSeed` to initialize both `gameCounters` AND `monotonicCounters` rows on fresh save
+- [x] 2.7 Add `pityCounter: number` field to `DoctorRow` type with default 0; update v6 upgrade to backfill existing doctors
+- [x] 2.8 Add `facilityLevel: number` (1-5) field to `Room` type with default 1; v6 upgrade backfills
+- [x] 2.9 `pnpm --filter @study-rpg/medexam2-hospital-tw typecheck` passes
 
 ## 3. App tick refactor: session-gated, totalStudyMinutes, salary
 
-- [ ] 3.1 `apps/medexam2-hospital-tw/src/lib/tick.ts` — rewrite `runTick` to:
+- [x] 3.1 `apps/medexam2-hospital-tw/src/lib/tick.ts` — rewrite `runTick` to:
   - Read totalThroughput (assigned doctors only — bench doesn't produce)
   - Compute deltaRevenueGross = throughput × elapsedSec / 60
   - Compute deltaSalary via `finances.computeSalaryDrain(ALL_OWNED_DOCTORS, tier)` (per D5: `Σ doctor.powerMultiplier × 4 × tierRate`; tierRate: 0% / 100% / 100% / 100%)
@@ -43,20 +43,20 @@
   - Write revenue = max(0, currentRevenue + gross - salary) (defensive 0 floor; per design D5, default config never triggers it)
   - **Roll event** (every 60 ticks): use reputation-scaled trigger rate `baseRate × clamp(reputation / 100k, 0.5, 3.0)`, cap effective rate at 0.5
   - **Roll negative-rep event** subset (負面新聞 / 學會質疑) — deduct uniform random `[1000, 10000]` reputation; combined effective rate ≤ 5%
-- [ ] 3.2 Remove the always-on `setInterval` in `useTickLoop`; replace with `useStudySessionTick` that observes `studySession.state` and schedules interval only during `'active'`
-- [ ] 3.3 Wire visibilitychange + idle detection through `study-session.ts` controller (NOT directly on tick.ts anymore)
-- [ ] 3.4 Update tier-upgrade logic in tick to check dual-gate: reputation threshold AND `countDistinctSubjectsAtRarity` returns ≥ requiredCount AND (if 國家級教學醫院) at least 1 P1
-- [ ] 3.5 Unregister `createPerQReputationListener` in `main.tsx` / `App.tsx` (delete the import and the call)
+- [x] 3.2 Remove the always-on `setInterval` in `useTickLoop`; replace with `useStudySessionTick` that observes `studySession.state` and schedules interval only during `'active'`
+- [x] 3.3 Wire visibilitychange + idle detection through `study-session.ts` controller (NOT directly on tick.ts anymore)
+- [x] 3.4 Update tier-upgrade logic in tick to check dual-gate: reputation threshold AND `countDistinctSubjectsAtRarity` returns ≥ requiredCount AND (if 國家級教學醫院) at least 1 P1
+- [x] 3.5 Unregister `createPerQReputationListener` in `main.tsx` / `App.tsx` (delete the import and the call)
 
 ## 4. App pages: study session UI
 
-- [ ] 4.1 Create `apps/medexam2-hospital-tw/src/pages/StudySessionPage.tsx` — top-level study scene route at `/study`
-- [ ] 4.2 Implement `<DoctorSceneSprite>` overlay component — renders assigned doctor sprite in each room's position
-- [ ] 4.3 Implement start / pause / stop buttons + session status banner
-- [ ] 4.4 Implement paused overlay state when session is auto-paused
-- [ ] 4.5 Wire `useStudySessionTick` hook from §3.2 to mount on `/study` route
-- [ ] 4.6 Add nav link from HomePage to `/study`
-- [ ] 4.7 Style with existing pixel-hospital theme
+- [x] 4.1 Create `apps/medexam2-hospital-tw/src/pages/StudySessionPage.tsx` — top-level study scene route at `/study`
+- [-] 4.2 Implement `<DoctorSceneSprite>` — DEFERRED to follow-up (depends on §10 sprite gen) overlay component — renders assigned doctor sprite in each room's position
+- [x] 4.3 Implement start / pause / stop buttons + session status banner
+- [x] 4.4 Implement paused overlay — text hint instead of overlay (MVP) state when session is auto-paused
+- [x] 4.5 Wire `useStudySessionTick` hook from §3.2 to mount on `/study` route
+- [x] 4.6 Add nav link from HomePage to `/study`
+- [x] 4.7 Style with existing pixel-hospital theme
 
 ## 5. App pages: training UI
 
@@ -95,10 +95,10 @@
 
 ## 9. HomePage update
 
-- [ ] 9.1 Add totalStudyMinutes counter to banner (display as `「累積唸書 1,234 min」`)
-- [ ] 9.2 Add diversification progress line under reputation progress (e.g., `「(P3+ 科別 5 / 8)」`)
-- [ ] 9.3 Add finance panel: net rate per minute + salary breakdown
-- [ ] 9.4 Update tier-upgrade banner copy to reflect new tier names
+- [x] 9.1 Add totalStudyMinutes counter to banner (display as `「累積唸書 1,234 min」`)
+- [x] 9.2 Add diversification progress line under reputation progress (e.g., `「(P3+ 科別 5 / 8)」`)
+- [x] 9.3 Add finance panel: net rate per minute + salary breakdown
+- [x] 9.4 Update tier-upgrade banner copy to reflect new tier names
 
 ## 10. Sprites generation (codex)
 
@@ -122,9 +122,9 @@
 
 ## 11. Verification
 
-- [ ] 11.1 Typecheck all packages + apps: `pnpm -r typecheck` zero errors
+- [x] 11.1 Typecheck all packages + apps: `pnpm -r typecheck` zero errors
 - [ ] 11.2 Build all packages: `pnpm -r build` succeeds
-- [ ] 11.3 Chrome MCP smoke — fresh cold start: navigate to /, see "no session" state, click start session, scene renders, tick begins, revenue + reputation + totalStudyMinutes all increment after 60s
+- [x] 11.3 Chrome MCP smoke — fresh cold start: P5 outpatient assigned, 開始唸書 click, 65s wait, revenue +7.93 / reputation +7.93 / totalStudyMinutes 1.59 (matches 5/min math); UI cells render 累積唸書 / 毛 / 薪 / 淨 correctly after reload: navigate to /, see "no session" state, click start session, scene renders, tick begins, revenue + reputation + totalStudyMinutes all increment after 60s
 - [ ] 11.4 Chrome MCP smoke — pause on visibility hide; resume on visibility return + click 繼續
 - [ ] 11.5 Chrome MCP smoke — training attempt: fail first time (verify pityCounter increment), pass after 5 fails (pity)
 - [ ] 11.6 Chrome MCP smoke — facility upgrade outpatient-1 to level 2, throughput visibly increases
