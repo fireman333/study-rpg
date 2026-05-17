@@ -5,7 +5,7 @@ import {
   type HospitalTier,
   type Room,
 } from '@study-rpg/content-medexam2-tw'
-import { ensureSeed, getHospitalDB, refreshDailyTickets } from './db/schema'
+import { ensureSeed, getHospitalDB, refreshDailyTickets, type GameCountersRow } from './db/schema'
 import { HomePage } from './pages/HomePage'
 import { DoctorRoster } from './pages/DoctorRoster'
 import { Hospital } from './pages/Hospital'
@@ -17,6 +17,9 @@ import { useSync } from './lib/sync/useSync'
 import { AuthButton } from './components/AuthButton'
 import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
 import { ConflictChooserModal } from './components/ConflictChooserModal'
+import { V6MigrationModal } from './components/V6MigrationModal'
+import { TutorialOnboarding } from './components/TutorialOnboarding'
+import { TUTORIAL_STEPS } from '@study-rpg/content-medexam2-tw'
 import { useAuth } from './lib/auth/AuthContext'
 
 const TIER_DELTA_LABEL: Record<Room['type'], string> = {
@@ -44,6 +47,8 @@ function App() {
   const [ready, setReady] = useState(false)
   const [cappedNotice, setCappedNotice] = useState(false)
   const [upgradeNotice, setUpgradeNotice] = useState<string | null>(null)
+  const [v6Migration, setV6Migration] = useState<GameCountersRow | null>(null)
+  const [onboarding, setOnboarding] = useState<GameCountersRow | null>(null)
   const lastNoticeAtRef = useRef<number>(0)
   const prevTierRef = useRef<HospitalTier>('診所')
 
@@ -55,7 +60,23 @@ function App() {
       await checkAssignmentInvariants()
       // Initialise prev-tier so the first upgrade banner shows the correct room delta
       const counters = await getHospitalDB().gameCounters.get('singleton')
-      if (counters) prevTierRef.current = counters.tier
+      if (counters) {
+        prevTierRef.current = counters.tier
+        // §9.5.8 v6 migration modal — fires once for upgraded saves that have
+        // played past 診所 and haven't seen the welcome yet
+        if (counters.tier !== '診所' && counters.tutorial?.firedTips?.v6_welcome !== true) {
+          if (!cancelled) setV6Migration(counters)
+        }
+        // §9.5.1 onboarding modal — fires for fresh saves where the final
+        // 'done' step is not yet complete. Mutually exclusive with v6 migration
+        // (only fresh 診所 saves enter this branch).
+        else if (
+          counters.tier === '診所' &&
+          counters.tutorial?.completedSteps?.[TUTORIAL_STEPS[TUTORIAL_STEPS.length - 1].id] !== true
+        ) {
+          if (!cancelled) setOnboarding(counters)
+        }
+      }
       if (!cancelled) setReady(true)
     })()
     return () => {
@@ -113,6 +134,12 @@ function App() {
           hasSettingsEntry={false}
           onChoose={sync.resolveConflictChooser}
         />
+      )}
+      {v6Migration && (
+        <V6MigrationModal counters={v6Migration} onDismiss={() => setV6Migration(null)} />
+      )}
+      {onboarding && (
+        <TutorialOnboarding counters={onboarding} onComplete={() => setOnboarding(null)} />
       )}
       {upgradeNotice && (
         <div className="upgrade-notice" role="status">

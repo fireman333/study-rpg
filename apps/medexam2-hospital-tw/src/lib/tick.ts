@@ -70,7 +70,7 @@ export async function runTick(): Promise<TickResult> {
   const db = getHospitalDB()
   return db.transaction(
     'rw',
-    [db.rooms, db.doctors, db.gameCounters, db.monotonicCounters],
+    [db.rooms, db.doctors, db.gameCounters, db.monotonicCounters, db.retirementLog],
     async () => {
       const counters = await db.gameCounters.get('singleton')
       if (!counters) return ZERO_TICK
@@ -124,10 +124,24 @@ export async function runTick(): Promise<TickResult> {
             ? undefined
             : TIER_DIVERSIFICATION_REQUIREMENTS[currentTier]
         if (req) {
-          const distinct = countDistinctSubjectsAtRarity(doctors, req.minRarity)
+          // 24-hour grace per §5.8: recently-retired doctors still count toward
+          // diversification, so players aren't punished for retiring a P5 mid-build.
+          const graceCutoff = Date.now() - 24 * 60 * 60 * 1000
+          const recentRetirees = await db.retirementLog
+            .where('retiredAt')
+            .above(graceCutoff)
+            .toArray()
+          const effectiveDoctors = [
+            ...doctors,
+            ...recentRetirees.map((r) => ({
+              subjectId: r.subjectId,
+              rarity: r.rarity,
+            })),
+          ]
+          const distinct = countDistinctSubjectsAtRarity(effectiveDoctors, req.minRarity)
           if (distinct < req.requiredCount) break
           if (req.requireP1) {
-            const hasP1 = doctors.some((d) => rarityIsAtLeast(d.rarity, 'P1'))
+            const hasP1 = effectiveDoctors.some((d) => rarityIsAtLeast(d.rarity, 'P1'))
             if (!hasP1) break
           }
         }

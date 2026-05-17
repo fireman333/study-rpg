@@ -20,10 +20,13 @@ import {
 } from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
 import { trainDoctor } from '../services/training'
+import { retireDoctor, type RetireResult } from '../services/retire'
 import type { TrainingAttemptResult } from '@study-rpg/content-medexam2-tw'
 
 type Confirming = { doctor: DoctorRow }
+type RetireConfirming = { doctor: DoctorRow }
 type Outcome = { doctorId: string; result: TrainingAttemptResult }
+type RetireOutcome = { result: RetireResult; doctorName: string; doctorRarity: string }
 
 function isTrainable(r: Rarity): r is TrainableRarity {
   return r !== 'P1'
@@ -40,6 +43,8 @@ export function TrainingPage() {
 
   const [confirming, setConfirming] = useState<Confirming | null>(null)
   const [outcome, setOutcome] = useState<Outcome | null>(null)
+  const [retireConfirming, setRetireConfirming] = useState<RetireConfirming | null>(null)
+  const [retireOutcome, setRetireOutcome] = useState<RetireOutcome | null>(null)
   const [busy, setBusy] = useState(false)
 
   const sortedDoctors = useMemo(
@@ -61,6 +66,22 @@ export function TrainingPage() {
 
   function dismissOutcome() {
     setOutcome(null)
+  }
+
+  async function handleRetireConfirm() {
+    if (!retireConfirming) return
+    setBusy(true)
+    try {
+      const result = await retireDoctor(retireConfirming.doctor.id)
+      setRetireOutcome({
+        result,
+        doctorName: retireConfirming.doctor.name,
+        doctorRarity: retireConfirming.doctor.rarity,
+      })
+    } finally {
+      setBusy(false)
+      setRetireConfirming(null)
+    }
   }
 
   const fmt = (n: number) => n.toLocaleString('zh-TW', { maximumFractionDigits: 0 })
@@ -136,6 +157,14 @@ export function TrainingPage() {
                         進修（{fmt(cost)} 💰）
                       </button>
                     )}
+                    <button
+                      className="ghost-btn training-retire-btn"
+                      onClick={() => setRetireConfirming({ doctor: d })}
+                      disabled={busy}
+                      title={`退休後返還 ${fmt(d.powerMultiplier * 1000)} 💰`}
+                    >
+                      退休
+                    </button>
                   </div>
                 </li>
               )
@@ -208,6 +237,72 @@ export function TrainingPage() {
               </button>
               <button className="primary-btn" onClick={handleConfirm} disabled={busy}>
                 {busy ? '進修中…' : '確認進修'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {retireConfirming && (
+        <div className="modal-backdrop" onClick={() => !busy && setRetireConfirming(null)}>
+          <div className="modal frame training-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="modal__title">退休醫師</h2>
+            <p>
+              <strong>{retireConfirming.doctor.name}</strong>
+              {' '}（{retireConfirming.doctor.rarity}）
+            </p>
+            <p>
+              將返還 <strong>{fmt(retireConfirming.doctor.powerMultiplier * 1000)} 💰</strong>。
+            </p>
+            <p className="muted">
+              此操作無法復原。該醫師會從名冊永久移除；若已指派診間，該診間會空出。
+            </p>
+            <p className="muted">
+              升級門檻多樣性 24 小時內仍會計入此醫師（grace period）。
+            </p>
+            <div className="modal__actions">
+              <button className="ghost-btn" onClick={() => setRetireConfirming(null)} disabled={busy}>
+                取消
+              </button>
+              <button
+                className="primary-btn"
+                onClick={() => void handleRetireConfirm()}
+                disabled={busy}
+              >
+                {busy ? '處理中…' : '確認退休'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {retireOutcome && (
+        <div className="modal-backdrop" onClick={() => setRetireOutcome(null)}>
+          <div
+            className="modal frame training-outcome-modal training-outcome-modal--success"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {retireOutcome.result.kind === 'success' && (
+              <>
+                <h2 className="modal__title">👋 醫師已退休</h2>
+                <p>
+                  <strong>{retireOutcome.doctorName}</strong>（{retireOutcome.doctorRarity}）
+                </p>
+                <p>返還 <strong>{fmt(retireOutcome.result.refund)} 💰</strong></p>
+                {retireOutcome.result.roomFreed && (
+                  <p className="muted">已釋放診間 {retireOutcome.result.roomFreed}</p>
+                )}
+              </>
+            )}
+            {retireOutcome.result.kind === 'not-found' && (
+              <>
+                <h2 className="modal__title">醫師已不存在</h2>
+                <p className="muted">該醫師可能已被另一個 tab 退休或資料已刪除。</p>
+              </>
+            )}
+            <div className="modal__actions">
+              <button className="primary-btn" onClick={() => setRetireOutcome(null)}>
+                好
               </button>
             </div>
           </div>

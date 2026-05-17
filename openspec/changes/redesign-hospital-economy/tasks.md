@@ -66,8 +66,8 @@
 - [x] 5.4 Resolve attempt via `training.attemptTraining()` → write `trainingHistory` row → update doctor.rarity + pityCounter
 - [x] 5.5 Animate success/failure outcome — outcome modal with rarity-up / pity-triggered display
 - [x] 5.6 Add nav link from HomePage
-- [ ] 5.7 Doctor detail panel — add 「退休醫師」button with confirmation modal (per audit B2); on confirm: delete from `db.doctors`, null `assignedDoctorId` in affected room, refund `powerMultiplier × 1000` revenue, write `retirementLog` row
-- [ ] 5.8 Diversification gate counter — implement 24-hour grace via `retirementLog` lookup: `(now - retiredAt) < 24*60*60*1000` doctors still count toward diversification
+- [x] 5.7 Doctor detail panel — add 「退休醫師」button with confirmation modal (per audit B2); on confirm: delete from `db.doctors`, null `assignedDoctorId` in affected room, refund `powerMultiplier × 1000` revenue, write `retirementLog` row — implemented in TrainingPage doctor card (no separate detail panel needed); service in `apps/medexam2-hospital-tw/src/services/retire.ts`
+- [x] 5.8 Diversification gate counter — implement 24-hour grace via `retirementLog` lookup: `(now - retiredAt) < 24*60*60*1000` doctors still count toward diversification — tick.ts dual-gate now folds recent retirees into `effectiveDoctors` array before `countDistinctSubjectsAtRarity`
 
 ## 6. App pages: events UI
 
@@ -90,7 +90,7 @@
 
 - [x] 8.1 Add facility upgrade button to RoomCard in `/hospital` route — implemented inside AssignDoctorModal (RoomCard is already a button; nested-button anti-pattern avoided)
 - [x] 8.2 Show current `facilityLevel`, next cost, max-level disabled state
-- [ ] 8.3 Add room-extension panel (separate section, lock behind tier ≥ 區域醫院)
+- [x] 8.3 Add room-extension panel (separate section, lock behind tier ≥ 區域醫院) — service in `services/room-extension.ts`, UI panel in `pages/Hospital.tsx`; deterministic ids `extra-{type}-{N}`; max extras enforced (3 outpatient / 2 surgery / 2 ward)
 - [x] 8.4 Wire all UI to `finances.ts` helpers + Dexie writes (services/facility.ts: atomic txn — bump facilityLevel + roomFacility + deduct revenue)
 
 ## 9. HomePage update
@@ -111,14 +111,14 @@
 
 ## 9.5 Tutorial system implementation
 
-- [ ] 9.5.1 Create `apps/medexam2-hospital-tw/src/components/TutorialOnboarding.tsx` — modal sequence (7 steps), reads/writes `gameCounters.tutorial.completedSteps`
+- [x] 9.5.1 Create `apps/medexam2-hospital-tw/src/components/TutorialOnboarding.tsx` — 7-step click-next sequence with progress pips; MVP simplification: all steps `click-next` (gameplay-event auto-advance deferred) — modal sequence (7 steps), reads/writes `gameCounters.tutorial.completedSteps`
 - [ ] 9.5.2 Create `apps/medexam2-hospital-tw/src/components/SurfaceHint.tsx` — overlay card; consumes `tutorial.firstVisit[surfaceId]`, dismiss writes flag
 - [ ] 9.5.3 Create `apps/medexam2-hospital-tw/src/components/HelpMenu.tsx` — `❓` icon + modal with 8 collapsible accordion sections; mount in page header
 - [ ] 9.5.4 Create `apps/medexam2-hospital-tw/src/components/MilestoneTipToast.tsx` — toast component
 - [ ] 9.5.5 Wire `useMilestoneTips` hook — watches counters via liveQuery, fires tips on threshold cross + writes `firedTips[tipId]`
 - [ ] 9.5.6 Settings panel adds 「重新顯示所有提示」button — resets all `firstVisit.*` + `firedTips.*` flags
-- [ ] 9.5.7 「跳過教學」link in step 1 — sets all `completedSteps[*] = true` in one write
-- [ ] 9.5.8 V6 migration modal for existing players (audit C5) — detect `gameCounters.singleton` existing + `tier !== '診所'` + `firedTips.v6_welcome` undefined → show「醫院系統大改版」modal explaining new mechanics; dismiss writes `firedTips.v6_welcome = true`
+- [x] 9.5.7 「跳過教學」link in step 1 — single button writes `completedSteps[*] = true` for all TUTORIAL_STEPS ids — sets all `completedSteps[*] = true` in one write
+- [x] 9.5.8 V6 migration modal for existing players (audit C5) — `apps/medexam2-hospital-tw/src/components/V6MigrationModal.tsx`; fires once on first v6 load if tier ≠ 診所 and `firedTips.v6_welcome` undefined; dismiss writes the flag — detect `gameCounters.singleton` existing + `tier !== '診所'` + `firedTips.v6_welcome` undefined → show「醫院系統大改版」modal explaining new mechanics; dismiss writes `firedTips.v6_welcome = true`
 
 ## 11. Verification
 
