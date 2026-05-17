@@ -20,6 +20,7 @@ import { ConflictChooserModal } from './components/ConflictChooserModal'
 import { V6MigrationModal } from './components/V6MigrationModal'
 import { TutorialOnboarding } from './components/TutorialOnboarding'
 import { MilestoneTipToast } from './components/MilestoneTipToast'
+import { HelpMenu } from './components/HelpMenu'
 import { useMilestoneTips } from './lib/useMilestoneTips'
 import { TUTORIAL_STEPS } from '@study-rpg/content-medexam2-tw'
 import { useAuth } from './lib/auth/AuthContext'
@@ -151,6 +152,7 @@ function App() {
           onDismiss={() => void milestoneTip.dismiss()}
         />
       )}
+      <HelpMenu />
       {upgradeNotice && (
         <div className="upgrade-notice" role="status">
           {upgradeNotice}

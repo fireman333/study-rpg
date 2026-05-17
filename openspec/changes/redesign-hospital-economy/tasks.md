@@ -113,7 +113,7 @@
 
 - [x] 9.5.1 Create `apps/medexam2-hospital-tw/src/components/TutorialOnboarding.tsx` — 7-step click-next sequence with progress pips; MVP simplification: all steps `click-next` (gameplay-event auto-advance deferred) — modal sequence (7 steps), reads/writes `gameCounters.tutorial.completedSteps`
 - [ ] 9.5.2 Create `apps/medexam2-hospital-tw/src/components/SurfaceHint.tsx` — overlay card; consumes `tutorial.firstVisit[surfaceId]`, dismiss writes flag
-- [ ] 9.5.3 Create `apps/medexam2-hospital-tw/src/components/HelpMenu.tsx` — `❓` icon + modal with 8 collapsible accordion sections; mount in page header
+- [x] 9.5.3 Create `apps/medexam2-hospital-tw/src/components/HelpMenu.tsx` — ❓ FAB bottom-right (z-800), modal with 8 collapsible accordion sections covering all major mechanics (唸書 session / 招募 / 指派 / 進修 / 退休 / 設施 + 擴建 / 雙閘門 / 命運卡) — `❓` icon + modal with 8 collapsible accordion sections; mount in page header
 - [x] 9.5.4 Create `apps/medexam2-hospital-tw/src/components/MilestoneTipToast.tsx` — single fixed-position toast with 💡 icon + dismiss button + 8s auto-dismiss — toast component
 - [x] 9.5.5 Wire `useMilestoneTips` hook — `apps/medexam2-hospital-tw/src/lib/useMilestoneTips.ts`; subscribes to gameCounters + doctors via useLiveQuery, evaluates 4 of 5 tip triggers (revenue_1000 / reputation_48k_gate_blocked / tier_unlocked_fate_cards / training_pity_5; net_rate_slow deferred — needs multi-tick history buffer); dismiss writes `tutorial.firedTips[id] = true` — watches counters via liveQuery, fires tips on threshold cross + writes `firedTips[tipId]`
 - [ ] 9.5.6 Settings panel adds 「重新顯示所有提示」button — resets all `firstVisit.*` + `firedTips.*` flags
