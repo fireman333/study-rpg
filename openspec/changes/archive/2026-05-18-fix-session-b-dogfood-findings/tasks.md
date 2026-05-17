@@ -21,5 +21,5 @@
 
 ## 5. Archive
 
-- [ ] 5.1 `/opsx:verify` — completeness / correctness / coherence check
-- [ ] 5.2 `/opsx:archive fix-session-b-dogfood-findings`
+- [x] 5.1 `/opsx:verify` — completeness / correctness / coherence check
+- [x] 5.2 `/opsx:archive fix-session-b-dogfood-findings`
