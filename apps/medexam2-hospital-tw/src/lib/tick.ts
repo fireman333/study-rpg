@@ -220,23 +220,27 @@ export async function runTick(): Promise<TickResult> {
         })
         if (result.kind === 'triggered') {
           if (result.toastOutcome) {
-            // Apply toast outcome immediately
+            // Apply toast outcome immediately.
+            // Compute actualRepDelta after floor clamp so eventLog + toast UI reflect
+            // realized impact, parity with services/event.ts:85-105 (malpractice / audit).
             const delta = result.toastOutcome
-            if (delta.kind === 'reputation-loss') {
-              newReputation = Math.max(0, newReputation - delta.amount)
-            } else if (delta.kind === 'reputation-gain') {
-              newReputation += delta.amount
-            }
+            const intentDelta =
+              delta.kind === 'reputation-loss' ? -delta.amount : delta.amount
+            const prevRep = newReputation
+            newReputation = Math.max(0, newReputation + intentDelta)
+            const actualRepDelta = newReputation - prevRep
             await db.eventLog.add({
               triggeredAt: now,
               eventKey: result.event.id,
               outcome: delta.kind,
-              reputationDelta:
-                delta.kind === 'reputation-loss' ? -delta.amount : delta.amount,
+              reputationDelta: actualRepDelta,
               revenueDelta: 0,
             })
             lastEventResolvedAt = now
-            toastEvent = { event: result.event, outcome: delta }
+            toastEvent = {
+              event: result.event,
+              outcome: { kind: delta.kind, amount: Math.abs(actualRepDelta) },
+            }
           } else {
             // Modal event — set pending state, app renders modal
             pendingEventId = result.event.id
