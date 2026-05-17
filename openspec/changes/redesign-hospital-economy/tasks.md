@@ -1,23 +1,23 @@
 ## 0. Prerequisites
 
-- [ ] 0.1 `add-cloud-sync` change archived (HospitalDB v5 deployed with `meta` + `localBackup` tables) — required to chain v6 migration
-- [ ] 0.2 Confirm working tree clean on `track-m2` branch; create dedicated dev branch `feat/redesign-hospital-economy` off track-m2
+- [x] 0.1 `add-cloud-sync` change archived (HospitalDB v5 deployed with `meta` + `localBackup` tables) — archived 2026-05-17 17:30 via this session, commit `e05717e`. main specs/auth/ + specs/cloud-sync/ created
+- [-] 0.2 Confirm working tree clean on `track-m2` branch; create dedicated dev branch `feat/redesign-hospital-economy` off track-m2 — **modified**: implementation proceeding on Claude worktree `claude/cranky-shaw-69c09c` (off main; has M4 archive baseline). Will merge to track-m2 + main post-archive per dual-worktree sync protocol
 
 ## 1. Content pack: economy constants and helpers
 
-- [ ] 1.1 `packages/content-medexam2-tw/src/clinic-tiers.ts` — add `'國家級教學醫院'` to `HospitalTier` union and `TIER_ORDER`
-- [ ] 1.2 Recalibrate `TIER_UPGRADE_THRESHOLDS` to `{診所: 48_000, 區域醫院: 192_000, 醫學中心: 2_000_000, 國家級教學醫院: null}`
-- [ ] 1.3 Add `TIER_ROOMS['國家級教學醫院']` = 10 rooms (5 outpatient + 3 surgery + 2 ward, deterministic ids, supersets 醫學中心)
-- [ ] 1.4 Add `TIER_DIVERSIFICATION_REQUIREMENTS`: per-tier `{minRarity, requiredCount, requireP1?}` table
-- [ ] 1.5 Add `countDistinctSubjectsAtRarity(doctors, minRarity)` helper exported from `clinic-tiers.ts`
-- [ ] 1.6 Create `packages/content-medexam2-tw/src/study-session.ts` with `createStudySessionController({onStart, onPause, onResume, onStop})` factory — encapsulates idle/visibility detection
-- [ ] 1.7 Create `packages/content-medexam2-tw/src/training.ts` with `TRAINING_COSTS`, `TRAINING_BASE_SUCCESS_RATES`, `TRAINING_PITY_THRESHOLD = 5`, `attemptTraining(doctor, opts)` pure function
-- [ ] 1.8 Create `packages/content-medexam2-tw/src/finances.ts` with `SALARY_BASE = 4` (proportional × powerMultiplier), `TIER_SALARY_RATE` (0% / 100% / 100% / 100%), `FACILITY_UPGRADE_COSTS`, `ROOM_EXTENSION_COSTS`, `computeSalaryDrain(allOwnedDoctors, tier)` helper (`Σ doctor.powerMultiplier × 4 × tierRate`), `applySalaryClamp(currentRev, gross, salary)` defensive helper (`max(0, ...)`, normally never triggers)
-- [ ] 1.9 Create `packages/content-medexam2-tw/src/events.ts` with `EVENT_TRIGGER_RATES`, `EVENT_DEFINITIONS`, `rollEvent(opts)` pure function
-- [ ] 1.10 Create `packages/content-medexam2-tw/src/fate-cards.ts` with `FATE_CARD_COSTS`, `FATE_CARD_POOLS`, `FATE_CARD_PITY_THRESHOLD = 3`, `drawFateCard(tier, rng, consecutiveBadLuck)` pure function (consumes/resets pity counter)
-- [ ] 1.10a Create `packages/content-medexam2-tw/src/tutorial.ts` with `TUTORIAL_STEPS` (7 steps in order), `SURFACE_HINTS` (5 surfaces), `MILESTONE_TIPS` (5 triggers) — all are plain string + condition definitions
-- [ ] 1.11 Edit `packages/content-medexam2-tw/src/reputation.ts` — delete `createPerQReputationListener`, `PER_Q_REPUTATION_SHARE`; keep `affinityBonus` helper (still needed by tick + UI)
-- [ ] 1.12 `pnpm --filter @study-rpg/content-medexam2-tw build` passes; typecheck zero errors
+- [x] 1.1 `packages/content-medexam2-tw/src/clinic-tiers.ts` — add `'國家級教學醫院'` to `HospitalTier` union and `TIER_ORDER`
+- [x] 1.2 Recalibrate `TIER_UPGRADE_THRESHOLDS` to `{診所: 48_000, 區域醫院: 192_000, 醫學中心: 2_000_000, 國家級教學醫院: null}`
+- [x] 1.3 Add `TIER_ROOMS['國家級教學醫院']` = 10 rooms (5 outpatient + 3 surgery + 2 ward, deterministic ids, supersets 醫學中心)
+- [x] 1.4 Add `TIER_DIVERSIFICATION_REQUIREMENTS`: per-tier `{minRarity, requiredCount, requireP1?}` table
+- [x] 1.5 Add `countDistinctSubjectsAtRarity(doctors, minRarity)` helper exported from `clinic-tiers.ts` — also exported `rarityIsAtLeast` helper since gate evaluator needs it for P1-check
+- [x] 1.6 Create `packages/content-medexam2-tw/src/study-session.ts` (169 lines) — `createStudySessionController({onStart, onPause, onResume, onStop})` factory encapsulates idle/visibility detection
+- [x] 1.7 Create `packages/content-medexam2-tw/src/training.ts` (157 lines) — `TRAINING_COSTS`, `TRAINING_BASE_SUCCESS_RATES`, `TRAINING_PITY_THRESHOLD = 5`, `attemptTraining(doctor, opts)` pure function (RNG injected)
+- [x] 1.8 Create `packages/content-medexam2-tw/src/finances.ts` (134 lines) — `SALARY_BASE = 4`, `TIER_SALARY_RATE` (0%/100%/100%/100%), `FACILITY_UPGRADE_COSTS`, `ROOM_EXTENSION_COSTS`, `computeSalaryDrain` helper, `applySalaryClamp` defensive helper
+- [x] 1.9 Create `packages/content-medexam2-tw/src/events.ts` (262 lines) — `EVENT_TRIGGER_RATES`, `EVENT_DEFINITIONS`, `rollEvent(opts)` pure function. Note: positive toast (學會獎項) reward range reused [1000, 10000] from negative events for symmetry — flag for dogfood tuning if asymmetric balance desired
+- [x] 1.10 Create `packages/content-medexam2-tw/src/fate-cards.ts` (192 lines) — `FATE_CARD_COSTS`, `FATE_CARD_POOLS`, `FATE_CARD_PITY_THRESHOLD = 3`, `drawFateCard(tier, rng, consecutiveBadLuck)` pure function (consumes/resets pity counter per call)
+- [x] 1.10a Create `packages/content-medexam2-tw/src/tutorial.ts` (185 lines) — `TUTORIAL_STEPS` (7 ordered steps), `SURFACE_HINTS` (5 surfaces), `MILESTONE_TIPS` (5 triggers); plain string + condition definitions
+- [x] 1.11 Edit `packages/content-medexam2-tw/src/reputation.ts` — **deleted file** per option (a); `quizEvents` was its only consumer in this pack. `index.ts` re-export removed. `getAffinityBonus` (the helper task 1.11 wanted to keep) actually lives in `affinity.ts`, so unaffected
+- [x] 1.12 `pnpm --filter @study-rpg/content-medexam2-tw build` passes (6066 imported / 14 upstream OCR skips with `MEDEXAM2_ALLOW_SKIPS=1`); content-pack `tsc --noEmit` zero errors. `pnpm -r typecheck` has 3 downstream errors in `apps/medexam2-hospital-tw` (App.tsx + HospitalScene.tsx referencing removed `createPerQReputationListener` and missing 4th-tier entry) — **expected**, will be cleaned by task 3.5 + task 4.x (HospitalScene update)
 
 ## 2. App schema: HospitalDB v6 migration
 

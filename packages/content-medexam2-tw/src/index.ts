@@ -17,8 +17,13 @@ export * from './recruitment'
 export * from './rooms'
 export * from './clinic-tiers'
 export * from './affinity'
-export * from './reputation'
 export * from './specialty'
+export * from './study-session'
+export * from './training'
+export * from './finances'
+export * from './events'
+export * from './fate-cards'
+export * from './tutorial'
 
 interface BuiltMeta {
   id: string
