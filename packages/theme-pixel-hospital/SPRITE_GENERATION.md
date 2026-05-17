@@ -211,6 +211,127 @@ magick "$src" -fuzz 12% -transparent "$corner" -trim +repage \
   "PNG32:/tmp/fate-card-<tier>.png"
 ```
 
+## Rarity Expansion Batch Plan (P1 + P2 + P4 + P5, in-flight 2026-05-18)
+
+**Scope**: Fill in the remaining 112 doctor sprites to reach full 14 subjects × 5 rarities × 2 genders = 140 coverage. P3 (28) already shipped in codex. This expansion adds 112 new sprites with hybrid tooling.
+
+| Rarity | Tool | Count | Status |
+|---|---|---|---|
+| P1 (夢級夯) | codex `gpt-image-2` | 14 × 2 = 28 | ⏳ Pending (canary V7/V8 validated) |
+| P2 (頂級) | Gemini MCP | 14 × 2 = 28 | ⏳ Pending |
+| P3 (人上人) | codex `gpt-image-2` | 14 × 2 = 28 | ✓ Shipped (2026-05-15 / 17) |
+| P4 (NPC) | Gemini MCP | 14 × 2 = 28 | ⏳ Pending |
+| P5 (拉完了) | Gemini MCP | 14 × 2 = 28 | ⏳ Pending |
+| **Total new** | | **112 sprites** | |
+
+### Tool routing rationale
+
+- **codex for P1**: dramatic fire/flame aura looks more refined and high-end via codex `gpt-image-2`'s native rendering. Gemini iterations V5→V8 achieved close approximation (Japanese GBA RPG anime style + streamlined fire) but codex retains the edge for the dream-tier mood per 2026-05-18 user verdict.
+- **Gemini for P2/P4/P5**: mid-rarity moods (elite halo / NPC mediocre / burnt-out) render well with V7 prompt template at parallel batch speed (~5 sec/sprite vs codex ~3 min/sprite). 84-sprite batch should complete in ~5-10 min wallclock with 8-parallel batches.
+
+### Pipeline gotchas discovered during canary phase
+
+These are the **hard-won lessons from the 2026-05-18 canary iteration (V1→V8)**. Future maintainers should follow them or expect rediscovery cost.
+
+1. **chroma-key fuzz: use `3%`, not `12%`**. Gemini renders solid pastel cream backgrounds whose RGB is close to light skin highlight tones. `fuzz 12%` ate face skin pixels → forehead transparent `srgba(0,0,0,0)` → in dark app theme the face appears as "skull holes". Verified by `magick -format "%[pixel:p{x,y}]"` sampling. Fix: `fuzz 3%` keeps face solid.
+2. **Watermark removal**: Gemini outputs include a small diamond watermark in bottom-right corner. Without masking, `trim` includes the watermark bbox → character ends up offset left. Fix: `-fill "$corner" -draw "rectangle $((W-280)),$((H-280)) $W,$H"` BEFORE chroma-key.
+3. **No `-colors N` quantize**: Gemini renders as continuous-tone illustration. Forcing 16-color quantize destroys skin tone shading (skin merged with shadow bucket). Skip `-colors`, accept ~10K-50K colors per sprite (~70-100KB file). codex sprites are native 16-color so no contradiction in mixing.
+4. **`-filter point` for downsample**: nearest-neighbor preserves pixel-art aesthetic. Lanczos/Mitchell smooth-anti-alias → breaks GBA crisp pixel-art look.
+5. **Background guard**: explicit "completely plain solid pastel cream color, NO grid pattern, NO sketch lines, NO geometric shapes, NO floor tiles, NO wireframe" — Gemini sometimes renders extra background artifacts (V7 P1 female render had a wireframe grid that chroma-key couldn't fully remove).
+6. **Text hallucination guard**: "ABSOLUTELY no text, letters, labels, or writing anywhere" — Gemini hallucinates "P1 NERD" or chart text otherwise (V1 canary had this).
+7. **Fire shape (P1 only)**: "narrow streamlined flame tongues licking dynamically UPWARD, slim elegant calligraphic strokes, NOT a bulky enveloping fire cloud" — without this, V6 rendered a fire blob. Streamlined fire matches codex P1 reference.
+8. **Japanese GBA RPG style anchor**: explicit "Pokemon Emerald, Fire Emblem GBA, Final Fantasy Tactics Advance aesthetic" — V4 (no style anchor) rendered Western comic style; V5+ (with anchor) rendered the right Japanese anime pixel-art mood.
+9. **Adult anime proportions**: "head-to-body about 1:6, slightly larger expressive anime eyes" — without this Gemini drifts toward Western realistic 1:7-1:8 (per its own self-analysis of codex refs via gemini-cli vision).
+
+### Gemini V7 prompt template (final, for P2 / P4 / P5)
+
+```
+Pixel art sprite of a {gender} doctor specializing in {specialty_zh} ({specialty_en}), in
+classic Japanese RPG art style — Pokemon Emerald, Fire Emblem GBA, Final Fantasy Tactics
+Advance aesthetic. Full body, centered, front-facing. BACKGROUND MUST BE SIMPLE: completely
+plain solid pastel cream color, absolutely NO grid pattern, NO sketch lines, NO geometric
+shapes, NO floor tiles, NO wireframe, NO background details whatsoever. Detailed pixel art
+with crisp dark outlines, multi-tone cell shading with hard-edged transitions, {palette}.
+Adult anime-style proportions (head-to-body about 1:6, slightly larger expressive anime
+eyes). {rarity_descriptor}. {visual_traits}. Specialty props: {props}. Absolutely no text,
+letters, labels, or writing anywhere.
+```
+
+**Rarity slot fillers**:
+
+| Rarity | `{palette}` | `{rarity_descriptor}` | `{visual_traits}` |
+|---|---|---|---|
+| P2 | "vivid saturated color palette, slightly more muted than dream-tier" | "P2 elite-tier rarity" | "gleaming clean white lab coat over blue scrubs, subtle golden glow halo or shimmer around the body (much smaller than full P1 flame), confident smile, sharp focused gaze, polished stance" |
+| P4 | "standard moderate color palette, neither vivid nor muted" | "P4 NPC-tier rarity (forgettable mid-rank)" | "plain white lab coat (slightly creased) over blue scrubs, neutral expression with mild disinterest, average stance, no aura, no special effects, generic doctor demeanor" |
+| P5 | "muted desaturated melancholy color palette" | "P5 burnt-out rarity" | "wrinkled stained white lab coat (still clearly white) with one tiny faded coffee stain, blue-grey scrubs underneath, slumped exhausted posture with drooping shoulders, hollow tired sunken eyes with prominent dark circles, disheveled hair, hollow tired expression" |
+
+**Gender slot**:
+- `{gender}` = "male" — typically short or spiky hair (color: black / brown / dark)
+- `{gender}` = "female" — typically shoulder-length or longer hair (color: black / brown / auburn)
+
+**Subject slot** (`{specialty_zh}` / `{specialty_en}` / `{props}`): reuse the canonical 14-subject mapping from the "Per-subject P3 baseline sprites" table above. Props text identical per subject across P2/P4/P5.
+
+### codex P1 prompt template (final, for P1 batch via codex)
+
+Run via canonical `~/.claude/imports/codex_image_gen.md` pattern. Per-sprite invocation:
+
+```bash
+cd /tmp && codex exec --skip-git-repo-check --sandbox workspace-write \
+  "Generate a GBA-era pixel art doctor sprite, 384x384 pixels, transparent background, 16-color palette matching Game Boy Advance medical RPG style. A {gender} {specialty_zh} ({specialty_en}) specialist at P1 dream-tier hero rarity: gleaming pure white lab coat worn open over a dark formal vest, blue scrubs underneath, dynamic action-pose with feet planted shoulder-width apart, intense confident piercing gaze. {hair_descriptor}. {fire_descriptor}. Specialty props: {props}. Absolutely no text, letters, labels anywhere. Nearest-neighbor pixel rendering, no anti-aliasing, no smooth gradients. Front-facing, centered, full body visible head to feet. Save the result to /tmp/doctor-{specialty_zh}-P1{gender_suffix}.png. \$imagegen" \
+  < /dev/null
+mv /tmp/doctor-{specialty_zh}-P1{gender_suffix}.png $PROJECT_ROOT/packages/theme-pixel-hospital/sprites/
+```
+
+**Slot fillers**:
+
+| Slot | male value | female value |
+|---|---|---|
+| `{hair_descriptor}` | "spiky black hair with prominent white streak highlights" | "long flowing dark hair with prominent crimson red streak highlights" |
+| `{gender_suffix}` | (empty) | "-female" |
+
+**`{fire_descriptor}` (same both genders)**:
+> "intense streamlined fire aura behind and around the character — narrow elongated flame tongues with sharp pointed tips licking dynamically UPWARD, slim elegant calligraphic flame strokes, NOT a bulky enveloping fire cloud, NOT a circular blob. Inner yellow-white hot core at brightest centers, outer flames are slim red-orange tongues"
+
+**`{specialty_zh}` / `{specialty_en}` / `{props}`**: reuse 14-subject mapping from "Per-subject P3 baseline sprites" table.
+
+### Post-process pipeline (Gemini sprites only)
+
+codex outputs are native 384×384 transparent 16-color → no post-process, just `mv` to sprites/.
+
+Gemini outputs need this pipeline:
+
+```bash
+src="/tmp/gemini_img_<ts>_0.png"  # raw from Gemini MCP
+corner=$(magick "$src" -format "%[pixel:p{0,0}]" info:)
+W=$(magick identify -format "%w" "$src")
+H=$(magick identify -format "%h" "$src")
+magick "$src" \
+  -fill "$corner" -draw "rectangle $((W-280)),$((H-280)) $W,$H" \
+  -fuzz 3% -transparent "$corner" -trim +repage \
+  -filter point -resize 384x384 \
+  -background none -gravity center -extent 384x384 \
+  "PNG32:$PROJECT_ROOT/packages/theme-pixel-hospital/sprites/doctor-{specialty_zh}-{rarity}{gender_suffix}.png"
+```
+
+**No `+dither -colors 16`** in this pipeline (deliberate per gotcha #3 above).
+
+### Canary visual baselines (kept in /tmp for next-session reference)
+
+Visual reference of what the V7 Gemini template produces (NOT used as final sprites — codex will replace for P1):
+
+- `/tmp/v7-p1m.png` — male P1 內科 with streamlined fire + spiky black/white-streak hair + dark vest under open coat
+- `/tmp/v8-p1f.png` — female P1 內科 with streamlined fire + long dark/red-streak hair + dark vest under open coat (V8 = V7 + stronger bg guard to avoid grid artifact)
+
+If `/tmp` is cleared, regenerate by running the V7 Gemini prompt for 內科 P1 male/female.
+
+### Stale outputs (do NOT use)
+
+`/tmp/sprite-batch/` (2026-05-18 ~01:08) contains 8 Gemini sprites generated with an OLDER prompt template (pre-V5, pre-Japanese-GBA-style pivot). They are stylistically inconsistent with the V7 template — **discard when re-batching**:
+
+- doctor-內科-P1-female.png, doctor-內科-P5.png
+- doctor-外科-P1.png, doctor-外科-P1-female.png, doctor-外科-P5.png, doctor-外科-P5-female.png
+- doctor-婦產科-P1.png, doctor-婦產科-P1-female.png
+
 ## Regeneration procedure
 
 To regenerate any sprite, run codex from a non-project directory (per
