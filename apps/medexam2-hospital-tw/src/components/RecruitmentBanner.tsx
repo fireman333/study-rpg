@@ -25,9 +25,10 @@ export function RecruitmentBanner({
   onStartQuiz,
 }: Props) {
   const unlocked = affinity >= threshold
-  const missing = Math.max(0, threshold - affinity)
+  const missing = Math.max(0, Math.ceil(threshold - affinity))
   const canRoll = unlocked && ticketsAvailable > 0
   const progressPct = Math.min(100, Math.round((affinity / threshold) * 100))
+  const affinityDisplay = Math.round(affinity * 10) / 10
 
   return (
     <article
@@ -42,7 +43,7 @@ export function RecruitmentBanner({
       <div className="banner__progress">
         <div className="banner__progress-bar" style={{ width: `${progressPct}%` }} aria-hidden />
         <span className="banner__progress-text">
-          {affinity} / {threshold}
+          {affinityDisplay} / {threshold}
         </span>
       </div>
 

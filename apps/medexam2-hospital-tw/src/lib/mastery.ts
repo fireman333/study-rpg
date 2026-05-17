@@ -75,9 +75,10 @@ async function upsertMastery(
 
 /**
  * Correct answer: bumps mastery (correct + total) + questionHistory + affinity.
- * Mastery.correct delta is multiplied by the specialty-match multiplier when
- * `partner.subjectId === record.subjectId` (per hospital-specialty-bonus spec).
- * Affinity and SRS state are unaffected by the multiplier.
+ * Both mastery.correct and affinity.correctCount deltas are multiplied by the
+ * specialty-match multiplier when `partner.subjectId === record.subjectId`
+ * (per hospital-specialty-bonus + affinity-specialty-bonus specs). SRS state
+ * is unaffected by the multiplier (hospital-srs Req 6).
  */
 export async function recordCorrectAnswer(
   record: AnswerRecord,
@@ -95,7 +96,7 @@ export async function recordCorrectAnswer(
     const aff = await db.affinity.get(record.subjectId)
     await db.affinity.put({
       subjectId: record.subjectId,
-      correctCount: (aff?.correctCount ?? 0) + 1,
+      correctCount: (aff?.correctCount ?? 0) + multiplier,
     })
   })
 }

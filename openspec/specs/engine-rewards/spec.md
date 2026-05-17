@@ -1,7 +1,13 @@
 # engine-rewards Specification
 
 ## Purpose
-TBD - created by archiving change lock-engine-rewards. Update Purpose after archive.
+
+Locks the engine-wide reward contract — XP-to-next-level curve (`floor(50 * L^1.4) + 50`), the 8-entry `REWARD` table (read / quiz-correct / quiz-wrong / quiz-fast / srs-review / mini-boss / annual-boss / mock-exam), pure helpers (`applyXp`, `addStat`, `newPlayer`), and the daily streak system (`applyCheckIn`, `getStreakMultiplier`). These constants and helpers form the immutable contract that `reading-loop`, `quiz-runner`, `mini-boss`, `mock-exam`, and `mentor-daily` capabilities consume — any modification requires an explicit OpenSpec delta against this spec, preventing stealth tweaks that would invalidate forks' balance assumptions or break dogfood telemetry continuity.
+
+Streak multiplier (`1 + 0.05 × min(streak, 10)`, day-10 cap of 1.5×) applies only to `readPerMinute` and `quizCorrect` XP — wrong answers, boss rewards, subjectXp, and stat deltas are explicitly excluded to prevent gacha-tier variance compounding. All four default stats (knowledge / reflex / memory / stamina) have exactly one `REWARD` entry as their growth source; adding a new stat without a paired reward source is a breaking change. Player streak state lives on the `Player` record itself (`currentStreak`, `longestStreak`, `lastCheckInDate` in UTC+8) so streak progression survives `setPlayer` round-trips without a separate persistence path.
+
+This capability is **engine (一階 medexam-tw) scope only**. The 二階 hospital mode (`hospital-mastery` / `hospital-srs` / `affinity-specialty-bonus` etc.) uses a parallel reward pipeline (mastery / affinity / reputation / tickets) that does NOT consume `REWARD` or `applyXp` — partner-doctor specialty match is unrelated to XP curves.
+
 ## Requirements
 ### Requirement: XP-to-next-level curve is fixed
 

@@ -213,9 +213,21 @@ export async function ensureSeed(): Promise<void> {
         const c = counters as Partial<GameCountersRow>
         const patches: Partial<GameCountersRow> = {}
         if (c.tier === undefined) patches.tier = '診所'
-        // v3 → v4: existing save did not have hasUsedStarterPull; force true so
-        // dogfood users don't suddenly see a starter pull card.
-        if (c.hasUsedStarterPull === undefined) patches.hasUsedStarterPull = true
+        // Recovery branch — see `fix-v3-to-v4-starter-pull-migration` design.md D4 matrix.
+        // The original v3→v4 patcher unconditionally force-set hasUsedStarterPull=true,
+        // which softlocked v3 saves whose doctors table was empty (no starter pull UI +
+        // no doctors = unplayable). Branch on actual doctorCount instead of flag value:
+        //   - doctorCount === 0  → seed 2 P5 starters + set flag false (recovery, fires
+        //                          for both undefined and already-true flag victims;
+        //                          self-terminating because doctorCount > 0 next boot)
+        //   - doctorCount > 0    → preserve original intent: set flag true if undefined,
+        //                          no-op if already defined
+        if (doctorCount === 0) {
+          await db.doctors.bulkPut([makeStarterDoctor('內科', 0), makeStarterDoctor('外科', 1)])
+          patches.hasUsedStarterPull = false
+        } else if (c.hasUsedStarterPull === undefined) {
+          patches.hasUsedStarterPull = true
+        }
         if (Object.keys(patches).length > 0) {
           await db.gameCounters.put({ ...counters, ...patches } as GameCountersRow)
         }
