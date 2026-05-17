@@ -37,6 +37,18 @@ const DOCTOR_SLOT_POSITIONS: NonNullable<ThemePack['doctorSlotPositions']> = {
     { room: 'surgery', x: 660, y: 200 },
     { room: 'surgery', x: 720, y: 240 },
   ] satisfies SlotPosition[],
+  tier4: [
+    { room: 'ward', x: 80, y: 200 },
+    { room: 'ward', x: 160, y: 200 },
+    { room: 'ward', x: 240, y: 200 },
+    { room: 'outpatient', x: 360, y: 200 },
+    { room: 'outpatient', x: 440, y: 200 },
+    { room: 'outpatient', x: 520, y: 200 },
+    { room: 'outpatient', x: 600, y: 200 },
+    { room: 'surgery', x: 680, y: 200 },
+    { room: 'surgery', x: 720, y: 230 },
+    { room: 'surgery', x: 680, y: 260 },
+  ] satisfies SlotPosition[],
 }
 
 export const THEME_PIXEL_HOSPITAL: ThemePack = {

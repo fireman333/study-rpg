@@ -6,11 +6,11 @@ import type { SlotPosition } from '@study-rpg/core'
 import { getHospitalDB } from '../db/schema'
 import { UpgradeModal } from './UpgradeModal'
 
-const TIER_TO_KEY: Record<HospitalTier, 'tier1' | 'tier2' | 'tier3'> = {
+const TIER_TO_KEY: Record<HospitalTier, 'tier1' | 'tier2' | 'tier3' | 'tier4'> = {
   診所: 'tier1',
   區域醫院: 'tier2',
   醫學中心: 'tier3',
-  國家級教學醫院: 'tier3',
+  國家級教學醫院: 'tier4',
 }
 
 const SCENE_WIDTH = 768

@@ -6,12 +6,37 @@ import {
   RARITY_POWER_MULTIPLIER,
   type Rarity,
 } from '@study-rpg/content-medexam2-tw'
+import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import {
   getAffinity,
   getGachaStats,
   getHospitalDB,
   type DoctorRow,
 } from '../db/schema'
+
+/**
+ * Resolve the spriteKey for a newly rolled doctor with 50/50 male/female pick
+ * when both theme variants exist. Per `expand-doctor-roster-dei-and-tier4-scene`
+ * change. Caller passes the RNG so tests can seed it; production uses Math.random.
+ *
+ *   - 50% chance: prefer female variant `doctor-<subjectId>-<rarity>-female`
+ *     IF it exists in the theme sprite registry; else fall back to legacy male
+ *   - 50% chance: use the legacy male key directly
+ *   - The female key existence check uses the active theme pack's `sprites` map
+ */
+export function resolveSpriteKey(
+  subjectId: string,
+  rarity: Rarity,
+  themeSprites: Record<string, string>,
+  rng: () => number = Math.random,
+): string {
+  const baseKey = `doctor-${subjectId}-${rarity}`
+  const femaleKey = `${baseKey}-female`
+  if (rng() < 0.5 && themeSprites[femaleKey] !== undefined) {
+    return femaleKey
+  }
+  return baseKey
+}
 
 export type RollOutcome =
   | { ok: true; doctor: DoctorRow; wasPity: boolean }
@@ -48,7 +73,7 @@ export async function attemptRoll(subject: Subject): Promise<RollOutcome> {
       rarity,
       powerMultiplier: RARITY_POWER_MULTIPLIER[rarity],
       name: `${subject.displayName} 醫師 #${seq}`,
-      spriteKey: `doctor-${subject.id}-${rarity}`,
+      spriteKey: resolveSpriteKey(subject.id, rarity, THEME_PIXEL_HOSPITAL.sprites),
       obtainedAt: Date.now(),
       assignedRoom: null,
       pityCounter: 0,

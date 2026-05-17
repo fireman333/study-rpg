@@ -347,17 +347,23 @@ export interface ThemePack {
   /** Optional skill tree content (4 branches × 9 nodes). Engine falls back when missing. */
   skillTree?: import('./lib/skillTree').SkillTreeContent
   uiOverrides?: Record<string, unknown>          // optional component overrides
-  /** Optional hospital-mode scene assets (3 tiers). Theme packs not used in hospital mode may omit. */
+  /**
+   * Optional hospital-mode scene assets. tier1-3 are required when the field is
+   * present; tier4 (國家級教學醫院) is opt-in for theme packs that ship the 4th-tier
+   * art. Added 2026-05-17 via `expand-doctor-roster-dei-and-tier4-scene` change.
+   */
   scenes?: {
     tier1: string
     tier2: string
     tier3: string
+    tier4?: string
   }
-  /** Optional hospital-mode doctor slot positions per tier (2 / 5 / 8 slots). */
+  /** Optional hospital-mode doctor slot positions per tier (2 / 5 / 8 / 10+ slots). */
   doctorSlotPositions?: {
     tier1: SlotPosition[]
     tier2: SlotPosition[]
     tier3: SlotPosition[]
+    tier4?: SlotPosition[]
   }
 }
 

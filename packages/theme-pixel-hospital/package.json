@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@study-rpg/core": "^0.2.0"
+    "@study-rpg/core": "workspace:^"
   },
   "devDependencies": {
     "tsx": "^4.19.0",

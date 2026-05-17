@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@study-rpg/content-medexam2-tw": "workspace:*",
-    "@study-rpg/core": "^0.2.0",
+    "@study-rpg/core": "workspace:^",
     "@study-rpg/theme-pixel-hospital": "workspace:*",
     "@supabase/supabase-js": "^2.105.4",
     "dexie": "^4.0.10",
