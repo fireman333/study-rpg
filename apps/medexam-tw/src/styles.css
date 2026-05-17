@@ -320,6 +320,237 @@
   gap: 8px;
 }
 
+/* ─── Migration / conflict modals (M4 cloud sync) ───────────────────────── */
+
+.migration-modal {
+  max-width: 520px;
+}
+
+.migration-body {
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 8px 0;
+  color: var(--frame-wood-dark);
+}
+
+.migration-email {
+  background: var(--bg-cream);
+  border: 1px solid var(--frame-wood-light);
+  padding: 1px 6px;
+  margin: 0 4px;
+  font-family: var(--font-pixel-num);
+  font-size: 12px;
+}
+
+.migration-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.migration-compare-side {
+  border: 2px solid var(--frame-wood-light);
+  padding: 8px;
+  background: var(--bg-cream);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.migration-compare-side--fresh {
+  border-color: var(--rarity-SR, #d4af37);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.migration-compare-label {
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.migration-compare-ts {
+  font-family: var(--font-pixel-num);
+  font-size: 11px;
+  color: var(--frame-wood-dark);
+}
+
+.migration-compare-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--rarity-SR, #d4af37);
+  color: white;
+  font-family: var(--font-pixel-cjk);
+  font-size: 10px;
+  padding: 2px 6px;
+  border: 1px solid var(--frame-wood-dark);
+}
+
+.migration-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.migration-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-dark);
+  cursor: pointer;
+  font-family: var(--font-pixel-cjk);
+  font-size: 13px;
+  text-align: left;
+  gap: 4px;
+}
+
+.migration-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.migration-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.migration-btn--primary {
+  border-color: var(--rarity-SR, #d4af37);
+}
+
+.migration-btn--secondary {
+  border-color: var(--frame-wood-light);
+}
+
+.migration-btn--neutral {
+  border-style: dashed;
+}
+
+.migration-hint {
+  font-family: var(--font-pixel-cjk);
+  font-size: 11px;
+  color: var(--frame-wood-dark);
+  opacity: 0.8;
+  font-weight: normal;
+}
+
+.migration-error {
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(196, 77, 77, 0.1);
+  border: 1px solid #c44d4d;
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+  color: #c44d4d;
+}
+
+/* ─── Settings panel (M4 Task 7) ─────────────────────────────────────────── */
+
+.settings-panel {
+  max-width: 560px;
+}
+
+.settings-section {
+  margin: 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--frame-wood-light);
+}
+
+.settings-section:last-of-type {
+  border-bottom: none;
+}
+
+.settings-section-title {
+  font-family: var(--font-pixel-cjk);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--frame-wood-dark);
+  margin-bottom: 8px;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+}
+
+.settings-label {
+  color: var(--frame-wood-dark);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.settings-value {
+  font-family: var(--font-pixel-num);
+  text-align: right;
+  word-break: break-all;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.settings-btn {
+  padding: 6px 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-wood-dark);
+  cursor: pointer;
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+}
+
+.settings-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.settings-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-btn--primary {
+  border-color: var(--rarity-SR, #d4af37);
+}
+
+.settings-btn--secondary {
+  border-style: dashed;
+}
+
+.settings-btn--danger {
+  border-color: #c44d4d;
+  color: #c44d4d;
+}
+
+.settings-hint {
+  margin-top: 8px;
+  font-family: var(--font-pixel-cjk);
+  font-size: 11px;
+  color: var(--frame-wood-dark);
+  opacity: 0.7;
+}
+
+.settings-info {
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(31, 139, 76, 0.1);
+  border: 1px solid #1f8b4c;
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+  color: #1f8b4c;
+}
+
 .inv-tile {
   background: var(--bg-cream);
   border: 3px solid;
@@ -1959,4 +2190,42 @@
 .cosmetic-unlock-toast-hint {
   font-size: 11px;
   color: var(--frame-wood-dark);
+}
+
+/* ─── AuthButton (M4 cloud sync sign-in) ─────────────────────────────── */
+.auth-button {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+  padding: 6px 12px;
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+  background: rgba(20, 20, 20, 0.75);
+  color: #e6edf3;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s;
+}
+.auth-button:hover {
+  background: rgba(40, 40, 40, 0.9);
+}
+.auth-button--loading {
+  opacity: 0.5;
+  cursor: progress;
+  pointer-events: none;
+}
+.auth-button--authed {
+  border-color: rgba(63, 185, 80, 0.5);
+  color: #3fb950;
+}
+.auth-button--unauthed {
+  border-color: rgba(88, 166, 255, 0.5);
+  color: #58a6ff;
 }

@@ -45,6 +45,12 @@ import {
 } from '@study-rpg/core'
 import { THEME_PIXEL_MEDICAL, COSMETIC_CATALOG } from '@study-rpg/theme-pixel-medical'
 import { getContentPack } from '@study-rpg/content-medexam-tw'
+import { AuthButton } from './components/AuthButton'
+import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
+import { ConflictChooserModal } from './components/ConflictChooserModal'
+import { SettingsPanel } from './components/SettingsPanel'
+import { useSync } from './lib/sync/useSync'
+import { useAuth } from './lib/auth/AuthContext'
 import { CharCard } from './components/CharCard'
 import { InventoryModal } from './components/InventoryModal'
 import { RollReveal } from './components/RollReveal'
@@ -89,6 +95,20 @@ function dayDiff(fromISODate: string, toISODate: string): number {
 export default function App() {
   const navigate = useNavigate()
   const location = useLocation()
+  // M4 cloud sync — starts when authed, idle when unauthed.
+  const {
+    status: syncStatus,
+    lastPushAt,
+    lastPullAt,
+    gateState,
+    gateSnapshot,
+    resolveUploadPrompt,
+    resolveConflictChooser,
+    reopenConflictChooser,
+    resetMigrationPreference,
+  } = useSync()
+  const { user: authUser, signOut } = useAuth()
+  const [settingsOpen, setSettingsOpen] = useState(false)
   // Reading-loop must NOT double-count while user is in mock runner (spec mock-exam R3)
   // or in dorm view (spec dorm-view "no game mechanics").
   const isInMockRunner = location.pathname.startsWith('/mock/run/')
@@ -569,6 +589,7 @@ export default function App() {
 
   const homeView = (
     <>
+      <AuthButton onOpenSettings={() => setSettingsOpen(true)} />
       <div className="layout">
         <CharCard
           player={player}
@@ -908,6 +929,43 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+
+      {gateState === 'migration-upload' && (
+        <MigrationUploadPrompt
+          email={authUser?.email ?? null}
+          onChoose={resolveUploadPrompt}
+        />
+      )}
+
+      {(gateState === 'conflict-chooser' || gateState === 'paused') && gateSnapshot && (
+        <ConflictChooserModal
+          email={authUser?.email ?? null}
+          localMaxUpdatedAt={gateSnapshot.localMaxUpdatedAt}
+          cloudMaxUpdatedAt={gateSnapshot.cloudMaxUpdatedAt}
+          hasSettingsEntry
+          onChoose={resolveConflictChooser}
+        />
+      )}
+
+      {settingsOpen && (
+        <SettingsPanel
+          email={authUser?.email ?? null}
+          status={syncStatus}
+          lastPushAt={lastPushAt}
+          lastPullAt={lastPullAt}
+          gateState={gateState}
+          onSignOut={async () => {
+            await signOut()
+            setSettingsOpen(false)
+          }}
+          onReopenConflictChooser={async () => {
+            await reopenConflictChooser()
+            setSettingsOpen(false)
+          }}
+          onResetMigrationPreference={resetMigrationPreference}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
 
       <footer className="credits">
         Question bank © 中華民國考選部 / 詳解 © <a href="https://sites.google.com/view/ymmedexam/ans" target="_blank" rel="noreferrer">陽明國考考古題小組</a> (CC-BY-NC)

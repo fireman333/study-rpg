@@ -21,3 +21,6 @@ packages/theme-pixel-medical/tmp/
 
 # local-only dev dashboard (regenerate via `pnpm gen-status`)
 docs/status.html
+
+# Claude Code session worktrees (ephemeral, per-session)
+.claude/worktrees/
