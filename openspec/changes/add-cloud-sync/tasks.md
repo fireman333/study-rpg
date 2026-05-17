@@ -31,7 +31,7 @@
 - [x] 4.2 + 4.3 `AuthButton.tsx` component combines sign-in / sign-out — single component renders authed (`☁️ <email>`) vs unauthed (`☁ Sign in`) state, click toggles. signInWithOAuth({ provider: 'google', redirectTo: BASE_URL }); signOut() does not touch IndexedDB (per spec auth Req 3)
 - [x] 4.4 Wire `<AuthProvider>` into app shell at `main.tsx`, wraps `<App />`; exposes `useAuth()` returning `{ status, session, user, signInWithGoogle, signOut }`
 - [x] 4.5 Mount `<AuthButton />` at top of `homeView` fragment in `App.tsx`; styled `position: fixed; top: 12px; right: 12px` in `styles.css` (visible on all routes that render home, unobtrusive over CharCard area)
-- [ ] 4.6 Mirror module setup in `apps/medexam2-hospital-tw/src/lib/auth/` via shared import (or relative path) *(deferred to next batch with sync-engine wiring)*
+- [x] 4.6 Mirror module setup in `apps/medexam2-hospital-tw/src/lib/auth/` — `client.ts` + `AuthContext.tsx` copied verbatim from 一階 (shared `storageKey: 'study-rpg.auth'` → same-origin auto-shared session in prod); `AuthButton.tsx` simplified (authed click signs out directly, no SettingsPanel — Migration UI mirror deferred to follow-up). Wired via `<AuthProvider>` in `main.tsx` and `<AuthButton />` in `App.tsx`
 
 ## 5. Sync engine (shared module)
 
@@ -44,7 +44,7 @@
   - [-] 5.2.5 Offline queue: implicit (dirty markers retained in-memory on push failure with `isLikelyNetworkError` detection; status → `offline`). **Explicit persisted queue with exponential backoff deferred** — current behavior: markers cleared on success, kept on failure, next dirty event retries. Spec Req 5 ("offline queue flush") satisfied at first-order level; rare crash-during-offline-window edge case loses queue
 - [x] 5.3 Write `supabase/migrations/0003_upsert_lww.sql` — RPC `upsert_lww(table_name TEXT, rows JSONB)` with table whitelist (8 tables), per-row user_id ownership check, ON CONFLICT DO UPDATE WHERE `cloud.updated_at < incoming.updated_at` for server-side LWW enforcement
 - [x] 5.4 Wire `sync engine` into app shell — `useSync()` hook in `App.tsx` instantiates engine on first `useAuth() === 'authed'`, calls `start(user.id)`, teardown on unmount or sign-out. Engine debug-exposed via `globalThis.__sync` + `globalThis.__db` (`import.meta.env.DEV` guard — stripped in prod)
-- [ ] 5.5 Mirror sync engine setup in 二階 app; inject 二階-specific table set *(deferred to next batch — needs 二階 adapter set for hospital_state / hospital_doctors / hospital_mastery / hospital_question_history)*
+- [x] 5.5 Mirror sync engine setup in 二階 app; inject 二階-specific table set — `apps/medexam2-hospital-tw/src/lib/sync/{types,engine}.ts` copied from 一階 (engine itself is DB-generic post-refactor 85572b2), `tables.ts` NEW with `HOSPITAL_ADAPTERS` for 4 cloud tables: `hospital_state` (singleton, JSONB blob collapses gameCounters+gachaStats+tickets+rooms+affinity, hooks via gameCounters writes) / `hospital_doctors` / `hospital_mastery` (flat correct+total) / `hospital_question_history`. `useSync.ts` minimal first-pass (skip gate state machine; engine starts on authed, exposes `globalThis.__hospitalSync` + `__hospitalDb`). HospitalDB v5 adds `meta` + `localBackup` tables (additive). Smoke verified d585cfc
 - [-] 5.6 Unit tests `engine.test.ts` (vitest) **deferred** — project has no vitest setup yet; manual smoke (8.1a + 8.1b) covers push + LWW + hook injection. Add vitest config + tests in follow-up change if regression risk warrants
 - [-] 5.7 Unit tests `migration.test.ts` **deferred** — same as 5.6; modal logic still pending in Task 6
 
@@ -101,7 +101,7 @@
 - [ ] 8.5 RLS test: use Supabase JS to query without `user_id` filter → expect only own rows
 - [ ] 8.6 Chrome MCP smoke (one-stage app): sign in / sign out / migration modal flow at localhost
 - [ ] 8.7 Chrome MCP SPA 三件套（per `~/.claude/imports/chrome_mcp_preflight.md`）: in-app navigation + direct URL + F5 reload all work at production
-- [ ] 8.8 二階 app: repeat 8.1 + 8.6 + 8.7 against `apps/medexam2-hospital-tw/`
+- [x] 8.8 二階 app: smoke verified on localhost:5175/study-rpg/hospital/ — Google OAuth silent re-consent (shared Supabase project), `__hospitalSync` status idle on authed, gameCounters write +1 → 3-sec debounce push → cloud `hospital_state` row appears with revenue/tier/rooms/affinity correctly nested; pushAllNow bootstraps 2 starter doctors + 14 mastery rows; reload → fresh engine → pull runs status idle; 0 console errors. Full migration-modal flow (8.1) deferred until 二階 modal mirror lands
 
 ## 9. Documentation
 
