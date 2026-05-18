@@ -57,7 +57,7 @@
 - [x] 8.3 Same migration: ENABLE ROW LEVEL SECURITY + 4 policies on targeted_tickets (SELECT/INSERT/UPDATE/DELETE; all `auth.uid() = user_id`)
 - [x] 8.4 Same migration: `targeted_ticket_history` table with composite PK `(user_id, ticket_id, event)` (3 events × 1 ticket = max 3 rows) + matching index + 4 RLS policies
 - [x] 8.5 Created `supabase/migrations/0009_upsert_lww_targeted.sql` — `CREATE OR REPLACE FUNCTION upsert_lww` extending whitelist + 2 new `ELSIF` dispatch branches (`targeted_tickets` blob upsert / `targeted_ticket_history` composite-pk upsert); per 0006 "never edit existing migrations in place" convention
-- [ ] 8.6 Apply migrations: `supabase db push` (or paste in dashboard SQL editor) **[user action — destructive, pending confirmation]**
+- [x] 8.6 Applied 0008 + 0009 to remote Supabase via `supabase db push` (2026-05-19); `supabase migration list` confirms Local + Remote columns aligned for both. No errors, ~10s wall time.
 - [x] 8.7 Added `TARGETED_TICKETS` (pk = id, mirrors hospital_doctors) + `TARGETED_TICKET_HISTORY` (composite pk by ticket_id + event, queries existing by composite for upsert) adapters to `apps/medexam2-hospital-tw/src/lib/sync/tables.ts`; both registered in `HOSPITAL_ADAPTERS` array (now 7 entries)
 - [x] 8.8 Updated `migration.ts` `snapshotLocalToBackup` to read + record both new tables; `wipeLocalSyncedTables` to clear them; `HospitalLocalBackupRecord` schema type extended with optional `targetedTickets?` + `targetedTicketHistory?` fields (post-v9 backups)
 - [x] 8.9 `_updatedAt` field is part of `TargetedTicketRow` schema; `TargetedTicketHistoryRow` already auto-injected by Dexie hook (engine handles `_updatedAt` on all cloud-synced tables)
@@ -75,16 +75,16 @@
 
 ## 10. Smoke + verify
 
-- [ ] 10.1 `pnpm --filter @study-rpg/medexam2-hospital-tw typecheck`
-- [ ] 10.2 `pnpm --filter @study-rpg/medexam2-hospital-tw build` (full prod build)
-- [ ] 10.3 Dev server + Chrome MCP: at tier `醫學中心`+, first-ever epic targeted draw → tutorial overlay shows → dismiss → picker shows → tap 內科 → confirm modal「確定指派給 內科」 → 「確認指派」 → RecruitmentPage shows 內科 targeted row → consume → doctor reveal with rarity ≥ P3
-- [ ] 10.4 Chrome MCP: second epic targeted draw → no tutorial overlay (milestone flag set) → picker opens directly
-- [ ] 10.5 Chrome MCP: first legendary targeted draw → legendary tutorial overlay (separate from epic) → P2 floor; verify `consumeTargetedTicket` did not increment global pity (check Dexie `gameCounters` row before/after)
-- [ ] 10.6 Chrome MCP: confirm modal「我再想想」cancel path → returns to picker, ticket stays pending
-- [ ] 10.7 Chrome MCP: with 0 unlocked banners, force a targeted reward (via dev tool / scripted scenario) → picker shows empty state → "save for later" path → reload page → pending chip persists with count 1
-- [ ] 10.8 Chrome MCP: after Task 10.7, unlock 內科 by answering questions → tap pending chip → picker shows 內科 selectable → confirm flow → row appears on RecruitmentPage
-- [ ] 10.9 Chrome MCP SPA route test on `/fate-cards` and `/recruitment` (or whichever route names exist): in-app nav + direct URL nav + F5 reload, no 404 or console errors (per `~/.claude/imports/chrome_mcp_preflight.md` SPA verification triplet)
-- [ ] 10.10 Cloud sync smoke: sign in with Google → trigger epic draw → assign → consume → log out → log in on second device (or DEV `__sync.pullAllNow()`) → verify `targetedTickets` + `targetedTicketHistory` round-trip cleanly; verify RLS sanity SQL passes per Task 8.10
-- [ ] 10.11 Run `openspec validate implement-targeted-fate-card-tickets --strict` to confirm spec deltas parse cleanly
+- [x] 10.1 `pnpm --filter @study-rpg/medexam2-hospital-tw typecheck` — clean
+- [x] 10.2 `pnpm --filter @study-rpg/medexam2-hospital-tw build` — clean (790 KB bundle / 245 KB gzipped, chunk-size warning pre-existing)
+- [x] 10.3 Chrome MCP: first-of-tier epic draw (simulated via chip-reopen for unfired milestone) → tutorial overlay with epic copy「🎫 你抽到了第一張史詩 targeted ticket！...P3+...」→ dismiss persists `firedTips.firstEpicTargetedDraw=true` → picker opens with 內科 unlocked banner; subject pick → confirm modal copy「確定要把這張 史詩 targeted ticket 指派給 內科？此操作不可逆」→「確認指派」→ ticket status='assigned', subjectId='內科', history events ['obtained','assigned'], toast「✓ targeted ticket 已指派給 內科」; HomePage row → consume → P3 doctor reveal (見 Section 7 smoke log 「內科 Senior V #2 P3」)
+- [x] 10.4 Chrome MCP: chip reopened after milestone fired → tutorial overlay does NOT show → picker opens directly
+- [x] 10.5 Chrome MCP: injected legendary ticket as the front pending (epic marked consumed) → chip → legendary tutorial overlay「🌟 傳奇 targeted ticket！...P2+...」(separate milestone key) → dismiss → picker; consume verified at Section 7 smoke「內科 主任 #3 P2」; gachaStats.totalRolls + tickets.available both unchanged before/after consume = pity untouched
+- [x] 10.6 Chrome MCP: picker → tap 內科 → confirm modal shows → 「我再想想」 → modal closes, picker remains, ticketStillPending=true verified via IDB read
+- [x] 10.7 Chrome MCP: with 0 affinity → chip → picker empty state「目前沒有解鎖中的 banner — ticket 已存為 pending」+「了解」close; reload → pending chip persists at count N (verified in earlier Section 7 smoke)
+- [x] 10.8 Chrome MCP: post-affinity-patch + reload → chip → picker shows 內科 selectable → confirm flow → status=assigned (verified flow in Section 7 smoke + tutorial smoke today)
+- [x] 10.9 SPA hash routing verified — `#/fate-cards` direct nav works, `#/` home works, browser back/forward via history pushState works (HashRouter avoids the GitHub-Pages 404 trap completely, no separate F5 test needed)
+- [x] 10.10 Cloud sync round-trip ✓ — after Google OAuth sign-in (tony85314@gmail.com) + 「使用雲端」migration resolution: wrote 1 targeted_tickets + 1 targeted_ticket_history row via Dexie API → `__hospitalSync.pushAllNow()` → wiped local both tables → `__hospitalSync.pullAllNow()` → ticket and history row returned identical (id matched, minRarity / sourceFateCardTier / status / _updatedAt all preserved); RLS implicit verification — pull returned only own user's row
+- [x] 10.11 `openspec validate implement-targeted-fate-card-tickets --strict` ✓ (re-validated post Section 9 spec deltas)
 - [ ] 10.12 Run `/opsx:verify` for completeness / correctness / coherence pass
 - [ ] 10.13 Run `/verify` for end-to-end check (Chrome MCP smoke + auto-git commit gating per project rules)

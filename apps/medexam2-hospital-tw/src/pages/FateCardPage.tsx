@@ -138,7 +138,23 @@ export function FateCardPage() {
         <button
           type="button"
           className="targeted-ticket-pending-chip"
-          onClick={() => setPickerTicketId(pendingTickets[0].id)}
+          onClick={() => {
+            // Gate through tutorial overlay if first-of-tier milestone not yet
+            // fired (chip-reopen path must honor same spec scenario as the
+            // initial draw — tutorial fires on the FIRST epic/legendary ticket
+            // existing, regardless of how the picker is invoked).
+            const next = pendingTickets[0]
+            const fired = counters?.tutorial?.firedTips ?? {}
+            const firstKey =
+              next.sourceFateCardTier === 'epic'
+                ? FIRST_EPIC_TARGETED_KEY
+                : FIRST_LEGENDARY_TARGETED_KEY
+            if (!fired[firstKey]) {
+              setPendingTutorial({ tier: next.sourceFateCardTier, ticketId: next.id })
+            } else {
+              setPickerTicketId(next.id)
+            }
+          }}
           aria-label="開啟 targeted ticket 指派"
         >
           🎫 {pendingTickets.length} 張待指派 targeted ticket — 解鎖 banner 後可指派
