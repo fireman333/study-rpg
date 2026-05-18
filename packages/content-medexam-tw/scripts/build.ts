@@ -64,6 +64,7 @@ interface ParsedQuestion {
   answer: string
   explanation: string
   hasImage: boolean
+  hasOptionImages: boolean
   meta: {
     year: number
     session: number
@@ -74,6 +75,11 @@ interface ParsedQuestion {
   }
   sourceCredit: string
 }
+
+// Forward-compat marker mirror of 二階. 一階 corpus has zero matches today;
+// the gate exists so a future upstream PDF→Markdown extractor regression
+// can't leak un-renderable options into the quiz pool without spec review.
+const OPTION_IMAGE_MARKER = /_\(圖片或缺失\)_/
 
 function bookToPaper(book: string): 'medexam-1' | 'medexam-2' | null {
   if (book === '醫學一') return 'medexam-1'
@@ -173,6 +179,7 @@ function parseSingleBlock(block: string, qn: number, fm: FrontMatter, fileLabel:
   }
 
   const hasImage = /\*\*有附圖\*\*：\s*是/.test(block) || /<img/i.test(stem) || /!\[.*\]\(/.test(stem)
+  const hasOptionImages = Object.values(options).some((v) => OPTION_IMAGE_MARKER.test(v))
   const pageMatch = block.match(/\*\*頁碼\*\*：\s*(.+)/)
   const pageRef = pageMatch ? pageMatch[1].trim() : undefined
 
@@ -184,6 +191,7 @@ function parseSingleBlock(block: string, qn: number, fm: FrontMatter, fileLabel:
     answer,
     explanation,
     hasImage,
+    hasOptionImages,
     meta: {
       year: fm.year,
       session: fm.session,

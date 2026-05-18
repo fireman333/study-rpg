@@ -145,7 +145,16 @@ export default function App() {
   // Load content pack at mount
   useEffect(() => {
     getContentPack('/study-rpg/content/medexam-tw')
-      .then(setContent)
+      .then((pack) => {
+        // Forward-compat filter: drop unrenderable option-image questions
+        // before they reach QuizModal / BossModal / MentorDialog. 一階 corpus
+        // currently has 0 affected; the gate prevents silent leaks if a
+        // future PDF extractor run regresses.
+        setContent({
+          ...pack,
+          questions: pack.questions.filter((q) => q.hasOptionImages !== true),
+        })
+      })
       .catch((err) => {
         console.error('Failed to load content pack:', err)
       })
