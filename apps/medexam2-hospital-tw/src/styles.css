@@ -1470,6 +1470,33 @@ body {
   white-space: pre-wrap;
 }
 
+.quiz-modal__image {
+  margin: 0 0 16px;
+  display: flex;
+  justify-content: center;
+  background: var(--surface-2, #1a1a1a);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.quiz-modal__image img {
+  max-width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  display: block;
+}
+
+.quiz-modal__image-missing {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px dashed var(--border-muted, #555);
+  border-radius: 6px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text-muted, #888);
+  background: var(--surface-2, #1a1a1a);
+}
+
 .quiz-modal__options {
   list-style: none;
   padding: 0;

@@ -38,6 +38,17 @@ This content pack combines material from two distinct sources. Downstream users 
 - Validated via OpenEvidence MCP cross-citation analysis
 - Conflict resolution by 康瑋麟 (WLK / @fireman333), Stage-6 medical student at NTU, fluent dogfood reviewer
 
+### Source 3 — Question images
+
+**題目附圖抽取自 中華民國考選部 二階國考歷屆考題 PDF**
+
+- 上游 PDF: `~/Desktop/國考/二階國考/民國{106-115}_第{1,2}次_醫學{三,四,五,六}.pdf`（公資源 / public exam records）
+- 抽取 pipeline: `tools/extract-medexam2-images.py` (PyMuPDF native)
+- 影像類型: 多為臨床影像 (X-ray / CT / MRI / 病理切片 / 顯微鏡 / 皮膚科 / 內視鏡)
+- 原作者: 命題醫師或教學醫院；國家考試題目用途已隱含教學使用授權
+- 涵蓋 394 道題 (見 `docs/MEDEXAM2_IMAGES.md` 抽圖統計與 Manual Backfill TODO)
+- 壓縮: PIL adaptive palette quantize (128 colors) — 視覺無損
+
 ## Why CC-BY-4.0 (not CC-BY-NC)
 
 The companion 一階 content pack (`@study-rpg/content-medexam-tw`) uses CC-BY-NC-4.0 because its explanations are third-party (陽明國考考古題小組) under their CC-BY-NC license. This 二階 pack is different: explanations are owner-authored (LLM + supervision), so owner can grant commercial reuse under attribution.

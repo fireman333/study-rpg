@@ -222,6 +222,19 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
           {!loading && question && (
             <>
               <p className="quiz-modal__stem">{question.stem}</p>
+              {question.imagePath && (
+                <div className="quiz-modal__image">
+                  <img
+                    src={`${import.meta.env.BASE_URL}${question.imagePath}`}
+                    alt="題目附圖"
+                  />
+                </div>
+              )}
+              {question.hasImage && !question.imagePath && (
+                <div className="quiz-modal__image-missing">
+                  📷 此題含附圖但尚未補齊（{question.id}）
+                </div>
+              )}
               <ul className="quiz-modal__options">
                 {optionKeys.map((key) => {
                   const isCorrect = revealed && key === question.answer
