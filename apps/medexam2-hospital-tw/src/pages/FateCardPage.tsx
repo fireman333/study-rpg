@@ -27,6 +27,11 @@ import { getHospitalDB } from '../db/schema'
 import { drawFateCardAtTier, type FateCardResolvedDraw } from '../services/fate-card'
 import { SurfaceHint } from '../components/SurfaceHint'
 import { TargetedTicketPicker } from '../components/TargetedTicketPicker'
+import {
+  TargetedDrawTutorialOverlay,
+  FIRST_EPIC_TARGETED_KEY,
+  FIRST_LEGENDARY_TARGETED_KEY,
+} from '../components/TargetedDrawTutorialOverlay'
 
 const FATE_TIER_UNLOCKED = new Set(['醫學中心', '國家級教學醫院'])
 
@@ -63,6 +68,14 @@ export function FateCardPage() {
   const [errMsg, setErrMsg] = useState<string | null>(null)
   const [pickerTicketId, setPickerTicketId] = useState<string | null>(null)
   const [assignedToast, setAssignedToast] = useState<string | null>(null)
+  /**
+   * When the just-drawn reward is a targeted ticket AND the first-of-its-tier
+   * tutorial hasn't fired yet, this holds the tier + ticketId pair so the
+   * overlay shows first; on dismiss we set pickerTicketId to open the picker.
+   */
+  const [pendingTutorial, setPendingTutorial] = useState<
+    { tier: 'epic' | 'legendary'; ticketId: string } | null
+  >(null)
 
   if (!counters) {
     return (
@@ -89,10 +102,18 @@ export function FateCardPage() {
       }
       setOutcome(res)
       // If the resolved reward created a pending targeted ticket, queue the
-      // picker to open as a continuation of the result modal flow. Caller
-      // closes the result modal → effect on next render opens picker.
-      if (res.targetedTicketId) {
-        setPickerTicketId(res.targetedTicketId)
+      // picker (or tutorial overlay on first-of-tier) for after the user
+      // dismisses the outcome modal.
+      if (res.targetedTicketId && res.draw.kind === 'reward') {
+        const fired = counters?.tutorial?.firedTips ?? {}
+        const sourceTier: 'epic' | 'legendary' = tier === 'legendary' ? 'legendary' : 'epic'
+        const firstKey =
+          sourceTier === 'epic' ? FIRST_EPIC_TARGETED_KEY : FIRST_LEGENDARY_TARGETED_KEY
+        if (!fired[firstKey]) {
+          setPendingTutorial({ tier: sourceTier, ticketId: res.targetedTicketId })
+        } else {
+          setPickerTicketId(res.targetedTicketId)
+        }
       }
     } finally {
       setDrawing(false)
@@ -239,12 +260,31 @@ export function FateCardPage() {
       )}
 
       {/*
+        First-of-tier tutorial overlay — shows ONCE per tier (epic / legendary)
+        before the picker opens, so the player understands what targeted tickets
+        do before being asked to commit a subject choice. After dismiss, the
+        milestone flag persists in counters.tutorial.firedTips so subsequent
+        draws of that tier skip straight to the picker.
+      */}
+      {pendingTutorial && !outcome && !pickerTicketId && (
+        <TargetedDrawTutorialOverlay
+          tier={pendingTutorial.tier}
+          onDismiss={() => {
+            const ticketId = pendingTutorial.ticketId
+            setPendingTutorial(null)
+            setPickerTicketId(ticketId)
+          }}
+        />
+      )}
+
+      {/*
         Targeted ticket picker — opens after the user dismisses the outcome
         modal IF the resolved reward was a targeted-pN-ticket. Picker handles
         its own two-stage flow (pick → confirm) and self-closes on assign or
-        "save for later".
+        "save for later". For first-of-tier draws the tutorial overlay above
+        gates this until milestone is acknowledged.
       */}
-      {pickerTicketId && !outcome && (
+      {pickerTicketId && !outcome && !pendingTutorial && (
         <TargetedTicketPicker
           ticketId={pickerTicketId}
           onClose={() => setPickerTicketId(null)}

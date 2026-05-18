@@ -260,17 +260,29 @@ export async function snapshotLocalToBackup(
 ): Promise<string> {
   const takenAt = Date.now()
   const key = `snapshot-${new Date(takenAt).toISOString()}`
-  const [gameCounters, gachaStats, tickets, rooms, affinity, doctors, mastery, questionHistory] =
-    await Promise.all([
-      db.gameCounters.get('singleton').then((r) => r ?? null),
-      db.gachaStats.get('global').then((r) => r ?? null),
-      db.tickets.get('global').then((r) => r ?? null),
-      db.rooms.toArray(),
-      db.affinity.toArray(),
-      db.doctors.toArray(),
-      db.mastery.toArray(),
-      db.questionHistory.toArray(),
-    ])
+  const [
+    gameCounters,
+    gachaStats,
+    tickets,
+    rooms,
+    affinity,
+    doctors,
+    mastery,
+    questionHistory,
+    targetedTickets,
+    targetedTicketHistory,
+  ] = await Promise.all([
+    db.gameCounters.get('singleton').then((r) => r ?? null),
+    db.gachaStats.get('global').then((r) => r ?? null),
+    db.tickets.get('global').then((r) => r ?? null),
+    db.rooms.toArray(),
+    db.affinity.toArray(),
+    db.doctors.toArray(),
+    db.mastery.toArray(),
+    db.questionHistory.toArray(),
+    db.targetedTickets.toArray(),
+    db.targetedTicketHistory.toArray(),
+  ])
   const record: HospitalLocalBackupRecord = {
     key,
     takenAt,
@@ -286,6 +298,8 @@ export async function snapshotLocalToBackup(
     doctors,
     mastery,
     questionHistory,
+    targetedTickets,
+    targetedTicketHistory,
   }
   await db.localBackup.put(record)
   return key
@@ -308,6 +322,8 @@ export async function wipeLocalSyncedTables(db: HospitalDB): Promise<void> {
       db.doctors,
       db.mastery,
       db.questionHistory,
+      db.targetedTickets,
+      db.targetedTicketHistory,
     ],
     async () => {
       await db.gameCounters.clear()
@@ -318,6 +334,8 @@ export async function wipeLocalSyncedTables(db: HospitalDB): Promise<void> {
       await db.doctors.clear()
       await db.mastery.clear()
       await db.questionHistory.clear()
+      await db.targetedTickets.clear()
+      await db.targetedTicketHistory.clear()
     },
   )
 }

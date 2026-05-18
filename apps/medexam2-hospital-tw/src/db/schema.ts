@@ -246,6 +246,10 @@ export interface HospitalLocalBackupRecord {
   doctors: DoctorRow[]
   mastery: MasteryRow[]
   questionHistory: QuestionHistoryRow[]
+  /** Optional — present on backups taken post-v9 (implement-targeted-fate-card-tickets). */
+  targetedTickets?: TargetedTicketRow[]
+  /** Optional — present on backups taken post-v9. */
+  targetedTicketHistory?: TargetedTicketHistoryRow[]
 }
 
 export class HospitalDB extends Dexie {

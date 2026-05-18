@@ -86,6 +86,8 @@ export interface RowPayload {
   question_id?: string
   id?: string
   subject_id?: string
+  ticket_id?: string  // targeted_ticket_history composite pk (with event)
+  event?: 'obtained' | 'assigned' | 'consumed'  // targeted_ticket_history composite pk
   // payloads:
   data?: unknown
   correct?: number
@@ -102,6 +104,8 @@ export interface CloudRow {
   question_id?: string
   id?: string
   subject_id?: string
+  ticket_id?: string  // targeted_ticket_history
+  event?: 'obtained' | 'assigned' | 'consumed'  // targeted_ticket_history
   correct?: number
   total?: number
   added_at?: string  // ISO string (question_bookmarks only)

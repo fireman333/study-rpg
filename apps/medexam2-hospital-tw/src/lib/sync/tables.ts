@@ -1,10 +1,13 @@
 // Hospital (二階) table adapters: Dexie tables ↔ Postgres tables (M4 cloud sync).
 //
-// 4 cloud tables per add-cloud-sync design tasks.md §2.2.2:
+// 6 cloud tables (extended by implement-targeted-fate-card-tickets):
 //   - hospital_state            (singleton, collapses gameCounters + gachaStats + tickets + rooms + affinity)
 //   - hospital_doctors          (collection, pk = id)
 //   - hospital_mastery          (collection, pk = subject_id)
 //   - hospital_question_history (collection, pk = question_id)
+//   - question_bookmarks        (collection, pk = question_id)
+//   - targeted_tickets          (collection, pk = id)
+//   - targeted_ticket_history   (collection, composite pk = ticket_id + event)
 //
 // Engine is content-pack-agnostic post-Session A refactor — adapters cast the
 // generic `Dexie` instance to `HospitalDB` for typed table access.
@@ -21,6 +24,8 @@ import type {
   MasteryRow,
   QuestionHistoryRow,
   RoomRow,
+  TargetedTicketHistoryRow,
+  TargetedTicketRow,
   TicketsRow,
 } from '../../db/schema'
 
@@ -383,12 +388,138 @@ const QUESTION_BOOKMARKS: TableAdapter = {
   },
 }
 
+const TARGETED_TICKETS: TableAdapter = {
+  postgresTable: 'targeted_tickets',
+  shape: 'collection',
+  dexieTable: 'targetedTickets',
+  async snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion) {
+    if (!dirtyPks.size) return []
+    const rows: RowPayload[] = []
+    for (const pk of dirtyPks) {
+      const row = await (db as HospitalDB).targetedTickets.get(pk)
+      if (!row) continue
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        id: pk,
+        data: row,
+      })
+    }
+    return rows
+  },
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const rows: RowPayload[] = []
+    await (db as HospitalDB).targetedTickets.each((row) => {
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        id: (row as TargetedTicketRow).id,
+        data: row,
+      })
+    })
+    return rows
+  },
+  async applyToLocal(db, cloudRow, opts) {
+    const pk = cloudRow.id
+    const data = cloudRow.data as WithUpdatedAt<Record<string, unknown>> | undefined
+    if (!pk || !data) return false
+    const force = opts?.force ?? false
+    if (!force) {
+      const local = await (db as HospitalDB).targetedTickets.get(pk)
+      const localMs = (local as WithUpdatedAt<unknown> | undefined)?._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
+    const next = { ...data, _updatedAt: Date.parse(cloudRow.updated_at) }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (db as HospitalDB).targetedTickets.put(next as any)
+    return true
+  },
+}
+
+const TARGETED_TICKET_HISTORY: TableAdapter = {
+  postgresTable: 'targeted_ticket_history',
+  shape: 'collection',
+  dexieTable: 'targetedTicketHistory',
+  // Local Dexie PK is auto-increment integer (++id); Postgres PK is composite
+  // (ticket_id, event). Snapshot maps local row → cloud columns; applyToLocal
+  // queries by (ticketId, event) since auto-id won't match across devices.
+  async snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion) {
+    if (!dirtyPks.size) return []
+    const rows: RowPayload[] = []
+    for (const pk of dirtyPks) {
+      const localId = typeof pk === 'string' ? Number(pk) : pk
+      const row = await (db as HospitalDB).targetedTicketHistory.get(localId as number)
+      if (!row) continue
+      const r = row as TargetedTicketHistoryRow
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        ticket_id: r.ticketId,
+        event: r.event,
+        data: row,
+      })
+    }
+    return rows
+  },
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const rows: RowPayload[] = []
+    await (db as HospitalDB).targetedTicketHistory.each((row) => {
+      const r = row as TargetedTicketHistoryRow
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        ticket_id: r.ticketId,
+        event: r.event,
+        data: row,
+      })
+    })
+    return rows
+  },
+  async applyToLocal(db, cloudRow, opts) {
+    const ticketId = cloudRow.ticket_id as string | undefined
+    const event = cloudRow.event as TargetedTicketHistoryRow['event'] | undefined
+    const data = cloudRow.data as WithUpdatedAt<TargetedTicketHistoryRow> | undefined
+    if (!ticketId || !event || !data) return false
+    const force = opts?.force ?? false
+    // Find existing row by composite (ticketId, event) — auto-id won't match.
+    const existing = await (db as HospitalDB).targetedTicketHistory
+      .where('ticketId').equals(ticketId)
+      .filter((r) => (r as TargetedTicketHistoryRow).event === event)
+      .first()
+    if (!force && existing) {
+      const localMs = (existing as WithUpdatedAt<unknown>)._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
+    const next: WithUpdatedAt<TargetedTicketHistoryRow> = {
+      ...data,
+      ticketId,
+      event,
+      _updatedAt: Date.parse(cloudRow.updated_at),
+    }
+    // Preserve existing auto-id if updating; otherwise let Dexie assign.
+    if (existing && typeof (existing as TargetedTicketHistoryRow).id === 'number') {
+      next.id = (existing as TargetedTicketHistoryRow).id
+    } else {
+      delete next.id
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (db as HospitalDB).targetedTicketHistory.put(next as any)
+    return true
+  },
+}
+
 export const HOSPITAL_ADAPTERS: readonly TableAdapter[] = [
   HOSPITAL_STATE,
   HOSPITAL_DOCTORS,
   HOSPITAL_MASTERY,
   HOSPITAL_QUESTION_HISTORY,
   QUESTION_BOOKMARKS,
+  TARGETED_TICKETS,
+  TARGETED_TICKET_HISTORY,
 ]
 
 export { cloudIsNewer }

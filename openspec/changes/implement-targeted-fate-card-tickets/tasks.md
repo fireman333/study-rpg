@@ -52,26 +52,26 @@
 
 ## 8. Cloud sync integration (二階 sync engine already shipped — wire new tables now)
 
-- [ ] 8.1 Create Supabase migration `supabase/migrations/0008_targeted_tickets.sql` — create `targeted_tickets` table (columns: `id uuid PK`, `user_id uuid NOT NULL REFERENCES auth.users`, `subject_id text`, `min_rarity text NOT NULL`, `status text NOT NULL`, `obtained_at bigint NOT NULL`, `assigned_at bigint`, `consumed_at bigint`, `result_doctor_id text`, `source_fate_card_tier text NOT NULL`, `updated_at bigint NOT NULL`, `app_version text`)
-- [ ] 8.2 Same migration: index `targeted_tickets_user_status_idx ON targeted_tickets(user_id, status)`
-- [ ] 8.3 Same migration: enable RLS + 4 policies (SELECT / INSERT / UPDATE / DELETE on `user_id = auth.uid()`) — copy pattern from existing `hospital_doctors` migration
-- [ ] 8.4 Same migration: create `targeted_ticket_history` table (PK `(user_id, ticket_id, event)` OR surrogate UUID — pick simpler) + RLS
-- [ ] 8.5 Create migration `supabase/migrations/0009_upsert_lww_targeted.sql` — `CREATE OR REPLACE FUNCTION upsert_lww(...)` extending whitelist to include `'targeted_tickets'` and `'targeted_ticket_history'` (per [0006_upsert_lww_bookmarks.sql](supabase/migrations/0006_upsert_lww_bookmarks.sql) convention — never edit existing migrations in place); add corresponding `ELSIF` dispatch branches
-- [ ] 8.6 Apply migrations: `supabase db push` (or paste in dashboard SQL editor)
-- [ ] 8.7 Add 2 new collection-shape adapters to `apps/medexam2-hospital-tw/src/lib/sync/tables.ts` — adapter 1: `targetedTickets ↔ targeted_tickets` (pk = id); adapter 2: `targetedTicketHistory ↔ targeted_ticket_history` (pk = ticket_id + event composite or surrogate UUID); pattern matches existing `hospital_doctors` adapter
-- [ ] 8.8 Update `apps/medexam2-hospital-tw/src/lib/sync/migration.ts` `localBackup` snapshot list if it explicitly enumerates table names (otherwise auto-includes)
-- [ ] 8.9 Add `_updatedAt: number` injection hook for both new Dexie tables if not auto-handled
-- [ ] 8.10 Sanity SQL (dashboard SQL editor) verify RLS — `set role anon; select count(*) from targeted_tickets;` SHALL fail; `select * from targeted_tickets where user_id = auth.uid();` under authed session SHALL return only own rows
+- [x] 8.1 Created `supabase/migrations/0008_targeted_tickets.sql` — `targeted_tickets` table follows `hospital_doctors` blob pattern (`user_id, id, data JSONB, updated_at, app_version`, PK `(user_id, id)`)
+- [x] 8.2 Same migration: `idx_targeted_tickets_user_updated ON targeted_tickets (user_id, updated_at)` for sync pull queries
+- [x] 8.3 Same migration: ENABLE ROW LEVEL SECURITY + 4 policies on targeted_tickets (SELECT/INSERT/UPDATE/DELETE; all `auth.uid() = user_id`)
+- [x] 8.4 Same migration: `targeted_ticket_history` table with composite PK `(user_id, ticket_id, event)` (3 events × 1 ticket = max 3 rows) + matching index + 4 RLS policies
+- [x] 8.5 Created `supabase/migrations/0009_upsert_lww_targeted.sql` — `CREATE OR REPLACE FUNCTION upsert_lww` extending whitelist + 2 new `ELSIF` dispatch branches (`targeted_tickets` blob upsert / `targeted_ticket_history` composite-pk upsert); per 0006 "never edit existing migrations in place" convention
+- [ ] 8.6 Apply migrations: `supabase db push` (or paste in dashboard SQL editor) **[user action — destructive, pending confirmation]**
+- [x] 8.7 Added `TARGETED_TICKETS` (pk = id, mirrors hospital_doctors) + `TARGETED_TICKET_HISTORY` (composite pk by ticket_id + event, queries existing by composite for upsert) adapters to `apps/medexam2-hospital-tw/src/lib/sync/tables.ts`; both registered in `HOSPITAL_ADAPTERS` array (now 7 entries)
+- [x] 8.8 Updated `migration.ts` `snapshotLocalToBackup` to read + record both new tables; `wipeLocalSyncedTables` to clear them; `HospitalLocalBackupRecord` schema type extended with optional `targetedTickets?` + `targetedTicketHistory?` fields (post-v9 backups)
+- [x] 8.9 `_updatedAt` field is part of `TargetedTicketRow` schema; `TargetedTicketHistoryRow` already auto-injected by Dexie hook (engine handles `_updatedAt` on all cloud-synced tables)
+- [ ] 8.10 Sanity SQL (dashboard SQL editor) verify RLS — `set role anon; select count(*) from targeted_tickets;` SHALL fail; `select * from targeted_tickets where user_id = auth.uid();` under authed session SHALL return only own rows **[post-`supabase db push` verification]**
 
 ## 9. Tutorial integration (first-targeted-draw overlay)
 
-- [ ] 9.1 Add `firstEpicTargetedDraw` and `firstLegendaryTargetedDraw` milestone keys to existing `useMilestoneTips` hook (`apps/medexam2-hospital-tw/src/lib/useMilestoneTips.ts` per `~/coding-scratch/study-rpg-m2/CLAUDE.md` reference)
-- [ ] 9.2 Define tutorial copy:
-  - Epic：「你抽到了第一張史詩 targeted ticket — 選一科 unlocked 的 banner 指派給這張券，使用時保證 P3+ 等級！指派後不可改科。」
-  - Legendary：「傳奇 targeted ticket！同樣選一科指派，這次保證 P2+ 等級。」
-- [ ] 9.3 Wire trigger: in `FateCardPage.tsx`, on draw resolution to targeted reward, check the corresponding milestone flag; if unset, render tutorial overlay BEFORE opening picker modal
-- [ ] 9.4 Overlay dismiss action → set milestone flag → open picker modal as Task 5.1 flow
-- [ ] 9.5 Second+ epic / legendary targeted draws SHALL skip overlay and go straight to picker (verified by milestone flag === truthy)
+- [x] 9.1 Used existing `counters.tutorial.firedTips: Record<string, true>` directly with new keys `firstEpicTargetedDraw` / `firstLegendaryTargetedDraw` (exported from `TargetedDrawTutorialOverlay.tsx` constants); no extension of `useMilestoneTips` needed since this trigger is event-driven (post-draw) not polling
+- [x] 9.2 Tutorial copy lives in `TargetedDrawTutorialOverlay.tsx`'s `COPY` map:
+  - Epic：「🎫 你抽到了第一張史詩 targeted ticket！選一科 unlocked 的 banner 指派給這張券，使用時保證 P3+ 等級。指派後不可改科 — 確認前會有再次提示，避免誤觸。」
+  - Legendary：「🌟 傳奇 targeted ticket！同樣選一科指派，這次保證 P2+ 等級。一旦指派就無法改科 — 點選後會跳出二次確認，仔細想清楚再按「確認指派」。」
+- [x] 9.3 In `FateCardPage.tsx` `handleDraw`, after `res.targetedTicketId` resolves: read `counters.tutorial.firedTips[firstKey]`; if unset, set `pendingTutorial` state → overlay renders gated by `!outcome && !pickerTicketId`; picker render is gated by `!pendingTutorial`
+- [x] 9.4 Overlay's `handleDismiss` writes the flag to gameCounters.tutorial.firedTips via Dexie transaction → calls `onDismiss` → page clears `pendingTutorial` + sets `pickerTicketId` to open Stage 1 picker
+- [x] 9.5 On subsequent draws of same tier, `fired[firstKey]` is truthy → skip `setPendingTutorial`, go straight to `setPickerTicketId` (verified at code-path level — runtime smoke deferred to Section 10)
 
 ## 10. Smoke + verify
 

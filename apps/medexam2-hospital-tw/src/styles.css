@@ -3623,3 +3623,29 @@ body {
   background: rgba(120, 170, 220, 0.32);
   border-color: rgba(180, 220, 255, 0.85);
 }
+
+/* Targeted draw tutorial overlay (first-of-tier only) */
+
+.targeted-tutorial-overlay {
+  max-width: 480px;
+  padding: 22px 26px;
+  background: linear-gradient(135deg, rgba(180, 140, 60, 0.18), rgba(60, 90, 140, 0.18));
+  border: 2px solid rgba(200, 132, 51, 0.55);
+}
+
+.targeted-tutorial-overlay__head h2 {
+  margin: 0 0 14px;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.targeted-tutorial-overlay__body p {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.targeted-tutorial-overlay__foot {
+  display: flex;
+  justify-content: flex-end;
+}
