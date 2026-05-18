@@ -22,7 +22,6 @@ import {
   QUIZ_REPUTATION_PER_CORRECT_BASE,
   QUIZ_TICKET_GRANT_PER_N_CORRECT,
   QUIZ_TIER_MULTIPLIER,
-  READING_SESSION_BUFF_MULTIPLIER,
   RECRUITMENT_THRESHOLDS,
   getSpecialtyMultiplier,
   type Rarity,
@@ -74,17 +73,14 @@ export async function applyQuizReward(input: ApplyQuizRewardInput): Promise<Appl
         input.subjectId,
       )
       const counters = await db.gameCounters.get('singleton')
-      const readingActive = (counters?.currentSessionStartedAt ?? null) !== null
-      const readingBuff = readingActive ? READING_SESSION_BUFF_MULTIPLIER : 1.0
       // Tier multiplier defaults to 1.0 (診所) when counters or tier somehow
       // unavailable — defensive, should never happen post-ensureSeed.
       const tierMultiplier = counters ? QUIZ_TIER_MULTIPLIER[counters.tier] ?? 1.0 : 1.0
-      // Reward formula = BASE × specialty × reading-session-buff × tier-multiplier
       const revenueDelta = Math.round(
-        QUIZ_REVENUE_PER_CORRECT_BASE * specialtyMultiplier * readingBuff * tierMultiplier,
+        QUIZ_REVENUE_PER_CORRECT_BASE * specialtyMultiplier * tierMultiplier,
       )
       const reputationDelta = Math.round(
-        QUIZ_REPUTATION_PER_CORRECT_BASE * specialtyMultiplier * readingBuff * tierMultiplier,
+        QUIZ_REPUTATION_PER_CORRECT_BASE * specialtyMultiplier * tierMultiplier,
       )
 
       // 2. Write revenue + reputation

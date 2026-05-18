@@ -6,6 +6,7 @@ import {
   RECRUITMENT_THRESHOLDS,
   TICKET_CAP,
   READING_IDLE_RATE_REDUCTION,
+  READING_SESSION_BUFF_MULTIPLIER,
   TIER_DIVERSIFICATION_REQUIREMENTS,
   TIER_UPGRADE_THRESHOLDS,
   computeSalaryDrain,
@@ -194,11 +195,13 @@ export function HomePage() {
           throughput += computeThroughput(room, d)
         }
         const salary = counters ? computeSalaryDrain(allDoctors, counters.tier) : 0
-        // Apply READING_IDLE_RATE_REDUCTION to match tick-loop math (Phase 2:
-        // idle accrual is 30% of raw throughput; salary stays full). Without
-        // this, the display would show misleading positive net at high tiers
-        // where idle-adjusted gross < salary.
-        const idleThroughput = throughput * READING_IDLE_RATE_REDUCTION
+        // Inactive branch shows a counterfactual baseline (tick paused, no actual
+        // accrual) so the chip surfaces the 5× value of starting a session.
+        const sessionActive = (counters?.currentSessionStartedAt ?? null) !== null
+        const sessionMultiplier = sessionActive
+          ? READING_SESSION_BUFF_MULTIPLIER
+          : READING_IDLE_RATE_REDUCTION
+        const idleThroughput = throughput * sessionMultiplier
         const net = idleThroughput - salary
         return (
           <section className="home-counters-banner" aria-label="醫院經營狀態">

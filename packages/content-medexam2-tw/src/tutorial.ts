@@ -49,7 +49,7 @@ export const TUTORIAL_STEPS: ReadonlyArray<TutorialStep> = Object.freeze([
   {
     id: 'welcome',
     title: '歡迎來到醫院經營',
-    body: '在這裡，念書 = 醫院賺錢 = 升級。閱讀 session 讓醫師看診累積收益，寫題答對也會直接賺營收和聲望（開 session 時還有 1.5× 加成）。',
+    body: '在這裡，念書 = 醫院賺錢 = 升級。開「📖 唸書」session 期間，醫師看患者的 idle 收入會有 1.5× 加成；寫題答對也會直接賺營收和聲望（依 tier × 搭檔同科加成，session 開不開都一樣）。',
     completeOn: 'click-next',
   },
   {
@@ -67,7 +67,7 @@ export const TUTORIAL_STEPS: ReadonlyArray<TutorialStep> = Object.freeze([
   {
     id: 'first-study-session',
     title: '開始第一次唸書 session',
-    body: '點「開始唸書」進入看診畫面 — 醫師會 idle 看診（throughput × 0.3 進帳），同時你回首頁寫題答對的營收/聲望會有 1.5× 加成。離開分頁會自動暫停、回來自動繼續；按右上「結束 Session」可手動結算。',
+    body: '點「開始唸書」進入看診畫面 — 醫師會 idle 看患者，session 期間 throughput 有 1.5× 加成（薪水照舊全額）。寫題答對的營收/聲望跟 session 開不開無關。離開分頁會自動暫停、回來自動繼續；按右上「結束 Session」可手動結算。',
     completeOn: 'study-session-started-1min',
   },
   {
@@ -111,7 +111,7 @@ export const SURFACE_HINTS: ReadonlyArray<SurfaceHint> = Object.freeze([
   {
     id: 'study',
     title: '唸書 session 怎麼運作',
-    body: '看診畫面就是你的醫院。session 計時跑著，切到別的 tab 會自動暫停、回來自動繼續。session 開啟期間，回首頁寫題答對的營收/聲望會有 1.5× 加成；想停下來按「暫停」或「結束 Session」。',
+    body: '看診畫面就是你的醫院。session 計時跑著，切到別的 tab 會自動暫停、回來自動繼續。session 開啟期間，醫師看患者的營收/聲望會有 1.5× 加成（寫題答對的收益不受影響，只看 tier × 搭檔同科加成）；想停下來按「暫停」或「結束 Session」。',
   },
   {
     id: 'training',
