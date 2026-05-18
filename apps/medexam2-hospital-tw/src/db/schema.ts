@@ -18,7 +18,7 @@ const RECRUITMENT_GACHA_CONFIG = {
   pityRules: RECRUITMENT_PITY_RULES,
 }
 
-const ALL_SUBJECT_IDS = [
+export const ALL_SUBJECT_IDS = [
   '內科', '家醫科', '小兒科', '皮膚科', '神經內科', '精神科',
   '外科', '泌尿科', '骨科', '婦產科', '復健科', '眼科', '耳鼻喉科', '麻醉科',
 ] as const
@@ -95,6 +95,28 @@ export interface GameCountersRow {
   vipBoostUntil?: number | null
   /** Roll-cadence counter; increments per tick, fires event at EVENT_TICK_INTERVAL. */
   eventRollTickCounter?: number
+  /**
+   * Currently-active ER consultation. `null` when no consult pending. Spec:
+   * `er-consultation` capability. Mutex-checked against `pendingEventId` and
+   * other active dialogs in tick.ts before rolling a new consult.
+   */
+  erConsultActive?: ERConsultActiveState | null
+  /** Per-tick countdown to next ER consult roll. Decrements each tick; rolls when ≤ 0. */
+  erConsultTicksUntilRoll?: number
+}
+
+/**
+ * Active ER consultation state — set when tick roller spawns a new consult,
+ * cleared on answer / skip / auto-skip / settings-toggle-off.
+ */
+export interface ERConsultActiveState {
+  questionId: string
+  subjectId: string
+  triggeredAt: number
+  /** Sprite key into theme pack. MVP defaults to `'er-doctor'` with fallback. */
+  doctorSpriteKey: string
+  /** Greeting variant index (0-4) — captured at spawn for stable display. */
+  greetingIdx: number
 }
 
 /**
@@ -187,6 +209,23 @@ export interface TargetedTicketRow {
   _updatedAt?: number
 }
 
+/**
+ * Telemetry row for ER consultation outcomes. Local-only — NOT synced to cloud.
+ * Capped at 500 rows via rolling cap (oldest deleted on insert overflow).
+ * Spec: `er-consultation` capability.
+ */
+export interface ERConsultLogRow {
+  id?: number
+  triggeredAt: number
+  resolvedAt: number | null
+  subjectId: string
+  questionId: string
+  resolution: 'correct' | 'wrong' | 'skipped' | 'auto-skipped'
+  /** Combined revenue + reputation delta granted (sum of both counters). 0 for skip / wrong. */
+  rewardGained: number
+  reactionTimeMs: number | null
+}
+
 export interface TargetedTicketHistoryRow {
   id?: number
   ticketId: string
@@ -272,6 +311,7 @@ export class HospitalDB extends Dexie {
   bannerUnlockBonusLog!: EntityTable<BannerUnlockBonusLogRow, 'subjectId'>
   targetedTickets!: EntityTable<TargetedTicketRow, 'id'>
   targetedTicketHistory!: EntityTable<TargetedTicketHistoryRow, 'id'>
+  erConsultLog!: EntityTable<ERConsultLogRow, 'id'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -470,6 +510,32 @@ export class HospitalDB extends Dexie {
       targetedTickets: '&id, status, subjectId, obtainedAt',
       targetedTicketHistory: '++id, ticketId, at, event',
     })
+
+    // v10: add-er-consultation-feature — local-only telemetry table for ER
+    // consultation outcomes (no cloud sync per spec). gameCounters.singleton
+    // gains `erConsultActive` + `erConsultTicksUntilRoll` JS props (no index).
+    this.version(10).stores({
+      affinity: '&subjectId',
+      doctors: '&id, subjectId, rarity, obtainedAt',
+      gachaStats: '&id',
+      tickets: '&id',
+      rooms: '&id, type, slot',
+      gameCounters: '&id',
+      mastery: '&subjectId',
+      questionHistory: '&questionId, subjectId, lastAnsweredAt, nextDueAt',
+      meta: '&key',
+      localBackup: '&key, takenAt',
+      monotonicCounters: '&id',
+      trainingHistory: '++id, doctorId, attemptedAt',
+      eventLog: '++id, triggeredAt',
+      fateCardHistory: '++id, drawnAt',
+      retirementLog: '++id, retiredAt, doctorId',
+      bookmarks: '&questionId, addedAt',
+      bannerUnlockBonusLog: '&subjectId',
+      targetedTickets: '&id, status, subjectId, obtainedAt',
+      targetedTicketHistory: '++id, ticketId, at, event',
+      erConsultLog: '++id, triggeredAt, subjectId',
+    })
   }
 }
 
@@ -557,6 +623,8 @@ export async function ensureSeed(): Promise<void> {
           lastEventResolvedAt: null,
           vipBoostUntil: null,
           eventRollTickCounter: 0,
+          erConsultActive: null,
+          erConsultTicksUntilRoll: 0,
         })
         if (doctorCount === 0) {
           await db.doctors.bulkPut([makeStarterDoctor('內科', 0), makeStarterDoctor('外科', 1)])

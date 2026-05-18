@@ -125,6 +125,26 @@ export {
   type SkillTreeContent,
 } from './lib/skillTree'
 export {
+  selectUnderUtilizedSubject,
+  pickERConsultQuestion,
+  shouldRollERConsult,
+  computeERConsultReward,
+  jitterTicksUntilNextERConsult,
+  ER_CONSULT_REWARD_MULTIPLIER,
+  ER_CONSULT_TICK_INTERVAL_MIN,
+  ER_CONSULT_TICK_INTERVAL_MAX,
+  ER_CONSULT_LOG_CAP,
+  ER_CONSULT_RECENT_ANSWER_WINDOW_MS,
+  ER_CONSULT_RECENCY_WINDOW_MS,
+  ER_CONSULT_SUBJECT_COOLDOWN_THRESHOLD,
+  ER_CONSULT_SUBJECT_COOLDOWN_MULTIPLIER,
+  ER_CONSULT_AUTO_SKIP_MS,
+  type ERConsultSelectorInput,
+  type ERConsultQuestionPickerInput,
+  type ERConsultMutexState,
+  type MasteryCounter as ERConsultMasteryCounter,
+} from './lib/er-consultation'
+export {
   BUG_REPORT_CATEGORIES,
   BUG_REPORT_SEVERITIES,
   BUG_REPORT_REPRODUCIBILITY,

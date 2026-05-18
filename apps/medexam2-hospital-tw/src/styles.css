@@ -981,15 +981,11 @@ body {
 
 .hospital-scene {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   margin: 8px 0 12px;
   padding: 0;
-  cursor: pointer;
-  outline: none;
-}
-
-.hospital-scene:focus-visible .hospital-scene__canvas {
-  box-shadow: 0 0 0 3px var(--accent-gold);
 }
 
 .hospital-scene__canvas {
@@ -1001,8 +997,14 @@ body {
   border: 2px solid var(--frame-wood-dark, var(--frame-dark));
   border-radius: 6px;
   overflow: hidden;
+  cursor: pointer;
+  outline: none;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+.hospital-scene__canvas:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent-gold);
 }
 
 .hospital-scene__bg {
@@ -1014,14 +1016,145 @@ body {
   image-rendering: crisp-edges;
 }
 
-.hospital-scene__doctor {
-  position: absolute;
-  width: 12.5%;  /* 96 / 768 */
-  height: 25%;   /* 96 / 384 */
-  transform: translate(-50%, -50%);
-  pointer-events: none;
+/* ─── Doctor Shelf (sprite roster under the hospital) ─────────────────── */
+
+.doctor-shelf {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0 8px;
+}
+
+/* Inter-group gap matches intra-row cell gap so cells across all ranks share
+   one virtual 8px column grid. Center the rank's content under the hospital
+   canvas above. */
+.doctor-shelf__rank {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.doctor-shelf__group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.doctor-shelf__group-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 4px;
+  font-family: 'Cubic 11', 'Noto Sans TC', sans-serif;
+}
+
+.doctor-shelf__group-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--frame-wood-dark, var(--frame-dark));
+  letter-spacing: 1px;
+}
+
+.doctor-shelf__group-count {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.55);
+  font-family: 'Press Start 2P', monospace;
+}
+
+.doctor-shelf__row {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.doctor-shelf__cell {
+  flex: 0 0 auto;
+  width: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 6px;
+  background: var(--bg-paper);
+  border: 2px solid var(--frame-wood-dark, var(--frame-dark));
+  border-radius: 4px;
+  font-family: 'Cubic 11', 'Noto Sans TC', sans-serif;
+  text-align: center;
+}
+
+.doctor-shelf__cell--empty {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.doctor-shelf__cell--p1 { border-color: var(--accent-gold, #c9a04a); box-shadow: 0 0 0 1px var(--accent-gold, #c9a04a) inset; }
+.doctor-shelf__cell--p2 { border-color: #a674c4; }
+.doctor-shelf__cell--p3 { border-color: #5d8ec4; }
+.doctor-shelf__cell--p4 { border-color: #6b8b5e; }
+.doctor-shelf__cell--p5 { border-color: var(--frame-wood-dark, var(--frame-dark)); }
+
+.doctor-shelf__sprite-frame {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.doctor-shelf__sprite-frame--empty {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.04),
+    rgba(0, 0, 0, 0.04) 4px,
+    rgba(0, 0, 0, 0.08) 4px,
+    rgba(0, 0, 0, 0.08) 8px
+  );
+}
+
+.doctor-shelf__sprite {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+.doctor-shelf__placeholder {
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.35);
+  font-family: 'Press Start 2P', monospace;
+}
+
+.doctor-shelf__name {
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 600;
+  max-width: 76px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doctor-shelf__name--empty {
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 400;
+}
+
+.doctor-shelf__subject {
+  font-size: 9px;
+  line-height: 1.1;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 @media (max-width: 768px) {
@@ -1029,6 +1162,8 @@ body {
     max-width: 100%;
     max-height: 320px;
   }
+  .doctor-shelf__cell { width: 72px; }
+  .doctor-shelf__sprite-frame, .doctor-shelf__sprite { width: 56px; height: 56px; }
 }
 
 /* ─── Upgrade Modal ──────────────────────────────────────────────────── */
@@ -3394,24 +3529,6 @@ body {
   gap: 14px;
   text-align: center;
 }
-  border-color: rgba(88, 166, 255, 0.55);
-  color: #1e5fa8;
-  font-weight: 600;
-}
-.quiz-bug-sheet__submit:disabled,
-.quiz-bug-sheet__cancel:disabled,
-.quiz-bug-sheet__escape:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.quiz-bug-sheet__login-gate {
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  text-align: center;
-}
 
 /* ─── Targeted ticket picker (implement-targeted-fate-card-tickets) ───────── */
 
@@ -3648,4 +3765,22 @@ body {
 .targeted-tutorial-overlay__foot {
   display: flex;
   justify-content: flex-end;
+}
+
+.help-menu__toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+}
+
+.help-menu__toggle-row input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
 }

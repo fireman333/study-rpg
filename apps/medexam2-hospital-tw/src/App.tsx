@@ -25,6 +25,7 @@ import { MilestoneTipToast } from './components/MilestoneTipToast'
 import { HelpMenu } from './components/HelpMenu'
 import { EventModal } from './components/EventModal'
 import { EventToast } from './components/EventToast'
+import { ERConsultDialog } from './components/ERConsultDialog'
 import { useMilestoneTips } from './lib/useMilestoneTips'
 import {
   TUTORIAL_STEPS,
@@ -193,6 +194,7 @@ function App() {
         />
       )}
       <EventModal />
+      <ERConsultDialog />
       {eventToast && (
         <EventToast
           event={eventToast.event}

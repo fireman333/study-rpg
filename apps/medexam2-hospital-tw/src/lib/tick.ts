@@ -38,7 +38,17 @@ import {
   type StudySessionState,
   type ToastEventOutcome,
 } from '@study-rpg/content-medexam2-tw'
-import { getHospitalDB } from '../db/schema'
+import {
+  jitterTicksUntilNextERConsult,
+  shouldRollERConsult,
+} from '@study-rpg/core'
+import { getHospitalDB, type ERConsultActiveState } from '../db/schema'
+import {
+  appendERConsultLog,
+  getERConsultSettings,
+  isERConsultExpired,
+  rollNewERConsult,
+} from '../services/er-consultation'
 
 export interface TickEventToastInfo {
   event: EventDefinition
@@ -59,6 +69,12 @@ export interface TickResult {
   toastEvent?: TickEventToastInfo
   /** Modal event triggered this tick (caller renders modal). */
   modalEvent?: EventDefinition
+  /**
+   * Set when the in-tx ER consult countdown reached 0 and roll mutex is clear.
+   * Caller (useStudySessionTick) runs the actual roll in a follow-up tx because
+   * picking a question requires a content-pack fetch that can't sit inside Dexie.
+   */
+  shouldRollERConsult?: boolean
 }
 
 const ZERO_TICK: TickResult = {
@@ -89,7 +105,15 @@ export async function runTick(): Promise<TickResult> {
   const db = getHospitalDB()
   return db.transaction(
     'rw',
-    [db.rooms, db.doctors, db.gameCounters, db.monotonicCounters, db.retirementLog, db.eventLog],
+    [
+      db.rooms,
+      db.doctors,
+      db.gameCounters,
+      db.monotonicCounters,
+      db.retirementLog,
+      db.eventLog,
+      db.erConsultLog,
+    ],
     async () => {
       const counters = await db.gameCounters.get('singleton')
       if (!counters) return ZERO_TICK
@@ -260,6 +284,40 @@ export async function runTick(): Promise<TickResult> {
         }
       }
 
+      // ─── ER consult timing — Phase 1 (in-tx) ─────────────────────────────
+      // Auto-skip expired active consult + decrement countdown. The actual roll
+      // (subject + question pick) happens in a follow-up tx because content-pack
+      // fetch can't await inside a Dexie transaction.
+      let erConsultActive = counters.erConsultActive ?? null
+      let erConsultTicksUntilRoll = counters.erConsultTicksUntilRoll ?? 0
+      let shouldRollERConsultFlag = false
+
+      if (erConsultActive && isERConsultExpired(erConsultActive, now)) {
+        await appendERConsultLog({
+          triggeredAt: erConsultActive.triggeredAt,
+          resolvedAt: now,
+          subjectId: erConsultActive.subjectId,
+          questionId: erConsultActive.questionId,
+          resolution: 'auto-skipped',
+          rewardGained: 0,
+          reactionTimeMs: null,
+        })
+        erConsultActive = null
+      }
+
+      if (erConsultActive === null) {
+        erConsultTicksUntilRoll -= 1
+        if (erConsultTicksUntilRoll <= 0) {
+          // Re-randomize for next attempt regardless of whether this roll fires.
+          erConsultTicksUntilRoll = jitterTicksUntilNextERConsult()
+          // Pre-check mutex (settings re-checked in Phase 2 tx so toggle-off
+          // mid-tick still wins). If mutex passes, signal caller to run roll.
+          if (pendingEventId === null) {
+            shouldRollERConsultFlag = true
+          }
+        }
+      }
+
       await db.gameCounters.put({
         ...counters,
         revenue: newRevenue,
@@ -270,6 +328,8 @@ export async function runTick(): Promise<TickResult> {
         pendingEventTriggeredAt,
         lastEventResolvedAt,
         eventRollTickCounter,
+        erConsultActive,
+        erConsultTicksUntilRoll,
       })
 
       const mono = await db.monotonicCounters.get('singleton')
@@ -290,9 +350,56 @@ export async function runTick(): Promise<TickResult> {
         upgradedTo,
         toastEvent,
         modalEvent,
+        shouldRollERConsult: shouldRollERConsultFlag,
       }
     },
   )
+}
+
+/**
+ * Phase 2 of ER consult roll — runs OUTSIDE the main tick tx because the
+ * picker calls `loadSubjectQuestionIds` which awaits a content-pack fetch.
+ * Re-checks mutex (settings + pendingEventId + erConsultActive) inside its own
+ * tx so any state change between Phase 1 and Phase 2 wins (e.g. toggle-off).
+ * Returns the new active state if successfully spawned, null otherwise.
+ */
+export async function maybeRollAndPersistERConsult(): Promise<ERConsultActiveState | null> {
+  const db = getHospitalDB()
+  const now = Date.now()
+  const settings = await getERConsultSettings()
+  // Mutex precheck (cheap) before the expensive content-pack load
+  const counters = await db.gameCounters.get('singleton')
+  if (!counters) return null
+  if (
+    !shouldRollERConsult({
+      currentHospitalEventPending: (counters.pendingEventId ?? null) !== null,
+      erConsultActive: (counters.erConsultActive ?? null) !== null,
+      mentorDialogOpen: false,   // 二階 has no mentor-daily
+      quizSessionActive: false,  // not tracked in 二階 (sibling modal OK)
+      readingSessionRunning: false, // tick only runs when session active by design
+      erConsultEnabled: settings.enabled,
+    })
+  ) {
+    return null
+  }
+
+  const newActive = await rollNewERConsult(now)
+  if (!newActive) return null
+
+  return db.transaction('rw', db.gameCounters, async () => {
+    const cur = await db.gameCounters.get('singleton')
+    if (!cur) return null
+    // Final mutex re-check inside tx — toggle-off / pending event / another roll
+    // beating us all win and we discard the freshly-picked active.
+    if (
+      cur.pendingEventId !== null ||
+      (cur.erConsultActive ?? null) !== null
+    ) {
+      return null
+    }
+    await db.gameCounters.put({ ...cur, erConsultActive: newActive })
+    return newActive
+  })
 }
 
 // ─── Study session singleton + React binding ──────────────────────────────────
@@ -352,11 +459,12 @@ export function useStudySessionTick(
   onUpgrade?: (tier: HospitalTier) => void,
   onToastEvent?: (info: TickEventToastInfo) => void,
   onModalEvent?: (event: EventDefinition) => void,
+  onERConsultTriggered?: (active: ERConsultActiveState) => void,
 ): StudySessionState {
   const controller = getStudySessionController()
   const [state, setState] = useState<StudySessionState>(controller.getState())
-  const cbRef = useRef({ onCapped, onUpgrade, onToastEvent, onModalEvent })
-  cbRef.current = { onCapped, onUpgrade, onToastEvent, onModalEvent }
+  const cbRef = useRef({ onCapped, onUpgrade, onToastEvent, onModalEvent, onERConsultTriggered })
+  cbRef.current = { onCapped, onUpgrade, onToastEvent, onModalEvent, onERConsultTriggered }
 
   useEffect(() => {
     // Re-read state on mount in case controller transitioned before mount.
@@ -377,13 +485,17 @@ export function useStudySessionTick(
 
     function tickOnce() {
       runTick()
-        .then((result) => {
+        .then(async (result) => {
           if (import.meta.env.DEV) console.debug('[tick]', result)
-          const { onCapped, onUpgrade, onToastEvent, onModalEvent } = cbRef.current
+          const { onCapped, onUpgrade, onToastEvent, onModalEvent, onERConsultTriggered } = cbRef.current
           if (result.wasCapped && onCapped) onCapped()
           if (result.upgradedTo && onUpgrade) onUpgrade(result.upgradedTo)
           if (result.toastEvent && onToastEvent) onToastEvent(result.toastEvent)
           if (result.modalEvent && onModalEvent) onModalEvent(result.modalEvent)
+          if (result.shouldRollERConsult) {
+            const active = await maybeRollAndPersistERConsult()
+            if (active && onERConsultTriggered) onERConsultTriggered(active)
+          }
         })
         .catch((err) => console.error('[tick] failed', err))
     }

@@ -9,9 +9,14 @@
  * fallback for emergent confusion. Modal can be opened from any route.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getHospitalDB } from '../db/schema'
 import { BugReportModal } from './BugReportModal'
+import {
+  discardActiveERConsult,
+  getERConsultSettings,
+  setERConsultSettings,
+} from '../services/er-consultation'
 
 interface AccordionSection {
   id: string
@@ -103,6 +108,15 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
       '系統會自動附帶當下遊戲狀態（tier、營收、聲望、進行中 session 等）、route、近期錯誤與瀏覽器資訊，你可以逐欄取消勾選。需先登入。',
     ],
   },
+  {
+    id: 'er-consult',
+    icon: '🚨',
+    title: '急診照會設定',
+    body: [
+      '唸書 session 期間，急診醫師會不定時跳出一題「冷門科別」的考古題請你 consult。答對給 1.8× 加成的營收 + 聲望（高於一般答題），可從下方關閉。',
+      '冷門科別 = 你最近 7 天答比較少 + 掌握度比較低的科。10 分鐘內沒回應會自動跳過、不會扣分。',
+    ],
+  },
 ])
 
 interface HelpMenuProps {
@@ -116,6 +130,24 @@ export function HelpMenu({ className }: HelpMenuProps) {
   const [resetMsg, setResetMsg] = useState<string | null>(null)
   const [resetting, setResetting] = useState(false)
   const [bugReportOpen, setBugReportOpen] = useState(false)
+  const [erConsultEnabled, setErConsultEnabledState] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    void (async () => {
+      const settings = await getERConsultSettings()
+      setErConsultEnabledState(settings.enabled)
+    })()
+  }, [])
+
+  async function toggleErConsult(next: boolean): Promise<void> {
+    setErConsultEnabledState(next)
+    await setERConsultSettings({ enabled: next })
+    if (!next) {
+      // Discard any pending consult — user intent is "stop the feature now",
+      // not "skip this one". No log row written.
+      await discardActiveERConsult()
+    }
+  }
 
   function toggle(id: string) {
     setExpandedId((cur) => (cur === id ? null : id))
@@ -199,6 +231,19 @@ export function HelpMenu({ className }: HelpMenuProps) {
                           >
                             💬 開啟回報表單
                           </button>
+                        )}
+                        {section.id === 'er-consult' && erConsultEnabled !== null && (
+                          <label className="help-menu__toggle-row">
+                            <input
+                              type="checkbox"
+                              role="switch"
+                              checked={erConsultEnabled}
+                              onChange={(e) => void toggleErConsult(e.target.checked)}
+                            />
+                            <span>
+                              {erConsultEnabled ? '✓ 已啟用急診照會' : '✗ 已關閉急診照會'}
+                            </span>
+                          </label>
                         )}
                       </div>
                     )}

@@ -85,6 +85,16 @@ export async function pickRandomQuestion(
 }
 
 /**
+ * Return the list of playable question IDs for a subject. Used by ER consult
+ * picker (services/er-consultation) to feed `pickERConsultQuestion`.
+ */
+export async function loadSubjectQuestionIds(subjectId: SubjectId): Promise<string[]> {
+  const { bySubject } = await loadPack()
+  const pool = bySubject.get(subjectId)
+  return pool ? pool.map((q) => q.id) : []
+}
+
+/**
  * Load a map of subjectId -> total playable question count.
  * Used by the completion tracker to show "X / Y" progress.
  */
