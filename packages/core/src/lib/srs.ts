@@ -36,6 +36,14 @@ export const STANDARD_INITIAL_INTERVALS: readonly [number, number] = [1, 6]
 /** Global daily cap on surfaced due cards in the 二階 hospital mode SRS queue. */
 export const SRS_DAILY_CAP = 20
 
+/**
+ * Upper bound on `interval` (days) for the correct path of both SM-2 variants.
+ * Capped at 365 because medical board exam cycles are annual — a question
+ * scheduled beyond a year out would skip the next exam prep cycle entirely.
+ * Applies only to the correct path; wrong-path partial reset cannot expand.
+ */
+export const MAX_INTERVAL_DAYS = 365
+
 /** SM-2 easeFactor lower bound (Anki / SuperMemo standard). */
 const EASE_FLOOR = 1.3
 
@@ -61,6 +69,7 @@ export function reviewCard(card: SrsCard, quality: number, now: number = Date.no
   if (card.interval === 0) newInterval = 1
   else if (card.interval === 1) newInterval = 6
   else newInterval = Math.round(card.interval * newEase)
+  newInterval = Math.min(newInterval, MAX_INTERVAL_DAYS)
 
   return {
     ...card,
@@ -116,6 +125,7 @@ export function reviewCardBinary(input: BinaryReviewInput): BinaryReviewResult {
     if (prevInterval === 0) newInterval = STANDARD_INITIAL_INTERVALS[0]
     else if (prevInterval === STANDARD_INITIAL_INTERVALS[0]) newInterval = STANDARD_INITIAL_INTERVALS[1]
     else newInterval = Math.round(prevInterval * prevEase)
+    newInterval = Math.min(newInterval, MAX_INTERVAL_DAYS)
 
     return {
       interval: newInterval,

@@ -94,6 +94,7 @@ export {
   WRONG_EASE_MULTIPLIER,
   STANDARD_INITIAL_INTERVALS,
   SRS_DAILY_CAP,
+  MAX_INTERVAL_DAYS,
   type BinaryReviewInput,
   type BinaryReviewPrev,
   type BinaryReviewResult,
