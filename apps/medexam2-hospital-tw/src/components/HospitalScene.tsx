@@ -15,7 +15,20 @@ const TIER_TO_KEY: Record<HospitalTier, 'tier1' | 'tier2' | 'tier3' | 'tier4'> =
 
 const SCENE_WIDTH = 768
 const SCENE_HEIGHT = 384
-const DOCTOR_SPRITE_SIZE = 96
+
+const ROOM_LABEL: Record<SlotPosition['room'], string> = {
+  ward: '病房',
+  outpatient: '門診',
+  surgery: '開刀房',
+}
+
+// Shelf is laid out in 2 visual rows. Row 1 = outpatient alone (largest single
+// group); Row 2 = ward + surgery side by side. Sized so each row roughly
+// matches the other in cell count for a balanced look.
+const SHELF_ROW_LAYOUT: SlotPosition['room'][][] = [
+  ['outpatient'],
+  ['ward', 'surgery'],
+]
 
 export function HospitalScene() {
   const db = getHospitalDB()
@@ -56,66 +69,78 @@ export function HospitalScene() {
 
     const roomById = new Map(rooms.map((r) => [r.id, r]))
 
-    const filled: Array<{ slot: SlotPosition; spriteUrl: string; key: string; alt: string }> = []
+    // Build per-room-type shelves: for each room slot in the current tier,
+    // either fill with an assigned doctor or leave as a "?" placeholder so the
+    // capacity ceiling is visible. Each room type renders as its own scrollable
+    // group so visually-grouped semantics replace the per-cell room chip.
+    type ShelfCell =
+      | { kind: 'doctor'; key: string; spriteUrl: string; name: string; subjectId: string; rarity: string }
+      | { kind: 'empty'; key: string }
+
     const slotCursor: Record<SlotPosition['room'], number> = { ward: 0, outpatient: 0, surgery: 0 }
+    const shelfByRoom: Record<SlotPosition['room'], ShelfCell[]> = { ward: [], outpatient: [], surgery: [] }
 
     for (const doctor of assignedDoctors) {
-      // Render at a slot of the ACTUAL assigned room's type — not the doctor's
-      // natural subject→room mapping. Affinity is a stat bonus only; players
-      // can place any doctor in any room.
       if (!doctor.assignedRoom) continue
       const room = roomById.get(doctor.assignedRoom)
-      if (!room) {
-        if (import.meta.env.DEV) {
-          console.warn(`[hospital-scene] doctor ${doctor.id} assignedRoom=${doctor.assignedRoom} not found`)
-        }
-        continue
-      }
+      if (!room) continue
       const roomType = room.type
       const idx = slotCursor[roomType]
-      const slot = slotsByRoom[roomType][idx]
-      if (!slot) {
-        if (import.meta.env.DEV) {
-          console.warn(
-            `[hospital-scene] no free ${roomType} slot in tier ${tier} for doctor ${doctor.id}; scene has ${slotsByRoom[roomType].length} ${roomType} slot(s) but ${slotCursor[roomType] + 1} assigned`,
-          )
-        }
-        continue
-      }
+      if (idx >= slotsByRoom[roomType].length) continue
       const spriteUrl = THEME_PIXEL_HOSPITAL.sprites[doctor.spriteKey]
       if (!spriteUrl) continue
-      filled.push({
-        slot,
-        spriteUrl,
+      shelfByRoom[roomType].push({
+        kind: 'doctor',
         key: doctor.id,
-        alt: `${doctor.name} (${doctor.subjectId})`,
+        spriteUrl,
+        name: doctor.name,
+        subjectId: doctor.subjectId,
+        rarity: doctor.rarity,
       })
       slotCursor[roomType] += 1
     }
 
-    return { tier, sceneUrl, filled, reputation: counters.reputation }
+    // Pad each room's group with empty cells up to its slot count
+    const ROOM_ORDER: SlotPosition['room'][] = ['ward', 'outpatient', 'surgery']
+    for (const rt of ROOM_ORDER) {
+      const total = slotsByRoom[rt].length
+      for (let i = shelfByRoom[rt].length; i < total; i++) {
+        shelfByRoom[rt].push({ kind: 'empty', key: `empty-${rt}-${i}` })
+      }
+    }
+
+    const groups = ROOM_ORDER.map((rt) => ({
+      roomType: rt,
+      cells: shelfByRoom[rt],
+      filledCount: slotCursor[rt],
+      totalCount: slotsByRoom[rt].length,
+    })).filter((g) => g.totalCount > 0)
+
+    return { tier, sceneUrl, groups, reputation: counters.reputation }
   }, [counters, doctors, rooms, sceneEnabled])
 
   if (!renderState) return null
 
-  const { tier, sceneUrl, filled, reputation } = renderState
+  const { tier, sceneUrl, groups, reputation } = renderState
 
   return (
     <>
       <section
         className="hospital-scene"
         aria-label={`醫院場景：${tier}`}
-        onClick={() => setModalOpen(true)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            setModalOpen(true)
-          }
-        }}
       >
-        <div className="hospital-scene__canvas">
+        <div
+          className="hospital-scene__canvas"
+          onClick={() => setModalOpen(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setModalOpen(true)
+            }
+          }}
+        >
           <img
             className="hospital-scene__bg"
             src={sceneUrl}
@@ -126,20 +151,61 @@ export function HospitalScene() {
               ;(e.currentTarget as HTMLImageElement).style.visibility = 'hidden'
             }}
           />
-          {filled.map(({ slot, spriteUrl, key, alt }) => (
-            <img
-              key={key}
-              className="hospital-scene__doctor"
-              src={spriteUrl}
-              alt={alt}
-              style={{
-                left: `${(slot.x / SCENE_WIDTH) * 100}%`,
-                top: `${(slot.y / SCENE_HEIGHT) * 100}%`,
-              }}
-              width={DOCTOR_SPRITE_SIZE}
-              height={DOCTOR_SPRITE_SIZE}
-            />
-          ))}
+        </div>
+
+        <div className="doctor-shelf" aria-label="醫院員工名牌">
+          {SHELF_ROW_LAYOUT.map((rowRoomTypes, rowIdx) => {
+            const rowGroups = rowRoomTypes
+              .map((rt) => groups.find((g) => g.roomType === rt))
+              .filter((g): g is NonNullable<typeof g> => g !== undefined)
+            if (rowGroups.length === 0) return null
+            return (
+              <div key={rowIdx} className="doctor-shelf__rank">
+                {rowGroups.map((group) => (
+                  <div key={group.roomType} className="doctor-shelf__group">
+                    <div className="doctor-shelf__group-header">
+                      <span className="doctor-shelf__group-label">{ROOM_LABEL[group.roomType]}</span>
+                      <span className="doctor-shelf__group-count">
+                        {group.filledCount} / {group.totalCount}
+                      </span>
+                    </div>
+                    <div className="doctor-shelf__row">
+                      {group.cells.map((cell) =>
+                        cell.kind === 'doctor' ? (
+                          <div
+                            key={cell.key}
+                            className={`doctor-shelf__cell doctor-shelf__cell--filled doctor-shelf__cell--${cell.rarity.toLowerCase()}`}
+                            title={`${cell.name}・${cell.subjectId}・${cell.rarity}`}
+                          >
+                            <div className="doctor-shelf__sprite-frame">
+                              <img
+                                className="doctor-shelf__sprite"
+                                src={cell.spriteUrl}
+                                alt={`${cell.name} (${cell.subjectId})`}
+                              />
+                            </div>
+                            <span className="doctor-shelf__name">{cell.name}</span>
+                            <span className="doctor-shelf__subject">{cell.subjectId}</span>
+                          </div>
+                        ) : (
+                          <div
+                            key={cell.key}
+                            className="doctor-shelf__cell doctor-shelf__cell--empty"
+                            title={`空缺：${ROOM_LABEL[group.roomType]}`}
+                          >
+                            <div className="doctor-shelf__sprite-frame doctor-shelf__sprite-frame--empty">
+                              <span className="doctor-shelf__placeholder">?</span>
+                            </div>
+                            <span className="doctor-shelf__name doctor-shelf__name--empty">空缺</span>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })}
         </div>
       </section>
 

@@ -1,78 +1,4 @@
-# hospital-scene Specification
-
-## Purpose
-
-二階 hospital home 的 pixel art 場景視覺系統 — tier-based scene asset、assigned-room-bound doctor slot rendering、building click → upgrade modal。場景隨 `hospital.tier` 切換（診所 / 區域醫院 / 醫學中心 / 國家級教學醫院 4 個 768×384 PNG），assigned doctors 依各自 `assignedRoom` 的 `room.type` 在對應 room slot 顯示（不再用 SUBJECT_TO_ROOM 強綁）。提供 `?scene=off` URL query 作 emergency fallback。Lives in `apps/medexam2-hospital-tw`。
-
-## Requirements
-### Requirement: HospitalScene SHALL render in 二階 home above status text
-
-The system SHALL render a `<HospitalScene>` component on the 二階 home route (`/study-rpg/hospital/#/`), positioned between the top bar (containing 抽卡券 chip and navigation buttons) and the hospital status text (containing 醫院 tier name and revenue / reputation stats). The component SHALL be additive — existing status text and stats SHALL remain visible and functional, ensuring screen-reader accessibility and graceful degradation.
-
-#### Scenario: Scene appears on home above status text
-
-- **GIVEN** the user opens `/study-rpg/hospital/#/` for the first time
-- **WHEN** the page finishes loading
-- **THEN** the DOM order SHALL be: top bar → `<HospitalScene>` → status text (「醫院：診所」) → revenue / reputation stats → navigation buttons
-- **AND** the status text SHALL remain visible and readable
-- **AND** removing `<HospitalScene>` from the tree SHALL NOT break any other home functionality
-
-#### Scenario: Scene region has fixed height to prevent layout shift
-
-- **GIVEN** the `<HospitalScene>` is rendering
-- **WHEN** the scene image is still loading
-- **THEN** the container SHALL reserve a fixed height between 240 px and 320 px
-- **AND** the status text below SHALL NOT shift vertically when the image loads
-
-### Requirement: Scene asset SHALL switch by hospital tier
-
-The system SHALL render one of **four** tier-specific scene PNG assets based on the current `hospital.tier` state. The four assets SHALL be:
-
-| Tier | Asset path (in theme pack) |
-|---|---|
-| `'診所'` | `scenes.tier1` |
-| `'區域醫院'` | `scenes.tier2` |
-| `'醫學中心'` | `scenes.tier3` |
-| `'國家級教學醫院'` | `scenes.tier4` |
-
-When `hospital.tier` changes (e.g. via clinic-level-up), the rendered scene asset SHALL change accordingly without page reload. Theme packs that do not ship a tier4 asset SHALL leave `HOSPITAL_SCENES` undefined and trigger the `?scene=off` graceful-degradation path (status text and stats SHALL remain visible).
-
-#### Scenario: Initial render shows tier 1 (診所) scene
-
-- **GIVEN** a new player with `hospital.tier = '診所'`
-- **WHEN** the home page renders
-- **THEN** `<HospitalScene>` SHALL display the asset at `theme.scenes.tier1`
-- **AND** the rendered `<img>` SHALL have `alt="Hospital scene: 診所"` or equivalent localized alt text
-
-#### Scenario: Tier upgrade swaps scene asset
-
-- **GIVEN** `hospital.tier = '診所'` and scene asset shows tier1
-- **WHEN** reputation reaches 1000 and tier upgrades to `'區域醫院'`
-- **THEN** `<HospitalScene>` SHALL re-render with the asset at `theme.scenes.tier2`
-- **AND** the transition SHALL be an instant swap (no animation required for MVP)
-
-#### Scenario: Tier 4 scene renders for 國家級教學醫院
-
-- **GIVEN** the player has reached `hospital.tier = '國家級教學醫院'`
-- **AND** the active theme pack provides `scenes.tier4` (i.e., `hospital-tier4-national.png` exists in the sprite registry)
-- **WHEN** the home page renders
-- **THEN** `<HospitalScene>` SHALL display the asset at `theme.scenes.tier4`
-- **AND** the rendered `<img>` SHALL have `alt="Hospital scene: 國家級教學醫院"` or equivalent localized alt text
-
-#### Scenario: Tier 3 → tier 4 upgrade swaps scene asset
-
-- **GIVEN** `hospital.tier = '醫學中心'` and scene asset shows tier3
-- **WHEN** reputation reaches 2,000,000 and tier upgrades to `'國家級教學醫院'` via the dual-gate (assuming diversification requirements met)
-- **THEN** `<HospitalScene>` SHALL re-render with the asset at `theme.scenes.tier4`
-
-#### Scenario: Tier 4 unavailable in theme pack falls back gracefully
-
-- **GIVEN** a fork uses a theme pack that ships only tier1/tier2/tier3 assets (no tier4 file)
-- **AND** the player reaches `hospital.tier = '國家級教學醫院'`
-- **WHEN** the home page renders
-- **THEN** `HOSPITAL_SCENES` SHALL be `undefined` (guard requires all 4 keys)
-- **AND** `<HospitalScene>` SHALL display the same "no scene" fallback used by the `?scene=off` query path
-- **AND** the status text "醫院：國家級教學醫院" SHALL remain visible
+## MODIFIED Requirements
 
 ### Requirement: Doctor sprites SHALL render at assigned-room-bound slot positions
 
@@ -182,27 +108,6 @@ The system SHALL provision shelf cells for extension rooms (room ids matching pa
 - **THEN** the assigned doctor SHALL render at the 3rd cell in the 開刀房 group
 - **AND** the cell SHALL be visually identical to the default-room surgery cells
 
-### Requirement: Orphan assigned-room references SHALL be skipped silently in DEV and production
-
-The system SHALL detect doctors whose `assignedRoom` field references a room id NOT present in `db.rooms` (e.g., due to data corruption, future migration bug, or sync conflict). Such orphan doctors SHALL be skipped during shelf rendering. No exception SHALL propagate; the rest of the shelf SHALL render normally. Unlike the prior overlay-rendered version, the shelf-based renderer SHALL NOT emit a per-orphan `console.warn` because the capacity-aware placeholder model already surfaces missing-doctor visual feedback through empty cells.
-
-#### Scenario: Doctor with orphan assignedRoom is skipped in DEV
-
-- **GIVEN** a doctor row with `assignedRoom = 'outpatient-deleted-xyz'` that does not exist in `db.rooms`
-- **AND** the build mode is DEV (`import.meta.env.DEV === true`)
-- **WHEN** `<HospitalScene>` renders
-- **THEN** the orphan doctor's cell SHALL NOT appear
-- **AND** the position the orphan would have occupied SHALL render as a "?" placeholder if within the group's slot capacity
-- **AND** all other (valid) doctor cells SHALL render normally
-
-#### Scenario: Same orphan in production is skipped silently
-
-- **GIVEN** the same orphan-room scenario as above
-- **AND** the build mode is production (`import.meta.env.DEV === false`)
-- **WHEN** `<HospitalScene>` renders
-- **THEN** the orphan doctor's cell SHALL NOT appear
-- **AND** all other (valid) doctor cells SHALL render normally
-
 ### Requirement: Click on scene SHALL open upgrade modal
 
 The system SHALL make the hospital scene canvas (the `<div class="hospital-scene__canvas">` containing the building PNG) a clickable element. Clicking the canvas SHALL open an `<UpgradeModal>` component showing:
@@ -241,53 +146,33 @@ The doctor shelf SHALL NOT be clickable for the upgrade modal; cells SHALL have 
 - **THEN** `<UpgradeModal>` SHALL NOT open
 - **AND** no separate per-cell action SHALL trigger in MVP
 
-### Requirement: Responsive layout SHALL adapt to viewport width
+## ADDED Requirements
 
-The system SHALL render `<HospitalScene>` differently based on viewport width:
+### Requirement: Orphan assigned-room references SHALL be skipped silently in DEV and production
 
-- Desktop / tablet (≥ 768 px): scene centered horizontally, `max-width: 700px`, 16 px padding around
-- Mobile (< 768 px): scene scales proportionally to fill viewport width, `max-height: 320 px`
+The system SHALL detect doctors whose `assignedRoom` field references a room id NOT present in `db.rooms` (e.g., due to data corruption, future migration bug, or sync conflict). Such orphan doctors SHALL be skipped during shelf rendering. No exception SHALL propagate; the rest of the shelf SHALL render normally. Unlike the prior overlay-rendered version, the shelf-based renderer SHALL NOT emit a per-orphan `console.warn` because the capacity-aware placeholder model already surfaces missing-doctor visual feedback through empty cells.
 
-#### Scenario: Desktop viewport renders centered scene
+#### Scenario: Doctor with orphan assignedRoom is skipped in DEV
 
-- **GIVEN** viewport width is 1280 px
-- **WHEN** home renders
-- **THEN** `<HospitalScene>` SHALL be horizontally centered
-- **AND** the rendered `<img>` width SHALL be ≤ 700 px
+- **GIVEN** a doctor row with `assignedRoom = 'outpatient-deleted-xyz'` that does not exist in `db.rooms`
+- **AND** the build mode is DEV (`import.meta.env.DEV === true`)
+- **WHEN** `<HospitalScene>` renders
+- **THEN** the orphan doctor's cell SHALL NOT appear
+- **AND** the position the orphan would have occupied SHALL render as a "?" placeholder if within the group's slot capacity
+- **AND** all other (valid) doctor cells SHALL render normally
 
-#### Scenario: Mobile viewport renders full-width scene
+#### Scenario: Same orphan in production is skipped silently
 
-- **GIVEN** viewport width is 400 px
-- **WHEN** home renders
-- **THEN** `<HospitalScene>` SHALL fill viewport width (with optional padding)
-- **AND** the rendered `<img>` height SHALL NOT exceed 320 px
+- **GIVEN** the same orphan-room scenario as above
+- **AND** the build mode is production (`import.meta.env.DEV === false`)
+- **WHEN** `<HospitalScene>` renders
+- **THEN** the orphan doctor's cell SHALL NOT appear
+- **AND** all other (valid) doctor cells SHALL render normally
 
-### Requirement: URL query param `?scene=off` SHALL disable scene rendering
+## REMOVED Requirements
 
-The system SHALL check the URL query parameter `scene`. When `scene=off`, the `<HospitalScene>` component SHALL render nothing (return `null`), allowing emergency fallback to the original text-only home if scene assets fail to load or cause visual regressions.
+### Requirement: Orphan assigned-room references SHALL be logged and skipped
 
-#### Scenario: `?scene=off` hides scene
+**Reason**: Replaced by the silent-skip variant. The new shelf renderer's capacity-aware placeholder cells already give the player + dev a visible signal that "a room expects a doctor that isn't there" (the empty `?` cell), so the DEV-only `console.warn` no longer carries new information and would add noise during normal shelf rendering. The skip behavior itself is preserved (orphan rows do not crash the render); only the `console.warn` is dropped.
 
-- **GIVEN** the user navigates to `/study-rpg/hospital/?scene=off#/`
-- **WHEN** home renders
-- **THEN** `<HospitalScene>` SHALL render nothing (no `<img>`, no container)
-- **AND** the status text and stats SHALL render normally
-- **AND** all other home functionality SHALL be unaffected
-
-#### Scenario: `?scene` parameter absent or any value other than "off" shows scene
-
-- **GIVEN** the URL has no `scene` query parameter (or `scene=on`, `scene=anything`)
-- **WHEN** home renders
-- **THEN** `<HospitalScene>` SHALL render normally
-
-### Requirement: Scene asset SHALL fail gracefully if missing
-
-The system SHALL handle missing or failed-to-load scene assets without crashing the home page. If a scene PNG is missing (e.g., due to CDN failure or build artifact issue), the scene container SHALL render with an empty / transparent state and the rest of the home SHALL remain functional.
-
-#### Scenario: Missing scene asset does not break home
-
-- **GIVEN** `theme.scenes.tier1` points to a path returning 404
-- **WHEN** home renders
-- **THEN** the `<img>` element SHALL have `onError` handler that gracefully hides the broken image
-- **AND** the status text below SHALL still be visible
-- **AND** the page SHALL NOT throw any uncaught exception
+**Migration**: No data or API migration required. Forks that grep for the warning message string `[hospital-scene] doctor` MAY need to update logs/tests; otherwise no action.
