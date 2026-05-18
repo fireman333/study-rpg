@@ -1,5 +1,6 @@
 /**
- * Fate-card draw service — `redesign-hospital-economy` §7.
+ * Fate-card draw service — `redesign-hospital-economy` §7 + `implement-
+ * targeted-fate-card-tickets` (targeted tickets persisted to dedicated table).
  *
  * Atomic per-draw transaction:
  *   1. Read counters + monotonicCounters (for per-tier pity)
@@ -15,7 +16,9 @@
  *   - minor-revenue-5k                   → revenue +5,000
  *   - facility-plus-0.5                  → random non-maxed room +1 level
  *   - facility-all-plus-1                → every non-maxed room +1 level
- *   - targeted-p3-ticket / p2-ticket     → tickets +1 (treated as normal ticket for MVP)
+ *   - targeted-p3-ticket / p2-ticket     → create pending targetedTickets row
+ *                                          (subject pick + rarity-floor reroll
+ *                                          handled by RecruitmentPage consume UX)
  *   - others (training-guarantee, event-immunity, salary-waiver,
  *     throughput-x2-week)                → log only; effect TBD when inventory ships
  */
@@ -28,20 +31,38 @@ import {
   type FateCardTier,
 } from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB } from '../db/schema'
+import { createPendingTargetedTicket } from './targeted-ticket'
 
 const TICKET_CAP = 99
 
 export type FateCardResolvedDraw = Exclude<FateCardDrawResult, { kind: 'aborted' }>
 
 export type FateCardServiceResult =
-  | { ok: true; draw: FateCardResolvedDraw; appliedEffect: string }
+  | {
+      ok: true
+      draw: FateCardResolvedDraw
+      appliedEffect: string
+      /**
+       * Set when the resolved reward is a targeted-pN-ticket. UI uses this id
+       * to open the subject picker modal pre-loaded to the just-created row.
+       */
+      targetedTicketId?: string
+    }
   | { ok: false; reason: 'insufficient-reputation' | 'unknown-tier'; required?: number }
 
 export async function drawFateCardAtTier(tier: FateCardTier): Promise<FateCardServiceResult> {
   const db = getHospitalDB()
   return db.transaction(
     'rw',
-    [db.gameCounters, db.monotonicCounters, db.tickets, db.rooms, db.fateCardHistory],
+    [
+      db.gameCounters,
+      db.monotonicCounters,
+      db.tickets,
+      db.rooms,
+      db.fateCardHistory,
+      db.targetedTickets,
+      db.targetedTicketHistory,
+    ],
     async () => {
       const counters = await db.gameCounters.get('singleton')
       const mono = await db.monotonicCounters.get('singleton')
@@ -71,6 +92,7 @@ export async function drawFateCardAtTier(tier: FateCardTier): Promise<FateCardSe
       let newRevenue = counters.revenue
 
       let appliedEffect = ''
+      let targetedTicketId: string | undefined
 
       if (result.kind === 'badLuck') {
         newReputation = Math.max(0, newReputation - result.penaltyAmount)
@@ -98,6 +120,7 @@ export async function drawFateCardAtTier(tier: FateCardTier): Promise<FateCardSe
         const effect = await applyRewardEffect(result.reward.key, result.reward.label)
         appliedEffect = effect.description
         newRevenue += effect.revenueDelta
+        targetedTicketId = effect.targetedTicketId
       }
 
       // Re-read counters defensively in case any reward effect mutated other
@@ -113,7 +136,7 @@ export async function drawFateCardAtTier(tier: FateCardTier): Promise<FateCardSe
         pityTriggered: result.kind === 'reward' ? result.pityTriggered : false,
       })
 
-      return { ok: true, draw: result, appliedEffect }
+      return { ok: true, draw: result, appliedEffect, targetedTicketId }
     },
   )
 }
@@ -128,6 +151,11 @@ interface RewardEffectResult {
    * original revenue read at txn start.
    */
   revenueDelta: number
+  /**
+   * Set when the reward created a pending targeted ticket row. UI uses this to
+   * open the subject picker modal for the just-created ticket.
+   */
+  targetedTicketId?: string
 }
 
 async function applyRewardEffect(key: string, label: string): Promise<RewardEffectResult> {
@@ -144,10 +172,12 @@ async function applyRewardEffect(key: string, label: string): Promise<RewardEffe
       return { description: '+5,000 💰', revenueDelta: 5_000 }
     case 'targeted-p3-ticket':
     case 'targeted-p2-ticket': {
-      await grantTickets(1)
+      const cardTier = key === 'targeted-p3-ticket' ? 'epic' : 'legendary'
+      const ticket = await createPendingTargetedTicket(cardTier)
       return {
-        description: `${label}（暫以一般招募券發放，定向券待後續實作）`,
+        description: `${label} — 請選擇要指派的科別`,
         revenueDelta: 0,
+        targetedTicketId: ticket.id,
       }
     }
     case 'facility-plus-0.5': {

@@ -172,6 +172,32 @@ export interface RetirementLogRow {
   refund: number
 }
 
+export type TargetedTicketStatus = 'pending' | 'assigned' | 'consumed'
+
+export interface TargetedTicketRow {
+  id: string
+  subjectId: string | null
+  minRarity: 'P2' | 'P3'
+  status: TargetedTicketStatus
+  obtainedAt: number
+  assignedAt: number | null
+  consumedAt: number | null
+  resultDoctorId: string | null
+  sourceFateCardTier: 'epic' | 'legendary'
+  _updatedAt?: number
+}
+
+export interface TargetedTicketHistoryRow {
+  id?: number
+  ticketId: string
+  event: 'obtained' | 'assigned' | 'consumed'
+  at: number
+  subjectId?: string
+  doctorId?: string
+  rarity?: Rarity
+  sourceFateCardTier?: 'epic' | 'legendary'
+}
+
 export interface MasteryRow {
   subjectId: string
   correct: number
@@ -240,6 +266,8 @@ export class HospitalDB extends Dexie {
   retirementLog!: EntityTable<RetirementLogRow, 'id'>
   bookmarks!: EntityTable<BookmarkRow, 'questionId'>
   bannerUnlockBonusLog!: EntityTable<BannerUnlockBonusLogRow, 'subjectId'>
+  targetedTickets!: EntityTable<TargetedTicketRow, 'id'>
+  targetedTicketHistory!: EntityTable<TargetedTicketHistoryRow, 'id'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -413,6 +441,31 @@ export class HospitalDB extends Dexie {
           await monotonicTable.put({ ...existing, freshCorrectSinceLastTicket: 0 })
         }
       })
+
+    // v9: implement-targeted-fate-card-tickets — additive collection tables for
+    // epic/legendary fate-card-sourced targeted recruitment tickets (subject pick
+    // + rarity floor enforcement). Both tables are net-new; no row backfill needed.
+    this.version(9).stores({
+      affinity: '&subjectId',
+      doctors: '&id, subjectId, rarity, obtainedAt',
+      gachaStats: '&id',
+      tickets: '&id',
+      rooms: '&id, type, slot',
+      gameCounters: '&id',
+      mastery: '&subjectId',
+      questionHistory: '&questionId, subjectId, lastAnsweredAt, nextDueAt',
+      meta: '&key',
+      localBackup: '&key, takenAt',
+      monotonicCounters: '&id',
+      trainingHistory: '++id, doctorId, attemptedAt',
+      eventLog: '++id, triggeredAt',
+      fateCardHistory: '++id, drawnAt',
+      retirementLog: '++id, retiredAt, doctorId',
+      bookmarks: '&questionId, addedAt',
+      bannerUnlockBonusLog: '&subjectId',
+      targetedTickets: '&id, status, subjectId, obtainedAt',
+      targetedTicketHistory: '++id, ticketId, at, event',
+    })
   }
 }
 

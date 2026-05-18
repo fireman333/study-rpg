@@ -108,6 +108,24 @@ export const FATE_CARD_TARGETED_TICKET_RARITY: Readonly<Record<string, Rarity>> 
   'targeted-p2-ticket': 'P2',
 })
 
+/**
+ * Max reroll attempts when a targeted ticket consume rolls below the rarity
+ * floor. After this many consecutive sub-floor rolls, the consume forces a
+ * floor-tier doctor by sampling from the banner's pool at the floor rarity
+ * directly (no further random rarity choice).
+ *
+ * Set to 5 as a balance between (a) honoring the natural weight table for
+ * lucky players who roll above floor early, and (b) ensuring the floor
+ * guarantee actually fires within a bounded number of attempts.
+ *
+ * For epic targeted tickets (P3 floor), the per-roll P3+ probability is ~42%
+ * given the standard weight table, so 5 attempts gives ~93.5% chance of
+ * accepting a natural roll. For legendary (P2 floor) the per-roll P2+
+ * probability is ~12%, giving ~47% natural acceptance — the remaining ~53%
+ * routes to force-floor, which is the intended P2 guarantee.
+ */
+export const TARGETED_REROLL_CAP = 5
+
 export type FateCardDrawResult =
   | {
       kind: 'reward'
