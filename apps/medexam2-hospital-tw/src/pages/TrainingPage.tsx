@@ -164,9 +164,9 @@ export function TrainingPage() {
                       className="ghost-btn training-retire-btn"
                       onClick={() => setRetireConfirming({ doctor: d })}
                       disabled={busy}
-                      title={`退休後返還 ${fmt(d.powerMultiplier * 1000)} 💰`}
+                      title={`自願離院（退休）— 退還 ${fmt(d.powerMultiplier * 1000)} 💰`}
                     >
-                      退休
+                      AAD
                     </button>
                   </div>
                 </li>

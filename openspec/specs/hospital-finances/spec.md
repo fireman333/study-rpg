@@ -137,7 +137,9 @@ Room extension SHALL only be available when current tier ≥ 區域醫院 (locke
 
 ### Requirement: Voluntary doctor retirement SHALL allow payroll relief with 24-hour diversification grace
 
-The system SHALL allow the player to manually retire (fire) an owned doctor at any time via a「退休醫師」button on the doctor detail panel. The retired doctor SHALL:
+The system SHALL allow the player to manually retire (fire) an owned doctor at any time via an「AAD」button on the doctor detail panel. The「AAD」label is an in-joke reference to the medical abbreviation Against Advice Discharge (病人不顧醫療勸阻自行離院) — here repurposed for doctors voluntarily leaving the hospital. To preserve clarity for players unfamiliar with the abbreviation, the button SHALL carry a native HTML `title` attribute (hover tooltip) reading「自願離院（退休）— 退還 {refund} 💰」where `{refund}` is the live computed refund amount for that specific doctor (`doctor.powerMultiplier × 1000`, formatted via the project-wide `fmt` number formatter, with the trailing 💰 emoji matching the codebase convention for revenue amounts). The confirmation modal opened by the button SHALL continue to use the full-name terminology「退休」/「自願離院」in its title, body copy, and action buttons — only the trigger button itself uses the「AAD」abbreviation.
+
+The retired doctor SHALL:
 
 - Be removed from `db.doctors` (record deleted)
 - If currently assigned to a room, the room's `assignedDoctorId` SHALL be set to `null` in the same transaction
@@ -153,6 +155,8 @@ The retirement button SHALL be guarded by a confirmation modal showing:
 - Diversification impact (which gate this doctor contributes to, when the 24-hour credit expires)
 - If retiring the player's only P1: an explicit warning that `requireP1` will be lost immediately at the 國家級 upgrade gate
 - "Cannot be undone" warning
+
+**Internal naming invariance**: The CSS class (`.training-retire-btn`), the service function (`retireDoctor`), the Dexie table (`retirementLog`), the HelpMenu accordion entry id (`retire`), and any internal semantic identifier SHALL retain their existing names. Only the user-visible button label and its hover tooltip are affected by the「AAD」rename — code-level identifiers stay neutral so a future contributor reading the source does not interpret the in-joke as a typo and revert it.
 
 #### Scenario: Retire P3 doctor refunds revenue and frees room
 
@@ -194,6 +198,20 @@ The retirement button SHALL be guarded by a confirmation modal showing:
 - **AND** the next tick fires within the 24-hour grace window
 - **THEN** the tier-upgrade gate SHALL evaluate `requireP1 = true` (live-only count = 1, still ≥ 1)
 - **AND** if all other gate conditions are met the tier SHALL upgrade to `'國家級教學醫院'`
+
+#### Scenario: AAD button displays abbreviation with full-name tooltip
+
+- **GIVEN** a P3 doctor with `powerMultiplier = 2.0` selected on the doctor detail panel
+- **WHEN** the panel renders the retirement button
+- **THEN** the button visible text SHALL equal `「AAD」`
+- **AND** the button SHALL carry an HTML `title` attribute equal to `「自願離院（退休）— 退還 2,000 💰」` (refund value computed as `2.0 × 1000`, formatted via the project `fmt` helper with thousands separator)
+
+#### Scenario: Confirmation modal uses full-name terminology
+
+- **GIVEN** the player clicks the「AAD」button on any doctor
+- **WHEN** the confirmation modal opens
+- **THEN** the modal title and body copy SHALL use「退休」or「自願離院」, NOT the「AAD」abbreviation
+- **AND** the existing modal contents (refund / diversification impact / P1 warning / cannot-be-undone) SHALL remain unchanged
 
 ### Requirement: Finance dashboard SHALL display revenue breakdown
 
