@@ -10,6 +10,8 @@ interface Props {
   mastery?: MasteryRow
   /** Number of due SRS cards available for this subject today (post-cap allocation). */
   dueCount?: number
+  /** Answered vs total question counts for completion tracking. */
+  completion?: { answered: number; total: number }
   onRoll: () => void
   onStartQuiz: () => void
 }
@@ -21,6 +23,7 @@ export function RecruitmentBanner({
   ticketsAvailable,
   mastery,
   dueCount = 0,
+  completion,
   onRoll,
   onStartQuiz,
 }: Props) {
@@ -52,6 +55,15 @@ export function RecruitmentBanner({
         {dueCount > 0 && (
           <span className="banner__due-chip" title={`今日待複習 ${dueCount} 題`}>
             🔴 {dueCount > 99 ? '99+' : dueCount}
+          </span>
+        )}
+        {completion && (
+          <span
+            className={`banner__completion-chip ${completion.answered === completion.total ? 'banner__completion-chip--complete' : ''}`}
+            title={`本科題庫進度：${completion.answered} / ${completion.total}`}
+          >
+            {completion.answered === completion.total ? '🏆' : '✅'}{' '}
+            {completion.answered} / {completion.total}
           </span>
         )}
       </div>

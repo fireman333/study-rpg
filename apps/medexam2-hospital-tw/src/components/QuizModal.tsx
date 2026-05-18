@@ -4,7 +4,7 @@ import type { Question, SubjectId } from '@study-rpg/core'
 import { RARITY_LABELS, getSpecialtyMultiplier } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
-import { pickQuestionById, pickRandomQuestion } from '../lib/quiz'
+import { loadPoolSizeMap, pickQuestionById, pickRandomQuestion } from '../lib/quiz'
 import { recordCorrectAnswer, recordWrongAnswer } from '../lib/mastery'
 import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
@@ -33,6 +33,9 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
   const wasFromDueRef = useRef<boolean>(false)
   const [boundDoctorId, setBoundDoctorId] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
+  const [skipSrs, setSkipSrs] = useState(false)
+  const [toasts, setToasts] = useState<Array<{ id: number; text: string }>>([])
+  const firedExhaustedRef = useRef<Set<SubjectId>>(new Set())
 
   const doctors = useLiveQuery(
     () => db.doctors.orderBy('obtainedAt').reverse().toArray(),
@@ -51,6 +54,12 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     [doctors, boundDoctorId],
   )
 
+  function emitToast(text: string) {
+    const id = Date.now() + Math.random()
+    setToasts((prev) => [...prev, { id, text }])
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000)
+  }
+
   async function loadNextQuestion(forSubject: SubjectId, resetSeen = false): Promise<void> {
     setLoading(true)
     setSelectedOption(null)
@@ -63,20 +72,23 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     // Due-first: walk the cap-allocated due queue for this subject, skipping
     // orphans (questionHistory rows whose questionId no longer exists in the
     // content pack).
-    let dueRow = await getNextDueCardForSubject(forSubject, consumedDueIdsRef.current)
-    while (dueRow) {
-      const dueQuestion = await pickQuestionById(dueRow.questionId)
-      if (dueQuestion) {
+    // Skip this entire block if `skipSrs` is enabled.
+    if (!skipSrs) {
+      let dueRow = await getNextDueCardForSubject(forSubject, consumedDueIdsRef.current)
+      while (dueRow) {
+        const dueQuestion = await pickQuestionById(dueRow.questionId)
+        if (dueQuestion) {
+          consumedDueIdsRef.current.add(dueRow.questionId)
+          wasFromDueRef.current = true
+          setPoolEmpty(false)
+          setQuestion(dueQuestion)
+          setLoading(false)
+          return
+        }
+        // Orphan: mark consumed and try next due row.
         consumedDueIdsRef.current.add(dueRow.questionId)
-        wasFromDueRef.current = true
-        setPoolEmpty(false)
-        setQuestion(dueQuestion)
-        setLoading(false)
-        return
+        dueRow = await getNextDueCardForSubject(forSubject, consumedDueIdsRef.current)
       }
-      // Orphan: mark consumed and try next due row.
-      consumedDueIdsRef.current.add(dueRow.questionId)
-      dueRow = await getNextDueCardForSubject(forSubject, consumedDueIdsRef.current)
     }
 
     // No due card available → fall back to random new question.
@@ -88,6 +100,19 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     } else {
       setPoolEmpty(false)
       setQuestion(q)
+
+      // Exhaustion toast detection
+      const poolSizeMap = await loadPoolSizeMap()
+      const poolSize = poolSizeMap.get(forSubject) ?? 0
+      if (
+        poolSize > 0 &&
+        seenIdsRef.current.size >= poolSize &&
+        seenIdsRef.current.has(q.id) &&
+        !firedExhaustedRef.current.has(forSubject)
+      ) {
+        emitToast('本科獨立題已掃完，繼續會開始重練')
+        firedExhaustedRef.current.add(forSubject)
+      }
     }
     setLoading(false)
   }
@@ -216,6 +241,22 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
           </select>
         </div>
 
+        <div className="quiz-modal__skip-srs">
+          <label className="quiz-modal__skip-srs-label">
+            <input
+              type="checkbox"
+              role="switch"
+              aria-checked={skipSrs}
+              checked={skipSrs}
+              onChange={(e) => setSkipSrs(e.target.checked)}
+            />
+            <span>跳過 SRS（純隨機新題）</span>
+          </label>
+          <span className="quiz-modal__skip-srs-hint">
+            （不影響 SRS 排程，到期題仍會記）
+          </span>
+        </div>
+
         <div className="quiz-modal__body">
           {loading && <p className="quiz-modal__loading">載入題目中…</p>}
           {!loading && poolEmpty && (
@@ -293,6 +334,16 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
             下一題
           </button>
         </footer>
+
+        {toasts.length > 0 && (
+          <div className="quiz-modal__toast-stack" aria-live="polite">
+            {toasts.map((t) => (
+              <div key={t.id} className="quiz-modal__toast">
+                {t.text}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

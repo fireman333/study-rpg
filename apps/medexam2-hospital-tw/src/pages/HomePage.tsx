@@ -21,6 +21,7 @@ import {
 } from '../db/schema'
 import { attemptRoll, type RollOutcome } from '../services/recruitment'
 import { allocateDailyCap, getDueQueueAllSubjects } from '../lib/srs-scheduler'
+import { useCompletionMap } from '../lib/completion'
 import { RecruitmentBanner } from '../components/RecruitmentBanner'
 import { RecruitmentResultModal } from '../components/RecruitmentResultModal'
 import { DevAffinityControls } from '../components/DevAffinityControls'
@@ -39,6 +40,7 @@ export function HomePage() {
   const [starterResult, setStarterResult] = useState<{ doctor: DoctorRow } | null>(null)
   const [starterOpen, setStarterOpen] = useState(false)
   const [activeQuizSubject, setActiveQuizSubject] = useState<SubjectId | null>(null)
+  const completionMap = useCompletionMap()
 
   useEffect(() => {
     const base = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -254,6 +256,7 @@ export function HomePage() {
             ticketsAvailable={ticketsAvailable}
             mastery={masteryMap[s.id]}
             dueCount={dueCountMap[s.id] ?? 0}
+            completion={completionMap?.get(s.id as SubjectId)}
             onRoll={() => void handleRoll(s)}
             onStartQuiz={() => setActiveQuizSubject(s.id as SubjectId)}
           />

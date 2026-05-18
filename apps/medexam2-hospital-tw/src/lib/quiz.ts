@@ -83,3 +83,16 @@ export async function pickRandomQuestion(
   // 3 re-rolls all hit seen; accept the latest random pick anyway
   return pool[Math.floor(Math.random() * pool.length)]
 }
+
+/**
+ * Load a map of subjectId -> total playable question count.
+ * Used by the completion tracker to show "X / Y" progress.
+ */
+export async function loadPoolSizeMap(): Promise<Map<SubjectId, number>> {
+  const { bySubject } = await loadPack()
+  const map = new Map<SubjectId, number>()
+  for (const [subjectId, questions] of bySubject.entries()) {
+    map.set(subjectId as SubjectId, questions.length)
+  }
+  return map
+}
