@@ -116,3 +116,6 @@ export const READING_SESSION_BUFF_MULTIPLIER = 1.5
  * affect salary drain (salary stays at full rate).
  */
 export const READING_IDLE_RATE_REDUCTION = 0.3
+
+// QUIZ_TIER_MULTIPLIER moved to clinic-tiers.ts (co-located with HospitalTier
+// definition + TIER_UPGRADE_THRESHOLDS to avoid circular import).

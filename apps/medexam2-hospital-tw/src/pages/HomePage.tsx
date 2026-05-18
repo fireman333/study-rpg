@@ -5,6 +5,7 @@ import type { Subject, SubjectId } from '@study-rpg/core'
 import {
   RECRUITMENT_THRESHOLDS,
   TICKET_CAP,
+  READING_IDLE_RATE_REDUCTION,
   TIER_DIVERSIFICATION_REQUIREMENTS,
   TIER_UPGRADE_THRESHOLDS,
   computeSalaryDrain,
@@ -193,7 +194,12 @@ export function HomePage() {
           throughput += computeThroughput(room, d)
         }
         const salary = counters ? computeSalaryDrain(allDoctors, counters.tier) : 0
-        const net = throughput - salary
+        // Apply READING_IDLE_RATE_REDUCTION to match tick-loop math (Phase 2:
+        // idle accrual is 30% of raw throughput; salary stays full). Without
+        // this, the display would show misleading positive net at high tiers
+        // where idle-adjusted gross < salary.
+        const idleThroughput = throughput * READING_IDLE_RATE_REDUCTION
+        const net = idleThroughput - salary
         return (
           <section className="home-counters-banner" aria-label="醫院經營狀態">
             <div className="home-counters-banner__cell">
@@ -224,7 +230,7 @@ export function HomePage() {
               </span>
               {salary > 0 && (
                 <span className="home-counters-banner__sublabel">
-                  毛 {throughput.toFixed(0)} − 薪 {salary.toFixed(0)}
+                  毛 {idleThroughput.toFixed(0)} − 薪 {salary.toFixed(0)}
                 </span>
               )}
             </div>

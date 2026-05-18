@@ -30,6 +30,21 @@ export const TIER_UPGRADE_THRESHOLDS: Record<HospitalTier, number | null> = {
   國家級教學醫院: null,
 }
 
+// TUNED 2026-05-19 — first dogfood pass; revisit after 1-2 weeks of telemetry.
+// Tier-scaled quiz reward multiplier added by `add-tier-quiz-multiplier`.
+// Phase 2 design.md D1 deferred this to dogfood; d-2 signal sweep on 2026-05-19
+// confirmed quiz needs tier scaling because salary scales with roster while
+// flat BASE doesn't — at 醫學中心 + realistic 8 P2 + 1 P1, idle net is already
+// negative without this multiplier. This keeps quiz path strictly dominant
+// at every tier without touching Phase 2's "salary stays at full rate"
+// invariant (hospital-tycoon-engine Req).
+export const QUIZ_TIER_MULTIPLIER: Record<HospitalTier, number> = {
+  診所: 1.0,
+  區域醫院: 1.3,
+  醫學中心: 1.6,
+  國家級教學醫院: 2.0,
+}
+
 function room(id: string, type: Room['type'], slot: number): Room {
   return { id, type, baseRate: 10, roomFacility: 1.0, facilityLevel: 1, assignedDoctorId: null, slot }
 }
