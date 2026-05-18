@@ -109,7 +109,7 @@ export function StudySessionPage() {
         <div className={`study-session__state study-session__state--${state}`}>
           {state === 'idle' && '🌙 醫院休息中（沒有念書，零產出）'}
           {state === 'active' && '📖 念書中 — 醫師看診、聲望累積中'}
-          {state === 'paused' && '⏸️ 已暫停（離開分頁，回來會自動繼續）'}
+          {state === 'paused' && '⏸️ 已暫停'}
         </div>
 
         <div className="study-session__controls">

@@ -239,7 +239,8 @@ export function EventModal() {
                 disabled={busy}
                 onClick={handleMalpracticeAccept}
               >
-                接受懲處（−{fmt(MALPRACTICE_PENALTY_REP)} 聲望）
+                接受懲處（−{fmt(MALPRACTICE_PENALTY_REP)} 聲望
+                {counters.reputation < MALPRACTICE_PENALTY_REP && '（將至 0）'}）
               </button>
             </footer>
           </>
