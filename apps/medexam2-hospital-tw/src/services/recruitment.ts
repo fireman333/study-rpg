@@ -4,6 +4,7 @@ import {
   RECRUITMENT_WEIGHTS,
   RECRUITMENT_PITY_RULES,
   RARITY_POWER_MULTIPLIER,
+  DEFAULT_DOCTOR_TITLE_BY_RARITY,
   type Rarity,
 } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
@@ -72,7 +73,7 @@ export async function attemptRoll(subject: Subject): Promise<RollOutcome> {
       subjectId: subject.id,
       rarity,
       powerMultiplier: RARITY_POWER_MULTIPLIER[rarity],
-      name: `${subject.displayName} 醫師 #${seq}`,
+      name: `${subject.displayName} ${DEFAULT_DOCTOR_TITLE_BY_RARITY[rarity]} #${seq}`,
       spriteKey: resolveSpriteKey(subject.id, rarity, THEME_PIXEL_HOSPITAL.sprites),
       obtainedAt: Date.now(),
       assignedRoom: null,

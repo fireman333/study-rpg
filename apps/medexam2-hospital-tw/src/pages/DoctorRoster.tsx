@@ -8,9 +8,10 @@ import {
   type Rarity,
 } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
-import { getHospitalDB } from '../db/schema'
+import { getHospitalDB, type DoctorRow } from '../db/schema'
 import { lookupSprite } from '../lib/sprite-lookup'
 import { formatMasteryPercent } from '../lib/mastery'
+import { RenameDoctorModal } from '../components/RenameDoctorModal'
 
 const RARITY_FILTER_OPTIONS: ('all' | Rarity)[] = ['all', ...[...RARITY_ORDER].reverse()]
 
@@ -25,6 +26,7 @@ export function DoctorRoster() {
   }, [masteryRows])
   const [subjectFilter, setSubjectFilter] = useState<string>('all')
   const [rarityFilter, setRarityFilter] = useState<'all' | Rarity>('all')
+  const [renaming, setRenaming] = useState<DoctorRow | null>(null)
 
   const subjects = useMemo(() => {
     const set = new Set<string>()
@@ -106,7 +108,17 @@ export function DoctorRoster() {
                     )
                   })()}
                 </div>
-                <h3 className="doctor-card__name">{d.name}</h3>
+                <h3 className="doctor-card__name">
+                  <span className="doctor-card__name-text">{d.name}</span>
+                  <button
+                    type="button"
+                    className="doctor-card__rename"
+                    aria-label={`為 ${d.name} 改名`}
+                    onClick={() => setRenaming(d)}
+                  >
+                    ✏️
+                  </button>
+                </h3>
                 <dl className="doctor-card__meta">
                   <div>
                     <dt>科別</dt>
@@ -129,6 +141,10 @@ export function DoctorRoster() {
             ))}
           </section>
         </>
+      )}
+
+      {renaming && (
+        <RenameDoctorModal doctor={renaming} onClose={() => setRenaming(null)} />
       )}
     </main>
   )

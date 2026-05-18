@@ -2,6 +2,7 @@ import { randomId, rollGacha, type Subject } from '@study-rpg/core'
 import {
   STARTER_PULL_WEIGHTS,
   RARITY_POWER_MULTIPLIER,
+  DEFAULT_DOCTOR_TITLE_BY_RARITY,
   type Rarity,
 } from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
@@ -40,7 +41,7 @@ export async function attemptStarterPull(subject: Subject): Promise<StarterPullO
       subjectId: subject.id,
       rarity,
       powerMultiplier: RARITY_POWER_MULTIPLIER[rarity],
-      name: `${subject.displayName} 醫師 #${seq}`,
+      name: `${subject.displayName} ${DEFAULT_DOCTOR_TITLE_BY_RARITY[rarity]} #${seq}`,
       spriteKey: `doctor-${subject.id}-${rarity}`,
       obtainedAt: Date.now(),
       assignedRoom: null,

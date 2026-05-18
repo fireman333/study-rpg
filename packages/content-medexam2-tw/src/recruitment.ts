@@ -26,6 +26,17 @@ export const RARITY_LABELS: Record<Rarity, string> = {
   P5: '拉完了',
 }
 
+/** Hospital-hierarchy title used when generating a doctor's auto-default name
+ *  `"<displayName> <title> #<seq>"`. Mirrors Taiwan med-center career ladder:
+ *  P1 教授級 / P2 科主任 / P3 高年主治 / P4 年輕主治 / P5 住院醫師. */
+export const DEFAULT_DOCTOR_TITLE_BY_RARITY: Record<Rarity, string> = {
+  P1: '大P',
+  P2: '主任',
+  P3: 'Senior V',
+  P4: 'Young V',
+  P5: 'R',
+}
+
 /** Doctor powerMultiplier per rarity tier. Strictly monotonic; endpoints
  *  locked by hospital-management-mode spec. */
 export const RARITY_POWER_MULTIPLIER: Record<Rarity, number> = {
