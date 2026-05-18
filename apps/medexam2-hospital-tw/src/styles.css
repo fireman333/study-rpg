@@ -1515,6 +1515,17 @@ body {
   white-space: pre-wrap;
 }
 
+.quiz-modal__disputed {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  background: var(--surface-2, #1a1a1a);
+  border-left: 3px solid #d4a04d;
+  border-radius: 4px;
+  color: #d4a04d;
+}
+
 .quiz-modal__image {
   margin: 0 0 16px;
   display: flex;

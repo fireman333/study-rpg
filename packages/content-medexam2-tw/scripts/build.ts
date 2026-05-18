@@ -375,6 +375,7 @@ function buildQuestion(parsed: ParsedQuestion, fm: Frontmatter, sourcePath: stri
     hasImage: parsed.hasImage,
     imagePath,
     hasOptionImages: parsed.hasOptionImages,
+    disputed: parsed.disputed || undefined,
     meta,
   }
 }

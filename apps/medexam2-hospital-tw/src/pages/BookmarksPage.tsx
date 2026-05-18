@@ -91,7 +91,8 @@ export function BookmarksPage() {
                       ))}
                     </ul>
                     <p className="bookmarks-page__entry-answer">
-                      <strong>正解：</strong>({q.answer})
+                      <strong>正解：</strong>
+                      {q.disputed ? '⚖️ 送分題（考選部判定全部給分）' : `(${q.answer})`}
                     </p>
                     <div className="bookmarks-page__entry-explanation">
                       <strong>詳解：</strong>

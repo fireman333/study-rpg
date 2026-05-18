@@ -25,7 +25,8 @@ export interface MockScoreResult {
 export function scoreMock(input: MockSubmitInput): MockScoreResult {
   const perQuestionAnswers: MockPerQuestionAnswer[] = input.questions.map((q) => {
     const userSelection = input.selections[q.id] ?? null
-    const isCorrect = userSelection !== null && userSelection === q.answer
+    // 送分題: 考選部判定全部給分 — 任何已選都算對
+    const isCorrect = userSelection !== null && (q.disputed || userSelection === q.answer)
     return { questionId: q.id, userSelection, isCorrect }
   })
   const totalScore = perQuestionAnswers.reduce((acc, a) => acc + (a.isCorrect ? 1 : 0), 0)

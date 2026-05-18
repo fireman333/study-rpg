@@ -52,11 +52,12 @@ export interface Question {
   subject: SubjectId
   stem: string
   options: Record<string, string> // e.g. { A: "...", B: "...", C: "...", D: "..." }
-  answer: string                  // key into options, e.g. "C"
+  answer: string                  // key into options, e.g. "C"; for disputed questions this is a placeholder — see `disputed`
   explanation: string             // markdown allowed
   hasImage?: boolean
   imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
   hasOptionImages?: boolean       // at least one option is an un-renderable image; host apps filter from quiz pools
+  disputed?: boolean              // exam authority sent the question back (送分題) — any selection counts as correct; `answer` is a placeholder
   meta?: Record<string, unknown>  // exam-specific extras (year, session, etc.)
   sourceCredit?: string           // attribution string
 }

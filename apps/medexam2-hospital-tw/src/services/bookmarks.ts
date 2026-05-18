@@ -62,6 +62,9 @@ export function exportBookmarksMarkdown(
       ].join('\n')
     }
     const optionsLines = Object.entries(q.options).map(([key, text]) => `- (${key}) ${text}`)
+    const answerLine = q.disputed
+      ? `**正解：** ⚖️ 送分題（考選部判定全部給分）`
+      : `**正解：** (${q.answer})`
     return [
       `## ${q.id}`,
       '',
@@ -69,7 +72,7 @@ export function exportBookmarksMarkdown(
       '',
       ...optionsLines,
       '',
-      `**正解：** (${q.answer})`,
+      answerLine,
       '',
       `**詳解：** ${q.explanation}`,
     ].join('\n')

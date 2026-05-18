@@ -108,7 +108,8 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     if (revealed || !question || !boundDoctor) return
     setSelectedOption(optionKey)
     setRevealed(true)
-    const wasCorrect = optionKey === question.answer
+    // 送分題: 考選部判定全部給分 — 任何選項都算對
+    const wasCorrect = question.disputed || optionKey === question.answer
     const payload = { subjectId, questionId: question.id }
     if (wasCorrect) {
       await recordCorrectAnswer(payload, {
@@ -237,11 +238,17 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
                   📷 此題含附圖但尚未補齊（{question.id}）
                 </div>
               )}
+              {question.disputed && revealed && (
+                <p className="quiz-modal__disputed">
+                  ⚖️ 送分題（考選部判定全部給分，任何選項都算對）
+                </p>
+              )}
               <ul className="quiz-modal__options">
                 {optionKeys.map((key) => {
-                  const isCorrect = revealed && key === question.answer
+                  // 送分題: 揭曉時所有選項都標 correct（任選都對）
                   const isSelected = key === selectedOption
-                  const isWrongPick = revealed && isSelected && key !== question.answer
+                  const isCorrect = revealed && (question.disputed || key === question.answer)
+                  const isWrongPick = revealed && isSelected && !question.disputed && key !== question.answer
                   const className = [
                     'quiz-modal__option',
                     isCorrect ? 'quiz-modal__option--correct' : '',
