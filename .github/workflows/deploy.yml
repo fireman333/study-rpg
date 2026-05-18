@@ -14,6 +14,13 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Opt in to Node.js 24 runtime for JavaScript actions ahead of 2026-06-02
+# forced switch (silences deprecation warnings; v4 actions internally targeted
+# Node 20 which is removed 2026-09-16). Bump action versions later when v5+
+# of each is widely adopted.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
