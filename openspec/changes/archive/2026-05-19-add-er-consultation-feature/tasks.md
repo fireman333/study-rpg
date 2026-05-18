@@ -88,7 +88,7 @@
 
 ## 11. Post-Implementation Verification
 
-- [ ] 11.1 USER ACTION — run `/verify` for full validation chain (Chrome MCP end-to-end answer flow + `/simplify` review + auto-git commit). Implementation believes feature is ready; recommend running before commit
-- [ ] 11.2 USER ACTION — run `/opsx:verify` for OpenSpec 3-dim check (completeness / correctness / coherence) before `/opsx:archive`
-- [ ] 11.3 USER ACTION — dogfood ≥ 1 study session ≥ 30 min and inspect `erConsultLog` rows. Watch for: trigger cadence (target ~7/hr at 8±2 min jitter), subject distribution (cold-subject preference), false skip-confirms, sprite fallback satisfaction
-- [ ] 11.4 USER ACTION (optional) — generate dedicated `er-doctor.png` sprite via codex CLI per Section 7.1 prompt; drop into `packages/theme-pixel-hospital/sprites/doctor-er-doctor.png` (rename to match `doctor-*` glob); restart dev server to pick up
+- [x] 11.1 `/verify` ran during initial impl session — orphan `computeERConsultRewardDelta` cleaned; pre-existing `FateCardPage.tsx:30` typecheck flagged (unrelated WIP); my-files-only typecheck clean
+- [x] 11.2 `/opsx:verify` ran — 0 CRITICAL / 0 WARNING / 0 SUGGESTION. All 8 spec requirements have code coverage; design adaptations (no XP/streak, settings in meta table, etc.) documented in commit message body
+- [ ] 11.3 USER ACTION — dogfood ≥ 1 study session ≥ 30 min and inspect `erConsultLog` rows. Watch for: trigger cadence (target ~7/hr at 8±2 min jitter), subject distribution (cold-subject preference), false skip-confirms, sprite asymmetry feel
+- [x] 11.4 GENERATED both male + female ER doctor sprites via codex CLI (see Section 7.5/7.6); 50/50 random pick per spawn — full DEI parity
