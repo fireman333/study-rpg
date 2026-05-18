@@ -227,21 +227,9 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
       <div className="modal-card modal-card--quiz" onClick={(e) => e.stopPropagation()}>
         <header className="quiz-modal__head">
           <h2 className="quiz-modal__title">📚 {subjectId}</h2>
-          <div className="quiz-modal__head-actions">
-            <button
-              type="button"
-              className="quiz-bug-trigger"
-              onClick={openBugSheet}
-              aria-label="回報這題"
-              title="回報這題"
-              disabled={!question}
-            >
-              🐞
-            </button>
-            <button type="button" className="quiz-modal__close" onClick={onClose} aria-label="關閉">
-              ✕
-            </button>
-          </div>
+          <button type="button" className="quiz-modal__close" onClick={onClose} aria-label="關閉">
+            ✕
+          </button>
         </header>
 
         <div
@@ -394,6 +382,16 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
         </div>
 
         <footer className="quiz-modal__foot">
+          <button
+            type="button"
+            className="quiz-bug-trigger quiz-bug-trigger--in-footer"
+            onClick={openBugSheet}
+            aria-label="回報這題"
+            title="回報這題"
+            disabled={!question}
+          >
+            🐞
+          </button>
           <button
             type="button"
             className="quiz-modal__next"

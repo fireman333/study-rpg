@@ -1714,7 +1714,8 @@ body {
 
 .quiz-modal__foot {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 8px;
 }
 
@@ -3043,11 +3044,6 @@ body {
 }
 
 /* ── Quiz inline bug-report (🐞 trigger + sheet) ──────────────────── */
-.quiz-modal__head-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 .quiz-bug-trigger {
   background: transparent;
   border: 1px solid var(--frame-wood-light, rgba(0, 0, 0, 0.2));
@@ -3075,6 +3071,27 @@ body {
 .quiz-bug-trigger:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+/* Footer placement — match `.quiz-modal__next` outer dimensions exactly
+ * (font-size, padding, border, line-height, shadow) so 🐞 lines up at the
+ * same baseline + height as the 下一題 button. */
+.quiz-bug-trigger--in-footer {
+  /* Pin to next-button height — emoji glyph inflates content otherwise. */
+  height: 46px;
+  /* Asymmetric top padding nudges the emoji ~2px down: emoji glyphs sit
+   * higher than ascii-text optical center, so plain align-items:center
+   * leaves the bug looking top-heavy versus the 下一題 label next to it. */
+  padding: 4px 18px 0;
+  font-size: 16px;
+  line-height: 1;
+  border: 2px solid var(--frame-dark);
+  background: #e8d4a5;
+  box-shadow: 2px 2px 0 var(--frame-dark);
+}
+.quiz-bug-trigger--in-footer:hover:not(:disabled) {
+  background: #ddc488;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--frame-dark);
 }
 .quiz-bug-sheet {
   max-width: 480px;
