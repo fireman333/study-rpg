@@ -54,7 +54,9 @@ export async function trainDoctor(doctorId: string): Promise<TrainingAttemptResu
               rarity: result.toRarity,
               powerMultiplier: result.newPowerMultiplier,
               pityCounter: 0,
-              spriteKey: `doctor-${doctor.subjectId}-${result.toRarity}`,
+              spriteKey: doctor.spriteKey.endsWith('-female')
+                ? `doctor-${doctor.subjectId}-${result.toRarity}-female`
+                : `doctor-${doctor.subjectId}-${result.toRarity}`,
             }
           : { ...doctor, pityCounter: result.newPityCounter }
       await db.doctors.put(updatedDoctor)

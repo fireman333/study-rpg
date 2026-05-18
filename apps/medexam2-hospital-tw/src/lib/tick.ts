@@ -162,7 +162,9 @@ export async function runTick(): Promise<TickResult> {
           const distinct = countDistinctSubjectsAtRarity(effectiveDoctors, req.minRarity)
           if (distinct < req.requiredCount) break
           if (req.requireP1) {
-            const hasP1 = effectiveDoctors.some((d) => rarityIsAtLeast(d.rarity, 'P1'))
+            // P1 anchor uses live doctors only — 24h grace does NOT apply here.
+            // Spec: hospital-finances "Retiring only P1 immediately fails requireP1 despite 24h grace"
+            const hasP1 = doctors.some((d) => rarityIsAtLeast(d.rarity, 'P1'))
             if (!hasP1) break
           }
         }
@@ -192,12 +194,16 @@ export async function runTick(): Promise<TickResult> {
         pendingEventTriggeredAt !== null &&
         now - pendingEventTriggeredAt >= MALPRACTICE_AUTO_RESOLVE_MS
       ) {
-        newReputation = Math.max(0, newReputation - MALPRACTICE_PENALTY_REP)
+        // actual-delta after floor clamp — parity with player-action branch
+        // (services/event.ts:85-105) and toast branch below (tick.ts:225-243)
+        const prevRep = newReputation
+        newReputation = Math.max(0, prevRep - MALPRACTICE_PENALTY_REP)
+        const actualRepDelta = newReputation - prevRep
         await db.eventLog.add({
           triggeredAt: pendingEventTriggeredAt,
           eventKey: 'medical-malpractice',
           outcome: 'auto-resolved-penalty',
-          reputationDelta: -MALPRACTICE_PENALTY_REP,
+          reputationDelta: actualRepDelta,
           revenueDelta: 0,
         })
         pendingEventId = null

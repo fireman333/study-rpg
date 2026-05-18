@@ -115,7 +115,8 @@ export function FateCardPage() {
           const insufficient = counters.reputation < cost
           const badLuckRate = FATE_CARD_BAD_LUCK_RATES[tier]
           const pool = FATE_CARD_POOLS[tier]
-          const pityCount = mono?.fateCardBadLuckPity[tier === 'legendary' ? 'common' : tier] ?? 0
+          const pityCount =
+            tier === 'legendary' ? 0 : mono?.fateCardBadLuckPity[tier] ?? 0
           return (
             <article
               key={tier}
