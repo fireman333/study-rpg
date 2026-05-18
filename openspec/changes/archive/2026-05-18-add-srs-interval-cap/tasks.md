@@ -38,6 +38,6 @@ Cap behavior is instead verified by:
 
 ## 6. Archive
 
-- [ ] 6.1 Run `/opsx:archive add-srs-interval-cap` to sync deltas into main `openspec/specs/hospital-srs/spec.md` + `openspec/specs/srs-queue/spec.md` and move change to `openspec/changes/archive/<date>-add-srs-interval-cap/`.
-- [ ] 6.2 Commit the archive on `track-m2` and merge to `main` (cross-track change — affects both 一階 and 二階).
-- [ ] 6.3 Push to origin to ship the cap to prod (`@study-rpg/core` consumers in both apps pick it up via the next pnpm install / dev cycle; for prod, the GH Actions deploy will rebuild and inherit it).
+- [x] 6.1 `/opsx:archive` ran with sync gate — deltas merged into main `openspec/specs/hospital-srs/spec.md` + `openspec/specs/srs-queue/spec.md`; change moved to `openspec/changes/archive/2026-05-18-add-srs-interval-cap/`. Post-archive `openspec validate --all` → 43/43 pass.
+- [x] 6.2 Committed `a79fea9` on `track-m2` (10 files / 229 insertions); FF merged to `main` cleanly.
+- [x] 6.3 Pushed to `origin/main`. GH Actions coalesced with the next push (`4482aa2 filter-option-image-questions`) into a single deploy run `26019041033` (44s, success) — both commits live in prod build via monotonic source pull from HEAD.
