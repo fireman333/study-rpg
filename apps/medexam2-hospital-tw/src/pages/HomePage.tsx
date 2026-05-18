@@ -31,6 +31,7 @@ import { HospitalScene } from '../components/HospitalScene'
 import { QuizModal } from '../components/QuizModal'
 import { StarterPullCard } from '../components/StarterPullCard'
 import { StarterPullModal } from '../components/StarterPullModal'
+import { TargetedTicketSection } from '../components/TargetedTicketSection'
 
 type Toast = { id: number; text: string; kind: 'unlock' | 'error' }
 
@@ -254,6 +255,14 @@ export function HomePage() {
       {showStarterCard && (
         <StarterPullCard onOpen={() => setStarterOpen(true)} />
       )}
+
+      <TargetedTicketSection
+        subjects={subjects}
+        onConsumed={(doctor) =>
+          setModal({ outcome: { ok: true, doctor, wasPity: false } })
+        }
+        onError={(msg) => pushToast(msg, 'error')}
+      />
 
       <section className="banners">
         {subjects.map((s) => (
