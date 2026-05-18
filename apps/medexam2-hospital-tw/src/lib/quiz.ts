@@ -18,15 +18,23 @@ async function loadPack(): Promise<{
     _packPromise = (async () => {
       const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       const pack = await getContentPack(`${base}/content/medexam2-tw`)
+      // Exclude option-image questions from the playable pool (random picker
+      // + per-subject buckets). They remain in `byId` so historical
+      // questionHistory / bookmark rows for those IDs still hydrate to a
+      // Question object — the SRS scheduler suppresses them at the due-queue
+      // surface (see srs-scheduler.ts).
+      const playable = pack.questions.filter((q) => q.hasOptionImages !== true)
       const bySubject = new Map<string, Question[]>()
       const byId = new Map<string, Question>()
       for (const q of pack.questions) {
+        byId.set(q.id, q)
+      }
+      for (const q of playable) {
         const arr = bySubject.get(q.subject) ?? []
         arr.push(q)
         bySubject.set(q.subject, arr)
-        byId.set(q.id, q)
       }
-      return { questions: pack.questions, bySubject, byId }
+      return { questions: playable, bySubject, byId }
     })()
   }
   return _packPromise

@@ -1,6 +1,7 @@
 import { SRS_DAILY_CAP } from '@study-rpg/core'
 import type { SubjectId } from '@study-rpg/core'
 import { getHospitalDB, type QuestionHistoryRow } from '../db/schema'
+import { loadQuestionsByIdMap } from './quiz'
 
 /**
  * Dogfood A/B switch. Visiting `?srs=off` (e.g. `/hospital/?srs=off#/`)
@@ -23,11 +24,18 @@ export async function getDueQueueAllSubjects(
 ): Promise<Map<SubjectId, QuestionHistoryRow[]>> {
   if (isSrsDisabled()) return new Map()
   const db = getHospitalDB()
-  const all = await db.questionHistory.toArray()
+  const [all, byId] = await Promise.all([db.questionHistory.toArray(), loadQuestionsByIdMap()])
   const grouped = new Map<SubjectId, QuestionHistoryRow[]>()
   for (const row of all) {
     if (row.nextDueAt === null) continue
     if (row.nextDueAt > now) continue
+    // Suppress option-image questions at the surface. Row stays on disk so
+    // historical mastery/affinity state is preserved; it just doesn't surface
+    // in the「🔴 N due」chip or the due-first picker. Orphan rows (questionId
+    // not in current pack at all) keep the pass-through behavior they had
+    // before this filter.
+    const q = byId.get(row.questionId)
+    if (q && q.hasOptionImages === true) continue
     const list = grouped.get(row.subjectId) ?? []
     list.push(row)
     grouped.set(row.subjectId, list)

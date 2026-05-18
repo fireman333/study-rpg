@@ -111,8 +111,16 @@ interface ParsedQuestion {
   answer: string
   topicLabel: string
   hasImage: boolean
+  hasOptionImages: boolean
   disputed: boolean
 }
+
+// Marker the upstream PDF→Markdown extractor writes when an option's body is a
+// graphic that could not be OCR'd to text. Questions with this marker in any
+// option are un-renderable in the text-only QuizModal and get filtered out at
+// pool-load by the host apps. See openspec/specs/medexam2-corpus-ingestion +
+// content-pack-contract.
+const OPTION_IMAGE_MARKER = /_\(圖片或缺失\)_/
 
 // ─── File system walking ─────────────────────────────────────────────────────
 
@@ -260,6 +268,8 @@ function parseQuestionBlocks(body: string): ParseResult {
       '兩\\s*張\\s*圖'
     ).test(stemForImageCheck)
 
+    const hasOptionImages = Object.values(options).some((v) => OPTION_IMAGE_MARKER.test(v))
+
     parsed.push({
       qNum: block.qNum,
       subspecialty: block.subspecialty,
@@ -269,6 +279,7 @@ function parseQuestionBlocks(body: string): ParseResult {
       answer,
       topicLabel,
       hasImage,
+      hasOptionImages,
       disputed,
     })
   }
@@ -363,6 +374,7 @@ function buildQuestion(parsed: ParsedQuestion, fm: Frontmatter, sourcePath: stri
     explanation,
     hasImage: parsed.hasImage,
     imagePath,
+    hasOptionImages: parsed.hasOptionImages,
     meta,
   }
 }

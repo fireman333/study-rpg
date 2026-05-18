@@ -56,6 +56,7 @@ export interface Question {
   explanation: string             // markdown allowed
   hasImage?: boolean
   imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
+  hasOptionImages?: boolean       // at least one option is an un-renderable image; host apps filter from quiz pools
   meta?: Record<string, unknown>  // exam-specific extras (year, session, etc.)
   sourceCredit?: string           // attribution string
 }

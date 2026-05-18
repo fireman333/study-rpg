@@ -15,7 +15,8 @@ The exported `Question` type from `@study-rpg/core` SHALL contain exactly these 
 | `options` | `Record<string, string>` | yes | E.g. `{ A: "...", B: "...", C: "...", D: "..." }`; keys MUST match `answer` |
 | `answer` | `string` | yes | Single key from `options` (no multi-answer in MVP) |
 | `explanation` | `string` | yes | Plain-text or markdown; SHALL render with `white-space: pre-wrap` if no renderer |
-| `hasImage` | `boolean` | no | Hint that the question references an image; MVP renders `[圖]` placeholder |
+| `hasImage` | `boolean` | no | Hint that the question references an image in the stem; MVP renders `[圖]` placeholder |
+| `hasOptionImages` | `boolean` | no | Hint that at least one of `options` is an un-renderable image (e.g. tympanogram curves listed as A/B/C/D figures). Host apps SHOULD exclude these from random quiz pools and SRS due surfaces until per-option image rendering is implemented |
 | `meta` | `Record<string, unknown>` | no | Exam-specific extras (year / session / paper / 作者) |
 | `sourceCredit` | `string` | no | Per-question attribution if differs from pack-level credit |
 
@@ -31,6 +32,12 @@ The exported `Question` type from `@study-rpg/core` SHALL contain exactly these 
 - **WHEN** a PR renames any required field (e.g. `stem` → `text`)
 - **THEN** the PR SHALL include a delta proposal modifying this requirement
 - **AND** the delta SHALL document migration path for `dist/questions.json` (build script must emit both names during deprecation window)
+
+#### Scenario: hasOptionImages omission is treated as false
+
+- **WHEN** a `Question` object is parsed from a `questions.json` produced by a content pack that does not emit `hasOptionImages`
+- **THEN** the field SHALL be `undefined`
+- **AND** host-app filters that key off `q.hasOptionImages === true` SHALL treat the question as playable (preserves backward compatibility for older content packs / external forks)
 
 ### Requirement: Subject interface shape is fixed
 
