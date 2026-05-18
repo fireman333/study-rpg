@@ -112,6 +112,25 @@ export interface MonotonicCountersRow {
     rare: number
     epic: number
   }
+  /**
+   * Per-25-fresh-correct ticket-grant counter (add-quiz-economy-redesign).
+   * Increments by 1 per fresh-correct quiz answer; on reaching
+   * QUIZ_TICKET_GRANT_PER_N_CORRECT, +1 ticket granted (clamped at TICKET_CAP)
+   * and counter resets to 0. Field added in v8.
+   */
+  freshCorrectSinceLastTicket?: number
+}
+
+/**
+ * Banner first-unlock ticket bonus log (add-quiz-economy-redesign, v8).
+ * Local-only — NOT cloud-synced. One row per subject means that subject
+ * already received its lifetime +1 ticket bonus on first crossing of
+ * RECRUITMENT_THRESHOLDS[subjectId]; design D4 accepts up to 14×N_devices
+ * over-grant across devices in exchange for schema simplicity.
+ */
+export interface BannerUnlockBonusLogRow {
+  subjectId: string
+  grantedAt: number
 }
 
 export interface TrainingHistoryRow {
@@ -220,6 +239,7 @@ export class HospitalDB extends Dexie {
   fateCardHistory!: EntityTable<FateCardHistoryRow, 'id'>
   retirementLog!: EntityTable<RetirementLogRow, 'id'>
   bookmarks!: EntityTable<BookmarkRow, 'questionId'>
+  bannerUnlockBonusLog!: EntityTable<BannerUnlockBonusLogRow, 'subjectId'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -362,6 +382,37 @@ export class HospitalDB extends Dexie {
       retirementLog: '++id, retiredAt, doctorId',
       bookmarks: '&questionId, addedAt',
     })
+
+    // v8: add-quiz-economy-redesign — local-only bannerUnlockBonusLog table
+    // + freshCorrectSinceLastTicket counter on monotonicCounters. Upgrade hook
+    // seeds the new monotonic field to 0 for existing rows.
+    this.version(8)
+      .stores({
+        affinity: '&subjectId',
+        doctors: '&id, subjectId, rarity, obtainedAt',
+        gachaStats: '&id',
+        tickets: '&id',
+        rooms: '&id, type, slot',
+        gameCounters: '&id',
+        mastery: '&subjectId',
+        questionHistory: '&questionId, subjectId, lastAnsweredAt, nextDueAt',
+        meta: '&key',
+        localBackup: '&key, takenAt',
+        monotonicCounters: '&id',
+        trainingHistory: '++id, doctorId, attemptedAt',
+        eventLog: '++id, triggeredAt',
+        fateCardHistory: '++id, drawnAt',
+        retirementLog: '++id, retiredAt, doctorId',
+        bookmarks: '&questionId, addedAt',
+        bannerUnlockBonusLog: '&subjectId',
+      })
+      .upgrade(async (tx) => {
+        const monotonicTable = tx.table<MonotonicCountersRow, 'singleton'>('monotonicCounters')
+        const existing = await monotonicTable.get('singleton')
+        if (existing && existing.freshCorrectSinceLastTicket === undefined) {
+          await monotonicTable.put({ ...existing, freshCorrectSinceLastTicket: 0 })
+        }
+      })
   }
 }
 
@@ -407,6 +458,7 @@ export async function ensureSeed(): Promise<void> {
           id: 'singleton',
           totalStudyMinutes: 0,
           fateCardBadLuckPity: { common: 0, rare: 0, epic: 0 },
+          freshCorrectSinceLastTicket: 0,
         })
       }
 
@@ -503,6 +555,46 @@ export async function refreshDailyTickets(): Promise<void> {
       lastRefreshDay: today,
     })
   })
+}
+
+// ─── Quiz-reward ticket helpers (add-quiz-economy-redesign) ─────────────────
+
+/**
+ * Grant N tickets to the global ticket inventory, clamped at TICKET_CAP.
+ * Caller MUST run this inside an outer Dexie transaction that already holds
+ * write-lock on `tickets`. Returns the actually-granted delta (may be < count
+ * if cap is hit) so callers can decide whether to emit a `+1 招募券` toast vs
+ * a `已達上限` toast.
+ */
+export async function grantTicketsForCorrect(count: number): Promise<number> {
+  const db = getHospitalDB()
+  const t = await db.tickets.get('global')
+  if (!t) return 0
+  const next = Math.min(TICKET_CAP, t.available + count)
+  const actuallyGranted = next - t.available
+  if (actuallyGranted > 0) {
+    await db.tickets.put({ ...t, available: next })
+  }
+  return actuallyGranted
+}
+
+/**
+ * Grant the one-time banner-first-unlock ticket bonus for `subjectId`, idempotent
+ * via `bannerUnlockBonusLog`. Returns true if a bonus was newly granted (caller
+ * should toast), false if already granted previously. Caller MUST run inside a
+ * Dexie transaction holding write-lock on both `tickets` and `bannerUnlockBonusLog`.
+ */
+export async function grantBannerUnlockBonus(subjectId: string): Promise<boolean> {
+  const db = getHospitalDB()
+  const existing = await db.bannerUnlockBonusLog.get(subjectId)
+  if (existing) return false
+  await db.bannerUnlockBonusLog.put({ subjectId, grantedAt: Date.now() })
+  // Always log even when ticket cap is hit (one-shot semantics preserved).
+  const t = await db.tickets.get('global')
+  if (t && t.available < TICKET_CAP) {
+    await db.tickets.put({ ...t, available: Math.min(TICKET_CAP, t.available + 1) })
+  }
+  return true
 }
 
 // ─── Affinity helpers ────────────────────────────────────────────────────────

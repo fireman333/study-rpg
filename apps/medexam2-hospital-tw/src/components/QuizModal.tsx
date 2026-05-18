@@ -6,6 +6,7 @@ import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
 import { loadPoolSizeMap, pickQuestionById, pickRandomQuestion } from '../lib/quiz'
 import { recordCorrectAnswer, recordWrongAnswer } from '../lib/mastery'
+import { applyQuizReward } from '../services/quiz-rewards'
 import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
 import { toggleBookmark, useBookmark } from '../services/bookmarks'
@@ -136,14 +137,51 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     // 送分題: 考選部判定全部給分 — 任何選項都算對
     const wasCorrect = question.disputed || optionKey === question.answer
     const payload = { subjectId, questionId: question.id }
-    if (wasCorrect) {
-      await recordCorrectAnswer(payload, {
-        subjectId: boundDoctor.subjectId,
-        rarity: boundDoctor.rarity,
-      })
-    } else {
-      await recordWrongAnswer(payload)
-    }
+    const capturedQuestion = question
+    const capturedDoctor = boundDoctor
+
+    // Atomic answer + reward — single Dexie transaction wrapping both helpers.
+    // Inner `db.transaction(...)` calls inside recordCorrectAnswer / applyQuizReward
+    // join this outer scope when their table scope is a subset, so all writes
+    // commit or roll back together (spec: hospital-quiz "Reward writes are
+    // atomic with mastery / affinity writes").
+    const rewardResult = await db.transaction(
+      'rw',
+      [
+        db.mastery,
+        db.questionHistory,
+        db.affinity,
+        db.gameCounters,
+        db.monotonicCounters,
+        db.tickets,
+        db.bannerUnlockBonusLog,
+      ],
+      async () => {
+        // Read isFresh BEFORE recordCorrectAnswer writes the questionHistory row.
+        const priorHistory = await db.questionHistory.get(capturedQuestion.id)
+        const isFresh = priorHistory === undefined
+        if (wasCorrect) {
+          await recordCorrectAnswer(payload, {
+            subjectId: capturedDoctor.subjectId,
+            rarity: capturedDoctor.rarity,
+          })
+        } else {
+          await recordWrongAnswer(payload)
+        }
+        // Reads post-mastery-write affinity for banner-unlock detection. No-op for
+        // genuinely wrong answers (no reward), but still runs for 送分題 disputed
+        // questions where any option counts as correct.
+        return applyQuizReward({
+          subjectId,
+          boundDoctor: { subjectId: capturedDoctor.subjectId, rarity: capturedDoctor.rarity },
+          questionId: capturedQuestion.id,
+          isCorrect: wasCorrect,
+          isDisputed: !!capturedQuestion.disputed,
+          isFresh,
+        })
+      },
+    )
+    for (const text of rewardResult.toastTexts) emitToast(text)
   }
 
   async function handleNext(): Promise<void> {

@@ -87,3 +87,32 @@ export const TICKET_CAP = 99
 
 /** Milliseconds per UTC-equivalent day, used for `lastRefreshDay` arithmetic. */
 export const MS_PER_DAY = 86_400_000
+
+// ─── Quiz economy constants (add-quiz-economy-redesign) ─────────────────────
+// TUNED 2026-05-18 — first dogfood pass; revisit after 1-2 weeks of telemetry.
+// Anchored to 30-day full-clear math model (see add-quiz-economy-redesign/design.md).
+
+/** Base revenue granted per correct quiz answer (before specialty × reading-buff multipliers). */
+export const QUIZ_REVENUE_PER_CORRECT_BASE = 80
+
+/** Base reputation granted per correct quiz answer (before specialty × reading-buff multipliers). */
+export const QUIZ_REPUTATION_PER_CORRECT_BASE = 80
+
+/** Fresh-correct count threshold that triggers +1 ticket grant. */
+export const QUIZ_TICKET_GRANT_PER_N_CORRECT = 25
+
+/** Ticket bonus on first-time banner unlock (per subject). */
+export const BANNER_UNLOCK_TICKET_BONUS = 1
+
+/** Lifetime cap on banner-first-unlock ticket bonuses (= number of subjects). */
+export const BANNER_UNLOCK_TICKET_LIFETIME_CAP = 14
+
+/** Multiplier applied to quiz revenue/reputation while a reading session is active. */
+export const READING_SESSION_BUFF_MULTIPLIER = 1.5
+
+/**
+ * Multiplier applied to tick-loop idle accrual (revenue + reputation) — reduces
+ * idle income to 30% of throughput so quiz is the primary reward path. Does NOT
+ * affect salary drain (salary stays at full rate).
+ */
+export const READING_IDLE_RATE_REDUCTION = 0.3

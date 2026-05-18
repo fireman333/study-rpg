@@ -19,6 +19,7 @@ import {
   MALPRACTICE_PENALTY_REP,
   MAX_OFFLINE_TICK_SEC,
   TIER_DIVERSIFICATION_REQUIREMENTS,
+  READING_IDLE_RATE_REDUCTION,
   TIER_ROOMS,
   TIER_UPGRADE_THRESHOLDS,
   VIP_BOOST_MULTIPLIER,
@@ -122,9 +123,12 @@ export async function runTick(): Promise<TickResult> {
       // VIP boost — doubles throughput when vipBoostUntil > now
       const vipActive = (counters.vipBoostUntil ?? 0) > now
       const effectiveThroughput = vipActive ? totalThroughput * VIP_BOOST_MULTIPLIER : totalThroughput
-      const deltaRevenueGross = effectiveThroughput * elapsedMin
+      // add-quiz-economy-redesign: idle accrual scaled to 30% so quiz is the
+      // primary income source. Salary stays at full rate (NOT multiplied).
+      const idleAdjustedThroughput = effectiveThroughput * READING_IDLE_RATE_REDUCTION
+      const deltaRevenueGross = idleAdjustedThroughput * elapsedMin
       const deltaSalary = computeSalaryDrain(doctors, counters.tier) * elapsedMin
-      const deltaReputation = effectiveThroughput * elapsedMin
+      const deltaReputation = idleAdjustedThroughput * elapsedMin
       const deltaStudyMinutes = elapsedMin
 
       let newRevenue = applySalaryClamp(counters.revenue, deltaRevenueGross, deltaSalary)
