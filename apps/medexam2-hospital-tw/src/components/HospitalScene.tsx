@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
-import { SUBJECT_TO_ROOM, type HospitalTier } from '@study-rpg/content-medexam2-tw'
+import { type HospitalTier } from '@study-rpg/content-medexam2-tw'
 import type { SlotPosition } from '@study-rpg/core'
 import { getHospitalDB } from '../db/schema'
 import { UpgradeModal } from './UpgradeModal'
@@ -21,6 +21,7 @@ export function HospitalScene() {
   const db = getHospitalDB()
   const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
   const doctors = useLiveQuery(() => db.doctors.toArray(), []) ?? []
+  const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
   const [modalOpen, setModalOpen] = useState(false)
 
   const sceneEnabled = useMemo(() => {
@@ -53,15 +54,34 @@ export function HospitalScene() {
       .filter((d) => d.assignedRoom !== null)
       .sort((a, b) => a.obtainedAt - b.obtainedAt)
 
+    const roomById = new Map(rooms.map((r) => [r.id, r]))
+
     const filled: Array<{ slot: SlotPosition; spriteUrl: string; key: string; alt: string }> = []
     const slotCursor: Record<SlotPosition['room'], number> = { ward: 0, outpatient: 0, surgery: 0 }
 
     for (const doctor of assignedDoctors) {
-      const roomType = SUBJECT_TO_ROOM[doctor.subjectId]
-      if (!roomType) continue
+      // Render at a slot of the ACTUAL assigned room's type — not the doctor's
+      // natural subject→room mapping. Affinity is a stat bonus only; players
+      // can place any doctor in any room.
+      if (!doctor.assignedRoom) continue
+      const room = roomById.get(doctor.assignedRoom)
+      if (!room) {
+        if (import.meta.env.DEV) {
+          console.warn(`[hospital-scene] doctor ${doctor.id} assignedRoom=${doctor.assignedRoom} not found`)
+        }
+        continue
+      }
+      const roomType = room.type
       const idx = slotCursor[roomType]
       const slot = slotsByRoom[roomType][idx]
-      if (!slot) continue
+      if (!slot) {
+        if (import.meta.env.DEV) {
+          console.warn(
+            `[hospital-scene] no free ${roomType} slot in tier ${tier} for doctor ${doctor.id}; scene has ${slotsByRoom[roomType].length} ${roomType} slot(s) but ${slotCursor[roomType] + 1} assigned`,
+          )
+        }
+        continue
+      }
       const spriteUrl = THEME_PIXEL_HOSPITAL.sprites[doctor.spriteKey]
       if (!spriteUrl) continue
       filled.push({
@@ -74,7 +94,7 @@ export function HospitalScene() {
     }
 
     return { tier, sceneUrl, filled, reputation: counters.reputation }
-  }, [counters, doctors, sceneEnabled])
+  }, [counters, doctors, rooms, sceneEnabled])
 
   if (!renderState) return null
 
