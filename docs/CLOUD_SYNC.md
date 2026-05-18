@@ -13,6 +13,11 @@ This guide walks a content/theme fork through wiring its own Supabase project.
   Auth (Google OAuth) + Postgres (REST + RPC, no Realtime / Edge Functions).
 - **Conflict policy**: last-write-wins per row by `updated_at`. Equal timestamps
   → cloud wins (deterministic tie-break).
+- **Synced tables (9)**: `player_state`, `srs_cards`, `item_instances`,
+  `mentor_backlog` (一階) + `hospital_state`, `hospital_doctors`,
+  `hospital_mastery`, `hospital_question_history`, `question_bookmarks` (二階).
+  `question_bookmarks` uses composite PK `(user_id, question_id)` and carries
+  an immutable `added_at` column distinct from the LWW `updated_at`.
 - **Sync triggers**: debounced auto-push (3-5s) on Dexie mutations + on-focus
   pull (`visibilitychange === 'visible'`).
 - **Offline**: dirty markers kept in memory on network failure; flushed on next
@@ -134,10 +139,17 @@ CREATE POLICY my_table_insert ON public.my_table FOR INSERT WITH CHECK (auth.uid
 CREATE POLICY my_table_update ON public.my_table FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY my_table_delete ON public.my_table FOR DELETE USING (auth.uid() = user_id);
 
--- Add to upsert_lww whitelist (edit 0003 RPC and re-run)
+-- Add to upsert_lww whitelist via a NEW migration file (never edit 0003 in place)
 ```
 
 Don't forget to add your new table name to the `upsert_lww` RPC's table whitelist.
+
+**Migration convention**: every change to `upsert_lww` SHALL ship as a new
+numbered migration that `CREATE OR REPLACE`s the full RPC body. Never edit an
+existing migration after it has been applied to any environment. Example:
+`0005_upsert_lww_bookmarks.sql` adds `question_bookmarks` to the whitelist +
+a new ELSIF dispatch branch, leaving `0003_upsert_lww.sql` untouched. This
+keeps migration history append-only and `git revert`-safe.
 
 ## Step 5 — Verify
 

@@ -8,6 +8,7 @@ import { pickQuestionById, pickRandomQuestion } from '../lib/quiz'
 import { recordCorrectAnswer, recordWrongAnswer } from '../lib/mastery'
 import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
+import { toggleBookmark, useBookmark } from '../services/bookmarks'
 
 const ALL_SUBJECT_IDS: SubjectId[] = [
   '內科', '家醫科', '小兒科', '皮膚科', '神經內科', '精神科',
@@ -221,6 +222,7 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
           )}
           {!loading && question && (
             <>
+              <QuestionMetaRow questionId={question.id} />
               <p className="quiz-modal__stem">{question.stem}</p>
               {question.imagePath && (
                 <div className="quiz-modal__image">
@@ -285,6 +287,25 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
           </button>
         </footer>
       </div>
+    </div>
+  )
+}
+
+function QuestionMetaRow({ questionId }: { questionId: string }) {
+  const bookmarked = !!useBookmark(questionId)
+  return (
+    <div className="quiz-modal__question-meta">
+      <span className="quiz-modal__question-meta-id">{questionId}</span>
+      <button
+        type="button"
+        role="switch"
+        aria-pressed={bookmarked}
+        aria-label={bookmarked ? '取消收藏這題' : '收藏這題'}
+        className="quiz-modal__bookmark-toggle"
+        onClick={() => void toggleBookmark(questionId)}
+      >
+        {bookmarked ? '⭐' : '☆'}
+      </button>
     </div>
   )
 }

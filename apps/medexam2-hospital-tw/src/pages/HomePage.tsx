@@ -132,6 +132,9 @@ export function HomePage() {
           <Link to="/roster" className="nav-link">
             醫師名冊 →
           </Link>
+          <Link to="/bookmarks" className="nav-link">
+            收藏題目 →
+          </Link>
         </div>
       </header>
 
