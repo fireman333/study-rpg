@@ -13,6 +13,7 @@ import type Dexie from 'dexie'
 import type { CloudRow, RowPayload } from './types'
 import type {
   AffinityRow,
+  BookmarkRow,
   DoctorRow,
   GachaStatsRow,
   GameCountersRow,
@@ -326,11 +327,68 @@ const HOSPITAL_QUESTION_HISTORY: TableAdapter = {
   },
 }
 
+const QUESTION_BOOKMARKS: TableAdapter = {
+  postgresTable: 'question_bookmarks',
+  shape: 'collection',
+  dexieTable: 'bookmarks',
+  async snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion) {
+    if (!dirtyPks.size) return []
+    const rows: RowPayload[] = []
+    for (const pk of dirtyPks) {
+      const row = await (db as HospitalDB).bookmarks.get(pk)
+      if (!row) continue
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        question_id: row.questionId,
+        added_at: new Date(row.addedAt).toISOString(),
+      })
+    }
+    return rows
+  },
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const rows: RowPayload[] = []
+    await (db as HospitalDB).bookmarks.each((row) => {
+      rows.push({
+        user_id: userId,
+        updated_at: updatedAt,
+        app_version: appVersion,
+        question_id: (row as BookmarkRow).questionId,
+        added_at: new Date((row as BookmarkRow).addedAt).toISOString(),
+      })
+    })
+    return rows
+  },
+  async applyToLocal(db, cloudRow, opts) {
+    const pk = cloudRow.question_id as string | undefined
+    const addedAtIso = cloudRow.added_at as string | undefined
+    if (!pk || !addedAtIso) return false
+    const force = opts?.force ?? false
+    if (!force) {
+      const local = (await (db as HospitalDB).bookmarks.get(pk)) as
+        | WithUpdatedAt<BookmarkRow>
+        | undefined
+      const localMs = local?._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
+    const next: WithUpdatedAt<BookmarkRow> = {
+      questionId: pk,
+      addedAt: Date.parse(addedAtIso),
+      _updatedAt: Date.parse(cloudRow.updated_at),
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (db as HospitalDB).bookmarks.put(next as any)
+    return true
+  },
+}
+
 export const HOSPITAL_ADAPTERS: readonly TableAdapter[] = [
   HOSPITAL_STATE,
   HOSPITAL_DOCTORS,
   HOSPITAL_MASTERY,
   HOSPITAL_QUESTION_HISTORY,
+  QUESTION_BOOKMARKS,
 ]
 
 export { cloudIsNewer }

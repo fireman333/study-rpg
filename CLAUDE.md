@@ -101,13 +101,15 @@ VITE_SYNC_DEBOUNCE_MS=3000          # debounce window for batched push
 
 GH Actions secrets (still TBD before next prod deploy — Task 3.3): add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` to repo Secrets → expose to `.github/workflows/deploy.yml`.
 
-### Schema (8 sync tables + 4 RPCs)
+### Schema (9 sync tables + 4 RPCs)
 
 Migrations live in `supabase/migrations/`:
 
 - `0001_init_cloud_sync.sql` — 一階 (`player_state` / `srs_cards` / `item_instances` / `mentor_backlog`) + 二階 (`hospital_state` / `hospital_doctors` / `hospital_mastery` / `hospital_question_history`) tables + 32 RLS policies (`auth.uid() = user_id`)
 - `0002_account_lifecycle.sql` — RPCs `delete_my_data()` / `delete_my_account()` / `export_my_data()` (SECURITY DEFINER, scoped to caller's `auth.uid()`)
 - `0003_upsert_lww.sql` — RPC `upsert_lww(table_name, rows)` with 8-table whitelist + server-side LWW (`ON CONFLICT WHERE cloud.updated_at < incoming.updated_at`)
+- `0005_question_bookmarks.sql` — 二階 `question_bookmarks` table (composite PK `(user_id, question_id)`, immutable `added_at` + LWW `updated_at`) + 4 RLS policies. Backs the `/bookmarks` page in `medexam2-hospital-tw`.
+- `0006_upsert_lww_bookmarks.sql` — `CREATE OR REPLACE` of `upsert_lww` extending whitelist to 9 tables + new dispatch branch. Convention: every future `upsert_lww` change ships as a new numbered migration; never edit existing migrations in place.
 
 ### Architecture pointers
 

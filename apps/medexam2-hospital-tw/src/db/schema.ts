@@ -171,6 +171,12 @@ export interface QuestionHistoryRow {
   easeFactor: number
 }
 
+export interface BookmarkRow {
+  questionId: string
+  addedAt: number
+  _updatedAt?: number
+}
+
 // v5 cloud-sync support tables — meta (migration choice/paused flags) +
 // localBackup (snapshot before destructive sign-in resolution).
 export interface HospitalMetaRow {
@@ -213,6 +219,7 @@ export class HospitalDB extends Dexie {
   eventLog!: EntityTable<EventLogRow, 'id'>
   fateCardHistory!: EntityTable<FateCardHistoryRow, 'id'>
   retirementLog!: EntityTable<RetirementLogRow, 'id'>
+  bookmarks!: EntityTable<BookmarkRow, 'questionId'>
 
   constructor(name = 'study-rpg-medexam2-hospital-tw') {
     super(name)
@@ -335,6 +342,26 @@ export class HospitalDB extends Dexie {
           if ((r as Partial<RoomRow>).facilityLevel === undefined) r.facilityLevel = 1
         })
       })
+    // v7: add-quiz-question-id-and-bookmark — additive bookmarks store.
+    // No upgrade hook needed; engine attaches its _updatedAt hook automatically.
+    this.version(7).stores({
+      affinity: '&subjectId',
+      doctors: '&id, subjectId, rarity, obtainedAt',
+      gachaStats: '&id',
+      tickets: '&id',
+      rooms: '&id, type, slot',
+      gameCounters: '&id',
+      mastery: '&subjectId',
+      questionHistory: '&questionId, subjectId, lastAnsweredAt, nextDueAt',
+      meta: '&key',
+      localBackup: '&key, takenAt',
+      monotonicCounters: '&id',
+      trainingHistory: '++id, doctorId, attemptedAt',
+      eventLog: '++id, triggeredAt',
+      fateCardHistory: '++id, drawnAt',
+      retirementLog: '++id, retiredAt, doctorId',
+      bookmarks: '&questionId, addedAt',
+    })
   }
 }
 

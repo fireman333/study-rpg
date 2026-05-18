@@ -44,6 +44,15 @@ export async function pickQuestionById(questionId: string): Promise<Question | n
 }
 
 /**
+ * Expose the `byId` map for callers that need bulk lookups (e.g. BookmarksPage
+ * hydrates N bookmarks against the full corpus in one render).
+ */
+export async function loadQuestionsByIdMap(): Promise<ReadonlyMap<string, Question>> {
+  const { byId } = await loadPack()
+  return byId
+}
+
+/**
  * Pick a random question from the given subject's pool. Re-rolls up to 3 times
  * if the candidate id is in `seenIds`; accepts on the 3rd repeat to prevent
  * infinite loops on small subject pools.

@@ -90,6 +90,7 @@ export interface RowPayload {
   data?: unknown
   correct?: number
   total?: number
+  added_at?: string  // ISO string (question_bookmarks only — immutable display sort key)
 }
 
 /** Cloud row received from pull. */
@@ -103,4 +104,5 @@ export interface CloudRow {
   subject_id?: string
   correct?: number
   total?: number
+  added_at?: string  // ISO string (question_bookmarks only)
 }

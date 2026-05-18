@@ -1463,6 +1463,51 @@ body {
   padding: 24px 0;
 }
 
+.quiz-modal__question-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 0;
+  min-height: 24px;
+}
+
+.quiz-modal__question-meta-id {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--text-muted, #888);
+  user-select: all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quiz-modal__bookmark-toggle {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted, #888);
+  border-radius: 4px;
+}
+
+.quiz-modal__bookmark-toggle:hover {
+  background: var(--surface-2, rgba(255, 255, 255, 0.06));
+}
+
+.quiz-modal__bookmark-toggle:focus-visible {
+  outline: 2px solid var(--accent, #ffc857);
+  outline-offset: 2px;
+}
+
+.quiz-modal__bookmark-toggle[aria-pressed='true'] {
+  color: var(--accent, #ffc857);
+}
+
 .quiz-modal__stem {
   font-size: 16px;
   line-height: 1.6;
@@ -2766,4 +2811,140 @@ body {
   font-size: 18px;
   color: #3fb950;
   font-weight: 600;
+}
+
+/* ───────────────────────── bookmarks page ───────────────────────── */
+
+.bookmarks-page__loading,
+.bookmarks-page__empty {
+  text-align: center;
+  color: var(--text-muted, #888);
+  padding: 40px 16px;
+  font-size: 15px;
+}
+
+.bookmarks-page__export {
+  appearance: none;
+  background: var(--surface-2, rgba(255, 255, 255, 0.08));
+  color: inherit;
+  border: 1px solid var(--border-muted, #555);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.bookmarks-page__export:hover:not(:disabled) {
+  background: var(--surface-3, rgba(255, 255, 255, 0.14));
+}
+
+.bookmarks-page__export:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bookmarks-page__list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bookmarks-page__entry {
+  background: var(--surface-1, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-muted, #444);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.bookmarks-page__entry-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.bookmarks-page__entry-id {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--accent, #ffc857);
+  user-select: all;
+}
+
+.bookmarks-page__entry-remove {
+  appearance: none;
+  background: none;
+  border: 1px solid var(--border-muted, #666);
+  color: var(--text-muted, #aaa);
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.bookmarks-page__entry-remove:hover {
+  border-color: #c44d4d;
+  color: #c44d4d;
+}
+
+.bookmarks-page__entry-divider {
+  border: 0;
+  border-top: 1px dashed var(--border-muted, #555);
+  margin: 8px 0 12px;
+}
+
+.bookmarks-page__entry-stem {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+}
+
+.bookmarks-page__entry-options {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.bookmarks-page__entry-option-key {
+  font-weight: bold;
+  color: var(--text-muted, #aaa);
+  margin-right: 4px;
+}
+
+.bookmarks-page__entry-answer {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.bookmarks-page__entry-explanation {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.bookmarks-page__entry-explanation-body {
+  font-family: inherit;
+  white-space: pre-wrap;
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  background: var(--surface-2, rgba(0, 0, 0, 0.18));
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.bookmarks-page__entry-orphan {
+  margin: 0;
+  padding: 12px;
+  font-style: italic;
+  color: var(--text-muted, #888);
+  background: var(--surface-2, rgba(255, 255, 255, 0.04));
+  border-radius: 4px;
 }
