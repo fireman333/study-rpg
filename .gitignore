@@ -24,3 +24,6 @@ docs/status.html
 
 # Claude Code session worktrees (ephemeral, per-session)
 .claude/worktrees/
+
+# Supabase CLI runtime state (pooler URL / project ref cache / version pins — per-machine)
+supabase/.temp/
