@@ -7,20 +7,18 @@
  * via parent-supplied onConsumed callback (parent owns the doctor reveal UI).
  */
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { Subject } from '@study-rpg/core'
 import { getHospitalDB, type DoctorRow, type TargetedTicketRow } from '../db/schema'
 import { consumeTargetedTicket } from '../services/targeted-ticket'
+import { tierLabel } from './TargetedDrawTutorialOverlay'
 
 interface TargetedTicketSectionProps {
   subjects: Subject[]
   onConsumed: (doctor: DoctorRow) => void
   onError: (msg: string) => void
 }
-
-const tierLabel = (tier: 'epic' | 'legendary'): string =>
-  tier === 'epic' ? '史詩' : '傳奇'
 
 export function TargetedTicketSection({
   subjects,
@@ -35,9 +33,9 @@ export function TargetedTicketSection({
   const [confirmTicket, setConfirmTicket] = useState<TargetedTicketRow | null>(null)
   const [busy, setBusy] = useState(false)
 
-  if (!assigned || assigned.length === 0) return null
+  const subjectMap = useMemo(() => new Map(subjects.map((s) => [s.id, s])), [subjects])
 
-  const subjectMap = new Map(subjects.map((s) => [s.id, s]))
+  if (!assigned || assigned.length === 0) return null
 
   async function handleConfirmConsume() {
     if (!confirmTicket || !confirmTicket.subjectId) return

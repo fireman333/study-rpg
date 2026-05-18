@@ -208,15 +208,3 @@ function rollRarityWithFloor(minRarity: TargetedFloor): Rarity {
   )
   return forced.tier as Rarity
 }
-
-// ─── Read helpers (for UI livequeries / chips) ───────────────────────────────
-
-export async function getPendingTargetedTickets(): Promise<TargetedTicketRow[]> {
-  const db = getHospitalDB()
-  return db.targetedTickets.where('status').equals('pending').toArray()
-}
-
-export async function getAssignedTargetedTickets(): Promise<TargetedTicketRow[]> {
-  const db = getHospitalDB()
-  return db.targetedTickets.where('status').equals('assigned').toArray()
-}

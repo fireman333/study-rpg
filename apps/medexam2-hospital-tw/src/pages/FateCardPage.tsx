@@ -10,7 +10,7 @@
  * Tier gate: locked behind `tier === '醫學中心' || '國家級教學醫院'` per spec.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -29,8 +29,7 @@ import { SurfaceHint } from '../components/SurfaceHint'
 import { TargetedTicketPicker } from '../components/TargetedTicketPicker'
 import {
   TargetedDrawTutorialOverlay,
-  FIRST_EPIC_TARGETED_KEY,
-  FIRST_LEGENDARY_TARGETED_KEY,
+  firstTargetedMilestoneKey,
 } from '../components/TargetedDrawTutorialOverlay'
 
 const FATE_TIER_UNLOCKED = new Set(['醫學中心', '國家級教學醫院'])
@@ -77,6 +76,13 @@ export function FateCardPage() {
     { tier: 'epic' | 'legendary'; ticketId: string } | null
   >(null)
 
+  // Toast auto-dismiss with proper cleanup so unmount mid-toast doesn't leak.
+  useEffect(() => {
+    if (!assignedToast) return
+    const id = setTimeout(() => setAssignedToast(null), 3500)
+    return () => clearTimeout(id)
+  }, [assignedToast])
+
   if (!counters) {
     return (
       <main className="app-shell">
@@ -107,8 +113,7 @@ export function FateCardPage() {
       if (res.targetedTicketId && res.draw.kind === 'reward') {
         const fired = counters?.tutorial?.firedTips ?? {}
         const sourceTier: 'epic' | 'legendary' = tier === 'legendary' ? 'legendary' : 'epic'
-        const firstKey =
-          sourceTier === 'epic' ? FIRST_EPIC_TARGETED_KEY : FIRST_LEGENDARY_TARGETED_KEY
+        const firstKey = firstTargetedMilestoneKey(sourceTier)
         if (!fired[firstKey]) {
           setPendingTutorial({ tier: sourceTier, ticketId: res.targetedTicketId })
         } else {
@@ -145,10 +150,7 @@ export function FateCardPage() {
             // existing, regardless of how the picker is invoked).
             const next = pendingTickets[0]
             const fired = counters?.tutorial?.firedTips ?? {}
-            const firstKey =
-              next.sourceFateCardTier === 'epic'
-                ? FIRST_EPIC_TARGETED_KEY
-                : FIRST_LEGENDARY_TARGETED_KEY
+            const firstKey = firstTargetedMilestoneKey(next.sourceFateCardTier)
             if (!fired[firstKey]) {
               setPendingTutorial({ tier: next.sourceFateCardTier, ticketId: next.id })
             } else {
@@ -306,7 +308,6 @@ export function FateCardPage() {
           onClose={() => setPickerTicketId(null)}
           onAssigned={(displayName) => {
             setAssignedToast(`targeted ticket 已指派給 ${displayName}`)
-            setTimeout(() => setAssignedToast(null), 3500)
           }}
         />
       )}

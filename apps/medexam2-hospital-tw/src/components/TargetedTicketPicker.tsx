@@ -23,6 +23,7 @@ import {
 import type { Subject } from '@study-rpg/core'
 import { getHospitalDB, type TargetedTicketRow } from '../db/schema'
 import { assignTargetedTicket } from '../services/targeted-ticket'
+import { tierLabel } from './TargetedDrawTutorialOverlay'
 
 interface TargetedTicketPickerProps {
   ticketId: string
@@ -30,9 +31,6 @@ interface TargetedTicketPickerProps {
   /** Optional toast hook — caller-provided so each host page can use its own queue. */
   onAssigned?: (subjectDisplayName: string) => void
 }
-
-const tierLabel = (tier: 'epic' | 'legendary'): string =>
-  tier === 'epic' ? '史詩' : '傳奇'
 
 export function TargetedTicketPicker({
   ticketId,

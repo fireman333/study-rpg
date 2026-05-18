@@ -12,12 +12,20 @@ import { getHospitalDB } from '../db/schema'
 export const FIRST_EPIC_TARGETED_KEY = 'firstEpicTargetedDraw'
 export const FIRST_LEGENDARY_TARGETED_KEY = 'firstLegendaryTargetedDraw'
 
+export type TargetedTier = 'epic' | 'legendary'
+
+export const tierLabel = (tier: TargetedTier): string =>
+  tier === 'epic' ? '史詩' : '傳奇'
+
+export const firstTargetedMilestoneKey = (tier: TargetedTier): string =>
+  tier === 'epic' ? FIRST_EPIC_TARGETED_KEY : FIRST_LEGENDARY_TARGETED_KEY
+
 interface TargetedDrawTutorialOverlayProps {
-  tier: 'epic' | 'legendary'
+  tier: TargetedTier
   onDismiss: () => void
 }
 
-const COPY: Record<'epic' | 'legendary', { title: string; body: string }> = {
+const COPY: Record<TargetedTier, { title: string; body: string }> = {
   epic: {
     title: '🎫 你抽到了第一張史詩 targeted ticket！',
     body: '選一科 unlocked 的 banner 指派給這張券，使用時保證 P3+ 等級。指派後不可改科 — 確認前會有再次提示，避免誤觸。',
@@ -33,7 +41,7 @@ export function TargetedDrawTutorialOverlay({
   onDismiss,
 }: TargetedDrawTutorialOverlayProps) {
   const [busy, setBusy] = useState(false)
-  const key = tier === 'epic' ? FIRST_EPIC_TARGETED_KEY : FIRST_LEGENDARY_TARGETED_KEY
+  const key = firstTargetedMilestoneKey(tier)
   const { title, body } = COPY[tier]
 
   async function handleDismiss() {
