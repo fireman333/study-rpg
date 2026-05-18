@@ -27,6 +27,8 @@ const PACKAGE_ROOT = join(__dirname, '..')
 const DIST_DIR = join(PACKAGE_ROOT, 'dist')
 const REPO_ROOT = join(__dirname, '../../..')
 const APP_PUBLIC = join(REPO_ROOT, 'apps/medexam2-hospital-tw/public/content/medexam2-tw')
+const APP_IMAGE_DIR = join(REPO_ROOT, 'apps/medexam2-hospital-tw/public/images/medexam2-tw')
+const APP_IMAGE_REL = 'images/medexam2-tw'
 
 // ─── Env config ──────────────────────────────────────────────────────────────
 
@@ -227,7 +229,36 @@ function parseQuestionBlocks(body: string): ParseResult {
     if (!answer) { skips.push({ qNum: block.qNum, reason: 'missing answer line' }); continue }
     if (!(answer in options)) { skips.push({ qNum: block.qNum, reason: `answer ${answer} not in options [${Object.keys(options).join(',')}]` }); continue }
 
-    const hasImage = /\[圖\]|（圖）|\(圖\)|附圖/.test(stem)
+    // Detect any reference to a figure / image. Patterns observed in 二階國考
+    // (whitespace-tolerant because PDF extraction can split "附圖" into "附 圖"):
+    //   [圖] / （圖） / (圖) — explicit markers
+    //   附圖 / 上圖 / 下圖 / 左圖 / 右圖 — referential nouns
+    //   圖一 / 圖A / 圖 1 — numbered/lettered figure ref
+    //   箭頭所指 / 箭號所指 — arrow annotation
+    //   如圖 / 圖示 / 示意圖 / 流程圖 / 圖像 / 圖為 — predicate / typed figure
+    //   圖中Ａ / 圖中★ — figure-internal annotation
+    //   心電圖如/為 — ECG with display verb (excludes narrative description)
+    //   如下所示 / 如下列圖 / 兩張圖 — multi/listed figures
+    //
+    // Excludes false matches by removing 意圖 / 試圖 / 企圖 / 構圖 / 地圖 /
+    // 圖書 / 圖表 / 插圖 before testing.
+    const stemForImageCheck = stem.replace(
+      /意\s*圖|試\s*圖|企\s*圖|構\s*圖|地\s*圖|圖\s*書|圖\s*表|插\s*圖/g,
+      ''
+    )
+    const hasImage = new RegExp(
+      '\\[\\s*圖\\s*\\]|（\\s*圖\\s*）|\\(\\s*圖\\s*\\)|' +
+      '附\\s*圖|上\\s*圖|下\\s*圖|左\\s*圖|右\\s*圖|' +
+      '圖\\s*[一二三四五六七八九十甲乙丙丁ABCDE12345]|' +
+      '箭\\s*[頭號]\\s*所\\s*指|' +
+      '如\\s*圖|' +
+      '圖\\s*示|示\\s*意\\s*圖|流\\s*程\\s*圖|' +
+      '圖\\s*像|圖\\s*為|' +
+      '圖\\s*中\\s*[ＡＢＣＤＥA-Ea-e★▲△○●◇◆□■☆◎*]|' +
+      '(心|肌|腦)\\s*電\\s*圖\\s*(如|為|顯\\s*示\\s*如|紀\\s*錄\\s*如|檢\\s*查\\s*如)|' +
+      '如\\s*下\\s*所\\s*示|如\\s*下\\s*列\\s*圖|' +
+      '兩\\s*張\\s*圖'
+    ).test(stemForImageCheck)
 
     parsed.push({
       qNum: block.qNum,
@@ -314,6 +345,15 @@ function buildQuestion(parsed: ParsedQuestion, fm: Frontmatter, sourcePath: stri
   if (exp?.oeHitRate !== undefined) meta.oeHitRate = exp.oeHitRate
   if (exp?.confidence) meta.explanationConfidence = exp.confidence
 
+  // Only attach imagePath when the question genuinely needs an image (hasImage
+  // true). Files for false-positive PNGs may exist on disk from earlier
+  // extraction runs against a looser regex — ignore them.
+  const imageFilename = `${id}.png`
+  const imagePath =
+    parsed.hasImage && existsSync(join(APP_IMAGE_DIR, imageFilename))
+      ? `${APP_IMAGE_REL}/${imageFilename}`
+      : null
+
   return {
     id,
     subject: fm.subject,
@@ -322,6 +362,7 @@ function buildQuestion(parsed: ParsedQuestion, fm: Frontmatter, sourcePath: stri
     answer: parsed.answer,
     explanation,
     hasImage: parsed.hasImage,
+    imagePath,
     meta,
   }
 }

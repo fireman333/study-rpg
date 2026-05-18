@@ -55,6 +55,7 @@ export interface Question {
   answer: string                  // key into options, e.g. "C"
   explanation: string             // markdown allowed
   hasImage?: boolean
+  imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
   meta?: Record<string, unknown>  // exam-specific extras (year, session, etc.)
   sourceCredit?: string           // attribution string
 }
