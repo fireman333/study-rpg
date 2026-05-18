@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import type { Question, SubjectId } from '@study-rpg/core'
+import type { BugReportCategory, Question, SubjectId } from '@study-rpg/core'
 import { RARITY_LABELS, getSpecialtyMultiplier } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
@@ -10,6 +10,9 @@ import { applyQuizReward } from '../services/quiz-rewards'
 import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
 import { toggleBookmark, useBookmark } from '../services/bookmarks'
+import { BugReportModal } from './BugReportModal'
+import { QuizBugReportSheet } from './QuizBugReportSheet'
+import { buildQuestionSnapshot, type QuizQuestionSnapshot } from '../services/bug-report'
 
 const ALL_SUBJECT_IDS: SubjectId[] = [
   '內科', '家醫科', '小兒科', '皮膚科', '神經內科', '精神科',
@@ -37,6 +40,12 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
   const [skipSrs, setSkipSrs] = useState(false)
   const [toasts, setToasts] = useState<Array<{ id: number; text: string }>>([])
   const firedExhaustedRef = useRef<Set<SubjectId>>(new Set())
+  const [bugSheetSnapshot, setBugSheetSnapshot] = useState<QuizQuestionSnapshot | null>(null)
+  const [bugFullModalOpen, setBugFullModalOpen] = useState(false)
+  const [bugFullModalPrefill, setBugFullModalPrefill] = useState<{
+    category?: BugReportCategory
+    whatHappened?: string
+  }>({})
 
   const doctors = useLiveQuery(
     () => db.doctors.orderBy('obtainedAt').reverse().toArray(),
@@ -59,6 +68,16 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     const id = Date.now() + Math.random()
     setToasts((prev) => [...prev, { id, text }])
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000)
+  }
+
+  function openBugSheet() {
+    if (!question) return
+    setBugSheetSnapshot(buildQuestionSnapshot(question, selectedOption, false))
+  }
+
+  function handleBugSubmitted() {
+    setBugSheetSnapshot(null)
+    emitToast('✓ 已送出回報，感謝你！')
   }
 
   async function loadNextQuestion(forSubject: SubjectId, resetSeen = false): Promise<void> {
@@ -208,9 +227,21 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
       <div className="modal-card modal-card--quiz" onClick={(e) => e.stopPropagation()}>
         <header className="quiz-modal__head">
           <h2 className="quiz-modal__title">📚 {subjectId}</h2>
-          <button type="button" className="quiz-modal__close" onClick={onClose} aria-label="關閉">
-            ✕
-          </button>
+          <div className="quiz-modal__head-actions">
+            <button
+              type="button"
+              className="quiz-bug-trigger"
+              onClick={openBugSheet}
+              aria-label="回報這題"
+              title="回報這題"
+              disabled={!question}
+            >
+              🐞
+            </button>
+            <button type="button" className="quiz-modal__close" onClick={onClose} aria-label="關閉">
+              ✕
+            </button>
+          </div>
         </header>
 
         <div
@@ -383,6 +414,27 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
           </div>
         )}
       </div>
+
+      <QuizBugReportSheet
+        snapshot={bugSheetSnapshot}
+        onClose={() => setBugSheetSnapshot(null)}
+        onSubmitted={handleBugSubmitted}
+        onEscapeHatch={(preset) => {
+          setBugSheetSnapshot(null)
+          setBugFullModalPrefill(preset)
+          setBugFullModalOpen(true)
+        }}
+      />
+
+      <BugReportModal
+        isOpen={bugFullModalOpen}
+        onClose={() => {
+          setBugFullModalOpen(false)
+          setBugFullModalPrefill({})
+        }}
+        initialCategory={bugFullModalPrefill.category}
+        initialWhatHappened={bugFullModalPrefill.whatHappened}
+      />
     </div>
   )
 }

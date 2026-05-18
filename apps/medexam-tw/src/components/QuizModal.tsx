@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { Question, QuestionId, SubjectId } from '@study-rpg/core'
+import type { BugReportCategory, Question, QuestionId, SubjectId } from '@study-rpg/core'
+import { BugReportModal } from './BugReportModal'
+import { QuizBugReportSheet } from './QuizBugReportSheet'
+import { buildQuestionSnapshot, type QuizQuestionSnapshot } from '../services/bug-report'
 
 export interface QuizResult { correct: boolean }
 export interface QuestionResult { questionId: QuestionId; correct: boolean; elapsedMs: number }
@@ -51,6 +54,13 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, mode
   const [skippedCount, setSkippedCount] = useState(0)
   const [finished, setFinished] = useState(false)
   const [questionStartedAt, setQuestionStartedAt] = useState<number>(() => Date.now())
+  const [bugSheetSnapshot, setBugSheetSnapshot] = useState<QuizQuestionSnapshot | null>(null)
+  const [bugFullModalOpen, setBugFullModalOpen] = useState(false)
+  const [bugFullModalPrefill, setBugFullModalPrefill] = useState<{
+    category?: BugReportCategory
+    whatHappened?: string
+  }>({})
+  const [bugReportToast, setBugReportToast] = useState(false)
 
   useEffect(() => {
     if (!finished) setQuestionStartedAt(Date.now())
@@ -108,6 +118,17 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, mode
     onClose(results, questionResults)
   }
 
+  function openBugSheet() {
+    if (!q) return
+    setBugSheetSnapshot(buildQuestionSnapshot(q, picked, false))
+  }
+
+  function handleBugSubmitted() {
+    setBugSheetSnapshot(null)
+    setBugReportToast(true)
+    setTimeout(() => setBugReportToast(false), 3000)
+  }
+
   return (
     <div className="modal-backdrop" onClick={() => onClose(results, questionResults)}>
       <div className="modal frame quiz-modal" onClick={(e) => e.stopPropagation()}>
@@ -115,7 +136,18 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, mode
           <span>
             藥理學{mode === 'review' ? ' · 複習模式' : ''} — 第 {idx + 1} / {questions.length} 題
           </span>
-          <button className="close-btn" onClick={() => onClose(results, questionResults)}>✕</button>
+          <div className="quiz-header-actions">
+            <button
+              type="button"
+              className="quiz-bug-trigger"
+              onClick={openBugSheet}
+              aria-label="回報這題"
+              title="回報這題"
+            >
+              🐞
+            </button>
+            <button className="close-btn" onClick={() => onClose(results, questionResults)}>✕</button>
+          </div>
         </div>
 
         {finished ? (
@@ -199,7 +231,34 @@ export function QuizModal({ pool, subjectFilter, count = 5, dueQuestionIds, mode
             <> · 題目來源：{String(q.meta.year)}-{String(q.meta.session)} 醫師國考</>
           )}
         </div>
+
+        {bugReportToast && (
+          <div className="quiz-bug-toast" role="status" aria-live="polite">
+            ✓ 已送出回報，感謝你！
+          </div>
+        )}
       </div>
+
+      <QuizBugReportSheet
+        snapshot={bugSheetSnapshot}
+        onClose={() => setBugSheetSnapshot(null)}
+        onSubmitted={handleBugSubmitted}
+        onEscapeHatch={(preset) => {
+          setBugSheetSnapshot(null)
+          setBugFullModalPrefill(preset)
+          setBugFullModalOpen(true)
+        }}
+      />
+
+      <BugReportModal
+        isOpen={bugFullModalOpen}
+        onClose={() => {
+          setBugFullModalOpen(false)
+          setBugFullModalPrefill({})
+        }}
+        initialCategory={bugFullModalPrefill.category}
+        initialWhatHappened={bugFullModalPrefill.whatHappened}
+      />
     </div>
   )
 }

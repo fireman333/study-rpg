@@ -2421,3 +2421,197 @@
   color: #3fb950;
   font-weight: 600;
 }
+
+/* ── Quiz inline bug-report (🐞 trigger + sheet + toast) ───────────── */
+.quiz-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quiz-bug-trigger {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: inherit;
+  transition: background 0.12s, border-color 0.12s;
+}
+.quiz-bug-trigger:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.quiz-bug-trigger:focus-visible {
+  outline: 2px solid #58a6ff;
+  outline-offset: 2px;
+}
+.quiz-bug-sheet {
+  max-width: 480px;
+  width: calc(100vw - 32px);
+}
+.quiz-bug-sheet__close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: inherit;
+  cursor: pointer;
+}
+.quiz-bug-sheet__body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.quiz-bug-sheet__meta {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+.quiz-bug-sheet__meta code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.quiz-bug-sheet__notice {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  background: rgba(255, 215, 0, 0.12);
+  border-left: 3px solid rgba(255, 215, 0, 0.6);
+  border-radius: 3px;
+  color: rgba(255, 215, 0, 0.95);
+}
+.quiz-bug-sheet__fieldset {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0;
+}
+.quiz-bug-sheet__fieldset legend {
+  font-size: 13px;
+  padding: 0 6px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.quiz-bug-sheet__radio-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.quiz-bug-sheet__radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.quiz-bug-sheet__radio:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.quiz-bug-sheet__radio input {
+  margin: 0;
+}
+.quiz-bug-sheet__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  position: relative;
+}
+.quiz-bug-sheet__field textarea {
+  resize: vertical;
+  min-height: 48px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  color: inherit;
+  font: inherit;
+}
+.quiz-bug-sheet__counter {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+}
+.quiz-bug-sheet__error {
+  padding: 8px 10px;
+  background: rgba(248, 81, 73, 0.12);
+  border-left: 3px solid rgba(248, 81, 73, 0.6);
+  border-radius: 3px;
+  color: #f85149;
+  font-size: 12px;
+}
+.quiz-bug-sheet__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.quiz-bug-sheet__escape,
+.quiz-bug-sheet__cancel,
+.quiz-bug-sheet__submit,
+.quiz-bug-sheet__signin-btn {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.quiz-bug-sheet__submit {
+  background: rgba(63, 185, 80, 0.2);
+  border-color: rgba(63, 185, 80, 0.5);
+  color: #3fb950;
+  font-weight: 600;
+}
+.quiz-bug-sheet__escape {
+  margin-right: auto;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.quiz-bug-sheet__signin-btn {
+  background: rgba(88, 166, 255, 0.2);
+  border-color: rgba(88, 166, 255, 0.5);
+  color: #58a6ff;
+  font-weight: 600;
+}
+.quiz-bug-sheet__submit:disabled,
+.quiz-bug-sheet__cancel:disabled,
+.quiz-bug-sheet__escape:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.quiz-bug-sheet__login-gate {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+.quiz-bug-toast {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: rgba(63, 185, 80, 0.92);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 10;
+  pointer-events: none;
+}

@@ -17,9 +17,30 @@ export const BUG_REPORT_CATEGORIES = [
   'corpus',
   'feature-request',
   'other',
+  'question-error',
+  'image-broken',
+  'explanation-error',
 ] as const
 
 export type BugReportCategory = (typeof BUG_REPORT_CATEGORIES)[number]
+
+/** Inline quiz bug-report targets. Player picks one of these in QuizBugReportSheet;
+ *  it maps to a BugReportCategory via QUIZ_BUG_TARGET_TO_CATEGORY. */
+export const QUIZ_BUG_TARGETS = [
+  'question',
+  'image',
+  'explanation',
+  'other',
+] as const
+
+export type QuizBugTarget = (typeof QUIZ_BUG_TARGETS)[number]
+
+export const QUIZ_BUG_TARGET_TO_CATEGORY: Record<QuizBugTarget, BugReportCategory> = {
+  question: 'question-error',
+  image: 'image-broken',
+  explanation: 'explanation-error',
+  other: 'other',
+}
 
 export const BUG_REPORT_SEVERITIES = [
   'blocker',

@@ -18,6 +18,10 @@ import {
 interface Props {
   isOpen: boolean
   onClose: () => void
+  /** Pre-fill category when opened via the inline-sheet escape hatch. */
+  initialCategory?: BugReportCategory
+  /** Pre-fill what_happened when opened via the inline-sheet escape hatch. */
+  initialWhatHappened?: string
 }
 
 const CATEGORY_LABEL: Record<BugReportCategory, string> = {
@@ -32,6 +36,9 @@ const CATEGORY_LABEL: Record<BugReportCategory, string> = {
   corpus: '📚 題庫 — 內容、答案、詳解',
   'feature-request': '💡 建議 / 想要 — 新功能、改善',
   other: '🤷 其他 / 不確定',
+  'question-error': '📝 題目本身有錯（答題情境內回報）',
+  'image-broken': '🖼️ 題目圖片有問題（答題情境內回報）',
+  'explanation-error': '📑 詳解有錯（答題情境內回報）',
 }
 
 const SEVERITY_LABEL: Record<BugReportSeverity, string> = {
@@ -79,13 +86,18 @@ function previewValue(value: unknown): string {
   return String(value)
 }
 
-export function BugReportModal({ isOpen, onClose }: Props) {
+export function BugReportModal({
+  isOpen,
+  onClose,
+  initialCategory,
+  initialWhatHappened,
+}: Props) {
   const { user, signInWithGoogle } = useAuth()
 
-  const [category, setCategory] = useState<BugReportCategory | ''>('')
+  const [category, setCategory] = useState<BugReportCategory | ''>(initialCategory ?? '')
   const [severity, setSeverity] = useState<BugReportSeverity | ''>('')
   const [whatDoing, setWhatDoing] = useState('')
-  const [whatHappened, setWhatHappened] = useState('')
+  const [whatHappened, setWhatHappened] = useState(initialWhatHappened ?? '')
   const [whatExpected, setWhatExpected] = useState('')
   const [reproducibility, setReproducibility] = useState<BugReportReproducibility | ''>('')
   const [contactInfo, setContactInfo] = useState('')
@@ -119,12 +131,15 @@ export function BugReportModal({ isOpen, onClose }: Props) {
   }, [submitSuccess, onClose])
 
   useEffect(() => {
-    if (!isOpen) {
-      // Reset form on close so reopening starts fresh
-      setCategory('')
+    // Reset / re-apply prefill on each open transition. Effect was previously
+    // `if (!isOpen)` which never fired on the open-with-new-prefill path, so
+    // escape-hatch handoff from QuizBugReportSheet didn't pre-fill category
+    // or whatHappened. (Fixed during add-quiz-inline-bug-report live smoke.)
+    if (isOpen) {
+      setCategory(initialCategory ?? '')
       setSeverity('')
       setWhatDoing('')
-      setWhatHappened('')
+      setWhatHappened(initialWhatHappened ?? '')
       setWhatExpected('')
       setReproducibility('')
       setContactInfo('')
@@ -134,7 +149,7 @@ export function BugReportModal({ isOpen, onClose }: Props) {
       setSubmitSuccess(false)
       setAutoContext(null)
     }
-  }, [isOpen])
+  }, [isOpen, initialCategory, initialWhatHappened])
 
   const canSubmit = useMemo(
     () =>

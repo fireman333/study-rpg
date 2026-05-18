@@ -160,7 +160,85 @@ SELECT category, severity, count(*) AS n
   ORDER BY n DESC;
 ```
 
+## Inline quiz bug report (2026-05-19 — `add-quiz-inline-bug-report`)
+
+The original entry points (一階 SettingsPanel / 二階 HelpMenu) require leaving QuizModal to file a report — too much friction for "this question's answer is wrong" type cases. A second entry point lives directly inside QuizModal:
+
+### UI flow
+
+1. 🐞 icon top-right of QuizModal (next to the close ✕).
+2. Click → `QuizBugReportSheet` opens with:
+   - 4-radio target picker: 題目本身有錯 / 題目圖片有問題 / 詳解有錯 / 簡答（其他意見）
+   - Single-line textarea (max 200 chars, e.g. "答案標 B 但詳解推 C")
+   - 「送出」button (disabled until target + description both set)
+   - 「展開完整表單」escape hatch → opens `BugReportModal` pre-filled with the chosen category + description
+3. On submit → transient toast「✓ 已送出回報，感謝你！」, sheet closes, quiz UI underneath untouched (current question, timer, progress preserved).
+
+### Target → category mapping
+
+| Target radio | `category` enum value | Migration adds |
+|---|---|---|
+| 題目本身有錯 | `question-error` | 0007 |
+| 題目圖片有問題 | `image-broken` | 0007 |
+| 詳解有錯 | `explanation-error` | 0007 |
+| 簡答（其他意見） | `other` | (existing) |
+
+Existing 11 categories remain available via SettingsPanel / HelpMenu entry; total enum is now 14 values.
+
+### `game_state` shape (inline-flow rows)
+
+Inline-flow submissions auto-attach this shape, MERGED on top of the existing `buildAutoContext()` output (so app-specific stats like `tier` / `revenue` / `currentStreak` are still present):
+
+```json
+{
+  "...existing buildAutoContext fields...": "...",
+  "questionId": "<question.id>",
+  "subject": "<question.subject>",
+  "year": <number | string | null>,
+  "selectedOption": "<key | null>",
+  "correctAnswer": "<key>",
+  "disputed": <boolean>,
+  "hasImage": <boolean>,
+  "inMockExam": <boolean>
+}
+```
+
+The player **cannot opt out** of these fields via the sheet UI (the sheet has no checkbox section — opt-out would defeat the purpose of a contextual report). To opt out, the player clicks 「展開完整表單」 to open `BugReportModal`, which restores the per-field opt-out checkboxes.
+
+### `question_id` column
+
+Migration 0007 adds a top-level `question_id text NULL` column + partial B-tree index `bug_reports_question_id_idx` (only indexes non-NULL rows). This lets the owner write:
+
+```sql
+-- Which questions are most-reported (≥ 3 reports)?
+SELECT question_id, count(*) AS n, max(submitted_at) AS latest
+  FROM public.bug_reports
+  WHERE question_id IS NOT NULL
+  GROUP BY question_id
+  HAVING count(*) >= 3
+  ORDER BY n DESC;
+
+-- All reports for one question
+SELECT category, severity, what_happened, submitted_at, contact_info
+  FROM public.bug_reports
+  WHERE question_id = '醫四-小兒科-22717s2'
+  ORDER BY submitted_at DESC;
+```
+
+Legacy rows (submitted via SettingsPanel / HelpMenu) have `question_id IS NULL` — the partial index keeps them out of the index entirely.
+
+### Mock exam (一階)
+
+`inMockExam` is captured in `game_state`. Today the QuizModal entry always passes `false` (QuizModal is used in reading/review modes, not mock). `MockRunnerRoute` would need its own 🐞 wiring and would pass `true`; that's deferred to a future change.
+
+When `inMockExam=true` the sheet shows an inline notice 「模擬考進行中，送出後可繼續答題」 and does not pause any stopwatch.
+
+### `severity` default
+
+Inline-flow rows always get `severity='minor'` (smallest impact tier in the existing 4-value enum). Players who think their report is more severe than 'minor' use the 「展開完整表單」 escape hatch and pick severity themselves.
+
 ## Follow-up changes (not in this milestone)
 
 - `add-bug-report-screenshot-upload` — Supabase Storage bucket + signed-URL flow + client-side image compression.
 - `add-bug-report-auto-read-pipeline` — daily cron + `/bug-reports` slash skill + SessionStart hook nudge so the owner gets a digest each morning.
+- `add-inline-bug-report-from-mock-runner` — wire 🐞 into 一階 `MockRunnerRoute` with `inMockExam=true` snapshot wiring.
