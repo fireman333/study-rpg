@@ -56,7 +56,7 @@ export function V6MigrationModal({ counters, onDismiss }: V6MigrationModalProps)
           <li>
             <strong>📖 唸書 session</strong>
             <p>
-              掛機不再產出聲望／營收。從首頁點「📖 唸書」進入 session，期間醫師才會看診賺收益。離開分頁會自動暫停、回到分頁自動繼續。
+              寫題答對會直接賺營收與聲望（依 tier、夥伴醫師同科加成）。從首頁點「📖 唸書」開啟 session 期間，寫題收益另享 1.5× 加成；session 內醫師看診也有少量 idle 進帳（throughput × 0.3）。不開 session 一樣可以寫題賺錢，只是沒 buff。離開分頁會自動暫停、回到分頁自動繼續。
             </p>
           </li>
           <li>

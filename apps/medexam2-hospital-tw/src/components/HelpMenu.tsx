@@ -25,10 +25,10 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
   {
     id: 'study-session',
     icon: '📖',
-    title: '唸書 session — 進度的唯一引擎',
+    title: '唸書 session — 寫題加成 + idle 進帳',
     body: [
-      '在 二階國考經營 RPG 中，「念書」= 醫院運轉。從首頁點「📖 唸書」進入 session，期間醫師才會看診賺取營收與聲望。離開分頁會自動暫停、回到分頁自動繼續；手動暫停則需主動點「繼續唸書」。',
-      '提示：累積唸書時間（min）會永久保留，不會因換機或重置而流失。',
+      '兩個進帳管道：寫題答對直接賺營收/聲望（依 tier 與夥伴醫師同科加成）；開「📖 唸書」session 期間，寫題另享 1.5× 加成，同時醫師看診也會少量 idle 進帳（throughput × 0.3，薪水照舊全額）。不開 session 一樣能寫題賺錢，只是沒 1.5× buff、也沒 idle。',
+      '離開分頁會自動暫停、回到分頁自動繼續；手動暫停則需主動點「繼續唸書」。累積唸書時間（min）會永久保留，不會因換機或重置而流失。',
     ],
   },
   {

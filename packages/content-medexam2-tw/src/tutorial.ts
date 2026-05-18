@@ -67,7 +67,7 @@ export const TUTORIAL_STEPS: ReadonlyArray<TutorialStep> = Object.freeze([
   {
     id: 'first-study-session',
     title: '開始第一次唸書 session',
-    body: '點「開始唸書」進入看診畫面，醫師會自動運作。離開分頁會自動暫停、回來自動繼續；按右上「結束 Session」可手動結算。',
+    body: '點「開始唸書」進入看診畫面 — 醫師會 idle 看診（throughput × 0.3 進帳），同時你回首頁寫題答對的營收/聲望會有 1.5× 加成。離開分頁會自動暫停、回來自動繼續；按右上「結束 Session」可手動結算。',
     completeOn: 'study-session-started-1min',
   },
   {
