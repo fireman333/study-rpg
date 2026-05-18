@@ -42,7 +42,9 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_APP_VERSION: ${{ github.sha }}
+          # VITE_APP_VERSION is read from package.json `version` via process.env.npm_package_version
+          # inside vite.config.ts when running through pnpm. VITE_COMMIT_SHA carries the git SHA.
+          VITE_COMMIT_SHA: ${{ github.sha }}
           VITE_CLOUD_SYNC_ENABLED: 'true'
         run: pnpm --filter @study-rpg/medexam-tw build
 
@@ -50,7 +52,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_APP_VERSION: ${{ github.sha }}
+          VITE_COMMIT_SHA: ${{ github.sha }}
           VITE_CLOUD_SYNC_ENABLED: 'true'
         run: pnpm --filter @study-rpg/medexam2-hospital-tw build
 

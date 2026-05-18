@@ -146,6 +146,23 @@ select count(*) from player_state;
 reset role;
 ```
 
+## Bug reporting (M4.5)
+
+`apps/medexam-tw` and `apps/medexam2-hospital-tw` both ship an in-app **`💬 回報問題 / 建議`** flow:
+
+- 一階 entry: `SettingsPanel.tsx` new section.
+- 二階 entry: `HelpMenu.tsx` 9th accordion section.
+
+Submissions land in Supabase table **`public.bug_reports`** (migration `supabase/migrations/0004_bug_reports.sql`). RLS = `auth.uid() = user_id` per row; owner reads via `service_role` (dashboard SQL editor today, future `/bug-reports` skill after the follow-up change).
+
+Shared types: `@study-rpg/core` exports `BUG_REPORT_CATEGORIES`, `BUG_REPORT_SEVERITIES`, `BugReportRow`, etc. Per-app `services/bug-report.ts` builds the snapshot from each app's Dexie shape; per-app `services/console-error-buffer.ts` keeps a ring buffer of the last 5 `window.error` + `unhandledrejection` events.
+
+Env vars (split from cloud-sync section above): `VITE_APP_VERSION` (npm `package.json` version; CI fills via `npm_package_version` automatically) and `VITE_COMMIT_SHA` (CI sets to `github.sha`). Local dev falls back to `'dev'`.
+
+Force sign-in gate: modal shows a login CTA instead of the form when `useAuth().user` is null. No anon submit path.
+
+Apply the migration manually once: `supabase db push` or paste `0004_bug_reports.sql` into the dashboard SQL editor. Sanity SQL in `supabase/sanity/bug_reports_rls.sql`. Full reference: `docs/BUG_REPORTING.md`.
+
 ## Source data path
 
 題庫原始 .md 在使用者本機（**不在 repo 內**）：
