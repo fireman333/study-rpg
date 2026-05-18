@@ -49,7 +49,7 @@ export const TUTORIAL_STEPS: ReadonlyArray<TutorialStep> = Object.freeze([
   {
     id: 'welcome',
     title: '歡迎來到醫院經營',
-    body: '在這裡，念書 = 醫院賺錢 = 升級。每一分鐘的唸書 session 都會讓醫院運轉、累積營收與聲望。',
+    body: '在這裡，念書 = 醫院賺錢 = 升級。閱讀 session 讓醫師看診累積收益，寫題答對也會直接賺營收和聲望（開 session 時還有 1.5× 加成）。',
     completeOn: 'click-next',
   },
   {
@@ -73,7 +73,7 @@ export const TUTORIAL_STEPS: ReadonlyArray<TutorialStep> = Object.freeze([
   {
     id: 'first-revenue-check',
     title: '看看你的營收',
-    body: '回到首頁，會看到剛剛累積的營收與聲望。營收用來投資設施、進修、擴建；聲望是升級醫院的門檻。',
+    body: '回到首頁，會看到剛剛累積的營收與聲望。session idle 看診 + quiz 答對都會貢獻。營收用來投資設施、進修、擴建；聲望是升級醫院的門檻。',
     completeOn: 'home-revenue-visible',
   },
   {
@@ -111,7 +111,7 @@ export const SURFACE_HINTS: ReadonlyArray<SurfaceHint> = Object.freeze([
   {
     id: 'study',
     title: '唸書 session 怎麼運作',
-    body: '看診畫面就是你的醫院。session 計時跑著，切到別的 tab 會自動暫停、回來自動繼續；想停下來按「暫停」或「結束 Session」。',
+    body: '看診畫面就是你的醫院。session 計時跑著，切到別的 tab 會自動暫停、回來自動繼續。session 開啟期間，回首頁寫題答對的營收/聲望會有 1.5× 加成；想停下來按「暫停」或「結束 Session」。',
   },
   {
     id: 'training',
@@ -138,7 +138,7 @@ export const SURFACE_HINTS: ReadonlyArray<SurfaceHint> = Object.freeze([
 /** Stable tip ids — match `tutorial.firedTips[id]` flags (fires once per save). */
 export type MilestoneTipId =
   | 'revenue_1000'
-  | 'reputation_48k_gate_blocked'
+  | 'reputation_tier1_gate_blocked'
   | 'tier_unlocked_fate_cards'
   | 'net_rate_slow'
   | 'training_pity_5'
@@ -163,9 +163,9 @@ export const MILESTONE_TIPS: ReadonlyArray<MilestoneTip> = Object.freeze([
     triggerDescription: 'revenue >= 1000 (first crossing)',
   },
   {
-    id: 'reputation_48k_gate_blocked',
+    id: 'reputation_tier1_gate_blocked',
     message: '聲望已達門檻，但還缺不同科別醫師（看升級面板）',
-    triggerDescription: 'reputation >= 48,000 AND diversification gate not met (first occurrence)',
+    triggerDescription: 'reputation >= TIER_UPGRADE_THRESHOLDS[診所] AND diversification gate not met (first occurrence). Threshold value tracks the constant; renamed from `reputation_48k_gate_blocked` after add-quiz-economy-redesign recalibrated 診所→區域醫院 threshold to 30,000.',
   },
   {
     id: 'tier_unlocked_fate_cards',

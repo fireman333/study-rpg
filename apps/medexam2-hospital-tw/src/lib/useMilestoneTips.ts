@@ -8,7 +8,7 @@
  *
  * Implements 4 of the 5 tips defined in `content-medexam2-tw/tutorial.ts`:
  *   - revenue_1000               : revenue ≥ 1000 (first crossing)
- *   - reputation_48k_gate_blocked: rep ≥ 48,000 AND diversification gate not met
+ *   - reputation_tier1_gate_blocked: rep ≥ TIER_UPGRADE_THRESHOLDS[診所] AND diversification gate not met
  *   - tier_unlocked_fate_cards   : tier transition to 醫學中心
  *   - training_pity_5            : any doctor pityCounter ≥ 5
  *
@@ -68,14 +68,18 @@ export function useMilestoneTips(): {
       }
     }
 
-    // 2. reputation_48k_gate_blocked — rep crosses 診所→區域醫院 threshold AND diversification unmet
-    if (!fired.reputation_48k_gate_blocked && counters.tier === '診所') {
+    // 2. reputation_tier1_gate_blocked — rep crosses 診所→區域醫院 threshold AND diversification unmet
+    //    (Renamed from reputation_48k_gate_blocked after add-quiz-economy-redesign
+    //    recalibrated the threshold to 30,000. The id rename means players who
+    //    already saw the old tip will see this one once after upgrading — accept
+    //    that small over-fire because the new threshold semantics matter.)
+    if (!fired.reputation_tier1_gate_blocked && counters.tier === '診所') {
       const threshold = TIER_UPGRADE_THRESHOLDS['診所']
       if (threshold !== null && counters.reputation >= threshold) {
         const req = TIER_DIVERSIFICATION_REQUIREMENTS['診所']
         const distinct = countDistinctSubjectsAtRarity(doctors, req.minRarity)
         if (distinct < req.requiredCount) {
-          const p = pick('reputation_48k_gate_blocked')
+          const p = pick('reputation_tier1_gate_blocked')
           if (p && !scheduled) {
             setPending(p)
             setScheduled(p.id)
