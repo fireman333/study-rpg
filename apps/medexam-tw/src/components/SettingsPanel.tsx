@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { getSupabase } from '../lib/auth/client'
 import type { MigrationGateState } from '../lib/sync/migration'
 import type { SyncStatus } from '../lib/sync/types'
+import { BugReportModal } from './BugReportModal'
 
 interface Props {
   email: string | null
@@ -69,6 +70,7 @@ export function SettingsPanel({
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
+  const [bugReportOpen, setBugReportOpen] = useState(false)
   // Tick once per 30s so "X 分鐘前" stays roughly fresh.
   const [, setTick] = useState(0)
   useEffect(() => {
@@ -237,9 +239,27 @@ export function SettingsPanel({
           </p>
         </section>
 
+        {/* ─── 回報問題 / 建議 (M4.5) ─────────────────────────── */}
+        <section className="settings-section">
+          <div className="settings-section-title">回報問題 / 建議</div>
+          <div className="settings-actions">
+            <button
+              type="button"
+              className="settings-btn"
+              onClick={() => setBugReportOpen(true)}
+            >
+              💬 回報問題 / 建議
+            </button>
+          </div>
+          <p className="settings-hint">
+            打開 in-app 表單回報 bug 或建議；會自動附帶當下遊戲狀態、route、近期錯誤。
+          </p>
+        </section>
+
         {info && <div className="settings-info">{info}</div>}
         {error && <div className="migration-error">⚠ {error}</div>}
       </div>
+      <BugReportModal isOpen={bugReportOpen} onClose={() => setBugReportOpen(false)} />
     </div>
   )
 }

@@ -11,6 +11,7 @@
 
 import { useState } from 'react'
 import { getHospitalDB } from '../db/schema'
+import { BugReportModal } from './BugReportModal'
 
 interface AccordionSection {
   id: string
@@ -93,6 +94,15 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
       '保底：每階獨立追蹤連續衰運次數，連 3 次衰運後第 4 次必中 reward。',
     ],
   },
+  {
+    id: 'bug-report',
+    icon: '💬',
+    title: '回報問題 / 建議',
+    body: [
+      '碰到 bug、數字怪、UI 跑版，或想許願新功能？打開下方表單回報，30 秒內送出。',
+      '系統會自動附帶當下遊戲狀態（tier、營收、聲望、進行中 session 等）、route、近期錯誤與瀏覽器資訊，你可以逐欄取消勾選。需先登入。',
+    ],
+  },
 ])
 
 interface HelpMenuProps {
@@ -105,6 +115,7 @@ export function HelpMenu({ className }: HelpMenuProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [resetMsg, setResetMsg] = useState<string | null>(null)
   const [resetting, setResetting] = useState(false)
+  const [bugReportOpen, setBugReportOpen] = useState(false)
 
   function toggle(id: string) {
     setExpandedId((cur) => (cur === id ? null : id))
@@ -180,6 +191,15 @@ export function HelpMenu({ className }: HelpMenuProps) {
                         {section.body.map((paragraph, i) => (
                           <p key={i}>{paragraph}</p>
                         ))}
+                        {section.id === 'bug-report' && (
+                          <button
+                            type="button"
+                            className="settings-modal__reset-btn"
+                            onClick={() => setBugReportOpen(true)}
+                          >
+                            💬 開啟回報表單
+                          </button>
+                        )}
                       </div>
                     )}
                   </li>
@@ -203,6 +223,7 @@ export function HelpMenu({ className }: HelpMenuProps) {
           </div>
         </div>
       )}
+      <BugReportModal isOpen={bugReportOpen} onClose={() => setBugReportOpen(false)} />
     </>
   )
 }

@@ -123,3 +123,17 @@ export {
   type SkillBranchStatKey,
   type SkillTreeContent,
 } from './lib/skillTree'
+export {
+  BUG_REPORT_CATEGORIES,
+  BUG_REPORT_SEVERITIES,
+  BUG_REPORT_REPRODUCIBILITY,
+  BUG_REPORT_APPS,
+  type BugReportCategory,
+  type BugReportSeverity,
+  type BugReportReproducibility,
+  type BugReportApp,
+  type ConsoleErrorEntry,
+  type BugReportUserFields,
+  type BugReportAutoContext,
+  type BugReportRow,
+} from './lib/bug-report-types'
