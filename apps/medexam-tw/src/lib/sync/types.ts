@@ -104,12 +104,18 @@ export interface CreateSyncEngineOptions {
    */
   onConsecutiveFailure?: (record: SyncErrorRecord, consecutiveCount: number) => void
   /**
-   * R2 bundle name this engine pushes/pulls when `VITE_CLOUD_SYNC_BACKEND`
-   * selects `dual` or `r2`. 一階 passes `'m1'`, 二階 passes `'m2'`. Omit to
-   * keep the engine on legacy Supabase-only push regardless of the env flag
-   * (Phase 0 / non-migrated apps).
+   * R2 bundles this engine owns. Each binding declares which {@link Bundle}
+   * receives the snapshot built from `adapters`. 一階 typically passes one
+   * binding (`m1` ← `ONE_STAGE_ADAPTERS`); 二階 passes two (`m2` ← M2_ADAPTERS
+   * and `bookmarks` ← BOOKMARKS_ADAPTERS). Omit to keep the engine on legacy
+   * Supabase-only push regardless of the env flag (Phase 0 / non-migrated apps).
    */
-  r2BundleName?: Bundle
+  r2Bundles?: ReadonlyArray<R2BundleBinding>
+}
+
+export interface R2BundleBinding {
+  bundle: Bundle
+  adapters: ReadonlyArray<TableAdapter>
 }
 
 /** Marker for a dirty Dexie row pending push. */
