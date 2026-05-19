@@ -11,6 +11,7 @@ import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
 import { toggleBookmark, useBookmark } from '../services/bookmarks'
 import { BugReportModal } from './BugReportModal'
+import { ExplanationMarkdown } from './ExplanationMarkdown'
 import { QuizBugReportSheet } from './QuizBugReportSheet'
 import { buildQuestionSnapshot, type QuizQuestionSnapshot } from '../services/bug-report'
 
@@ -372,9 +373,7 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
               {revealed && (
                 <div className="quiz-modal__explanation">
                   <h3>解析</h3>
-                  <pre className="quiz-modal__explanation-body">
-                    {question.explanation || '（解析待補）'}
-                  </pre>
+                  <ExplanationMarkdown text={question.explanation ?? ''} />
                 </div>
               )}
             </>

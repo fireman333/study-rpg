@@ -7,6 +7,7 @@ import {
   useAllBookmarks,
 } from '../services/bookmarks'
 import { loadQuestionsByIdMap } from '../lib/quiz'
+import { ExplanationMarkdown } from '../components/ExplanationMarkdown'
 
 export function BookmarksPage() {
   const bookmarks = useAllBookmarks()
@@ -96,9 +97,7 @@ export function BookmarksPage() {
                     </p>
                     <div className="bookmarks-page__entry-explanation">
                       <strong>詳解：</strong>
-                      <pre className="bookmarks-page__entry-explanation-body">
-                        {q.explanation || '（解析待補）'}
-                      </pre>
+                      <ExplanationMarkdown text={q.explanation ?? ''} />
                     </div>
                   </>
                 ) : (

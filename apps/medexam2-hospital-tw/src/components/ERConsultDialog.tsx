@@ -14,6 +14,7 @@ import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB, type ERConsultActiveState } from '../db/schema'
 import { pickQuestionById } from '../lib/quiz'
 import { lookupERDoctorSprite } from '../lib/sprite-lookup'
+import { ExplanationMarkdown } from './ExplanationMarkdown'
 import {
   ER_CONSULT_GREETINGS,
   ER_CONSULT_GRATITUDE,
@@ -227,9 +228,7 @@ function ERConsultDialogInner({ active }: { active: ERConsultActiveState }): JSX
               {revealed && (
                 <div className="er-consult__explanation">
                   <h3>解析</h3>
-                  <pre className="er-consult__explanation-body">
-                    {question.explanation || EXPLANATION_FALLBACK}
-                  </pre>
+                  <ExplanationMarkdown text={question.explanation || EXPLANATION_FALLBACK} />
                 </div>
               )}
             </>
