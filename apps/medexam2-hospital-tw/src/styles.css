@@ -81,6 +81,12 @@ body:has(.modal-backdrop) {
   gap: 16px;
 }
 
+.ticket-counter-row {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 16px;
+}
+
 .ticket-counter {
   font-size: 22px;
   padding: 4px 12px;
