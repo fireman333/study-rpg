@@ -14,13 +14,6 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
-# Opt in to Node.js 24 runtime for JavaScript actions ahead of 2026-06-02
-# forced switch (silences deprecation warnings; v4 actions internally targeted
-# Node 20 which is removed 2026-09-16). Bump action versions later when v5+
-# of each is widely adopted.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -29,15 +22,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 9
 
       - name: Setup Node 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
@@ -69,10 +62,10 @@ jobs:
           cp -r apps/medexam2-hospital-tw/dist/. apps/medexam-tw/dist/hospital/
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: apps/medexam-tw/dist
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
