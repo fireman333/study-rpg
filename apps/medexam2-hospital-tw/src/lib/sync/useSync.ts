@@ -82,12 +82,16 @@ export interface UseSyncReturn {
   getEngineDiagnostic: () => Promise<EngineDiagnosticSnapshot | null>
   dismissSyncError: () => void
   retrySyncError: () => Promise<void>
+  /** Sign out after awaiting pending push (fix-account-switch-data-loss C2a). */
+  signOutWithFlush: () => Promise<void>
+  /** 「切換帳號」 menu: flush + snapshot + clear + signOut + signIn (C2b). */
+  safeAccountSwitch: () => Promise<void>
 }
 
 const SYNC_ERROR_TOAST_DEBOUNCE_MS = 60_000
 
 export function useSync(): UseSyncReturn {
-  const { status: authStatus, user } = useAuth()
+  const { status: authStatus, user, signOut: authSignOut, signInWithGoogle } = useAuth()
   const engineRef = useRef<SyncEngine | null>(null)
   const [, setTick] = useState(0)
   const [gateState, setGateState] = useState<MigrationGateState>('pending')
@@ -319,6 +323,18 @@ export function useSync(): UseSyncReturn {
         return
       }
       if (choice === 'clear-local') {
+        // Snapshot under PREVIOUS user's id BEFORE wipe (C2b).
+        try {
+          if (accountSwitch?.previousUserId) {
+            await snapshotLocalToBackup(
+              db,
+              accountSwitch.previousUserId,
+              'account-switch-clear-local',
+            )
+          }
+        } catch (err) {
+          console.warn('[account-switch] snapshotLocalToBackup failed', err)
+        }
         engineRef.current?.stop()
         engineRef.current = null
         await clearLocalSyncTables(db)
@@ -455,6 +471,56 @@ export function useSync(): UseSyncReturn {
     }
   }, [])
 
+  const signOutWithFlush = useCallback(async (): Promise<void> => {
+    // Best-effort flush — see 一階 for full rationale (fix-account-switch-data-loss C2a).
+    const e = engineRef.current
+    if (e) {
+      try {
+        await e.pushAllNow()
+      } catch (err) {
+        console.warn('[hospital-sync] flush before signOut failed (continuing)', err)
+      }
+    }
+    await authSignOut()
+  }, [authSignOut])
+
+  const safeAccountSwitch = useCallback(async (): Promise<void> => {
+    // 「切換帳號」 menu — see 一階 for full rationale (C2b).
+    const e = engineRef.current
+    const db = getHospitalDB()
+    const uid = user?.id ?? null
+
+    if (e) {
+      try {
+        await e.pushAllNow()
+      } catch (err) {
+        console.warn('[safeAccountSwitch] pushAllNow failed (continuing)', err)
+      }
+    }
+    if (uid) {
+      try {
+        await snapshotLocalToBackup(db, uid, 'switch-account-menu')
+      } catch (err) {
+        console.warn('[safeAccountSwitch] snapshotLocalToBackup failed (continuing)', err)
+      }
+    }
+    try {
+      await clearLocalSyncTables(db)
+    } catch (err) {
+      console.warn('[safeAccountSwitch] clearLocalSyncTables failed (continuing)', err)
+    }
+    try {
+      await authSignOut()
+    } catch (err) {
+      console.warn('[safeAccountSwitch] signOut failed (continuing)', err)
+    }
+    try {
+      await signInWithGoogle()
+    } catch (err) {
+      console.warn('[safeAccountSwitch] signInWithGoogle failed', err)
+    }
+  }, [authSignOut, signInWithGoogle, user])
+
   const engine = engineRef.current
   return {
     status: engine?.getStatus() ?? (authStatus === 'disabled' ? 'disabled' : 'unauthed'),
@@ -474,5 +540,7 @@ export function useSync(): UseSyncReturn {
     getEngineDiagnostic,
     dismissSyncError,
     retrySyncError,
+    signOutWithFlush,
+    safeAccountSwitch,
   }
 }

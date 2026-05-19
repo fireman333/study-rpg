@@ -6,11 +6,11 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../lib/auth/AuthContext'
-import { clearLocalSyncTables } from '../lib/sync/account-switch'
-import { getHospitalDB } from '../db/schema'
+import { useSync } from '../lib/sync/useSync'
 
 export function AuthButton() {
-  const { status, user, signInWithGoogle, signOut } = useAuth()
+  const { status, user, signInWithGoogle } = useAuth()
+  const { signOutWithFlush, safeAccountSwitch } = useSync()
   const [menuOpen, setMenuOpen] = useState(false)
   const [busy, setBusy] = useState<'signout' | 'switch' | null>(null)
   const popoverRef = useRef<HTMLDivElement | null>(null)
@@ -60,12 +60,12 @@ export function AuthButton() {
               type="button"
               className="auth-menu-popover__btn"
               disabled={busy !== null}
-              title="本地進度會保留；下次若用不同帳號登入會詢問如何處理"
+              title="本地進度會保留；先確保未上傳的進度推到雲端再登出"
               onClick={async () => {
                 if (busy) return
                 setBusy('signout')
                 try {
-                  await signOut()
+                  await signOutWithFlush()
                   setMenuOpen(false)
                 } finally {
                   setBusy(null)
@@ -78,21 +78,19 @@ export function AuthButton() {
               type="button"
               className="auth-menu-popover__btn auth-menu-popover__btn--secondary"
               disabled={busy !== null}
-              title="清空本地醫院進度後重新登入；適合借用裝置或換主帳號"
+              title="先推未上傳進度+快照本機到 localBackup, 再清空本地、登出、重新打開登入"
               onClick={async () => {
                 if (busy) return
                 const ok = window.confirm(
                   '⚠ 切換帳號將清空本地醫院進度並重新登入。\n\n' +
-                    '清空後本機所有 cloud-synced 資料（醫院經營、醫師、答題紀錄）會被刪除。\n' +
-                    '只有你目前登入的帳號雲端有備份才能還原。確定？',
+                    '我會先確保未上傳的進度推到雲端、再快照備份本機到 localBackup table，' +
+                    '然後清空本地、登出、重新打開登入。確定？',
                 )
                 if (!ok) return
                 setBusy('switch')
                 try {
-                  await clearLocalSyncTables(getHospitalDB())
-                  await signOut()
+                  await safeAccountSwitch()
                   setMenuOpen(false)
-                  void signInWithGoogle()
                 } finally {
                   setBusy(null)
                 }

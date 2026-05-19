@@ -41,9 +41,10 @@ function computeVisualState(
     return { icon: '🔴', label: '同步失敗', color: '#c44d4d' }
   }
   if (status === 'idle') {
-    const recent = Math.max(lastPushAt ?? 0, lastPullAt ?? 0)
-    if (recent > 0 && Date.now() - recent < 60_000) {
-      return { icon: '🟢', label: '已同步', color: '#1f8b4c' }
+    // Chip MUST NOT show 「已同步」 before any successful push or pull
+    // (fix-account-switch-data-loss C3) — see 一階 SyncStatusChip comments.
+    if (lastPushAt === null && lastPullAt === null) {
+      return { icon: '⚪', label: '待同步', color: '#888' }
     }
     return { icon: '🟢', label: '已同步', color: '#1f8b4c' }
   }

@@ -23,15 +23,6 @@ const DEFAULT_DEBOUNCE_MS = 3000
 const DEFAULT_APP_VERSION = '0.2.0'
 const LAST_PULL_KEY = 'study-rpg.sync.lastPullAt'
 const MAX_RECENT_ERRORS = 5
-/**
- * Cold-start force-pull threshold (fix-sync-sign-in-lifecycle M3b).
- * If the engine starts AND `_lastPullAt` is older than this, do a full
- * force pullAllNow instead of the incremental pullNow that uses the
- * cursor. Catches cross-device sync stalls where the incremental query
- * silently misses rows (real-world 2026-05-19 report: phone signed in
- * after PC pushed; auto-pull on engine start didn't bring data down).
- */
-const COLD_START_FORCE_PULL_THRESHOLD_MS = 60 * 60 * 1000
 
 interface DirtySet {
   /** Per-table dirty PK sets. Keyed by Dexie table name. */
@@ -377,20 +368,18 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       installHooks()
       installVisibilityListener()
       if (!paused) {
-        // Cold-start force-pull guard (M3b): if it's been more than
-        // COLD_START_FORCE_PULL_THRESHOLD_MS since the last successful pull,
-        // ignore the incremental cursor and pull ALL rows. The incremental
-        // query is only safe for tight in-session refresh; cross-device
-        // resume (phone overnight, PWA wake-up) requires a full pull or
-        // rows pushed by another device may be silently skipped.
-        const longGap =
-          _lastPullAt === null ||
-          Date.now() - _lastPullAt > COLD_START_FORCE_PULL_THRESHOLD_MS
-        if (longGap) {
-          pullAllNow({ force: true }).catch((err) => onError(err, 'startupPullForce'))
-        } else {
-          pullNow().catch((err) => onError(err, 'startupPull'))
+        // Cold-start ALWAYS force-pulls (fix-account-switch-data-loss C1).
+        // The incremental cursor is only safe within a single live engine
+        // session; across sessions (page reload, sign-out + sign-in,
+        // browser restart, PWA wake-up) it may be newer than legitimate
+        // cloud rows for the same user and silently filter them out.
+        // The visibilitychange handler keeps using incremental pullNow()
+        // for in-session refresh, which is the only safe use of the cursor.
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.log('[sync.start]', { phase: 'force-pull-on-cold-start', userId: uid })
         }
+        pullAllNow({ force: true }).catch((err) => onError(err, 'startupPullForce'))
       }
     },
     stop() {

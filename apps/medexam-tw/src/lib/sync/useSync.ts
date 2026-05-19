@@ -115,12 +115,26 @@ export interface UseSyncReturn {
   dismissSyncError: () => void
   /** Retry the last failed op + dismiss toast. */
   retrySyncError: () => Promise<void>
+  /**
+   * Sign out, but first await any pending dirty writes via pushAllNow()
+   * so the cloud row state matches local before engine teardown
+   * (fix-account-switch-data-loss C2a). Best-effort flush — push failure
+   * does NOT block sign-out.
+   */
+  signOutWithFlush: () => Promise<void>
+  /**
+   * 「切換帳號」 menu action: pushAllNow → snapshotLocalToBackup →
+   * clearLocalSyncTables → signOut → signInWithGoogle. All five steps
+   * run in order; per-step failures are logged but do NOT abort the
+   * flow (the wipe must happen so the next sign-in is from clean state).
+   */
+  safeAccountSwitch: () => Promise<void>
 }
 
 const SYNC_ERROR_TOAST_DEBOUNCE_MS = 60_000
 
 export function useSync(): UseSyncReturn {
-  const { status: authStatus, user } = useAuth()
+  const { status: authStatus, user, signOut: authSignOut, signInWithGoogle } = useAuth()
   const engineRef = useRef<SyncEngine | null>(null)
   const [, setTick] = useState(0)
   const [gateState, setGateState] = useState<MigrationGateState>('pending')
@@ -368,6 +382,22 @@ export function useSync(): UseSyncReturn {
         return
       }
       if (choice === 'clear-local') {
+        // Snapshot local under the PREVIOUS user's id BEFORE we wipe — gives
+        // a recoverable record if the previous user had unpushed writes
+        // (fix-account-switch-data-loss C2b). The localBackup table is
+        // append-only and shared across all sync flows.
+        try {
+          if (accountSwitch?.previousUserId) {
+            await snapshotLocalToBackup(
+              db,
+              accountSwitch.previousUserId,
+              'account-switch-clear-local',
+            )
+          }
+        } catch (err) {
+          console.warn('[account-switch] snapshotLocalToBackup failed', err)
+          // continue anyway — wipe must proceed so the new sign-in starts clean
+        }
         // Tear down engine first so its hooks don't observe the bulk clear.
         engineRef.current?.stop()
         engineRef.current = null
@@ -511,6 +541,62 @@ export function useSync(): UseSyncReturn {
     }
   }, [])
 
+  const signOutWithFlush = useCallback(async (): Promise<void> => {
+    // Best-effort flush — push failure does NOT block sign-out
+    // (fix-account-switch-data-loss C2a). User can sign out even when offline;
+    // dirty rows remain in local IndexedDB for next sign-in's cold-start
+    // force-pull to reconcile with cloud state.
+    const e = engineRef.current
+    if (e) {
+      try {
+        await e.pushAllNow()
+      } catch (err) {
+        console.warn('[sync] flush before signOut failed (continuing)', err)
+      }
+    }
+    await authSignOut()
+  }, [authSignOut])
+
+  const safeAccountSwitch = useCallback(async (): Promise<void> => {
+    // 「切換帳號」 menu: flush → snapshot → clear → signOut → re-open sign-in
+    // (fix-account-switch-data-loss C2b). All five steps run in order
+    // regardless of individual failures — the wipe must complete so the
+    // next sign-in starts from a clean slate.
+    const e = engineRef.current
+    const db = getDB()
+    const uid = user?.id ?? null
+
+    if (e) {
+      try {
+        await e.pushAllNow()
+      } catch (err) {
+        console.warn('[safeAccountSwitch] pushAllNow failed (continuing)', err)
+      }
+    }
+    if (uid) {
+      try {
+        await snapshotLocalToBackup(db, uid, 'switch-account-menu')
+      } catch (err) {
+        console.warn('[safeAccountSwitch] snapshotLocalToBackup failed (continuing)', err)
+      }
+    }
+    try {
+      await clearLocalSyncTables(db)
+    } catch (err) {
+      console.warn('[safeAccountSwitch] clearLocalSyncTables failed (continuing)', err)
+    }
+    try {
+      await authSignOut()
+    } catch (err) {
+      console.warn('[safeAccountSwitch] signOut failed (continuing)', err)
+    }
+    try {
+      await signInWithGoogle()
+    } catch (err) {
+      console.warn('[safeAccountSwitch] signInWithGoogle failed', err)
+    }
+  }, [authSignOut, signInWithGoogle, user])
+
   const engine = engineRef.current
   return {
     status: engine?.getStatus() ?? (authStatus === 'disabled' ? 'disabled' : 'unauthed'),
@@ -530,5 +616,7 @@ export function useSync(): UseSyncReturn {
     getEngineDiagnostic,
     dismissSyncError,
     retrySyncError,
+    signOutWithFlush,
+    safeAccountSwitch,
   }
 }
