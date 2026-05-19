@@ -72,6 +72,31 @@ export interface ConsoleErrorEntry {
   timestamp: number
 }
 
+/**
+ * Sync engine diagnostic snapshot attached to bug reports
+ * (fix-sync-sign-in-lifecycle M3). JSONB serialized into
+ * `bug_reports.sync_metadata`. Populated only when the user leaves the
+ * 「同步診斷快照」 checkbox checked in the BugReportModal.
+ *
+ * Shape kept loose (Record<string, unknown>) so per-app engine variations
+ * don't require core-package version bumps. Per-app `bug-report.ts` builds
+ * the concrete payload by calling `engine.getDiagnosticSnapshot()` and
+ * folding in `gateState`, `currentUserId`, `lastSignedInUserId`, etc.
+ */
+export interface SyncDiagnosticSnapshot {
+  gateState?: string
+  authStatus?: string
+  currentUserId?: string | null
+  lastSignedInUserId?: string | null
+  lastPushAt?: number | null
+  lastPullAt?: number | null
+  queueDepth?: number
+  recentErrors?: Array<{ at: number; op: string; table: string; message: string }>
+  dbRowCounts?: Record<string, number>
+  consecutiveErrors?: Record<string, number>
+  online?: boolean
+}
+
 /** Fields the player fills in the modal form. */
 export interface BugReportUserFields {
   category: BugReportCategory
@@ -93,6 +118,8 @@ export interface BugReportAutoContext {
   user_agent?: string
   viewport?: string
   recent_console_errors?: ConsoleErrorEntry[]
+  /** Sync engine diagnostic (fix-sync-sign-in-lifecycle M3). */
+  sync_metadata?: SyncDiagnosticSnapshot
 }
 
 /** Final DB row shape — everything combined. */

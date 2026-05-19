@@ -18,6 +18,8 @@ interface Props {
   lastPullAt: number | null
   gateState: MigrationGateState
   onSignOut: () => Promise<void>
+  /** Combines: clear local sync tables → sign out → re-open sign-in modal. */
+  onSwitchAccount: () => Promise<void>
   onReopenConflictChooser: () => Promise<void>
   onResetMigrationPreference: () => Promise<void>
   onClose: () => void
@@ -63,6 +65,7 @@ export function SettingsPanel({
   lastPullAt,
   gateState,
   onSignOut,
+  onSwitchAccount,
   onReopenConflictChooser,
   onResetMigrationPreference,
   onClose,
@@ -164,8 +167,18 @@ export function SettingsPanel({
               className="settings-btn"
               disabled={busy !== null}
               onClick={() => withBusy('signout', onSignOut, '已登出')}
+              title="本地進度會保留；下次若用不同帳號登入會詢問如何處理"
             >
               {busy === 'signout' ? '登出中…' : '登出'}
+            </button>
+            <button
+              type="button"
+              className="settings-btn settings-btn--secondary"
+              disabled={busy !== null}
+              onClick={() => withBusy('switch', onSwitchAccount)}
+              title="清空本地進度後重新登入；適合借用裝置或換主帳號"
+            >
+              {busy === 'switch' ? '切換中…' : '🔄 切換帳號'}
             </button>
           </div>
         </section>

@@ -63,6 +63,7 @@ const AUTO_CONTEXT_KEYS: BugReportAutoKey[] = [
   'user_agent',
   'viewport',
   'recent_console_errors',
+  'sync_metadata',
 ]
 
 const AUTO_CONTEXT_LABEL: Record<BugReportAutoKey, string> = {
@@ -73,6 +74,7 @@ const AUTO_CONTEXT_LABEL: Record<BugReportAutoKey, string> = {
   user_agent: '瀏覽器 (user_agent)',
   viewport: '視窗大小',
   recent_console_errors: '近期 console 錯誤 (最多 5 條)',
+  sync_metadata: '同步診斷快照 (gate state / queue / 近期同步錯誤)',
 }
 
 function previewValue(value: unknown): string {

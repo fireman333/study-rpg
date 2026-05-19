@@ -11,14 +11,20 @@ import type { TableAdapter } from './tables'
 import type {
   CloudRow,
   CreateSyncEngineOptions,
+  EngineDiagnosticSnapshot,
   RowPayload,
   SyncEngine,
+  SyncErrorRecord,
+  SyncOp,
   SyncStatus,
 } from './types'
 
 const DEFAULT_DEBOUNCE_MS = 3000
 const DEFAULT_APP_VERSION = '0.2.0'
 const LAST_PULL_KEY = 'study-rpg.sync.lastPullAt'
+const MAX_RECENT_ERRORS = 5
+/** See apps/medexam-tw/src/lib/sync/engine.ts for design rationale. */
+const COLD_START_FORCE_PULL_THRESHOLD_MS = 60 * 60 * 1000
 
 interface DirtySet {
   /** Per-table dirty PK sets. Keyed by Dexie table name. */
@@ -31,10 +37,40 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
   const appVersion = opts.appVersion ?? DEFAULT_APP_VERSION
   const onError =
     opts.onError ?? ((err: unknown, ctx: string) => console.error(`[sync:${ctx}]`, err))
+  const onConsecutiveFailure = opts.onConsecutiveFailure
 
   let userId: string | null = null
   let status: SyncStatus = 'unauthed'
   let paused = false
+
+  // Observability state (fix-sync-sign-in-lifecycle M3) — ring buffer of last
+  // N errors + per-op consecutive failure count. Drives sync_metadata
+  // snapshot in bug reports + the sync:error toast.
+  const recentErrors: SyncErrorRecord[] = []
+  const consecutiveErrors: Record<SyncOp, number> = { push: 0, pull: 0 }
+
+  function recordError(op: SyncOp, table: string, err: unknown): SyncErrorRecord {
+    const message = (err as { message?: string })?.message ?? String(err)
+    const record: SyncErrorRecord = { at: Date.now(), op, table, message }
+    recentErrors.push(record)
+    if (recentErrors.length > MAX_RECENT_ERRORS) recentErrors.shift()
+    return record
+  }
+
+  function endOp(op: SyncOp, anyError: boolean, firstError: SyncErrorRecord | null): void {
+    if (anyError) {
+      consecutiveErrors[op] += 1
+      if (consecutiveErrors[op] >= 2 && firstError && onConsecutiveFailure) {
+        try {
+          onConsecutiveFailure(firstError, consecutiveErrors[op])
+        } catch (err) {
+          console.warn('[sync] onConsecutiveFailure handler threw', err)
+        }
+      }
+    } else {
+      consecutiveErrors[op] = 0
+    }
+  }
   /**
    * Set to true while applying cloud → local writes; hooks check this and
    * skip both `_updatedAt = Date.now()` stamping and dirty-marker bookkeeping
@@ -145,6 +181,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     status = 'pushing'
     const updatedAt = new Date().toISOString()
     let anyOffline = false
+    let firstError: SyncErrorRecord | null = null
 
     // Snapshot + flush per table.
     for (const adapter of adapters) {
@@ -163,11 +200,15 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       } catch (err) {
         const isNetwork = isLikelyNetworkError(err)
         anyOffline ||= isNetwork
+        const rec = recordError('push', adapter.postgresTable, err)
+        if (!firstError) firstError = rec
         onError(err, `push:${adapter.postgresTable}`)
         // Network errors: keep dirty markers for retry on next dirty event / pull
         // Non-network errors: log + still keep markers (might be transient)
       }
     }
+
+    endOp('push', firstError !== null, firstError)
 
     if (anyOffline) {
       status = 'offline'
@@ -190,6 +231,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     status = 'pulling'
     const sinceIso = opts?.sinceIso ?? new Date(_lastPullAt ?? 0).toISOString()
     let anyOffline = false
+    let firstError: SyncErrorRecord | null = null
 
     applyingFromCloud = true
     try {
@@ -208,12 +250,16 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
         } catch (err) {
           const isNetwork = isLikelyNetworkError(err)
           anyOffline ||= isNetwork
+          const rec = recordError('pull', adapter.postgresTable, err)
+          if (!firstError) firstError = rec
           onError(err, `pull:${adapter.postgresTable}`)
         }
       }
     } finally {
       applyingFromCloud = false
     }
+
+    endOp('pull', firstError !== null, firstError)
 
     if (anyOffline) {
       status = 'offline'
@@ -234,6 +280,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     status = 'pushing'
     const updatedAt = updatedAtOverride ?? new Date().toISOString()
     let anyOffline = false
+    let firstError: SyncErrorRecord | null = null
 
     for (const adapter of adapters) {
       try {
@@ -243,12 +290,16 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       } catch (err) {
         const isNetwork = isLikelyNetworkError(err)
         anyOffline ||= isNetwork
+        const rec = recordError('push', adapter.postgresTable, err)
+        if (!firstError) firstError = rec
         onError(err, `pushAll:${adapter.postgresTable}`)
       }
     }
 
     // Clear dirty markers — pushAll covers everything pending.
     for (const set of dirty.perTable.values()) set.clear()
+
+    endOp('push', firstError !== null, firstError)
 
     if (anyOffline) {
       status = 'offline'
@@ -282,6 +333,34 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     if (totalDirty > 0) scheduleDebouncedPush()
   }
 
+  async function getDiagnosticSnapshot(): Promise<EngineDiagnosticSnapshot> {
+    const queueDepth = Array.from(dirty.perTable.values()).reduce(
+      (s, set) => s + set.size,
+      0,
+    )
+    const dbRowCounts: Record<string, number> = {}
+    for (const adapter of adapters) {
+      try {
+        const table = (db as unknown as Record<string, { count?: () => Promise<number> }>)[
+          adapter.dexieTable
+        ]
+        if (table?.count) {
+          dbRowCounts[adapter.dexieTable] = await table.count()
+        }
+      } catch (err) {
+        console.warn(`[sync] count ${adapter.dexieTable} failed`, err)
+      }
+    }
+    return {
+      lastPushAt: _lastPushAt,
+      lastPullAt: _lastPullAt,
+      queueDepth,
+      recentErrors: recentErrors.slice(),
+      dbRowCounts,
+      consecutiveErrors: { ...consecutiveErrors },
+    }
+  }
+
   return {
     start(uid: string) {
       if (userId === uid) return
@@ -290,8 +369,15 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       installHooks()
       installVisibilityListener()
       if (!paused) {
-        // Kick off first pull so cross-device updates land immediately.
-        pullNow().catch((err) => onError(err, 'startupPull'))
+        // Cold-start force-pull guard (M3b) — see 一階 engine.ts comments.
+        const longGap =
+          _lastPullAt === null ||
+          Date.now() - _lastPullAt > COLD_START_FORCE_PULL_THRESHOLD_MS
+        if (longGap) {
+          pullAllNow({ force: true }).catch((err) => onError(err, 'startupPullForce'))
+        } else {
+          pullNow().catch((err) => onError(err, 'startupPull'))
+        }
       }
     },
     stop() {
@@ -321,6 +407,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     lastPullAt() {
       return _lastPullAt
     },
+    getDiagnosticSnapshot,
   }
 }
 

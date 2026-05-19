@@ -898,13 +898,13 @@ body:has(.modal-backdrop) {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 240px 8px 16px; /* right pad leaves room for AuthButton (fixed top-right) */
+  padding: 8px 340px 8px 16px; /* right pad leaves room for AuthButton + SyncStatusChip (fixed top-right) */
   font-size: 13px;
   background: rgba(255, 248, 220, 0.96);
   border-bottom: 2px solid var(--frame-dark);
 }
 .sync-paused-banner__icon { font-size: 16px; flex-shrink: 0; }
-.sync-paused-banner__text { flex: 1; min-width: 0; }
+.sync-paused-banner__text { flex: 1; min-width: 200px; }
 .sync-paused-banner__btn {
   background: var(--accent-gold);
   border: 2px solid var(--frame-dark);
@@ -914,6 +914,25 @@ body:has(.modal-backdrop) {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* Mobile (≤ 639px): stack banner vertically so Chinese text doesn't get
+   squeezed into a 1-character-wide column (fix-sync-sign-in-lifecycle Bug 3). */
+@media (max-width: 639px) {
+  .sync-paused-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 12px;
+    margin-top: 48px; /* avoid header-controls overlap */
+  }
+  .sync-paused-banner__text {
+    width: 100%;
+    min-width: 100%;
+    white-space: normal;
+  }
+  .sync-paused-banner__btn {
+    align-self: flex-start;
+  }
 }
 
 /* ── Tier upgrade notice ───────────────────────────────── */
@@ -4201,3 +4220,181 @@ body:has(.modal-backdrop) {
     height: 72px;
   }
 }
+
+/* ─── fix-sync-sign-in-lifecycle: header-controls + chip + toast ───────── */
+
+.header-controls {
+  position: fixed;
+  top: 6px;
+  right: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-controls .auth-button {
+  position: static;
+  top: auto;
+  right: auto;
+  z-index: auto;
+}
+
+.auth-button-wrap { position: relative; }
+.auth-button__email-collapsed { display: none; }
+
+/* ── AuthMenu popover (二階 only — 一階 has full SettingsPanel) ────── */
+.auth-menu-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 110;
+  min-width: 200px;
+  padding: 10px 12px;
+  background: #fdf6e3;
+  font-family: var(--font-pixel-cjk, sans-serif);
+  font-size: 12px;
+  color: #333;
+}
+.auth-menu-popover__email {
+  padding: 4px 0;
+  font-size: 11px;
+  color: #666;
+  word-break: break-all;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.auth-menu-popover__btn {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: var(--accent-gold, #d6c47a);
+  border: 1.5px solid var(--frame-dark, #4a3a20);
+  cursor: pointer;
+  margin-top: 4px;
+  text-align: left;
+}
+.auth-menu-popover__btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-menu-popover__btn--secondary {
+  background: rgba(212, 165, 116, 0.4);
+}
+
+/* ── SyncStatusChip ─────────────────────────────────────── */
+.sync-status-chip-wrap { position: relative; }
+.sync-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  font-family: var(--font-pixel-cjk, sans-serif);
+  font-size: 12px;
+  background: rgba(20, 20, 20, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+.sync-status-chip:hover { background: rgba(40, 40, 40, 0.9); }
+.sync-status-chip__label { font-size: 11px; }
+
+.sync-status-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 110;
+  min-width: 240px;
+  padding: 10px 12px;
+  background: #fdf6e3;
+  font-family: var(--font-pixel-cjk, sans-serif);
+  font-size: 12px;
+  color: #333;
+}
+.sync-status-popover__title {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.sync-status-popover__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  font-size: 11px;
+}
+.sync-status-popover__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+.sync-status-popover__btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  background: var(--accent-gold, #d6c47a);
+  border: 1.5px solid var(--frame-dark, #4a3a20);
+  cursor: pointer;
+}
+.sync-status-popover__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── SyncErrorToast ─────────────────────────────────────── */
+.sync-error-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  max-width: calc(100vw - 32px);
+  padding: 10px 14px;
+  background: rgba(220, 60, 60, 0.95);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.sync-error-toast__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sync-error-toast__detail {
+  font-size: 11px;
+  opacity: 0.92;
+}
+.sync-error-toast__actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.sync-error-toast__btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.sync-error-toast__btn--primary {
+  background: rgba(255, 255, 255, 0.95);
+  color: #c44d4d;
+  font-weight: 700;
+}
+
+/* ── Mobile reflow (≤ 639px) ────────────────────────────── */
+@media (max-width: 639px) {
+  .auth-button__email { display: none; }
+  .auth-button__email-collapsed { display: inline; }
+  .sync-status-chip__label { display: none; }
+  .header-controls .auth-button {
+    max-width: 56px;
+    padding: 6px 10px;
+  }
+  .sync-error-toast { max-width: calc(100vw - 16px); }
+}
+

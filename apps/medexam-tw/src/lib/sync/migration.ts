@@ -188,6 +188,19 @@ export async function computeGateState(
 ): Promise<GateSnapshot> {
   const db = getDB()
 
+  // Race-resistant guard (fix-sync-sign-in-lifecycle Bug 1, design.md D2):
+  // await one Dexie read + brief settle delay so slow mobile cold-load
+  // hydration doesn't misclassify as fresh-start. The 100ms settle is
+  // calibrated from observed iPhone SE Dexie hydration timings (doubled
+  // for safety). The useSync hook installs a 5s post-decision watcher
+  // for the long tail where this still misses.
+  await db.players.get('p1')
+  await new Promise<void>((r) => setTimeout(r, 100))
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.log('[sync.gate]', { phase: 'settle-end', userId })
+  }
+
   // 1. Previously recorded explicit choices win.
   const choice = await getMigrationChoice(db, userId)
   if (choice) {

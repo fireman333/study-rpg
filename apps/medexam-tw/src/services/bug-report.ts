@@ -8,6 +8,7 @@ import {
 } from '@study-rpg/core'
 import { getSupabase } from '../lib/auth/client'
 import { getRecentConsoleErrors } from './console-error-buffer'
+import { getSyncMetadata } from './sync-metadata'
 
 const APP_NAME = 'medexam-tw' as const
 
@@ -34,6 +35,10 @@ export async function buildAutoContext(): Promise<BugReportAutoContext> {
     mockAttemptCount,
   }
 
+  // Capture sync engine snapshot at build time (fix-sync-sign-in-lifecycle M3).
+  // Best-effort — null when sync engine isn't running (unauthed / disabled).
+  const sync_metadata = (await getSyncMetadata()) ?? undefined
+
   return {
     app_version:
       (import.meta.env.VITE_APP_VERSION as string | undefined) ?? 'dev',
@@ -43,6 +48,7 @@ export async function buildAutoContext(): Promise<BugReportAutoContext> {
     user_agent: navigator.userAgent,
     viewport: `${window.innerWidth}×${window.innerHeight}`,
     recent_console_errors: getRecentConsoleErrors(),
+    sync_metadata,
   }
 }
 
@@ -146,6 +152,7 @@ export async function submitQuizInlineBugReport(
     user_agent: ctx.user_agent,
     viewport: ctx.viewport,
     recent_console_errors: ctx.recent_console_errors,
+    sync_metadata: ctx.sync_metadata,
   })
   if (error) throw error
 }

@@ -48,7 +48,11 @@ import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { AuthButton } from './components/AuthButton'
 import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
 import { ConflictChooserModal } from './components/ConflictChooserModal'
+import { AccountSwitchPrompt } from './components/AccountSwitchPrompt'
 import { SettingsPanel } from './components/SettingsPanel'
+import { SyncStatusChip } from './components/SyncStatusChip'
+import { SyncErrorToast } from './components/SyncErrorToast'
+import { clearLocalSyncTables } from './lib/sync/account-switch'
 import { useSync } from './lib/sync/useSync'
 import { useAuth } from './lib/auth/AuthContext'
 import { CharCard } from './components/CharCard'
@@ -102,13 +106,33 @@ export default function App() {
     lastPullAt,
     gateState,
     gateSnapshot,
+    accountSwitch,
+    syncError,
     resolveUploadPrompt,
     resolveConflictChooser,
+    resolveAccountSwitch,
     reopenConflictChooser,
     resetMigrationPreference,
+    forcePush,
+    forcePull,
+    dismissSyncError,
+    retrySyncError,
   } = useSync()
-  const { user: authUser, signOut } = useAuth()
+  const { user: authUser, signOut, signInWithGoogle } = useAuth()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // navigator.onLine for SyncStatusChip + AccountSwitchPrompt awareness.
+  const [online, setOnline] = useState(
+    typeof navigator !== 'undefined' ? navigator.onLine : true,
+  )
+  useEffect(() => {
+    function update() { setOnline(navigator.onLine) }
+    window.addEventListener('online', update)
+    window.addEventListener('offline', update)
+    return () => {
+      window.removeEventListener('online', update)
+      window.removeEventListener('offline', update)
+    }
+  }, [])
   // Reading-loop must NOT double-count while user is in mock runner (spec mock-exam R3)
   // or in dorm view (spec dorm-view "no game mechanics").
   const isInMockRunner = location.pathname.startsWith('/mock/run/')
@@ -598,7 +622,20 @@ export default function App() {
 
   const homeView = (
     <>
-      <AuthButton onOpenSettings={() => setSettingsOpen(true)} />
+      <div className="header-controls">
+        <AuthButton onOpenSettings={() => setSettingsOpen(true)} />
+        {authUser && (
+          <SyncStatusChip
+            status={syncStatus}
+            lastPushAt={lastPushAt}
+            lastPullAt={lastPullAt}
+            gateState={gateState}
+            online={online}
+            onForcePush={forcePush}
+            onForcePull={forcePull}
+          />
+        )}
+      </div>
       <div className="layout">
         <CharCard
           player={player}
@@ -939,14 +976,25 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {gateState === 'migration-upload' && (
+      {accountSwitch && (
+        <AccountSwitchPrompt
+          currentEmail={accountSwitch.currentEmail}
+          previousUserIdPreview={accountSwitch.previousUserId.slice(0, 8) + '…'}
+          localMaxUpdatedAt={accountSwitch.localMaxUpdatedAt}
+          cloudHasRows={accountSwitch.cloudHasRows}
+          online={accountSwitch.online}
+          onChoose={resolveAccountSwitch}
+        />
+      )}
+
+      {!accountSwitch && gateState === 'migration-upload' && (
         <MigrationUploadPrompt
           email={authUser?.email ?? null}
           onChoose={resolveUploadPrompt}
         />
       )}
 
-      {gateState === 'conflict-chooser' && gateSnapshot && (
+      {!accountSwitch && gateState === 'conflict-chooser' && gateSnapshot && (
         <ConflictChooserModal
           email={authUser?.email ?? null}
           localMaxUpdatedAt={gateSnapshot.localMaxUpdatedAt}
@@ -967,6 +1015,19 @@ export default function App() {
             await signOut()
             setSettingsOpen(false)
           }}
+          onSwitchAccount={async () => {
+            const ok = window.confirm(
+              '⚠ 切換帳號將清空本地進度並重新登入。\n\n' +
+                '清空後本機所有 cloud-synced 資料（角色、物品、SRS、導師背景）會被刪除。\n' +
+                '只有你目前登入的帳號雲端有備份才能還原。確定？',
+            )
+            if (!ok) return
+            const { getDB } = await import('@study-rpg/core')
+            await clearLocalSyncTables(getDB())
+            await signOut()
+            setSettingsOpen(false)
+            void signInWithGoogle()
+          }}
           onReopenConflictChooser={async () => {
             await reopenConflictChooser()
             setSettingsOpen(false)
@@ -975,6 +1036,13 @@ export default function App() {
           onClose={() => setSettingsOpen(false)}
         />
       )}
+
+      <SyncErrorToast
+        info={syncError}
+        onDismiss={dismissSyncError}
+        onRetry={retrySyncError}
+      />
+
 
       <footer className="credits">
         Question bank © 中華民國考選部 / 詳解 © <a href="https://sites.google.com/view/ymmedexam/ans" target="_blank" rel="noreferrer">陽明國考考古題小組</a> (CC-BY-NC)

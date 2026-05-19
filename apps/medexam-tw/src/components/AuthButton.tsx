@@ -32,7 +32,10 @@ export function AuthButton({ onOpenSettings }: Props) {
         onClick={onOpenSettings}
         title={`已登入：${label}　點此開啟同步設定`}
       >
-        ☁️ {label}
+        <span className="auth-button__email">☁️ {label}</span>
+        <span className="auth-button__email-collapsed" aria-hidden>
+          ☁️
+        </span>
       </button>
     )
   }

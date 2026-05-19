@@ -19,6 +19,9 @@ import { useSync } from './lib/sync/useSync'
 import { AuthButton } from './components/AuthButton'
 import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
 import { ConflictChooserModal } from './components/ConflictChooserModal'
+import { AccountSwitchPrompt } from './components/AccountSwitchPrompt'
+import { SyncStatusChip } from './components/SyncStatusChip'
+import { SyncErrorToast } from './components/SyncErrorToast'
 import { V6MigrationModal } from './components/V6MigrationModal'
 import { TutorialOnboarding } from './components/TutorialOnboarding'
 import { MilestoneTipToast } from './components/MilestoneTipToast'
@@ -139,6 +142,20 @@ function App() {
   const { user } = useAuth()
   const milestoneTip = useMilestoneTips()
 
+  // navigator.onLine for SyncStatusChip + AccountSwitchPrompt awareness.
+  const [online, setOnline] = useState(
+    typeof navigator !== 'undefined' ? navigator.onLine : true,
+  )
+  useEffect(() => {
+    function update() { setOnline(navigator.onLine) }
+    window.addEventListener('online', update)
+    window.addEventListener('offline', update)
+    return () => {
+      window.removeEventListener('online', update)
+      window.removeEventListener('offline', update)
+    }
+  }, [])
+
   if (!ready) {
     return (
       <main className="app-shell">
@@ -149,14 +166,37 @@ function App() {
 
   return (
     <HashRouter>
-      <AuthButton />
-      {sync.gateState === 'migration-upload' && (
+      <div className="header-controls">
+        <AuthButton />
+        {user && (
+          <SyncStatusChip
+            status={sync.status}
+            lastPushAt={sync.lastPushAt}
+            lastPullAt={sync.lastPullAt}
+            gateState={sync.gateState}
+            online={online}
+            onForcePush={sync.forcePush}
+            onForcePull={sync.forcePull}
+          />
+        )}
+      </div>
+      {sync.accountSwitch && (
+        <AccountSwitchPrompt
+          currentEmail={sync.accountSwitch.currentEmail}
+          previousUserIdPreview={sync.accountSwitch.previousUserId.slice(0, 8) + '…'}
+          localMaxUpdatedAt={sync.accountSwitch.localMaxUpdatedAt}
+          cloudHasRows={sync.accountSwitch.cloudHasRows}
+          online={sync.accountSwitch.online}
+          onChoose={sync.resolveAccountSwitch}
+        />
+      )}
+      {!sync.accountSwitch && sync.gateState === 'migration-upload' && (
         <MigrationUploadPrompt
           email={user?.email ?? null}
           onChoose={sync.resolveUploadPrompt}
         />
       )}
-      {sync.gateState === 'conflict-chooser' && (
+      {!sync.accountSwitch && sync.gateState === 'conflict-chooser' && (
         <ConflictChooserModal
           email={user?.email ?? null}
           localMaxUpdatedAt={sync.gateSnapshot?.localMaxUpdatedAt ?? null}
@@ -165,7 +205,7 @@ function App() {
           onChoose={sync.resolveConflictChooser}
         />
       )}
-      {sync.gateState === 'paused' && (
+      {!sync.accountSwitch && sync.gateState === 'paused' && (
         <div className="sync-paused-banner" role="status" aria-live="polite">
           <span className="sync-paused-banner__icon" aria-hidden>⏸</span>
           <span className="sync-paused-banner__text">
@@ -180,6 +220,11 @@ function App() {
           </button>
         </div>
       )}
+      <SyncErrorToast
+        info={sync.syncError}
+        onDismiss={sync.dismissSyncError}
+        onRetry={sync.retrySyncError}
+      />
       {v6Migration && (
         <V6MigrationModal counters={v6Migration} onDismiss={() => setV6Migration(null)} />
       )}

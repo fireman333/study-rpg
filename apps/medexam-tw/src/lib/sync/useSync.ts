@@ -1,11 +1,15 @@
 // React hook to start / stop sync engine based on auth status (M4 cloud sync).
 //
-// Adds sign-in migration / conflict gate (Task 6):
-// - On first authed transition, compute gate state by inspecting local +
-//   cloud rows for this user.
-// - Render appropriate modal (or none) based on state.
-// - Engine starts in paused mode for migration-upload / conflict-chooser /
-//   paused states so dirty writes don't race ahead before user decides.
+// Sign-in resolution machine (fix-sync-sign-in-lifecycle):
+//   1. Auth transitions to 'authed'
+//   2. Account-switch detector runs FIRST — if a DIFFERENT Google account
+//      previously signed in on this browser AND local has non-default state,
+//      surface AccountSwitchPrompt and pause everything else (Bug 2).
+//   3. Otherwise: write last_signed_in_user_id to current, then compute
+//      gate (existing migration-upload / conflict-chooser / etc. flow)
+//   4. Gate race fix (Bug 1): computeGateState now awaits Dexie hydration
+//      + 100ms settle. After fresh-start / silent-pull decisions, a 5-second
+//      Dexie hook watches for late player writes and re-evaluates once.
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getDB } from '@study-rpg/core'
@@ -14,7 +18,10 @@ import { useAuth } from '../auth/AuthContext'
 import { createSyncEngine } from './engine'
 import { ONE_STAGE_ADAPTERS } from './tables'
 import {
+  cloudHasAnyRows,
   computeGateState,
+  getMaxLocalUpdatedAt,
+  hasNonDefaultLocalState,
   setMigrationChoice,
   setPausedForUser,
   snapshotLocalToBackup,
@@ -22,12 +29,53 @@ import {
   type GateSnapshot,
   type MigrationGateState,
 } from './migration'
-import type { SyncEngine, SyncStatus } from './types'
+import {
+  clearLocalSyncTables,
+  getLastSignedInUserId,
+  setLastSignedInUserId,
+} from './account-switch'
+import { registerSyncMetadataGetter } from '../../services/sync-metadata'
+import type {
+  EngineDiagnosticSnapshot,
+  SyncEngine,
+  SyncErrorRecord,
+  SyncStatus,
+} from './types'
 
 const DEBOUNCE_MS = Number(import.meta.env.VITE_SYNC_DEBOUNCE_MS) || 3000
 
+// Rollback safety env flag — set VITE_ACCOUNT_SWITCH_DETECTOR=false to bypass
+// account-switch detection entirely (returns to pre-fix behavior).
+const ACCOUNT_SWITCH_DETECTOR_ENABLED =
+  String(import.meta.env.VITE_ACCOUNT_SWITCH_DETECTOR ?? 'true').toLowerCase() !== 'false'
+
+const RE_EVAL_WINDOW_MS = 5000
+const RE_EVAL_DEBOUNCE_MS = 200
+const DEV = import.meta.env.DEV
+const devLog = (...args: unknown[]): void => {
+  if (DEV) console.log(...(args as [unknown, ...unknown[]]))
+}
+
 export type UploadChoice = 'upload' | 'keep-separate' | 'later'
 export type ConflictChoice = 'use-cloud' | 'use-local' | 'later'
+export type AccountSwitchChoice = 'clear-local' | 'keep-local' | 'signout'
+
+export interface AccountSwitchInfo {
+  previousUserId: string
+  currentEmail: string | null
+  localMaxUpdatedAt: number | null
+  cloudHasRows: boolean | null
+  online: boolean
+}
+
+export interface SyncErrorToastInfo {
+  /** First error in the latest failed op (for display + retry). */
+  record: SyncErrorRecord
+  /** How many consecutive op-level failures (≥ 2 by definition when toast fires). */
+  consecutive: number
+  /** UI key — unique per toast event so React doesn't dedupe across distinct fires. */
+  id: string
+}
 
 export interface UseSyncReturn {
   status: SyncStatus
@@ -37,10 +85,16 @@ export interface UseSyncReturn {
   gateState: MigrationGateState
   /** Cloud + local timestamps for the conflict chooser modal. */
   gateSnapshot: GateSnapshot | null
+  /** Non-null iff account-switch detected — caller renders AccountSwitchPrompt. */
+  accountSwitch: AccountSwitchInfo | null
+  /** Non-null iff sync has failed ≥ 2 consecutive times — caller renders SyncErrorToast. */
+  syncError: SyncErrorToastInfo | null
   /** Handler invoked by MigrationUploadPrompt. */
   resolveUploadPrompt: (choice: UploadChoice) => Promise<void>
   /** Handler invoked by ConflictChooserModal. */
   resolveConflictChooser: (choice: ConflictChoice) => Promise<void>
+  /** Handler invoked by AccountSwitchPrompt. */
+  resolveAccountSwitch: (choice: AccountSwitchChoice) => Promise<void>
   /**
    * Settings UI entry: re-render the conflict chooser with fresh timestamps.
    * Only meaningful when current state is `paused`. Engine stays paused.
@@ -48,11 +102,22 @@ export interface UseSyncReturn {
   reopenConflictChooser: () => Promise<void>
   /**
    * Settings UI entry: clear all persisted migration preferences for current
-   * user (choice + paused flag) and re-run gate detection. Useful when user
-   * regrets keep-separate or wants to re-evaluate from scratch.
+   * user (choice + paused flag) and re-run gate detection.
    */
   resetMigrationPreference: () => Promise<void>
+  /** Force a manual push (Settings / SyncStatusChip popover). */
+  forcePush: () => Promise<void>
+  /** Force a manual pull (Settings / SyncStatusChip popover). */
+  forcePull: () => Promise<void>
+  /** Engine diagnostic snapshot for bug-report sync_metadata + DEV introspection. */
+  getEngineDiagnostic: () => Promise<EngineDiagnosticSnapshot | null>
+  /** Dismiss the sync error toast (auto-dismiss after 10s also clears). */
+  dismissSyncError: () => void
+  /** Retry the last failed op + dismiss toast. */
+  retrySyncError: () => Promise<void>
 }
+
+const SYNC_ERROR_TOAST_DEBOUNCE_MS = 60_000
 
 export function useSync(): UseSyncReturn {
   const { status: authStatus, user } = useAuth()
@@ -60,6 +125,28 @@ export function useSync(): UseSyncReturn {
   const [, setTick] = useState(0)
   const [gateState, setGateState] = useState<MigrationGateState>('pending')
   const [gateSnapshot, setGateSnapshot] = useState<GateSnapshot | null>(null)
+  const [accountSwitch, setAccountSwitch] = useState<AccountSwitchInfo | null>(null)
+  const [syncError, setSyncError] = useState<SyncErrorToastInfo | null>(null)
+  // Bump to force the gate-compute effect to re-run after the user resolves
+  // an account-switch prompt (auth deps haven't changed).
+  const [resolveTick, setResolveTick] = useState(0)
+  // Same error message within 60s is suppressed (toast debounce).
+  const recentErrorSeenRef = useRef<Map<string, number>>(new Map())
+
+  const handleConsecutiveFailure = useCallback(
+    (record: SyncErrorRecord, count: number) => {
+      const now = Date.now()
+      const seen = recentErrorSeenRef.current.get(record.message)
+      if (seen && now - seen < SYNC_ERROR_TOAST_DEBOUNCE_MS) return
+      recentErrorSeenRef.current.set(record.message, now)
+      setSyncError({
+        record,
+        consecutive: count,
+        id: `${record.at}-${Math.random().toString(36).slice(2, 8)}`,
+      })
+    },
+    [],
+  )
 
   // Engine lifecycle + gate computation
   useEffect(() => {
@@ -70,34 +157,92 @@ export function useSync(): UseSyncReturn {
     }
 
     if (authStatus !== 'authed' || !user) {
-      // Not authed: stop engine, reset gate so next sign-in re-runs detection.
       engineRef.current?.stop()
       setGateState('pending')
       setGateSnapshot(null)
+      setAccountSwitch(null)
       return
     }
 
     let cancelled = false
     setGateState('pending')
 
+    // Cleanup handles for the 5s re-eval watcher.
+    let reEvalWatchActive = false
+    let reEvalDebounceTimer: ReturnType<typeof setTimeout> | null = null
+    let reEvalWindowTimer: ReturnType<typeof setTimeout> | null = null
+    let reEvalHookFn: ((primKey: unknown, obj: unknown) => void) | null = null
+
+    function cancelReEval(): void {
+      reEvalWatchActive = false
+      if (reEvalDebounceTimer) clearTimeout(reEvalDebounceTimer)
+      if (reEvalWindowTimer) clearTimeout(reEvalWindowTimer)
+      const db = getDB()
+      if (reEvalHookFn) {
+        try {
+          ;(db.players.hook('creating') as { unsubscribe: (fn: unknown) => void }).unsubscribe(
+            reEvalHookFn,
+          )
+        } catch {
+          // Dexie unsubscribe may throw if already torn down — ignore.
+        }
+        reEvalHookFn = null
+      }
+    }
+
     ;(async () => {
       try {
+        const db = getDB()
+        devLog('[sync.gate]', { phase: 'compute-start', userId: user.id })
+
+        // ─── Account-switch detection (Bug 2) ────────────────────────
+        if (ACCOUNT_SWITCH_DETECTOR_ENABLED) {
+          const lastUid = await getLastSignedInUserId(db)
+          if (lastUid && lastUid !== user.id) {
+            // Different account previously signed in; check if local has
+            // anything worth flagging (empty local = no risk, just proceed).
+            const hasLocal = await hasNonDefaultLocalState(db)
+            if (hasLocal) {
+              const [localMax, cloudHasRows] = await Promise.all([
+                getMaxLocalUpdatedAt(db),
+                cloudHasAnyRows(supabase, user.id).catch(() => null),
+              ])
+              if (cancelled) return
+              const online = typeof navigator !== 'undefined' ? navigator.onLine : true
+              devLog('[sync.gate]', {
+                phase: 'account-switch-detected',
+                previousUserId: lastUid,
+                currentUserId: user.id,
+              })
+              setAccountSwitch({
+                previousUserId: lastUid,
+                currentEmail: user.email ?? null,
+                localMaxUpdatedAt: localMax,
+                cloudHasRows,
+                online,
+              })
+              return // Wait for resolveAccountSwitch() to set resolveTick.
+            }
+          }
+        }
+
+        // No account-switch → record current as last-signed-in, then gate.
+        await setLastSignedInUserId(db, user.id)
+        setAccountSwitch(null)
+
         const snapshot = await computeGateState(supabase, user.id)
         if (cancelled) return
         setGateSnapshot(snapshot)
         setGateState(snapshot.state)
+        devLog('[sync.gate]', { phase: 'decision', state: snapshot.state })
 
-        // Decide whether to start the engine, and in what mode.
         const needsModal =
           snapshot.state === 'migration-upload' ||
           snapshot.state === 'conflict-chooser' ||
           snapshot.state === 'paused'
         const skipsEngine = snapshot.state === 'keep-separate'
 
-        if (skipsEngine) {
-          // Engine stays uninitialized for this user.
-          return
-        }
+        if (skipsEngine) return
 
         if (!engineRef.current) {
           engineRef.current = createSyncEngine({
@@ -105,17 +250,61 @@ export function useSync(): UseSyncReturn {
             db: getDB(),
             adapters: ONE_STAGE_ADAPTERS,
             debounceMs: DEBOUNCE_MS,
+            onConsecutiveFailure: handleConsecutiveFailure,
           })
         }
-        if (needsModal) {
-          // Install hooks so writes during decision get queued, but block push/pull.
-          engineRef.current.pause()
-        }
+        if (needsModal) engineRef.current.pause()
         engineRef.current.start(user.id)
 
-        if (import.meta.env.DEV) {
-          ;(globalThis as any).__sync = engineRef.current
-          ;(globalThis as any).__db = getDB()
+        if (DEV) {
+          ;(globalThis as { __sync?: SyncEngine }).__sync = engineRef.current
+          ;(globalThis as { __db?: unknown }).__db = getDB()
+        }
+
+        // ─── Post-decision re-eval watcher (Bug 1) ────────────────────
+        // If the decision was "no local data", install a brief watcher; if
+        // a player write lands shortly after (slow hydration race), re-run
+        // the gate once.
+        if (snapshot.state === 'fresh-start' || snapshot.state === 'silent-pull') {
+          reEvalWatchActive = true
+          reEvalHookFn = () => {
+            if (!reEvalWatchActive) return
+            if (reEvalDebounceTimer) clearTimeout(reEvalDebounceTimer)
+            reEvalDebounceTimer = setTimeout(async () => {
+              if (!reEvalWatchActive || cancelled) return
+              reEvalWatchActive = false
+              devLog('[sync.gate]', { phase: 're-eval-fired' })
+              try {
+                const snap2 = await computeGateState(supabase, user.id)
+                if (cancelled) return
+                if (snap2.state !== snapshot.state) {
+                  setGateSnapshot(snap2)
+                  setGateState(snap2.state)
+                  // If new state needs a modal, ensure engine is paused.
+                  const needsModal2 =
+                    snap2.state === 'migration-upload' ||
+                    snap2.state === 'conflict-chooser' ||
+                    snap2.state === 'paused'
+                  if (needsModal2) engineRef.current?.pause()
+                  devLog('[sync.gate]', {
+                    phase: 're-eval-state-changed',
+                    from: snapshot.state,
+                    to: snap2.state,
+                  })
+                }
+              } catch (err) {
+                console.warn('[sync] re-eval failed', err)
+              }
+              cancelReEval()
+            }, RE_EVAL_DEBOUNCE_MS)
+          }
+          db.players.hook('creating', reEvalHookFn)
+          reEvalWindowTimer = setTimeout(() => {
+            if (reEvalWatchActive) {
+              devLog('[sync.gate]', { phase: 're-eval-window-elapsed' })
+            }
+            cancelReEval()
+          }, RE_EVAL_WINDOW_MS)
         }
       } catch (err) {
         console.error('[sync] gate computation failed', err)
@@ -129,8 +318,9 @@ export function useSync(): UseSyncReturn {
     return () => {
       cancelled = true
       clearInterval(poll)
+      cancelReEval()
     }
-  }, [authStatus, user])
+  }, [authStatus, user, resolveTick])
 
   // Hard stop on unmount.
   useEffect(() => {
@@ -139,6 +329,59 @@ export function useSync(): UseSyncReturn {
       engineRef.current = null
     }
   }, [])
+
+  // Register a metadata getter so services/bug-report.ts can grab the
+  // engine snapshot at submit time without re-running useSync (which
+  // would spawn a duplicate engine).
+  useEffect(() => {
+    registerSyncMetadataGetter(async () => {
+      const eng = engineRef.current
+      const engSnap = eng ? await eng.getDiagnosticSnapshot() : null
+      const lastSignedInUserId = await getLastSignedInUserId(getDB()).catch(() => null)
+      return {
+        gateState,
+        authStatus,
+        currentUserId: user?.id ?? null,
+        lastSignedInUserId,
+        lastPushAt: engSnap?.lastPushAt ?? null,
+        lastPullAt: engSnap?.lastPullAt ?? null,
+        queueDepth: engSnap?.queueDepth ?? 0,
+        recentErrors: engSnap?.recentErrors ?? [],
+        dbRowCounts: engSnap?.dbRowCounts ?? {},
+        consecutiveErrors: engSnap?.consecutiveErrors ?? { push: 0, pull: 0 },
+        online: typeof navigator !== 'undefined' ? navigator.onLine : true,
+      }
+    })
+    return () => registerSyncMetadataGetter(null)
+  }, [authStatus, gateState, user])
+
+  /** Handle AccountSwitchPrompt user choice. */
+  const resolveAccountSwitch = useCallback(
+    async (choice: AccountSwitchChoice): Promise<void> => {
+      const supabase = getSupabase()
+      if (!supabase || !user) return
+      const db = getDB()
+
+      if (choice === 'signout') {
+        await supabase.auth.signOut()
+        setAccountSwitch(null)
+        return
+      }
+      if (choice === 'clear-local') {
+        // Tear down engine first so its hooks don't observe the bulk clear.
+        engineRef.current?.stop()
+        engineRef.current = null
+        await clearLocalSyncTables(db)
+      }
+      // For both 'clear-local' and 'keep-local': record the new current user
+      // as last-signed-in so the next effect tick doesn't re-fire the prompt.
+      await setLastSignedInUserId(db, user.id)
+      setAccountSwitch(null)
+      // Force the gate-compute effect to re-run (auth deps unchanged).
+      setResolveTick((t) => t + 1)
+    },
+    [user],
+  )
 
   /** Handle MigrationUploadPrompt user choice. */
   const resolveUploadPrompt = useCallback(
@@ -149,13 +392,8 @@ export function useSync(): UseSyncReturn {
 
       const db = getDB()
       if (choice === 'later') {
-        // No-op; modal stays dismissed until next sign-in re-evaluates.
-        // We mark gateState='resolved' to dismiss the modal in this session
-        // only — no persisted choice, so next sign-in will re-prompt.
         setGateState('resolved')
-        if (engine) {
-          engine.resume()
-        }
+        if (engine) engine.resume()
         return
       }
       if (choice === 'keep-separate') {
@@ -165,7 +403,6 @@ export function useSync(): UseSyncReturn {
         setGateState('keep-separate')
         return
       }
-      // choice === 'upload'
       if (!engine) return
       await engine.pushAllNow()
       await setMigrationChoice(db, user.id, 'uploaded')
@@ -215,8 +452,6 @@ export function useSync(): UseSyncReturn {
     if (!supabase || !user) return
     const snapshot = await computeGateState(supabase, user.id)
     setGateSnapshot(snapshot)
-    // Always re-show conflict chooser even if computed state was 'resolved',
-    // because the user explicitly clicked from settings.
     setGateState('conflict-chooser')
     engineRef.current?.pause()
   }, [user])
@@ -231,8 +466,6 @@ export function useSync(): UseSyncReturn {
     const snapshot = await computeGateState(supabase, user.id)
     setGateSnapshot(snapshot)
     setGateState(snapshot.state)
-    // Engine lifecycle is driven by useEffect, but we may need to re-pause
-    // if state transitioned to a needs-modal one.
     const needsModal =
       snapshot.state === 'migration-upload' ||
       snapshot.state === 'conflict-chooser' ||
@@ -241,6 +474,43 @@ export function useSync(): UseSyncReturn {
     else engineRef.current?.resume()
   }, [user])
 
+  const forcePush = useCallback(async (): Promise<void> => {
+    const e = engineRef.current
+    if (!e) return
+    await e.pushAllNow()
+  }, [])
+
+  const forcePull = useCallback(async (): Promise<void> => {
+    const e = engineRef.current
+    if (!e) return
+    await e.pullAllNow({ force: true })
+  }, [])
+
+  const getEngineDiagnostic = useCallback(
+    async (): Promise<EngineDiagnosticSnapshot | null> => {
+      const e = engineRef.current
+      if (!e) return null
+      return e.getDiagnosticSnapshot()
+    },
+    [],
+  )
+
+  const dismissSyncError = useCallback((): void => {
+    setSyncError(null)
+  }, [])
+
+  const retrySyncError = useCallback(async (): Promise<void> => {
+    const e = engineRef.current
+    setSyncError(null)
+    if (!e) return
+    try {
+      await e.pushAllNow()
+      await e.pullAllNow({ force: true })
+    } catch (err) {
+      console.warn('[sync] manual retry failed', err)
+    }
+  }, [])
+
   const engine = engineRef.current
   return {
     status: engine?.getStatus() ?? (authStatus === 'disabled' ? 'disabled' : 'unauthed'),
@@ -248,9 +518,17 @@ export function useSync(): UseSyncReturn {
     lastPullAt: engine?.lastPullAt() ?? null,
     gateState,
     gateSnapshot,
+    accountSwitch,
+    syncError,
     resolveUploadPrompt,
     resolveConflictChooser,
+    resolveAccountSwitch,
     reopenConflictChooser,
     resetMigrationPreference,
+    forcePush,
+    forcePull,
+    getEngineDiagnostic,
+    dismissSyncError,
+    retrySyncError,
   }
 }
