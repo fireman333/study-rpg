@@ -45,6 +45,24 @@ Each `<year>_第<n>次.md` file SHALL be parsed as:
 
 **Disputed-question handling**: When `**答案**：#` (or `＃`) is encountered, the question SHALL be imported (NOT skipped). The canonical `answer` field SHALL be set to the first option key (typically `"A"`); `meta.disputed` SHALL be set to `true` so downstream UI / scoring can display a disputed badge and award credit for any option chosen. This preserves the question's stem + options + explanation while honoring `content-pack-contract`'s `answer ∈ options` invariant.
 
+**PDF-extraction-junk sanitization**: The upstream PDF→Markdown extractor leaked three classes of non-question content into option text (which also bled into LLM-generated explanations when the LLM echoed the polluted option). The parser SHALL strip the following from every option's text body:
+
+- (a) Q80 trailing answer-key appendix — two wording variants observed: 「測驗題標準答案更正 考試名稱：...」 and 「測驗式試題標準答案 考試名稱：...」. Strip from the marker through end-of-string.
+- (b) Per-page watermark, page number, and page-header fragment: any of 「【版權所有，翻印必究】」/「--<n>--」(page number) / 「醫 護」 (page-header subject label split by whitespace). Strip from the first marker through end-of-string.
+- (c) Lone trailing 「醫」 or 「護」 — when only one character of the page header leaked in, separated from option content by whitespace. Strip the whitespace + lone character.
+
+Option strings SHALL NOT contain any of: 「測驗(式)?(試)?(題)?標準答案」/「考試名稱」/「【版權所有」/「--<digits>--」/「醫 護」(with whitespace) / a lone trailing 「醫」/「護」 preceded by whitespace. Legit Chinese phrases ending in 「醫」/「護」 without preceding whitespace (e.g. 「就醫」/「保護」/「照護」) SHALL NOT be affected.
+
+**Per-question grading-note relocation**: 考選部 sometimes appends a per-question grading directive at the end of a disputed question's last option in the source PDF, formatted as「※第<N>題[<rule>]給分。」(observed rules: 「一律」/「答X給分」/「答X、Y給分」/「答X、Y、Z給分」/「答X或Y或XY者均」). The parser SHALL:
+
+- Detect the directive in any option matching the regex `/\s*(※\s*第\s*\d+\s*題[^。]*給分。?)/u` (NOT anchored at end-of-option, because some source MDs trail page-header fragments after the directive)
+- Strip the matched directive AND any trailing content from the option text (anything after the directive is also upstream junk by inspection)
+- Surface the captured directive in two places:
+  - As a blockquote prepended to the merged `Question.explanation` in the form `> 📋 考選部給分附註：<directive>\n\n<existing explanation>`
+  - As an optional `Question.meta.gradingNote: string` for structured access by future UI code
+
+Option strings SHALL NOT contain the「※」grading-note marker. Explanations SHALL NOT contain a「※第N題...給分。」directive-pattern outside the prepended blockquote header (any LLM echo of the directive inside `**X. ...**` bold blocks SHALL also be stripped — see Explanation merge requirement). Unrelated LLM-authored `※` commentaries that are NOT directive-pattern (e.g. 「※題目給分標準亦接受...」/「※官方允許D給分。」) SHALL be preserved as legitimate explanation content.
+
 #### Scenario: Standard question block parses to conforming Question
 
 - **GIVEN** a question block with valid YAML frontmatter and `## Q1 [...]` body
@@ -69,6 +87,55 @@ Each `<year>_第<n>次.md` file SHALL be parsed as:
 - **AND** `Question.meta.disputed` SHALL be set to `true`
 - **AND** explanation merging from side-car SHALL proceed normally if a side-car exists
 
+#### Scenario: Q80 trailing answer-key appendix is stripped from option text
+
+- **GIVEN** an option line containing `- D. 不可以，雖然...妨害病人名譽 測驗題標準答案更正 考試名稱：... 第78題一律給分`
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.D` SHALL end after「妨害病人名譽」(trailing whitespace trimmed)
+- **AND** `options.D` SHALL NOT contain the substring「測驗題標準答案」or「考試名稱」
+- **AND** the question SHALL still be imported normally (not skipped)
+
+#### Scenario: Page-footer junk is stripped from option text
+
+- **GIVEN** an option line containing `- D. 依醫院規定，決定是否對到院前死亡的病人急救 醫 護 【版權所有，翻印必究】 --13--`
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.D` SHALL end after「對到院前死亡的病人急救」
+- **AND** `options.D` SHALL NOT contain「醫 護」/「【版權所有」/「--13--」
+
+#### Scenario: Lone trailing 醫 or 護 fragment is stripped
+
+- **GIVEN** an option line containing `- B. 確認群體→確認問題→策略規劃→介入實施→評估成效 護`
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.B` SHALL end after「評估成效」(no trailing space + 護)
+
+#### Scenario: Legit option ending in 醫 or 護 is preserved
+
+- **GIVEN** an option line containing `- C. 提供機械性保護` (no whitespace before the trailing 護)
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.C` SHALL retain the full text「提供機械性保護」unchanged
+
+#### Scenario: Grading-note directive is extracted from option and surfaced in explanation
+
+- **GIVEN** an option line containing `- D. 約99%病患不會成為慢性帶原 ※第17題答Ｂ、Ｄ給分。` and a paired side-car explanation starting `**A. ...**`
+- **WHEN** the parser processes the option AND `buildQuestion` merges with side-car
+- **THEN** the resulting `options.D` SHALL be `"約99%病患不會成為慢性帶原"` (no trailing ※ directive)
+- **AND** the resulting `Question.explanation` SHALL start with `> 📋 考選部給分附註：※第17題答Ｂ、Ｄ給分。\n\n**A. ...**`
+- **AND** the resulting `Question.meta.gradingNote` SHALL equal `"※第17題答Ｂ、Ｄ給分。"`
+
+#### Scenario: Grading-note co-occurring with page-header fragment is cleanly separated
+
+- **GIVEN** an option line containing `- D. 糖尿病 醫 ※第22題一律給分。`
+- **WHEN** the parser processes the option
+- **THEN** `options.D` SHALL be `"糖尿病"` (※ directive extracted, then lone trailing 醫 stripped by existing junk-sanitization pass)
+- **AND** `Question.meta.gradingNote` SHALL equal `"※第22題一律給分。"`
+
+#### Scenario: Grading-note with trailing page-header junk is captured cleanly
+
+- **GIVEN** an option line containing `- D. primary osteoblastic bone tumor ※第73題一律給分。 醫`
+- **WHEN** the parser processes the option
+- **THEN** `options.D` SHALL be `"primary osteoblastic bone tumor"` (everything from ※ onwards dropped)
+- **AND** `Question.meta.gradingNote` SHALL equal `"※第73題一律給分。"`
+
 ### Requirement: Explanation side-car SHALL be merged per-question with graceful fallback
 
 For each question file `<basename>.md`, the build script SHALL look for `<basename>.explanations.md`:
@@ -78,6 +145,10 @@ For each question file `<basename>.md`, the build script SHALL look for `<basena
 - If side-car does not exist at all: same fallback as above
 
 `meta.explanationModel` (if available from side-car frontmatter), `meta.oeHitRate`, and `meta.explanationConfidence` (P1–P5 label extracted from the explanation header) SHALL be carried through into `Question.meta`.
+
+**PDF-extraction-junk sanitization in explanations**: Because the LLM that generated explanations was fed the polluted option text (see Question-parser requirement), the LLM frequently echoed the same junk inside its `**X. ...**` bold heading blocks. The parser SHALL apply the same three-class strip described in the Question-parser requirement to explanation strings, with one anchoring difference: when the explanation is wrapped in `**X. ... **` bold blocks, the strip lookahead anchors at the next `**` (closing bold marker) instead of end-of-string, to preserve markdown bold-balance. Lone trailing 「醫」/「護」 inside a bold block SHALL be stripped if separated from preceding text by whitespace and immediately followed by `**`.
+
+**Grading-note echo strip**: Any LLM echo of the「※第N題...給分。」directive inside an explanation `**X. ...**` bold block SHALL be stripped from that location (a separate Pass 0 in the sanitization pipeline targets the directive precisely — strips the directive only, NOT everything through closing `**`). The directive content is surfaced once at the top of the explanation via the blockquote prepended by `buildQuestion`; duplicate echoes inside per-option bold headings are visual noise and SHALL be removed. Non-directive `※` commentaries authored by the LLM as legitimate explanation content SHALL be preserved.
 
 #### Scenario: Question with explanation merged from side-car
 
@@ -95,6 +166,20 @@ For each question file `<basename>.md`, the build script SHALL look for `<basena
 - **THEN** `questions.json` entry for Q1 SHALL have `explanation` = `"詳解生成中（pending LLM generation）。原始題目 / 答案完整可用。"`
 - **AND** `meta.explanationStatus` = `"pending"`
 - **AND** Q1 SHALL still be `importedQ` (counted as imported, NOT skipped)
+
+#### Scenario: PDF-extraction junk is stripped from explanation bold block
+
+- **GIVEN** an explanation containing `**D. 不可以，雖然...妨害病人名譽 測驗題標準答案更正 考試名稱：... 第78題一律給分**\n  - ✗ 錯誤 [P4 NPC]`
+- **WHEN** the build runs
+- **THEN** the merged `explanation` SHALL contain `**D. 不可以，雖然...妨害病人名譽**\n  - ✗ 錯誤 [P4 NPC]` (closing `**` preserved, markdown bold balance intact)
+- **AND** the `explanation` SHALL NOT contain the substring「測驗題標準答案」or「醫 護」or「【版權所有」
+
+#### Scenario: LLM-echoed grading-note inside explanation bold block is stripped
+
+- **GIVEN** an explanation containing `**D. 約99%病患不會成為慢性帶原 ※第17題答Ｂ、Ｄ給分。**\n  - ✗ 錯誤 [P2]`
+- **WHEN** the build runs
+- **THEN** the merged `explanation` SHALL contain `**D. 約99%病患不會成為慢性帶原**\n  - ✗ 錯誤 [P2]` (※ directive removed from per-option bold heading, bold balance intact)
+- **AND** the final `Question.explanation` (after `buildQuestion` prepends the blockquote) SHALL contain the「※第17題答Ｂ、Ｄ給分。」directive exactly once, in the top blockquote header `> 📋 考選部給分附註：...`
 
 ### Requirement: Build artifacts SHALL include questions / subjects / meta / stats JSON
 
