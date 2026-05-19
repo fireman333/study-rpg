@@ -52,7 +52,6 @@ import { AccountSwitchPrompt } from './components/AccountSwitchPrompt'
 import { SettingsPanel } from './components/SettingsPanel'
 import { SyncStatusChip } from './components/SyncStatusChip'
 import { SyncErrorToast } from './components/SyncErrorToast'
-import { clearLocalSyncTables } from './lib/sync/account-switch'
 import { useSync } from './lib/sync/useSync'
 import { useAuth } from './lib/auth/AuthContext'
 import { CharCard } from './components/CharCard'
@@ -117,8 +116,10 @@ export default function App() {
     forcePull,
     dismissSyncError,
     retrySyncError,
+    signOutWithFlush,
+    safeAccountSwitch,
   } = useSync()
-  const { user: authUser, signOut, signInWithGoogle } = useAuth()
+  const { user: authUser } = useAuth()
   const [settingsOpen, setSettingsOpen] = useState(false)
   // navigator.onLine for SyncStatusChip + AccountSwitchPrompt awareness.
   const [online, setOnline] = useState(
@@ -1012,21 +1013,18 @@ export default function App() {
           lastPullAt={lastPullAt}
           gateState={gateState}
           onSignOut={async () => {
-            await signOut()
+            await signOutWithFlush()
             setSettingsOpen(false)
           }}
           onSwitchAccount={async () => {
             const ok = window.confirm(
               '⚠ 切換帳號將清空本地進度並重新登入。\n\n' +
-                '清空後本機所有 cloud-synced 資料（角色、物品、SRS、導師背景）會被刪除。\n' +
-                '只有你目前登入的帳號雲端有備份才能還原。確定？',
+                '我會先確保未上傳的進度推到雲端、再快照備份本機到 localBackup table，' +
+                '然後清空本地、登出、重新打開登入。確定？',
             )
             if (!ok) return
-            const { getDB } = await import('@study-rpg/core')
-            await clearLocalSyncTables(getDB())
-            await signOut()
+            await safeAccountSwitch()
             setSettingsOpen(false)
-            void signInWithGoogle()
           }}
           onReopenConflictChooser={async () => {
             await reopenConflictChooser()

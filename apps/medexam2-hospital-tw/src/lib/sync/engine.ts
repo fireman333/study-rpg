@@ -23,8 +23,6 @@ const DEFAULT_DEBOUNCE_MS = 3000
 const DEFAULT_APP_VERSION = '0.2.0'
 const LAST_PULL_KEY = 'study-rpg.sync.lastPullAt'
 const MAX_RECENT_ERRORS = 5
-/** See apps/medexam-tw/src/lib/sync/engine.ts for design rationale. */
-const COLD_START_FORCE_PULL_THRESHOLD_MS = 60 * 60 * 1000
 
 interface DirtySet {
   /** Per-table dirty PK sets. Keyed by Dexie table name. */
@@ -369,15 +367,13 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       installHooks()
       installVisibilityListener()
       if (!paused) {
-        // Cold-start force-pull guard (M3b) — see 一階 engine.ts comments.
-        const longGap =
-          _lastPullAt === null ||
-          Date.now() - _lastPullAt > COLD_START_FORCE_PULL_THRESHOLD_MS
-        if (longGap) {
-          pullAllNow({ force: true }).catch((err) => onError(err, 'startupPullForce'))
-        } else {
-          pullNow().catch((err) => onError(err, 'startupPull'))
+        // Cold-start ALWAYS force-pulls (fix-account-switch-data-loss C1) —
+        // see 一階 engine.ts comments for full rationale.
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.log('[sync.start]', { phase: 'force-pull-on-cold-start', userId: uid })
         }
+        pullAllNow({ force: true }).catch((err) => onError(err, 'startupPullForce'))
       }
     },
     stop() {
