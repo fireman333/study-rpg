@@ -28,6 +28,12 @@ body {
   image-rendering: pixelated;
 }
 
+/* Mobile: disable pull-to-refresh on body so swipe-down inside a modal that
+ * happens to reach its scroll top can't accidentally reload the SPA. */
+html, body {
+  overscroll-behavior-y: none;
+}
+
 .app-shell {
   max-width: 1080px;
   margin: 0 auto;
@@ -1516,8 +1522,12 @@ body {
 .modal-card--quiz {
   width: min(720px, 100%);
   text-align: left;
+  /* dvh handles iOS URL bar correctly; vh fallback for browsers without dvh */
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   position: relative;
 }
 
