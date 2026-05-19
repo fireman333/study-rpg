@@ -1871,6 +1871,9 @@ body {
   font-size: 14px;
   line-height: 1.6;
   color: var(--frame-dark);
+  /* Override .modal-card { text-align: center } inheritance — bullet lists
+     and per-option breakdowns need left alignment for readability. */
+  text-align: left;
 }
 
 .explanation-markdown h3,
@@ -4070,11 +4073,26 @@ body {
 
 .er-consult__foot {
   margin-top: 4px;
-  font-size: 12px;
+  display: flex;
+  justify-content: flex-end;
 }
 
-.er-consult__hint {
-  margin: 0;
+.er-consult__close-btn {
+  padding: 8px 20px;
+  border: 1px solid rgba(170, 170, 170, 0.5);
+  border-radius: 4px;
+  background: rgba(180, 200, 130, 0.18);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  min-height: 44px;
+  min-width: 88px;
+}
+
+.er-consult__close-btn:hover,
+.er-consult__close-btn:focus-visible {
+  background: rgba(180, 200, 130, 0.32);
 }
 
 .er-consult__toast {
@@ -4127,6 +4145,18 @@ body {
   font: inherit;
   min-height: 44px;
   min-width: 80px;
+}
+
+.er-consult__confirm-cancel {
+  background: rgba(245, 235, 200, 0.94);
+  border-color: rgba(120, 90, 60, 0.55);
+  color: #2a1f15;
+  font-weight: 600;
+}
+
+.er-consult__confirm-cancel:hover,
+.er-consult__confirm-cancel:focus-visible {
+  background: rgba(245, 235, 200, 1);
 }
 
 .er-consult__confirm-ok {

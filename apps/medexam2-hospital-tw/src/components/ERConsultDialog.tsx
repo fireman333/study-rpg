@@ -39,13 +39,28 @@ function pickStableVariant(pool: ReadonlyArray<string>, seed: string): string {
 export function ERConsultDialog(): JSX.Element | null {
   const db = getHospitalDB()
   const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
-  const active: ERConsultActiveState | null = counters?.erConsultActive ?? null
+  const dbActive: ERConsultActiveState | null = counters?.erConsultActive ?? null
+  const [sticky, setSticky] = useState<ERConsultActiveState | null>(null)
 
-  if (!active) return null
-  return <ERConsultDialogInner active={active} />
+  // Adopt new active from DB; do NOT clear sticky just because DB cleared —
+  // service-layer functions clear erConsultActive after recording but the
+  // dialog needs to stay rendered until the user finishes reading and
+  // explicitly closes (per er-consultation spec dialog lifecycle).
+  useEffect(() => {
+    if (dbActive) setSticky(dbActive)
+  }, [dbActive])
+
+  if (!sticky) return null
+  return <ERConsultDialogInner active={sticky} onClose={() => setSticky(null)} />
 }
 
-function ERConsultDialogInner({ active }: { active: ERConsultActiveState }): JSX.Element {
+function ERConsultDialogInner({
+  active,
+  onClose,
+}: {
+  active: ERConsultActiveState
+  onClose: () => void
+}): JSX.Element {
   const [question, setQuestion] = useState<Question | null>(null)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
@@ -81,13 +96,17 @@ function ERConsultDialogInner({ active }: { active: ERConsultActiveState }): JSX
     return tmpl.replace('{subject}', active.subjectId)
   }, [active.greetingIdx, active.subjectId])
 
+  const wasCorrect =
+    revealed && question
+      ? question.disputed || selectedOption === question.answer
+      : null
+
   const reply = useMemo(() => {
-    if (!revealed || !question) return null
-    const wasCorrect = question.disputed || selectedOption === question.answer
+    if (wasCorrect === null) return null
     return wasCorrect
       ? pickStableVariant(ER_CONSULT_GRATITUDE, active.questionId)
       : pickStableVariant(ER_CONSULT_CORRECTIONS, active.questionId)
-  }, [revealed, question, selectedOption, active.questionId])
+  }, [wasCorrect, active.questionId])
 
   async function dismissOnboarding(): Promise<void> {
     setShowOnboarding(false)
@@ -107,11 +126,7 @@ function ERConsultDialogInner({ active }: { active: ERConsultActiveState }): JSX
     if (!result) return
     if (wasCorrect) {
       setToast(`+${result.revenueDelta} 💰 / +${result.reputationDelta} 聲望`)
-      // Auto-close 2s after correct
-      setTimeout(() => {
-        // No-op state change to trigger unmount via liveQuery (active was cleared
-        // in answerERConsult; liveQuery will see null on next tick).
-      }, 2000)
+      setTimeout(onClose, 2000)
     }
   }
 
@@ -130,7 +145,7 @@ function ERConsultDialogInner({ active }: { active: ERConsultActiveState }): JSX
     setShowSkipConfirm(false)
     if (showOnboarding) await dismissOnboarding()
     await skipERConsult(active)
-    // Modal will unmount via liveQuery on cleared erConsultActive
+    onClose()
   }
 
   const erDoctorSprite = lookupERDoctorSprite(THEME_PIXEL_HOSPITAL.sprites, active.doctorSpriteKey)
@@ -237,7 +252,14 @@ function ERConsultDialogInner({ active }: { active: ERConsultActiveState }): JSX
 
         {revealed && (
           <footer className="er-consult__foot">
-            <p className="er-consult__hint muted">關閉視窗即可回到醫院</p>
+            <button
+              type="button"
+              className="er-consult__close-btn"
+              onClick={onClose}
+              aria-label="關閉急診照會"
+            >
+              關閉
+            </button>
           </footer>
         )}
 
