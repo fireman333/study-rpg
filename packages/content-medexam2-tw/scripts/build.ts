@@ -316,7 +316,10 @@ function parseExplanationsFile(path: string): { exps: Map<number, ExplanationDat
     const detailIdx = qBlock.indexOf('### 選項詳解')
     let text = ''
     if (detailIdx >= 0) {
-      text = qBlock.slice(detailIdx).trim()
+      // Skip the "### 選項詳解" header line itself — QuizModal already renders a
+      // "解析" section label, so the inner header is visually redundant.
+      const afterHeader = qBlock.indexOf('\n', detailIdx) + 1
+      text = qBlock.slice(afterHeader).trim()
     } else {
       const hdrLine = qBlock.indexOf('\n')
       text = qBlock.slice(hdrLine + 1).trim()
