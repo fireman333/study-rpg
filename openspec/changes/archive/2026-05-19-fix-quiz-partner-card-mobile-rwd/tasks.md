@@ -36,6 +36,6 @@
 - [x] **4.1** `pnpm --filter @study-rpg/medexam2-hospital-tw typecheck` — zero diagnostics ✅
 - [x] **4.2** `openspec validate fix-quiz-partner-card-mobile-rwd --strict` — `Change 'fix-quiz-partner-card-mobile-rwd' is valid` ✅
 - [x] **4.3** `/opsx:verify` — 0 CRITICAL, 1 WARNING（D4 design.md gap — 已補）, 1 SUGGESTION（comment path — accept as-is，archive 後自然準）。所有 spec scenarios 對應到 Chrome MCP live measurement。Ready for archive.
-- [ ] **4.4** Commit `fix(medexam2-hospital-tw): partner card mobile RWD (two-row layout < 520px)`，commit body cite this change folder。
-- [ ] **4.5** `/opsx:archive` with sync gate。Delta `specs/quiz-partner-card-rwd/spec.md` → new main `openspec/specs/quiz-partner-card-rwd/spec.md`；delta `specs/hospital-quiz/spec.md` → merge ADDED requirement 進 main `openspec/specs/hospital-quiz/spec.md`。
-- [ ] **4.6** 此 fix 不跨 一階／二階（只動 `medexam2-hospital-tw` styles.css），不需 cherry-pick 回 `track-m2` → main 流程仍走標準 dual-worktree merge。
+- [x] **4.4** Commit `2445b2e` on track-m2. Multi-agent git safety: explicit `git add` 7 files (1 modify + 6 add) — 5 parallel-session files left untouched in working tree.
+- [x] **4.5** `/opsx:archive` with sync gate ✅ 新 capability `openspec/specs/quiz-partner-card-rwd/spec.md` 創建（81 行）；`openspec/specs/hospital-quiz/spec.md` 追加 ADDED requirement（+24 行，插在 "Quiz session SHALL require a roster doctor" 與 "Subject dropdown SHALL default to banner subject" 之間）；兩個 main specs `openspec validate --strict` 皆 clean；change folder 移到 `openspec/changes/archive/2026-05-19-fix-quiz-partner-card-mobile-rwd/`。
+- [x] **4.6** 此 fix 不跨 一階／二階（只動 `medexam2-hospital-tw` styles.css），不需 cherry-pick 回 main；標準 dual-worktree merge 涵蓋（`track-m2` → `main` 由使用者統一管理）。
