@@ -916,6 +916,24 @@ body:has(.modal-backdrop) {
   flex-shrink: 0;
 }
 
+/* Mobile: 240px right padding leaves no room for text + button on narrow
+ * viewports, causing Chinese text to wrap character-by-character (vertical-looking
+ * column). Stack vertically and use normal padding instead. */
+@media (max-width: 600px) {
+  .sync-paused-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+  .sync-paused-banner__icon { align-self: flex-start; }
+  .sync-paused-banner__btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}
+
 /* ── Tier upgrade notice ───────────────────────────────── */
 
 .upgrade-notice {
