@@ -44,7 +44,7 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
     title: '唸書 session — 醫師看患者 1.5× idle 加成',
     body: [
       '兩個進帳管道：寫題答對直接賺營收/聲望（依 tier 與夥伴醫師同科加成，session 開不開都一樣）；開「📖 唸書」session 期間，醫師看患者的 idle 收入（throughput）會有 1.5× 加成（薪水照舊全額）。不開 session 沒 idle 進帳（tick 不跑），但寫題照常賺錢。',
-      '離開分頁會自動暫停、回到分頁自動繼續；手動暫停則需主動點「繼續唸書」。累積唸書時間（min）會永久保留，不會因換機或重置而流失。',
+      '離開分頁會自動暫停、回到分頁自動繼續；手動暫停則需主動點「繼續唸書」。累積唸書時間（min）會雲端同步並跨裝置累加；按「重置此帳號進度」或「使用雲端覆蓋本機」會一併清空。',
     ],
   },
   {

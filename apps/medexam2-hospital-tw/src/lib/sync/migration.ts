@@ -282,6 +282,7 @@ export async function snapshotLocalToBackup(
     questionHistory,
     targetedTickets,
     targetedTicketHistory,
+    monotonicCounters,
   ] = await Promise.all([
     db.gameCounters.get('singleton').then((r) => r ?? null),
     db.gachaStats.get('global').then((r) => r ?? null),
@@ -293,6 +294,7 @@ export async function snapshotLocalToBackup(
     db.questionHistory.toArray(),
     db.targetedTickets.toArray(),
     db.targetedTicketHistory.toArray(),
+    db.monotonicCounters.get('singleton').then((r) => r ?? null),
   ])
   const record: HospitalLocalBackupRecord = {
     key,
@@ -311,6 +313,7 @@ export async function snapshotLocalToBackup(
     questionHistory,
     targetedTickets,
     targetedTicketHistory,
+    monotonicCounters,
   }
   await db.localBackup.put(record)
   return key
@@ -335,6 +338,7 @@ export async function wipeLocalSyncedTables(db: HospitalDB): Promise<void> {
       db.questionHistory,
       db.targetedTickets,
       db.targetedTicketHistory,
+      db.monotonicCounters,
     ],
     async () => {
       await db.gameCounters.clear()
@@ -347,6 +351,7 @@ export async function wipeLocalSyncedTables(db: HospitalDB): Promise<void> {
       await db.questionHistory.clear()
       await db.targetedTickets.clear()
       await db.targetedTicketHistory.clear()
+      await db.monotonicCounters.clear()
     },
   )
 }

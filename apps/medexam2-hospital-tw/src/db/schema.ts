@@ -289,6 +289,13 @@ export interface HospitalLocalBackupRecord {
   targetedTickets?: TargetedTicketRow[]
   /** Optional — present on backups taken post-v9. */
   targetedTicketHistory?: TargetedTicketHistoryRow[]
+  /**
+   * Optional — present on backups taken post add-monotonic-counters-to-sync
+   * (2026-05-19). Older snapshots (taken before this field shipped) MAY omit
+   * the key; callers restoring from such snapshots SHALL fall back to a
+   * default singleton row.
+   */
+  monotonicCounters?: MonotonicCountersRow | null
 }
 
 export class HospitalDB extends Dexie {
