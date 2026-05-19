@@ -1866,13 +1866,48 @@ body {
   font-size: 16px;
 }
 
-.quiz-modal__explanation-body {
-  margin: 0;
+.explanation-markdown {
   font-family: inherit;
   font-size: 14px;
   line-height: 1.6;
-  white-space: pre-wrap;
   color: var(--frame-dark);
+}
+
+.explanation-markdown h3,
+.explanation-markdown h4 {
+  margin: 8px 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.explanation-markdown p {
+  margin: 4px 0;
+}
+
+.explanation-markdown ul,
+.explanation-markdown ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.explanation-markdown li {
+  margin: 2px 0;
+}
+
+.explanation-markdown strong {
+  font-weight: 700;
+}
+
+.explanation-markdown code {
+  font-family: ui-monospace, monospace;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0 4px;
+  border-radius: 2px;
+  font-size: 13px;
+}
+
+.bookmarks-page__entry-explanation .explanation-markdown code {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .quiz-modal__foot {
@@ -3295,9 +3330,7 @@ body {
   line-height: 1.6;
 }
 
-.bookmarks-page__entry-explanation-body {
-  font-family: inherit;
-  white-space: pre-wrap;
+.bookmarks-page__entry-explanation .explanation-markdown {
   margin: 4px 0 0;
   padding: 8px 10px;
   background: var(--surface-2, rgba(0, 0, 0, 0.18));
@@ -3783,4 +3816,339 @@ body {
 .help-menu__toggle-row input[type="checkbox"] {
   margin: 0;
   cursor: pointer;
+}
+
+/* ─── ER Consultation Dialog (add-er-consultation-feature) ──────────────── */
+/* Restored 2026-05-19 — original CSS was lost during multi-agent staging   */
+/* race in commit ae7ce5f. Mobile-safe: uses dvh viewport units + iOS scroll */
+/* properties to prevent the "卡住滑不動" bug.                              */
+
+.modal-backdrop--er-consult {
+  z-index: 95;
+}
+
+.modal-card--er-consult {
+  max-width: 640px;
+  width: min(640px, calc(100vw - 32px));
+  /* dvh (dynamic viewport height) handles iOS URL bar correctly; vh fallback for old browsers */
+  max-height: calc(100vh - 64px);
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+.er-consult__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(200, 132, 51, 0.35);
+  padding-bottom: 10px;
+  position: sticky;
+  top: -20px;
+  background: inherit;
+  z-index: 2;
+  margin: -20px -22px 0;
+  padding: 14px 22px 10px;
+}
+
+.er-consult__title {
+  font-size: 18px;
+  margin: 0;
+  letter-spacing: 0.04em;
+  color: rgba(228, 92, 62, 1);
+}
+
+.er-consult__skip-btn {
+  padding: 6px 14px;
+  border: 1px solid rgba(170, 170, 170, 0.5);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  /* Larger touch target for mobile (≥ 44×44 per Apple HIG, achieved via padding) */
+  min-height: 36px;
+  min-width: 56px;
+}
+
+.er-consult__skip-btn:hover:not(:disabled),
+.er-consult__skip-btn:focus-visible:not(:disabled) {
+  background: rgba(170, 170, 170, 0.18);
+}
+
+.er-consult__onboarding {
+  padding: 8px 12px;
+  background: rgba(180, 200, 130, 0.22);
+  border-left: 3px solid rgba(160, 180, 100, 0.85);
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.er-consult__npc {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 10px;
+  background: rgba(200, 132, 51, 0.08);
+  border-radius: 6px;
+}
+
+.er-consult__npc-sprite {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+.er-consult__npc-sprite img {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+}
+
+.er-consult__npc-bubble {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.er-consult__npc-name {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.7;
+  font-weight: 600;
+}
+
+.er-consult__npc-line {
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.er-consult__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.er-consult__loading {
+  opacity: 0.65;
+  font-size: 14px;
+}
+
+.er-consult__question-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  opacity: 0.75;
+  flex-wrap: wrap;
+}
+
+.er-consult__subject-tag {
+  padding: 2px 8px;
+  background: rgba(120, 170, 220, 0.22);
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.er-consult__question-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+
+.er-consult__stem {
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.er-consult__image img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.er-consult__image-missing {
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.er-consult__options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.er-consult__option {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+  /* Touch target ≥ 44 px effective height (padding 12 + ~20px text = ~44) */
+  min-height: 44px;
+}
+
+.er-consult__option:hover:not(:disabled),
+.er-consult__option:focus-visible:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.er-consult__option--correct {
+  background: rgba(120, 180, 110, 0.22);
+  border-color: rgba(120, 180, 110, 0.6);
+}
+
+.er-consult__option--wrong {
+  background: rgba(220, 100, 90, 0.22);
+  border-color: rgba(220, 100, 90, 0.55);
+}
+
+.er-consult__option--dim {
+  opacity: 0.5;
+}
+
+.er-consult__option-key {
+  font-weight: 700;
+  opacity: 0.75;
+  min-width: 18px;
+  flex-shrink: 0;
+}
+
+.er-consult__option-text {
+  flex: 1;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.er-consult__explanation {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.er-consult__explanation h3 {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.75;
+  letter-spacing: 0.04em;
+}
+
+
+.er-consult__foot {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.er-consult__hint {
+  margin: 0;
+}
+
+.er-consult__toast {
+  position: sticky;
+  bottom: 0;
+  align-self: flex-end;
+  padding: 6px 12px;
+  background: rgba(20, 30, 50, 0.92);
+  color: #d6e4ff;
+  border-radius: 4px;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.er-consult__confirm {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 22, 35, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  text-align: center;
+  border-radius: inherit;
+  gap: 14px;
+  z-index: 3;
+}
+
+.er-consult__confirm p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.er-consult__confirm-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.er-consult__confirm-cancel,
+.er-consult__confirm-ok {
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  min-height: 44px;
+  min-width: 80px;
+}
+
+.er-consult__confirm-ok {
+  background: rgba(228, 92, 62, 0.85);
+  border-color: rgba(228, 92, 62, 1);
+  color: #fff;
+}
+
+/* Mobile portrait — give back a bit of horizontal padding economy */
+@media (max-width: 480px) {
+  .modal-card--er-consult {
+    width: calc(100vw - 16px);
+    padding: 16px 14px;
+    gap: 12px;
+  }
+  .er-consult__head {
+    margin: -16px -14px 0;
+    padding: 12px 14px 8px;
+  }
+  .er-consult__npc-sprite,
+  .er-consult__npc-sprite img {
+    width: 72px;
+    height: 72px;
+  }
 }
