@@ -118,6 +118,7 @@ export default function App() {
     retrySyncError,
     signOutWithFlush,
     safeAccountSwitch,
+    safeResetAccountData,
   } = useSync()
   const { user: authUser } = useAuth()
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -1026,6 +1027,7 @@ export default function App() {
             await safeAccountSwitch()
             setSettingsOpen(false)
           }}
+          onResetProgress={safeResetAccountData}
           onReopenConflictChooser={async () => {
             await reopenConflictChooser()
             setSettingsOpen(false)

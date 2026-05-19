@@ -20,6 +20,8 @@ interface Props {
   onSignOut: () => Promise<void>
   /** Combines: clear local sync tables → sign out → re-open sign-in modal. */
   onSwitchAccount: () => Promise<void>
+  /** In-place reset: snapshot → cloud delete → local wipe → engine restart. */
+  onResetProgress: () => Promise<void>
   onReopenConflictChooser: () => Promise<void>
   onResetMigrationPreference: () => Promise<void>
   onClose: () => void
@@ -66,6 +68,7 @@ export function SettingsPanel({
   gateState,
   onSignOut,
   onSwitchAccount,
+  onResetProgress,
   onReopenConflictChooser,
   onResetMigrationPreference,
   onClose,
@@ -117,6 +120,29 @@ export function SettingsPanel({
       },
       '雲端資料已下載',
     )
+  }
+
+  async function handleResetProgress() {
+    const ok1 = window.confirm(
+      '⚠ 重置進度將清除這個帳號的雲端與本地遊戲資料：\n\n' +
+        '・遊戲存檔（角色、技能、徽章、cosmetic）\n' +
+        '・物品背包（item instances）\n' +
+        '・SRS 卡片排程\n' +
+        '・導師背景題目\n\n' +
+        '本機會先快照到 localBackup 安全網（保險），但雲端 delete 後無法恢復。\n' +
+        '你的 Google 帳號本身不會被刪。\n\n' +
+        '確定要重置這個帳號的進度嗎？',
+    )
+    if (!ok1) {
+      setInfo('已取消')
+      return
+    }
+    const typed = window.prompt('請輸入 RESET 確認重置：')
+    if (typed !== 'RESET') {
+      setInfo('已取消（未輸入 RESET）')
+      return
+    }
+    await withBusy('reset-progress', onResetProgress, '進度已重置')
   }
 
   async function handleDeleteAccount() {
@@ -237,6 +263,15 @@ export function SettingsPanel({
               onClick={handleExport}
             >
               {busy === 'export' ? '匯出中…' : '⬇ 匯出雲端資料 JSON'}
+            </button>
+            <button
+              type="button"
+              className="settings-btn settings-btn--danger"
+              disabled={busy !== null || email === null || status === 'disabled'}
+              onClick={handleResetProgress}
+              title="重置進度只清資料，不會登出 Google 帳號"
+            >
+              {busy === 'reset-progress' ? '重置中…' : '🔁 重置此帳號進度'}
             </button>
             <button
               type="button"

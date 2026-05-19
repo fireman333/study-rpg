@@ -128,20 +128,70 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
       '冷門科別 = 你最近 7 天答比較少 + 掌握度比較低的科。10 分鐘內沒回應會自動跳過、不會扣分。',
     ],
   },
+  {
+    id: 'account-reset',
+    icon: '♻',
+    title: '重置此帳號進度',
+    body: [
+      '想重新開始一份乾淨的存檔但不想登出 Google 帳號？這個動作會清掉這個帳號的雲端與本地遊戲資料（醫院經營 tier / 收益 / 聲望、醫師名冊、答題紀錄、命運卡、SRS 排程、收藏題目），但保留你的 Google 登入。',
+      '本機會先快照到 localBackup 安全網（保險），但雲端 delete 後無法恢復。下方按鈕會先彈確認，再要你輸入 RESET 二次確認才執行。',
+    ],
+  },
 ])
 
 interface HelpMenuProps {
   /** Optional class to position the FAB; defaults to fixed top-right corner. */
   className?: string
+  /** Provided when cloud sync is wired; missing/undefined disables reset entry. */
+  onResetProgress?: () => Promise<void>
+  /** True when a user is currently signed in (gates the reset entry). */
+  signedIn?: boolean
 }
 
-export function HelpMenu({ className }: HelpMenuProps) {
+export function HelpMenu({ className, onResetProgress, signedIn = false }: HelpMenuProps) {
   const [open, setOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [resetMsg, setResetMsg] = useState<string | null>(null)
   const [resetting, setResetting] = useState(false)
   const [bugReportOpen, setBugReportOpen] = useState(false)
   const [erConsultEnabled, setErConsultEnabledState] = useState<boolean | null>(null)
+  const [accountResetMsg, setAccountResetMsg] = useState<string | null>(null)
+  const [accountResetting, setAccountResetting] = useState(false)
+
+  async function handleAccountReset(): Promise<void> {
+    if (!onResetProgress) return
+    setAccountResetMsg(null)
+    const ok1 = window.confirm(
+      '⚠ 重置進度將清除這個帳號的雲端與本地遊戲資料：\n\n' +
+        '・醫院經營（tier / 收益 / 聲望）\n' +
+        '・醫師名冊\n' +
+        '・答題紀錄\n' +
+        '・命運卡與抽卡保底\n' +
+        '・SRS 卡片排程\n' +
+        '・收藏題目\n\n' +
+        '本機會先快照到 localBackup 安全網（保險），但雲端 delete 後無法恢復。\n' +
+        '你的 Google 帳號本身不會被刪。\n\n' +
+        '確定要重置這個帳號的進度嗎？',
+    )
+    if (!ok1) {
+      setAccountResetMsg('已取消')
+      return
+    }
+    const typed = window.prompt('請輸入 RESET 確認重置：')
+    if (typed !== 'RESET') {
+      setAccountResetMsg('已取消（未輸入 RESET）')
+      return
+    }
+    setAccountResetting(true)
+    try {
+      await onResetProgress()
+      setAccountResetMsg('✓ 進度已重置')
+    } catch (err) {
+      setAccountResetMsg(`✗ 重置失敗：${err instanceof Error ? err.message : '未知錯誤'}`)
+    } finally {
+      setAccountResetting(false)
+    }
+  }
 
   useEffect(() => {
     void (async () => {
@@ -255,6 +305,28 @@ export function HelpMenu({ className }: HelpMenuProps) {
                               {erConsultEnabled ? '✓ 已啟用急診照會' : '✗ 已關閉急診照會'}
                             </span>
                           </label>
+                        )}
+                        {section.id === 'account-reset' && (
+                          <>
+                            <button
+                              type="button"
+                              className="settings-modal__reset-btn"
+                              onClick={() => void handleAccountReset()}
+                              disabled={!signedIn || !onResetProgress || accountResetting}
+                              title={
+                                !signedIn
+                                  ? '請先登入 Google 帳號'
+                                  : !onResetProgress
+                                    ? '雲端同步未啟用'
+                                    : '重置此帳號進度（雙重確認）'
+                              }
+                            >
+                              {accountResetting ? '重置中…' : '🔁 重置此帳號進度'}
+                            </button>
+                            {accountResetMsg && (
+                              <p className="settings-modal__reset-msg">{accountResetMsg}</p>
+                            )}
+                          </>
                         )}
                       </div>
                     )}

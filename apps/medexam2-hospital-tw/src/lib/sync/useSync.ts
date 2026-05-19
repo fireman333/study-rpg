@@ -86,6 +86,11 @@ export interface UseSyncReturn {
   signOutWithFlush: () => Promise<void>
   /** 「切換帳號」 menu: flush + snapshot + clear + signOut + signIn (C2b). */
   safeAccountSwitch: () => Promise<void>
+  /**
+   * 「重置此帳號進度」 action. Aborts and leaves local intact if the
+   * cloud-delete RPC fails. Caller owns the confirmation gate.
+   */
+  safeResetAccountData: () => Promise<void>
 }
 
 const SYNC_ERROR_TOAST_DEBOUNCE_MS = 60_000
@@ -521,6 +526,26 @@ export function useSync(): UseSyncReturn {
     }
   }, [authSignOut, signInWithGoogle, user])
 
+  const safeResetAccountData = useCallback(async (): Promise<void> => {
+    // Mirror of 一階 — see apps/medexam-tw/src/lib/sync/useSync.ts for rationale.
+    const supabase = getSupabase()
+    if (!supabase || !user) {
+      throw new Error('未登入或雲端同步未啟用')
+    }
+    const db = getHospitalDB()
+
+    await snapshotLocalToBackup(db, user.id, 'reset-account-data')
+
+    const { error } = await supabase.rpc('delete_my_data')
+    if (error) throw error
+
+    engineRef.current?.stop()
+    engineRef.current = null
+    await clearLocalSyncTables(db)
+
+    setResolveTick((t) => t + 1)
+  }, [user])
+
   const engine = engineRef.current
   return {
     status: engine?.getStatus() ?? (authStatus === 'disabled' ? 'disabled' : 'unauthed'),
@@ -542,5 +567,6 @@ export function useSync(): UseSyncReturn {
     retrySyncError,
     signOutWithFlush,
     safeAccountSwitch,
+    safeResetAccountData,
   }
 }

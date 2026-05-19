@@ -247,7 +247,7 @@ function App() {
           onDismiss={() => setEventToast(null)}
         />
       )}
-      <HelpMenu />
+      <HelpMenu onResetProgress={sync.safeResetAccountData} signedIn={!!user} />
       {upgradeNotice && (
         <div className="upgrade-notice" role="status">
           {upgradeNotice}
