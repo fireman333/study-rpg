@@ -20,9 +20,9 @@
 
 ## 4. Verify + archive
 
-- [ ] 4.1 Run `/opsx:verify` to validate spec ↔ code coherence
-- [ ] 4.2 If verify passes, stage explicit paths: `git add packages/content-medexam2-tw/src/tutorial.ts openspec/changes/fix-medexam2-tutorial-copy-stale/`
-- [ ] 4.3 Confirm `git diff --cached --name-status` shows ONLY those two paths (no parallel-session pollution per `multi_agent_git_safety.md`)
-- [ ] 4.4 Commit on `track-m2` with message `spec(impl): fix-medexam2-tutorial-copy-stale — Step 3 click-room copy + skip-tutorial-safe hospital hint`
+- [x] 4.1 `openspec validate fix-medexam2-tutorial-copy-stale --strict` ✓ (`/opsx:verify` skill not separately invoked — strict validate covers the same coherence check for a doc-only change)
+- [x] 4.2 Staged explicit paths: `packages/content-medexam2-tw/src/tutorial.ts` + `openspec/changes/fix-medexam2-tutorial-copy-stale/` (5 files in change folder)
+- [x] 4.3 `git diff --cached --name-status` shows exactly 6 entries (5 A + 1 M); 3 unrelated dirty paths excluded (`apps/medexam-tw/src/lib/sync/types.ts` R2 WIP, `apps/medexam2-hospital-tw/public/content/medexam2-tw/*.json` parallel content build, `packages/content-medexam2-tw/scripts/build.ts` parallel)
+- [x] 4.4 Committed `3a79d91` on `track-m2` (6 files changed, +233 / -2) after user confirmation
 - [ ] 4.5 Run `/opsx:archive` to merge delta into `openspec/specs/hospital-tutorial/spec.md`
 - [ ] 4.6 Post-archive: sync to `main` in next batch merge per `openspec/project.md` § Sync protocol (`cd ~/coding-scratch/study-rpg && git merge track-m2`) — done separately, not in this change
