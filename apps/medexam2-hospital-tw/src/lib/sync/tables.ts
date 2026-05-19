@@ -22,6 +22,7 @@ import type {
   GameCountersRow,
   HospitalDB,
   MasteryRow,
+  MonotonicCountersRow,
   QuestionHistoryRow,
   RoomRow,
   TargetedTicketHistoryRow,
@@ -512,6 +513,58 @@ const TARGETED_TICKET_HISTORY: TableAdapter = {
   },
 }
 
+/**
+ * monotonicCounters singleton — brought into the cloud-sync surface by
+ * add-monotonic-counters-to-sync (2026-05-19). Singleton shape identical
+ * to HOSPITAL_STATE; opaque JSONB payload contains
+ * {totalStudyMinutes, fateCardBadLuckPity, freshCorrectSinceLastTicket}.
+ *
+ * Fields are NOT strictly monotonic on cloud (LWW) — `fateCardBadLuckPity.*`
+ * and `freshCorrectSinceLastTicket` legitimately decrease on pity/ticket
+ * grants. `totalStudyMinutes` is the only truly monotonic field; per-field
+ * MAX-merge was deferred (see change design.md Decision 3). Edge-case:
+ * a device pushing an older value with newer `_updatedAt` can overwrite
+ * a higher value on another device. Accept the trade-off until R2 ships
+ * (replaces per-row LWW entirely).
+ */
+const HOSPITAL_MONOTONIC_COUNTERS: TableAdapter = {
+  postgresTable: 'hospital_monotonic_counters',
+  shape: 'singleton',
+  dexieTable: 'monotonicCounters',
+  async snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion) {
+    if (!dirtyPks.size) return []
+    const row = await (db as HospitalDB).monotonicCounters.get('singleton')
+    if (!row) return []
+    return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: row }]
+  },
+  async snapshotAll(db, userId, updatedAt, appVersion) {
+    const row = await (db as HospitalDB).monotonicCounters.get('singleton')
+    if (!row) return []
+    return [{ user_id: userId, updated_at: updatedAt, app_version: appVersion, data: row }]
+  },
+  async applyToLocal(db, cloudRow, opts) {
+    const data = cloudRow.data as
+      | WithUpdatedAt<MonotonicCountersRow>
+      | undefined
+    if (!data) return false
+    const force = opts?.force ?? false
+    const cloudMs = Date.parse(cloudRow.updated_at)
+    if (!Number.isFinite(cloudMs)) return false
+    if (!force) {
+      const local = (await (db as HospitalDB).monotonicCounters.get('singleton')) as
+        | WithUpdatedAt<MonotonicCountersRow>
+        | undefined
+      const localMs = local?._updatedAt
+      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+    }
+    // Preserve PK + stamp `_updatedAt` matching cloud row.
+    const next = { ...data, id: 'singleton' as const, _updatedAt: cloudMs }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (db as HospitalDB).monotonicCounters.put(next as any)
+    return true
+  },
+}
+
 export const HOSPITAL_ADAPTERS: readonly TableAdapter[] = [
   HOSPITAL_STATE,
   HOSPITAL_DOCTORS,
@@ -520,6 +573,7 @@ export const HOSPITAL_ADAPTERS: readonly TableAdapter[] = [
   QUESTION_BOOKMARKS,
   TARGETED_TICKETS,
   TARGETED_TICKET_HISTORY,
+  HOSPITAL_MONOTONIC_COUNTERS,
 ]
 
 export { cloudIsNewer }
