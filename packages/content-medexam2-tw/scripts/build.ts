@@ -113,6 +113,7 @@ interface ParsedQuestion {
   hasImage: boolean
   hasOptionImages: boolean
   disputed: boolean
+  gradingNote?: string
 }
 
 // Marker the upstream PDF→Markdown extractor writes when an option's body is a
@@ -138,6 +139,12 @@ const OPTION_IMAGE_MARKER = /_\(圖片或缺失\)_/
 // before the character — guards against false-matching legit Chinese endings
 // like 「就醫」/「保護」 which have no space.
 function stripPdfExtractionJunk(text: string): string {
+  // Pass 0: 考選部 per-question grading directive (※第N題[...]給分。) — strip
+  // the directive itself only (NOT through to **/EOS), because subsequent
+  // option/explanation text after the directive may exist and is legitimate.
+  // The directive content is surfaced separately via extractGradingNote +
+  // explanation blockquote prepend in buildQuestion.
+  text = text.replace(/\s*※\s*第\s*\d+\s*題[^。]*給分。?/gu, '')
   // Pass 1: marker-anchored strip through to closing ** or EOS
   text = text.replace(
     /\s*(?:測驗式?試?題?標準答案|【版權所有|--\d+--|醫\s+護)[\s\S]*?(?=\*\*|$)/g,
@@ -148,6 +155,23 @@ function stripPdfExtractionJunk(text: string): string {
   // Pass 3: lone trailing 醫 / 護 inside an explanation bold block
   text = text.replace(/\s+[醫護](?=\*\*)/gu, '')
   return text
+}
+
+// 考選部 sometimes attaches a per-question grading directive at the very end of
+// a disputed question's last option in the source PDF, e.g.
+// 「※第17題答Ｂ、Ｄ給分。」/「※第22題一律給分。」. The upstream PDF→Markdown
+// extractor copied it onto the option text as a suffix. We extract it here so
+// `buildQuestion` can surface it as a blockquote header on the explanation
+// instead of leaving it polluting the option string.
+function extractGradingNote(optionText: string): { cleaned: string; note: string | null } {
+  // NOT anchored at end-of-input — some source MDs have trailing page-header
+  // fragments AFTER the directive (e.g. `... ※第73題一律給分。 醫` or
+  // `... ※第74題一律給分。 --10--`). Anything after the directive is also
+  // upstream junk by inspection, so safe to drop wholesale.
+  const re = /\s*(※\s*第\s*\d+\s*題[^。]*給分。?)/u
+  const m = re.exec(optionText)
+  if (!m) return { cleaned: optionText, note: null }
+  return { cleaned: optionText.slice(0, m.index).trimEnd(), note: m[1].trim() }
 }
 
 // ─── File system walking ─────────────────────────────────────────────────────
@@ -227,6 +251,7 @@ function parseQuestionBlocks(body: string): ParseResult {
     let answer: string | null = null
     let disputed = false
     let topicLabel: string = block.topic
+    let gradingNote: string | null = null
     const stemLines: string[] = []
     let inOptions = false
 
@@ -238,7 +263,14 @@ function parseQuestionBlocks(body: string): ParseResult {
 
       if (optMatch) {
         inOptions = true
-        options[optMatch[1]] = stripPdfExtractionJunk(optMatch[2]).trim()
+        // Extract per-question grading directive BEFORE stripping other junk,
+        // so we can capture it for the explanation blockquote header. The
+        // subsequent stripPdfExtractionJunk call cleans residual page-footer
+        // fragments that may have been BETWEEN content and the directive
+        // (e.g. `糖尿病 醫 ※第22題一律給分。` → 糖尿病).
+        const { cleaned, note } = extractGradingNote(optMatch[2])
+        if (note) gradingNote = note
+        options[optMatch[1]] = stripPdfExtractionJunk(cleaned).trim()
       } else if (ansMatch) {
         if (ansMatch[1] === '#' || ansMatch[1] === '＃') {
           disputed = true
@@ -309,6 +341,7 @@ function parseQuestionBlocks(body: string): ParseResult {
       hasImage,
       hasOptionImages,
       disputed,
+      gradingNote: gradingNote ?? undefined,
     })
   }
 
@@ -370,7 +403,14 @@ function buildQuestion(parsed: ParsedQuestion, fm: Frontmatter, sourcePath: stri
   const sitting = sittingMatch ? (SITTING_MAP[sittingMatch[1]] ?? 0) : 0
 
   const id = `${year}-${sitting}-${fm.paper}-${fm.subject}-Q${parsed.qNum}`
-  const explanation = exp?.text ?? PLACEHOLDER_EXPLANATION
+  const baseExplanation = exp?.text ?? PLACEHOLDER_EXPLANATION
+  // Prepend the 考選部 per-question grading directive (extracted from the
+  // upstream-polluted option text) as a blockquote header. The LLM-echoed
+  // copy inside `**X. ...**` bold blocks is already stripped by Pass 0 of
+  // stripPdfExtractionJunk applied in parseExplanationsFile.
+  const explanation = parsed.gradingNote
+    ? `> 📋 考選部給分附註：${parsed.gradingNote}\n\n${baseExplanation}`
+    : baseExplanation
   const explanationStatus = exp ? 'ok' : 'pending'
 
   const meta: Record<string, unknown> = {
@@ -384,6 +424,7 @@ function buildQuestion(parsed: ParsedQuestion, fm: Frontmatter, sourcePath: stri
     sourceFile: relative(SOURCE_DIR, sourcePath),
   }
   if (parsed.disputed) meta.disputed = true
+  if (parsed.gradingNote) meta.gradingNote = parsed.gradingNote
   if (exp?.model) meta.explanationModel = exp.model
   if (exp?.oeHitRate !== undefined) meta.oeHitRate = exp.oeHitRate
   if (exp?.confidence) meta.explanationConfidence = exp.confidence
