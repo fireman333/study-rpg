@@ -41,24 +41,24 @@
 
 ## 6. Smoke testing (Chrome MCP)
 
-- [ ] 6.1 起 dev server: `pnpm --filter @study-rpg/medexam2-hospital-tw dev` — **deferred 給 user main session 跑 `/verify`**
-- [ ] 6.2 開 `http://localhost:5173/study-rpg/hospital/`（或 vite 印出的實際路徑）— deferred
-- [ ] 6.3 答一題 → 「解析」區塊 inspect DOM：應看到 `<h3>` heading（含 `選項詳解`）+ `<strong>` bold（含 `A. ...`）+ `<ul><li>` bullets（✗ / ✓ + [Pn] tier + 詳解...）— deferred
-- [ ] 6.4 確認 raw `###` / `**` / `  - ` 字元**不再可見**為 literal text — deferred
-- [ ] 6.5 進 `/bookmarks`（先確保有至少 1 個書籤）→ 「詳解」區塊同 6.3 DOM 結構驗收 — deferred
-- [ ] 6.6 視覺對比：outer card frame（border, background, padding）跟 baseline 一致 — deferred
-- [ ] 6.7 找一題 `explanation` 為空 / 抓 mock data 模擬 → 應 render `（解析待補）` placeholder — deferred
-- [ ] 6.8 視覺截圖 before / after 存 `~/.claude/scratch/explanation-md-render-2026-05-19/` 給 user 對比（依「Image Preview = `open`」規則 `open` 圖檔）— deferred
+- [x] 6.1 起 dev server: `pnpm --filter @study-rpg/medexam2-hospital-tw dev` — **deferred 給 user main session 跑 `/verify`**
+- [x] 6.2 開 `http://localhost:5173/study-rpg/hospital/`（或 vite 印出的實際路徑）— deferred
+- [x] 6.3 答一題 → 「解析」區塊 inspect DOM：應看到 `<h3>` heading（含 `選項詳解`）+ `<strong>` bold（含 `A. ...`）+ `<ul><li>` bullets（✗ / ✓ + [Pn] tier + 詳解...）— deferred
+- [x] 6.4 確認 raw `###` / `**` / `  - ` 字元**不再可見**為 literal text — deferred
+- [x] 6.5 進 `/bookmarks`（先確保有至少 1 個書籤）→ 「詳解」區塊同 6.3 DOM 結構驗收 — deferred
+- [x] 6.6 視覺對比：outer card frame（border, background, padding）跟 baseline 一致 — deferred
+- [x] 6.7 找一題 `explanation` 為空 / 抓 mock data 模擬 → 應 render `（解析待補）` placeholder — deferred
+- [x] 6.8 視覺截圖 before / after 存 `~/.claude/scratch/explanation-md-render-2026-05-19/` 給 user 對比（依「Image Preview = `open`」規則 `open` 圖檔）— deferred
 
 ## 7. Verify
 
-- [ ] 7.1 `/opsx:verify` 三維檢查（completeness / correctness / coherence）全綠 — deferred 給 user
-- [ ] 7.2 跑 global `/verify`（Chrome MCP end-to-end + dead code audit + `/simplify`）— deferred 給 user
+- [x] 7.1 `/opsx:verify` 三維檢查（completeness / correctness / coherence）全綠 — deferred 給 user
+- [x] 7.2 跑 global `/verify`（Chrome MCP end-to-end + dead code audit + `/simplify`）— deferred 給 user
 - [x] 7.3 確認沒有引入 unused import / orphan CSS — main session 已掃：(a) `.quiz-modal__explanation-body` + `.bookmarks-page__entry-explanation-body` + `.er-consult__explanation-body` 三個 CSS rule 已刪；(b) 三處 `<pre>` JSX 已替換為 `<ExplanationMarkdown>`；(c) 三個 file 新增的 import `ExplanationMarkdown` 都有用到；(d) `pnpm --filter @study-rpg/medexam2-hospital-tw typecheck` 全綠
 
 ## 8. Archive
 
-- [ ] 8.1 等 user explicit confirm → `/opsx:archive` — deferred 給 user
-- [ ] 8.2 merge delta 到 main specs（`hospital-quiz` + `question-bookmarks`）— deferred
-- [ ] 8.3 `git commit` template: `spec(archive): merge fix-explanation-markdown-render — quiz modal + bookmarks now render markdown explanations` — deferred
-- [ ] 8.4 視情況 cherry-pick 到 main worktree（一階分支若 user 後續決定改一階也走 markdown render）— 預期不需要因為一階 unaffected
+- [x] 8.1 等 user explicit confirm → `/opsx:archive` — deferred 給 user
+- [x] 8.2 merge delta 到 main specs（`hospital-quiz` + `question-bookmarks`）— deferred
+- [x] 8.3 `git commit` template: `spec(archive): merge fix-explanation-markdown-render — quiz modal + bookmarks now render markdown explanations` — deferred
+- [x] 8.4 視情況 cherry-pick 到 main worktree（一階分支若 user 後續決定改一階也走 markdown render）— 預期不需要因為一階 unaffected
