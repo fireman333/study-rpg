@@ -4,8 +4,11 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import {
   RARITY_LABELS,
   RARITY_ORDER,
+  ROOM_TYPE_LABELS,
+  SUBJECT_TO_ROOM,
   getRoomHintForSubject,
   type Rarity,
+  type RoomType,
 } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB, type DoctorRow } from '../db/schema'
@@ -19,12 +22,20 @@ const RARITY_OPTIONS: Rarity[] = RARITY_FILTER_OPTIONS.filter((r): r is Rarity =
 export function DoctorRoster() {
   const db = getHospitalDB()
   const doctors = useLiveQuery(() => db.doctors.orderBy('obtainedAt').reverse().toArray(), []) ?? []
+  const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
   const masteryRows = useLiveQuery(() => db.mastery.toArray(), []) ?? []
   const masteryMap = useMemo(() => {
     const m: Record<string, { subjectId: string; correct: number; total: number }> = {}
     for (const r of masteryRows) m[r.subjectId] = r
     return m
   }, [masteryRows])
+
+  // roomId → { type, slot } — used to render the assignment chip on each card
+  const roomInfoMap = useMemo(() => {
+    const m = new Map<string, { type: RoomType; slot: number }>()
+    for (const r of rooms) m.set(r.id, { type: r.type, slot: r.slot })
+    return m
+  }, [rooms])
   const [subjectFilter, setSubjectFilter] = useState<string>('all')
   const [rarityFilterOpen, setRarityFilterOpen] = useState(false)
   const [selectedRarities, setSelectedRarities] = useState<Rarity[]>([])
@@ -173,6 +184,27 @@ export function DoctorRoster() {
                     ✏️
                   </button>
                 </h3>
+                {(() => {
+                  if (!d.assignedRoom) {
+                    return (
+                      <span className="doctor-card__assignment doctor-card__assignment--unassigned">
+                        未指派
+                      </span>
+                    )
+                  }
+                  const info = roomInfoMap.get(d.assignedRoom)
+                  if (!info) return null
+                  const preferredType = SUBJECT_TO_ROOM[d.subjectId as keyof typeof SUBJECT_TO_ROOM]
+                  const isMatch = preferredType === info.type
+                  return (
+                    <span
+                      className={`doctor-card__assignment doctor-card__assignment--assigned${isMatch ? ' doctor-card__assignment--match' : ''}`}
+                      title={isMatch ? '適性科別相符，有加成' : undefined}
+                    >
+                      {ROOM_TYPE_LABELS[info.type]} #{info.slot}{isMatch ? ' ✦' : ''}
+                    </span>
+                  )
+                })()}
                 <dl className="doctor-card__meta">
                   <div>
                     <dt>科別</dt>
