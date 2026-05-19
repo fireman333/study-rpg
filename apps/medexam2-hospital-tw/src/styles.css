@@ -1656,6 +1656,36 @@ body:has(.modal-backdrop) {
   white-space: nowrap;
 }
 
+/* Mobile RWD: stack partner card into two rows when name + bonus + picker
+   no longer fit on one line. See openspec/changes/archive/.../quiz-partner-card-rwd. */
+@media (max-width: 520px) {
+  .quiz-modal__partner {
+    flex-wrap: wrap;
+  }
+  .quiz-modal__partner-sprite,
+  .quiz-modal__partner-info {
+    order: 0;
+  }
+  /* Info claims the rest of Row 1 (66px = sprite 56 + gap 10), so bonus + picker
+     are forced to wrap to Row 2 together rather than bonus staying on Row 1. */
+  .quiz-modal__partner-info {
+    flex-basis: calc(100% - 66px);
+    min-width: 0;
+  }
+  .quiz-modal__partner-bonus,
+  .quiz-modal__partner-picker {
+    order: 1;
+    /* 66px = sprite width 56 + container gap 10; aligns Row 2 to info column */
+    margin-left: 66px;
+  }
+  .quiz-modal__partner-bonus + .quiz-modal__partner-picker {
+    margin-left: 0;
+  }
+  .quiz-modal__partner-picker {
+    max-width: calc(100% - 66px);
+  }
+}
+
 .quiz-modal__no-doctor {
   color: var(--accent-rose);
   font-size: 14px;
