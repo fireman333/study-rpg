@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { TIER_UPGRADE_THRESHOLDS } from '@study-rpg/content-medexam2-tw'
 import { getHospitalDB } from '../db/schema'
 import { BugReportModal } from './BugReportModal'
 import {
@@ -25,6 +26,16 @@ interface AccordionSection {
   /** Body kept short — 1-2 paragraphs per section per design D10. */
   body: string[]
 }
+
+// Sourced from TIER_UPGRADE_THRESHOLDS so future recalibrations propagate
+// automatically — see `fix-helpmenu-copy-stale` (2026-05-19).
+const tierUpgradeBody = `升級不只看聲望，還要科別多樣性。診所→區域醫院：${(
+  TIER_UPGRADE_THRESHOLDS.診所! / 1000
+).toFixed(0)}k 聲望 + 5 不同科別；區域→醫學中心：${(
+  TIER_UPGRADE_THRESHOLDS.區域醫院! / 1000
+).toFixed(0)}k + 8 P3+ 不同科別；醫學中心→國家級：${(
+  TIER_UPGRADE_THRESHOLDS.醫學中心! / 1000
+).toFixed(0)}k + 10 P2+ + 至少 1 位 P1。`
 
 const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
   {
@@ -68,8 +79,8 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
     icon: '👋',
     title: '醫師退休與返還',
     body: [
-      '在「進修」頁面點醫師卡片的「退休」按鈕 → 確認後該醫師永久移除，返還 powerMultiplier × 1000 💰 到營收。',
-      '24 小時內退休的醫師仍計入升級多樣性門檻（grace period），避免短期退休後被卡升級。',
+      '在「進修」頁面點醫師卡片的「AAD」按鈕（自願離院 / 退休）→ 確認後該醫師永久移除，返還 powerMultiplier × 1000 💰 到營收。',
+      '24 小時內 AAD 的醫師仍計入升級多樣性門檻（grace period），避免短期 AAD 後被卡升級。',
     ],
   },
   {
@@ -86,7 +97,7 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
     icon: '🎯',
     title: '升級雙閘門（聲望 + 多樣性）',
     body: [
-      '升級不只看聲望，還要科別多樣性。診所→區域醫院：48k 聲望 + 5 不同科別；區域→醫學中心：192k + 8 P3+ 不同科別；醫學中心→國家級：2M + 10 P2+ + 至少 1 位 P1。',
+      tierUpgradeBody,
       '雙閘設計確保你的醫院全方位發展，不會只靠單科衝刺。',
     ],
   },
