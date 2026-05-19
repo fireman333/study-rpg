@@ -10,6 +10,10 @@ import { applyQuizReward } from '../services/quiz-rewards'
 import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
 import { toggleBookmark, useBookmark } from '../services/bookmarks'
+import {
+  getQuizCompanionDoctorId,
+  setQuizCompanionDoctorId,
+} from '../services/quiz-companion'
 import { BugReportModal } from './BugReportModal'
 import { ExplanationMarkdown } from './ExplanationMarkdown'
 import { QuizBugReportSheet } from './QuizBugReportSheet'
@@ -48,17 +52,39 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     whatHappened?: string
   }>({})
 
-  const doctors = useLiveQuery(
+  const doctorsLive = useLiveQuery(
     () => db.doctors.orderBy('obtainedAt').reverse().toArray(),
     [],
-  ) ?? []
+  )
+  const doctors = doctorsLive ?? []
 
-  // Default bound doctor = most recent on first render with doctors available
+  // Persisted per-device companion choice. `undefined` while the query is still
+  // resolving; `null` once we know no row exists; string once a doctor is pinned.
+  const persistedCompanionIdLive = useLiveQuery(() => getQuizCompanionDoctorId(), [])
+
+  // Resolve initial bound doctor only after BOTH queries have completed at least
+  // one load (avoid the one-frame "newest then swap to remembered" flicker).
   useEffect(() => {
-    if (boundDoctorId === null && doctors.length > 0) {
-      setBoundDoctorId(doctors[0].id)
+    if (boundDoctorId !== null) return
+    if (doctorsLive === undefined || persistedCompanionIdLive === undefined) return
+    if (doctorsLive.length === 0) return
+
+    const persistedDoctor =
+      persistedCompanionIdLive !== null
+        ? doctorsLive.find((d) => d.id === persistedCompanionIdLive)
+        : undefined
+
+    if (persistedDoctor) {
+      setBoundDoctorId(persistedDoctor.id)
+      return
     }
-  }, [doctors, boundDoctorId])
+
+    // No persisted ID, or persisted doctor retired/cleared → fall back to newest
+    // and overwrite the meta row so subsequent opens stay consistent.
+    const fallback = doctorsLive[0]
+    setBoundDoctorId(fallback.id)
+    void setQuizCompanionDoctorId(fallback.id)
+  }, [doctorsLive, persistedCompanionIdLive, boundDoctorId])
 
   const boundDoctor: DoctorRow | undefined = useMemo(
     () => doctors.find((d) => d.id === boundDoctorId),
@@ -268,7 +294,11 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
                 <select
                   className="quiz-modal__partner-picker"
                   value={boundDoctor.id}
-                  onChange={(e) => setBoundDoctorId(e.target.value)}
+                  onChange={(e) => {
+                    const nextId = e.target.value
+                    setBoundDoctorId(nextId)
+                    void setQuizCompanionDoctorId(nextId)
+                  }}
                   aria-label="切換練題醫師"
                 >
                   {doctors.map((d) => (
