@@ -2,7 +2,7 @@
 
 ## `deploy.yml` — Push to main → GitHub Pages
 
-Static SPA deploy via official `actions/deploy-pages@v4`. Triggers:
+Static SPA deploy via official `actions/deploy-pages@v5`. Triggers:
 
 - 任何 `push` 到 `main` branch
 - 在 GitHub Actions UI 手動 `workflow_dispatch`
