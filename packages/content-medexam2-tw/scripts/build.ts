@@ -122,6 +122,34 @@ interface ParsedQuestion {
 // content-pack-contract.
 const OPTION_IMAGE_MARKER = /_\(圖片或缺失\)_/
 
+// Upstream PDF→Markdown extractor leaked page-footer / answer-key content into
+// option text (and consequently into explanation `**X. ...**` bold blocks when
+// the LLM echoed the polluted option). Three classes of junk observed:
+//   (a) Q80 trailing answer-key appendix — variants:
+//       「測驗題標準答案更正 考試名稱：...」
+//       「測驗式試題標準答案 考試名稱：...」
+//   (b) Per-page watermark / page number / page-header fragment that bled into
+//       a random option, e.g.: `... 醫 護 【版權所有，翻印必究】 --12--`
+//   (c) Lone trailing 醫 / 護 when only one character of the page-header
+//       「醫 護」 (presumably 「醫師(二)」/「護理師」 split) leaked in.
+// Strip from the first marker through the next closing `**` (explanation
+// context) or end-of-string (option context). Lone trailing 醫/護 (no
+// preceding marker) is handled by a second pass that requires whitespace
+// before the character — guards against false-matching legit Chinese endings
+// like 「就醫」/「保護」 which have no space.
+function stripPdfExtractionJunk(text: string): string {
+  // Pass 1: marker-anchored strip through to closing ** or EOS
+  text = text.replace(
+    /\s*(?:測驗式?試?題?標準答案|【版權所有|--\d+--|醫\s+護)[\s\S]*?(?=\*\*|$)/g,
+    ''
+  )
+  // Pass 2: lone trailing 醫 / 護 in option context (no ** wrapper)
+  text = text.replace(/\s+[醫護](?=\s*$)/gu, '')
+  // Pass 3: lone trailing 醫 / 護 inside an explanation bold block
+  text = text.replace(/\s+[醫護](?=\*\*)/gu, '')
+  return text
+}
+
 // ─── File system walking ─────────────────────────────────────────────────────
 
 function* walkSourceDir(): Generator<string> {
@@ -210,7 +238,7 @@ function parseQuestionBlocks(body: string): ParseResult {
 
       if (optMatch) {
         inOptions = true
-        options[optMatch[1]] = optMatch[2].trim()
+        options[optMatch[1]] = stripPdfExtractionJunk(optMatch[2]).trim()
       } else if (ansMatch) {
         if (ansMatch[1] === '#' || ansMatch[1] === '＃') {
           disputed = true
@@ -326,7 +354,8 @@ function parseExplanationsFile(path: string): { exps: Map<number, ExplanationDat
     }
     if (!text) continue
 
-    exps.set(positions[i].qNum, { text, confidence, model: fm.model, oeHitRate: fm.oe_hit_rate })
+    const cleanText = stripPdfExtractionJunk(text)
+    exps.set(positions[i].qNum, { text: cleanText, confidence, model: fm.model, oeHitRate: fm.oe_hit_rate })
   }
 
   return { exps, fm }

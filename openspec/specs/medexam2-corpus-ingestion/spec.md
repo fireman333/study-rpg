@@ -45,6 +45,14 @@ Each `<year>_第<n>次.md` file SHALL be parsed as:
 
 **Disputed-question handling**: When `**答案**：#` (or `＃`) is encountered, the question SHALL be imported (NOT skipped). The canonical `answer` field SHALL be set to the first option key (typically `"A"`); `meta.disputed` SHALL be set to `true` so downstream UI / scoring can display a disputed badge and award credit for any option chosen. This preserves the question's stem + options + explanation while honoring `content-pack-contract`'s `answer ∈ options` invariant.
 
+**PDF-extraction-junk sanitization**: The upstream PDF→Markdown extractor leaked three classes of non-question content into option text (which also bled into LLM-generated explanations when the LLM echoed the polluted option). The parser SHALL strip the following from every option's text body:
+
+- (a) Q80 trailing answer-key appendix — two wording variants observed: 「測驗題標準答案更正 考試名稱：...」 and 「測驗式試題標準答案 考試名稱：...」. Strip from the marker through end-of-string.
+- (b) Per-page watermark, page number, and page-header fragment: any of 「【版權所有，翻印必究】」/「--<n>--」(page number) / 「醫 護」 (page-header subject label split by whitespace). Strip from the first marker through end-of-string.
+- (c) Lone trailing 「醫」 or 「護」 — when only one character of the page header leaked in, separated from option content by whitespace. Strip the whitespace + lone character.
+
+Option strings SHALL NOT contain any of: 「測驗(式)?(試)?(題)?標準答案」/「考試名稱」/「【版權所有」/「--<digits>--」/「醫 護」(with whitespace) / a lone trailing 「醫」/「護」 preceded by whitespace. Legit Chinese phrases ending in 「醫」/「護」 without preceding whitespace (e.g. 「就醫」/「保護」/「照護」) SHALL NOT be affected.
+
 #### Scenario: Standard question block parses to conforming Question
 
 - **GIVEN** a question block with valid YAML frontmatter and `## Q1 [...]` body
@@ -69,6 +77,33 @@ Each `<year>_第<n>次.md` file SHALL be parsed as:
 - **AND** `Question.meta.disputed` SHALL be set to `true`
 - **AND** explanation merging from side-car SHALL proceed normally if a side-car exists
 
+#### Scenario: Q80 trailing answer-key appendix is stripped from option text
+
+- **GIVEN** an option line containing `- D. 不可以，雖然...妨害病人名譽 測驗題標準答案更正 考試名稱：... 第78題一律給分`
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.D` SHALL end after「妨害病人名譽」(trailing whitespace trimmed)
+- **AND** `options.D` SHALL NOT contain the substring「測驗題標準答案」or「考試名稱」
+- **AND** the question SHALL still be imported normally (not skipped)
+
+#### Scenario: Page-footer junk is stripped from option text
+
+- **GIVEN** an option line containing `- D. 依醫院規定，決定是否對到院前死亡的病人急救 醫 護 【版權所有，翻印必究】 --13--`
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.D` SHALL end after「對到院前死亡的病人急救」
+- **AND** `options.D` SHALL NOT contain「醫 護」/「【版權所有」/「--13--」
+
+#### Scenario: Lone trailing 醫 or 護 fragment is stripped
+
+- **GIVEN** an option line containing `- B. 確認群體→確認問題→策略規劃→介入實施→評估成效 護`
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.B` SHALL end after「評估成效」(no trailing space + 護)
+
+#### Scenario: Legit option ending in 醫 or 護 is preserved
+
+- **GIVEN** an option line containing `- C. 提供機械性保護` (no whitespace before the trailing 護)
+- **WHEN** the parser processes the option
+- **THEN** the resulting `options.C` SHALL retain the full text「提供機械性保護」unchanged
+
 ### Requirement: Explanation side-car SHALL be merged per-question with graceful fallback
 
 For each question file `<basename>.md`, the build script SHALL look for `<basename>.explanations.md`:
@@ -78,6 +113,8 @@ For each question file `<basename>.md`, the build script SHALL look for `<basena
 - If side-car does not exist at all: same fallback as above
 
 `meta.explanationModel` (if available from side-car frontmatter), `meta.oeHitRate`, and `meta.explanationConfidence` (P1–P5 label extracted from the explanation header) SHALL be carried through into `Question.meta`.
+
+**PDF-extraction-junk sanitization in explanations**: Because the LLM that generated explanations was fed the polluted option text (see Question-parser requirement), the LLM frequently echoed the same junk inside its `**X. ...**` bold heading blocks. The parser SHALL apply the same three-class strip described in the Question-parser requirement to explanation strings, with one anchoring difference: when the explanation is wrapped in `**X. ... **` bold blocks, the strip lookahead anchors at the next `**` (closing bold marker) instead of end-of-string, to preserve markdown bold-balance. Lone trailing 「醫」/「護」 inside a bold block SHALL be stripped if separated from preceding text by whitespace and immediately followed by `**`.
 
 #### Scenario: Question with explanation merged from side-car
 
@@ -95,6 +132,13 @@ For each question file `<basename>.md`, the build script SHALL look for `<basena
 - **THEN** `questions.json` entry for Q1 SHALL have `explanation` = `"詳解生成中（pending LLM generation）。原始題目 / 答案完整可用。"`
 - **AND** `meta.explanationStatus` = `"pending"`
 - **AND** Q1 SHALL still be `importedQ` (counted as imported, NOT skipped)
+
+#### Scenario: PDF-extraction junk is stripped from explanation bold block
+
+- **GIVEN** an explanation containing `**D. 不可以，雖然...妨害病人名譽 測驗題標準答案更正 考試名稱：... 第78題一律給分**\n  - ✗ 錯誤 [P4 NPC]`
+- **WHEN** the build runs
+- **THEN** the merged `explanation` SHALL contain `**D. 不可以，雖然...妨害病人名譽**\n  - ✗ 錯誤 [P4 NPC]` (closing `**` preserved, markdown bold balance intact)
+- **AND** the `explanation` SHALL NOT contain the substring「測驗題標準答案」or「醫 護」or「【版權所有」
 
 ### Requirement: Build artifacts SHALL include questions / subjects / meta / stats JSON
 
