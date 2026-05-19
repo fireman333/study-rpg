@@ -1,62 +1,54 @@
 /**
- * Atomic doctor↔room assignment transactions.
+ * Doctor↔room assignment service. Single source of truth: `doctor.assignedRoom`.
  *
- * Invariant: for every `room` with `room.assignedDoctorId === doctorId`,
- *   the matching `doctor.assignedRoom === room.id`. Both sides written in a
- *   single Dexie transaction so they never drift.
+ * Spec: openspec/specs/hospital-tycoon-engine —
+ *   "Doctor assignment SHALL use `Doctor.assignedRoom` as the single source of truth"
  *
- * Spec: openspec/specs/hospital-tycoon-engine/spec.md
+ * `Room.assignedDoctorId` is retained in the type (cloud blob compat) but never
+ * written by this module. Read sites derive room→doctor via `buildDoctorByRoom`
+ * helper in `./room-doctor-map.ts`.
+ *
+ * `checkAssignmentInvariants` is an active repairer — it modifies state to
+ * restore invariants. Invoked on app boot + after every successful cloud pull.
  */
 
 import { getHospitalDB, type DoctorRow } from '../db/schema'
 
-/** Assign a doctor to a room. If the doctor was already in another room, that
- *  room is vacated atomically. If the target room already held another doctor,
- *  that doctor is unassigned atomically. */
+/**
+ * Assign a doctor to a room. If a different doctor was already in that room,
+ * the prior doctor's `assignedRoom` is cleared in the same transaction
+ * (displacement). If the target doctor was assigned elsewhere, the move is
+ * captured by the single `doctors.put` on the target row (no second-room write
+ * needed — single source of truth).
+ */
 export async function assignDoctor(roomId: string, doctorId: string): Promise<void> {
   const db = getHospitalDB()
-  await db.transaction('rw', db.rooms, db.doctors, async () => {
-    const [targetRoom, doctor] = await Promise.all([
-      db.rooms.get(roomId),
-      db.doctors.get(doctorId),
-    ])
-    if (!targetRoom) throw new Error(`assignDoctor: room ${roomId} not found`)
+  await db.transaction('rw', db.doctors, async () => {
+    const doctor = await db.doctors.get(doctorId)
     if (!doctor) throw new Error(`assignDoctor: doctor ${doctorId} not found`)
 
-    // 1. Vacate the doctor's previous room (if any, and not the same as target)
-    if (doctor.assignedRoom && doctor.assignedRoom !== roomId) {
-      const oldRoom = await db.rooms.get(doctor.assignedRoom)
-      if (oldRoom) {
-        await db.rooms.put({ ...oldRoom, assignedDoctorId: null })
+    // Displace any other doctor pointing to the target room.
+    const all = await db.doctors.toArray()
+    for (const d of all) {
+      if (d.id !== doctorId && d.assignedRoom === roomId) {
+        await db.doctors.put({ ...d, assignedRoom: null })
       }
     }
 
-    // 2. Vacate the target room's previous doctor (if any, and not the same)
-    if (targetRoom.assignedDoctorId && targetRoom.assignedDoctorId !== doctorId) {
-      const oldDoctor = await db.doctors.get(targetRoom.assignedDoctorId)
-      if (oldDoctor) {
-        await db.doctors.put({ ...oldDoctor, assignedRoom: null })
-      }
+    if (doctor.assignedRoom !== roomId) {
+      await db.doctors.put({ ...doctor, assignedRoom: roomId })
     }
-
-    // 3. Write new bidirectional pointers
-    await db.rooms.put({ ...targetRoom, assignedDoctorId: doctorId })
-    await db.doctors.put({ ...doctor, assignedRoom: roomId })
   })
 }
 
+/** Clear the doctor currently assigned to a room. No-op if room is empty. */
 export async function unassignDoctor(roomId: string): Promise<void> {
   const db = getHospitalDB()
-  await db.transaction('rw', db.rooms, db.doctors, async () => {
-    const room = await db.rooms.get(roomId)
-    if (!room) return
-    if (room.assignedDoctorId) {
-      const doctor = await db.doctors.get(room.assignedDoctorId)
-      if (doctor) {
-        await db.doctors.put({ ...doctor, assignedRoom: null })
-      }
-    }
-    await db.rooms.put({ ...room, assignedDoctorId: null })
+  await db.transaction('rw', db.doctors, async () => {
+    const all = await db.doctors.toArray()
+    const occupant = all.find((d) => d.assignedRoom === roomId)
+    if (!occupant) return
+    await db.doctors.put({ ...occupant, assignedRoom: null })
   })
 }
 
@@ -66,34 +58,99 @@ export async function getUnassignedDoctors(): Promise<DoctorRow[]> {
   return all.filter((d) => d.assignedRoom === null)
 }
 
-/** Boot-time sanity scan: log warnings for any bidirectional drift between
- *  rooms.assignedDoctorId and doctors.assignedRoom. Does not auto-repair. */
-export async function checkAssignmentInvariants(): Promise<void> {
-  const db = getHospitalDB()
-  const [rooms, doctors] = await Promise.all([db.rooms.toArray(), db.doctors.toArray()])
-  const doctorMap = new Map(doctors.map((d) => [d.id, d]))
-  const roomMap = new Map(rooms.map((r) => [r.id, r]))
+export interface AssignmentRepairReport {
+  scanned: { rooms: number; doctors: number }
+  repaired: {
+    /** Rooms whose `assignedDoctorId` was non-null and got force-nulled. */
+    roomsReset: number
+    /** Doctors whose `assignedRoom` was nulled because another doctor with later
+     *  `obtainedAt` already claimed the same room. */
+    doctorsDuplicates: number
+    /** Doctors whose `assignedRoom` pointed to a non-existent room id. */
+    doctorsOrphans: number
+  }
+}
 
-  for (const room of rooms) {
-    if (!room.assignedDoctorId) continue
-    const d = doctorMap.get(room.assignedDoctorId)
-    if (!d) {
-      console.warn(`[assignment] room ${room.id} points to missing doctor ${room.assignedDoctorId}`)
-    } else if (d.assignedRoom !== room.id) {
-      console.warn(
-        `[assignment] drift: room ${room.id} → doctor ${d.id}, but doctor.assignedRoom = ${d.assignedRoom}`,
-      )
-    }
+/**
+ * Scan + repair assignment invariants in one Dexie transaction. Trusts the
+ * `doctors` side as source of truth; force-nulls `rooms[*].assignedDoctorId`.
+ *
+ * Three repair rules (applied in one tx over both tables):
+ *
+ *   1. `room.assignedDoctorId !== null` → reset to null
+ *   2. Multiple doctors with same `assignedRoom`: keep the one with the
+ *      largest `obtainedAt`; null the rest
+ *   3. `doctor.assignedRoom` references a room id not in the rooms table
+ *      (orphan) → reset to null
+ *
+ * Invoked on app boot (App.tsx) and after every successful cloud pull
+ * (sync/engine.ts pullNow resolve path).
+ */
+export async function checkAssignmentInvariants(): Promise<AssignmentRepairReport> {
+  const db = getHospitalDB()
+  const report: AssignmentRepairReport = {
+    scanned: { rooms: 0, doctors: 0 },
+    repaired: { roomsReset: 0, doctorsDuplicates: 0, doctorsOrphans: 0 },
   }
-  for (const d of doctors) {
-    if (!d.assignedRoom) continue
-    const r = roomMap.get(d.assignedRoom)
-    if (!r) {
-      console.warn(`[assignment] doctor ${d.id} points to missing room ${d.assignedRoom}`)
-    } else if (r.assignedDoctorId !== d.id) {
-      console.warn(
-        `[assignment] drift: doctor ${d.id} → room ${r.id}, but room.assignedDoctorId = ${r.assignedDoctorId}`,
-      )
+
+  await db.transaction('rw', db.rooms, db.doctors, async () => {
+    const rooms = await db.rooms.toArray()
+    const doctors = await db.doctors.toArray()
+    report.scanned.rooms = rooms.length
+    report.scanned.doctors = doctors.length
+
+    // Rule 1: force-null any non-null rooms.assignedDoctorId
+    for (const r of rooms) {
+      if (r.assignedDoctorId !== null) {
+        await db.rooms.put({ ...r, assignedDoctorId: null })
+        report.repaired.roomsReset += 1
+      }
     }
+
+    // Rule 2 + 3 setup
+    const roomIds = new Set(rooms.map((r) => r.id))
+    const byRoom = new Map<string, DoctorRow>()
+    const orphans: DoctorRow[] = []
+    const losers: DoctorRow[] = []
+
+    for (const d of doctors) {
+      if (d.assignedRoom === null) continue
+      if (!roomIds.has(d.assignedRoom)) {
+        // Rule 3: orphan
+        orphans.push(d)
+        continue
+      }
+      const existing = byRoom.get(d.assignedRoom)
+      if (!existing) {
+        byRoom.set(d.assignedRoom, d)
+        continue
+      }
+      // Rule 2: duplicate — keep larger obtainedAt
+      if (d.obtainedAt > existing.obtainedAt) {
+        losers.push(existing)
+        byRoom.set(d.assignedRoom, d)
+      } else {
+        losers.push(d)
+      }
+    }
+
+    for (const d of losers) {
+      await db.doctors.put({ ...d, assignedRoom: null })
+      report.repaired.doctorsDuplicates += 1
+    }
+    for (const d of orphans) {
+      await db.doctors.put({ ...d, assignedRoom: null })
+      report.repaired.doctorsOrphans += 1
+    }
+  })
+
+  const { roomsReset, doctorsDuplicates, doctorsOrphans } = report.repaired
+  if (roomsReset + doctorsDuplicates + doctorsOrphans > 0) {
+    console.info(
+      `[assignment] repaired ${roomsReset + doctorsDuplicates + doctorsOrphans} drift(s): ` +
+        `roomsReset=${roomsReset}, doctorsDuplicates=${doctorsDuplicates}, doctorsOrphans=${doctorsOrphans}`,
+    )
   }
+
+  return report
 }

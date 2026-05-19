@@ -29,6 +29,7 @@ import { RecruitmentBanner } from '../components/RecruitmentBanner'
 import { RecruitmentResultModal } from '../components/RecruitmentResultModal'
 import { DevAffinityControls } from '../components/DevAffinityControls'
 import { HospitalScene } from '../components/HospitalScene'
+import { buildDoctorByRoom, getAssignedDoctor } from '../lib/room-doctor-map'
 import { QuizModal } from '../components/QuizModal'
 import { StarterPullCard } from '../components/StarterPullCard'
 import { StarterPullModal } from '../components/StarterPullModal'
@@ -59,7 +60,7 @@ export function HomePage() {
   const mono = useLiveQuery(() => db.monotonicCounters.get('singleton'), [])
   const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
   const allDoctors = useLiveQuery(() => db.doctors.toArray(), []) ?? []
-  const anyAssigned = rooms.some((r) => r.assignedDoctorId !== null)
+  const anyAssigned = allDoctors.some((d) => d.assignedRoom !== null)
   const masteryRows = useLiveQuery(() => db.mastery.toArray(), []) ?? []
   const dueCountMap = useLiveQuery(async () => {
     // useLiveQuery re-runs whenever questionHistory changes (Dexie observes
@@ -198,10 +199,10 @@ export function HomePage() {
       })()}
 
       {(() => {
-        const doctorMap = new Map(allDoctors.map((d) => [d.id, d]))
+        const doctorByRoom = buildDoctorByRoom(allDoctors)
         let throughput = 0
         for (const room of rooms) {
-          const d = room.assignedDoctorId ? doctorMap.get(room.assignedDoctorId) ?? null : null
+          const d = getAssignedDoctor(room.id, doctorByRoom)
           throughput += computeThroughput(room, d)
         }
         const salary = counters ? computeSalaryDrain(allDoctors, counters.tier) : 0
