@@ -406,6 +406,17 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
                   <ExplanationMarkdown text={question.explanation ?? ''} />
                 </div>
               )}
+
+              {revealed && (
+                <InlinePromote
+                  questionId={question.id}
+                  wasWrong={
+                    selectedOption !== null &&
+                    selectedOption !== question.answer &&
+                    !question.disputed
+                  }
+                />
+              )}
             </>
           )}
         </div>
@@ -480,6 +491,43 @@ function QuestionMetaRow({ questionId }: { questionId: string }) {
         onClick={() => void toggleBookmark(questionId)}
       >
         {bookmarked ? '⭐' : '☆'}
+      </button>
+    </div>
+  )
+}
+
+/**
+ * Inline ★ promote affordance shown beside the answer-feedback region.
+ * Shares state with the top-of-modal corner toggle via the same `bookmarks`
+ * Dexie row; `useBookmark` is live-query so both render in sync.
+ *
+ * `wasWrong` only affects visual emphasis (hint text on wrong answers) — the
+ * toggle behaviour is identical regardless.
+ */
+function InlinePromote({ questionId, wasWrong }: { questionId: string; wasWrong: boolean }) {
+  const bookmarked = !!useBookmark(questionId)
+  return (
+    <div
+      className={`quiz-modal__inline-promote${
+        wasWrong ? ' quiz-modal__inline-promote--wrong' : ''
+      }`}
+    >
+      {wasWrong && (
+        <span className="quiz-modal__inline-promote-hint">
+          想之後再複習這題？加入手動收藏永久保留。
+        </span>
+      )}
+      <button
+        type="button"
+        role="switch"
+        aria-pressed={bookmarked}
+        aria-label={bookmarked ? '取消手動收藏' : '加入手動收藏'}
+        className={`quiz-modal__inline-promote-btn${
+          bookmarked ? ' quiz-modal__inline-promote-btn--on' : ''
+        }`}
+        onClick={() => void toggleBookmark(questionId)}
+      >
+        {bookmarked ? '⭐ 已收藏' : '☆ 加入收藏'}
       </button>
     </div>
   )

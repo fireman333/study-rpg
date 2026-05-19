@@ -144,13 +144,12 @@ The ER consultation SHALL be presented via an `ERConsultDialog` modal component,
 - A countdown indicator showing "本次照會 N 分鐘內回應" (default 10 minutes; on timeout auto-skip)
 
 After the user answers:
-- **Correct answer** → ER doctor dialogue changes to a randomly-selected gratitude variant (e.g., 「太強了！下次再求救」); show "+X XP" toast; auto-close after 2 seconds
+- **Correct answer** → ER doctor dialogue changes to a randomly-selected gratitude variant (e.g., 「太強了！下次再求救」); show "+X XP / +Y 聲望" toast; reveal correct option + explanation; show 「關閉」 button (user-dismissed, same as wrong-answer path)
 - **Wrong answer** → ER doctor dialogue changes to a randomly-selected disappointed-but-supportive variant (e.g., 「沒事，學起來下次就會了」); reveal correct option + explanation (sourced from `question.explanation`, with mock-exam placeholder fallback for missing explanations); show 「關閉」 button
 
 **Dialog lifecycle independence**: The dialog's visible-on-screen state SHALL NOT be tied directly to `gameCounters.erConsultActive`. Once the user has begun interacting with a consult (modal has rendered at least once), the dialog SHALL remain rendered until one of these explicit close triggers fires:
 
-- Correct-answer auto-close timer elapses (2 seconds after answer)
-- User clicks the 「關閉」 button (wrong-answer path)
+- User clicks the 「關閉」 button (both correct-answer and wrong-answer paths)
 - User confirms 跳過 (skip path)
 
 Service-layer functions (`answerERConsult`, `skipERConsult`, `disableERConsult`, tick auto-skip) MAY clear `erConsultActive` in DB at any point during the dialog's visible lifecycle without unmounting the dialog. The dialog component SHALL hold its own local copy of the active state to remain rendered after DB state is cleared.
@@ -171,7 +170,7 @@ Service-layer functions (`answerERConsult`, `skipERConsult`, `disableERConsult`,
 - **AND** `mastery[subjectId]` SHALL be updated to `{correct + 1, total + 1}` (same hospital-quiz answer path)
 - **AND** the global `quizEvents.emit('correct-answer')` SHALL be invoked
 - **AND** the ER doctor dialogue SHALL show a gratitude variant
-- **AND** the dialog SHALL auto-close after 2 seconds
+- **AND** the dialog SHALL reveal the correct option + explanation + 「關閉」 button (user-dismissed)
 
 #### Scenario: Wrong answer grants minimal XP and routes to SRS
 
@@ -191,11 +190,15 @@ Service-layer functions (`answerERConsult`, `skipERConsult`, `disableERConsult`,
 - **WHEN** the user clicks 「關閉」
 - **THEN** the dialog SHALL unmount
 
-#### Scenario: Correct answer dialog auto-closes after 2 seconds
+#### Scenario: Correct answer dialog stays open until user clicks 關閉
 
 - **GIVEN** the user has selected the correct option AND `answerERConsult` has finished recording rewards AND the gratitude toast is shown
-- **WHEN** 2 seconds elapse
-- **THEN** the dialog SHALL unmount (without requiring user click)
+- **WHEN** the dialog continues to render
+- **THEN** the dialog SHALL remain visible (NOT auto-unmount via a timer)
+- **AND** the explanation block SHALL be visible (same as wrong-answer path, for learning continuity)
+- **AND** a 「關閉」 button SHALL be visible
+- **WHEN** the user clicks 「關閉」
+- **THEN** the dialog SHALL unmount
 
 #### Scenario: Skip path closes dialog immediately
 
@@ -207,8 +210,8 @@ Service-layer functions (`answerERConsult`, `skipERConsult`, `disableERConsult`,
 
 - **GIVEN** the user has answered wrong AND is reading the explanation AND `answerERConsult` already cleared `erConsultActive` in DB AND the user closes / refreshes the browser before clicking 「關閉」
 - **WHEN** the app reloads
-- **THEN** the dialog SHALL NOT reopen (DB state already null)
-- **AND** the previously-recorded mastery + reward + log SHALL persist (no data loss; no double-credit risk on reopen)
+- **THEN** the dialog SHALL NOT auto-reopen
+- **AND** the reward / log entries from the answer SHALL remain persisted
 
 #### Scenario: Missing explanation uses placeholder
 
@@ -223,6 +226,22 @@ Service-layer functions (`answerERConsult`, `skipERConsult`, `disableERConsult`,
 - **AND** `erConsultActive` SHALL be cleared (set null)
 - **AND** no XP / mastery change SHALL occur
 - **AND** the dialog SHALL close if open
+
+### Requirement: Dialog SHALL hold sticky question until user closes
+
+While the `ERConsultDialog` component is rendered with a non-null sticky question (`sticky !== null`), the dialog SHALL NOT replace `sticky` with a newly-arriving `gameCounters.erConsultActive` (i.e., a follow-up consult rolled by tick after the player answered or before the player closed). The dialog SHALL adopt a new `erConsultActive` only after `sticky` becomes `null` (user clicked 關閉 or 確認跳過).
+
+This protects the player's reading session: if the player answers Q1 and is reading the explanation when tick rolls Q2, Q1 stays on screen until the player explicitly closes. Q2 sits in `gameCounters.erConsultActive` (DB layer) until the player closes Q1; then the dialog adopts Q2 (or if Q2 has expired in the interim, the auto-skip path applies).
+
+#### Scenario: Q1 still on screen when Q2 rolls
+
+- **GIVEN** the dialog is rendering Q1 with `sticky.questionId === 'Q1'` AND the user has answered Q1 AND `answerERConsult` cleared `erConsultActive` in DB AND the user has NOT clicked 「關閉」 yet
+- **WHEN** tick fires a new consult and sets `erConsultActive = { questionId: 'Q2', ... }` in DB
+- **THEN** the dialog SHALL continue to display Q1 (sticky unchanged)
+- **AND** the explanation block for Q1 SHALL remain visible
+- **WHEN** the user clicks 「關閉」 on Q1
+- **THEN** `sticky` SHALL become `null` and the dialog SHALL unmount
+- **AND** the next `useLiveQuery` tick SHALL adopt Q2 from `erConsultActive` and render the Q2 consult fresh
 
 ### Requirement: Skip removes the consult without re-entry and does not penalize
 

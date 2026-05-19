@@ -42,13 +42,19 @@ export function ERConsultDialog(): JSX.Element | null {
   const dbActive: ERConsultActiveState | null = counters?.erConsultActive ?? null
   const [sticky, setSticky] = useState<ERConsultActiveState | null>(null)
 
-  // Adopt new active from DB; do NOT clear sticky just because DB cleared —
-  // service-layer functions clear erConsultActive after recording but the
-  // dialog needs to stay rendered until the user finishes reading and
-  // explicitly closes (per er-consultation spec dialog lifecycle).
+  // Adopt new active from DB only when no sticky is currently displayed.
+  // Two reasons for the `sticky === null` guard:
+  //   1. Service-layer functions clear `erConsultActive` after recording, but
+  //      the dialog needs to stay rendered until the user finishes reading and
+  //      explicitly closes (per er-consultation spec dialog lifecycle).
+  //   2. If tick rolls a follow-up consult (Q2) before the user has closed the
+  //      current one (Q1), the new dbActive MUST NOT clobber sticky — that
+  //      would erase Q1's explanation mid-read. Q2 sits in DB until the user
+  //      closes Q1; once sticky becomes null, this effect re-runs (sticky is
+  //      in deps) and adopts Q2.
   useEffect(() => {
-    if (dbActive) setSticky(dbActive)
-  }, [dbActive])
+    if (dbActive && sticky === null) setSticky(dbActive)
+  }, [dbActive, sticky])
 
   if (!sticky) return null
   return <ERConsultDialogInner active={sticky} onClose={() => setSticky(null)} />
@@ -126,7 +132,6 @@ function ERConsultDialogInner({
     if (!result) return
     if (wasCorrect) {
       setToast(`+${result.revenueDelta} 💰 / +${result.reputationDelta} 聲望`)
-      setTimeout(onClose, 2000)
     }
   }
 

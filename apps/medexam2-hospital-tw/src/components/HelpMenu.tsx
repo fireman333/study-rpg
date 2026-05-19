@@ -104,9 +104,9 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
   {
     id: 'fate-cards',
     icon: '🎴',
-    title: '命運卡（醫學中心 解鎖）',
+    title: '命運卡',
     body: [
-      '達到 醫學中心 tier 後解鎖。消耗 reputation 抽 4 階卡包（普通 / 稀有 / 史詩 / 傳奇）— 內容池含招募券、進修保證券、設施加成、特殊事件券。',
+      '消耗 reputation 抽 4 階卡包（普通 / 稀有 / 史詩 / 傳奇）— 內容池含招募券、進修保證券、設施加成、特殊事件券。任何 tier 都可抽，僅 reputation 不足會 disable 該階卡包。',
       '保底：每階獨立追蹤連續衰運次數，連 3 次衰運後第 4 次必中 reward。',
     ],
   },

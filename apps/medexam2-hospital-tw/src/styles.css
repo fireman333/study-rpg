@@ -917,20 +917,28 @@ body:has(.modal-backdrop) {
 }
 
 /* Mobile (≤ 639px): stack banner vertically so Chinese text doesn't get
-   squeezed into a 1-character-wide column (fix-sync-sign-in-lifecycle Bug 3). */
+ * squeezed into a 1-character-wide column. Merged from two parallel
+ * independent fixes — fix-sync-sign-in-lifecycle Bug 3 (main: 639px
+ * threshold + margin-top safety + text min-width) + track-m2 2d56d1b
+ * (full-width button + comfortable padding + icon left-align). */
 @media (max-width: 639px) {
   .sync-paused-banner {
     flex-direction: column;
     align-items: stretch;
-    padding: 8px 12px;
+    padding: 10px 16px;
+    gap: 8px;
     margin-top: 48px; /* avoid header-controls overlap */
   }
+  .sync-paused-banner__icon { align-self: flex-start; }
   .sync-paused-banner__text {
     width: 100%;
     min-width: 100%;
     white-space: normal;
   }
   .sync-paused-banner__btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
     align-self: flex-start;
   }
 }
@@ -3386,6 +3394,138 @@ body:has(.modal-backdrop) {
   color: var(--text-muted, #888);
   background: var(--surface-2, rgba(255, 255, 255, 0.04));
   border-radius: 4px;
+}
+
+/* ── Bookmarks dual-tab structure (add-wrong-answer-list-medexam2) ──── */
+
+.bookmarks-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-muted, #444);
+  margin: 12px 0 0;
+}
+
+.bookmarks-tabs__tab {
+  appearance: none;
+  background: transparent;
+  color: var(--text-muted, #999);
+  border: 1px solid transparent;
+  border-bottom: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  margin-bottom: -1px;
+}
+
+.bookmarks-tabs__tab:hover:not(.bookmarks-tabs__tab--active) {
+  background: var(--surface-1, rgba(255, 255, 255, 0.04));
+  color: inherit;
+}
+
+.bookmarks-tabs__tab--active {
+  background: var(--surface-1, rgba(255, 255, 255, 0.06));
+  border-color: var(--border-muted, #444);
+  border-bottom-color: var(--surface-1, rgba(255, 255, 255, 0.06));
+  color: inherit;
+  font-weight: 600;
+}
+
+.bookmarks-tab {
+  margin-top: 16px;
+}
+
+.bookmarks-tab__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.bookmarks-tab__count {
+  font-size: 13px;
+  color: var(--text-muted, #888);
+}
+
+.bookmarks-tab__helper {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  background: var(--surface-2, rgba(255, 200, 80, 0.08));
+  border-left: 3px solid var(--accent, #d8a04a);
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: inherit;
+}
+
+.bookmarks-page__entry-promote {
+  appearance: none;
+  background: var(--surface-2, rgba(255, 255, 255, 0.06));
+  color: inherit;
+  border: 1px solid var(--border-muted, #555);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.bookmarks-page__entry-promote:hover {
+  background: var(--surface-3, rgba(255, 255, 255, 0.12));
+}
+
+.bookmarks-page__entry-promote--on {
+  background: rgba(255, 200, 80, 0.18);
+  border-color: var(--accent, #d8a04a);
+  color: var(--accent, #d8a04a);
+}
+
+/* ── Quiz inline ★ promote affordance ──────────────────────────────── */
+
+.quiz-modal__inline-promote {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0 0;
+  padding: 6px 0;
+}
+
+.quiz-modal__inline-promote--wrong {
+  padding: 10px 12px;
+  background: rgba(255, 120, 80, 0.08);
+  border: 1px dashed var(--accent, #d8a04a);
+  border-radius: 4px;
+  justify-content: space-between;
+}
+
+.quiz-modal__inline-promote-hint {
+  font-size: 12px;
+  color: var(--text-muted, #999);
+  flex: 1 1 auto;
+}
+
+.quiz-modal__inline-promote-btn {
+  appearance: none;
+  background: var(--surface-2, rgba(255, 255, 255, 0.08));
+  color: inherit;
+  border: 1px solid var(--border-muted, #555);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.quiz-modal__inline-promote-btn:hover {
+  background: var(--surface-3, rgba(255, 255, 255, 0.14));
+}
+
+.quiz-modal__inline-promote-btn--on {
+  background: rgba(255, 200, 80, 0.18);
+  border-color: var(--accent, #d8a04a);
+  color: var(--accent, #d8a04a);
 }
 
 /* ── Quiz inline bug-report (🐞 trigger + sheet) ──────────────────── */

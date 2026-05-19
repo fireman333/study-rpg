@@ -125,8 +125,8 @@ export const SURFACE_HINTS: ReadonlyArray<SurfaceHint> = Object.freeze([
   },
   {
     id: 'fate-cards',
-    title: '命運卡（醫學中心解鎖）',
-    body: '把多出的聲望消耗在 4 階卡包，內容含招募券、進修保證券、facility / throughput 加成。pity 3 防連衰。',
+    title: '命運卡',
+    body: '消耗聲望抽 4 階卡包，內容含招募券、進修保證券、facility / throughput 加成。任何 tier 都可抽，reputation 不足會 disable 該階。pity 3 防連衰。',
   },
   {
     id: 'event-first',
@@ -139,7 +139,6 @@ export const SURFACE_HINTS: ReadonlyArray<SurfaceHint> = Object.freeze([
 export type MilestoneTipId =
   | 'revenue_1000'
   | 'reputation_tier1_gate_blocked'
-  | 'tier_unlocked_fate_cards'
   | 'net_rate_slow'
   | 'training_pity_5'
 
@@ -166,11 +165,6 @@ export const MILESTONE_TIPS: ReadonlyArray<MilestoneTip> = Object.freeze([
     id: 'reputation_tier1_gate_blocked',
     message: '聲望已達門檻，但還缺不同科別醫師（看升級面板）',
     triggerDescription: 'reputation >= TIER_UPGRADE_THRESHOLDS[診所] AND diversification gate not met (first occurrence). Threshold value tracks the constant; renamed from `reputation_48k_gate_blocked` after add-quiz-economy-redesign recalibrated 診所→區域醫院 threshold to 30,000.',
-  },
-  {
-    id: 'tier_unlocked_fate_cards',
-    message: '醫學中心解鎖命運卡 — 用 reputation 抽獎',
-    triggerDescription: 'tier upgraded to 醫學中心 (first time)',
   },
   {
     id: 'net_rate_slow',

@@ -248,11 +248,12 @@ When the player selects an incorrect option (not matching `corpus.answer`), the 
 1. NOT modify `affinity[currentSubjectId]` (per `recruitment-gacha` spec "never decrement")
 2. NOT modify `reputation` (no reputation penalty)
 3. Increment `mastery[currentSubjectId].total` by 1 (correct counter unchanged)
-4. Upsert `questionHistory[questionId]`: increment `attempts`, leave `correctCount` unchanged, set `lastAnsweredAt = Date.now()`, set `lastResult = 'wrong'`
+4. Upsert `questionHistory[questionId]`: increment `attempts`, leave `correctCount` unchanged, set `lastAnsweredAt = Date.now()`, set `lastResult = 'wrong'` (this `lastResult` write is the sole driver of the 「錯題」 derived list per `wrong-answer-list` capability — no separate trigger needed)
 5. Reveal explanation in the modal result region by rendering `corpus.explanation` through the `ExplanationMarkdown` component, which parses the string as CommonMark and emits a constrained React node tree. The component SHALL recognize `### 選項詳解` headings, `**A. ...**` bold, and `  - ✗ 錯誤 [P_N XXX] 詳解：...` bullet list patterns produced by the corpus build. Raw markdown control characters (`###`, `**`, `-`) SHALL NOT appear as literal text in the rendered output.
-6. Enable the 「下一題」 button
-7. Disable the option buttons to prevent re-answer
-8. Visually highlight the correct option (e.g., green border) and the incorrectly selected option (e.g., red border)
+6. Reveal the inline ★ promote affordance in the answer-feedback region (per `QuizModal answer-feedback region SHALL surface an inline ★ promote-to-manual-bookmark affordance` requirement below)
+7. Enable the 「下一題」 button
+8. Disable the option buttons to prevent re-answer
+9. Visually highlight the correct option (e.g., green border) and the incorrectly selected option (e.g., red border)
 
 If `corpus.explanation` is empty, null, undefined, or whitespace-only, the result region SHALL display the placeholder text `「（解析待補）」` instead of erroring. The `ExplanationMarkdown` component SHALL short-circuit to the placeholder render path in these cases without invoking the markdown parser.
 
@@ -266,6 +267,7 @@ The `ExplanationMarkdown` component SHALL enforce a strict whitelist of allowed 
 - **AND** `reputation` SHALL be unchanged (apart from any existing `createPerQReputationListener` no-op behavior on wrong)
 - **AND** `mastery[內科]` SHALL equal `{correct: 10, total: 21}`
 - **AND** `questionHistory[Q_Y]` SHALL equal `{attempts: 2, correctCount: 1, lastResult: 'wrong', lastAnsweredAt: <new ms>, ...}`
+- **AND** the derived wrong-answer list (filtered view of `questionHistory.lastResult = 'wrong'`) SHALL contain Q_Y
 
 #### Scenario: Explanation rendered from corpus
 
@@ -599,3 +601,42 @@ The HomePage revenue / reputation chips SHALL reflect the new value within one r
 - **AND** the transaction SHALL NOT read `gameCounters.currentSessionStartedAt`
 - **AND** if any one write fails, all SHALL roll back
 - **AND** the tier read SHALL be consistent with the tier value used for the multiplier (no torn read across the upgrade boundary)
+
+### Requirement: QuizModal answer-feedback region SHALL surface an inline ★ promote-to-manual-bookmark affordance
+
+When the player has submitted an answer (regardless of correct or wrong) and the answer-feedback region is visible (explanation + 「下一題」 enabled), `QuizModal` SHALL render an inline ★ toggle button within or immediately adjacent to the answer-feedback region. The toggle SHALL reflect the current `bookmarks` Dexie store membership for `currentQuestion.id`: filled ★ if a bookmark row exists, outline ☆ otherwise. Clicking the toggle SHALL invoke the same add/remove logic defined in `question-bookmarks` spec (synchronous Dexie write + debounced cloud push when authenticated). The toggle SHALL be additive to any pre-existing top-of-modal bookmark toggle (if present); both SHALL share the same underlying state. The toggle SHALL include a short label such as 「加入收藏」 / 「已收藏」 in Traditional Chinese to make its purpose clear, distinguishing it visually from the corner / icon-only top toggle.
+
+The inline ★ affordance SHALL be visually prominent on wrong answers (the primary use case is "I answered wrong → want to remember to revisit even after I get it right next time") but SHALL ALSO render on correct answers (player may still want to bookmark for future reference).
+
+The inline ★ SHALL NOT interact with the wrong-answer derived list — that list is auto-managed by the correct/wrong answer requirements above (driven by `questionHistory.lastResult`). The inline ★ is purely a manual-bookmark control.
+
+#### Scenario: Inline ★ renders on wrong-answer feedback
+
+- **GIVEN** the player answers question `Q_Y` incorrectly and the explanation is now revealed
+- **WHEN** the answer-feedback region renders
+- **THEN** an inline ★ toggle SHALL be visible in or adjacent to the feedback region
+- **AND** the toggle SHALL show outline ☆ if no `bookmarks` row exists for Q_Y, or filled ★ if it exists
+- **AND** the toggle SHALL include a Chinese label indicating its purpose (e.g., 「加入收藏」 or 「已收藏」)
+
+#### Scenario: Inline ★ click adds bookmark synchronously
+
+- **GIVEN** the player just answered `Q_Y` wrong and no `bookmarks` row exists for Q_Y
+- **WHEN** the player clicks the inline ★ toggle
+- **THEN** a new `bookmarks` row SHALL exist with `questionId = Q_Y.id` and `addedAt = Date.now()`
+- **AND** the toggle SHALL re-render with filled ★
+- **AND** the question SHALL now appear in both the 「手動收藏」 tab and the 「錯題」 tab of `/bookmarks`
+
+#### Scenario: Inline ★ also renders on correct-answer feedback
+
+- **GIVEN** the player answers question `Q_Z` correctly and the explanation is revealed
+- **WHEN** the answer-feedback region renders
+- **THEN** the inline ★ toggle SHALL still be visible (not only on wrong answers)
+- **AND** clicking it SHALL toggle the `bookmarks` row identically
+
+#### Scenario: Inline ★ and top-of-modal bookmark toggle share state
+
+- **GIVEN** `QuizModal` displays question Q_Y with no bookmark
+- **AND** both a top-of-modal bookmark toggle (existing) and an inline ★ (new, in feedback region) are rendered
+- **WHEN** the player clicks either toggle
+- **THEN** both toggles SHALL update to the new state (filled ★ if just bookmarked) on the next render
+- **AND** exactly one `bookmarks` row SHALL exist for Q_Y (no duplicate write)
