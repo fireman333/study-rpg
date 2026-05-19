@@ -42,6 +42,22 @@ export interface TableAdapter {
   postgresTable: string
   shape: 'singleton' | 'collection'
   dexieTable: string
+  /**
+   * Additional Dexie tables that should fire dirty markers for this adapter's
+   * `dexieTable` key. Used by multi-table singleton adapters whose `snapshot*`
+   * methods aggregate rows from more than one local table into a single cloud
+   * blob (e.g. `HOSPITAL_STATE` collapses 5 Dexie tables → 1 `hospital_state`
+   * blob). The engine installs identical `creating` / `updating` / `deleting`
+   * hooks on each entry; every hook marks dirty under the canonical
+   * `dexieTable` key so `snapshotDirty()` sees a single marker per debounce
+   * window. Leave unset for adapters whose snapshot reads only from
+   * `dexieTable` (default empty).
+   *
+   * See change `fix-medexam2-room-write-sync-race` (2026-05-19) for the race
+   * this closes: passenger-table writes (rooms / tickets / gachaStats /
+   * affinity) previously waited for the next gameCounters tick to propagate.
+   */
+  extraDexieTables?: readonly string[]
   snapshotDirty(
     db: Dexie,
     dirtyPks: ReadonlySet<string>,
@@ -125,8 +141,13 @@ async function writeHospitalStateBlob(
         await db.tickets.put(stamp(blob.tickets) as any)
       }
       if (blob.rooms && blob.rooms.length > 0) {
+        // Defensive force-null per `fix-medexam2-doctor-room-pointer-drift`:
+        // `Doctor.assignedRoom` is the single source of truth for assignment
+        // post-v12; legacy cloud blobs may still carry non-null values that
+        // would otherwise revive the dual-pointer drift on apply.
+        const sanitized = blob.rooms.map((r) => ({ ...r, assignedDoctorId: null }))
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await db.rooms.bulkPut(blob.rooms.map(stamp) as any[])
+        await db.rooms.bulkPut(sanitized.map(stamp) as any[])
       }
       if (blob.affinity && blob.affinity.length > 0) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,11 +160,16 @@ async function writeHospitalStateBlob(
 const HOSPITAL_STATE: TableAdapter = {
   postgresTable: 'hospital_state',
   shape: 'singleton',
-  // Hook only on gameCounters — it gets touched every tick (every 5 sec while
-  // study session active), which forces fresh push of the aggregated blob.
-  // Writes to gachaStats / tickets / rooms / affinity propagate within ~5 sec
-  // via the next gameCounters tick.
+  // Canonical dirty-marker key for the aggregated blob. `gameCounters` is
+  // touched every ~5 sec by the tick loop during active study sessions.
   dexieTable: 'gameCounters',
+  // Per `fix-medexam2-room-write-sync-race` (2026-05-19): the engine also
+  // installs hooks on these four passenger tables so any of their writes
+  // (facility upgrade / fate-card consumption / recruit roll / affinity
+  // increment) marks the blob dirty within the normal debounce window
+  // instead of waiting for the next gameCounters tick. All hooks still
+  // mark dirty under the canonical 'gameCounters' key.
+  extraDexieTables: ['rooms', 'tickets', 'gachaStats', 'affinity'],
   async snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion) {
     if (!dirtyPks.size) return []
     const blob = await readHospitalStateBlob(db as HospitalDB)
@@ -575,5 +601,31 @@ export const HOSPITAL_ADAPTERS: readonly TableAdapter[] = [
   TARGETED_TICKET_HISTORY,
   HOSPITAL_MONOTONIC_COUNTERS,
 ]
+
+/**
+ * R2 bundle partition (Phase 2 of R2 cloud-sync migration).
+ *
+ * `M2_ADAPTERS` = hospital gameplay state (everything except bookmarks).
+ *   → `users/<uid>/m2-snapshot.json.gz`
+ *
+ * `BOOKMARKS_ADAPTERS` = `question_bookmarks` only — cross-app surface that
+ * backs the `/bookmarks` page; isolated so 一階 (Phase 2.D) can migrate it
+ * independently of M2.
+ *   → `users/<uid>/bookmarks.json.gz`
+ *
+ * Union equals `HOSPITAL_ADAPTERS`. Engine installs Dexie hooks across the
+ * full union (single dirty-marker tracker); R2 push fans out by binding.
+ */
+export const M2_ADAPTERS: readonly TableAdapter[] = [
+  HOSPITAL_STATE,
+  HOSPITAL_DOCTORS,
+  HOSPITAL_MASTERY,
+  HOSPITAL_QUESTION_HISTORY,
+  TARGETED_TICKETS,
+  TARGETED_TICKET_HISTORY,
+  HOSPITAL_MONOTONIC_COUNTERS,
+]
+
+export const BOOKMARKS_ADAPTERS: readonly TableAdapter[] = [QUESTION_BOOKMARKS]
 
 export { cloudIsNewer }
