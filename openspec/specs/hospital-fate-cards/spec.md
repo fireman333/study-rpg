@@ -5,23 +5,6 @@
 命運卡 — 消耗 reputation 抽 4 階卡包（普通 1k / 稀有 10k / 史詩 100k / 傳奇 1M），內容池含招募券、進修保證券、facility / throughput 加成。Pity 3：連續 3 次衰運後第 4 次必中（每階獨立 counter，via monotonicCounters MAX-merge）。
 
 ## Requirements
-### Requirement: Fate cards SHALL be unlocked at 醫學中心 tier
-
-The system SHALL gate fate card draws behind `gameCounters.tier >= '醫學中心'`. The fate card UI SHALL be hidden (no nav link visible, route returns 404 if accessed directly) until the player reaches this tier. Once unlocked, the UI SHALL remain available even if the tier definition changes (no regression possible due to monotonic tiers).
-
-#### Scenario: Pre-醫學中心 player cannot access fate cards
-
-- **GIVEN** tier `'區域醫院'`
-- **WHEN** the player navigates the app
-- **THEN** no fate card nav link SHALL be visible
-- **AND** directly navigating to `/fate-cards` SHALL render a "tier-locked" placeholder
-
-#### Scenario: 醫學中心 player sees fate card nav
-
-- **GIVEN** tier `'醫學中心'`
-- **WHEN** the player views the home navigation
-- **THEN** a fate card nav entry SHALL be visible
-
 ### Requirement: Four card-pack tiers SHALL be available with locked costs
 
 The system SHALL provide exactly 4 card-pack tiers with locked reputation costs and content pools:
