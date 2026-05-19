@@ -27,3 +27,6 @@ docs/status.html
 
 # Supabase CLI runtime state (pooler URL / project ref cache / version pins — per-machine)
 supabase/.temp/
+.agents/
+.claude/
+.codex/
