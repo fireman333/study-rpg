@@ -129,7 +129,7 @@ export function HomePage() {
             <span className="ticket-counter__refill"> · {refreshLabel}</span>
           </span>
           <Link to="/study" className="nav-link nav-link--primary">
-            📖 唸書 →
+            唸書 →
           </Link>
           <Link to="/hospital" className="nav-link">
             醫院 →
@@ -138,13 +138,13 @@ export function HomePage() {
             進修 →
           </Link>
           <Link to="/fate-cards" className="nav-link">
-            命運卡 →
+            命運 →
           </Link>
           <Link to="/roster" className="nav-link">
-            醫師名冊 →
+            醫師 →
           </Link>
           <Link to="/bookmarks" className="nav-link">
-            收藏題目 →
+            收藏 →
           </Link>
         </div>
       </header>
