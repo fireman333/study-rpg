@@ -49,6 +49,7 @@ import {
   isERConsultExpired,
   rollNewERConsult,
 } from '../services/er-consultation'
+import { buildDoctorByRoom, getAssignedDoctor } from './room-doctor-map'
 
 export interface TickEventToastInfo {
   event: EventDefinition
@@ -135,11 +136,11 @@ export async function runTick(): Promise<TickResult> {
 
       const rooms = await db.rooms.toArray()
       const doctors = await db.doctors.toArray()
-      const doctorMap = new Map(doctors.map((d) => [d.id, d]))
+      const doctorByRoom = buildDoctorByRoom(doctors)
 
       let totalThroughput = 0
       for (const room of rooms) {
-        const doctor = room.assignedDoctorId ? doctorMap.get(room.assignedDoctorId) ?? null : null
+        const doctor = getAssignedDoctor(room.id, doctorByRoom)
         totalThroughput += computeThroughput(room, doctor)
       }
 

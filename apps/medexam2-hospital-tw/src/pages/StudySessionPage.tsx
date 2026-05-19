@@ -24,6 +24,7 @@ import { ROOM_SCENES } from '@study-rpg/theme-pixel-hospital'
 import { getHospitalDB } from '../db/schema'
 import { getStudySessionController, useStudySessionTick } from '../lib/tick'
 import { SurfaceHint } from '../components/SurfaceHint'
+import { buildDoctorByRoom, getAssignedDoctor } from '../lib/room-doctor-map'
 
 export function StudySessionPage() {
   const db = getHospitalDB()
@@ -35,16 +36,16 @@ export function StudySessionPage() {
   const controller = getStudySessionController()
   const state = useStudySessionTick()
 
-  const doctorMap = useMemo(() => new Map(doctors.map((d) => [d.id, d])), [doctors])
+  const doctorByRoom = useMemo(() => buildDoctorByRoom(doctors), [doctors])
 
   const totalThroughput = useMemo(() => {
     let t = 0
     for (const room of rooms) {
-      const doctor = room.assignedDoctorId ? doctorMap.get(room.assignedDoctorId) ?? null : null
+      const doctor = getAssignedDoctor(room.id, doctorByRoom)
       t += computeThroughput(room, doctor)
     }
     return t
-  }, [rooms, doctorMap])
+  }, [rooms, doctorByRoom])
 
   const salaryDrain = useMemo(() => {
     if (!counters) return 0
@@ -54,8 +55,8 @@ export function StudySessionPage() {
   const netPerMin = totalThroughput - salaryDrain
 
   const assignedRooms = useMemo(
-    () => rooms.filter((r) => r.assignedDoctorId !== null),
-    [rooms],
+    () => rooms.filter((r) => doctorByRoom.has(r.id)),
+    [rooms, doctorByRoom],
   )
 
   // §10 follow-up: pick a room-scene backdrop based on the most-represented
@@ -182,8 +183,8 @@ export function StudySessionPage() {
         ) : (
           <ul className="study-session__room-list">
             {assignedRooms.map((room) => {
-              const d = room.assignedDoctorId ? doctorMap.get(room.assignedDoctorId) : null
-              const throughput = computeThroughput(room, d ?? null)
+              const d = getAssignedDoctor(room.id, doctorByRoom)
+              const throughput = computeThroughput(room, d)
               return (
                 <li key={room.id} className="study-session__room-item">
                   <span className="room-type-label">{ROOM_TYPE_LABELS[room.type]} #{room.slot}</span>

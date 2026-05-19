@@ -25,6 +25,13 @@ export interface Room {
   roomFacility: number
   /** Discrete upgrade level (1-5). Level 1 = default; level 5 = 3.0× cap. */
   facilityLevel: number
+  /**
+   * @deprecated since `fix-medexam2-doctor-room-pointer-drift`. The single
+   * source of truth for doctor↔room assignment is `Doctor.assignedRoom`. App
+   * code SHALL NOT read or write this field; new values SHALL always be `null`.
+   * Field retained for backward compatibility with the `hospital_state` cloud
+   * blob schema and export/import JSON.
+   */
   assignedDoctorId: string | null
   slot: number
 }

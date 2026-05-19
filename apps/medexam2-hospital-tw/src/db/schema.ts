@@ -569,6 +569,43 @@ export class HospitalDB extends Dexie {
       targetedTicketHistory: '++id, ticketId, at, event',
       erConsultLog: '++id, triggeredAt, subjectId',
     })
+
+    // v12: fix-medexam2-doctor-room-pointer-drift — Doctor.assignedRoom becomes
+    // the single source of truth for doctor↔room assignment. Room.assignedDoctorId
+    // is retained in the type (cloud blob compat + export/import) but always null.
+    // Upgrade hook clears any existing non-null values; store schema unchanged.
+    this.version(12)
+      .stores({
+        affinity: '&subjectId',
+        doctors: '&id, subjectId, rarity, obtainedAt',
+        gachaStats: '&id',
+        tickets: '&id',
+        rooms: '&id, type, slot',
+        gameCounters: '&id',
+        mastery: '&subjectId',
+        questionHistory:
+          '&questionId, subjectId, lastAnsweredAt, nextDueAt, [lastResult+lastAnsweredAt]',
+        meta: '&key',
+        localBackup: '&key, takenAt',
+        monotonicCounters: '&id',
+        trainingHistory: '++id, doctorId, attemptedAt',
+        eventLog: '++id, triggeredAt',
+        fateCardHistory: '++id, drawnAt',
+        retirementLog: '++id, retiredAt, doctorId',
+        bookmarks: '&questionId, addedAt',
+        bannerUnlockBonusLog: '&subjectId',
+        targetedTickets: '&id, status, subjectId, obtainedAt',
+        targetedTicketHistory: '++id, ticketId, at, event',
+        erConsultLog: '++id, triggeredAt, subjectId',
+      })
+      .upgrade(async (tx) => {
+        await tx
+          .table<RoomRow, string>('rooms')
+          .toCollection()
+          .modify((r) => {
+            if (r.assignedDoctorId !== null) r.assignedDoctorId = null
+          })
+      })
   }
 }
 

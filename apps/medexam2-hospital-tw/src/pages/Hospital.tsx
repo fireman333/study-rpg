@@ -14,6 +14,7 @@ import { RoomCard } from '../components/RoomCard'
 import { AssignDoctorModal } from '../components/AssignDoctorModal'
 import { purchaseRoomExtension, type ExtensionResult } from '../services/room-extension'
 import { SurfaceHint } from '../components/SurfaceHint'
+import { buildDoctorByRoom, getAssignedDoctor } from '../lib/room-doctor-map'
 
 const EXTRA_PREFIX = 'extra-'
 const ROOM_TYPES_ORDERED: ReadonlyArray<RoomType> = ['outpatient', 'surgery', 'ward']
@@ -31,26 +32,20 @@ export function Hospital() {
   const [extOutcome, setExtOutcome] = useState<{ type: RoomType; result: ExtensionResult } | null>(null)
   const [extBusy, setExtBusy] = useState(false)
 
-  const doctorById = useMemo(() => {
-    const m = new Map<string, (typeof doctors)[number]>()
-    for (const d of doctors) m.set(d.id, d)
-    return m
-  }, [doctors])
+  const doctorByRoom = useMemo(() => buildDoctorByRoom(doctors), [doctors])
 
   const totalThroughput = useMemo(() => {
     let sum = 0
     for (const room of rooms) {
-      const doctor = room.assignedDoctorId ? doctorById.get(room.assignedDoctorId) ?? null : null
+      const doctor = getAssignedDoctor(room.id, doctorByRoom)
       sum += computeThroughput(room, doctor)
     }
     return sum
-  }, [rooms, doctorById])
+  }, [rooms, doctorByRoom])
 
-  const assignedCount = rooms.filter((r) => r.assignedDoctorId !== null).length
+  const assignedCount = doctorByRoom.size
 
-  const activeDoctor = activeRoom?.assignedDoctorId
-    ? doctorById.get(activeRoom.assignedDoctorId) ?? null
-    : null
+  const activeDoctor = activeRoom ? getAssignedDoctor(activeRoom.id, doctorByRoom) : null
 
   return (
     <main className="app-shell">
@@ -74,7 +69,7 @@ export function Hospital() {
 
       <section className="hospital-grid">
         {rooms.map((room) => {
-          const doctor = room.assignedDoctorId ? doctorById.get(room.assignedDoctorId) ?? null : null
+          const doctor = getAssignedDoctor(room.id, doctorByRoom)
           return (
             <RoomCard key={room.id} room={room} doctor={doctor} onClick={() => setActiveRoom(room)} />
           )

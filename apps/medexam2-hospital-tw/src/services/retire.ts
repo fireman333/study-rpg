@@ -3,10 +3,11 @@
  *
  * Atomic transaction:
  *   1. Read doctor + counters
- *   2. Delete doctor from `db.doctors`
- *   3. Null `assignedDoctorId` on any room referencing the retired doctor
- *   4. Refund `powerMultiplier × 1000` to `gameCounters.revenue`
- *   5. Append a `retirementLog` row for the 24-hour diversification grace lookup
+ *   2. Delete doctor from `db.doctors` (removing the doctor row also drops its
+ *      `assignedRoom` pointer — the single source of truth post `fix-medexam2-
+ *      doctor-room-pointer-drift`, so no rooms-table mutation is needed)
+ *   3. Refund `powerMultiplier × 1000` to `gameCounters.revenue`
+ *   4. Append a `retirementLog` row for the 24-hour diversification grace lookup
  *
  * Curator note: retirement is destructive (db.doctors row gone). The UI MUST
  * present an explicit confirmation modal before invoking this service.
@@ -22,30 +23,17 @@ export async function retireDoctor(doctorId: string): Promise<RetireResult> {
   const db = getHospitalDB()
   return db.transaction(
     'rw',
-    [db.doctors, db.rooms, db.gameCounters, db.retirementLog],
+    [db.doctors, db.gameCounters, db.retirementLog],
     async () => {
       const doctor = await db.doctors.get(doctorId)
       if (!doctor) return { kind: 'not-found', doctorId } as RetireResult
 
       const refund = doctor.powerMultiplier * 1000
+      const roomFreed = doctor.assignedRoom
 
-      // Free any room currently assigned to this doctor
-      let roomFreed: string | null = null
-      const assignedRoom = await db.rooms.where('id').equals(doctor.assignedRoom ?? '').first()
-      if (assignedRoom && assignedRoom.assignedDoctorId === doctorId) {
-        await db.rooms.put({ ...assignedRoom, assignedDoctorId: null })
-        roomFreed = assignedRoom.id
-      } else {
-        // Defensive: scan all rooms in case doctor.assignedRoom is stale
-        const allRooms = await db.rooms.toArray()
-        const orphanRoom = allRooms.find((r) => r.assignedDoctorId === doctorId)
-        if (orphanRoom) {
-          await db.rooms.put({ ...orphanRoom, assignedDoctorId: null })
-          roomFreed = orphanRoom.id
-        }
-      }
-
-      // Delete the doctor row
+      // Delete the doctor row. With `Doctor.assignedRoom` as the single source
+      // of truth, removing the row implicitly clears the room's occupancy —
+      // no `rooms.put` needed.
       await db.doctors.delete(doctorId)
 
       // Refund to revenue
