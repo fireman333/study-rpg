@@ -1,0 +1,22 @@
+{
+  "name": "@study-rpg/sync-worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker: auth-bridging presigner for R2 cloud sync",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260501.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.92.0"
+  },
+  "dependencies": {
+    "aws4fetch": "^1.0.20",
+    "jose": "^5.9.0"
+  }
+}

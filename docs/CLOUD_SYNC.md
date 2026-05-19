@@ -1,5 +1,12 @@
 # Cloud Sync — Deploy Guide for Forks
 
+> ⚠️ **Architecture in transition.** The study-rpg main repo is migrating from
+> Supabase Postgres row-sync to Cloudflare R2 blob-sync (see
+> `openspec/changes/add-r2-cloud-sync-migration/`). Phase 0–1 land Q2 2026.
+> M4 instructions below remain accurate for **forks staying on Supabase** and
+> for understanding the legacy path during dual-write. The R2 overlay is
+> documented in [Appendix R2](#appendix-r2-blob-based-sync-via-cloudflare).
+
 study-rpg M4 cloud sync mirrors gameplay state to Supabase Postgres via opt-in
 Google OAuth. IndexedDB stays the source of truth; cloud is purely additive.
 This guide walks a content/theme fork through wiring its own Supabase project.
@@ -193,3 +200,149 @@ trigger the migration / conflict modal flow described in
 - Self-hosted Postgres support (schema is standard, but Auth provider tied to Supabase Auth)
 
 See `openspec/changes/add-cloud-sync/design.md` for full rationale on each decision.
+
+---
+
+## Appendix R2: blob-based sync via Cloudflare
+
+Phase 1 of `add-r2-cloud-sync-migration` (shipped 2026-05-19) introduces a
+parallel R2 write path. This appendix documents what changed for owners
+running the main repo; forks staying on pure Supabase can ignore it. Full
+rationale lives in `openspec/changes/add-r2-cloud-sync-migration/design.md`.
+
+### Why migrate
+
+Supabase free tier caps at 500 MB DB + 5 GB egress/月. Heavy users push ~1.7 MB
+each; ceiling cracks at ~500–800 actives. R2 free tier gives 10 GB storage +
+**zero egress**, raising the ceiling 20×+ at zero recurring cost. Cloudflare
+Worker (~50 lines of TS) bridges Supabase JWT → R2 presigned URLs so the
+client uploads directly to R2 without exposing R2 credentials.
+
+### Architecture overlay (additive to M4)
+
+- **Worker** `study-rpg-sync-worker` (`cloudflare/sync-worker/`) verifies the
+  Supabase JWT against Supabase's JWKS endpoint and issues presigned R2 URLs
+  scoped to `users/<jwt.sub>/<bundle>.json.gz`. The Worker NEVER holds a
+  Supabase service-role key — migration is client-driven.
+- **R2 buckets**: `study-rpg-saves` (primary, CORS allowlists GH Pages +
+  localhost), `study-rpg-saves-backup` (daily cron-mirrored copy with 30-day
+  retention).
+- **Bundles**: 3 blobs per user instead of 9 row-tables.
+  - `m1-snapshot.json.gz` — 一階 (`player_state` / `srs_cards` /
+    `item_instances` / `mentor_backlog`)
+  - `m2-snapshot.json.gz` — 二階 (`hospital_state` / `hospital_doctors` /
+    `hospital_mastery` / `hospital_question_history`)
+  - `bookmarks.json.gz` — cross-app `/bookmarks` page (`question_bookmarks`)
+- **Conflict policy**: `If-Match: <etag>` optimistic concurrency on PUT.
+  412 → pull-merge-retry up to 3 attempts (250 / 1000 / 4000 ms backoff).
+  In-blob per-row `updated_at` LWW handles same-blob cross-device race.
+- **Migration ceremony**: M4-era users see a one-time top-of-viewport banner
+  on sign-in (「立即遷移」 / 「稍後再說」). Click reads RLS-scoped Supabase
+  rows via the existing JS client, builds bundles in-browser, PUTs to R2.
+- **Tenancy**: enforced at URL-signing time by the Worker (Worker won't sign
+  URLs whose path `<user_id>` doesn't match the JWT's `sub`). RLS is no
+  longer in the data-plane critical path for R2 reads/writes — the bucket
+  has no public listing and only the Worker holds bucket-scope credentials.
+
+### Feature flag matrix
+
+The client reads two env vars at startup; invalid combinations throw via
+`backend-config.ts`.
+
+| `VITE_CLOUD_SYNC_BACKEND` | `VITE_CLOUD_SYNC_READ_BACKEND` | Phase | Writes | Reads |
+|---|---|---|---|---|
+| `supabase` (default) | (ignored) | Phase 0 / legacy | Supabase only | Supabase |
+| `dual` | `supabase` | Phase 1–2 | Supabase + R2 | Supabase |
+| `dual` | `r2` | Phase 3 | Supabase + R2 | R2 |
+| `r2` | (ignored) | Phase 4+ | R2 only | R2 |
+| `supabase` | `r2` | INVALID | — | — (throws at startup) |
+
+`VITE_SYNC_WORKER_URL` defaults to the prod Worker
+(`https://study-rpg-sync-worker.tony85314.workers.dev`); override in
+`.env.local` for `wrangler dev` local Worker testing.
+
+### Banner UX
+
+`apps/medexam-tw/src/components/MigrationBanner.tsx` renders a sticky banner
+below the app header when ALL hold:
+
+1. `backendConfig.writeR2` (env flag is `dual` or `r2`)
+2. Supabase client is configured AND user is authed
+3. Probe `detectM1NeedsMigration` shows Supabase has M1 rows AND R2 lacks
+   the `m1-snapshot.json.gz` blob
+
+The probe uses a `Range: bytes=0-0` GET against the presigned R2 URL —
+cheaper than HEAD (which isn't presignable for method-bound URLs) and
+correctly returns 404 on missing blob.
+
+**State machine** (visible to user):
+
+```
+checking → visible → migrating → done   (auto-hides after 5s)
+                                error    (offers retry + 稍後再說)
+                  → hidden (24h snooze, or until 7+ days of repeated dismissal escalates copy)
+```
+
+**Snooze + escalation**: dismiss log lives in
+`localStorage['migration-banner-dismiss-log']` as `{ snoozedUntil,
+dismisses[] }`. After ≥ 3 dismissals AND ≥ 1 dismissal ≥ 7 days old, the
+banner copy escalates to:
+
+> 您的雲端存檔還在舊系統中，請點此遷移以確保跨裝置同步繼續運作
+
+Even escalated, the banner remains non-modal and dismissible.
+
+**Idempotency**: `migrate-from-supabase.ts` checks R2 blob existence before
+upload (Range-byte probe). 412 / 428 on `If-None-Match: *` also count as
+"already-present" — a partial migration that uploaded M1 and crashed mid-
+flight is resumable on next click without duplicating work.
+
+### Rollback procedure
+
+Every phase is reversible by flag flip alone (no schema migrations, no data
+moves), except Phase 5 which physically drops Supabase sync tables and ships
+as a separate change.
+
+| Current phase | Symptom needing rollback | Action |
+|---|---|---|
+| Phase 1–2 (dual writes) | R2 push fails consistently | Flip `VITE_CLOUD_SYNC_BACKEND=supabase`, redeploy. Supabase remains authoritative; R2 blobs become orphans (retained for forensics). |
+| Phase 3 (R2 reads) | Users report stale data, R2 latency spikes | Flip `VITE_CLOUD_SYNC_READ_BACKEND=supabase`, redeploy. Writes stay dual. |
+| Phase 4 (R2 only) | Critical R2 outage / Worker bug | Flip `VITE_CLOUD_SYNC_BACKEND=dual`, `VITE_CLOUD_SYNC_READ_BACKEND=supabase`, redeploy. Supabase row state from before Phase 4 cutover is still there (frozen) — Worker `/restore` endpoint can replay R2 → Supabase if needed. |
+| Phase 5+ | (drop tables irreversible) | Restore from daily R2 backup bucket via manual Worker invocation. Coordinate with Phase 5 follow-up change before pulling the trigger. |
+
+### Operational handles
+
+DEV-only globals (gated by `import.meta.env.DEV`):
+
+```js
+globalThis.__sync   // SyncEngine — pushNow / pullNow / pushAllNow / pullAllNow / status
+globalThis.__db     // Dexie StudyRpgDB
+```
+
+CLI:
+
+```bash
+# Worker health (no auth)
+curl https://study-rpg-sync-worker.tony85314.workers.dev/health
+
+# Tail Worker logs (auth via wrangler)
+wrangler tail study-rpg-sync-worker
+
+# List a user's R2 blobs (owner-only, requires R2 API credentials)
+wrangler r2 object list study-rpg-saves --prefix=users/<jwt-sub>/
+
+# Daily backup state
+wrangler r2 object list study-rpg-saves-backup --prefix=backup/$(date +%Y-%m-%d)/
+```
+
+### Known gaps (Phase 1 carryover)
+
+- **Reconciliation script** (task 3.10) not implemented yet — daily diff
+  Supabase rows ↔ R2 bundle for unreconciled rows. Requires service-role
+  Supabase key; deferred until dogfood traffic accumulates.
+- **End-to-end smoke tests** (tasks 3.16–3.17) need Chrome MCP + real
+  M4-era user fixture — run manually before Phase 2 ramp.
+- **14-day bake** (task 3.18) is calendar-bound; tracks dogfood errors
+  before unblocking Phase 2.
+- **M2 + bookmarks bundle wiring** is Phase 2 work (tasks 4.1–4.9). Phase 1
+  only covers 一階 (M1).

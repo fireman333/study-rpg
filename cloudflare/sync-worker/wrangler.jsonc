@@ -1,0 +1,48 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "study-rpg-sync-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-19",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // R2 bindings — Worker uses these to LIST + DELETE under user prefixes
+  // (delete-account / reset endpoints). Direct browser→R2 traffic for
+  // PUT/GET goes via presigned URLs, NOT through these bindings (preserves
+  // zero-egress benefit).
+  "r2_buckets": [
+    {
+      "binding": "R2_PRIMARY",
+      "bucket_name": "study-rpg-saves"
+    },
+    {
+      "binding": "R2_BACKUP",
+      "bucket_name": "study-rpg-saves-backup"
+    }
+  ],
+
+  // Daily cron @ 00:00 UTC for R2-to-R2 backup
+  "triggers": {
+    "crons": ["0 0 * * *"]
+  },
+
+  // Observability — Workers Logs (no separate logpush needed at this scale)
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  // Secrets set via `wrangler secret put <name>`:
+  //   SUPABASE_JWKS_URL          — https://<project>.supabase.co/auth/v1/keys
+  //   SUPABASE_PROJECT_REF       — for JWT issuer/audience verification
+  //   R2_S3_ACCESS_KEY_ID        — R2 S3-compat API access key
+  //   R2_S3_SECRET_ACCESS_KEY    — R2 S3-compat API secret
+  //   R2_S3_ENDPOINT             — https://<account-id>.r2.cloudflarestorage.com
+  //
+  // NOT a secret: no SUPABASE_SERVICE_ROLE_KEY — migration is client-driven
+  // (see design.md Decision 6), Worker never reads user data on behalf of users.
+  "vars": {
+    "R2_BUCKET_NAME": "study-rpg-saves",
+    "CORS_ALLOWED_ORIGINS": "https://fireman333.github.io,http://localhost:5173,http://localhost:4173",
+    "PRESIGN_TTL_SECONDS": "300"
+  }
+}

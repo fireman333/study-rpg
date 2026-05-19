@@ -1,0 +1,17 @@
+{
+  "rules": [
+    {
+      "allowed": {
+        "origins": [
+          "https://fireman333.github.io",
+          "http://localhost:5173",
+          "http://localhost:4173"
+        ],
+        "methods": ["GET", "PUT", "HEAD"],
+        "headers": ["*"]
+      },
+      "exposeHeaders": ["ETag", "Content-Length"],
+      "maxAgeSeconds": 3600
+    }
+  ]
+}
