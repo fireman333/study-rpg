@@ -24,6 +24,7 @@ import {
 import { attemptRoll, type RollOutcome } from '../services/recruitment'
 import { allocateDailyCap, getDueQueueAllSubjects } from '../lib/srs-scheduler'
 import { useCompletionMap } from '../lib/completion'
+import { getNextDailyRefreshLabel } from '../lib/daily-ticket'
 import { RecruitmentBanner } from '../components/RecruitmentBanner'
 import { RecruitmentResultModal } from '../components/RecruitmentResultModal'
 import { DevAffinityControls } from '../components/DevAffinityControls'
@@ -53,6 +54,7 @@ export function HomePage() {
   const affinityRows = useLiveQuery(() => db.affinity.toArray(), []) ?? []
   const ticketsRow = useLiveQuery(() => db.tickets.get('global'), [])
   const ticketsAvailable = ticketsRow?.available ?? 0
+  const refreshLabel = getNextDailyRefreshLabel(new Date(), ticketsAvailable, TICKET_CAP)
   const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
   const mono = useLiveQuery(() => db.monotonicCounters.get('singleton'), [])
   const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
@@ -119,8 +121,12 @@ export function HomePage() {
       <header className="app-header">
         <h1>二階國考經營 RPG</h1>
         <div className="app-header__meta">
-          <span className="ticket-counter">
+          <span
+            className="ticket-counter"
+            title="每日台灣早上 08:00 自動發放 +1 張免費招募券，持有上限 99 張"
+          >
             🎟️ {ticketsAvailable} / {TICKET_CAP}
+            <span className="ticket-counter__refill"> · {refreshLabel}</span>
           </span>
           <Link to="/study" className="nav-link nav-link--primary">
             📖 唸書 →

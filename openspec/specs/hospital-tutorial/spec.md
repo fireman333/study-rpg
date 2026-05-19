@@ -94,6 +94,10 @@ Each section SHALL be a collapsible accordion. The help modal SHALL NOT block ga
 - **Numeric tier thresholds** SHALL be sourced at render time from the `TIER_UPGRADE_THRESHOLDS` constant exported by `@study-rpg/content-medexam2-tw`, formatted as `<value/1000>k`. Hard-coded threshold integers in the §升級 tier body are PROHIBITED. This ensures that any future recalibration of `TIER_UPGRADE_THRESHOLDS` (e.g. dogfood retune) propagates to HelpMenu automatically.
 - **AAD button reference** in the 醫師退休與返還 (§retire) section body SHALL name the action button as `AAD`, with the 自願離院 / 退休 全稱 inline on first mention for new-player comprehension. The accordion section title MAY continue to use 「醫師退休與返還」 (the heading the player reads BEFORE clicking) and the internal section id MAY remain `retire`. This aligns with `rename-retire-to-aad` (2026-05-19) which deliberately separates user-visible button label from internal identifiers.
 
+**Daily-ticket cadence sub-clause (added by `clarify-daily-ticket-ux` 2026-05-19):**
+
+- **§recruitment body** SHALL quantify the daily-ticket grant explicitly: the cadence (+1/day), the cap (99), and the reset time in Taiwan local terms (08:00 台灣早上). Vague phrasing like 「每天免費招募券」 without quantifier is PROHIBITED because it leaves players unable to distinguish "feature works" from "feature broken" — `clarify-daily-ticket-ux` was opened specifically because players misread the unquantified copy as a bug report. Cross-reference: the same Taiwan-08:00 wording SHALL appear on the HomePage ticket-counter `title` tooltip (see `recruitment-gacha` Req「Recruitment ticket SHALL be the sole gating resource」 UI affordance sub-clause) so both surfaces use identical language.
+
 #### Scenario: Help menu accessible from home
 
 - **GIVEN** the player is on the `/` home route
@@ -122,6 +126,13 @@ Each section SHALL be a collapsible accordion. The help modal SHALL NOT block ga
 - **THEN** the body SHALL refer to the button as `AAD`
 - **AND** the parenthetical 自願離院 / 退休 全稱 SHALL appear once for clarity
 - **AND** the body SHALL NOT instruct the player to click a 「退休」 button (which no longer exists at the user-visible label level)
+
+#### Scenario: Recruitment copy quantifies daily ticket grant
+
+- **GIVEN** the player has opened HelpMenu
+- **WHEN** the player expands the 「招募醫師（gacha + 親和值）」 section
+- **THEN** the body SHALL state the daily-ticket cadence as `每日台灣早上 08:00 +1 張免費招募券（持有上限 99）` (or visually equivalent wording specifying +1/day, cap 99, and 台灣 08:00 reset)
+- **AND** the body SHALL NOT use the unquantified phrasing 「每天免費招募券」 without specifying the +1 / cap / reset time
 
 ### Requirement: V6 first-launch SHALL show a "what changed" modal for existing players
 

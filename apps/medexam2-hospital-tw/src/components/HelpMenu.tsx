@@ -52,7 +52,7 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
     icon: '🎫',
     title: '招募醫師（gacha + 親和值）',
     body: [
-      '每個科別有「親和值」門檻 — 答對該科考古題達門檻後，招募 banner 解鎖。每天免費招募券，用券抽 P5/P4/P3/P2/P1 醫師（rarity 越高機率越低）。',
+      '每個科別有「親和值」門檻 — 答對該科考古題達門檻後，招募 banner 解鎖。每日台灣早上 08:00 自動發放 +1 張免費招募券（持有上限 99）；用券抽 P5/P4/P3/P2/P1 醫師（rarity 越高機率越低）。',
       '保底（pity）：每 N 抽必出 P3+；每 100 抽必出 SSR (P1)。詳見 RECRUITMENT_PITY_RULES。',
     ],
   },
