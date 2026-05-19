@@ -6,10 +6,9 @@
  * crossed. Dismiss writes `tutorial.firedTips[tipId] = true` so each tip fires
  * at most once per save.
  *
- * Implements 4 of the 5 tips defined in `content-medexam2-tw/tutorial.ts`:
+ * Implements 3 of the 5 tips defined in `content-medexam2-tw/tutorial.ts`:
  *   - revenue_1000               : revenue ≥ 1000 (first crossing)
  *   - reputation_tier1_gate_blocked: rep ≥ TIER_UPGRADE_THRESHOLDS[診所] AND diversification gate not met
- *   - tier_unlocked_fate_cards   : tier transition to 醫學中心
  *   - training_pity_5            : any doctor pityCounter ≥ 5
  *
  * `net_rate_slow` requires multi-tick history (5 consecutive ticks of slow net
@@ -89,17 +88,7 @@ export function useMilestoneTips(): {
       }
     }
 
-    // 3. tier_unlocked_fate_cards — tier === 醫學中心
-    if (!fired.tier_unlocked_fate_cards && counters.tier === '醫學中心') {
-      const p = pick('tier_unlocked_fate_cards')
-      if (p && !scheduled) {
-        setPending(p)
-        setScheduled(p.id)
-        return
-      }
-    }
-
-    // 4. training_pity_5 — any doctor with pityCounter >= 5
+    // 3. training_pity_5 — any doctor with pityCounter >= 5
     if (!fired.training_pity_5) {
       const hit = doctors.some((d) => d.pityCounter >= 5)
       if (hit) {

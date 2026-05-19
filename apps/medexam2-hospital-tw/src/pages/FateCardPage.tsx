@@ -1,13 +1,11 @@
 /**
  * Fate Cards page — `redesign-hospital-economy` §7.
  *
- * Endgame reputation sink. 4 pack tiers (common / rare / epic / legendary)
+ * Reputation sink. 4 pack tiers (common / rare / epic / legendary)
  * unlock progressively. Each draw consumes reputation; possible outcomes:
  *   - reward (uniform pick from pool, possibly pity-triggered)
  *   - bad luck (loses extra rep, increments per-tier pity counter)
  *   - aborted (insufficient reputation, no state change)
- *
- * Tier gate: locked behind `tier === '醫學中心' || '國家級教學醫院'` per spec.
  */
 
 import { useEffect, useState } from 'react'
@@ -31,8 +29,6 @@ import {
   TargetedDrawTutorialOverlay,
   firstTargetedMilestoneKey,
 } from '../components/TargetedDrawTutorialOverlay'
-
-const FATE_TIER_UNLOCKED = new Set(['醫學中心', '國家級教學醫院'])
 
 interface DrawOutcome {
   draw: FateCardResolvedDraw
@@ -90,8 +86,6 @@ export function FateCardPage() {
       </main>
     )
   }
-
-  const tierUnlocked = FATE_TIER_UNLOCKED.has(counters.tier)
 
   async function handleDraw(tier: FateCardTier) {
     setDrawing(true)
@@ -163,15 +157,6 @@ export function FateCardPage() {
         </button>
       )}
 
-      {!tierUnlocked && (
-        <section className="fate-cards-locked">
-          <p>
-            🔒 命運卡功能僅於 <strong>醫學中心</strong> 以上開放。當前等級：
-            <strong>{counters.tier}</strong>。
-          </p>
-        </section>
-      )}
-
       <section className="fate-cards-grid" aria-label="命運卡包">
         {FATE_CARD_TIER_ORDER.map((tier) => {
           const cost = FATE_CARD_COSTS[tier]
@@ -214,10 +199,10 @@ export function FateCardPage() {
               <button
                 type="button"
                 className="fate-card__draw-btn"
-                disabled={!tierUnlocked || insufficient || drawing}
+                disabled={insufficient || drawing}
                 onClick={() => void handleDraw(tier)}
               >
-                {drawing ? '抽卡中…' : tierUnlocked ? '抽一張' : '🔒 鎖定中'}
+                {drawing ? '抽卡中…' : '抽一張'}
               </button>
             </article>
           )
