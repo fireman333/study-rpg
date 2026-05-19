@@ -45,4 +45,4 @@
 - [x] 4.1 Run `openspec validate redesign-doctor-roster-as-shelf` (or `openspec status --change ... --json`) and confirm all artifacts `done` — passed
 - [x] 4.2 Run `/opsx:verify` to check completeness / correctness / coherence — passed (1 deferred task acknowledged, 0 critical, 0 warnings)
 - [x] 4.3 Run `/opsx:archive` to merge delta into `openspec/specs/hospital-scene/spec.md` — delta synced via subagent + folder moved to `archive/2026-05-19-redesign-doctor-roster-as-shelf/`
-- [ ] 4.4 Commit (template: `spec(archive): merge redesign-doctor-roster-as-shelf — doctor sprites move from scene overlay to roster shelf`) — explicit user confirm before `git commit`
+- [x] 4.4 Commit (template: `spec(archive): merge redesign-doctor-roster-as-shelf — doctor sprites move from scene overlay to roster shelf`) — explicit user confirm before `git commit` — committed as `716543d` (7 files, explicit `git add` excluded 3 unrelated WIP)
