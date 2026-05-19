@@ -449,6 +449,81 @@
   color: #c44d4d;
 }
 
+/* ─── Migration banner (R2 cloud-sync migration, Phase 1) ──────────────── */
+
+.migration-banner {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: var(--bg-cream);
+  border-bottom: 2px solid var(--rarity-SR, #d4af37);
+  padding: 10px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.migration-banner-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 960px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.migration-banner-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.migration-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 200px;
+  font-family: var(--font-pixel-cjk);
+  color: var(--frame-wood-dark);
+}
+
+.migration-banner-text strong {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.migration-banner-sub {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.migration-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.migration-banner-btn {
+  font-family: var(--font-pixel-cjk);
+  font-size: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--frame-wood-light);
+  background: var(--bg-cream);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.migration-banner-btn:hover:not(:disabled) {
+  background: var(--frame-wood-light);
+}
+
+.migration-banner-btn--primary {
+  border-color: var(--rarity-SR, #d4af37);
+  font-weight: bold;
+}
+
+.migration-banner-btn--ghost {
+  opacity: 0.75;
+}
+
 /* ─── Settings panel (M4 Task 7) ─────────────────────────────────────────── */
 
 .settings-panel {

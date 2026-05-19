@@ -141,6 +141,10 @@ Cloudflare Workers free tier supports cron triggers (1000 invocations/day). Dail
 
 This gives 30-day point-in-time recovery against accidental Worker bug overwriting current blobs — a real risk during dual-write iteration.
 
+### 2026-05-19 17:06 — Phase 1 (M1 dual-write + migration banner) shipped
+
+Phase 1 shipped code-complete on 2026-05-19. Done: r2/ adapter package (client / bundles / etag / engine-r2), backend-config flag matrix (supabase/dual/r2 + supabase/r2 read), dual-write wired into engine.ts pushNow + pushAllNow (Supabase writes first then R2 bundle push; R2 failure logged but doesn't unwind Supabase), MigrationBanner.tsx with sticky-top placement + 24h snooze + escalated copy after 3 dismissals across 7 days, migrate-from-supabase.ts with paginated SELECT + Range-byte idempotency probe + 412/428 already-present handling, CLOUD_SYNC.md Appendix R2 covering rollback per phase. Tasks 3.1–3.9, 3.11–3.15, 3.19 ticked. Deferred: 3.10 reconcile script (needs service-role key, defer until dogfood traffic), 3.16–3.17 end-to-end smoke (needs Chrome MCP + seeded M4 fixture), 3.18 14-day bake (calendar). Validate passes, typecheck clean. Working tree dirty in track-m2 worktree (cross-track affects:both pattern matching prior R2 / reset commits). Worker URL https://study-rpg-sync-worker.tony85314.workers.dev unchanged from Phase 0.
+
 ## Risks / Trade-offs
 
 | Risk | Mitigation |

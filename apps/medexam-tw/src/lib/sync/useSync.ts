@@ -289,6 +289,7 @@ export function useSync(): UseSyncReturn {
             adapters: ONE_STAGE_ADAPTERS,
             debounceMs: DEBOUNCE_MS,
             onConsecutiveFailure: handleConsecutiveFailure,
+            r2BundleName: 'm1',
           })
         }
         if (needsModal) engineRef.current.pause()

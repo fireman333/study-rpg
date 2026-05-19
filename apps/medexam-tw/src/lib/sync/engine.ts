@@ -7,6 +7,8 @@
 // - IndexedDB remains source of truth; cloud failures never mutate local
 // - Offline = queue lives implicitly in IndexedDB (rows still there, dirty markers re-built on reconnect)
 
+import { getBackendConfig } from './backend-config'
+import { pushBundle } from './r2/engine-r2'
 import type { TableAdapter } from './tables'
 import type {
   CloudRow,
@@ -36,6 +38,10 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
   const onError =
     opts.onError ?? ((err: unknown, ctx: string) => console.error(`[sync:${ctx}]`, err))
   const onConsecutiveFailure = opts.onConsecutiveFailure
+  const r2BundleName = opts.r2BundleName
+  // Cache backend config once per engine. Reads env at construction; throws on
+  // invalid combinations so misconfigured deploys surface immediately.
+  const backendConfig = getBackendConfig()
 
   let userId: string | null = null
   let status: SyncStatus = 'unauthed'
@@ -181,28 +187,46 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     let anyOffline = false
     let firstError: SyncErrorRecord | null = null
 
-    // Snapshot + flush per table.
-    for (const adapter of adapters) {
-      const dirtyPks = dirty.perTable.get(adapter.dexieTable)
-      if (!dirtyPks || !dirtyPks.size) continue
-      try {
-        const payloads = await adapter.snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion)
-        if (!payloads.length) {
-          // Snapshot empty (row deleted in Dexie before snapshot). Clear markers.
+    // Legacy Supabase write path. Skipped entirely when backend=r2 (Phase 4+).
+    if (backendConfig.writeSupabase) {
+      for (const adapter of adapters) {
+        const dirtyPks = dirty.perTable.get(adapter.dexieTable)
+        if (!dirtyPks || !dirtyPks.size) continue
+        try {
+          const payloads = await adapter.snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion)
+          if (!payloads.length) {
+            // Snapshot empty (row deleted in Dexie before snapshot). Clear markers.
+            dirtyPks.clear()
+            continue
+          }
+          await pushBatch(adapter.postgresTable, payloads)
+          // Successful push → clear markers
           dirtyPks.clear()
-          continue
+        } catch (err) {
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', adapter.postgresTable, err)
+          if (!firstError) firstError = rec
+          onError(err, `push:${adapter.postgresTable}`)
+          // Network errors: keep dirty markers for retry on next dirty event / pull
+          // Non-network errors: log + still keep markers (might be transient)
         }
-        await pushBatch(adapter.postgresTable, payloads)
-        // Successful push → clear markers
-        dirtyPks.clear()
+      }
+    }
+
+    // R2 write path. Active when backend ∈ {dual, r2} AND engine knows which
+    // bundle it owns. Whole-bundle push reuses adapter.snapshotAll, so dirty
+    // markers are cleared on success regardless of which write path ran.
+    if (backendConfig.writeR2 && r2BundleName) {
+      try {
+        await pushBundle(supabase, db, adapters, r2BundleName, userId)
+        for (const set of dirty.perTable.values()) set.clear()
       } catch (err) {
         const isNetwork = isLikelyNetworkError(err)
         anyOffline ||= isNetwork
-        const rec = recordError('push', adapter.postgresTable, err)
+        const rec = recordError('push', `r2:${r2BundleName}`, err)
         if (!firstError) firstError = rec
-        onError(err, `push:${adapter.postgresTable}`)
-        // Network errors: keep dirty markers for retry on next dirty event / pull
-        // Non-network errors: log + still keep markers (might be transient)
+        onError(err, `pushR2:${r2BundleName}`)
       }
     }
 
@@ -280,17 +304,31 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     let anyOffline = false
     let firstError: SyncErrorRecord | null = null
 
-    for (const adapter of adapters) {
+    if (backendConfig.writeSupabase) {
+      for (const adapter of adapters) {
+        try {
+          const payloads = await adapter.snapshotAll(db, userId, updatedAt, appVersion)
+          if (!payloads.length) continue
+          await pushBatch(adapter.postgresTable, payloads)
+        } catch (err) {
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', adapter.postgresTable, err)
+          if (!firstError) firstError = rec
+          onError(err, `pushAll:${adapter.postgresTable}`)
+        }
+      }
+    }
+
+    if (backendConfig.writeR2 && r2BundleName) {
       try {
-        const payloads = await adapter.snapshotAll(db, userId, updatedAt, appVersion)
-        if (!payloads.length) continue
-        await pushBatch(adapter.postgresTable, payloads)
+        await pushBundle(supabase, db, adapters, r2BundleName, userId)
       } catch (err) {
         const isNetwork = isLikelyNetworkError(err)
         anyOffline ||= isNetwork
-        const rec = recordError('push', adapter.postgresTable, err)
+        const rec = recordError('push', `r2:${r2BundleName}`, err)
         if (!firstError) firstError = rec
-        onError(err, `pushAll:${adapter.postgresTable}`)
+        onError(err, `pushAllR2:${r2BundleName}`)
       }
     }
 

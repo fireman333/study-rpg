@@ -2,6 +2,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type Dexie from 'dexie'
+import type { Bundle } from './r2/client'
 import type { TableAdapter } from './tables'
 
 export type SyncStatus =
@@ -102,6 +103,13 @@ export interface CreateSyncEngineOptions {
    * The engine still calls onError on every failure; this is the elevated signal.
    */
   onConsecutiveFailure?: (record: SyncErrorRecord, consecutiveCount: number) => void
+  /**
+   * R2 bundle name this engine pushes/pulls when `VITE_CLOUD_SYNC_BACKEND`
+   * selects `dual` or `r2`. 一階 passes `'m1'`, 二階 passes `'m2'`. Omit to
+   * keep the engine on legacy Supabase-only push regardless of the env flag
+   * (Phase 0 / non-migrated apps).
+   */
+  r2BundleName?: Bundle
 }
 
 /** Marker for a dirty Dexie row pending push. */

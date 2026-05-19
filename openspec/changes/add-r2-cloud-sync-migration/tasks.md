@@ -28,25 +28,25 @@
 
 ## 3. Phase 1 — Client dual-write M1 bundle (week 2–3)
 
-- [ ] 3.1 Create new package `apps/medexam-tw/src/lib/sync/r2/` with files: `client.ts` (presign+fetch), `bundles.ts` (M1/M2/bookmarks bundle builders), `etag.ts` (in-memory ETag tracker), `engine-r2.ts` (push/pull adapter)
-- [ ] 3.2 Implement `client.ts.requestPresign(bundle, op)`: calls Worker `/presign` with current Supabase JWT, returns `{ url, expiresAt }`; cache result for `expiresAt - 60s`
-- [ ] 3.3 Implement `bundles.ts.buildM1Snapshot(db)`: gather all M1 tables from Dexie, wrap in `{ meta: { schema_version, updated_at, client_id }, data: { ... } }`, gzip via `CompressionStream('gzip')`
-- [ ] 3.4 Implement `bundles.ts.applyM1Snapshot(db, snapshot)`: decompress, validate meta, perform per-row LWW merge against current Dexie state
-- [ ] 3.5 Implement `engine-r2.ts.pushBundle(bundle)`: requestPresign → PUT R2 with `If-Match: <last-etag>` (or `If-None-Match: *` for first push) → on 412, pull-merge-retry up to 3 attempts
-- [ ] 3.6 Implement `engine-r2.ts.pullBundle(bundle, opts: { conditional })`: requestPresign → GET R2 with `If-None-Match: <last-etag>` if `conditional`, else unconditional → on 200 apply snapshot, on 304 no-op
-- [ ] 3.7 Add `VITE_CLOUD_SYNC_BACKEND` + `VITE_CLOUD_SYNC_READ_BACKEND` to `.env.example` and `.env.local`; document valid combinations
-- [ ] 3.8 Wire dual-write into existing `engine.ts.pushNow()`: after Supabase upsert succeeds, if backend ∈ {dual, r2} also call `engine-r2.pushBundle('m1')`
-- [ ] 3.9 Reads still flow through existing Supabase path; do NOT switch reads yet
+- [x] 3.1 Create new package `apps/medexam-tw/src/lib/sync/r2/` with files: `client.ts` (presign+fetch), `bundles.ts` (M1/M2/bookmarks bundle builders), `etag.ts` (in-memory ETag tracker), `engine-r2.ts` (push/pull adapter)
+- [x] 3.2 Implement `client.ts.requestPresign(bundle, op)`: calls Worker `/presign` with current Supabase JWT, returns `{ url, expiresAt }`; cache result for `expiresAt - 60s`
+- [x] 3.3 Implement `bundles.ts.buildBundleSnapshot(db, adapters, userId)`: gather all bundle's tables from Dexie via existing `adapter.snapshotAll`, wrap in `{ meta: { schema_version, updated_at, client_id }, data: { ... } }`. Gzip via `gzipBundle(snapshot)` helper using `CompressionStream('gzip')`. Generic over adapter set so 二階 Phase 2 reuses without rewrite.
+- [x] 3.4 Implement `bundles.ts.applyBundleSnapshot(db, adapters, snapshot)`: decompress via `gunzipBundle`, validate meta via `validateBundleMeta`, route rows through existing `adapter.applyToLocal` for per-row LWW merge. Reuses Supabase adapters so semantics are identical.
+- [x] 3.5 Implement `engine-r2.ts.pushBundle(bundle)`: requestPresign → PUT R2 with `If-Match: <last-etag>` (or `If-None-Match: *` for first push) → on 412/409/428, pull-merge-retry up to 3 attempts with exponential backoff (250/1000/4000ms)
+- [x] 3.6 Implement `engine-r2.ts.pullBundle(bundle, opts: { conditional, force })`: requestPresign → GET R2 with `If-None-Match: <last-etag>` if `conditional`, else unconditional → on 200 apply snapshot, on 304 no-op, on 404 return blobMissing=true
+- [x] 3.7 Add `VITE_CLOUD_SYNC_BACKEND` + `VITE_CLOUD_SYNC_READ_BACKEND` + `VITE_SYNC_WORKER_URL` to `.env.example`; document valid combinations in `backend-config.ts` (fails fast on `supabase` + `r2` combination)
+- [x] 3.8 Wire dual-write into existing `engine.ts.pushNow()` AND `pushAllNow()`: when `writeSupabase`, run legacy per-table loop; when `writeR2 && r2BundleName`, call `pushBundle(supabase, db, adapters, r2BundleName, userId)`. R2 failures recorded via `recordError('push', 'r2:<bundle>', err)` without unwinding successful Supabase writes. `useSync.ts` passes `r2BundleName: 'm1'` to engine.
+- [x] 3.9 Reads still flow through existing Supabase path; do NOT switch reads yet
 - [ ] 3.10 Add nightly reconciliation script `scripts/reconcile-m1.ts`: for each authed user (sample 10 random), pull Supabase rows + R2 M1 bundle, diff, print mismatches
-- [ ] 3.11 Implement `apps/medexam-tw/src/components/MigrationBanner.tsx`: render-detection logic (`authed && supabaseHasRows && r2BlobCount < 3`), two buttons (「立即遷移」 / 「稍後再說」), non-modal top-of-viewport placement, dismissible
-- [ ] 3.12 Implement `lib/sync/r2/migrate-from-supabase.ts`: paginated SELECT from each sync table → partition into M1/M2/bookmarks bundles → gzip → PUT each to R2 via presign. Idempotent (re-running for already-uploaded bundle skips). Returns per-bundle success/fail.
-- [ ] 3.13 Implement banner snooze state in `localStorage['migration-banner-snoozed-until']`; re-render after 24h or on next sign-in
-- [ ] 3.14 Implement escalated copy after ≥ 3 dismissals across ≥ 7 days (track in `localStorage['migration-banner-dismiss-log']`)
-- [ ] 3.15 Wire banner into `apps/medexam-tw` layout (above main app content, below header)
+- [x] 3.11 Implement `apps/medexam-tw/src/components/MigrationBanner.tsx`: render-detection logic (`authed && supabaseHasRows && !r2HasM1Blob` — Phase 1 scope), two buttons (「立即遷移」 / 「稍後再說」), non-modal sticky-top placement, dismissible. State machine: `checking → visible → migrating → done | error` (auto-hide on done after 5s)
+- [x] 3.12 Implement `lib/sync/r2/migrate-from-supabase.ts`: paginated SELECT from each M1 sync table (`player_state` / `srs_cards` / `item_instances` / `mentor_backlog`) → assemble bundle → gzip → PUT via presign with `If-None-Match: *`. Idempotent (`r2BlobExists` Range-byte probe skips upload; 412/428 also treated as already-present). Returns `{ status, rowsByTable, bytes?, error? }`. Phase 2 (task 4.5) extends to M2 + bookmarks.
+- [x] 3.13 Implement banner snooze state in `localStorage['migration-banner-dismiss-log']` (combined snooze + dismiss array); banner returns after 24h or on next sign-in
+- [x] 3.14 Implement escalated copy after ≥ 3 dismissals AND ≥ 1 of them ≥ 7 days old (tracked in `dismisses[]` of dismiss log)
+- [x] 3.15 Wire banner into `apps/medexam-tw` `App.tsx` layout (sticky banner below header, above Routes). Conditional render: only when `backendConfig.writeR2 && supabase && authUser` — banner stays dormant in Phase 0 / supabase-only deploys.
 - [ ] 3.16 Smoke-test migration end-to-end on a real M4-era user fixture (owner's own account with seeded Supabase rows): click 「立即遷移」 → verify all 3 blobs exist in R2 → verify banner dismisses → verify subsequent sign-in does NOT re-show banner
 - [ ] 3.17 Smoke-test partial migration recovery: kill tab mid-PUT, sign back in, verify banner re-renders, verify second click resumes from missing bundle
 - [ ] 3.18 Bake 14 days dogfooded (owner only); zero unreconciled diffs required to proceed
-- [ ] 3.19 Add Phase 1 entry to `docs/CLOUD_SYNC.md` (or create the doc) documenting the dual-write architecture, flag matrix, banner UX, and rollback procedure
+- [x] 3.19 Add Phase 1 entry to `docs/CLOUD_SYNC.md` (Appendix R2: blob-based sync via Cloudflare) documenting the dual-write architecture, flag matrix, banner UX, rollback procedure per phase, and operational handles (Worker tail, R2 object list). M4 instructions retained as legacy reference during dual-write window.
 
 ## 4. Phase 2 — Client dual-write M2 + bookmarks (week 4–5)
 

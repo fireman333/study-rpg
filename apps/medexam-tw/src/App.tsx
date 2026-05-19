@@ -47,6 +47,9 @@ import { THEME_PIXEL_MEDICAL, COSMETIC_CATALOG } from '@study-rpg/theme-pixel-me
 import { getContentPack } from '@study-rpg/content-medexam-tw'
 import { AuthButton } from './components/AuthButton'
 import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
+import { MigrationBanner } from './components/MigrationBanner'
+import { getSupabase } from './lib/auth/client'
+import { getBackendConfig } from './lib/sync/backend-config'
 import { ConflictChooserModal } from './components/ConflictChooserModal'
 import { AccountSwitchPrompt } from './components/AccountSwitchPrompt'
 import { SettingsPanel } from './components/SettingsPanel'
@@ -894,6 +897,11 @@ export default function App() {
   )
 
   const currentToast = skillToasts[0]
+  const supabase = getSupabase()
+  const backendConfig = getBackendConfig()
+  const showMigrationBanner =
+    backendConfig.writeR2 && supabase !== null && authUser !== null
+
   return (
     <div className="app">
       <header className="app-header">
@@ -904,6 +912,10 @@ export default function App() {
           longestStreak={player.longestStreak}
         />
       </header>
+
+      {showMigrationBanner && supabase && authUser && (
+        <MigrationBanner supabase={supabase} userId={authUser.id} />
+      )}
 
       <Routes>
         <Route path="/" element={homeView} />
