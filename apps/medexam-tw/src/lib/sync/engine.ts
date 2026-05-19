@@ -38,7 +38,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
   const onError =
     opts.onError ?? ((err: unknown, ctx: string) => console.error(`[sync:${ctx}]`, err))
   const onConsecutiveFailure = opts.onConsecutiveFailure
-  const r2BundleName = opts.r2BundleName
+  const r2Bundles = opts.r2Bundles ?? []
   // Cache backend config once per engine. Reads env at construction; throws on
   // invalid combinations so misconfigured deploys surface immediately.
   const backendConfig = getBackendConfig()
@@ -214,19 +214,27 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       }
     }
 
-    // R2 write path. Active when backend ∈ {dual, r2} AND engine knows which
-    // bundle it owns. Whole-bundle push reuses adapter.snapshotAll, so dirty
-    // markers are cleared on success regardless of which write path ran.
-    if (backendConfig.writeR2 && r2BundleName) {
-      try {
-        await pushBundle(supabase, db, adapters, r2BundleName, userId)
+    // R2 write path. Active when backend ∈ {dual, r2} AND engine has at least
+    // one bundle binding. Each binding pushes its own bundle using its declared
+    // adapter subset (一階: 1 binding; 二階: 2 bindings — M2 + bookmarks).
+    // Whole-bundle push reuses adapter.snapshotAll, so dirty markers are
+    // cleared on success across the union of bound adapters.
+    if (backendConfig.writeR2 && r2Bundles.length) {
+      let allBundlesOk = true
+      for (const binding of r2Bundles) {
+        try {
+          await pushBundle(supabase, db, binding.adapters, binding.bundle, userId)
+        } catch (err) {
+          allBundlesOk = false
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', `r2:${binding.bundle}`, err)
+          if (!firstError) firstError = rec
+          onError(err, `pushR2:${binding.bundle}`)
+        }
+      }
+      if (allBundlesOk) {
         for (const set of dirty.perTable.values()) set.clear()
-      } catch (err) {
-        const isNetwork = isLikelyNetworkError(err)
-        anyOffline ||= isNetwork
-        const rec = recordError('push', `r2:${r2BundleName}`, err)
-        if (!firstError) firstError = rec
-        onError(err, `pushR2:${r2BundleName}`)
       }
     }
 
@@ -320,15 +328,17 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       }
     }
 
-    if (backendConfig.writeR2 && r2BundleName) {
-      try {
-        await pushBundle(supabase, db, adapters, r2BundleName, userId)
-      } catch (err) {
-        const isNetwork = isLikelyNetworkError(err)
-        anyOffline ||= isNetwork
-        const rec = recordError('push', `r2:${r2BundleName}`, err)
-        if (!firstError) firstError = rec
-        onError(err, `pushAllR2:${r2BundleName}`)
+    if (backendConfig.writeR2 && r2Bundles.length) {
+      for (const binding of r2Bundles) {
+        try {
+          await pushBundle(supabase, db, binding.adapters, binding.bundle, userId)
+        } catch (err) {
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', `r2:${binding.bundle}`, err)
+          if (!firstError) firstError = rec
+          onError(err, `pushAllR2:${binding.bundle}`)
+        }
       }
     }
 

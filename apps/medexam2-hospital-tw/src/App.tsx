@@ -18,6 +18,9 @@ import { checkAssignmentInvariants } from './lib/assignment'
 import { useSync } from './lib/sync/useSync'
 import { AuthButton } from './components/AuthButton'
 import { MigrationUploadPrompt } from './components/MigrationUploadPrompt'
+import { MigrationBanner } from './components/MigrationBanner'
+import { getSupabase } from './lib/auth/client'
+import { getBackendConfig } from './lib/sync/backend-config'
 import { ConflictChooserModal } from './components/ConflictChooserModal'
 import { AccountSwitchPrompt } from './components/AccountSwitchPrompt'
 import { SyncStatusChip } from './components/SyncStatusChip'
@@ -142,6 +145,11 @@ function App() {
   const { user } = useAuth()
   const milestoneTip = useMilestoneTips()
 
+  // R2 migration banner — dormant unless VITE_CLOUD_SYNC_BACKEND ∈ {dual, r2}.
+  const supabase = getSupabase()
+  const backendConfig = getBackendConfig()
+  const showMigrationBanner = backendConfig.writeR2 && supabase !== null && user !== null
+
   // navigator.onLine for SyncStatusChip + AccountSwitchPrompt awareness.
   const [online, setOnline] = useState(
     typeof navigator !== 'undefined' ? navigator.onLine : true,
@@ -180,6 +188,9 @@ function App() {
           />
         )}
       </div>
+      {showMigrationBanner && supabase && user && (
+        <MigrationBanner supabase={supabase} userId={user.id} />
+      )}
       {sync.accountSwitch && (
         <AccountSwitchPrompt
           currentEmail={sync.accountSwitch.currentEmail}

@@ -4544,3 +4544,76 @@ body:has(.modal-backdrop) {
   .sync-error-toast { max-width: calc(100vw - 16px); }
 }
 
+/* ─── Migration banner (R2 cloud-sync migration, Phase 2) ──────────────── */
+
+.migration-banner {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: var(--bg-cream, #f5edd6);
+  border-bottom: 2px solid var(--rarity-SR, #d4af37);
+  padding: 10px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.migration-banner-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 960px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.migration-banner-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.migration-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 200px;
+  color: var(--frame-wood-dark, #5a3a1b);
+}
+
+.migration-banner-text strong {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.migration-banner-sub {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.migration-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.migration-banner-btn {
+  font-size: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--frame-wood-light, #c9a875);
+  background: var(--bg-cream, #f5edd6);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.migration-banner-btn:hover:not(:disabled) {
+  background: var(--frame-wood-light, #c9a875);
+}
+
+.migration-banner-btn--primary {
+  border-color: var(--rarity-SR, #d4af37);
+  font-weight: bold;
+}
+
+.migration-banner-btn--ghost {
+  opacity: 0.75;
+}
+

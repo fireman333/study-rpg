@@ -2,6 +2,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type Dexie from 'dexie'
+import type { Bundle } from './r2/client'
 import type { TableAdapter } from './tables'
 
 export type SyncStatus =
@@ -99,6 +100,27 @@ export interface CreateSyncEngineOptions {
    * Used by App.tsx to surface the sync error toast.
    */
   onConsecutiveFailure?: (record: SyncErrorRecord, consecutiveCount: number) => void
+  /**
+   * R2 bundles this engine owns. Each binding declares which {@link Bundle}
+   * receives the snapshot built from `adapters`. 一階 passes one binding
+   * (`m1` ← `ONE_STAGE_ADAPTERS`); 二階 passes two (`m2` ← M2_ADAPTERS and
+   * `bookmarks` ← BOOKMARKS_ADAPTERS). Omit to keep the engine on legacy
+   * Supabase-only push regardless of the env flag.
+   */
+  r2Bundles?: ReadonlyArray<R2BundleBinding>
+  /**
+   * Optional callback fired after every successful `pullNow` completes (after
+   * `applyToLocal` finishes for all adapters and `applyingFromCloud` is false).
+   * Used by 二階 to run `checkAssignmentInvariants()` repair, which restores
+   * doctor↔room invariants if cloud applied stale state. Engine-side: invoked
+   * inside a try/catch so repair failure does not break the pull.
+   */
+  onPullComplete?: () => void | Promise<void>
+}
+
+export interface R2BundleBinding {
+  bundle: Bundle
+  adapters: ReadonlyArray<TableAdapter>
 }
 
 /** Marker for a dirty Dexie row pending push. */

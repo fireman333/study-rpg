@@ -8,7 +8,7 @@ import { getHospitalDB } from '../../db/schema'
 import { getSupabase } from '../auth/client'
 import { useAuth } from '../auth/AuthContext'
 import { createSyncEngine } from './engine'
-import { HOSPITAL_ADAPTERS } from './tables'
+import { BOOKMARKS_ADAPTERS, HOSPITAL_ADAPTERS, M2_ADAPTERS } from './tables'
 import {
   cloudHasAnyRows,
   computeGateState,
@@ -26,6 +26,7 @@ import {
   getLastSignedInUserId,
   setLastSignedInUserId,
 } from './account-switch'
+import { checkAssignmentInvariants } from '../assignment'
 import {
   applyResetPropagationIfNeeded,
   fetchCloudResetTimestamp,
@@ -237,6 +238,14 @@ export function useSync(): UseSyncReturn {
             adapters: HOSPITAL_ADAPTERS,
             debounceMs: DEBOUNCE_MS,
             onConsecutiveFailure: handleConsecutiveFailure,
+            r2Bundles: [
+              { bundle: 'm2', adapters: M2_ADAPTERS },
+              { bundle: 'bookmarks', adapters: BOOKMARKS_ADAPTERS },
+            ],
+            // Post-pull invariant repair — restores doctor↔room SOT if cloud
+            // applied stale hospital_state.rooms (e.g. legacy non-null
+            // assignedDoctorId values from pre-fix saves).
+            onPullComplete: () => checkAssignmentInvariants().then(() => undefined),
           })
         }
         if (needsModal) engineRef.current.pause()

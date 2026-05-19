@@ -7,6 +7,8 @@
 // - IndexedDB remains source of truth; cloud failures never mutate local
 // - Offline = queue lives implicitly in IndexedDB (rows still there, dirty markers re-built on reconnect)
 
+import { getBackendConfig } from './backend-config'
+import { pushBundle } from './r2/engine-r2'
 import type { TableAdapter } from './tables'
 import type {
   CloudRow,
@@ -36,6 +38,11 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
   const onError =
     opts.onError ?? ((err: unknown, ctx: string) => console.error(`[sync:${ctx}]`, err))
   const onConsecutiveFailure = opts.onConsecutiveFailure
+  const onPullComplete = opts.onPullComplete
+  const r2Bundles = opts.r2Bundles ?? []
+  // Cache backend config once per engine. Reads env at construction; throws on
+  // invalid combinations so misconfigured deploys surface immediately.
+  const backendConfig = getBackendConfig()
 
   let userId: string | null = null
   let status: SyncStatus = 'unauthed'
@@ -105,10 +112,32 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
   }
 
   function installHooks(): void {
+    // DEV overlap check (per fix-medexam2-room-write-sync-race design.md
+    // Decision 1, Risk #3): if two adapters claim the same Dexie table
+    // either via `dexieTable` or `extraDexieTables`, hooks would stack and
+    // dirty markers would land under the wrong canonical key. Throw early
+    // in DEV; prod tolerates silently to avoid breaking deployed users.
+    if (import.meta.env.DEV) {
+      const seen = new Map<string, string>()
+      for (const a of adapters) {
+        for (const t of [a.dexieTable, ...(a.extraDexieTables ?? [])]) {
+          const prev = seen.get(t)
+          if (prev) {
+            throw new Error(
+              `[sync] Dexie table '${t}' claimed by both '${prev}' and '${a.postgresTable}' adapters`,
+            )
+          }
+          seen.set(t, a.postgresTable)
+        }
+      }
+    }
+
     for (const adapter of adapters) {
-      const table = (db as any)[adapter.dexieTable]
-      if (!table || typeof table.hook !== 'function') continue
-      const tableName = adapter.dexieTable
+      // Canonical dirty-marker key — every hooked table for this adapter
+      // (primary + extras) records its dirty PK here so `snapshotDirty`
+      // sees a single marker per debounce window.
+      const canonicalKey = adapter.dexieTable
+      const hookedTables = [adapter.dexieTable, ...(adapter.extraDexieTables ?? [])]
 
       // Dexie hook signatures:
       //   creating(primKey, obj, trans) — obj is mutable
@@ -118,27 +147,31 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
         if (applyingFromCloud) return // cloud → local apply path: keep cloud's _updatedAt, no dirty mark
         obj._updatedAt = Date.now()
         const pk = stringifyPk(primKey, adapter.shape)
-        markDirty(tableName, pk)
+        markDirty(canonicalKey, pk)
       }
       const updatingFn = (mods: any, primKey: any) => {
         if (applyingFromCloud) return // see creatingFn note
         const pk = stringifyPk(primKey, adapter.shape)
-        markDirty(tableName, pk)
+        markDirty(canonicalKey, pk)
         return { ...mods, _updatedAt: Date.now() }
       }
       const deletingFn = (primKey: any) => {
         const pk = stringifyPk(primKey, adapter.shape)
         // Deletes aren't synced yet (Postgres would need a tombstone column).
         // Just clear dirty marker so we don't push a deleted row.
-        dirty.perTable.get(tableName)?.delete(pk)
+        dirty.perTable.get(canonicalKey)?.delete(pk)
       }
 
-      table.hook('creating', creatingFn)
-      table.hook('updating', updatingFn)
-      table.hook('deleting', deletingFn)
-      installedHooks.push({ table, event: 'creating', fn: creatingFn })
-      installedHooks.push({ table, event: 'updating', fn: updatingFn })
-      installedHooks.push({ table, event: 'deleting', fn: deletingFn })
+      for (const tableName of hookedTables) {
+        const table = (db as any)[tableName]
+        if (!table || typeof table.hook !== 'function') continue
+        table.hook('creating', creatingFn)
+        table.hook('updating', updatingFn)
+        table.hook('deleting', deletingFn)
+        installedHooks.push({ table, event: 'creating', fn: creatingFn })
+        installedHooks.push({ table, event: 'updating', fn: updatingFn })
+        installedHooks.push({ table, event: 'deleting', fn: deletingFn })
+      }
     }
   }
 
@@ -181,28 +214,51 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     let anyOffline = false
     let firstError: SyncErrorRecord | null = null
 
-    // Snapshot + flush per table.
-    for (const adapter of adapters) {
-      const dirtyPks = dirty.perTable.get(adapter.dexieTable)
-      if (!dirtyPks || !dirtyPks.size) continue
-      try {
-        const payloads = await adapter.snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion)
-        if (!payloads.length) {
-          // Snapshot empty (row deleted in Dexie before snapshot). Clear markers.
+    // Legacy Supabase write path. Skipped entirely when backend=r2 (Phase 4+).
+    if (backendConfig.writeSupabase) {
+      for (const adapter of adapters) {
+        const dirtyPks = dirty.perTable.get(adapter.dexieTable)
+        if (!dirtyPks || !dirtyPks.size) continue
+        try {
+          const payloads = await adapter.snapshotDirty(db, dirtyPks, userId, updatedAt, appVersion)
+          if (!payloads.length) {
+            // Snapshot empty (row deleted in Dexie before snapshot). Clear markers.
+            dirtyPks.clear()
+            continue
+          }
+          await pushBatch(adapter.postgresTable, payloads)
+          // Successful push → clear markers
           dirtyPks.clear()
-          continue
+        } catch (err) {
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', adapter.postgresTable, err)
+          if (!firstError) firstError = rec
+          onError(err, `push:${adapter.postgresTable}`)
+          // Network errors: keep dirty markers for retry on next dirty event / pull
+          // Non-network errors: log + still keep markers (might be transient)
         }
-        await pushBatch(adapter.postgresTable, payloads)
-        // Successful push → clear markers
-        dirtyPks.clear()
-      } catch (err) {
-        const isNetwork = isLikelyNetworkError(err)
-        anyOffline ||= isNetwork
-        const rec = recordError('push', adapter.postgresTable, err)
-        if (!firstError) firstError = rec
-        onError(err, `push:${adapter.postgresTable}`)
-        // Network errors: keep dirty markers for retry on next dirty event / pull
-        // Non-network errors: log + still keep markers (might be transient)
+      }
+    }
+
+    // R2 write path. Active when backend ∈ {dual, r2} AND engine has at least
+    // one bundle binding. 二階 typically passes two bindings (M2 + bookmarks).
+    if (backendConfig.writeR2 && r2Bundles.length) {
+      let allBundlesOk = true
+      for (const binding of r2Bundles) {
+        try {
+          await pushBundle(supabase, db, binding.adapters, binding.bundle, userId)
+        } catch (err) {
+          allBundlesOk = false
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', `r2:${binding.bundle}`, err)
+          if (!firstError) firstError = rec
+          onError(err, `pushR2:${binding.bundle}`)
+        }
+      }
+      if (allBundlesOk) {
+        for (const set of dirty.perTable.values()) set.clear()
       }
     }
 
@@ -265,6 +321,15 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       _lastPullAt = Date.now()
       writeLastPullAt(_lastPullAt)
       status = paused ? 'paused' : 'idle'
+      // Post-pull invariant repair (e.g. 二階's doctor↔room SOT check).
+      // Wrapped in try/catch so repair failure does not break the pull.
+      if (onPullComplete) {
+        try {
+          await onPullComplete()
+        } catch (err) {
+          onError(err, 'onPullComplete')
+        }
+      }
     }
   }
 
@@ -280,17 +345,33 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     let anyOffline = false
     let firstError: SyncErrorRecord | null = null
 
-    for (const adapter of adapters) {
-      try {
-        const payloads = await adapter.snapshotAll(db, userId, updatedAt, appVersion)
-        if (!payloads.length) continue
-        await pushBatch(adapter.postgresTable, payloads)
-      } catch (err) {
-        const isNetwork = isLikelyNetworkError(err)
-        anyOffline ||= isNetwork
-        const rec = recordError('push', adapter.postgresTable, err)
-        if (!firstError) firstError = rec
-        onError(err, `pushAll:${adapter.postgresTable}`)
+    if (backendConfig.writeSupabase) {
+      for (const adapter of adapters) {
+        try {
+          const payloads = await adapter.snapshotAll(db, userId, updatedAt, appVersion)
+          if (!payloads.length) continue
+          await pushBatch(adapter.postgresTable, payloads)
+        } catch (err) {
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', adapter.postgresTable, err)
+          if (!firstError) firstError = rec
+          onError(err, `pushAll:${adapter.postgresTable}`)
+        }
+      }
+    }
+
+    if (backendConfig.writeR2 && r2Bundles.length) {
+      for (const binding of r2Bundles) {
+        try {
+          await pushBundle(supabase, db, binding.adapters, binding.bundle, userId)
+        } catch (err) {
+          const isNetwork = isLikelyNetworkError(err)
+          anyOffline ||= isNetwork
+          const rec = recordError('push', `r2:${binding.bundle}`, err)
+          if (!firstError) firstError = rec
+          onError(err, `pushAllR2:${binding.bundle}`)
+        }
       }
     }
 

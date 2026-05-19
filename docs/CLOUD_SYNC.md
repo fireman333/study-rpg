@@ -344,5 +344,43 @@ wrangler r2 object list study-rpg-saves-backup --prefix=backup/$(date +%Y-%m-%d)
   M4-era user fixture — run manually before Phase 2 ramp.
 - **14-day bake** (task 3.18) is calendar-bound; tracks dogfood errors
   before unblocking Phase 2.
-- **M2 + bookmarks bundle wiring** is Phase 2 work (tasks 4.1–4.9). Phase 1
-  only covers 一階 (M1).
+
+### Phase 2 extensions (M2 + bookmarks)
+
+Phase 2 extends dual-write to 二階 (M2 bundle) + bookmarks bundle:
+
+- **二階 mirror**: `apps/medexam2-hospital-tw/src/lib/sync/r2/` duplicates
+  the 一階 r2/ plumbing (client / etag / bundles / engine-r2 /
+  migrate-from-supabase). Same env flags (`VITE_CLOUD_SYNC_BACKEND` etc.)
+  apply to both apps independently. Pure duplication today; if the friction
+  grows, extract to `packages/core/src/sync/` in a follow-up change.
+- **Multi-bundle per engine**: engine API switched from `r2BundleName: Bundle`
+  to `r2Bundles: ReadonlyArray<{bundle, adapters}>`. 一階 passes one binding
+  (`m1` ← `ONE_STAGE_ADAPTERS`); 二階 passes two (`m2` ← `M2_ADAPTERS` and
+  `bookmarks` ← `BOOKMARKS_ADAPTERS`). Dexie hooks still install across the
+  full adapter union; R2 push fans out by binding at PUT time.
+- **Bundle partition (二階)**: `HOSPITAL_ADAPTERS` (8 tables) splits into
+  `M2_ADAPTERS` (7 — hospital state + doctors + mastery + question_history
+  + targeted_tickets + targeted_ticket_history + hospital_monotonic_counters)
+  and `BOOKMARKS_ADAPTERS` (1 — `question_bookmarks`). The bookmarks bundle
+  is isolated so a 一階 banner future-can-migrate it without touching M2.
+- **Detection covers all 3 bundles**: `detectAllBundlesMigrationNeeded()`
+  probes each bundle in parallel; banner shows when ANY bundle has Supabase
+  rows but no R2 blob. `migrateAllBundlesFromSupabase()` runs the three
+  bundle migrations sequentially (gentle on Supabase rate limits) and
+  returns per-bundle status (uploaded / already-present / no-rows / failed).
+  Partial failures surface inline as `<bundle>: <error>` summaries; user
+  retry-loops until all clean.
+- **Per-app banner instances**: 一階 banner lives in
+  `apps/medexam-tw/src/components/MigrationBanner.tsx`; 二階 banner is a
+  literal copy in `apps/medexam2-hospital-tw/src/components/MigrationBanner.tsx`.
+  Either app can complete the full 3-bundle migration since detection works
+  off Supabase rows (not the local Dexie schema).
+
+### Known gaps (Phase 2 carryover)
+
+- **Reconcile script (task 4.4)** still deferred — same blocker as task 3.10.
+- **End-to-end smoke (task 4.7)** still needs Chrome MCP + seeded fixture.
+- **14-day bake (task 4.8)** calendar-bound; runs after dogfood-grade
+  confidence on dual-write across both apps.
+- **Phase 3 (read cutover)** unblocked once 4.7 + 4.8 pass.

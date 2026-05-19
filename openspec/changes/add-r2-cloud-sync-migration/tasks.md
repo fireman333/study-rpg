@@ -50,15 +50,15 @@
 
 ## 4. Phase 2 — Client dual-write M2 + bookmarks (week 4–5)
 
-- [ ] 4.1 Mirror tasks 3.3–3.6 for M2 bundle in `apps/medexam2-hospital-tw/src/lib/sync/r2/`
-- [ ] 4.2 Mirror tasks 3.3–3.6 for bookmarks bundle (cross-app — lives in shared location, e.g., `packages/core/src/sync/bookmarks-bundle.ts` or per-app duplicate)
-- [ ] 4.3 Wire dual-write into 二階 `engine.ts.pushNow()`
+- [x] 4.1 Mirror r2/ files for M2 bundle in `apps/medexam2-hospital-tw/src/lib/sync/r2/` (client / etag / bundles / engine-r2 / migrate-from-supabase). Pure duplication from 一階; same plumbing, different `r2Bundles` wiring. Future cleanup may extract to `packages/core/src/sync/`.
+- [x] 4.2 Bookmarks bundle handled as per-app `BOOKMARKS_ADAPTERS = [QUESTION_BOOKMARKS]` in 二階 `tables.ts`. Engine pushes M2 + bookmarks as two bindings under one engine instance (single Dexie hook tracker, fans out at PUT time). Cross-app future use: 一階 banner CAN migrate the bookmarks blob too since detection works off Supabase rows (no Dexie dependency).
+- [x] 4.3 Refactored engine `r2BundleName?: Bundle` → `r2Bundles?: ReadonlyArray<R2BundleBinding>` so one engine can own multiple bundles. Wired dual-write into 二階 `pushNow` + `pushAllNow`. 二階 `useSync.ts` passes `[{bundle: 'm2', adapters: M2_ADAPTERS}, {bundle: 'bookmarks', adapters: BOOKMARKS_ADAPTERS}]`. 一階 retrofitted to `[{bundle: 'm1', adapters: ONE_STAGE_ADAPTERS}]`.
 - [ ] 4.4 Extend nightly reconciliation script to cover M2 and bookmarks bundles
-- [ ] 4.5 Extend `MigrationBanner` and `migrate-from-supabase.ts` detection to cover M2 + bookmarks bundles (Phase 1 only covered M1 — banner now triggers when ANY of 3 blobs missing while Supabase has corresponding rows)
-- [ ] 4.6 Wire banner into 二階 `apps/medexam2-hospital-tw` layout
+- [x] 4.5 Extended `MigrationBanner` + `migrate-from-supabase.ts` detection to cover all 3 bundles. New exports `ALL_BUNDLE_SPECS`, `migrateAllBundlesFromSupabase`, `detectAllBundlesMigrationNeeded`. Banner triggers when ANY of {m1, m2, bookmarks} has Supabase rows but no R2 blob. Per-bundle status reported; partial failures surfaced inline.
+- [x] 4.6 Wired 二階 MigrationBanner into `apps/medexam2-hospital-tw/src/App.tsx` (between header-controls and account-switch prompt). Conditional render via same `backendConfig.writeR2 && supabase && user` gate as 一階. Banner CSS classes added to 二階 `styles.css`.
 - [ ] 4.7 Verify migration end-to-end for an M4-era user with both 一階 and 二階 data: owner seeds a test account with both M1 and M2 Supabase rows → first sign-in shows banner → click migrates all 3 bundles → R2 verifies
 - [ ] 4.8 Bake 14 days; zero unreconciled diffs across all 3 bundles required to proceed
-- [ ] 4.9 Document the migration banner's decision tree in `docs/CLOUD_SYNC.md`: when banner appears vs not, what triggers escalated copy, partial-migration resume flow
+- [x] 4.9 Updated `docs/CLOUD_SYNC.md` Appendix R2 (Phase 2 subsection): banner now triggers on ANY-bundle missing, migrate handler does all 3 sequentially with per-bundle status, error surface shows `<bundle>: <error>` summary.
 
 ## 5. Phase 3 — Cut over reads to R2 (week 6)
 
