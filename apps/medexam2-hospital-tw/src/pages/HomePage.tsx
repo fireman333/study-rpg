@@ -121,13 +121,6 @@ export function HomePage() {
       <header className="app-header">
         <h1>二階國考經營 RPG</h1>
         <div className="app-header__meta">
-          <span
-            className="ticket-counter"
-            title="每日台灣早上 08:00 自動發放 +1 張免費招募券，持有上限 99 張"
-          >
-            🎟️ {ticketsAvailable} / {TICKET_CAP}
-            <span className="ticket-counter__refill"> · {refreshLabel}</span>
-          </span>
           <Link to="/study" className="nav-link nav-link--primary">
             唸書 →
           </Link>
@@ -148,6 +141,16 @@ export function HomePage() {
           </Link>
         </div>
       </header>
+
+      <div className="ticket-counter-row">
+        <span
+          className="ticket-counter"
+          title="每日台灣早上 08:00 自動發放 +1 張免費招募券，持有上限 99 張"
+        >
+          🎟️ {ticketsAvailable} / {TICKET_CAP}
+          <span className="ticket-counter__refill"> · {refreshLabel}</span>
+        </span>
+      </div>
 
       <HospitalScene />
 
