@@ -147,6 +147,14 @@ After the user answers:
 - **Correct answer** → ER doctor dialogue changes to a randomly-selected gratitude variant (e.g., 「太強了！下次再求救」); show "+X XP" toast; auto-close after 2 seconds
 - **Wrong answer** → ER doctor dialogue changes to a randomly-selected disappointed-but-supportive variant (e.g., 「沒事，學起來下次就會了」); reveal correct option + explanation (sourced from `question.explanation`, with mock-exam placeholder fallback for missing explanations); show 「關閉」 button
 
+**Dialog lifecycle independence**: The dialog's visible-on-screen state SHALL NOT be tied directly to `gameCounters.erConsultActive`. Once the user has begun interacting with a consult (modal has rendered at least once), the dialog SHALL remain rendered until one of these explicit close triggers fires:
+
+- Correct-answer auto-close timer elapses (2 seconds after answer)
+- User clicks the 「關閉」 button (wrong-answer path)
+- User confirms 跳過 (skip path)
+
+Service-layer functions (`answerERConsult`, `skipERConsult`, `disableERConsult`, tick auto-skip) MAY clear `erConsultActive` in DB at any point during the dialog's visible lifecycle without unmounting the dialog. The dialog component SHALL hold its own local copy of the active state to remain rendered after DB state is cleared.
+
 #### Scenario: Dialog opens with sprite + greeting + question
 
 - **WHEN** `erConsultActive` is set and `ERConsultDialog` mounts
@@ -172,6 +180,35 @@ After the user answers:
 - **AND** `mastery[subjectId]` SHALL be updated to `{correct + 0, total + 1}`
 - **AND** the question SHALL be enqueued to `db.srs` via the existing answer-creates-SrsCard pathway
 - **AND** the dialog SHALL reveal correct option + explanation before allowing close
+
+#### Scenario: Wrong answer dialog stays open until user clicks 關閉
+
+- **GIVEN** the user has selected an incorrect option AND `answerERConsult` has finished recording mastery + reward + log AND `gameCounters.erConsultActive` is now `null` in DB
+- **WHEN** the dialog continues to render
+- **THEN** the dialog SHALL remain visible (NOT auto-unmount on the next `useLiveQuery` tick)
+- **AND** the explanation block (rendered by `<ExplanationMarkdown>`) SHALL be visible
+- **AND** a 「關閉」 button SHALL be visible alongside the explanation
+- **WHEN** the user clicks 「關閉」
+- **THEN** the dialog SHALL unmount
+
+#### Scenario: Correct answer dialog auto-closes after 2 seconds
+
+- **GIVEN** the user has selected the correct option AND `answerERConsult` has finished recording rewards AND the gratitude toast is shown
+- **WHEN** 2 seconds elapse
+- **THEN** the dialog SHALL unmount (without requiring user click)
+
+#### Scenario: Skip path closes dialog immediately
+
+- **WHEN** the user clicks 跳過 AND (for first skip) confirms via the second confirmation dialog
+- **THEN** `skipERConsult` SHALL clear `erConsultActive` in DB
+- **AND** the dialog SHALL unmount immediately (no auto-timer, no further user action)
+
+#### Scenario: Browser refresh mid-explanation does not reopen dialog
+
+- **GIVEN** the user has answered wrong AND is reading the explanation AND `answerERConsult` already cleared `erConsultActive` in DB AND the user closes / refreshes the browser before clicking 「關閉」
+- **WHEN** the app reloads
+- **THEN** the dialog SHALL NOT reopen (DB state already null)
+- **AND** the previously-recorded mastery + reward + log SHALL persist (no data loss; no double-credit risk on reopen)
 
 #### Scenario: Missing explanation uses placeholder
 
