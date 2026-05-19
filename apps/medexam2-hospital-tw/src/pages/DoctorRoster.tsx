@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -14,6 +14,7 @@ import { formatMasteryPercent } from '../lib/mastery'
 import { RenameDoctorModal } from '../components/RenameDoctorModal'
 
 const RARITY_FILTER_OPTIONS: ('all' | Rarity)[] = ['all', ...[...RARITY_ORDER].reverse()]
+const RARITY_OPTIONS: Rarity[] = RARITY_FILTER_OPTIONS.filter((r): r is Rarity => r !== 'all')
 
 export function DoctorRoster() {
   const db = getHospitalDB()
@@ -25,8 +26,22 @@ export function DoctorRoster() {
     return m
   }, [masteryRows])
   const [subjectFilter, setSubjectFilter] = useState<string>('all')
-  const [rarityFilter, setRarityFilter] = useState<'all' | Rarity>('all')
+  const [rarityFilterOpen, setRarityFilterOpen] = useState(false)
+  const [selectedRarities, setSelectedRarities] = useState<Rarity[]>([])
   const [renaming, setRenaming] = useState<DoctorRow | null>(null)
+  const rarityFilterRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!rarityFilterOpen) return
+
+    function handlePointerDown(e: MouseEvent) {
+      if (rarityFilterRef.current?.contains(e.target as Node)) return
+      setRarityFilterOpen(false)
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [rarityFilterOpen])
 
   const subjects = useMemo(() => {
     const set = new Set<string>()
@@ -36,9 +51,24 @@ export function DoctorRoster() {
 
   const filtered = doctors.filter((d) => {
     if (subjectFilter !== 'all' && d.subjectId !== subjectFilter) return false
-    if (rarityFilter !== 'all' && d.rarity !== rarityFilter) return false
+    if (selectedRarities.length > 0 && !selectedRarities.includes(d.rarity)) return false
     return true
   })
+
+  const rarityFilterLabel =
+    selectedRarities.length === 0
+      ? '全部'
+      : selectedRarities.length <= 2
+        ? selectedRarities.join('、')
+        : `${selectedRarities.length} 種`
+
+  function toggleRarity(rarity: Rarity) {
+    setSelectedRarities((prev) =>
+      prev.includes(rarity)
+        ? prev.filter((r) => r !== rarity)
+        : RARITY_OPTIONS.filter((r) => r === rarity || prev.includes(r)),
+    )
+  }
 
   return (
     <main className="app-shell">
@@ -69,19 +99,43 @@ export function DoctorRoster() {
                 ))}
               </select>
             </label>
-            <label>
-              稀有度
-              <select
-                value={rarityFilter}
-                onChange={(e) => setRarityFilter(e.target.value as 'all' | Rarity)}
+            <div className="filter-bar__field" ref={rarityFilterRef}>
+              <span className="filter-bar__label">稀有度</span>
+              <button
+                type="button"
+                className="filter-bar__multi-trigger"
+                aria-haspopup="menu"
+                aria-expanded={rarityFilterOpen}
+                onClick={() => setRarityFilterOpen((v) => !v)}
               >
-                {RARITY_FILTER_OPTIONS.map((r) => (
-                  <option key={r} value={r}>
-                    {r === 'all' ? '全部' : `${r} ${RARITY_LABELS[r]}`}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <span>{rarityFilterLabel}</span>
+                <span className="filter-bar__chevron" aria-hidden>
+                  ▾
+                </span>
+              </button>
+              {rarityFilterOpen && (
+                <div className="filter-bar__multi-menu frame" role="menu">
+                  <label className="filter-bar__multi-option">
+                    <input
+                      type="checkbox"
+                      checked={selectedRarities.length === 0}
+                      onChange={() => setSelectedRarities([])}
+                    />
+                    <span>全部</span>
+                  </label>
+                  {RARITY_OPTIONS.map((r) => (
+                    <label key={r} className="filter-bar__multi-option">
+                      <input
+                        type="checkbox"
+                        checked={selectedRarities.includes(r)}
+                        onChange={() => toggleRarity(r)}
+                      />
+                      <span>{r} {RARITY_LABELS[r]}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
             <span className="filter-bar__count">
               {filtered.length} / {doctors.length}
             </span>
