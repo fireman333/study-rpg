@@ -61,7 +61,7 @@ export const TUTORIAL_STEPS: ReadonlyArray<TutorialStep> = Object.freeze([
   {
     id: 'first-assignment',
     title: '指派醫師到診間',
-    body: '把醫師拖到「門診」房間，他才會開始為醫院產出 throughput。同科別的醫師在對應房間內加成最大。',
+    body: '點「門診」房間 → 從清單選一位醫師指派，他才會開始為醫院產出 throughput。同科別的醫師在對應房間內加成最大。',
     completeOn: 'doctor-assigned',
   },
   {
@@ -121,7 +121,7 @@ export const SURFACE_HINTS: ReadonlyArray<SurfaceHint> = Object.freeze([
   {
     id: 'hospital',
     title: '房間管理',
-    body: 'Facility 升級會放大該房間的 throughput；區域醫院以上可再花錢擴建額外房間，容納更多醫師。',
+    body: '點房間 → 從清單選一位醫師指派（同科加成最大）。Facility 升級放大該房間 throughput；區域醫院以上可花錢擴建。場景下方名牌牆顯示 assigned 醫師依房間分組；想改名到上方「醫師」tab → 卡片右上的 ✏️。',
   },
   {
     id: 'fate-cards',
