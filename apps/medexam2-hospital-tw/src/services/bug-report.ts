@@ -8,6 +8,7 @@ import {
 import { getSupabase } from '../lib/auth/client'
 import { getHospitalDB } from '../db/schema'
 import { getRecentConsoleErrors } from './console-error-buffer'
+import { getSyncMetadata } from './sync-metadata'
 
 const APP_NAME = 'medexam2-hospital-tw' as const
 
@@ -34,6 +35,8 @@ export async function buildAutoContext(): Promise<BugReportAutoContext> {
     ticketsAvailable: tickets?.available ?? null,
   }
 
+  const sync_metadata = (await getSyncMetadata()) ?? undefined
+
   return {
     app_version:
       (import.meta.env.VITE_APP_VERSION as string | undefined) ?? 'dev',
@@ -43,6 +46,7 @@ export async function buildAutoContext(): Promise<BugReportAutoContext> {
     user_agent: navigator.userAgent,
     viewport: `${window.innerWidth}×${window.innerHeight}`,
     recent_console_errors: getRecentConsoleErrors(),
+    sync_metadata,
   }
 }
 
@@ -146,6 +150,7 @@ export async function submitQuizInlineBugReport(
     user_agent: ctx.user_agent,
     viewport: ctx.viewport,
     recent_console_errors: ctx.recent_console_errors,
+    sync_metadata: ctx.sync_metadata,
   })
   if (error) throw error
 }

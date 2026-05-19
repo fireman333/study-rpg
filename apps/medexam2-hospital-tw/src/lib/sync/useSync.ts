@@ -1,9 +1,7 @@
-// React hook to start / stop sync engine based on auth status + handle
-// sign-in migration / conflict resolution (M4 — 二階 mirror).
-//
-// Mirrors apps/medexam-tw/src/lib/sync/useSync.ts but uses HospitalDB
-// + HOSPITAL_ADAPTERS. Exposes the same UseSyncReturn surface so App.tsx
-// renders the same migration modals (copied verbatim from 一階).
+// React hook to start / stop sync engine + handle sign-in resolution (M4 — 二階 mirror).
+// Mirrors apps/medexam-tw/src/lib/sync/useSync.ts; see that file for design.
+// Differences: HospitalDB instead of StudyRpgDB, canonical-row table is
+// db.gameCounters (key 'singleton') instead of db.players ('p1').
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getHospitalDB } from '../../db/schema'
@@ -12,7 +10,10 @@ import { useAuth } from '../auth/AuthContext'
 import { createSyncEngine } from './engine'
 import { HOSPITAL_ADAPTERS } from './tables'
 import {
+  cloudHasAnyRows,
   computeGateState,
+  getMaxLocalUpdatedAt,
+  hasNonDefaultHospitalState,
   setMigrationChoice,
   setPausedForUser,
   snapshotLocalToBackup,
@@ -20,12 +21,48 @@ import {
   type GateSnapshot,
   type MigrationGateState,
 } from './migration'
-import type { SyncEngine, SyncStatus } from './types'
+import {
+  clearLocalSyncTables,
+  getLastSignedInUserId,
+  setLastSignedInUserId,
+} from './account-switch'
+import { registerSyncMetadataGetter } from '../../services/sync-metadata'
+import type {
+  EngineDiagnosticSnapshot,
+  SyncEngine,
+  SyncErrorRecord,
+  SyncStatus,
+} from './types'
 
 const DEBOUNCE_MS = Number(import.meta.env.VITE_SYNC_DEBOUNCE_MS) || 3000
 
+const ACCOUNT_SWITCH_DETECTOR_ENABLED =
+  String(import.meta.env.VITE_ACCOUNT_SWITCH_DETECTOR ?? 'true').toLowerCase() !== 'false'
+
+const RE_EVAL_WINDOW_MS = 5000
+const RE_EVAL_DEBOUNCE_MS = 200
+const DEV = import.meta.env.DEV
+const devLog = (...args: unknown[]): void => {
+  if (DEV) console.log(...(args as [unknown, ...unknown[]]))
+}
+
 export type UploadChoice = 'upload' | 'keep-separate' | 'later'
 export type ConflictChoice = 'use-cloud' | 'use-local' | 'later'
+export type AccountSwitchChoice = 'clear-local' | 'keep-local' | 'signout'
+
+export interface AccountSwitchInfo {
+  previousUserId: string
+  currentEmail: string | null
+  localMaxUpdatedAt: number | null
+  cloudHasRows: boolean | null
+  online: boolean
+}
+
+export interface SyncErrorToastInfo {
+  record: SyncErrorRecord
+  consecutive: number
+  id: string
+}
 
 export interface UseSyncReturn {
   status: SyncStatus
@@ -33,11 +70,21 @@ export interface UseSyncReturn {
   lastPullAt: number | null
   gateState: MigrationGateState
   gateSnapshot: GateSnapshot | null
+  accountSwitch: AccountSwitchInfo | null
+  syncError: SyncErrorToastInfo | null
   resolveUploadPrompt: (choice: UploadChoice) => Promise<void>
   resolveConflictChooser: (choice: ConflictChoice) => Promise<void>
+  resolveAccountSwitch: (choice: AccountSwitchChoice) => Promise<void>
   reopenConflictChooser: () => Promise<void>
   resetMigrationPreference: () => Promise<void>
+  forcePush: () => Promise<void>
+  forcePull: () => Promise<void>
+  getEngineDiagnostic: () => Promise<EngineDiagnosticSnapshot | null>
+  dismissSyncError: () => void
+  retrySyncError: () => Promise<void>
 }
+
+const SYNC_ERROR_TOAST_DEBOUNCE_MS = 60_000
 
 export function useSync(): UseSyncReturn {
   const { status: authStatus, user } = useAuth()
@@ -45,6 +92,25 @@ export function useSync(): UseSyncReturn {
   const [, setTick] = useState(0)
   const [gateState, setGateState] = useState<MigrationGateState>('pending')
   const [gateSnapshot, setGateSnapshot] = useState<GateSnapshot | null>(null)
+  const [accountSwitch, setAccountSwitch] = useState<AccountSwitchInfo | null>(null)
+  const [syncError, setSyncError] = useState<SyncErrorToastInfo | null>(null)
+  const [resolveTick, setResolveTick] = useState(0)
+  const recentErrorSeenRef = useRef<Map<string, number>>(new Map())
+
+  const handleConsecutiveFailure = useCallback(
+    (record: SyncErrorRecord, count: number) => {
+      const now = Date.now()
+      const seen = recentErrorSeenRef.current.get(record.message)
+      if (seen && now - seen < SYNC_ERROR_TOAST_DEBOUNCE_MS) return
+      recentErrorSeenRef.current.set(record.message, now)
+      setSyncError({
+        record,
+        consecutive: count,
+        id: `${record.at}-${Math.random().toString(36).slice(2, 8)}`,
+      })
+    },
+    [],
+  )
 
   useEffect(() => {
     const supabase = getSupabase()
@@ -57,18 +123,76 @@ export function useSync(): UseSyncReturn {
       engineRef.current?.stop()
       setGateState('pending')
       setGateSnapshot(null)
+      setAccountSwitch(null)
       return
     }
 
     let cancelled = false
     setGateState('pending')
 
+    let reEvalWatchActive = false
+    let reEvalDebounceTimer: ReturnType<typeof setTimeout> | null = null
+    let reEvalWindowTimer: ReturnType<typeof setTimeout> | null = null
+    let reEvalHookFn: ((primKey: unknown, obj: unknown) => void) | null = null
+
+    function cancelReEval(): void {
+      reEvalWatchActive = false
+      if (reEvalDebounceTimer) clearTimeout(reEvalDebounceTimer)
+      if (reEvalWindowTimer) clearTimeout(reEvalWindowTimer)
+      const db = getHospitalDB()
+      if (reEvalHookFn) {
+        try {
+          ;(db.gameCounters.hook('creating') as {
+            unsubscribe: (fn: unknown) => void
+          }).unsubscribe(reEvalHookFn)
+        } catch {
+          // ignore
+        }
+        reEvalHookFn = null
+      }
+    }
+
     ;(async () => {
       try {
+        const db = getHospitalDB()
+        devLog('[sync.gate]', { phase: 'compute-start', userId: user.id })
+
+        if (ACCOUNT_SWITCH_DETECTOR_ENABLED) {
+          const lastUid = await getLastSignedInUserId(db)
+          if (lastUid && lastUid !== user.id) {
+            const hasLocal = await hasNonDefaultHospitalState(db)
+            if (hasLocal) {
+              const [localMax, cloudHasRows] = await Promise.all([
+                getMaxLocalUpdatedAt(db),
+                cloudHasAnyRows(supabase, user.id).catch(() => null),
+              ])
+              if (cancelled) return
+              const online = typeof navigator !== 'undefined' ? navigator.onLine : true
+              devLog('[sync.gate]', {
+                phase: 'account-switch-detected',
+                previousUserId: lastUid,
+                currentUserId: user.id,
+              })
+              setAccountSwitch({
+                previousUserId: lastUid,
+                currentEmail: user.email ?? null,
+                localMaxUpdatedAt: localMax,
+                cloudHasRows,
+                online,
+              })
+              return
+            }
+          }
+        }
+
+        await setLastSignedInUserId(db, user.id)
+        setAccountSwitch(null)
+
         const snapshot = await computeGateState(supabase, user.id)
         if (cancelled) return
         setGateSnapshot(snapshot)
         setGateState(snapshot.state)
+        devLog('[sync.gate]', { phase: 'decision', state: snapshot.state })
 
         const needsModal =
           snapshot.state === 'migration-upload' ||
@@ -84,16 +208,57 @@ export function useSync(): UseSyncReturn {
             db: getHospitalDB(),
             adapters: HOSPITAL_ADAPTERS,
             debounceMs: DEBOUNCE_MS,
+            onConsecutiveFailure: handleConsecutiveFailure,
           })
         }
         if (needsModal) engineRef.current.pause()
         engineRef.current.start(user.id)
 
-        if (import.meta.env.DEV) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(globalThis as any).__hospitalSync = engineRef.current
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(globalThis as any).__hospitalDb = getHospitalDB()
+        if (DEV) {
+          ;(globalThis as { __hospitalSync?: SyncEngine }).__hospitalSync =
+            engineRef.current
+          ;(globalThis as { __hospitalDb?: unknown }).__hospitalDb = getHospitalDB()
+        }
+
+        if (snapshot.state === 'fresh-start' || snapshot.state === 'silent-pull') {
+          reEvalWatchActive = true
+          reEvalHookFn = () => {
+            if (!reEvalWatchActive) return
+            if (reEvalDebounceTimer) clearTimeout(reEvalDebounceTimer)
+            reEvalDebounceTimer = setTimeout(async () => {
+              if (!reEvalWatchActive || cancelled) return
+              reEvalWatchActive = false
+              devLog('[sync.gate]', { phase: 're-eval-fired' })
+              try {
+                const snap2 = await computeGateState(supabase, user.id)
+                if (cancelled) return
+                if (snap2.state !== snapshot.state) {
+                  setGateSnapshot(snap2)
+                  setGateState(snap2.state)
+                  const needsModal2 =
+                    snap2.state === 'migration-upload' ||
+                    snap2.state === 'conflict-chooser' ||
+                    snap2.state === 'paused'
+                  if (needsModal2) engineRef.current?.pause()
+                  devLog('[sync.gate]', {
+                    phase: 're-eval-state-changed',
+                    from: snapshot.state,
+                    to: snap2.state,
+                  })
+                }
+              } catch (err) {
+                console.warn('[hospital-sync] re-eval failed', err)
+              }
+              cancelReEval()
+            }, RE_EVAL_DEBOUNCE_MS)
+          }
+          db.gameCounters.hook('creating', reEvalHookFn)
+          reEvalWindowTimer = setTimeout(() => {
+            if (reEvalWatchActive) {
+              devLog('[sync.gate]', { phase: 're-eval-window-elapsed' })
+            }
+            cancelReEval()
+          }, RE_EVAL_WINDOW_MS)
         }
       } catch (err) {
         console.error('[hospital-sync] gate computation failed', err)
@@ -105,8 +270,9 @@ export function useSync(): UseSyncReturn {
     return () => {
       cancelled = true
       clearInterval(poll)
+      cancelReEval()
     }
-  }, [authStatus, user])
+  }, [authStatus, user, resolveTick])
 
   useEffect(() => {
     return () => {
@@ -114,6 +280,55 @@ export function useSync(): UseSyncReturn {
       engineRef.current = null
     }
   }, [])
+
+  // Register a metadata getter so services/bug-report.ts can grab the
+  // engine snapshot at submit time without re-running useSync.
+  useEffect(() => {
+    registerSyncMetadataGetter(async () => {
+      const eng = engineRef.current
+      const engSnap = eng ? await eng.getDiagnosticSnapshot() : null
+      const lastSignedInUserId = await getLastSignedInUserId(getHospitalDB()).catch(
+        () => null,
+      )
+      return {
+        gateState,
+        authStatus,
+        currentUserId: user?.id ?? null,
+        lastSignedInUserId,
+        lastPushAt: engSnap?.lastPushAt ?? null,
+        lastPullAt: engSnap?.lastPullAt ?? null,
+        queueDepth: engSnap?.queueDepth ?? 0,
+        recentErrors: engSnap?.recentErrors ?? [],
+        dbRowCounts: engSnap?.dbRowCounts ?? {},
+        consecutiveErrors: engSnap?.consecutiveErrors ?? { push: 0, pull: 0 },
+        online: typeof navigator !== 'undefined' ? navigator.onLine : true,
+      }
+    })
+    return () => registerSyncMetadataGetter(null)
+  }, [authStatus, gateState, user])
+
+  const resolveAccountSwitch = useCallback(
+    async (choice: AccountSwitchChoice): Promise<void> => {
+      const supabase = getSupabase()
+      if (!supabase || !user) return
+      const db = getHospitalDB()
+
+      if (choice === 'signout') {
+        await supabase.auth.signOut()
+        setAccountSwitch(null)
+        return
+      }
+      if (choice === 'clear-local') {
+        engineRef.current?.stop()
+        engineRef.current = null
+        await clearLocalSyncTables(db)
+      }
+      await setLastSignedInUserId(db, user.id)
+      setAccountSwitch(null)
+      setResolveTick((t) => t + 1)
+    },
+    [user],
+  )
 
   const resolveUploadPrompt = useCallback(
     async (choice: UploadChoice): Promise<void> => {
@@ -167,7 +382,6 @@ export function useSync(): UseSyncReturn {
         setGateState('resolved')
         return
       }
-      // use-local
       await engine.pushAllNow(new Date().toISOString())
       await setMigrationChoice(db, user.id, 'local-chosen')
       await setPausedForUser(db, user.id, false)
@@ -204,6 +418,43 @@ export function useSync(): UseSyncReturn {
     else engineRef.current?.resume()
   }, [user])
 
+  const forcePush = useCallback(async (): Promise<void> => {
+    const e = engineRef.current
+    if (!e) return
+    await e.pushAllNow()
+  }, [])
+
+  const forcePull = useCallback(async (): Promise<void> => {
+    const e = engineRef.current
+    if (!e) return
+    await e.pullAllNow({ force: true })
+  }, [])
+
+  const getEngineDiagnostic = useCallback(
+    async (): Promise<EngineDiagnosticSnapshot | null> => {
+      const e = engineRef.current
+      if (!e) return null
+      return e.getDiagnosticSnapshot()
+    },
+    [],
+  )
+
+  const dismissSyncError = useCallback((): void => {
+    setSyncError(null)
+  }, [])
+
+  const retrySyncError = useCallback(async (): Promise<void> => {
+    const e = engineRef.current
+    setSyncError(null)
+    if (!e) return
+    try {
+      await e.pushAllNow()
+      await e.pullAllNow({ force: true })
+    } catch (err) {
+      console.warn('[hospital-sync] manual retry failed', err)
+    }
+  }, [])
+
   const engine = engineRef.current
   return {
     status: engine?.getStatus() ?? (authStatus === 'disabled' ? 'disabled' : 'unauthed'),
@@ -211,9 +462,17 @@ export function useSync(): UseSyncReturn {
     lastPullAt: engine?.lastPullAt() ?? null,
     gateState,
     gateSnapshot,
+    accountSwitch,
+    syncError,
     resolveUploadPrompt,
     resolveConflictChooser,
+    resolveAccountSwitch,
     reopenConflictChooser,
     resetMigrationPreference,
+    forcePush,
+    forcePull,
+    getEngineDiagnostic,
+    dismissSyncError,
+    retrySyncError,
   }
 }

@@ -160,4 +160,5 @@ export {
   type BugReportUserFields,
   type BugReportAutoContext,
   type BugReportRow,
+  type SyncDiagnosticSnapshot,
 } from './lib/bug-report-types'

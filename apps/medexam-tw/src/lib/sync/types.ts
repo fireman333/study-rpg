@@ -47,6 +47,33 @@ export interface SyncEngine {
   lastPushAt(): number | null
   /** Last successful pull wall-clock ms. */
   lastPullAt(): number | null
+  /**
+   * Diagnostic snapshot for bug reports + DEV introspection. Captures
+   * engine-internal observable state: pending push count, recent errors
+   * (ring buffer last 5), per-table row counts. Used by sync_metadata
+   * column of bug_reports + `__sync.diagnose()` DEV global.
+   */
+  getDiagnosticSnapshot(): Promise<EngineDiagnosticSnapshot>
+}
+
+export type SyncOp = 'push' | 'pull'
+
+/** One error event captured in the engine's ring buffer. */
+export interface SyncErrorRecord {
+  at: number       // epoch ms
+  op: SyncOp
+  table: string    // Postgres table name (e.g. 'player_state' or 'hospital_doctors')
+  message: string
+}
+
+/** Engine-internal diagnostic snapshot. */
+export interface EngineDiagnosticSnapshot {
+  lastPushAt: number | null
+  lastPullAt: number | null
+  queueDepth: number
+  recentErrors: SyncErrorRecord[]
+  dbRowCounts: Record<string, number>
+  consecutiveErrors: Record<SyncOp, number>
 }
 
 export interface CreateSyncEngineOptions {
@@ -69,6 +96,12 @@ export interface CreateSyncEngineOptions {
   appVersion?: string
   /** Optional error sink — defaults to console.error. */
   onError?: (err: unknown, ctx: string) => void
+  /**
+   * Fires when the same op (push/pull) fails ≥ 2 consecutive times. Used
+   * by App.tsx to surface the sync error toast (replaces silent console.warn).
+   * The engine still calls onError on every failure; this is the elevated signal.
+   */
+  onConsecutiveFailure?: (record: SyncErrorRecord, consecutiveCount: number) => void
 }
 
 /** Marker for a dirty Dexie row pending push. */

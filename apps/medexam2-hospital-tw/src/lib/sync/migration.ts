@@ -212,6 +212,17 @@ export async function computeGateState(
 ): Promise<GateSnapshot> {
   const db = getHospitalDB()
 
+  // Race-resistant guard (fix-sync-sign-in-lifecycle Bug 1, design.md D2):
+  // await one Dexie read + brief settle delay so slow mobile cold-load
+  // hydration doesn't misclassify as fresh-start. The canonical row for 二階
+  // is gameCounters.singleton (set on first interaction with hospital scene).
+  await db.gameCounters.get('singleton')
+  await new Promise<void>((r) => setTimeout(r, 100))
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.log('[sync.gate]', { phase: 'settle-end', userId })
+  }
+
   const choice = await getMigrationChoice(db, userId)
   if (choice) {
     if (choice.choice === 'keep-separate') {

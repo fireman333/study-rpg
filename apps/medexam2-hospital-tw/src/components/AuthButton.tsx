@@ -1,11 +1,32 @@
-// Sign-in / sign-out entry for 二階 (M4 mirror).
-// Simplified vs 一階: authed click signs out directly (no SettingsPanel yet).
+// Sign-in / account menu entry for 二階. Authed click opens a popover with
+// 登出 / 切換帳號 actions (fix-sync-sign-in-lifecycle M1 — replaces the
+// previous confirm() flow with an explicit menu so users can pick the
+// "clear local + sign out + re-sign-in" path in one tap).
 // Hidden when auth is disabled (env vars missing / VITE_CLOUD_SYNC_ENABLED=false).
 
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../lib/auth/AuthContext'
+import { clearLocalSyncTables } from '../lib/sync/account-switch'
+import { getHospitalDB } from '../db/schema'
 
 export function AuthButton() {
   const { status, user, signInWithGoogle, signOut } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [busy, setBusy] = useState<'signout' | 'switch' | null>(null)
+  const popoverRef = useRef<HTMLDivElement | null>(null)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function handler(e: MouseEvent) {
+      const t = e.target as Node
+      if (popoverRef.current?.contains(t)) return
+      if (buttonRef.current?.contains(t)) return
+      setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
 
   if (status === 'disabled') return null
   if (status === 'initializing') {
@@ -19,16 +40,69 @@ export function AuthButton() {
   if (status === 'authed' && user) {
     const label = user.email ?? user.user_metadata?.name ?? '已登入'
     return (
-      <button
-        type="button"
-        className="auth-button auth-button--authed"
-        onClick={() => {
-          if (confirm(`登出 ${label}？\n本機進度仍會保留。`)) signOut()
-        }}
-        title={`已登入：${label}　點此登出`}
-      >
-        ☁️ {label}
-      </button>
+      <div className="auth-button-wrap">
+        <button
+          ref={buttonRef}
+          type="button"
+          className="auth-button auth-button--authed"
+          onClick={() => setMenuOpen((v) => !v)}
+          title={`已登入：${label}　點此打開帳號選單`}
+        >
+          <span className="auth-button__email">☁️ {label}</span>
+          <span className="auth-button__email-collapsed" aria-hidden>
+            ☁️
+          </span>
+        </button>
+        {menuOpen && (
+          <div ref={popoverRef} className="auth-menu-popover frame" role="dialog">
+            <div className="auth-menu-popover__email">{label}</div>
+            <button
+              type="button"
+              className="auth-menu-popover__btn"
+              disabled={busy !== null}
+              title="本地進度會保留；下次若用不同帳號登入會詢問如何處理"
+              onClick={async () => {
+                if (busy) return
+                setBusy('signout')
+                try {
+                  await signOut()
+                  setMenuOpen(false)
+                } finally {
+                  setBusy(null)
+                }
+              }}
+            >
+              {busy === 'signout' ? '登出中…' : '登出'}
+            </button>
+            <button
+              type="button"
+              className="auth-menu-popover__btn auth-menu-popover__btn--secondary"
+              disabled={busy !== null}
+              title="清空本地醫院進度後重新登入；適合借用裝置或換主帳號"
+              onClick={async () => {
+                if (busy) return
+                const ok = window.confirm(
+                  '⚠ 切換帳號將清空本地醫院進度並重新登入。\n\n' +
+                    '清空後本機所有 cloud-synced 資料（醫院經營、醫師、答題紀錄）會被刪除。\n' +
+                    '只有你目前登入的帳號雲端有備份才能還原。確定？',
+                )
+                if (!ok) return
+                setBusy('switch')
+                try {
+                  await clearLocalSyncTables(getHospitalDB())
+                  await signOut()
+                  setMenuOpen(false)
+                  void signInWithGoogle()
+                } finally {
+                  setBusy(null)
+                }
+              }}
+            >
+              {busy === 'switch' ? '切換中…' : '🔄 切換帳號'}
+            </button>
+          </div>
+        )}
+      </div>
     )
   }
 
