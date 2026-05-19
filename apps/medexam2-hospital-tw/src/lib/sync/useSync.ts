@@ -26,6 +26,11 @@ import {
   getLastSignedInUserId,
   setLastSignedInUserId,
 } from './account-switch'
+import {
+  applyResetPropagationIfNeeded,
+  fetchCloudResetTimestamp,
+  writeLocalAckResetAt,
+} from './reset-propagation'
 import { registerSyncMetadataGetter } from '../../services/sync-metadata'
 import type {
   EngineDiagnosticSnapshot,
@@ -196,6 +201,20 @@ export function useSync(): UseSyncReturn {
 
         await setLastSignedInUserId(db, user.id)
         setAccountSwitch(null)
+
+        // Reset-propagation gate (add-reset-propagation-marker): if cloud's
+        // `account_metadata.last_reset_at` is newer than our local ack, wipe
+        // local before computeGateState so a post-reset sign-in lands in
+        // `fresh-start` / `silent-pull` instead of `migration-upload` (whose
+        // 「上傳本機」 option would resurrect the stale data on cloud).
+        // Non-fatal: helper catches its own fetch errors and returns
+        // { propagated: false } so engine start is never blocked.
+        try {
+          await applyResetPropagationIfNeeded(supabase, user.id, db)
+        } catch (err) {
+          console.warn('[sync.gate] reset-propagation failed, continuing', err)
+        }
+        if (cancelled) return
 
         const snapshot = await computeGateState(supabase, user.id)
         if (cancelled) return
@@ -448,8 +467,20 @@ export function useSync(): UseSyncReturn {
   const forcePull = useCallback(async (): Promise<void> => {
     const e = engineRef.current
     if (!e) return
+    // Reset-propagation gate (add-reset-propagation-marker): covers the
+    // foreground-tab reproducer where the user presses 「立即同步下載」 after
+    // another device reset the account. Without this, the press is a no-op
+    // (cloud is empty, incremental pull applies 0 rows, local stays stale).
+    const supabase = getSupabase()
+    if (supabase && user) {
+      try {
+        await applyResetPropagationIfNeeded(supabase, user.id, getHospitalDB())
+      } catch (err) {
+        console.warn('[forcePull] reset-propagation failed, continuing', err)
+      }
+    }
     await e.pullAllNow({ force: true })
-  }, [])
+  }, [user])
 
   const getEngineDiagnostic = useCallback(
     async (): Promise<EngineDiagnosticSnapshot | null> => {
@@ -538,6 +569,17 @@ export function useSync(): UseSyncReturn {
 
     const { error } = await supabase.rpc('delete_my_data')
     if (error) throw error
+
+    // Ack the marker the RPC just wrote so our own cold-start gate sees
+    // cloud == localAck on the engine restart below and skips a redundant
+    // wipe + duplicate localBackup row. Non-fatal: if the read-back fails,
+    // the gate will fire once and converge — wasteful but correct.
+    try {
+      const cloudResetAt = await fetchCloudResetTimestamp(supabase, user.id)
+      if (cloudResetAt !== null) writeLocalAckResetAt(user.id, cloudResetAt)
+    } catch (err) {
+      console.warn('[safeResetAccountData] ack read-back failed, gate will retry', err)
+    }
 
     engineRef.current?.stop()
     engineRef.current = null
