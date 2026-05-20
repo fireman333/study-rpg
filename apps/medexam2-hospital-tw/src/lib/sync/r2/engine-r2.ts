@@ -33,6 +33,11 @@ export interface PullBundleResult {
   notModified: boolean
   blobMissing: boolean
   applied: ApplyResult | null
+  /** True when the response body could not be decoded as a valid gzip bundle.
+   *  In this case `etag` may still be set from the response header so callers
+   *  can use it for `If-Match` overwrite on a follow-up PUT. `applied` stays
+   *  `null` because the corrupt body is NEVER merged into local Dexie. */
+  decodeFailed?: boolean
 }
 
 export async function pushBundle(
@@ -43,6 +48,7 @@ export async function pushBundle(
   userId: string,
 ): Promise<PushBundleResult> {
   let lastErr: unknown = null
+  let lastStatus: number | null = null
   for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
     try {
       const snapshot = await buildBundleSnapshot(db, adapters, userId)
@@ -64,10 +70,21 @@ export async function pushBundle(
         return { etag, bytes: gz.size, attempts: attempt }
       }
 
-      // 412 Precondition Failed: another device pushed first. Pull, merge, retry.
+      // 412 Precondition Failed: another device pushed first OR existing blob
+      // is corrupt and our If-None-Match:* lost. Pull, merge, retry. The pull
+      // also sets the etag so the retry uses If-Match for overwrite — that
+      // doubles as the corrupt-blob recovery path because pullBundle now
+      // extracts the ETag even when gunzip fails.
       // 409 Conflict: some R2 paths return 409 instead of 412.
       if (res.status === 412 || res.status === 409) {
-        await pullBundle(supabase, db, adapters, bundle, { conditional: false })
+        const pullResult = await pullBundle(supabase, db, adapters, bundle, { conditional: false })
+        if (pullResult.decodeFailed && pullResult.etag) {
+          // eslint-disable-next-line no-console
+          console.info(
+            `[sync:pushR2:${bundle}] recovered from corrupt blob via overwrite (preparing If-Match retry, etag ${pullResult.etag})`,
+          )
+        }
+        lastStatus = res.status
         const backoff = BACKOFF_MS[attempt - 1] ?? 4000
         await sleep(backoff)
         continue
@@ -75,7 +92,14 @@ export async function pushBundle(
 
       // First-push race: If-None-Match: * lost. Same recovery as 412.
       if (res.status === 428 && !known) {
-        await pullBundle(supabase, db, adapters, bundle, { conditional: false })
+        const pullResult = await pullBundle(supabase, db, adapters, bundle, { conditional: false })
+        if (pullResult.decodeFailed && pullResult.etag) {
+          // eslint-disable-next-line no-console
+          console.info(
+            `[sync:pushR2:${bundle}] recovered from corrupt blob via overwrite (preparing If-Match retry, etag ${pullResult.etag})`,
+          )
+        }
+        lastStatus = res.status
         const backoff = BACKOFF_MS[attempt - 1] ?? 4000
         await sleep(backoff)
         continue
@@ -91,6 +115,13 @@ export async function pushBundle(
       if (attempt >= MAX_PUSH_RETRIES) break
       await sleep(BACKOFF_MS[attempt - 1] ?? 4000)
     }
+  }
+  // If the last attempt was a 412 with a recovered ETag in scope but we still
+  // could not write, a real concurrent writer (or another corrupt-blob loop)
+  // is winning. Surface that distinctly from real network failures so logs
+  // are grep-able.
+  if (lastStatus === 412 || lastStatus === 409) {
+    throw new Error(`r2_blob_concurrent_writer_exhausted: ${bundle}`)
   }
   throw new Error(
     `r2_push_exhausted: ${(lastErr as { message?: string })?.message ?? 'unknown'}`,
@@ -125,8 +156,22 @@ export async function pullBundle(
   }
 
   const blob = await res.blob()
-  const snapshot = await gunzipBundle(blob)
   const etag = res.headers.get('ETag')
+
+  // Try to decode the gzip body. A corrupt blob (e.g., a stray non-gzip byte
+  // left over from a smoke test, or a truncated upload) MUST NOT crash the
+  // engine — we still extract the ETag from the response header so callers
+  // can use `If-Match: <etag>` to overwrite the corrupt blob on a follow-up
+  // PUT, and we return `decodeFailed: true` so callers can log the recovery.
+  // The corrupt body is NEVER merged into local Dexie.
+  let snapshot: Awaited<ReturnType<typeof gunzipBundle>>
+  try {
+    snapshot = await gunzipBundle(blob)
+  } catch {
+    if (etag) setEtag(bundle, etag)
+    return { etag, notModified: false, blobMissing: false, applied: null, decodeFailed: true }
+  }
+
   if (etag) setEtag(bundle, etag)
 
   const applied = await applyBundleSnapshot(db, adapters, snapshot, { force: opts?.force })

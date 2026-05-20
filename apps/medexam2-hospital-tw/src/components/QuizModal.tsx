@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { BugReportCategory, Question, SubjectId } from '@study-rpg/core'
 import { RARITY_LABELS, getSpecialtyMultiplier } from '@study-rpg/content-medexam2-tw'
@@ -271,7 +272,10 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
           className="quiz-modal__partner"
           style={
             boundDoctor
-              ? { borderLeft: `4px solid var(--rarity-${boundDoctor.rarity.toLowerCase()})` }
+              ? ({
+                  borderLeft: `4px solid var(--rarity-${boundDoctor.rarity.toLowerCase()})`,
+                  ['--rarity-color' as string]: `var(--rarity-${boundDoctor.rarity.toLowerCase()})`,
+                } as CSSProperties)
               : undefined
           }
         >

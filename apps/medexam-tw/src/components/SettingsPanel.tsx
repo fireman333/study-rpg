@@ -7,7 +7,10 @@
 
 import { useEffect, useState } from 'react'
 import { getSupabase } from '../lib/auth/client'
+import { getBackendConfig } from '../lib/sync/backend-config'
 import type { MigrationGateState } from '../lib/sync/migration'
+import { requestR2Cleanup } from '../lib/sync/r2/account-lifecycle'
+import { exportAllBundlesFromR2 } from '../lib/sync/r2/export'
 import type { SyncStatus } from '../lib/sync/types'
 import { BugReportModal } from './BugReportModal'
 
@@ -106,8 +109,21 @@ export function SettingsPanel({
       async () => {
         const supabase = getSupabase()
         if (!supabase) throw new Error('Supabase 未啟用')
-        const { data, error } = await supabase.rpc('export_my_data')
-        if (error) throw error
+        let data: unknown
+        if (getBackendConfig().readR2) {
+          // R2-read mode: fetch all 3 bundles via Worker presign and assemble
+          // a JSON envelope that mirrors the Supabase RPC shape (schema_version
+          // + exported_at + user_id + per-bundle payloads).
+          const { data: userData, error: userErr } = await supabase.auth.getUser()
+          if (userErr) throw userErr
+          const userId = userData.user?.id
+          if (!userId) throw new Error('No user_id; cannot export')
+          data = await exportAllBundlesFromR2(supabase, userId)
+        } else {
+          const { data: rpcData, error } = await supabase.rpc('export_my_data')
+          if (error) throw error
+          data = rpcData
+        }
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
@@ -161,6 +177,12 @@ export function SettingsPanel({
       async () => {
         const supabase = getSupabase()
         if (!supabase) throw new Error('Supabase 未啟用')
+        // R2 cleanup FIRST — Supabase delete_my_account drops auth.users,
+        // which immediately invalidates the JWT and breaks any subsequent
+        // R2 cleanup attempt. Skip when writeR2 is off.
+        if (getBackendConfig().writeR2) {
+          await requestR2Cleanup(supabase, 'delete-account')
+        }
         const { error } = await supabase.rpc('delete_my_account')
         if (error) throw error
         await onSignOut()

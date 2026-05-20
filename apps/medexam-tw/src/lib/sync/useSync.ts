@@ -15,7 +15,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { getDB } from '@study-rpg/core'
 import { getSupabase } from '../auth/client'
 import { useAuth } from '../auth/AuthContext'
+import { getBackendConfig } from './backend-config'
 import { createSyncEngine } from './engine'
+import { requestR2Cleanup } from './r2/account-lifecycle'
 import { ONE_STAGE_ADAPTERS } from './tables'
 import {
   cloudHasAnyRows,
@@ -644,6 +646,13 @@ export function useSync(): UseSyncReturn {
     const db = getDB()
 
     await snapshotLocalToBackup(db, user.id, 'reset-account-data')
+
+    // R2 cleanup FIRST while JWT is still fresh. If this fails, abort — we
+    // haven't touched Supabase yet, so user can retry without partial state.
+    // No-op (skip) when writeR2 is false (Phase 0–1 of migration).
+    if (getBackendConfig().writeR2) {
+      await requestR2Cleanup(supabase, 'reset')
+    }
 
     const { error } = await supabase.rpc('delete_my_data')
     if (error) throw error

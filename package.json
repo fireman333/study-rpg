@@ -16,9 +16,12 @@
     "build:content": "pnpm --filter @study-rpg/content-medexam-tw build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
-    "gen-status": "node scripts/gen-status.mjs"
+    "gen-status": "node scripts/gen-status.mjs",
+    "reconcile": "tsx scripts/reconcile.ts"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "tsx": "^4.19.0",
     "typescript": "^5.4.0"
   }
 }

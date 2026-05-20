@@ -148,7 +148,11 @@ For each question file `<basename>.md`, the build script SHALL look for `<basena
 
 **PDF-extraction-junk sanitization in explanations**: Because the LLM that generated explanations was fed the polluted option text (see Question-parser requirement), the LLM frequently echoed the same junk inside its `**X. ...**` bold heading blocks. The parser SHALL apply the same three-class strip described in the Question-parser requirement to explanation strings, with one anchoring difference: when the explanation is wrapped in `**X. ... **` bold blocks, the strip lookahead anchors at the next `**` (closing bold marker) instead of end-of-string, to preserve markdown bold-balance. Lone trailing 「醫」/「護」 inside a bold block SHALL be stripped if separated from preceding text by whitespace and immediately followed by `**`.
 
-**Grading-note echo strip**: Any LLM echo of the「※第N題...給分。」directive inside an explanation `**X. ...**` bold block SHALL be stripped from that location (a separate Pass 0 in the sanitization pipeline targets the directive precisely — strips the directive only, NOT everything through closing `**`). The directive content is surfaced once at the top of the explanation via the blockquote prepended by `buildQuestion`; duplicate echoes inside per-option bold headings are visual noise and SHALL be removed. Non-directive `※` commentaries authored by the LLM as legitimate explanation content SHALL be preserved.
+**Grading-note echo strip**: Any LLM echo of the「※第N題...給分。」directive inside an explanation `**X. ...**` bold block SHALL be stripped from that location (a separate Pass 0 in the sanitization pipeline targets the directive precisely — strips the directive only, NOT everything through closing `**`). The directive content is surfaced once at the top of the explanation via the blockquote prepended by `buildQuestion`; duplicate echoes inside per-option bold headings are visual noise and SHALL be removed. Non-directive `※` commentaries authored by the LLM as legitimate explanation content SHALL be preserved (with the explicit exception of the `※官方允許<letter>給分。` pattern handled by Pass 5 below).
+
+**Per-paper audit-footer strip (NEW — Pass 4)**: The upstream Haiku-driven explainer pipeline emits a per-paper audit summary at the end of each `<basename>.explanations.md`. The audit summary header is `# # ⚠️ Conflict with official` (rendered without space — escaped here so this requirement block parses cleanly) and lists per-question Haiku-vs-official-answer disagreements detected at generation time. The summary exists for maintainer ground-truth tracking and is intentionally preserved in source side-car files. However, `parseExplanationsFile` bounds each Q-block from `## Q<n>` to either the next `## Q<n>` or `body.length`, so the audit footer is unconditionally captured into the **last question's explanation**. The merged `Question.explanation` text SHALL NOT contain the audit-footer marker line or its trailing disagreement entries; the parser SHALL strip from the preceding `---` horizontal rule through end-of-string.
+
+**Inline per-option grading remark strip (NEW — Pass 5)**: Distinct from the `※第N題...給分。` directive Pass 0 handles, the LLM occasionally emitted a per-option grading remark embedded as a suffix in the 詳解 prose, formatted `※官方允許<letter>給分。` (where `<letter>` matches A-D or fullwidth Ａ-Ｄ). This pattern lacks the `題` digit prefix Pass 0 targets and was not previously stripped. The parser SHALL strip the pattern wherever it appears in 詳解 prose; semantically equivalent maintainer notes belong in the option-level blockquote header rather than per-option prose.
 
 #### Scenario: Question with explanation merged from side-car
 
@@ -180,6 +184,21 @@ For each question file `<basename>.md`, the build script SHALL look for `<basena
 - **WHEN** the build runs
 - **THEN** the merged `explanation` SHALL contain `**D. 約99%病患不會成為慢性帶原**\n  - ✗ 錯誤 [P2]` (※ directive removed from per-option bold heading, bold balance intact)
 - **AND** the final `Question.explanation` (after `buildQuestion` prepends the blockquote) SHALL contain the「※第17題答Ｂ、Ｄ給分。」directive exactly once, in the top blockquote header `> 📋 考選部給分附註：...`
+
+#### Scenario: Per-paper audit footer is stripped from last question's explanation
+
+- **GIVEN** a side-car ending with the per-paper audit footer (an H2 header containing `⚠️ Conflict with official` followed by `- **Q<n>**: 官方 X ↔ Haiku Y` entries)
+- **WHEN** the build runs and merges the last question's (typically Q80's) explanation
+- **THEN** `questions.json` entry for that paper's last Q SHALL have `explanation` ending at the end of D's 詳解 prose
+- **AND** the merged `explanation` SHALL NOT contain the substring `Conflict with official` or `↔ Haiku`
+
+#### Scenario: Inline per-option grading remark is stripped from 詳解 prose
+
+- **GIVEN** an explanation containing `**D. Erythema multiforme**\n  - ✗ 錯誤 [P2 頂級]\n  - 詳解：多形紅斑EM major與SJS在臨床上重疊...但在藥物誘發背景下SJS更具體。※官方允許D給分。`
+- **WHEN** the build runs
+- **THEN** the merged `explanation` SHALL have the D-block 詳解 ending at `...更具體。` (trailing whitespace trimmed)
+- **AND** the `explanation` SHALL NOT contain the substring `※官方允許D給分` (or any `※官方允許[A-D]給分。` variant)
+- **AND** the grading-credit information (if applicable) SHALL only appear in the top blockquote header that `buildQuestion` prepends from `Question.meta.gradingNote`
 
 ### Requirement: Build artifacts SHALL include questions / subjects / meta / stats JSON
 

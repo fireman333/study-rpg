@@ -1,0 +1,60 @@
+name: Deploy Cloudflare Worker
+
+# Deploys `study-rpg-sync-worker` (R2 auth-bridging presigner) when its source
+# changes on main. See cloudflare/sync-worker/README.md for deploy semantics +
+# secret rotation.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   CF_API_TOKEN     Cloudflare API token. Scopes: Workers Scripts:Edit + Workers R2 Storage:Edit (study-rpg-saves + study-rpg-saves-backup).
+#   CF_ACCOUNT_ID    Cloudflare account ID (from any dashboard sidebar).
+#
+# Worker secrets (SUPABASE_JWKS_URL / R2_S3_ACCESS_KEY_ID / etc.) are managed
+# via `wrangler secret put` directly against the live Worker — NOT exposed
+# through GitHub. This workflow only deploys code; secrets persist across deploys.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cloudflare/sync-worker/**'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies (monorepo)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck Worker
+        run: pnpm --filter @study-rpg/sync-worker typecheck
+
+      - name: Deploy via Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: cloudflare/sync-worker
+          packageManager: pnpm

@@ -8,7 +8,7 @@
 // - Offline = queue lives implicitly in IndexedDB (rows still there, dirty markers re-built on reconnect)
 
 import { getBackendConfig } from './backend-config'
-import { pushBundle } from './r2/engine-r2'
+import { pullBundle, pushBundle } from './r2/engine-r2'
 import type { TableAdapter } from './tables'
 import type {
   CloudRow,
@@ -259,30 +259,53 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     if (paused && !opts?.force) return
 
     status = 'pulling'
-    const sinceIso = opts?.sinceIso ?? new Date(_lastPullAt ?? 0).toISOString()
     let anyOffline = false
     let firstError: SyncErrorRecord | null = null
 
     applyingFromCloud = true
     try {
-      for (const adapter of adapters) {
-        try {
-          let q = supabase.from(adapter.postgresTable).select('*').eq('user_id', userId)
-          if (sinceIso !== undefined && !opts?.force) {
-            q = q.gt('updated_at', sinceIso)
+      if (backendConfig.readR2 && r2Bundles.length) {
+        // R2 read path — per-bundle conditional GET with ETag short-circuit.
+        // `sinceIso` is not applicable (R2 blob is whole-bundle, no per-row
+        // timestamp filter); conditional=true → 304 if local ETag matches.
+        for (const binding of r2Bundles) {
+          try {
+            await pullBundle(supabase, db, binding.adapters, binding.bundle, {
+              conditional: !opts?.force,
+              force: opts?.force,
+            })
+          } catch (err) {
+            const isNetwork = isLikelyNetworkError(err)
+            anyOffline ||= isNetwork
+            const rec = recordError('pull', `r2:${binding.bundle}`, err)
+            if (!firstError) firstError = rec
+            onError(err, `pull:r2:${binding.bundle}`)
           }
-          const { data, error } = await q
-          if (error) throw error
-          if (!data) continue
-          for (const cloudRow of data as CloudRow[]) {
-            await adapter.applyToLocal(db, cloudRow, { force: opts?.force })
+        }
+      } else {
+        // Supabase read path — per-table incremental SELECT filtered by
+        // `updated_at > sinceIso`. Active until Phase 3 cutover flips
+        // VITE_CLOUD_SYNC_READ_BACKEND=r2.
+        const sinceIso = opts?.sinceIso ?? new Date(_lastPullAt ?? 0).toISOString()
+        for (const adapter of adapters) {
+          try {
+            let q = supabase.from(adapter.postgresTable).select('*').eq('user_id', userId)
+            if (sinceIso !== undefined && !opts?.force) {
+              q = q.gt('updated_at', sinceIso)
+            }
+            const { data, error } = await q
+            if (error) throw error
+            if (!data) continue
+            for (const cloudRow of data as CloudRow[]) {
+              await adapter.applyToLocal(db, cloudRow, { force: opts?.force })
+            }
+          } catch (err) {
+            const isNetwork = isLikelyNetworkError(err)
+            anyOffline ||= isNetwork
+            const rec = recordError('pull', adapter.postgresTable, err)
+            if (!firstError) firstError = rec
+            onError(err, `pull:${adapter.postgresTable}`)
           }
-        } catch (err) {
-          const isNetwork = isLikelyNetworkError(err)
-          anyOffline ||= isNetwork
-          const rec = recordError('pull', adapter.postgresTable, err)
-          if (!firstError) firstError = rec
-          onError(err, `pull:${adapter.postgresTable}`)
         }
       }
     } finally {

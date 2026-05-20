@@ -146,14 +146,25 @@ function stripPdfExtractionJunk(text: string): string {
   // explanation blockquote prepend in buildQuestion.
   text = text.replace(/\s*※\s*第\s*\d+\s*題[^。]*給分。?/gu, '')
   // Pass 1: marker-anchored strip through to closing ** or EOS
+  // Note: `--[ \t]*\d+[ \t]*--` covers both `--12--` (tight) and `-- 1 --` (spaced page number)
   text = text.replace(
-    /\s*(?:測驗式?試?題?標準答案|【版權所有|--\d+--|醫\s+護)[\s\S]*?(?=\*\*|$)/g,
+    /\s*(?:測驗式?試?題?標準答案|【版權所有|--[ \t]*\d+[ \t]*--|醫\s+護)[\s\S]*?(?=\*\*|$)/g,
     ''
   )
   // Pass 2: lone trailing 醫 / 護 in option context (no ** wrapper)
   text = text.replace(/\s+[醫護](?=\s*$)/gu, '')
   // Pass 3: lone trailing 醫 / 護 inside an explanation bold block
   text = text.replace(/\s+[醫護](?=\*\*)/gu, '')
+  // Pass 4: per-paper audit footer that the explanation generator emits at EOF
+  // and gets sucked into the last question's block (`parseExplanationsFile`
+  // bounds each Q from `## Q\d+` to next `## Q\d+` or `body.length`). Pattern:
+  // `\n---\n\n## ⚠️ Conflict with official\n\n- **Q22**: 官方 ? ↔ Haiku C ...`.
+  // Strip from the `---` horizontal rule through EOS.
+  text = text.replace(/\n+[ \t]*---[ \t]*\n+## ⚠️ Conflict with official[\s\S]*$/u, '')
+  // Pass 5: per-option grading remark Haiku occasionally embedded as a suffix
+  // in the 詳解 prose (vs. the option text). Distinct from Pass 0 because no
+  // 「題」digit prefix — e.g. 「※官方允許D給分。」at the end of an option's prose.
+  text = text.replace(/\s*※\s*官方允許\s*[A-DＡ-Ｄ]\s*給分。?/gu, '')
   return text
 }
 

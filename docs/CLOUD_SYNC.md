@@ -337,11 +337,10 @@ wrangler r2 object list study-rpg-saves-backup --prefix=backup/$(date +%Y-%m-%d)
 
 ### Known gaps (Phase 1 carryover)
 
-- **Reconciliation script** (task 3.10) not implemented yet — daily diff
-  Supabase rows ↔ R2 bundle for unreconciled rows. Requires service-role
-  Supabase key; deferred until dogfood traffic accumulates.
 - **End-to-end smoke tests** (tasks 3.16–3.17) need Chrome MCP + real
-  M4-era user fixture — run manually before Phase 2 ramp.
+  M4-era user fixture — owner's account has 0 M1 rows so banner cannot
+  be exercised. Will be naturally covered when first true M4-era user
+  signs in post-Phase-3-flip.
 - **14-day bake** (task 3.18) is calendar-bound; tracks dogfood errors
   before unblocking Phase 2.
 
@@ -379,8 +378,118 @@ Phase 2 extends dual-write to 二階 (M2 bundle) + bookmarks bundle:
 
 ### Known gaps (Phase 2 carryover)
 
-- **Reconcile script (task 4.4)** still deferred — same blocker as task 3.10.
-- **End-to-end smoke (task 4.7)** still needs Chrome MCP + seeded fixture.
-- **14-day bake (task 4.8)** calendar-bound; runs after dogfood-grade
-  confidence on dual-write across both apps.
-- **Phase 3 (read cutover)** unblocked once 4.7 + 4.8 pass.
+- **End-to-end smoke (task 4.7)** PASS-with-caveats — 二階 m2 + bookmarks
+  happy path verified; 一階 m1 dual-write code path verified via direct
+  `engine.pushAllNow()`. Migration banner not exercised (owner has 0 M1
+  Supabase rows). Partial-failure retry case (kill tab mid-PUT) deferred
+  to natural coverage when first M4-era user signs in post-cutover.
+- **14-day bake (task 4.8)** calendar-bound; runs against owner dogfood
+  traffic now that the engine recovery loop (`fix-r2-engine-recovery-and-
+  cleanup-phase-0-smoke`) is shipped.
+- **Phase 3 code** is shipped (see next section) but **deploy is gated on
+  4.8 bake passing** — flipping `VITE_CLOUD_SYNC_READ_BACKEND=r2` will be
+  a one-line env change at that point.
+
+### Reconciliation tooling
+
+`scripts/reconcile.ts` (shipped tasks 3.10 + 4.4) diffs Supabase rows ↔ R2
+bundle blob for the dual-write bake window. Use during 14-day bake to
+spot-check drift.
+
+```bash
+# Owner self-reconcile (uses your Supabase JWT to pull both data planes):
+pnpm reconcile --session ./scratch/sb-session.json --out scratch/diff.json
+
+# Or with just the refresh token (if access_token capture is awkward):
+pnpm reconcile --refresh-token <12-char-token> --bundles m2,bookmarks
+```
+
+Session JSON: sign in on `localhost:5173`, in devtools run
+`copy(localStorage.getItem('sb-jakdyjxojokyqxeiuukx-auth-token'))`,
+paste to a file. Outputs stdout summary + optional JSON detail
+(`only-supabase` / `only-r2` / `updated-at-drift` per-row).
+
+Admin mode (sample 10 random users via service-role key) stubbed with
+explicit error; lights up when multi-user dogfood starts AND a Supabase
+service-role + R2 S3 access key are provisioned.
+
+## Phase 3 — Reads cut over to R2 (shipped 2026-05-20)
+
+Phase 3 client code is shipped, flag-gated. Activates when
+`VITE_CLOUD_SYNC_READ_BACKEND=r2` (task 5.6 deploy step pending 4.8 bake).
+
+### What changed
+
+- **Engine pull pathway** (`apps/<app>/src/lib/sync/engine.ts:pullNow`)
+  branches on `backendConfig.readR2`. Under R2-read, iterates `r2Bundles`
+  with `pullBundle({ conditional: !force, force })`; 304 short-circuits
+  when local ETag matches cloud (no body downloaded). Under Supabase-read,
+  the original per-table `updated_at > sinceIso` incremental SELECT
+  preserved. `_lastPullAt` + offline detection + error recording stay
+  shared so `SyncStatusChip` works identically across backends.
+- **Migration / conflict modals** (`MigrationUploadPrompt`,
+  `ConflictChooserModal`) verified backend-agnostic — pure UI, take
+  `onChoose` callbacks; routing lives in `useSync` + engine which already
+  branch on `backendConfig`. Same 3 user-facing choices keep working
+  ("Upload local" / "Keep separate" / "Decide later") because the choice
+  is semantic intent, not data shape.
+- **Export action** (`SettingsPanel.handleExport`) routes through new
+  helper `apps/medexam-tw/src/lib/sync/r2/export.ts` when `readR2`. Fetches
+  all 3 R2 bundles via Worker presign, gunzips, assembles into a
+  `{schema_version, exported_at, user_id, bundles: {m1, m2, bookmarks}}`
+  JSON envelope mirroring the Supabase `export_my_data` RPC shape.
+  Missing bundles reported as `null` (graceful). Supabase RPC path
+  unchanged when `readR2 === false`.
+
+### Phase 4 prep — account-lifecycle R2 cleanup
+
+Originally not in the change spec; surfaced during the 6.2 grep audit
+and added as task 6.6.
+
+Without this, Phase 4's `VITE_CLOUD_SYNC_BACKEND=r2` would leave R2
+blobs orphaned when a user triggers 「重置進度」 or 「刪除帳號」:
+Supabase rows would be cleaned (the RPC still works against frozen
+tables) but R2 blobs would persist, and the next pull would restore
+stale data → user thinks reset failed.
+
+New helper `apps/<app>/src/lib/sync/r2/account-lifecycle.ts`
+(mirrored 一階 + 二階) calls the Worker's `/reset` or `/delete-account`
+endpoint with the current JWT, then clears local ETag + presign caches.
+Wired into:
+
+- `useSync.safeResetAccountData` (both apps; 二階 HelpMenu's account-reset
+  routes through this)
+- `SettingsPanel.handleDeleteAccount` (一階 only; 二階 has no
+  delete-account UI surface)
+
+**Order**: R2 cleanup FIRST while JWT is still fresh → Supabase RPC →
+local wipe / signout. If the R2 step fails, the whole flow aborts before
+touching Supabase, so the user retries from a clean slate. R2 cleanup is
+no-op (skipped) when `writeR2 === false` (Phase 0–1 compatibility).
+
+## Phase 4 — Drop Supabase writes (planned)
+
+After Phase 3 bakes 7+ days with no rollback events:
+
+- Flip `VITE_CLOUD_SYNC_BACKEND=r2` and redeploy. `writeSupabase`
+  becomes false → engine push pathway skips the entire `upsert_lww`
+  block; only R2 push runs.
+- Supabase sync tables become **frozen but queryable**: 9 sync tables
+  (`player_state` / `srs_cards` / `item_instances` / `mentor_backlog` /
+  `hospital_state` / `hospital_doctors` / `hospital_mastery` /
+  `hospital_question_history` / `question_bookmarks`) keep their rows
+  but receive no new writes. The owner-side `delete_my_data` RPC still
+  works (drops frozen rows when user resets) — explicitly desired so
+  reset semantics survive Phase 4.
+- `bug_reports` table stays fully active on Supabase (writes + reads
+  unchanged) — it's out of scope for the migration per `BUG_REPORTING.md`
+  callout.
+- Phase 5 (separate follow-up change `drop-supabase-sync-tables`) drops
+  the 9 frozen tables via SQL migrations. Until then they remain as a
+  forensic / rollback target.
+
+### Known gaps after Phase 4 ships
+
+- Once Phase 5 drops the 9 tables, `delete_my_data` RPC will fail (table
+  doesn't exist). The follow-up change must update or drop the RPC
+  alongside the table drops to keep reset functional through transition.

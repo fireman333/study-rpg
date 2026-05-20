@@ -49,7 +49,9 @@ Hospital level SHALL upgrade when reputation crosses tier-specific thresholds. T
 
 ### Requirement: Doctor cards SHALL be tycoon-idle units (no combat)
 
-Each recruited doctor SHALL occupy a hospital room and contribute to that room's patient throughput. Doctors SHALL NOT have a separate combat / battle / boss-fight system. Idle revenue accumulation is the only doctor function.
+Each recruited doctor SHALL occupy a hospital room and contribute to that room's patient throughput. Doctors SHALL NOT have a combat or boss-fight system. Idle revenue accumulation is the primary doctor function.
+
+An optional pre-upgrade 進修戰 (advancement battle) MAY gate rarity upgrades: before each upgrade attempt, the player answers 10 same-specialty questions; each correct answer boosts the upgrade success rate by 5% of the base rate (e.g. P4 → P3 base 30% becomes 45% at 10/10). This is a question-answering challenge, not combat — it preserves the "no PvE boss fight" prohibition. Existing cost, pity, success/failure, and training history semantics SHALL remain intact.
 
 The set of valid room types is `{ outpatient, surgery, ward }`. Specific room counts per tier and per-type behaviors are deferred to `wire-clinic-level-up` and `wire-hospital-tycoon-engine`.
 
@@ -162,3 +164,12 @@ The following are explicitly excluded from hospital-management-mode and SHALL NO
 - Dual-mode toggle inside `apps/medexam-tw` (一階 app) — two app shells deliberately separate
 - Native iOS / Android — web-only (per `project.md` Out of Scope)
 - 醫療以外的 hard-coded content — content lives in `@study-rpg/content-medexam2-tw` content pack, not in engine or theme
+
+## Changelog
+
+External community contributions merged into main (not via internal OpenSpec change folder; recorded here for spec-vs-code coherence):
+
+- 2026-05-20 — PRs from @Amlck landed in main:
+  - **#4 Advancement battle** — pre-upgrade 10-question challenge; +5%/correct success-rate boost (max +50%). Implementation: `apps/medexam2-hospital-tw/src/pages/TrainingPage.tsx`, `services/training.ts`, `packages/content-medexam2-tw/src/training.ts`. Spec impact: relaxes the "no separate battle system" wording above (L50–L52) — see Requirement "Doctor cards SHALL be tycoon-idle units (no combat)".
+  - **#3 Better screeners** — multi-select rarity filter on `DoctorRoster` + rarity & pity-counter screener on `TrainingPage`; room assignment chips on roster cards (`未指派` / `room label / slot` / 同 affinity 標記). Pure UI affordance, no spec delta.
+  - **#5 Rarity glow** — CSS keyframe sprite + frame glow (rarity-color reactive via `--rarity-color` CSS var; 3.6s ease-in-out infinite; `prefers-reduced-motion` aware). Pure visual polish, no spec delta.

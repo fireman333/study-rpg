@@ -77,9 +77,18 @@ pnpm --filter @study-rpg/medexam-tw dev
 pnpm -r typecheck
 ```
 
-## Supabase cloud sync (M4)
+## Cloud sync (M4 + R2 migration in-flight)
 
-`apps/medexam-tw` mirrors gameplay state to Supabase Postgres via opt-in Google OAuth. IndexedDB stays source of truth; cloud is additive.
+`apps/medexam-tw` and `apps/medexam2-hospital-tw` mirror gameplay state to cloud via opt-in Google OAuth. IndexedDB stays source of truth; cloud is additive.
+
+**Backend is mid-migration** (started 2026-05-19, change `add-r2-cloud-sync-migration`): moving data plane from Supabase Postgres (500 MB DB cap + 5 GB egress/月 ceiling) to Cloudflare R2 object storage (10 GB + zero egress) via auth-bridging Worker. Sync unit per-row LWW → per-bundle blob LWW (3 bundles: `m1` 一階 / `m2` 二階 / `bookmarks` 跨 app). Currently **dual-write (Supabase + R2), reads still Supabase**. Phase 3 cuts reads to R2 after 14-day bake. Supabase Auth (Google OAuth) + `bug_reports` table stay on Supabase indefinitely (latter needs server-side SQL for owner dashboard). Migration banner in 一階 + 二階 surfaces for M4-era users with Supabase rows but no R2 blobs.
+
+Key handles for R2 path:
+- Worker: `https://study-rpg-sync-worker.tony85314.workers.dev` (source at `cloudflare/sync-worker/`)
+- Blob layout: `users/<user_id>/<bundle>-snapshot.json.gz` (gzipped JSON, schema_version 1)
+- Migration banner: `apps/<app>/src/components/MigrationBanner.tsx`
+- R2 client adapter: `apps/<app>/src/lib/sync/r2/{client,bundles,engine-r2,migrate-from-supabase}.ts`
+- Reconcile script: `scripts/reconcile.ts` (run via `pnpm reconcile --session <path>`)
 
 ### Project + env
 
@@ -97,9 +106,17 @@ VITE_SUPABASE_URL=https://jakdyjxojokyqxeiuukx.supabase.co
 VITE_SUPABASE_ANON_KEY=sb_publishable_eWafgmt2wbELXnnIAYENOg_pL0aE5yN
 VITE_CLOUD_SYNC_ENABLED=true        # set 'false' to disable client-side (kill switch)
 VITE_SYNC_DEBOUNCE_MS=3000          # debounce window for batched push
+
+# R2 migration (per add-r2-cloud-sync-migration; safe to omit until dogfood)
+VITE_CLOUD_SYNC_BACKEND=dual         # supabase | dual | r2 (default supabase if unset)
+VITE_CLOUD_SYNC_READ_BACKEND=supabase  # supabase | r2 (only honored when BACKEND=dual)
+VITE_SYNC_WORKER_URL=https://study-rpg-sync-worker.tony85314.workers.dev
 ```
 
-GH Actions secrets (still TBD before next prod deploy — Task 3.3): add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` to repo Secrets → expose to `.github/workflows/deploy.yml`.
+GH Actions secrets: 
+- **Supabase**: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` exposed to `.github/workflows/deploy.yml`
+- **R2 (Phase 3+ deploy)**: `CF_API_TOKEN` + `CF_ACCOUNT_ID` for Worker deploy via `.github/workflows/deploy-worker.yml` (see `cloudflare/sync-worker/README.md` for scopes)
+- Owner manually adds these in repo Settings → Secrets and variables → Actions
 
 ### Schema (9 sync tables + 4 RPCs)
 
@@ -123,7 +140,7 @@ Migrations live in `supabase/migrations/`:
 | Sign-in resolution modals | `apps/medexam-tw/src/components/{MigrationUploadPrompt,ConflictChooserModal,SettingsPanel}.tsx` |
 | Dexie schema (v4 with `localBackup` table) | `packages/core/src/lib/db.ts` |
 
-二階 app (`apps/medexam2-hospital-tw`) currently has schema + env but client-side wiring still pending (Tasks 4.6 + 5.5).
+二階 app (`apps/medexam2-hospital-tw`) is fully wired (M4 shipped 2026-05-17 + R2 dual-write shipped 2026-05-19, Phase 2). Both apps share the same backend-config flag matrix.
 
 ### DEV-only debug handles
 

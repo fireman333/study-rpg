@@ -32,6 +32,8 @@ Two near-identical `BugReportModal.tsx` components (one per app). Acceptable dup
 
 Single table, immutable rows, RLS-protected.
 
+> **Backend stays on Supabase Postgres**, even after the gameplay-sync R2 migration (`add-r2-cloud-sync-migration`, 2026-05-19+). Reason: the owner-side read flow requires server-side SQL queries (filter by category / severity / app / time range, aggregate counts) which R2 object storage cannot serve. `bug_reports` is explicitly **out of scope** for the R2 cutover — it has its own change boundary if it ever moves. The table footprint (<1 MB even with months of dogfood traffic) doesn't pressure the Supabase 500 MB DB cap.
+
 | Column | Type | Notes |
 |---|---|---|
 | `id` | UUID PK | `gen_random_uuid()` |
