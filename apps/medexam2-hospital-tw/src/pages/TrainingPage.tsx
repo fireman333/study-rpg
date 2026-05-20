@@ -7,7 +7,7 @@
  * Cost / success-rate / pity-threshold all live in content pack `training.ts`.
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -15,6 +15,8 @@ import {
   TRAINING_COSTS,
   TRAINING_NEXT_RARITY,
   TRAINING_PITY_THRESHOLD,
+  RARITY_LABELS,
+  RARITY_ORDER,
   type Rarity,
   type TrainableRarity,
 } from '@study-rpg/content-medexam2-tw'
@@ -28,6 +30,10 @@ type Confirming = { doctor: DoctorRow }
 type RetireConfirming = { doctor: DoctorRow }
 type Outcome = { doctorId: string; result: TrainingAttemptResult }
 type RetireOutcome = { result: RetireResult; doctorName: string; doctorRarity: string }
+type PityFilter = 'all' | 'active' | 'near' | 'ready'
+
+const RARITY_FILTER_OPTIONS: ('all' | Rarity)[] = ['all', ...[...RARITY_ORDER].reverse()]
+const RARITY_OPTIONS: Rarity[] = RARITY_FILTER_OPTIONS.filter((r): r is Rarity => r !== 'all')
 
 function isTrainable(r: Rarity): r is TrainableRarity {
   return r !== 'P1'
@@ -46,12 +52,56 @@ export function TrainingPage() {
   const [outcome, setOutcome] = useState<Outcome | null>(null)
   const [retireConfirming, setRetireConfirming] = useState<RetireConfirming | null>(null)
   const [retireOutcome, setRetireOutcome] = useState<RetireOutcome | null>(null)
+  const [rarityFilterOpen, setRarityFilterOpen] = useState(false)
+  const [selectedRarities, setSelectedRarities] = useState<Rarity[]>([])
+  const [pityFilter, setPityFilter] = useState<PityFilter>('all')
   const [busy, setBusy] = useState(false)
+  const rarityFilterRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!rarityFilterOpen) return
+
+    function handlePointerDown(e: MouseEvent) {
+      if (rarityFilterRef.current?.contains(e.target as Node)) return
+      setRarityFilterOpen(false)
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [rarityFilterOpen])
 
   const sortedDoctors = useMemo(
     () => [...doctors].sort((a, b) => a.obtainedAt - b.obtainedAt),
     [doctors],
   )
+  const filteredDoctors = useMemo(
+    () =>
+      sortedDoctors.filter((d) => {
+        if (selectedRarities.length > 0 && !selectedRarities.includes(d.rarity)) return false
+
+        if (pityFilter === 'all') return true
+        if (!isTrainable(d.rarity)) return false
+        if (pityFilter === 'active') return d.pityCounter > 0
+        if (pityFilter === 'near') return d.pityCounter >= TRAINING_PITY_THRESHOLD - 1
+        return d.pityCounter >= TRAINING_PITY_THRESHOLD
+      }),
+    [pityFilter, selectedRarities, sortedDoctors],
+  )
+
+  const rarityFilterLabel =
+    selectedRarities.length === 0
+      ? '全部'
+      : selectedRarities.length <= 2
+        ? selectedRarities.join('、')
+        : `${selectedRarities.length} 種`
+
+  function toggleRarity(rarity: Rarity) {
+    setSelectedRarities((prev) =>
+      prev.includes(rarity)
+        ? prev.filter((r) => r !== rarity)
+        : RARITY_OPTIONS.filter((r) => r === rarity || prev.includes(r)),
+    )
+  }
 
   async function handleConfirm() {
     if (!confirming) return
@@ -112,67 +162,132 @@ export function TrainingPage() {
         {sortedDoctors.length === 0 ? (
           <p className="study-session__empty">尚未招募任何醫師。</p>
         ) : (
-          <ul className="training-doctor-list__items">
-            {sortedDoctors.map((d) => {
-              const trainable = isTrainable(d.rarity)
-              const cost = trainable ? TRAINING_COSTS[d.rarity as TrainableRarity] : 0
-              const rate = trainable
-                ? TRAINING_BASE_SUCCESS_RATES[d.rarity as TrainableRarity]
-                : 0
-              const target = trainable
-                ? TRAINING_NEXT_RARITY[d.rarity as TrainableRarity]
-                : null
-              const pityAtMax = d.pityCounter >= TRAINING_PITY_THRESHOLD
-              const canAfford = (counters?.revenue ?? 0) >= cost
-              return (
-                <li key={d.id} className={`training-doctor-card training-doctor-card--${d.rarity}`}>
-                  <div className="training-doctor-card__left">
-                    <span className={`rarity-badge rarity-badge--${d.rarity}`}>{d.rarity}</span>
-                    <span className="doctor-name">{d.name}</span>
+          <>
+            <section className="filter-bar training-filter-bar" aria-label="醫師進修篩選">
+              <div className="filter-bar__field" ref={rarityFilterRef}>
+                <span className="filter-bar__label">稀有度</span>
+                <button
+                  type="button"
+                  className="filter-bar__multi-trigger"
+                  aria-haspopup="menu"
+                  aria-expanded={rarityFilterOpen}
+                  onClick={() => setRarityFilterOpen((v) => !v)}
+                >
+                  <span>{rarityFilterLabel}</span>
+                  <span className="filter-bar__chevron" aria-hidden>
+                    ▾
+                  </span>
+                </button>
+                {rarityFilterOpen && (
+                  <div className="filter-bar__multi-menu frame" role="menu">
+                    <label className="filter-bar__multi-option">
+                      <input
+                        type="checkbox"
+                        checked={selectedRarities.length === 0}
+                        onChange={() => setSelectedRarities([])}
+                      />
+                      <span>全部</span>
+                    </label>
+                    {RARITY_OPTIONS.map((r) => (
+                      <label key={r} className="filter-bar__multi-option">
+                        <input
+                          type="checkbox"
+                          checked={selectedRarities.includes(r)}
+                          onChange={() => toggleRarity(r)}
+                        />
+                        <span>{r} {RARITY_LABELS[r]}</span>
+                      </label>
+                    ))}
                   </div>
-                  <div className="training-doctor-card__mid">
-                    {trainable ? (
-                      <>
-                        <span>
-                          → <strong>{target}</strong>
-                        </span>
-                        <span className="training-rate">
-                          基礎機率 {(rate * 100).toFixed(0)}%
-                        </span>
-                        <span className="training-pity">
-                          {pityAtMax
-                            ? '🎯 下次必中'
-                            : `保底進度 ${d.pityCounter} / ${TRAINING_PITY_THRESHOLD}`}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="training-terminal">已達 P1（頂級）</span>
-                    )}
-                  </div>
-                  <div className="training-doctor-card__right">
-                    {trainable && (
-                      <button
-                        className="primary-btn"
-                        onClick={() => setConfirming({ doctor: d })}
-                        disabled={!canAfford || busy}
-                        title={canAfford ? '' : `需要 ${fmt(cost)} 營收`}
-                      >
-                        進修（{fmt(cost)} 💰）
-                      </button>
-                    )}
-                    <button
-                      className="ghost-btn training-retire-btn"
-                      onClick={() => setRetireConfirming({ doctor: d })}
-                      disabled={busy}
-                      title={`自願離院（退休）— 退還 ${fmt(d.powerMultiplier * 1000)} 💰`}
+                )}
+              </div>
+              <label>
+                保底
+                <select
+                  value={pityFilter}
+                  onChange={(e) => setPityFilter(e.target.value as PityFilter)}
+                >
+                  <option value="all">全部</option>
+                  <option value="active">有進度</option>
+                  <option value="near">接近保底</option>
+                  <option value="ready">下次必中</option>
+                </select>
+              </label>
+              <span className="filter-bar__count">
+                {filteredDoctors.length} / {sortedDoctors.length}
+              </span>
+            </section>
+            {filteredDoctors.length === 0 ? (
+              <p className="study-session__empty">沒有符合篩選條件的醫師。</p>
+            ) : (
+              <ul className="training-doctor-list__items">
+                {filteredDoctors.map((d) => {
+                  const trainable = isTrainable(d.rarity)
+                  const cost = trainable ? TRAINING_COSTS[d.rarity as TrainableRarity] : 0
+                  const rate = trainable
+                    ? TRAINING_BASE_SUCCESS_RATES[d.rarity as TrainableRarity]
+                    : 0
+                  const target = trainable
+                    ? TRAINING_NEXT_RARITY[d.rarity as TrainableRarity]
+                    : null
+                  const pityAtMax = d.pityCounter >= TRAINING_PITY_THRESHOLD
+                  const canAfford = (counters?.revenue ?? 0) >= cost
+                  return (
+                    <li
+                      key={d.id}
+                      className={`training-doctor-card training-doctor-card--${d.rarity}`}
                     >
-                      AAD
-                    </button>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
+                      <div className="training-doctor-card__left">
+                        <span className={`rarity-badge rarity-badge--${d.rarity}`}>
+                          {d.rarity}
+                        </span>
+                        <span className="doctor-name">{d.name}</span>
+                      </div>
+                      <div className="training-doctor-card__mid">
+                        {trainable ? (
+                          <>
+                            <span>
+                              → <strong>{target}</strong>
+                            </span>
+                            <span className="training-rate">
+                              基礎機率 {(rate * 100).toFixed(0)}%
+                            </span>
+                            <span className="training-pity">
+                              {pityAtMax
+                                ? '🎯 下次必中'
+                                : `保底進度 ${d.pityCounter} / ${TRAINING_PITY_THRESHOLD}`}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="training-terminal">已達 P1（頂級）</span>
+                        )}
+                      </div>
+                      <div className="training-doctor-card__right">
+                        {trainable && (
+                          <button
+                            className="primary-btn"
+                            onClick={() => setConfirming({ doctor: d })}
+                            disabled={!canAfford || busy}
+                            title={canAfford ? '' : `需要 ${fmt(cost)} 營收`}
+                          >
+                            進修（{fmt(cost)} 💰）
+                          </button>
+                        )}
+                        <button
+                          className="ghost-btn training-retire-btn"
+                          onClick={() => setRetireConfirming({ doctor: d })}
+                          disabled={busy}
+                          title={`自願離院（退休）— 退還 ${fmt(d.powerMultiplier * 1000)} 💰`}
+                        >
+                          AAD
+                        </button>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </>
         )}
       </section>
 

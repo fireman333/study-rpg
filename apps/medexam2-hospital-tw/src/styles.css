@@ -2528,6 +2528,9 @@ body:has(.modal-backdrop) {
 }
 
 .training-doctor-list { margin-top: 16px; }
+.training-filter-bar {
+  margin-bottom: 12px;
+}
 .training-doctor-list__items {
   list-style: none;
   padding: 0;
@@ -2658,6 +2661,22 @@ body:has(.modal-backdrop) {
   margin-left: 8px;
   font-size: 12px;
   padding: 6px 12px;
+}
+
+@media (max-width: 720px) {
+  .training-doctor-card {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .training-doctor-card__right {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .training-retire-btn {
+    margin-left: 0;
+  }
 }
 
 /* V6 migration welcome modal (redesign-hospital-economy §9.5.8) */
