@@ -18,6 +18,7 @@ import { BugReportModal } from './BugReportModal'
 import { ExplanationMarkdown } from './ExplanationMarkdown'
 import { QuizBugReportSheet } from './QuizBugReportSheet'
 import { buildQuestionSnapshot, type QuizQuestionSnapshot } from '../services/bug-report'
+import { subscribeQuestionYearFilterChanges } from '../lib/question-year-filter'
 
 const ALL_SUBJECT_IDS: SubjectId[] = [
   '內科', '家醫科', '小兒科', '皮膚科', '神經內科', '精神科',
@@ -169,6 +170,13 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     void loadNextQuestion(initialSubject, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    return subscribeQuestionYearFilterChanges(() => {
+      void loadNextQuestion(subjectId, true)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subjectId, skipSrs])
 
   function handleSubjectChange(next: SubjectId): void {
     if (next === subjectId) return

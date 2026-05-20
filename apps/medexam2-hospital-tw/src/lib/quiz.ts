@@ -1,21 +1,31 @@
 import type { Question, SubjectId } from '@study-rpg/core'
 import { getContentPack } from '@study-rpg/content-medexam2-tw'
+import {
+  getEnabledQuestionYears,
+  getQuestionYear,
+  questionMatchesEnabledYears,
+} from './question-year-filter'
 
-let _packPromise:
-  | Promise<{
-      questions: Question[]
-      bySubject: Map<string, Question[]>
-      byId: Map<string, Question>
-    }>
-  | undefined
+interface RawQuestionPack {
+  questions: Question[]
+  playable: Question[]
+  byId: Map<string, Question>
+  availableYears: number[]
+}
 
-async function loadPack(): Promise<{
+interface ActiveQuestionPack {
   questions: Question[]
   bySubject: Map<string, Question[]>
   byId: Map<string, Question>
-}> {
-  if (!_packPromise) {
-    _packPromise = (async () => {
+  availableYears: number[]
+  enabledYears: number[]
+}
+
+let _rawPackPromise: Promise<RawQuestionPack> | undefined
+
+async function loadRawPack(): Promise<RawQuestionPack> {
+  if (!_rawPackPromise) {
+    _rawPackPromise = (async () => {
       const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       const pack = await getContentPack(`${base}/content/medexam2-tw`)
       // Exclude option-image questions from the playable pool (random picker
@@ -24,20 +34,45 @@ async function loadPack(): Promise<{
       // Question object — the SRS scheduler suppresses them at the due-queue
       // surface (see srs-scheduler.ts).
       const playable = pack.questions.filter((q) => q.hasOptionImages !== true)
-      const bySubject = new Map<string, Question[]>()
       const byId = new Map<string, Question>()
       for (const q of pack.questions) {
         byId.set(q.id, q)
       }
-      for (const q of playable) {
-        const arr = bySubject.get(q.subject) ?? []
-        arr.push(q)
-        bySubject.set(q.subject, arr)
-      }
-      return { questions: playable, bySubject, byId }
+      const availableYears = Array.from(
+        new Set(playable.map(getQuestionYear).filter((year): year is number => year !== null)),
+      ).sort((a, b) => a - b)
+      return { questions: pack.questions, playable, byId, availableYears }
     })()
   }
-  return _packPromise
+  return _rawPackPromise
+}
+
+async function loadPack(): Promise<ActiveQuestionPack> {
+  const raw = await loadRawPack()
+  const enabledYears = getEnabledQuestionYears(raw.availableYears)
+  const enabledYearSet = new Set(enabledYears)
+  const playable = raw.playable.filter((q) => questionMatchesEnabledYears(q, enabledYearSet))
+  const bySubject = new Map<string, Question[]>()
+  for (const q of playable) {
+    const arr = bySubject.get(q.subject) ?? []
+    arr.push(q)
+    bySubject.set(q.subject, arr)
+  }
+  return {
+    questions: playable,
+    bySubject,
+    byId: raw.byId,
+    availableYears: raw.availableYears,
+    enabledYears,
+  }
+}
+
+/**
+ * Load available years from the playable corpus. Used by settings UI.
+ */
+export async function loadAvailableQuestionYears(): Promise<number[]> {
+  const { availableYears } = await loadRawPack()
+  return availableYears
 }
 
 /**

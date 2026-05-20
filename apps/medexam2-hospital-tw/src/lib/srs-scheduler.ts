@@ -1,7 +1,8 @@
 import { SRS_DAILY_CAP } from '@study-rpg/core'
 import type { SubjectId } from '@study-rpg/core'
 import { getHospitalDB, type QuestionHistoryRow } from '../db/schema'
-import { loadQuestionsByIdMap } from './quiz'
+import { loadAvailableQuestionYears, loadQuestionsByIdMap } from './quiz'
+import { getEnabledQuestionYears, questionMatchesEnabledYears } from './question-year-filter'
 
 /**
  * Dogfood A/B switch. Visiting `?srs=off` (e.g. `/hospital/?srs=off#/`)
@@ -24,7 +25,12 @@ export async function getDueQueueAllSubjects(
 ): Promise<Map<SubjectId, QuestionHistoryRow[]>> {
   if (isSrsDisabled()) return new Map()
   const db = getHospitalDB()
-  const [all, byId] = await Promise.all([db.questionHistory.toArray(), loadQuestionsByIdMap()])
+  const [all, byId, availableYears] = await Promise.all([
+    db.questionHistory.toArray(),
+    loadQuestionsByIdMap(),
+    loadAvailableQuestionYears(),
+  ])
+  const enabledYearSet = new Set(getEnabledQuestionYears(availableYears))
   const grouped = new Map<SubjectId, QuestionHistoryRow[]>()
   for (const row of all) {
     if (row.nextDueAt === null) continue
@@ -36,6 +42,7 @@ export async function getDueQueueAllSubjects(
     // before this filter.
     const q = byId.get(row.questionId)
     if (q && q.hasOptionImages === true) continue
+    if (q && !questionMatchesEnabledYears(q, enabledYearSet)) continue
     const list = grouped.get(row.subjectId) ?? []
     list.push(row)
     grouped.set(row.subjectId, list)

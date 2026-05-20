@@ -3145,6 +3145,65 @@ body:has(.modal-backdrop) {
 .help-menu__body p {
   margin: 6px 0;
 }
+
+.question-year-filter {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.question-year-filter__actions,
+.question-year-filter__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.question-year-filter__action,
+.question-year-filter__chip {
+  font-family: inherit;
+  font-size: 12px;
+  background: var(--bg-cream);
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  box-shadow: 1px 1px 0 var(--frame-light);
+  cursor: pointer;
+}
+
+.question-year-filter__action {
+  padding: 5px 10px;
+}
+
+.question-year-filter__chip {
+  min-width: 48px;
+  padding: 6px 8px;
+}
+
+.question-year-filter__action:hover:not(:disabled),
+.question-year-filter__chip:hover:not(:disabled),
+.question-year-filter__action:focus-visible,
+.question-year-filter__chip:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 2px 2px 0 var(--frame-light);
+}
+
+.question-year-filter__chip[aria-pressed='true'] {
+  color: #fff;
+  background: var(--accent-leaf);
+  border-color: var(--frame-dark);
+}
+
+.question-year-filter__action:disabled,
+.question-year-filter__chip:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.question-year-filter__status {
+  color: var(--frame-light);
+  font-size: 12px;
+}
+
 .help-menu__foot {
   padding: 10px 20px;
   border-top: 1px solid var(--frame-dark);

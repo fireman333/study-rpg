@@ -18,6 +18,12 @@ import {
   getERConsultSettings,
   setERConsultSettings,
 } from '../services/er-consultation'
+import { loadAvailableQuestionYears } from '../lib/quiz'
+import {
+  getEnabledQuestionYears,
+  setEnabledQuestionYears,
+  subscribeQuestionYearFilterChanges,
+} from '../lib/question-year-filter'
 
 interface AccordionSection {
   id: string
@@ -45,6 +51,14 @@ const SECTIONS: ReadonlyArray<AccordionSection> = Object.freeze([
     body: [
       '兩個進帳管道：寫題答對直接賺營收/聲望（依 tier 與夥伴醫師同科加成，session 開不開都一樣）；開「📖 唸書」session 期間，醫師看患者的 idle 收入（throughput）會有 1.5× 加成（薪水照舊全額）。不開 session 沒 idle 進帳（tick 不跑），但寫題照常賺錢。',
       '離開分頁會自動暫停、回到分頁自動繼續；手動暫停則需主動點「繼續唸書」。累積唸書時間（min）會雲端同步並跨裝置累加；按「重置此帳號進度」或「使用雲端覆蓋本機」會一併清空。',
+    ],
+  },
+  {
+    id: 'question-years',
+    icon: '📅',
+    title: '題庫年份篩選',
+    body: [
+      '選擇要納入題庫的考古題年份。這會影響一般練題、醫師進修戰、急診照會與 SRS 複習；收藏與歷史紀錄仍會保留。',
     ],
   },
   {
@@ -294,6 +308,7 @@ export function HelpMenu({ className, onResetProgress, signedIn = false }: HelpM
                             💬 開啟回報表單
                           </button>
                         )}
+                        {section.id === 'question-years' && <QuestionYearFilterControl />}
                         {section.id === 'er-consult' && erConsultEnabled !== null && (
                           <label className="help-menu__toggle-row">
                             <input
@@ -354,5 +369,113 @@ export function HelpMenu({ className, onResetProgress, signedIn = false }: HelpM
       )}
       <BugReportModal isOpen={bugReportOpen} onClose={() => setBugReportOpen(false)} />
     </>
+  )
+}
+
+function QuestionYearFilterControl() {
+  const [availableYears, setAvailableYears] = useState<number[]>([])
+  const [enabledYears, setEnabledYearsState] = useState<number[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load(): Promise<void> {
+      setLoading(true)
+      const years = await loadAvailableQuestionYears()
+      if (cancelled) return
+      setAvailableYears(years)
+      setEnabledYearsState(getEnabledQuestionYears(years))
+      setLoading(false)
+    }
+
+    void load()
+    const unsubscribe = subscribeQuestionYearFilterChanges(() => {
+      void loadAvailableQuestionYears().then((years) => {
+        if (cancelled) return
+        setAvailableYears(years)
+        setEnabledYearsState(getEnabledQuestionYears(years))
+      })
+    })
+
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
+  }, [])
+
+  function apply(next: Iterable<number>) {
+    setEnabledYearsState(setEnabledQuestionYears(next, availableYears))
+  }
+
+  function toggleYear(year: number) {
+    const next = new Set(enabledYears)
+    if (next.has(year)) {
+      if (next.size === 1) return
+      next.delete(year)
+    } else {
+      next.add(year)
+    }
+    apply(next)
+  }
+
+  if (loading) {
+    return <p className="question-year-filter__status">載入年份中…</p>
+  }
+
+  if (availableYears.length === 0) {
+    return <p className="question-year-filter__status">目前題庫沒有年份資訊。</p>
+  }
+
+  const allSelected = enabledYears.length === availableYears.length
+
+  return (
+    <div className="question-year-filter" aria-label="題庫年份篩選">
+      <div className="question-year-filter__actions">
+        <button
+          type="button"
+          className="question-year-filter__action"
+          onClick={() => apply(availableYears)}
+          disabled={allSelected}
+        >
+          全選
+        </button>
+        <button
+          type="button"
+          className="question-year-filter__action"
+          onClick={() => apply(availableYears.slice(-3))}
+          disabled={
+            enabledYears.length === Math.min(3, availableYears.length) &&
+            availableYears.slice(-3).every((year) => enabledYears.includes(year))
+          }
+        >
+          近三年
+        </button>
+      </div>
+
+      <div className="question-year-filter__chips" role="group" aria-label="納入題庫年份">
+        {availableYears.map((year) => {
+          const selected = enabledYears.includes(year)
+          const wouldDisableAll = selected && enabledYears.length === 1
+          return (
+            <button
+              key={year}
+              type="button"
+              className="question-year-filter__chip"
+              aria-pressed={selected}
+              disabled={wouldDisableAll}
+              title={wouldDisableAll ? '至少需要保留一個年份' : undefined}
+              onClick={() => toggleYear(year)}
+            >
+              {year}
+            </button>
+          )
+        })}
+      </div>
+
+      <p className="question-year-filter__status">
+        已納入 {enabledYears.length} / {availableYears.length} 年
+      </p>
+    </div>
   )
 }
