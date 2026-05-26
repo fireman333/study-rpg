@@ -119,11 +119,50 @@ export const EVENT_DEFINITIONS: ReadonlyArray<EventDefinition> = Object.freeze([
   },
 ])
 
-/** Roll cadence — caller invokes `rollEvent` once every N ticks. */
+/**
+ * Outer-gate probability per non-reading interaction hook (quiz answer or
+ * route navigation) that an event roll is attempted. Multiplied by the inner
+ * per-event weighted table inside `rollEvent` to produce the effective fire
+ * rate. Calibrated for ~0.3–0.4 events/hr under active play; tune via dogfood
+ * `globalThis.__events.getStats()` and adjust here without spec change.
+ *
+ * Added by `rewire-hospital-events-to-non-reading-trigger` (2026-05-26).
+ */
+export const EVENT_ROLL_PROBABILITY = 0.05
+
+/**
+ * Outer-gate probability per non-reading interaction hook that an ER consult
+ * roll is attempted. Intentionally lower than `EVENT_ROLL_PROBABILITY` so ER
+ * consults stay rarer than hospital events (preserves legacy cadence feel).
+ *
+ * Added by `rewire-hospital-events-to-non-reading-trigger` (2026-05-26).
+ */
+export const ER_ROLL_PROBABILITY = 0.035
+
+/**
+ * @deprecated since `rewire-hospital-events-to-non-reading-trigger` (2026-05-26).
+ * Tick.ts no longer rolls events on a per-tick cadence — rolls are interaction-
+ * driven via `apps/medexam2-hospital-tw/src/services/non-reading-event-trigger.ts`.
+ * Retained for external fork backwards-compat. Remove in a future major release.
+ */
 export const EVENT_TICK_INTERVAL = 60
 
-/** Post-resolution cooldown (session-time ms) before another roll is allowed. */
+/**
+ * @deprecated since `rewire-hospital-events-to-non-reading-trigger` (2026-05-26).
+ * Superseded by the unified wall-clock cooldown
+ * `gameCounters.lastInteractionEventAt` (3 min, event+ER shared). Service layer
+ * passes `lastResolvedAt: null` to `rollEvent` so the inner check is a no-op.
+ * Retained for external fork backwards-compat.
+ */
 export const EVENT_POST_RESOLUTION_COOLDOWN_MS = 5 * 60 * 1000
+
+/**
+ * Unified non-reading-event cooldown (wall-clock ms). Event + ER share this
+ * window via `gameCounters.lastInteractionEventAt`. 3 minutes balances
+ * giving the player a breather after resolving a popup vs. avoiding the
+ * "events feel rare" complaint.
+ */
+export const NON_READING_EVENT_COOLDOWN_MS = 3 * 60 * 1000
 
 /** Per-roll effective rate cap (after reputation scaling) — prevents spam. */
 export const EVENT_MAX_RATE_PER_ROLL = 0.3
