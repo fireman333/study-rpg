@@ -92,14 +92,14 @@
 
 ## 9. Chrome MCP smoke tests (post-build)
 
-- [ ] 9.1 `pnpm --filter @study-rpg/medexam2-hospital-tw build && pnpm --filter @study-rpg/medexam2-hospital-tw preview` on local
-- [ ] 9.2 Smoke A — reading session immunity: open `/study`, start reading session, wait 30s while clicking around — assert 0 modal/dialog popup
-- [ ] 9.3 Smoke B — page nav fires (eventually): force `EVENT_ROLL_PROBABILITY = 1.0` temporarily, navigate `/leaderboard` → `/roster` → `/achievements` → assert event modal appears
-- [ ] 9.4 Smoke C — cooldown blocks: resolve an event (or set `lastInteractionEventAt = Date.now()`), navigate immediately to another player-content page — assert no new popup; wait 3+ min, navigate again — assert popup possible
-- [ ] 9.5 Smoke D — mutex blocks: with `pendingEventId` set, navigate to player-content page — assert no double-popup
-- [ ] 9.6 Smoke E — DEV stats: in DEV mode, `globalThis.__events.getStats()` returns counters incrementing on each hook call
-- [ ] 9.7 Smoke F — whitelist: navigate to `/settings` while non-reading — assert no popup
-- [ ] 9.8 Restore `EVENT_ROLL_PROBABILITY` to 0.05 before final commit
+- [x] 9.1 `pnpm --filter @study-rpg/medexam2-hospital-tw build && pnpm --filter @study-rpg/medexam2-hospital-tw preview` on local
+- [x] 9.2 Smoke A — reading session immunity: open `/study`, start reading session, wait 30s while clicking around — assert 0 modal/dialog popup
+- [x] 9.3 Smoke B — page nav fires (eventually): force `EVENT_ROLL_PROBABILITY = 1.0` temporarily, navigate `/leaderboard` → `/roster` → `/achievements` → assert event modal appears
+- [x] 9.4 Smoke C — cooldown blocks: resolve an event (or set `lastInteractionEventAt = Date.now()`), navigate immediately to another player-content page — assert no new popup; wait 3+ min, navigate again — assert popup possible
+- [x] 9.5 Smoke D — mutex blocks: with `pendingEventId` set, navigate to player-content page — assert no double-popup
+- [x] 9.6 Smoke E — DEV stats: in DEV mode, `globalThis.__events.getStats()` returns counters incrementing on each hook call
+- [x] 9.7 Smoke F — whitelist: navigate to `/settings` while non-reading — assert no popup
+- [x] 9.8 Restore `EVENT_ROLL_PROBABILITY` to 0.05 before final commit
 
 ## 10. Regression check vs `dac4eae` retirement tombstone
 
@@ -113,7 +113,7 @@
 - [x] 11.1 Update `apps/medexam2-hospital-tw/src/lib/tick.ts` JSDoc header to remove mention of event/ER rolling
 - [ ] 11.2 Update CLAUDE.md (project root) Architecture pointers table — if it references tick.ts event handling, point to new service instead
 - [ ] 11.3 Update `openspec/project.md` Roadmap entry for this change (move from in-progress to shipped post-archive)
-- [ ] 11.4 Add inline doc to `services/non-reading-event-trigger.ts` explaining the 3-gate sequence + future calibration knobs
+- [x] 11.4 Add inline doc to `services/non-reading-event-trigger.ts` explaining the 3-gate sequence + future calibration knobs
 
 ## 12. Verify & archive
 
@@ -121,7 +121,7 @@
 - [x] 12.2 Run `pnpm --filter @study-rpg/medexam2-hospital-tw test` — full suite green (no regression in retirement-tombstone, mastery, bookmarks-filter, question-history-merge, achievement, etc.)
 - [x] 12.3 Run `pnpm --filter @study-rpg/medexam2-hospital-tw build` — clean prod build
 - [x] 12.4 Run `openspec validate rewire-hospital-events-to-non-reading-trigger --strict` — green
-- [ ] 12.5 Run `/opsx:verify` (3-dim: completeness / correctness / coherence) — green
-- [ ] 12.6 Multi-agent git safety: `git status` + `git diff --cached --name-status` clean before any commit; explicit `git add <file>` per file
+- [x] 12.5 Run `/opsx:verify` (3-dim: completeness / correctness / coherence) — green
+- [x] 12.6 Multi-agent git safety: `git status` + `git diff --cached --name-status` clean before any commit; explicit `git add <file>` per file
 - [ ] 12.7 Owner confirm + `/opsx:archive` (merges delta into main `specs/hospital-events/spec.md` + `specs/er-consultation/spec.md`)
 - [ ] 12.8 Post-archive: 14 day dogfood window; collect `__events.getStats()` snapshots to inform probability tuning. If event rate feels wrong, adjust constants in content-pack (no spec change needed).
