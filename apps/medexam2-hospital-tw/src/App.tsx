@@ -105,6 +105,19 @@ function App() {
   const [ready, setReady] = useState(false)
   const [cappedNotice, setCappedNotice] = useState(false)
   const [upgradeNotice, setUpgradeNotice] = useState<string | null>(null)
+  // Surface "local data reset due to upgrade issue" notice on first mount
+  // after the v18→v19 self-heal in the boot effect below.
+  const [dbResetNotice, setDbResetNotice] = useState<boolean>(() => {
+    try {
+      if (typeof localStorage === 'undefined') return false
+      const v = localStorage.getItem('__db_was_reset_at')
+      if (v === null) return false
+      localStorage.removeItem('__db_was_reset_at')
+      return true
+    } catch {
+      return false
+    }
+  })
   const [v6Migration, setV6Migration] = useState<GameCountersRow | null>(null)
   const [onboarding, setOnboarding] = useState<GameCountersRow | null>(null)
   const [eventToast, setEventToast] = useState<{
@@ -117,7 +130,46 @@ function App() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      await ensureSeed()
+      try {
+        await ensureSeed()
+      } catch (err) {
+        // Self-heal for the v18→v19 retirementLog pk-change upgrade error
+        // (`UpgradeError: Not yet support for changing primary key`). Dexie
+        // rejects the inline pk change in dac4eae's v19 spec when migrating
+        // a non-empty v18 retirementLog. Affected users: dormant
+        // pre-`fix-doctor-retire-cloud-resurrection` players opening the app
+        // first time post-deploy. Fresh-DB users skip the upgrade chain.
+        // Recovery: delete the broken DB + reload — fresh open lands at v20
+        // directly. Cloud-synced users restore on next sign-in; anonymous
+        // users lose unsynced local progress (acceptable vs. permanent
+        // "啟動中…" lock).
+        const isPkChangeError =
+          err !== null &&
+          typeof err === 'object' &&
+          'name' in err &&
+          (err as { name?: unknown }).name === 'UpgradeError' &&
+          'message' in err &&
+          typeof (err as { message?: unknown }).message === 'string' &&
+          ((err as { message: string }).message).includes('changing primary key')
+        if (isPkChangeError) {
+          console.error('[boot] Dexie pk-change upgrade error — self-healing by wiping local DB', err)
+          try {
+            localStorage.setItem('__db_was_reset_at', String(Date.now()))
+          } catch {
+            // ignore localStorage quota / disabled
+          }
+          try {
+            await getHospitalDB().delete()
+          } catch (delErr) {
+            console.error('[boot] db.delete failed', delErr)
+          }
+          // Hard reload — fresh open will create the DB at v20 directly,
+          // bypassing the broken v18→v19 transition.
+          if (typeof location !== 'undefined') location.reload()
+          return
+        }
+        throw err
+      }
       await refreshDailyTickets()
       await checkAssignmentInvariants()
       // Initialise prev-tier so the first upgrade banner shows the correct room delta
@@ -334,6 +386,19 @@ function App() {
       {cappedNotice && (
         <div className="offline-cap-notice" role="status">
           離線時間超過 5 分鐘，部分時段未計入
+        </div>
+      )}
+      {dbResetNotice && (
+        <div className="db-reset-notice" role="status" aria-live="polite">
+          本機資料因升級問題已重置。若有雲端帳號，登入後會還原進度。
+          <button
+            type="button"
+            className="db-reset-notice__close"
+            onClick={() => setDbResetNotice(false)}
+            aria-label="關閉提示"
+          >
+            ×
+          </button>
         </div>
       )}
       <Routes>

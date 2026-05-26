@@ -1415,6 +1415,44 @@ body:has(.modal-backdrop) {
   animation: toast-in 0.2s ease;
 }
 
+/* ── DB reset self-heal notice (post upgrade-error recovery) ───── */
+
+.db-reset-notice {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 18px;
+  max-width: min(560px, calc(100vw - 32px));
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--accent-gold);
+  color: var(--ink);
+  border: 2px solid var(--frame-dark);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--frame-light);
+  animation: toast-in 0.2s ease;
+}
+.db-reset-notice__close {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--frame-dark);
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.db-reset-notice__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 /* ── Sync paused banner (user chose 待會再決定) ─────────── */
 /* Inline above route content. Per-page <header class="app-header"> + nav
  * buttons sit below this banner. Avoids overlapping nav (the position:fixed
