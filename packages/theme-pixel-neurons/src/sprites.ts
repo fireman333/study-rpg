@@ -108,6 +108,28 @@ const variantSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
+// Animated hero sprite sheets — multi-state (idle/correct/evolve) horizontal sheets
+// per `add-neurons-sprite-animation-slice`. Filename `<familyId>-<slot>-<state>.png`
+// → key `variant:<familyId>:<slot>:<state>`. Parse from the tail (state, slot) so
+// family IDs (Chinese, no `-`) join the remainder. Only the hero (藥理學-3) ships
+// sheets in this slice; other variants stay static (consumer falls back).
+const animatedSpriteModules = import.meta.glob('../sprites/animated/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const animatedSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(animatedSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    const parts = stem.split('-')
+    const state = parts.pop()
+    const slot = parts.pop()
+    const familyId = parts.join('-')
+    return [`variant:${familyId}:${slot}:${state}`, url]
+  }),
+)
+
 // 11 subject icon keys (matched to FAMILY_BY_SUBJECT in content-neurons-tw build.ts)
 const SUBJECT_IDS = [
   '藥理學',
@@ -262,4 +284,6 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ...VARIANT_ART_KEYS.map((k) => [k, variantSprites[k] ?? TRANSPARENT_PIXEL]),
   // DMN fate-card sprites: real PNG if file present, else defensive placeholder
   ...DMN_ART_KEYS.map((k) => [k, cardSprites[k] ?? TRANSPARENT_PIXEL]),
+  // Animated hero sheets (variant:<family>:<slot>:<state>) — only present sheets registered.
+  ...Object.entries(animatedSprites),
 ])

@@ -6,6 +6,8 @@ import { SpikeTrainFiring, AnswerFeedbackFlash } from '../lib/motion'
 import { useQuizHotkeys, type QuizPhase } from '../lib/hooks/useQuizHotkeys'
 import { toggleBookmark, useIsBookmarked } from '../lib/services/bookmarks'
 import { toggleEasy, toggleGuessed, useFlag } from '../lib/services/question-flags'
+import { SpriteSheetPlayer } from './SpriteSheetPlayer'
+import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 
 interface Props {
   pool: Question[]
@@ -204,6 +206,11 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
       : [correctKey]
   const isCorrect = picked !== null && (q.disputed === true || acceptedKeys.includes(picked))
   const revealed = picked !== null
+  // Hero correct-reaction: if the answered family has a featured animated variant
+  // (slot-3 `correct` sheet present), play its flourish next to the spike train.
+  // Only 藥理學 ships sheets in this slice; generalises as other families gain them.
+  const heroReactionBase =
+    isCorrect && SPRITE_MAP[`variant:${q.subject}:3:correct`] ? `variant:${q.subject}:3` : null
 
   return (
     <div
@@ -311,6 +318,16 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
                   </span>
                 )}
               </p>
+              {heroReactionBase && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.1rem' }} aria-hidden>
+                  <SpriteSheetPlayer
+                    key={`hero-correct-${idx}`}
+                    spriteKeyBase={heroReactionBase}
+                    state="correct"
+                    size={104}
+                  />
+                </div>
+              )}
               {q.explanation && (
                 <details style={explanationStyle} open>
                   <summary style={explanationSummaryStyle}>📖 詳解</summary>

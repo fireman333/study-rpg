@@ -27,6 +27,8 @@ import {
   type Rarity,
 } from '../lib/motion'
 import { SynapseDemoSvg } from '../components/connectome/SynapseDemoSvg'
+import { SpriteSheetPlayer, type SpriteState } from '../components/SpriteSheetPlayer'
+import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 
 type ActiveDemo =
   | { kind: 'none' }
@@ -41,6 +43,7 @@ type ActiveDemo =
 export default function MotionDemoPage(): JSX.Element {
   const reduced = useRespectsReducedMotion()
   const [active, setActive] = useState<ActiveDemo>({ kind: 'none' })
+  const [hero, setHero] = useState<{ state: SpriteState; nonce: number }>({ state: 'idle', nonce: 0 })
   const close = (): void => setActive({ kind: 'none' })
 
   return (
@@ -52,6 +55,51 @@ export default function MotionDemoPage(): JSX.Element {
         <br />
         目前偵測到 prefers-reduced-motion = <strong>{reduced ? 'reduce' : 'no-preference'}</strong>
       </p>
+
+      <h3 style={h3Style}>🧬 Hero 立繪三段動畫（add-neurons-sprite-animation-slice）</h3>
+      <p style={{ margin: '0 0 0.5rem', color: '#5a3f29' }}>
+        藥理學 slot 3「突觸快樂使者」· sprite-sheet（CSS steps，非逐幀 JS）· idle loop / correct 一次 / evolve 一次
+      </p>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1.2rem', marginBottom: '0.6rem' }}>
+        <SpriteSheetPlayer
+          key={`hero-${hero.state}-${hero.nonce}`}
+          spriteKeyBase="variant:藥理學:3"
+          state={hero.state}
+          size={192}
+          onComplete={() => setHero((h) => ({ state: 'idle', nonce: h.nonce + 1 }))}
+        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+          <button style={btnStyle} onClick={() => setHero((h) => ({ state: 'idle', nonce: h.nonce + 1 }))}>
+            🔁 idle loop
+          </button>
+          <button style={btnStyle} onClick={() => setHero((h) => ({ state: 'correct', nonce: h.nonce + 1 }))}>
+            ⚡ correct（答對反應，播一次）
+          </button>
+          <button style={btnStyle} onClick={() => setHero((h) => ({ state: 'evolve', nonce: h.nonce + 1 }))}>
+            ✦ evolve（變體進化，播一次）
+          </button>
+          <span style={{ fontSize: '0.75rem', color: '#8c6d4a' }}>目前 state：{hero.state}</span>
+        </div>
+      </div>
+
+      <h3 style={h3Style}>✨ 全域 idle「活著感」CSS（套靜態立繪，非 hero）</h3>
+      <p style={{ margin: '0 0 0.5rem', color: '#5a3f29' }}>
+        <code>.neuron-sprite--alive</code> = 金光脈動 + 輕微擺動（不同週期錯相位）；一套 CSS 套用全部 55 隻，
+        prefers-reduced-motion 自動停。
+      </p>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+        {(['variant:藥理學:1', 'variant:免疫學:1', 'variant:病理學:1', 'variant:解剖學:1'] as const).map((k) => (
+          <img
+            key={k}
+            className="neuron-sprite--alive"
+            src={SPRITE_MAP[k] ?? SPRITE_MAP['variant:default']}
+            width={96}
+            height={96}
+            alt=""
+            style={{ imageRendering: 'pixelated' }}
+          />
+        ))}
+      </div>
 
       <h3 style={h3Style}>Toast primitive</h3>
       <button style={btnStyle} onClick={() => setActive({ kind: 'toast' })}>

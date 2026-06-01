@@ -183,3 +183,50 @@ body:has(.modal-backdrop) {
     stroke-dashoffset: 0;
   }
 }
+
+/* ── Variant sprite idle "alive" (add-neurons-sprite-animation-slice) ───────
+ *
+ * Low-cost idle for variant 立繪: gold glow pulse (filter) + deliberately
+ * subtle sway (transform rotate ±1.5°), on different periods so they drift
+ * out of phase (organic, not jelly). Compositor-driven; transform-box/origin
+ * keep SVG <image> swaying from its base without shifting the node. Apply
+ * `.neuron-sprite--alive` to the <img> / SVG <image> that shows a variant.
+ */
+@keyframes neuron-idle-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(255, 210, 110, 0.25)) brightness(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgba(255, 210, 110, 0.6)) brightness(1.06);
+  }
+}
+
+@keyframes neuron-idle-sway {
+  0% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+  100% {
+    transform: rotate(-1.5deg);
+  }
+}
+
+.neuron-sprite--alive {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation:
+    neuron-idle-glow 3.1s ease-in-out infinite,
+    neuron-idle-sway 4.3s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neuron-sprite--alive {
+    animation: none;
+    filter: none;
+    transform: none;
+  }
+}
