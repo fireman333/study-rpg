@@ -329,6 +329,10 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   // DMN dispatcher state (single-row flags).
   'dmnStreakShieldAvailable',
   'dmnHiddenRevealedArtworkIds',
+  // Variant collection: representative-variant selection (per
+  // add-neurons-variant-collection-view). Timestamped envelope; LWW enforced
+  // by backfill/representatives.ts post-pass (NOT the first-write-wins below).
+  'representativeVariants',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {

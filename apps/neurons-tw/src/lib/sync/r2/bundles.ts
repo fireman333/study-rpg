@@ -21,11 +21,16 @@
 //        adapter (per-question lastResult + everWrong, backs the 錯題 sub-tabs).
 //        everWrong merges via MONOTONIC-OR (see tables.ts). Additive — v4
 //        clients drop the new key.
+//   v6 — add-neurons-variant-collection-view 2026-06-01: adds the
+//        `representativeVariants` synced meta key (per-family representative
+//        selection). LWW via backfill/representatives.ts. Additive — v5
+//        clients drop the key. (NOTE: the parked add-neurons-variant-provenance
+//        change therefore bumps 6 → 7, not 5 → 6.)
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 5
+export const SCHEMA_VERSION = 6
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

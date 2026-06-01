@@ -20,6 +20,7 @@ import AchievementUnlockModal from './components/AchievementUnlockModal'
 import DmnCollectionPage from './routes/DmnCollectionPage'
 import DmnDrawButton from './components/DmnDrawButton'
 import BookmarksPage from './routes/BookmarksPage'
+import CollectionPage from './routes/CollectionPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import HelpMenu from './components/HelpMenu'
 import { AuthProvider } from './lib/auth/AuthContext'
@@ -94,6 +95,11 @@ export default function App(): JSX.Element {
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>連結組 →</span>
                 )}
               </NavLink>
+              <NavLink to="/collection" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>圖鑑 →</span>
+                )}
+              </NavLink>
               <NavLink to="/dmn" style={navLinkStyle}>
                 {({ isActive }) => (
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>DMN →</span>
@@ -127,6 +133,7 @@ export default function App(): JSX.Element {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/dmn" element={<DmnCollectionPage />} />
+            <Route path="/collection" element={<CollectionPage pack={pack} />} />
             <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
             <Route path="/motion-demo" element={<MotionDemoPage />} />
           </Routes>
