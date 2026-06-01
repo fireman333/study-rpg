@@ -383,6 +383,21 @@ Sprite assets ship as `dmn:card:<cardId>` × 20 + `dmn:card-back` × 1 placehold
 
 Full change reference: `openspec/changes/add-neurons-dmn-fate-card/` (proposal / design / specs / tasks).
 
+## Neurons wrong-answer list (M_3rd ext, 2026-06-01)
+
+`apps/neurons-tw` ships a 「錯題」 review experience on `/bookmarks`, mirroring 二階 `wrong-answer-list` but built fresh because neurons had **no per-question result tracking** before this change (`recordCorrectAnswer`/`recordIncorrectAnswer` only ever took `familyId`). Capability spec: [`openspec/specs/neurons-wrong-answer-list/spec.md`](openspec/specs/neurons-wrong-answer-list/spec.md).
+
+`/bookmarks` is now a three-tab container: **手動收藏** (existing ⭐ list, default) / **目前未答對** (`lastResult === 'wrong'`) / **歷史曾錯** (`everWrong === true`, never leaves). The two wrong-answer tabs are live derived views of a new `questionHistory` Dexie store — no separate store, no grace toast (permanent error library by design). Wrong-answer rows are display-only (no inline actions). A single shared filter bar (科目 family + **年份** year + ✨/🤔 標記) applies across all three tabs; exam year is parsed from the question id prefix (`106-1-醫學一-解剖學-Q1` → `106`, helper `lib/wrong-answer-filter.ts`).
+
+Key handles:
+- New `questionHistory` Dexie store (**v9**, additive): `{ questionId, family, lastResult, everWrong, lastAnsweredAt, updatedAt }`. `everWrong` is NOT indexed (IndexedDB can't index booleans) — the 歷史曾錯 tab filters in JS off a full `toArray()`. v8→v9 upgrade fixture at `apps/neurons-tw/src/__tests__/db-v8-to-v9-migration.test.ts`.
+- Recording: `lib/services/question-history.ts` `recordQuestionResult(questionId, family, isCorrect)` (monotonic-OR `everWrong`) + single `useQuestionHistory()` live-query hook (BookmarksPage derives both wrong views from one subscription). Wired in `QuizModal.handlePick` after the existing record calls, best-effort try/catch (channel `[question-history]`) so it never breaks the answer flow. **neurons has only one answer entry point (QuizModal)** — any future answer mode MUST also call `recordQuestionResult`.
+- **Critical sync semantics — `questionHistory` uses MONOTONIC-OR merge for `everWrong`, NOT LWW.** `apps/neurons-tw/src/lib/sync/tables.ts` `questionHistoryAdapter` resolves `everWrong = (local?.everWrong ?? false) || incoming.everWrong`; `lastResult`/`family`/`lastAnsweredAt` are LWW on the greater `lastAnsweredAt`. Mirrors 二階 `everWrong` + neurons `dmnEventLog` discipline. **DO NOT replace with LWW** — locked by `apps/neurons-tw/src/__tests__/question-history-merge.test.ts`.
+- R2 bundle `SCHEMA_VERSION` bumped **4 → 5** (`lib/sync/r2/bundles.ts`); additive + reader tolerance (v4 clients drop the unknown key, v9 clients reading v4 bundles preserve local). Worker is bundle-opaque — no Worker change.
+- Existing players: **no backfill, no banner** — the error library accrues from upgrade onward.
+
+Full change reference: `openspec/changes/archive/2026-06-01-add-neurons-wrong-questions-subtab/` (proposal / design / specs / tasks).
+
 ## Source data path
 
 題庫原始 .md 在使用者本機（**不在 repo 內**）：
