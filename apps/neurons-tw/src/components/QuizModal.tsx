@@ -130,7 +130,10 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
     onToggleGuessed: handleToggleGuessed,
   })
 
-  if (exhausted) {
+  // An empty session pool (e.g. year filter × family yields 0 questions) must
+  // NOT show the "答完" completion wording — fall through to the empty branch
+  // below by gating the exhausted check on a non-empty pool.
+  if (exhausted && sessionPool.length > 0) {
     return (
       <div
         className="modal-backdrop"
@@ -183,7 +186,8 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
           </header>
           <div style={bodyStyle}>
             <p style={{ textAlign: 'center', color: '#c44d4d' }}>
-              沒有可用的文字選項題目。
+              所選年份下這個範圍沒有可作答的題目。<br />
+              關閉後到上方調整年份篩選再試。
             </p>
           </div>
           <footer style={footerStyle}>
