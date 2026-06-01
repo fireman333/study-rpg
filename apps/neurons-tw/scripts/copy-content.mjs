@@ -4,7 +4,7 @@
  *
  * Run automatically via predev / prebuild hooks in package.json.
  */
-import { mkdirSync, copyFileSync, existsSync } from 'node:fs'
+import { mkdirSync, copyFileSync, existsSync, readdirSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -22,4 +22,16 @@ mkdirSync(DEST_DIR, { recursive: true })
 for (const file of ['meta.json', 'subjects.json', 'questions.json']) {
   copyFileSync(resolve(SRC_DIR, file), resolve(DEST_DIR, file))
 }
-console.log(`✓ Copied content-neurons-tw artifacts → ${DEST_DIR}`)
+
+// Question figures: copy dist/figures/*.png → public/content/neurons-tw/figures/
+const FIG_SRC = resolve(SRC_DIR, 'figures')
+let figureCount = 0
+if (existsSync(FIG_SRC)) {
+  const FIG_DEST = resolve(DEST_DIR, 'figures')
+  mkdirSync(FIG_DEST, { recursive: true })
+  for (const f of readdirSync(FIG_SRC).filter((n) => n.endsWith('.png'))) {
+    copyFileSync(resolve(FIG_SRC, f), resolve(FIG_DEST, f))
+    figureCount += 1
+  }
+}
+console.log(`✓ Copied content-neurons-tw artifacts (+ ${figureCount} figures) → ${DEST_DIR}`)
