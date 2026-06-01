@@ -12,10 +12,22 @@ import {
   type Rarity,
   type Room,
 } from '@study-rpg/content-medexam2-tw'
+import {
+  EQUIPMENT_PITY_RULES,
+  EQUIPMENT_TICKET_CAP,
+  EQUIPMENT_WEIGHTS,
+  INITIAL_EQUIPMENT_TICKETS,
+  type EquipmentCategory,
+} from '../data/equipment'
 
 const RECRUITMENT_GACHA_CONFIG = {
   tiers: RECRUITMENT_WEIGHTS,
   pityRules: RECRUITMENT_PITY_RULES,
+}
+
+const EQUIPMENT_GACHA_CONFIG = {
+  tiers: EQUIPMENT_WEIGHTS,
+  pityRules: EQUIPMENT_PITY_RULES,
 }
 
 export const ALL_SUBJECT_IDS = [
@@ -55,6 +67,32 @@ export interface TicketsRow {
   id: 'global'
   available: number
   lastRefreshDay: number
+}
+
+export interface EquipmentTicketsRow {
+  id: 'global'
+  available: number
+  /**
+   * UTC epoch day of last daily-free-ticket grant. Matches the same epoch-day
+   * cadence as `TicketsRow.lastRefreshDay` (fires at Taiwan local 08:00).
+   * Optional: absent on rows created pre-v15; refreshDailyEquipmentTickets
+   * treats a missing value as 0 (epoch day 0 = always in the past).
+   */
+  lastRefreshDay?: number
+}
+
+export interface EquipmentRow {
+  id: string
+  definitionId: string
+  category: EquipmentCategory
+  rarity: Rarity
+  obtainedAt: number
+  equippedDoctorId: string | null
+}
+
+export interface EquipmentMaterialsRow {
+  id: 'global'
+  parts: number
 }
 
 export type RoomRow = Room
@@ -169,6 +207,12 @@ export interface MonotonicCountersRow {
    * and counter resets to 0. Field added in v8.
    */
   freshCorrectSinceLastTicket?: number
+  /**
+   * Snapshot of `totalStudyMinutes` at which the last hourly equipment ticket
+   * was granted. Every 60-minute increment past this baseline grants +1 ticket.
+   * Optional: absent on rows created pre-v14; treated as 0 by tick loop.
+   */
+  lastEquipmentTicketStudyMinutes?: number
   // ─── v15: add-achievement-system fields (all MAX-merge LWW) ─────────────
   /** Cumulative doctors ever recruited via gacha (monotonic, MAX-merge). */
   totalDoctorsRecruited?: number
@@ -422,6 +466,12 @@ export interface HospitalLocalBackupRecord {
   targetedTickets?: TargetedTicketRow[]
   /** Optional — present on backups taken post-v9. */
   targetedTicketHistory?: TargetedTicketHistoryRow[]
+  /** Optional local-only equipment state (added v13). */
+  equipment?: EquipmentRow[]
+  equipmentTickets?: EquipmentTicketsRow | null
+  equipmentGachaStats?: GachaStatsRow | null
+  /** Optional local-only equipment materials (added v16). */
+  equipmentMaterials?: EquipmentMaterialsRow | null
   /**
    * Optional — present on backups taken post add-monotonic-counters-to-sync
    * (2026-05-19). Older snapshots (taken before this field shipped) MAY omit
@@ -452,6 +502,10 @@ export class HospitalDB extends Dexie {
   targetedTickets!: EntityTable<TargetedTicketRow, 'id'>
   targetedTicketHistory!: EntityTable<TargetedTicketHistoryRow, 'id'>
   erConsultLog!: EntityTable<ERConsultLogRow, 'id'>
+  equipment!: EntityTable<EquipmentRow, 'id'>
+  equipmentTickets!: EntityTable<EquipmentTicketsRow, 'id'>
+  equipmentGachaStats!: EntityTable<GachaStatsRow, 'id'>
+  equipmentMaterials!: EntityTable<EquipmentMaterialsRow, 'id'>
   leaderboardProfile!: EntityTable<LeaderboardProfileRow, 'user_id'>
   achievements!: EntityTable<AchievementRow, 'id'>
   hospitalEquipment!: EntityTable<OwnedEquipmentRow, 'equipmentId'>
@@ -771,31 +825,112 @@ export class HospitalDB extends Dexie {
       erConsultLog: '++id, triggeredAt, subjectId',
     })
 
-    // v14: add-hospital-leaderboard — local-only leaderboardProfile table for
+    // v14: first-pass equipment inventory. Local-only for now: equipment,
+    // equipment tickets, and equipment-specific pity stats are not cloud-synced
+    // until a follow-up migration adds server tables.
+    this.version(14)
+      .stores({
+        affinity: '&subjectId',
+        doctors: '&id, subjectId, rarity, obtainedAt',
+        gachaStats: '&id',
+        tickets: '&id',
+        rooms: '&id, type, slot',
+        gameCounters: '&id',
+        mastery: '&subjectId',
+        questionHistory:
+          '&questionId, subjectId, lastAnsweredAt, nextDueAt, [lastResult+lastAnsweredAt]',
+        meta: '&key',
+        localBackup: '&key, takenAt',
+        monotonicCounters: '&id',
+        trainingHistory: '++id, doctorId, attemptedAt',
+        eventLog: '++id, triggeredAt',
+        fateCardHistory: '++id, drawnAt',
+        retirementLog: '++id, retiredAt, doctorId',
+        bookmarks: '&questionId, addedAt',
+        bannerUnlockBonusLog: '&subjectId',
+        targetedTickets: '&id, status, subjectId, obtainedAt',
+        targetedTicketHistory: '++id, ticketId, at, event',
+        erConsultLog: '++id, triggeredAt, subjectId',
+        equipment: '&id, rarity, category, obtainedAt, equippedDoctorId',
+        equipmentTickets: '&id',
+        equipmentGachaStats: '&id',
+      })
+      .upgrade(async (tx) => {
+        const ticketsTable = tx.table<EquipmentTicketsRow, 'global'>('equipmentTickets')
+        if (!(await ticketsTable.get('global'))) {
+          await ticketsTable.put({ id: 'global', available: INITIAL_EQUIPMENT_TICKETS })
+        }
+
+        const statsTable = tx.table<GachaStatsRow, 'global'>('equipmentGachaStats')
+        if (!(await statsTable.get('global'))) {
+          const init = initialGachaStats(EQUIPMENT_GACHA_CONFIG)
+          await statsTable.put({ id: 'global', ...init })
+        }
+      })
+
+    // v15: equipment ticket daily-free grant (lastRefreshDay) +
+    //      study-time hourly ticket milestone (lastEquipmentTicketStudyMinutes).
+    //      No new tables — schema unchanged; upgrade seeds missing fields only.
+    this.version(15)
+      .stores({})
+      .upgrade(async (tx) => {
+        const eqTicketsTable = tx.table<EquipmentTicketsRow, 'global'>('equipmentTickets')
+        const eqTickets = await eqTicketsTable.get('global')
+        if (eqTickets && eqTickets.lastRefreshDay === undefined) {
+          await eqTicketsTable.put({ ...eqTickets, lastRefreshDay: currentEpochDay() })
+        }
+
+        const monoTable = tx.table<MonotonicCountersRow, 'singleton'>('monotonicCounters')
+        const mono = await monoTable.get('singleton')
+        if (mono && mono.lastEquipmentTicketStudyMinutes === undefined) {
+          await monoTable.put({ ...mono, lastEquipmentTicketStudyMinutes: mono.totalStudyMinutes })
+        }
+      })
+
+    // v16: equipment rarity upgrade path — local-only material singleton used
+    // by deterministic equipment upgrades. Existing equipment rows are not
+    // modified; upgrades continue to use their existing rarity field.
+    this.version(16)
+      .stores({
+        affinity: '&subjectId',
+        doctors: '&id, subjectId, rarity, obtainedAt',
+        gachaStats: '&id',
+        tickets: '&id',
+        rooms: '&id, type, slot',
+        gameCounters: '&id',
+        mastery: '&subjectId',
+        questionHistory:
+          '&questionId, subjectId, lastAnsweredAt, nextDueAt, [lastResult+lastAnsweredAt]',
+        meta: '&key',
+        localBackup: '&key, takenAt',
+        monotonicCounters: '&id',
+        trainingHistory: '++id, doctorId, attemptedAt',
+        eventLog: '++id, triggeredAt',
+        fateCardHistory: '++id, drawnAt',
+        retirementLog: '++id, retiredAt, doctorId',
+        bookmarks: '&questionId, addedAt',
+        bannerUnlockBonusLog: '&subjectId',
+        targetedTickets: '&id, status, subjectId, obtainedAt',
+        targetedTicketHistory: '++id, ticketId, at, event',
+        erConsultLog: '++id, triggeredAt, subjectId',
+        equipment: '&id, rarity, category, obtainedAt, equippedDoctorId',
+        equipmentTickets: '&id',
+        equipmentGachaStats: '&id',
+        equipmentMaterials: '&id',
+      })
+      .upgrade(async (tx) => {
+        const materialsTable = tx.table<EquipmentMaterialsRow, 'global'>('equipmentMaterials')
+        if (!(await materialsTable.get('global'))) {
+          await materialsTable.put({ id: 'global', parts: 0 })
+        }
+      })
+    // v17: add-hospital-leaderboard — local-only leaderboardProfile table for
     // per-user opt-in / dismissed-forever / last-pushed bookkeeping (Phase
-    // 5.5). Additive; no upgrade hook needed.
-    this.version(14).stores({
-      affinity: '&subjectId',
-      doctors: '&id, subjectId, rarity, obtainedAt',
-      gachaStats: '&id',
-      tickets: '&id',
-      rooms: '&id, type, slot',
-      gameCounters: '&id',
-      mastery: '&subjectId',
-      questionHistory:
-        '&questionId, subjectId, lastAnsweredAt, nextDueAt, [lastResult+lastAnsweredAt]',
-      meta: '&key',
-      localBackup: '&key, takenAt',
-      monotonicCounters: '&id',
-      trainingHistory: '++id, doctorId, attemptedAt',
-      eventLog: '++id, triggeredAt',
-      fateCardHistory: '++id, drawnAt',
-      retirementLog: '++id, retiredAt, doctorId',
-      bookmarks: '&questionId, addedAt',
-      bannerUnlockBonusLog: '&subjectId',
-      targetedTickets: '&id, status, subjectId, obtainedAt',
-      targetedTicketHistory: '++id, ticketId, at, event',
-      erConsultLog: '++id, triggeredAt, subjectId',
+    // 5.5). Additive store; no upgrade hook needed.
+    // NOTE: Originally landed as a second this.version(14) on the DrSu-Local
+    // branch (conflict with the equipment v14). Renumbered to v17 so there is
+    // exactly one definition per version number.
+    this.version(17).stores({
       leaderboardProfile: '&user_id',
     })
 
@@ -1096,7 +1231,18 @@ export async function ensureSeed(): Promise<void> {
   const db = getHospitalDB()
   await db.transaction(
     'rw',
-    [db.tickets, db.gachaStats, db.rooms, db.gameCounters, db.doctors, db.mastery, db.monotonicCounters],
+    [
+      db.tickets,
+      db.gachaStats,
+      db.equipmentTickets,
+      db.equipmentGachaStats,
+      db.equipmentMaterials,
+      db.rooms,
+      db.gameCounters,
+      db.doctors,
+      db.mastery,
+      db.monotonicCounters,
+    ],
     async () => {
       // Always ensure monotonicCounters singleton exists (covers both fresh save
       // and the rare case where v6 upgrade didn't run before ensureSeed)
@@ -1122,6 +1268,23 @@ export async function ensureSeed(): Promise<void> {
       if (!s) {
         const init = initialGachaStats(RECRUITMENT_GACHA_CONFIG)
         await db.gachaStats.put({ id: 'global', ...init })
+      }
+      const equipmentTickets = await db.equipmentTickets.get('global')
+      if (!equipmentTickets) {
+        await db.equipmentTickets.put({
+          id: 'global',
+          available: INITIAL_EQUIPMENT_TICKETS,
+          lastRefreshDay: currentEpochDay(),
+        })
+      }
+      const equipmentStats = await db.equipmentGachaStats.get('global')
+      if (!equipmentStats) {
+        const init = initialGachaStats(EQUIPMENT_GACHA_CONFIG)
+        await db.equipmentGachaStats.put({ id: 'global', ...init })
+      }
+      const equipmentMaterials = await db.equipmentMaterials.get('global')
+      if (!equipmentMaterials) {
+        await db.equipmentMaterials.put({ id: 'global', parts: 0 })
       }
       const roomCount = await db.rooms.count()
       if (roomCount === 0) {
@@ -1201,6 +1364,30 @@ export async function refreshDailyTickets(): Promise<void> {
     await db.tickets.put({
       ...t,
       available: Math.min(TICKET_CAP, t.available + Math.max(0, grant)),
+      lastRefreshDay: today,
+    })
+  })
+}
+
+/**
+ * Daily-free equipment ticket grant — mirrors `refreshDailyTickets`.
+ * Grants +1 equipment ticket per elapsed UTC epoch day, clamped at
+ * EQUIPMENT_TICKET_CAP. Safe to call on every app boot; no-ops when already
+ * refreshed today. Rows missing `lastRefreshDay` (pre-v15) are treated as
+ * epoch day 0 (always in the past), triggering a one-time catch-up grant.
+ */
+export async function refreshDailyEquipmentTickets(): Promise<void> {
+  const db = getHospitalDB()
+  await db.transaction('rw', db.equipmentTickets, async () => {
+    const t = await db.equipmentTickets.get('global')
+    if (!t) return
+    const today = currentEpochDay()
+    const delta = today - (t.lastRefreshDay ?? 0)
+    if (delta <= 0) return
+    const grant = Math.min(delta, EQUIPMENT_TICKET_CAP - t.available)
+    await db.equipmentTickets.put({
+      ...t,
+      available: Math.min(EQUIPMENT_TICKET_CAP, t.available + Math.max(0, grant)),
       lastRefreshDay: today,
     })
   })

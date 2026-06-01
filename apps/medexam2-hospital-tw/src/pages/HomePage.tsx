@@ -39,10 +39,12 @@ import { RecruitmentResultModal } from '../components/RecruitmentResultModal'
 import { DevAffinityControls } from '../components/DevAffinityControls'
 import { HospitalScene } from '../components/HospitalScene'
 import { buildDoctorByRoom, getAssignedDoctor } from '../lib/room-doctor-map'
+import { buildEquippedItemMap, getEquipmentBonus } from '../services/equipment'
 import { QuizModal } from '../components/QuizModal'
 import { StarterPullCard } from '../components/StarterPullCard'
 import { StarterPullModal } from '../components/StarterPullModal'
 import { TargetedTicketSection } from '../components/TargetedTicketSection'
+import { EQUIPMENT_TICKET_CAP } from '../data/equipment'
 import { LeaderboardPromoBanner } from '../components/LeaderboardPromoBanner'
 import { QuizHotkeysAnnouncementBanner } from '../components/QuizHotkeysAnnouncementBanner'
 
@@ -66,11 +68,13 @@ export function HomePage() {
   const affinityRows = useLiveQuery(() => db.affinity.toArray(), []) ?? []
   const ticketsRow = useLiveQuery(() => db.tickets.get('global'), [])
   const ticketsAvailable = ticketsRow?.available ?? 0
+  const equipmentTicketsRow = useLiveQuery(() => db.equipmentTickets.get('global'), [])
   const refreshLabel = getNextDailyRefreshLabel(new Date(), ticketsAvailable, TICKET_CAP)
   const counters = useLiveQuery(() => db.gameCounters.get('singleton'), [])
   const mono = useLiveQuery(() => db.monotonicCounters.get('singleton'), [])
   const rooms = useLiveQuery(() => db.rooms.toArray(), []) ?? []
   const allDoctors = useLiveQuery(() => db.doctors.toArray(), []) ?? []
+  const allEquipment = useLiveQuery(() => db.equipment.toArray(), []) ?? []
   // add-hospital-equipment-medexam2 (2026-05-24): T3 → T4 equipment gate display
   const ownedEquipment = useLiveQuery(() => db.hospitalEquipment.toArray(), []) ?? []
   const anyAssigned = allDoctors.some((d) => d.assignedRoom !== null)
@@ -159,6 +163,14 @@ export function HomePage() {
           <Link to="/fate-cards" className="nav-link">
             命運 →
           </Link>
+          <Link to="/equipment" className="nav-link">
+            器材 →
+          </Link>
+          <Link to="/roster" className="nav-link">
+            醫師 →
+          </Link>
+          <Link to="/bookmarks" className="nav-link">
+            收藏 →
           <Link to="/achievements" className="nav-link">
             成就 →
           </Link>
@@ -182,6 +194,9 @@ export function HomePage() {
         >
           <EmojiIcon char="🎟" size={20} /> {ticketsAvailable} / {TICKET_CAP}
           <span className="ticket-counter__refill"> · {refreshLabel}</span>
+        </span>
+        <span className="ticket-counter" title="器材補給池使用的器材券">
+          🧰 {equipmentTicketsRow?.available ?? 0} / {EQUIPMENT_TICKET_CAP}
         </span>
       </div>
 
@@ -241,10 +256,12 @@ export function HomePage() {
 
       {(() => {
         const doctorByRoom = buildDoctorByRoom(allDoctors)
+        const equippedItemMap = buildEquippedItemMap(allEquipment)
         let throughput = 0
         for (const room of rooms) {
           const d = getAssignedDoctor(room.id, doctorByRoom)
-          throughput += computeThroughput(room, d)
+          const equippedItem = d ? equippedItemMap.get(d.id) : undefined
+          throughput += computeThroughput(room, d, getEquipmentBonus(equippedItem, room.type))
         }
         const salary = counters ? computeSalaryDrain(allDoctors, counters.tier) : 0
         // Inactive branch shows a counterfactual baseline (tick paused, no actual

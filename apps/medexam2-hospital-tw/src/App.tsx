@@ -6,7 +6,7 @@ import {
   type HospitalTier,
   type Room,
 } from '@study-rpg/content-medexam2-tw'
-import { ensureSeed, getHospitalDB, refreshDailyTickets, type GameCountersRow } from './db/schema'
+import { ensureSeed, getHospitalDB, refreshDailyTickets, refreshDailyEquipmentTickets, type GameCountersRow } from './db/schema'
 import { getFontMode, DEFAULT_FONT_MODE } from './services/font-mode'
 import { seedLeaderboardProfileFromServer } from './services/leaderboard-profile'
 import { HomePage } from './pages/HomePage'
@@ -15,6 +15,7 @@ import { Hospital } from './pages/Hospital'
 import { StudySessionPage } from './pages/StudySessionPage'
 import { FateCardPage } from './pages/FateCardPage'
 import { BookmarksPage } from './pages/BookmarksPage'
+import { EquipmentPage } from './pages/EquipmentPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { CustomTooltipHost } from './components/CustomTooltipHost'
 import { AchievementsPage } from './pages/AchievementsPage'
@@ -120,6 +121,7 @@ function App() {
     ;(async () => {
       await ensureSeed()
       await refreshDailyTickets()
+      await refreshDailyEquipmentTickets()
       await checkAssignmentInvariants()
       // Initialise prev-tier so the first upgrade banner shows the correct room delta
       const counters = await getHospitalDB().gameCounters.get('singleton')
@@ -349,6 +351,7 @@ function App() {
             route SHALL redirect to /roster?tab=training". */}
         <Route path="/training" element={<Navigate to="/roster?tab=training" replace />} />
         <Route path="/fate-cards" element={<FateCardPage />} />
+        <Route path="/equipment" element={<EquipmentPage />} />
         <Route path="/bookmarks" element={<BookmarksPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/achievements" element={<AchievementsPage />} />

@@ -63,6 +63,10 @@ export async function clearLocalSyncTables(db: HospitalDB): Promise<void> {
       db.targetedTickets,
       db.targetedTicketHistory,
       db.monotonicCounters,
+      db.equipment,
+      db.equipmentTickets,
+      db.equipmentGachaStats,
+      db.equipmentMaterials,
       db.retirementLog,
       db.meta,
     ],
@@ -78,6 +82,10 @@ export async function clearLocalSyncTables(db: HospitalDB): Promise<void> {
       await db.targetedTickets.clear()
       await db.targetedTicketHistory.clear()
       await db.monotonicCounters.clear()
+      await db.equipment.clear()
+      await db.equipmentTickets.clear()
+      await db.equipmentGachaStats.clear()
+      await db.equipmentMaterials.clear()
       // fix-doctor-retire-cloud-resurrection-v2: retirementLog is now a
       // cloud-synced collection (tombstone for hospital_doctors). Clearing it
       // here prevents user A's retire history from polluting user B's local

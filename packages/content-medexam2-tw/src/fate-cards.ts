@@ -85,21 +85,26 @@ export const FATE_CARD_POOLS: Record<FateCardTier, ReadonlyArray<FateCardReward>
     { key: 'recruitment-ticket-x3', label: '招募券 ×3' },
     { key: 'minor-revenue-5k', label: '營收 +5,000' },
     { key: 'event-immunity-1', label: '事件免疫卡 ×1' },
+    { key: 'equipment-ticket-x1', label: '裝備券 ×1' },
   ]),
   rare: Object.freeze([
     { key: 'recruitment-ticket-x10', label: '招募券 ×10' },
     { key: 'training-guarantee-x1', label: '進修保證券 ×1' },
     { key: 'event-positive-trigger', label: '事件正向觸發券 ×1' },
+    { key: 'equipment-ticket-x2', label: '裝備券 ×2' },
   ]),
   epic: Object.freeze([
     { key: 'targeted-p3-ticket', label: '指定科 P3+ 招募券' },
     { key: 'facility-plus-0.5', label: '隨機 facility +0.5（永久）' },
+    { key: 'salary-waiver-1-week', label: '1 週薪水免除' },
+    { key: 'equipment-ticket-x5', label: '裝備券 ×5' },
     { key: 'targeted-p3-ticket-x2', label: '指定科 P3+ 招募券 ×2' },
   ]),
   legendary: Object.freeze([
     { key: 'targeted-p2-ticket', label: '指定科 P2 招募券' },
     { key: 'facility-all-plus-1', label: '全院 facility +1（永久）' },
     { key: 'throughput-x2-1-week', label: '1 週 throughput ×2' },
+    { key: 'equipment-ticket-x10', label: '裝備券 ×10' },
   ]),
 }
 

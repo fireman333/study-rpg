@@ -1,12 +1,15 @@
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { RARITY_LABELS, getRoomHintForSubject } from '@study-rpg/content-medexam2-tw'
 import { THEME_PIXEL_HOSPITAL } from '@study-rpg/theme-pixel-hospital'
 import { lookupSprite } from '../lib/sprite-lookup'
 import type { DoctorRow } from '../db/schema'
+import lobbySprite from '../assets/recruitment/lobby.png'
+import doorLeftSprite from '../assets/recruitment/door-left.png'
+import doorRightSprite from '../assets/recruitment/door-right.png'
 import { EmojiIcon } from './EmojiIcon'
 
-// entry → (swipe) → rarity-flash → (900ms) → silhouette → (1100ms) → revealed → (tap) → close
+// entry → hospital doors → rarity-flash → (900ms) → silhouette → (1100ms) → revealed → (tap) → close
 type RevealStep = 'entry' | 'rarity-flash' | 'silhouette' | 'revealed'
 
 interface Props {
@@ -27,57 +30,72 @@ function nextStep(current: RevealStep): RevealStep | null {
   return null
 }
 
-// ── Swipe-to-answer track ────────────────────────────────────────────────────
-// The handle slides right; crossing 65% of the available drag range triggers
-// onAnswer. On release below threshold the handle springs back.
+interface EntranceProps {
+  doctor: DoctorRow
+  rarityVar: string
+  spriteUrl: string | undefined
+  onOpen: () => void
+}
 
-const TRACK_INNER_W = 200 // px — must match CSS .swipe-track width
-const HANDLE_W      =  48 // px — must match CSS .swipe-handle size
-const MAX_DRAG      = TRACK_INNER_W - HANDLE_W - 8 // right boundary
-const THRESHOLD     = MAX_DRAG * 0.65
+function HospitalEntrance({ doctor, rarityVar, spriteUrl, onOpen }: EntranceProps) {
+  const [opening, setOpening] = useState(false)
 
-interface SwipeProps { onAnswer: () => void }
-
-function SwipeToAnswer({ onAnswer }: SwipeProps) {
-  const x = useMotionValue(0)
-  // Label fades out as handle moves toward threshold
-  const labelOpacity = useTransform(x, [0, THRESHOLD * 0.8], [1, 0])
-
-  function handleDragEnd() {
-    if (x.get() >= THRESHOLD) {
-      // Snap to end, then fire
-      animate(x, MAX_DRAG, { duration: 0.12, onComplete: onAnswer })
-    } else {
-      animate(x, 0, { type: 'spring', stiffness: 400, damping: 30 })
-    }
+  function handleOpen() {
+    if (opening) return
+    setOpening(true)
+    window.setTimeout(onOpen, 780)
   }
 
   return (
-    <div className="swipe-track" aria-label="滑動接聽">
-      <motion.span className="swipe-track__label" style={{ opacity: labelOpacity }} aria-hidden>
-        滑動接聽 →
-      </motion.span>
-      <motion.button
+    <motion.div
+      className="recruit-entrance"
+      style={{ ['--rarity-color' as string]: rarityVar }}
+      initial={{ opacity: 0, y: 28, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.94, y: -18 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
         type="button"
-        className="swipe-handle"
-        style={{ x }}
-        drag="x"
-        dragConstraints={{ left: 0, right: MAX_DRAG }}
-        dragElastic={0.04}
-        dragMomentum={false}
-        onDragEnd={handleDragEnd}
-        aria-label="接聽"
-        /* Keyboard fallback: Enter/Space answers immediately */
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onAnswer()
-          }
-        }}
+        className={`recruit-entrance__stage${opening ? ' recruit-entrance__stage--opening' : ''}`}
+        onClick={handleOpen}
+        disabled={opening}
       >
-        <EmojiIcon char="📞" size={48} />
-      </motion.button>
-    </div>
+        <img className="recruit-entrance__lobby" src={lobbySprite} alt="" draggable={false} />
+        <span className="recruit-entrance__light" aria-hidden />
+        <span className="recruit-entrance__spark recruit-entrance__spark--one" aria-hidden />
+        <span className="recruit-entrance__spark recruit-entrance__spark--two" aria-hidden />
+        <span className="recruit-entrance__spark recruit-entrance__spark--three" aria-hidden />
+
+        <span className="recruit-entrance__doctor" aria-hidden>
+          {spriteUrl ? (
+            <img src={spriteUrl} alt="" draggable={false} />
+          ) : (
+            <span className="recruit-entrance__doctor-emoji">🩺</span>
+          )}
+        </span>
+
+        <span className="recruit-entrance__doors" aria-hidden>
+          <img
+            className="recruit-entrance__door recruit-entrance__door--left"
+            src={doorLeftSprite}
+            alt=""
+            draggable={false}
+          />
+          <img
+            className="recruit-entrance__door recruit-entrance__door--right"
+            src={doorRightSprite}
+            alt=""
+            draggable={false}
+          />
+        </span>
+
+        <span className="recruit-entrance__cta">
+          {opening ? `${doctor.rarity} 面談中` : '開始面談'}
+        </span>
+      </button>
+    </motion.div>
   )
 }
 
@@ -110,6 +128,9 @@ export function RecruitmentResultModal({ doctor, wasPity, onClose }: Props) {
   }
 
   const rarityVar = `var(--rarity-${doctor?.rarity.toLowerCase()})`
+  const doctorSpriteUrl = doctor
+    ? lookupSprite(doctor.spriteKey, THEME_PIXEL_HOSPITAL.sprites, doctor.rarity)
+    : undefined
 
   return (
     <AnimatePresence>
@@ -123,39 +144,15 @@ export function RecruitmentResultModal({ doctor, wasPity, onClose }: Props) {
           onClick={step !== 'entry' ? advance : undefined}
         >
 
-          {/* ── Step 0: Phone sprite + swipe-to-answer ── */}
+          {/* ── Step 0: Hospital entrance ceremony ── */}
           <AnimatePresence>
             {step === 'entry' && (
-              <motion.div
-                className="phone-sprite"
-                initial={{ opacity: 0, y: 32, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.88, y: -16 }}
-                transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Physical phone chrome */}
-                <div className="phone-sprite__notch" aria-hidden />
-
-                {/* Screen area */}
-                <div className="phone-sprite__screen">
-                  {/* Pulsing ring halo behind caller icon */}
-                  <div className="phone-sprite__rings" aria-hidden>
-                    <span className="phone-sprite__ring" />
-                    <span className="phone-sprite__ring" />
-                    <span className="phone-sprite__ring" />
-                    <span className="phone-sprite__caller-icon"><EmojiIcon char="👤" size={24} /></span>
-                  </div>
-
-                  <p className="phone-sprite__caller-name">招募部門</p>
-                  <p className="phone-sprite__caller-sub">住院醫師申請</p>
-
-                  <SwipeToAnswer onAnswer={advance} />
-                </div>
-
-                {/* Home button */}
-                <div className="phone-sprite__home" aria-hidden />
-              </motion.div>
+              <HospitalEntrance
+                doctor={doctor}
+                rarityVar={rarityVar}
+                spriteUrl={doctorSpriteUrl}
+                onOpen={advance}
+              />
             )}
           </AnimatePresence>
 
@@ -214,14 +211,9 @@ export function RecruitmentResultModal({ doctor, wasPity, onClose }: Props) {
 
                 <div className="modal-card__sprite">
                   {(() => {
-                    const spriteUrl = lookupSprite(
-                      doctor.spriteKey,
-                      THEME_PIXEL_HOSPITAL.sprites,
-                      doctor.rarity,
-                    )
-                    return spriteUrl ? (
+                    return doctorSpriteUrl ? (
                       <img
-                        src={spriteUrl}
+                        src={doctorSpriteUrl}
                         alt=""
                         className={`modal-card__sprite-img${step === 'silhouette' ? ' recruit-ceremony__sprite--silhouette' : ''}`}
                       />

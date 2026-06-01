@@ -40,17 +40,21 @@ export interface Room {
 export const MAX_OFFLINE_TICK_SEC = 300
 
 /**
- * Throughput = baseRate × powerMultiplier × roomFacility × affinityBonus.
+ * Throughput = baseRate × powerMultiplier × roomFacility × affinityBonus × equipmentBonus.
  * Zero if unassigned. `affinityBonus` comes from `getAffinityBonus(rarity, subjectId, room.type)`
  * — match returns rarity-scaled multiplier (P1 1.5× … P5 1.1×), mismatch returns 1.0×.
+ * `equipmentBonus` is an optional multiplicative bonus from equipped items (default 1).
+ * Pass the result of `getEquipmentBonus()` from the app layer; the content pack is
+ * intentionally unaware of equipment definitions.
  */
 export function computeThroughput(
   room: Pick<Room, 'baseRate' | 'roomFacility' | 'type'>,
   doctor: { powerMultiplier: number; rarity: Rarity; subjectId: SubjectId } | null,
+  equipmentBonus = 1,
 ): number {
   if (!doctor) return 0
   const affinityBonus = getAffinityBonus(doctor.rarity, doctor.subjectId, room.type)
-  return room.baseRate * doctor.powerMultiplier * room.roomFacility * affinityBonus
+  return room.baseRate * doctor.powerMultiplier * room.roomFacility * affinityBonus * equipmentBonus
 }
 
 /** Human-readable label per room type, used by Hospital page. */

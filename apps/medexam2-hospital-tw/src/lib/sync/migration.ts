@@ -284,6 +284,10 @@ export async function snapshotLocalToBackup(
     targetedTickets,
     targetedTicketHistory,
     monotonicCounters,
+    equipment,
+    equipmentTickets,
+    equipmentGachaStats,
+    equipmentMaterials,
   ] = await Promise.all([
     db.gameCounters.get('singleton').then((r) => r ?? null),
     db.gachaStats.get('global').then((r) => r ?? null),
@@ -296,6 +300,10 @@ export async function snapshotLocalToBackup(
     db.targetedTickets.toArray(),
     db.targetedTicketHistory.toArray(),
     db.monotonicCounters.get('singleton').then((r) => r ?? null),
+    db.equipment.toArray(),
+    db.equipmentTickets.get('global').then((r) => r ?? null),
+    db.equipmentGachaStats.get('global').then((r) => r ?? null),
+    db.equipmentMaterials.get('global').then((r) => r ?? null),
   ])
   const record: HospitalLocalBackupRecord = {
     key,
@@ -315,6 +323,10 @@ export async function snapshotLocalToBackup(
     targetedTickets,
     targetedTicketHistory,
     monotonicCounters,
+    equipment,
+    equipmentTickets,
+    equipmentGachaStats,
+    equipmentMaterials,
   }
   await db.localBackup.put(record)
   return key
@@ -340,6 +352,10 @@ export async function wipeLocalSyncedTables(db: HospitalDB): Promise<void> {
       db.targetedTickets,
       db.targetedTicketHistory,
       db.monotonicCounters,
+      db.equipment,
+      db.equipmentTickets,
+      db.equipmentGachaStats,
+      db.equipmentMaterials,
       db.retirementLog,
     ],
     async () => {
@@ -354,6 +370,10 @@ export async function wipeLocalSyncedTables(db: HospitalDB): Promise<void> {
       await db.targetedTickets.clear()
       await db.targetedTicketHistory.clear()
       await db.monotonicCounters.clear()
+      await db.equipment.clear()
+      await db.equipmentTickets.clear()
+      await db.equipmentGachaStats.clear()
+      await db.equipmentMaterials.clear()
       // fix-doctor-retire-cloud-resurrection-v2: retirementLog is now cloud-
       // synced; wiping it here mirrors clearLocalSyncTables (account-switch).
       // 「Use cloud overwrites local」 path triggers force-pull, which then
