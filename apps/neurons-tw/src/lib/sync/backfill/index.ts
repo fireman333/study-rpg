@@ -9,6 +9,7 @@ import {
   backfillMaxMergeCounters,
   extractBundleMetaMap,
 } from './counters'
+import { backfillRepresentativesLWW } from './representatives'
 
 export async function runOnPullComplete(
   db: NeuronsDB,
@@ -23,6 +24,17 @@ export async function runOnPullComplete(
     await backfillMaxMergeCounters(db, incomingMeta)
   } catch (err) {
     console.warn('[sync.backfill] step 1 (counters) failed', err)
+  }
+
+  // Step 1b — Representative-variant LWW reconcile (independent of counters /
+  // achievements; the meta adapter is first-write-wins, this enforces LWW).
+  try {
+    const incomingMeta = pull.snapshot
+      ? extractBundleMetaMap(pull.snapshot.data)
+      : {}
+    await backfillRepresentativesLWW(db, incomingMeta)
+  } catch (err) {
+    console.warn('[sync.backfill] step 1b (representatives) failed', err)
   }
 
   // Step 2 — Achievement backfill. Silent (no toast / no reward dispatch).

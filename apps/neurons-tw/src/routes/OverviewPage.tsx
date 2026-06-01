@@ -11,7 +11,9 @@ import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
-import { filterPoolByFamily } from '../lib/services/quiz-pool'
+import { filterPoolByFamily, filterPoolByYear } from '../lib/services/quiz-pool'
+import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
+import { YearFilterBar } from '../components/YearFilterBar'
 import { db } from '../lib/db'
 
 interface Props {
@@ -43,11 +45,21 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const [accrualByFamily, setAccrualByFamily] = useState<Map<string, FamilyAccrual>>(new Map())
   const timer = useReadingTimer()
 
-  const quizPool = useMemo(
-    () => (quizEntry === undefined ? [] : filterPoolByFamily(pack.questions, quizEntry)),
-    [pack.questions, quizEntry],
+  const persistedYears = useYearFilter()
+  const yearSet = useMemo(() => effectiveYearSet(persistedYears), [persistedYears])
+  const yearActive = yearSet.size < ALL_YEARS.length
+
+  const quizPool = useMemo(() => {
+    if (quizEntry === undefined) return []
+    const byFamily = filterPoolByFamily(pack.questions, quizEntry)
+    return yearActive ? filterPoolByYear(byFamily, yearSet) : byFamily
+  }, [pack.questions, quizEntry, yearSet, yearActive])
+
+  // Random-quiz CTA count reflects the year-filtered total corpus.
+  const totalPoolSize = useMemo(
+    () => (yearActive ? filterPoolByYear(pack.questions, yearSet).length : pack.questions.length),
+    [pack.questions, yearSet, yearActive],
   )
-  const totalPoolSize = pack.questions.length
 
   useEffect(() => {
     initMasteryForPack(pack).catch(() => {
@@ -160,6 +172,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         <p style={quizCtaHintStyle}>
           開始閱讀累積時間，或直接答題。下方點任何 family 卡片即可指定範圍練習。
         </p>
+        <YearFilterBar />
       </section>
 
       {/* ── First-visit guidance while the connectome is still empty (stateless;

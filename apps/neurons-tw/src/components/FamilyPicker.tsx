@@ -110,7 +110,7 @@ function FamilyCard({
       <header style={cardHeaderStyle}>
         <div style={spriteFrameStyle(accent)}>
           {spriteUrl ? (
-            <img src={spriteUrl} alt="" width={48} height={48} style={spriteStyle} />
+            <img src={spriteUrl} alt="" width={48} height={48} className="neuron-sprite--alive" style={spriteStyle} />
           ) : (
             <span style={{ fontSize: '1.4rem', color: accent }} aria-hidden>🧬</span>
           )}

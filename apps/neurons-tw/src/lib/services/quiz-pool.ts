@@ -29,3 +29,18 @@ export function filterPoolByFamily(
   if (familyId == null) return [...pool]
   return pool.filter((q) => q.subject === familyId)
 }
+
+/**
+ * Filter a question pool by exam year. Keeps only questions whose `meta.year`
+ * is in `yearSet`. Returns a new array. Callers should skip calling this when
+ * the year filter spans all years (a no-op) to avoid scanning the full corpus.
+ *
+ * Used by the homepage year filter (per neurons-quiz-year-filter spec) for both
+ * the quiz pool and the random-CTA count, so the predicate lives in one place.
+ */
+export function filterPoolByYear(
+  pool: readonly Question[],
+  yearSet: ReadonlySet<number>,
+): Question[] {
+  return pool.filter((q) => typeof q.meta?.year === 'number' && yearSet.has(q.meta.year))
+}

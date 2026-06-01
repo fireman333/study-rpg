@@ -4,6 +4,7 @@ import { useRespectsReducedMotion, RARITY_TIMINGS } from '../lib/motion'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { subscribeVariantGachaEvents, type VariantRolledPayload } from '../lib/services/variant-gacha'
 import type { VariantRarity } from '../lib/db'
+import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 
 interface QueuedReveal {
   id: number
@@ -109,11 +110,17 @@ export default function VariantUnlockModal(): JSX.Element {
           <div style={{ ...rarityBadgeStyle, color, borderColor: color }}>{RARITY_LABEL[variant.rarity]}</div>
           <div style={slotChipStyle}>Slot {variant.slotIndex}</div>
           <div style={spriteWrapStyle}>
-            <img
-              src={spriteUrl}
-              alt={variant.displayName}
-              style={spriteStyle}
-            />
+            {SPRITE_MAP[`${variant.spriteKey}:evolve`] ? (
+              // Hero variant ships an evolve sheet → play the 進化爆光 on reveal.
+              <SpriteSheetPlayer spriteKeyBase={variant.spriteKey} state="evolve" size={128} />
+            ) : (
+              <img
+                src={spriteUrl}
+                alt={variant.displayName}
+                className="neuron-sprite--alive"
+                style={spriteStyle}
+              />
+            )}
           </div>
           <div style={familyNameStyle}>{familyDisplayName}</div>
           <div style={variantNameStyle}>{variant.displayName}</div>
