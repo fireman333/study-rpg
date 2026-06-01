@@ -4,6 +4,7 @@ import { useRespectsReducedMotion, RARITY_TIMINGS } from '../lib/motion'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { subscribeVariantGachaEvents, type VariantRolledPayload } from '../lib/services/variant-gacha'
 import type { VariantRarity } from '../lib/db'
+import { variantBirthCaption } from '../lib/variant-caption'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 
 interface QueuedReveal {
@@ -125,6 +126,9 @@ export default function VariantUnlockModal(): JSX.Element {
           <div style={familyNameStyle}>{familyDisplayName}</div>
           <div style={variantNameStyle}>{variant.displayName}</div>
           {variant.wasPityFloor && <div style={pityChipStyle}>保底</div>}
+          {/* Birth caption (add-neurons-variant-provenance) — the study context
+              that grew this variant, surfaced at the moment of mint. */}
+          <div style={captionStyle}>{variantBirthCaption(variant)}</div>
           <button
             type="button"
             onClick={dismissCurrent}
@@ -232,6 +236,15 @@ const pityChipStyle: React.CSSProperties = {
   borderRadius: '999px',
   color: '#b58900',
   fontWeight: 600,
+}
+
+const captionStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  color: '#8c6d4a',
+  textAlign: 'center',
+  lineHeight: 1.4,
+  marginTop: '0.1rem',
+  maxWidth: '17rem',
 }
 
 const dismissButtonStyle: React.CSSProperties = {

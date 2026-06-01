@@ -21,6 +21,13 @@ export interface VariantSlotUnlockedPayload {
   familyId: string
   slotIndex: number
   apAtUnlock: number
+  /**
+   * Mint-time context of the triggering correct answer: `true` when that
+   * answer's question had `everWrong === true` before the answer (flags a 救贖
+   * individual). Forwarded from `recordCorrectAnswer`'s optional context arg;
+   * defaults to `false` when the caller omits it. (add-neurons-variant-provenance)
+   */
+  wasRedemption: boolean
 }
 
 export type ConnectomeEventMap = {

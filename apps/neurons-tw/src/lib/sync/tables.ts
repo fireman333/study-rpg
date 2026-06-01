@@ -199,7 +199,9 @@ const neuronVariantsAdapter: TableAdapter<'neuronVariants'> = {
           continue
         }
         const local = await db.neuronVariants.get([familyId, slotIndex])
-        // Variants are immutable once rolled — first-write wins.
+        // Variants are immutable once rolled — first-write wins. The optional
+        // `provenance` object (add-neurons-variant-provenance) rides inside this
+        // whole-row JSON automatically: no per-field merge, no monotonic logic.
         if (local) {
           skipped++
           continue

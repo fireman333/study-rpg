@@ -55,6 +55,15 @@ export const SLOT_RARITY_FLOOR: Record<SlotIndex, Rarity | null> = {
 export const VARIANT_REROLL_CAP = 5
 
 /**
+ * Streak-milestone gate for variant provenance (add-neurons-variant-provenance).
+ * A variant minted while the player's daily correct-streak is `>=` this value
+ * is flagged a 里程碑 individual in its birth caption. Single tunable constant
+ * — dogfood candidates 7 / 14 / 30; default 7 matches the 7-day LTD-decay
+ * cadence and is reachable within a normal study week so the tag actually appears.
+ */
+export const MILESTONE_STREAK_THRESHOLD = 7
+
+/**
  * Rarity-flavoured suffix appended to displayName at roll time. Each value is
  * the same character count for typography parity.
  */

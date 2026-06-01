@@ -24,6 +24,7 @@ import {
   type RepresentativeMap,
 } from '../lib/services/representatives'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
+import { variantBirthCaption } from '../lib/variant-caption'
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
   P1: 'P1 夯',
@@ -193,6 +194,7 @@ function VariantSlotCard({
 }): JSX.Element {
   const color = RARITY_COLOR[row.rarity]
   const spriteUrl = SPRITE_MAP[row.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
+  const caption = variantBirthCaption(row)
   return (
     <button
       type="button"
@@ -209,9 +211,10 @@ function VariantSlotCard({
       <div style={cardNameStyle}>{row.displayName}</div>
       <p style={cardDescStyle}>{description}</p>
       {row.wasPityFloor && <div style={pityChipStyle}>保底</div>}
-      {/* Reserved caption row — filled later by add-neurons-variant-provenance.
-          min-height keeps layout stable when provenance text drops in. */}
-      <div style={captionRowStyle} data-provenance-caption="" aria-hidden="true" />
+      {/* Birth caption (add-neurons-variant-provenance) — single line derived
+          from provenance; 元老 fallback for pre-upgrade rows. min-height on the
+          row keeps grid layout stable across caption lengths. */}
+      <div style={captionRowStyle} data-provenance-caption={caption}>{caption}</div>
     </button>
   )
 }

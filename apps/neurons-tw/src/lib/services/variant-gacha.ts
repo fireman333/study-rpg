@@ -22,8 +22,9 @@ import {
   type Rarity,
   type SlotIndex,
 } from '@study-rpg/content-neurons-tw'
-import { db, type NeuronVariantRow } from '../db'
+import { db, todayISO, type NeuronVariantRow, type NeuronVariantProvenance } from '../db'
 import { subscribeConnectomeEvents } from './connectome'
+import { getStreaks } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { consumeVariantRateUpBuff } from './dmn-event-dispatcher'
 
@@ -119,6 +120,7 @@ async function rollAndPersist(
   familyId: string,
   slotIndex: number,
   apAtUnlock: number,
+  wasRedemption: boolean,
   resolveFamilyDisplayName: ResolveFamilyDisplayName,
   { silent = false }: RollAndPersistOptions = {},
 ): Promise<void> {
@@ -163,6 +165,19 @@ async function rollAndPersist(
   )
   const rarity = result.tier as Rarity
   const wasPityFloor = floor !== null
+  // Provenance (add-neurons-variant-provenance): stamp the study context at
+  // mint. `apAtUnlock < 0` is the synthetic sentinel used by the silent
+  // backfill + DEV forceUnlock paths — those rows MUST NOT fabricate context;
+  // leaving `provenance` undefined renders them as 元老 / 傳承 individuals (the
+  // absence-is-the-marker rule, design D1/3.2). Real unlocks always carry a
+  // positive slot threshold (10/30/80/200/500). `streakAtMint` reads the streak
+  // service AFTER recordCorrectAnswer's tx incremented it (event fires
+  // post-commit), so it is the player's streak at the moment of mint.
+  let provenance: NeuronVariantProvenance | undefined
+  if (apAtUnlock >= 0) {
+    const { current: streakAtMint } = await getStreaks()
+    provenance = { bornAtISO: todayISO(), apAtUnlock, wasRedemption, streakAtMint }
+  }
   const variantRow: NeuronVariantRow = {
     familyId,
     slotIndex,
@@ -171,6 +186,7 @@ async function rollAndPersist(
     spriteKey: catalogEntry.spriteKey,
     rolledAt: Date.now(),
     wasPityFloor,
+    ...(provenance ? { provenance } : {}),
   }
   let persisted = false
   await db.transaction('rw', db.neuronVariants, async () => {
@@ -189,7 +205,7 @@ async function rollAndPersist(
 }
 
 export async function handleSlotUnlock(
-  payload: { familyId: string; slotIndex: number; apAtUnlock: number },
+  payload: { familyId: string; slotIndex: number; apAtUnlock: number; wasRedemption: boolean },
   resolveFamilyDisplayName: ResolveFamilyDisplayName,
   options: RollAndPersistOptions = {},
 ): Promise<void> {
@@ -203,6 +219,7 @@ export async function handleSlotUnlock(
       payload.familyId,
       payload.slotIndex,
       payload.apAtUnlock,
+      payload.wasRedemption,
       resolveFamilyDisplayName,
       options,
     )
@@ -240,7 +257,8 @@ export async function backfillUnlockedSlots(
           continue
         }
         await handleSlotUnlock(
-          { familyId: accrual.familyId, slotIndex, apAtUnlock: -1 },
+          // apAtUnlock: -1 → synthetic backfill; no provenance written (→ 元老).
+          { familyId: accrual.familyId, slotIndex, apAtUnlock: -1, wasRedemption: false },
           resolveFamilyDisplayName,
           { silent: true },
         )
@@ -302,7 +320,8 @@ if (import.meta.env.DEV) {
     },
     /** Force-emit a slot-unlock event end-to-end (rolls + persists + UI). */
     forceUnlock: async (familyId: string, slotIndex: number, resolve: ResolveFamilyDisplayName) => {
-      await handleSlotUnlock({ familyId, slotIndex, apAtUnlock: -1 }, resolve)
+      // apAtUnlock: -1 → synthetic; no provenance written (→ 元老 in dex).
+      await handleSlotUnlock({ familyId, slotIndex, apAtUnlock: -1, wasRedemption: false }, resolve)
     },
   }
 }

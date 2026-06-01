@@ -26,11 +26,18 @@
 //        selection). LWW via backfill/representatives.ts. Additive — v5
 //        clients drop the key. (NOTE: the parked add-neurons-variant-provenance
 //        change therefore bumps 6 → 7, not 5 → 6.)
+//   v7 — add-neurons-variant-provenance 2026-06-01: adds the optional
+//        `provenance` study-context object onto neuronVariants rows. NO new
+//        adapter / meta key — the field rides inside the existing
+//        `neuronVariants` whole-row JSON (adapter unchanged, stays first-write-
+//        wins immutable). Forward-compat: a v6 client reading a v7 bundle
+//        preserves `provenance` in the row JSON (it does not interpret it); a
+//        v7 client reading a v6 bundle sees rows with no `provenance` → 元老.
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 6
+export const SCHEMA_VERSION = 7
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

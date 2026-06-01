@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Question } from '@study-rpg/core'
+import { db } from '../lib/db'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
 import { SpikeTrainFiring, AnswerFeedbackFlash } from '../lib/motion'
@@ -53,7 +54,17 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
         // Instant answer-feedback flash (non-blocking, sibling overlay).
         setFlash({ outcome: isCorrect ? 'correct' : 'incorrect', nonce: Date.now() })
         if (isCorrect) {
-          await recordCorrectAnswer(q.subject)
+          // Capture the triggering question's pre-answer `everWrong` for variant
+          // provenance (救贖 individual). MUST read before recordQuestionResult
+          // (below) flips it, and before recordCorrectAnswer fires the
+          // slot-unlock that stamps provenance. Best-effort — cosmetic only.
+          let wasRedemption = false
+          try {
+            wasRedemption = (await db.questionHistory.get(q.id))?.everWrong ?? false
+          } catch {
+            /* ignore — redemption flag is display-only */
+          }
+          await recordCorrectAnswer(q.subject, { wasRedemption })
         } else {
           await recordIncorrectAnswer(q.subject)
         }
@@ -250,6 +261,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
 
         <div style={bodyStyle} ref={scrollContainerRef}>
           <p style={stemStyle}>{q.stem}</p>
+          <QuestionFigure key={q.id} q={q} />
 
           <div style={optionsGridStyle}>
             {optionKeys.map((key) => {
@@ -477,6 +489,58 @@ const stemStyle: React.CSSProperties = {
   marginTop: 0,
   marginBottom: '1.25rem',
   whiteSpace: 'pre-wrap',
+}
+
+/**
+ * Renders the question's figure: an <img> when imagePath is set (prepend
+ * Vite BASE_URL), a [圖] placeholder when the question is flagged hasImage but
+ * has no figure available (never silently drop a figure), and nothing otherwise.
+ * `key={q.id}` at the call site remounts this per question, resetting onError.
+ */
+function QuestionFigure({ q }: { q: Question }) {
+  const [error, setError] = useState(false)
+  if (q.imagePath && !error) {
+    return (
+      <div style={figureWrapStyle}>
+        <img
+          src={`${import.meta.env.BASE_URL}${q.imagePath}`}
+          alt="題目附圖"
+          style={figureImgStyle}
+          onError={() => setError(true)}
+        />
+      </div>
+    )
+  }
+  if (q.hasImage) {
+    return <div style={figurePlaceholderStyle}>[圖] 此題原有附圖，暫無法顯示</div>
+  }
+  return null
+}
+
+const figureWrapStyle: React.CSSProperties = {
+  margin: '0 0 1.25rem',
+  display: 'flex',
+  justifyContent: 'center',
+}
+
+const figureImgStyle: React.CSSProperties = {
+  maxWidth: '100%',
+  maxHeight: '340px',
+  objectFit: 'contain',
+  border: '1px solid #d8c8a8',
+  borderRadius: '6px',
+  background: '#fff',
+}
+
+const figurePlaceholderStyle: React.CSSProperties = {
+  margin: '0 0 1.25rem',
+  padding: '0.9rem',
+  border: '1px dashed #c9b890',
+  borderRadius: '6px',
+  color: '#8a7a5a',
+  fontSize: '0.9rem',
+  textAlign: 'center',
+  background: '#faf6ec',
 }
 
 const optionsGridStyle: React.CSSProperties = {

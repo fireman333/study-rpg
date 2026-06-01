@@ -44,6 +44,24 @@ export interface FamilyMasteryRow {
 
 export type VariantRarity = 'P1' | 'P2' | 'P3' | 'P4' | 'P5'
 
+/**
+ * Study-context captured at the moment a variant is minted (the Pikmin Bloom
+ * "birth context"). Display-only — read solely by the dex-card caption renderer
+ * in add-neurons-variant-provenance; stored as discrete fields so a later
+ * study-context→rarity capability can consume them without re-plumbing signals.
+ * Immutable after mint.
+ */
+export interface NeuronVariantProvenance {
+  /** Local-date string at mint (`'2026-06-01'`); the caption's birth date. */
+  bornAtISO: string
+  /** Family AP at unlock (equals the slot threshold; stored for forward-compat). */
+  apAtUnlock: number
+  /** Triggering correct answer's question had `everWrong === true` before the answer. */
+  wasRedemption: boolean
+  /** Player's daily correct-streak value at mint (≥ MILESTONE_STREAK_THRESHOLD → 里程碑). */
+  streakAtMint: number
+}
+
 export interface NeuronVariantRow {
   familyId: string
   slotIndex: number
@@ -52,6 +70,12 @@ export interface NeuronVariantRow {
   spriteKey: string
   rolledAt: number
   wasPityFloor: boolean
+  /**
+   * Optional study-context provenance (add-neurons-variant-provenance). Absent
+   * on pre-upgrade rows → rendered as a 元老 / 傳承 individual (no backfill
+   * write). Non-indexed additive field — NO Dexie `.version()` bump (design D2).
+   */
+  provenance?: NeuronVariantProvenance
 }
 
 export interface LeaderboardProfileRow {
