@@ -85,7 +85,8 @@ describe('pullVariant', () => {
   it('is rejected (no spend) when the family is fully collected', async () => {
     await seedFamily('藥理學')
     await awardEnergy(100)
-    for (let slotIndex = 0; slotIndex <= 5; slotIndex++) {
+    // 藥理學 pyramid total = 7 (slots 0..6) — seed all to mark it complete.
+    for (let slotIndex = 0; slotIndex <= 6; slotIndex++) {
       await db.neuronVariants.put({
         familyId: '藥理學',
         slotIndex,
@@ -103,13 +104,35 @@ describe('pullVariant', () => {
     expect(await readBalance()).toBe(100)
   })
 
+  it('within-tier roll can land on the second P5 variant (slot 6)', async () => {
+    // P0 owned → roll falls to P5; Math.random=0.5 → weight roll picks P5 and the
+    // within-tier index floor(0.5×2)=1 → the new pyramid base P5 at slot 6.
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    await seedFamily('藥理學')
+    await db.neuronVariants.put({
+      familyId: '藥理學',
+      slotIndex: 0,
+      rarity: 'P0',
+      displayName: 'p0',
+      spriteKey: 'variant:藥理學:0',
+      rolledAt: 1,
+      wasPityFloor: false,
+      copies: 1,
+    })
+    await awardEnergy(100)
+    const r = await pullVariant('藥理學', resolve)
+    expect(r.ok).toBe(true)
+    expect(r.rarity).toBe('P5')
+    expect(r.variant?.slotIndex).toBe(6)
+  })
+
   it('increments copies on a duplicate pull', async () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
     await seedFamily('藥理學')
     await awardEnergy(100)
-    // rng=0 → pull1 P0 (slotIndex 0, new); pull2 P5 (P0 now owned). NOTE:
-    // SLOT_RARITY maps P5 → slotIndex 1 (slot 5 is P1), so P5 lives at slot 1.
-    // pull3 P5 again → dupe at slot 1 (copies 2).
+    // rng=0 → pull1 P0 (slotIndex 0, new); pull2 P5 (P0 now owned). The P5 tier
+    // holds two variants (slots 1 & 6); within-tier pick with rng=0 → index 0 →
+    // slot 1 (the first P5 in catalog order). pull3 P5 again → dupe at slot 1.
     await pullVariant('藥理學', resolve)
     await pullVariant('藥理學', resolve)
     const r3 = await pullVariant('藥理學', resolve)

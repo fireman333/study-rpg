@@ -21,7 +21,7 @@ import {
   setRepresentative,
   type RepresentativeMap,
 } from '../lib/services/representatives'
-import { pullVariant, SLOTS_PER_FAMILY } from '../lib/services/variant-gacha'
+import { pullVariant, slotsForFamily } from '../lib/services/variant-gacha'
 import { useEnergyBalance } from '../lib/services/currency'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
@@ -188,7 +188,8 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           const owned = slots.filter((s) =>
             state.collectedKeys.has(slotKey(family.id, s.slotIndex)),
           ).length
-          const complete = owned >= SLOTS_PER_FAMILY
+          const familyTotal = slotsForFamily(family.id)
+          const complete = owned >= familyTotal
           const isPulling = pulling === family.id
           const canPull = !complete && balance >= PULL_COST && !pulling
           return (
@@ -200,7 +201,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                   )}
                   {family.label}
                   <span style={ownedCountStyle}>
-                    {owned}/{SLOTS_PER_FAMILY}
+                    {owned}/{familyTotal}
                   </span>
                 </h2>
                 <button

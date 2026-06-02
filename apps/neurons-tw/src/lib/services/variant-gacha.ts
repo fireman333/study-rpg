@@ -28,9 +28,6 @@ import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { consumeVariantRateUpBuff } from './dmn-event-dispatcher'
 import { readBalance, spendEnergyInTx } from './currency'
 
-/** P0–P5 tier count per family (the closed cap per family). */
-export const SLOTS_PER_FAMILY = 6
-
 /** Rarity rank for "take the rarer" (P0 rarest = 0). */
 const RARITY_RANK: Record<Rarity, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
 
@@ -39,6 +36,14 @@ for (const def of NEURON_VARIANT_CATALOG) {
   const list = CATALOG_BY_FAMILY.get(def.familyId) ?? []
   list.push(def)
   CATALOG_BY_FAMILY.set(def.familyId, list)
+}
+
+/**
+ * The family's pyramid total (closed cap) — derived from the catalog, never a
+ * hardcoded literal. A family is "fully collected" at this count.
+ */
+export function slotsForFamily(familyId: string): number {
+  return CATALOG_BY_FAMILY.get(familyId)?.length ?? 0
 }
 
 export interface VariantRolledPayload {
@@ -112,11 +117,11 @@ export function subscribeVariantGachaEvents(
 type ResolveFamilyDisplayName = (familyId: string) => string
 
 export interface PullableState {
-  /** Family is fully collected (all 6 tiers owned). */
+  /** Family is fully collected (all of the family's pyramid slots owned). */
   complete: boolean
   /** Whether the family's P0 apex is already owned. */
   p0Owned: boolean
-  /** Count of collected variants in this family (0–6). */
+  /** Count of collected variants in this family (0..N). */
   ownedCount: number
 }
 
@@ -124,7 +129,7 @@ export async function getPullableState(familyId: string): Promise<PullableState>
   const rows = await db.neuronVariants.where('familyId').equals(familyId).toArray()
   return {
     ownedCount: rows.length,
-    complete: rows.length >= SLOTS_PER_FAMILY,
+    complete: rows.length >= slotsForFamily(familyId),
     p0Owned: rows.some((r) => r.slotIndex === 0),
   }
 }
@@ -196,8 +201,12 @@ export async function pullVariant(
           if (RARITY_RANK[second] < RARITY_RANK[rarity]) rarity = second
         }
 
-        const target = defs.find((d) => d.rarity === rarity)
-        if (!target) throw new Error(`no catalog variant for ${familyId} ${rarity}`)
+        // Within-tier uniform pick — a tier may hold several variants (pyramid),
+        // so the result can be a new variant or a dupe in any non-P0 tier (P0 has
+        // exactly one). Reads the explicit `rarity` field (decoupled from slot).
+        const tierDefs = defs.filter((d) => d.rarity === rarity)
+        if (tierDefs.length === 0) throw new Error(`no catalog variant for ${familyId} ${rarity}`)
+        const target = tierDefs[Math.floor(Math.random() * tierDefs.length)]
 
         const existing = await db.neuronVariants.get([familyId, target.slotIndex])
         if (existing) {

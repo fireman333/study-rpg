@@ -16,6 +16,7 @@
 
 import {
   NEURONS_ACHIEVEMENTS,
+  VARIANT_COUNT_BY_FAMILY,
   type NeuronsAchievement,
   type NeuronsAchievementStats,
   type NeuronsPlayerSnapshot,
@@ -75,13 +76,18 @@ export async function buildAchievementStats(): Promise<NeuronsAchievementStats> 
     list.push(v)
     variantsByFamily.set(v.familyId, list)
   }
+  // A family is complete when it owns every slot its catalog declares (pyramid
+  // total — derived per family, not a hardcoded count; rework-neurons-variant-pyramid).
   let familyCompleteCount = 0
-  for (const list of variantsByFamily.values()) {
-    if (list.length === 5) familyCompleteCount += 1
+  for (const [familyId, list] of variantsByFamily.entries()) {
+    const total = VARIANT_COUNT_BY_FAMILY[familyId] ?? 0
+    if (total > 0 && list.length >= total) familyCompleteCount += 1
   }
 
-  // Natural P1 = rarity P1 AND slot index ∈ {1,2,3} (slots 4/5 always wasPityFloor=true per variant-gacha spec)
-  const naturalP1Variants = variants.filter((v) => v.rarity === 'P1' && v.slotIndex <= 3)
+  // Natural P1 = a P1 obtained without the soft-pity floor. Rarity is now an
+  // explicit field (decoupled from slotIndex), so read it directly; `wasPityFloor`
+  // is only ever set for P0, so every P1 is natural — but keep the guard explicit.
+  const naturalP1Variants = variants.filter((v) => v.rarity === 'P1' && !v.wasPityFloor)
   const naturalP1VariantCount = naturalP1Variants.length
   const naturalP1DistinctFamilies = new Set(naturalP1Variants.map((v) => v.familyId)).size
 
