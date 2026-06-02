@@ -15,6 +15,7 @@ schema: spec-driven
 rules:
   # === proposal ===
   proposal:
+    - "Ask all clarifying questions, AskUserQuestion options, and user-facing explanations in 繁體中文 (Traditional Chinese). Keep medical / statistical / code terms and RFC 2119 normative keywords (SHALL / MUST, WHEN / THEN) in English."
     - "Never run `git commit` automatically. All commits go through the user via the auto-git skill or explicit confirmation."
     - "For any non-trivial decision (architecture, library choice, naming convention, scope cut), use AskUserQuestion before writing it into a proposal/spec."
     - "Do not implement code changes without first running /opsx:propose for the change. The propose -> apply -> verify -> archive sequence is mandatory for any change touching openspec/specs/."
