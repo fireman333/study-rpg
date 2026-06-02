@@ -12,7 +12,12 @@
  * openspec/specs/neurons-character-card/spec.md
  */
 
-import { FAMILY_NT_BRANCH, NEURON_VARIANT_CATALOG, type NtBranchId } from '@study-rpg/content-neurons-tw'
+import {
+  FAMILY_NT_BRANCH,
+  NEURON_VARIANT_CATALOG,
+  NEURON_VARIANT_TOTAL,
+  type NtBranchId,
+} from '@study-rpg/content-neurons-tw'
 import { db, type NeuronVariantRow, type VariantRarity } from '../db'
 import { getRepresentativesRaw, type RepresentativeMap } from './representatives'
 import { readTotalStudyMinutes } from './reading-timer'
@@ -98,12 +103,10 @@ export function pickBranchRepresentatives(
   })
 }
 
-const VARIANT_TOTAL = NEURON_VARIANT_CATALOG.length
 const FAMILY_TOTAL = new Set(NEURON_VARIANT_CATALOG.map((e) => e.familyId)).size
 // Derived from the catalog (uniform slots/family) so it tracks the model —
-// Collection 2.0 widened this 5 → 6 (P0–P5); a hardcoded literal would silently
-// miscount familiesComplete after the catalog grows.
-const SLOTS_PER_FAMILY = VARIANT_TOTAL / FAMILY_TOTAL
+// a hardcoded literal would silently miscount familiesComplete after the catalog grows.
+const SLOTS_PER_FAMILY = NEURON_VARIANT_TOTAL / FAMILY_TOTAL
 
 /**
  * Build the card payload from local Dexie state. `userId` is optional: when
@@ -143,7 +146,7 @@ export async function buildCharacterCardPayload(
     totalAp: accruals.reduce((sum, a) => sum + (a.ap ?? 0), 0),
     strongSynapseCount: synapses.filter((s) => s.state === 'strong').length,
     variantCount: variants.length,
-    variantTotal: VARIANT_TOTAL,
+    variantTotal: NEURON_VARIANT_TOTAL,
     familiesComplete,
     familyTotal: FAMILY_TOTAL,
     totalStudyMinutes,

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
+import { NEURON_VARIANT_TOTAL } from '@study-rpg/content-neurons-tw'
 import { initMasteryForPack } from '../lib/services/connectome'
 import LeaderboardPromoBanner from '../components/LeaderboardPromoBanner'
 import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncementBanner'
@@ -244,7 +245,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           <span style={statusEmojiStyle}>🧬</span>
           <span style={statusLabelStyle}>變體</span>
           <span style={statusValueStyle}>{stats.variants}</span>
-          <span style={statusMaxStyle}>/ 55</span>
+          <span style={statusMaxStyle}>/ {NEURON_VARIANT_TOTAL}</span>
         </div>
         <span style={statusSepStyle}>·</span>
         <div style={statusItemStyle}>
