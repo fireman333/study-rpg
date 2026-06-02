@@ -26,6 +26,7 @@ beforeEach(async () => {
       lastFireDate: null,
       unlockedSlots: [],
       sameDayCorrect: 0,
+      pullCount: 0,
     })),
   )
 })

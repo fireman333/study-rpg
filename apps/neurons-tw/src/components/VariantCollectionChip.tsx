@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from 'react'
 import { db } from '../lib/db'
-import { subscribeVariantGachaEvents } from '../lib/services/variant-gacha'
+import { subscribeVariantGachaEvents, SLOTS_PER_FAMILY } from '../lib/services/variant-gacha'
 
 interface Props {
   familyId: string
@@ -36,14 +36,17 @@ export default function VariantCollectionChip({ familyId }: Props): JSX.Element 
     }
   }, [familyId])
 
-  const complete = count >= 5
+  const complete = count >= SLOTS_PER_FAMILY
   const style: React.CSSProperties = complete
     ? { ...baseChipStyle, color: '#b58900', borderColor: '#b58900', background: '#fdf6e3' }
     : baseChipStyle
 
   return (
-    <span style={style} title={complete ? '完整收集 5 / 5 變體' : `已收集 ${count} / 5 變體`}>
-      {complete ? '🏆' : '🧬'} {count} / 5
+    <span
+      style={style}
+      title={complete ? `完整收集 ${SLOTS_PER_FAMILY} / ${SLOTS_PER_FAMILY} 變體` : `已收集 ${count} / ${SLOTS_PER_FAMILY} 變體`}
+    >
+      {complete ? '🏆' : '🧬'} {count} / {SLOTS_PER_FAMILY}
     </span>
   )
 }

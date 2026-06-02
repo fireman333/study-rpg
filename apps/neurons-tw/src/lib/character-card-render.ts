@@ -56,6 +56,7 @@ const BRANCH_COLOR: Record<NtBranchId, string> = {
 }
 
 const RARITY_COLOR: Record<VariantRarity, string> = {
+  P0: '#a64dd4',
   P1: '#d4a04d',
   P2: '#c44d4d',
   P3: '#6a8c3f',

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Question } from '@study-rpg/core'
-import { db } from '../lib/db'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
 import { SpikeTrainFiring, AnswerFeedbackFlash } from '../lib/motion'
@@ -78,17 +77,9 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
         setFlash({ outcome: isCorrect ? 'correct' : 'incorrect', nonce: Date.now() })
         if (isCorrect) {
           correctCountRef.current += 1
-          // Capture the triggering question's pre-answer `everWrong` for variant
-          // provenance (救贖 individual). MUST read before recordQuestionResult
-          // (below) flips it, and before recordCorrectAnswer fires the
-          // slot-unlock that stamps provenance. Best-effort — cosmetic only.
-          let wasRedemption = false
-          try {
-            wasRedemption = (await db.questionHistory.get(q.id))?.everWrong ?? false
-          } catch {
-            /* ignore — redemption flag is display-only */
-          }
-          await recordCorrectAnswer(q.subject, { wasRedemption })
+          // Collection 2.0: correct answers mint pull currency (no slot-unlock /
+          // per-question provenance forwarding — pulls aren't question-tied).
+          await recordCorrectAnswer(q.subject)
         } else {
           await recordIncorrectAnswer(q.subject)
         }

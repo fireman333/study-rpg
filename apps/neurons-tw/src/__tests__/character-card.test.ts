@@ -91,15 +91,16 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
 
   it('aggregates counts/stats from local state and resolves reps + profile', async () => {
     await db.familyAccrual.bulkPut([
-      { familyId: '藥理學', ap: 100, firedToday: false, lastFireDate: null, unlockedSlots: [], sameDayCorrect: 0 },
-      { familyId: '解剖學', ap: 50, firedToday: false, lastFireDate: null, unlockedSlots: [], sameDayCorrect: 0 },
+      { familyId: '藥理學', ap: 100, firedToday: false, lastFireDate: null, unlockedSlots: [], sameDayCorrect: 0, pullCount: 0 },
+      { familyId: '解剖學', ap: 50, firedToday: false, lastFireDate: null, unlockedSlots: [], sameDayCorrect: 0, pullCount: 0 },
     ])
     await db.neuronVariants.bulkPut([
       mkVariant('藥理學', 1, 'P2'),
       mkVariant('藥理學', 2, 'P3'),
       mkVariant('藥理學', 3, 'P3'),
       mkVariant('藥理學', 4, 'P4'),
-      mkVariant('藥理學', 5, 'P5'), // 藥理學 now complete (5/5)
+      mkVariant('藥理學', 5, 'P5'),
+      mkVariant('藥理學', 0, 'P0'), // 藥理學 now complete (6/6, P0–P5)
       mkVariant('解剖學', 1, 'P1'),
     ])
     await db.synapses.bulkPut([
@@ -122,9 +123,9 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
 
     expect(payload.nickname).toBe('測試員')
     expect(payload.title).toBe('神經元大師')
-    expect(payload.variantCount).toBe(6)
-    expect(payload.variantTotal).toBe(55)
-    expect(payload.familiesComplete).toBe(1) // only 藥理學 has all 5
+    expect(payload.variantCount).toBe(7)
+    expect(payload.variantTotal).toBe(66)
+    expect(payload.familiesComplete).toBe(1) // only 藥理學 has all 6 (P0–P5)
     expect(payload.familyTotal).toBe(11)
     expect(payload.totalAp).toBe(150)
     expect(payload.strongSynapseCount).toBe(2)

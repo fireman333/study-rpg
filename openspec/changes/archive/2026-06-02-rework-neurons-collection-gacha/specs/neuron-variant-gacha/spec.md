@@ -1,51 +1,64 @@
-# neuron-variant-gacha Specification
+# neuron-variant-gacha (delta) — Collection 2.0 Phase 2 spine
 
-## Purpose
+## REMOVED Requirements
 
-AP-slot-driven variant collection for neurons-mode. Subscribes to `connectome.variantSlotUnlocked` events from `connectome-collection`, rolls a P1-P5 rarity per slot (with slot-4 P3 / slot-5 P2 pity floors via deterministic reroll), persists the result in a `neuronVariants` Dexie table with composite PK `(familyId, slotIndex)`, surfaces a modal+toast reveal, and powers a `🧬 X / 5` collection chip on each family card. Closed cap = 11 families × 5 slots = 55 lifetime variants — Pokédex-style progression target. Backfills variants for already-unlocked slots silently on first boot post-upgrade. Borrowed pattern from 二階 `recruitment-gacha` per `neurons-mode` Req 5; no doctor/hospital semantics.
-## Requirements
-### Requirement: Core SHALL expose `rollGachaWithFloor` generic helper without breaking existing gacha / loot APIs
+### Requirement: Variant gacha SHALL subscribe to connectome variant-slot-unlock events as sole roll trigger
 
-`packages/core/src/lib/gacha.ts` SHALL export a generic `rollGachaWithFloor(config, stats, floor, rerollCap, rng?)` function:
+**Reason**: Variants are no longer produced by AP-threshold slot-unlock events.
+Replaced by the player-initiated, currency-gated per-family pull (see ADDED
+"Player SHALL initiate variant pulls per family by spending neural energy").
 
-- `config: GachaConfig` — same shape as existing `rollGacha`
-- `stats: GachaStats` — same shape; pity counter unused for this path (slot floor is the only pity-like mechanism, no rolls-since-rare counter)
-- `floor: TierId | null` — null = no floor (degenerates to single-shot `rollGacha`); non-null = enforce floor
-- `rerollCap: number` — max reroll attempts before force-sample (callers pass `5`)
-- `rng?` — optional injectable RNG for testability
+### Requirement: Slot 4 SHALL guarantee P3-or-better rarity floor, slot 5 SHALL guarantee P2-or-better floor, slots 1–3 SHALL have no floor
 
-The existing `rollGacha(config, stats, rng?)` signature, return shape `{ tier, wasPity, newStats }`, and behaviour SHALL remain identical. The existing `loot.ts` public API (`rollLoot`, `rollRarity`, `DEFAULT_RARITY_WEIGHTS`, `PITY_SR_THRESHOLD`, `PITY_SSR_THRESHOLD`, `initialLootStats`) SHALL remain unchanged. `packages/core/` SHALL remain content-agnostic — `rollGachaWithFloor` SHALL NOT reference `'P1'..'P5'` or `'家醫科'` or any content-domain literal.
+**Reason**: The slot-floor pity mechanism is removed with the slot-unlock model.
+Pity is now the per-family **P0 soft-pity** (see ADDED "P0 apex tier SHALL exist per
+family with a soft-pity ramp"). `SLOT_RARITY_FLOOR` / `VARIANT_REROLL_CAP` are
+deleted from the content pack.
 
-#### Scenario: Existing rollGacha signature unchanged
+### Requirement: Existing pre-upgrade saves with already-unlocked AP slots SHALL be silently backfilled with variants on first boot after upgrade
 
-- **GIVEN** any pre-existing caller of `rollGacha(config, stats)` from `recruitment-gacha` or 一階 loot
-- **WHEN** the gacha refactor is applied
-- **THEN** the function signature SHALL be unchanged
-- **AND** the return shape `{ tier, wasPity, newStats }` SHALL be unchanged
-- **AND** the rarity distribution SHALL be statistically identical (chi-square comparison over 10k rolls, p > 0.05)
+**Reason**: The collection is **fully reset** on the v10 upgrade (no grandfather, no
+backfill) — see ADDED "Existing collection SHALL be fully reset on the Dexie v10
+upgrade with no grandfather".
 
-#### Scenario: rollGachaWithFloor delegates to rollGacha when floor is null
+### Requirement: Rarity weight distribution SHALL be P5/P4/P3/P2/P1 = 60/25/10/4/1
 
-- **GIVEN** `floor = null`
-- **WHEN** `rollGachaWithFloor(config, stats, null, 5, rng)` is called
-- **THEN** the return value SHALL equal `rollGacha(config, stats, rng)` (same tier outcome for identical PRNG, `wasPity` flag preserved from inner call)
-- **AND** no reroll SHALL occur
+**Reason**: Replaced by a P0–P5 pyramid weight table summing to 100 (adds the P0
+始源 tier at weight 0.7) — see ADDED "Rarity weight distribution SHALL be a P0–P5
+pyramid summing to 100".
 
-#### Scenario: rollGachaWithFloor returns floor tier after exhausting reroll budget
+### Requirement: Content pack SHALL ship a 55-entry `NEURON_VARIANT_CATALOG` with one named variant per `(familyId, slotIndex)` pair
 
-- **GIVEN** `floor = 'P2'`, `rerollCap = 5`, PRNG sequence produces 5 consecutive tiers below P2
-- **WHEN** `rollGachaWithFloor` is called
-- **THEN** after 5 rerolls, the function SHALL force-sample from the `'P2'` tier
-- **AND** the returned `wasPity` flag SHALL be `true`
+**Reason**: Replaced by a 66-entry catalog with a fixed rarity per variant (adds the
+`slotIndex 0` P0 entry per family) — see ADDED "Content pack SHALL ship a 66-entry
+`NEURON_VARIANT_CATALOG` with a fixed rarity per variant".
 
-#### Scenario: Force-sampled result keeps stats consistent with the returned tier
+### Requirement: Theme pack SHALL register 55 placeholder variant sprite keys plus terminal default
 
-- **GIVEN** `floor = 'P2'`, `rerollCap = 5`, all 5 PRNG attempts produce tiers below P2 (so the function force-samples at P2)
-- **WHEN** `rollGachaWithFloor` returns
-- **THEN** the returned `newStats.rollsSinceLast['P2']` SHALL equal `0` (force-sample at floor is treated as a hit for stats purposes)
-- **AND** `newStats.rollsSinceLast` for every tier with rank ≤ floor's rank SHALL equal `0`
-- **AND** `newStats.rollsSinceLast` for every tier with rank > floor's rank (e.g. `'P1'` when floor is `'P2'`) SHALL carry forward the pre-force-sample increment from the last reroll (force-sampling P2 does NOT clear the P1 counter)
-- **AND** `newStats.totalRolls` SHALL equal the input `stats.totalRolls + rerollCap` (each reroll counted)
+**Reason**: Replaced by 66-key registration (adds the 11 P0 `slotIndex 0` keys) — see
+ADDED "Theme pack SHALL register 66 variant sprite keys plus terminal default".
+
+### Requirement: Provenance SHALL sync via the neurons R2 bundle with LWW and cross-version tolerance
+
+**Reason**: The R2 sync requirement is restated for the gacha collection — variants
+ride the same bundle but resolve `copies` via a MONOTONIC MAX-merge carve-out rather
+than LWW. See ADDED "Variant collection SHALL sync via the neurons R2 bundle with
+copies MAX-merge and cross-version tolerance".
+
+## MODIFIED Requirements
+
+### Requirement: Content pack SHALL export a default variant-title mapping per rarity tier
+
+The package SHALL export `DEFAULT_VARIANT_TITLE_BY_RARITY: Record<Rarity, string>`
+covering `P0..P5`, used to compose the persisted `displayName` as
+`"<catalog.displayName> · <title>"`. The mapping SHALL include a P0 title (e.g.
+`始源核`) in addition to the existing P1–P5 titles.
+
+#### Scenario: Mapping is complete for all six tiers
+
+- **WHEN** a consumer imports `DEFAULT_VARIANT_TITLE_BY_RARITY`
+- **THEN** it SHALL contain entries for `P0`, `P1`, `P2`, `P3`, `P4`, `P5`
+- **AND** `DEFAULT_VARIANT_TITLE_BY_RARITY.P0` SHALL be a non-empty string
 
 ### Requirement: Variant SHALL be persisted in `neuronVariants` Dexie table with composite primary key `(familyId, slotIndex)`
 
@@ -86,19 +99,6 @@ interface NeuronVariantRow {
 - **THEN** the row's `copies` SHALL become 2
 - **AND** the `neuronVariants` row count for that pair SHALL remain 1
 - **AND** `rarity` / `displayName` / `rolledAt` SHALL be unchanged
-
-### Requirement: Content pack SHALL export a default variant-title mapping per rarity tier
-
-The package SHALL export `DEFAULT_VARIANT_TITLE_BY_RARITY: Record<Rarity, string>`
-covering `P0..P5`, used to compose the persisted `displayName` as
-`"<catalog.displayName> · <title>"`. The mapping SHALL include a P0 title (e.g.
-`始源核`) in addition to the existing P1–P5 titles.
-
-#### Scenario: Mapping is complete for all six tiers
-
-- **WHEN** a consumer imports `DEFAULT_VARIANT_TITLE_BY_RARITY`
-- **THEN** it SHALL contain entries for `P0`, `P1`, `P2`, `P3`, `P4`, `P5`
-- **AND** `DEFAULT_VARIANT_TITLE_BY_RARITY.P0` SHALL be a non-empty string
 
 ### Requirement: Unlock reveal SHALL surface both a modal and a toast, sourced from the motion library
 
@@ -175,61 +175,7 @@ provenance.
 - **WHEN** the pull resolves
 - **THEN** the existing row's `provenance` SHALL be unchanged
 
-### Requirement: Variants without provenance SHALL be treated as 元老 (傳承) individuals without any backfill write
-
-Variants minted before this change have no `provenance`. The system SHALL treat `provenance === undefined` as a 元老 / 傳承 individual and SHALL NOT perform any migration write to backfill old rows (absence is the marker). For such rows the system SHALL derive a display date from the existing `rolledAt` and a subject from `familyId`, with no special tags.
-
-#### Scenario: Pre-upgrade row renders as 元老 with no write
-
-- **GIVEN** a `neuronVariant` row exists with `rolledAt` set and `provenance === undefined`
-- **WHEN** the collection loads after upgrade
-- **THEN** the row SHALL be treated as a 元老 individual
-- **AND** no write SHALL be performed to that row to add provenance
-- **AND** its caption SHALL derive the date from `rolledAt` and the subject from `familyId`
-
-#### Scenario: New row is never a 元老 individual
-
-- **GIVEN** a variant minted after this change with a populated `provenance`
-- **WHEN** the collection loads
-- **THEN** the variant SHALL NOT be treated as a 元老 individual
-
-### Requirement: Dex card SHALL render a single-line birth caption derived from provenance
-
-Each variant's dex card SHALL display exactly one birth caption line derived from its `provenance` (or the 元老 fallback when absent). The caption SHALL include the birth date and subject; the 救贖 and 里程碑 conditions SHALL be reflected inline in the same line. The caption SHALL NOT introduce a second line, chip cluster, or modal for provenance.
-
-#### Scenario: Standard variant caption shows date, count, subject
-
-- **GIVEN** a variant with `provenance = { bornAtISO: '2026-06-01', apAtUnlock: 10, wasRedemption: false, streakAtMint: 3 }` for `藥理學`
-- **WHEN** its dex card renders
-- **THEN** a single caption line SHALL show the birth date `2026-06-01`, the subject `藥理學`, and the answered-count milestone (`10`)
-
-#### Scenario: 救贖 individual caption reflects the redemption inline
-
-- **GIVEN** a variant with `provenance.wasRedemption === true`
-- **WHEN** its dex card renders
-- **THEN** the single caption line SHALL convey that the variant was born from answering a previously-wrong question
-
-#### Scenario: 里程碑 individual caption reflects the streak inline
-
-- **GIVEN** a variant flagged 里程碑 (`streakAtMint >= MILESTONE_STREAK_THRESHOLD`)
-- **WHEN** its dex card renders
-- **THEN** the single caption line SHALL convey the streak milestone
-
-#### Scenario: 元老 individual caption uses the fallback form
-
-- **GIVEN** a variant with `provenance === undefined`
-- **WHEN** its dex card renders
-- **THEN** the single caption line SHALL show the `rolledAt`-derived date + `familyId` subject + a 傳承/元老 marker, with no 救贖/里程碑 tags
-
-### Requirement: Provenance SHALL be display-only and SHALL NOT affect any gacha mechanic
-
-Provenance SHALL be read in this capability only by the caption renderer. The presence, absence, or contents of `provenance` SHALL NOT change rarity rolls, the `VARIANT_RARITY_WEIGHTS` distribution, slot rarity floors, the AP unlock ladder, the closed cap of 55, or any other gacha behavior. The shipped roll-and-persist path and its tests SHALL remain unchanged except for the additive provenance write.
-
-#### Scenario: Rarity outcome is independent of provenance
-
-- **GIVEN** two slot-1 unlocks with identical PRNG state but different provenance (one redemption, one not)
-- **WHEN** each variant is rolled
-- **THEN** both SHALL receive the same rarity (provenance does not influence the roll)
+## ADDED Requirements
 
 ### Requirement: Rarity weight distribution SHALL be a P0–P5 pyramid summing to 100
 
@@ -450,4 +396,3 @@ seed a v9 save and assert the reset + preservation.
 
 - **WHEN** an existing player opens the app after upgrade
 - **THEN** no migration banner SHALL appear and no pre-upgrade variant SHALL survive
-

@@ -1,45 +1,50 @@
 /**
- * Variant gacha service — listens to `connectome.variantSlotUnlocked` events
- * from the connectome service, rolls a P1-P5 rarity per slot (with slot-4 P3 /
- * slot-5 P2 floors), persists a `neuronVariants` Dexie row, and emits a
- * UI-facing `variantRolled` event for modal+toast consumption.
+ * Variant gacha service (Collection 2.0) — player-initiated, currency-gated,
+ * per-family PULL. This is the ONLY mechanism that creates `neuronVariants` rows
+ * (the pre-gacha AP-slot-unlock subscriber + backfill are gone).
  *
  * Capability spec: openspec/specs/neuron-variant-gacha/spec.md
- * Borrowed from 二階 recruitment-gacha per neurons-mode Req 5.
  *
- * Idempotency: if the (familyId, slotIndex) row already exists, the handler
- * returns early — no reroll, no UI, no Dexie write. This guards against event
- * replay and dev-tool resets.
+ * A pull: require balance ≥ PULL_COST and family not fully collected → in one tx
+ * spend PULL_COST, bump familyAccrual.pullCount (the P0 soft-pity clock), roll a
+ * rarity (P0 soft-pity applied; P0 excluded once owned), resolve the (family,
+ * rarity) catalog variant, then persist a new row (copies=1, provenance stamped)
+ * or increment `copies` on a dupe. The reveal (`variantRolled`) fires post-commit.
  */
 
-import { rollGachaWithFloor, type GachaConfig } from '@study-rpg/core'
 import {
   NEURON_VARIANT_CATALOG,
-  VARIANT_RARITY_WEIGHTS,
-  SLOT_RARITY_FLOOR,
-  VARIANT_REROLL_CAP,
+  PULL_COST,
+  P0_PITY_START,
   composeVariantDisplayName,
+  rollRarityWithP0Pity,
+  type NeuronVariantDef,
   type Rarity,
-  type SlotIndex,
 } from '@study-rpg/content-neurons-tw'
 import { db, todayISO, type NeuronVariantRow, type NeuronVariantProvenance } from '../db'
-import { subscribeConnectomeEvents } from './connectome'
+import { emitVariantCollected } from './connectome'
 import { getStreaks } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { consumeVariantRateUpBuff } from './dmn-event-dispatcher'
+import { readBalance, spendEnergyInTx } from './currency'
 
-const GACHA_CONFIG: GachaConfig = {
-  // rollGacha convention: tiers[0] is the LOWEST rarity (highest weight);
-  // last is the HIGHEST rarity. VARIANT_RARITY_WEIGHTS already ships in that
-  // order ([P5, P4, P3, P2, P1] = [60, 25, 10, 4, 1]) — DO NOT reverse, or
-  // tierRank lookups invert and the floor enforcement breaks.
-  tiers: VARIANT_RARITY_WEIGHTS.slice(),
-  pityRules: [],
+/** P0–P5 tier count per family (the closed cap per family). */
+export const SLOTS_PER_FAMILY = 6
+
+/** Rarity rank for "take the rarer" (P0 rarest = 0). */
+const RARITY_RANK: Record<Rarity, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
+
+const CATALOG_BY_FAMILY = new Map<string, NeuronVariantDef[]>()
+for (const def of NEURON_VARIANT_CATALOG) {
+  const list = CATALOG_BY_FAMILY.get(def.familyId) ?? []
+  list.push(def)
+  CATALOG_BY_FAMILY.set(def.familyId, list)
 }
 
 export interface VariantRolledPayload {
   variant: NeuronVariantRow
-  apAtUnlock: number
+  /** True when the pull resolved to an already-owned variant (copies incremented). */
+  isDupe: boolean
   /** Family display name resolved at emit time from the content pack subjects list. */
   familyDisplayName: string
 }
@@ -62,9 +67,7 @@ class VariantGachaEventEmitter {
   }
 
   off<E extends keyof VariantGachaEventMap>(event: E, listener: Listener<E>): void {
-    this.listeners
-      .get(event)
-      ?.delete(listener as Listener<keyof VariantGachaEventMap>)
+    this.listeners.get(event)?.delete(listener as Listener<keyof VariantGachaEventMap>)
   }
 
   emit<E extends keyof VariantGachaEventMap>(
@@ -106,207 +109,150 @@ export function subscribeVariantGachaEvents(
   }
 }
 
-interface ResolveFamilyDisplayName {
-  (familyId: string): string
+type ResolveFamilyDisplayName = (familyId: string) => string
+
+export interface PullableState {
+  /** Family is fully collected (all 6 tiers owned). */
+  complete: boolean
+  /** Whether the family's P0 apex is already owned. */
+  p0Owned: boolean
+  /** Count of collected variants in this family (0–6). */
+  ownedCount: number
 }
 
-interface RollAndPersistOptions {
-  /** When true, skip the `variantRolled` event emit so backfill paths don't
-   *  spawn modal/toast for variants the player "already had" pre-upgrade. */
-  silent?: boolean
+export async function getPullableState(familyId: string): Promise<PullableState> {
+  const rows = await db.neuronVariants.where('familyId').equals(familyId).toArray()
+  return {
+    ownedCount: rows.length,
+    complete: rows.length >= SLOTS_PER_FAMILY,
+    p0Owned: rows.some((r) => r.slotIndex === 0),
+  }
 }
 
-async function rollAndPersist(
+export type PullRejectReason = 'insufficient' | 'complete' | 'error'
+
+export interface PullResult {
+  ok: boolean
+  reason?: PullRejectReason
+  rarity?: Rarity
+  isDupe?: boolean
+  variant?: NeuronVariantRow
+}
+
+/**
+ * Perform one per-family pull. Returns a structured result; never throws to the
+ * caller (errors are logged + returned as `{ ok:false, reason:'error' }`).
+ */
+export async function pullVariant(
   familyId: string,
-  slotIndex: number,
-  apAtUnlock: number,
-  wasRedemption: boolean,
   resolveFamilyDisplayName: ResolveFamilyDisplayName,
-  { silent = false }: RollAndPersistOptions = {},
-): Promise<void> {
-  const slot = slotIndex as SlotIndex
-  if (!([1, 2, 3, 4, 5] as const).includes(slot)) {
-    console.error(`[variant-gacha] invalid slotIndex ${slotIndex} for ${familyId}`)
-    return
+): Promise<PullResult> {
+  const defs = CATALOG_BY_FAMILY.get(familyId)
+  if (!defs || defs.length === 0) {
+    console.error(`[variant-gacha] no catalog for family ${familyId}`)
+    return { ok: false, reason: 'error' }
   }
-  const catalogEntry = NEURON_VARIANT_CATALOG.find(
-    (e) => e.familyId === familyId && e.slotIndex === slot,
-  )
-  if (!catalogEntry) {
-    console.error(`[variant-gacha] no catalog entry for ${familyId}:${slotIndex}`)
-    return
-  }
-  const floor = SLOT_RARITY_FLOOR[slot]
-  const initialStats = { totalRolls: 0, rollsSinceLast: {} }
-  // DMN variant-rate-up: if active, use boosted weights 20/30/30/15/5
-  // (vs default 60/25/10/4/1) for this single roll. Buff is consumed
-  // regardless of roll outcome.
-  const variantRateUpActive = await consumeVariantRateUpBuff()
-  const activeConfig = variantRateUpActive
-    ? {
-        ...GACHA_CONFIG,
-        tiers: [
-          { id: 'P5', weight: 20 },
-          { id: 'P4', weight: 30 },
-          { id: 'P3', weight: 30 },
-          { id: 'P2', weight: 15 },
-          { id: 'P1', weight: 5 },
-        ],
-      }
-    : GACHA_CONFIG
-  if (variantRateUpActive) {
-    console.info('[variant-gacha] DMN variant-rate-up buff consumed; using boosted weights')
-  }
-  const result = rollGachaWithFloor(
-    activeConfig,
-    initialStats,
-    floor,
-    VARIANT_REROLL_CAP,
-  )
-  const rarity = result.tier as Rarity
-  const wasPityFloor = floor !== null
-  // Provenance (add-neurons-variant-provenance): stamp the study context at
-  // mint. `apAtUnlock < 0` is the synthetic sentinel used by the silent
-  // backfill + DEV forceUnlock paths — those rows MUST NOT fabricate context;
-  // leaving `provenance` undefined renders them as 元老 / 傳承 individuals (the
-  // absence-is-the-marker rule, design D1/3.2). Real unlocks always carry a
-  // positive slot threshold (10/30/80/200/500). `streakAtMint` reads the streak
-  // service AFTER recordCorrectAnswer's tx incremented it (event fires
-  // post-commit), so it is the player's streak at the moment of mint.
-  let provenance: NeuronVariantProvenance | undefined
-  if (apAtUnlock >= 0) {
+
+  try {
+    // Preflight (outside tx): balance + completeness.
+    const balanceBefore = await readBalance()
+    if (balanceBefore < PULL_COST) return { ok: false, reason: 'insufficient' }
+    const state = await getPullableState(familyId)
+    if (state.complete) return { ok: false, reason: 'complete' }
+
+    // DMN variant-rate-up: consume the buff (own tx on dmnActiveBuffs) BEFORE the
+    // pull tx (different table scope). When active, the pull rolls twice and keeps
+    // the rarer outcome — the spine's mapping of the legacy boosted-weights buff.
+    const variantRateUp = await consumeVariantRateUpBuff()
+    if (variantRateUp) console.info('[variant-gacha] DMN variant-rate-up consumed (roll-twice-take-rarer)')
+
     const { current: streakAtMint } = await getStreaks()
-    provenance = { bornAtISO: todayISO(), apAtUnlock, wasRedemption, streakAtMint }
-  }
-  const variantRow: NeuronVariantRow = {
-    familyId,
-    slotIndex,
-    rarity,
-    displayName: composeVariantDisplayName(catalogEntry.displayName, rarity),
-    spriteKey: catalogEntry.spriteKey,
-    rolledAt: Date.now(),
-    wasPityFloor,
-    ...(provenance ? { provenance } : {}),
-  }
-  let persisted = false
-  await db.transaction('rw', db.neuronVariants, async () => {
-    const existing = await db.neuronVariants.get([familyId, slotIndex])
-    if (existing) return
-    await db.neuronVariants.put(variantRow)
-    persisted = true
-  })
-  if (persisted && !silent) {
+    const prevStats = await buildAchievementStats()
+
+    // The transaction RETURNS the outcome (don't mutate outer `let`s — TS cannot
+    // narrow a variable assigned only inside an async callback).
+    const out = await db.transaction(
+      'rw',
+      [db.meta, db.familyAccrual, db.neuronVariants],
+      async (): Promise<{
+        rarity: Rarity
+        isDupe: boolean
+        resultRow: NeuronVariantRow
+        persistedNew: boolean
+      }> => {
+        await spendEnergyInTx(PULL_COST)
+
+        const accrual = await db.familyAccrual.get(familyId)
+        if (!accrual) throw new Error(`no familyAccrual row for "${familyId}"`)
+        const newPullCount = (accrual.pullCount ?? 0) + 1
+        await db.familyAccrual.update(familyId, { pullCount: newPullCount })
+
+        const ownedRows = await db.neuronVariants.where('familyId').equals(familyId).toArray()
+        const p0Owned = ownedRows.some((r) => r.slotIndex === 0)
+
+        let rarity = rollRarityWithP0Pity(newPullCount, p0Owned)
+        if (variantRateUp) {
+          const second = rollRarityWithP0Pity(newPullCount, p0Owned)
+          if (RARITY_RANK[second] < RARITY_RANK[rarity]) rarity = second
+        }
+
+        const target = defs.find((d) => d.rarity === rarity)
+        if (!target) throw new Error(`no catalog variant for ${familyId} ${rarity}`)
+
+        const existing = await db.neuronVariants.get([familyId, target.slotIndex])
+        if (existing) {
+          const row: NeuronVariantRow = { ...existing, copies: (existing.copies ?? 1) + 1 }
+          await db.neuronVariants.put(row)
+          return { rarity, isDupe: true, resultRow: row, persistedNew: false }
+        }
+
+        const provenance: NeuronVariantProvenance = {
+          bornAtISO: todayISO(),
+          apAtUnlock: accrual.ap,
+          wasRedemption: false, // pulls are not question-tied (no 救贖 for pulls)
+          streakAtMint,
+        }
+        const row: NeuronVariantRow = {
+          familyId,
+          slotIndex: target.slotIndex,
+          rarity,
+          displayName: composeVariantDisplayName(target.displayName, rarity),
+          spriteKey: target.spriteKey,
+          rolledAt: Date.now(),
+          // 保底 flag: a P0 obtained while the soft-pity ramp was active.
+          wasPityFloor: rarity === 'P0' && newPullCount > P0_PITY_START,
+          copies: 1,
+          provenance,
+        }
+        await db.neuronVariants.put(row)
+        return { rarity, isDupe: false, resultRow: row, persistedNew: true }
+      },
+    )
+
     variantGachaEvents.emit('variantRolled', {
-      variant: variantRow,
-      apAtUnlock,
+      variant: out.resultRow,
+      isDupe: out.isDupe,
       familyDisplayName: resolveFamilyDisplayName(familyId),
     })
-  }
-}
-
-export async function handleSlotUnlock(
-  payload: { familyId: string; slotIndex: number; apAtUnlock: number; wasRedemption: boolean },
-  resolveFamilyDisplayName: ResolveFamilyDisplayName,
-  options: RollAndPersistOptions = {},
-): Promise<void> {
-  try {
-    // Pre-check idempotency outside the rolling tx to avoid wasted RNG calls.
-    const existing = await db.neuronVariants.get([payload.familyId, payload.slotIndex])
-    if (existing) return
-    // Capture pre-state for achievement diff (only non-silent path).
-    const prevStats = options.silent ? null : await buildAchievementStats()
-    await rollAndPersist(
-      payload.familyId,
-      payload.slotIndex,
-      payload.apAtUnlock,
-      payload.wasRedemption,
-      resolveFamilyDisplayName,
-      options,
-    )
-    if (prevStats) {
-      // Variant just persisted — check for variant / family-complete / fortune
-      // category achievements. Silent backfill path skips toast pipeline entirely.
-      await triggerAchievementCheck(prevStats)
+    if (out.persistedNew) {
+      // New variant collected → refresh connectome leaf + DMN behavior draw.
+      emitVariantCollected({
+        familyId,
+        slotIndex: out.resultRow.slotIndex,
+        apAtUnlock: out.resultRow.provenance?.apAtUnlock ?? 0,
+        wasRedemption: false,
+      })
     }
+    await triggerAchievementCheck(prevStats)
+
+    return { ok: true, rarity: out.rarity, isDupe: out.isDupe, variant: out.resultRow }
   } catch (err) {
-    console.error(`[variant-gacha] handleSlotUnlock failed for ${payload.familyId}:${payload.slotIndex}:`, err)
+    console.error(`[variant-gacha] pullVariant failed for ${familyId}:`, err)
+    return { ok: false, reason: 'error' }
   }
 }
 
-/**
- * Retroactively roll + persist variants for any slot a player has already
- * unlocked (via past AP threshold crossings) but for which no variant row
- * exists yet. Runs silently — does NOT emit `variantRolled` events, so the
- * player does not see modal/toast spam for "old" unlocks on first app boot
- * post-upgrade. Idempotent: existing variant rows are skipped.
- *
- * Returns counts for DEV-only diagnostics.
- */
-export async function backfillUnlockedSlots(
-  resolveFamilyDisplayName: ResolveFamilyDisplayName,
-): Promise<{ backfilled: number; skipped: number }> {
-  let backfilled = 0
-  let skipped = 0
-  try {
-    const accruals = await db.familyAccrual.toArray()
-    for (const accrual of accruals) {
-      for (const slotIndex of accrual.unlockedSlots) {
-        const existing = await db.neuronVariants.get([accrual.familyId, slotIndex])
-        if (existing) {
-          skipped += 1
-          continue
-        }
-        await handleSlotUnlock(
-          // apAtUnlock: -1 → synthetic backfill; no provenance written (→ 元老).
-          { familyId: accrual.familyId, slotIndex, apAtUnlock: -1, wasRedemption: false },
-          resolveFamilyDisplayName,
-          { silent: true },
-        )
-        backfilled += 1
-      }
-    }
-    if (import.meta.env.DEV && (backfilled > 0 || skipped > 0)) {
-      console.info(
-        `[variant-gacha] backfill: ${backfilled} new variant${backfilled === 1 ? '' : 's'}, ${skipped} already present`,
-      )
-    }
-  } catch (err) {
-    console.error('[variant-gacha] backfillUnlockedSlots failed:', err)
-  }
-  return { backfilled, skipped }
-}
-
-let registered = false
-let currentSubscription: ReturnType<typeof subscribeConnectomeEvents> | null = null
-
-/**
- * Singleton registration. Calling multiple times is a no-op (the first
- * subscription persists). Pass a `resolveFamilyDisplayName` callback so the
- * service stays content-pack-agnostic.
- */
-export function registerVariantGachaSubscriber(
-  resolveFamilyDisplayName: ResolveFamilyDisplayName,
-): void {
-  if (registered) return
-  registered = true
-  currentSubscription = subscribeConnectomeEvents({
-    'connectome.variantSlotUnlocked': (payload) => {
-      void handleSlotUnlock(payload, resolveFamilyDisplayName)
-    },
-  })
-}
-
-/**
- * For test / hot-reload teardown only. Production callers should not need
- * this — the singleton lives the lifetime of the page.
- */
-export function disposeVariantGachaSubscriber(): void {
-  currentSubscription?.dispose()
-  currentSubscription = null
-  registered = false
-}
-
-/* DEV-only debug handles attached to globalThis to support manual smoke tests. */
+/* DEV-only debug handles for manual smoke tests. */
 if (import.meta.env.DEV) {
   ;(globalThis as unknown as { __variantGacha?: unknown }).__variantGacha = {
     peekAll: async () => db.neuronVariants.toArray(),
@@ -314,14 +260,12 @@ if (import.meta.env.DEV) {
       db.neuronVariants.where('familyId').equals(familyId).toArray(),
     countByFamily: async (familyId: string) =>
       db.neuronVariants.where('familyId').equals(familyId).count(),
+    pullableState: getPullableState,
+    forcePull: async (familyId: string, resolve: ResolveFamilyDisplayName) =>
+      pullVariant(familyId, resolve),
     clearAll: async () => {
       await db.neuronVariants.clear()
       console.warn('[variant-gacha] DEV: cleared all neuronVariant rows')
-    },
-    /** Force-emit a slot-unlock event end-to-end (rolls + persists + UI). */
-    forceUnlock: async (familyId: string, slotIndex: number, resolve: ResolveFamilyDisplayName) => {
-      // apAtUnlock: -1 → synthetic; no provenance written (→ 元老 in dex).
-      await handleSlotUnlock({ familyId, slotIndex, apAtUnlock: -1, wasRedemption: false }, resolve)
     },
   }
 }

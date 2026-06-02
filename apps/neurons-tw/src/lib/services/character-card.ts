@@ -23,8 +23,8 @@ export const CARD_BRANCH_ORDER: readonly NtBranchId[] = ['DA', '5HT', 'GABA', 'G
 /** Shown when the player has not set a leaderboard nickname. */
 export const DEFAULT_CARD_NICKNAME = '神經元研究員'
 
-/** Lower rank = higher rarity (P1 夯 is best, P5 拉完了 is worst). */
-const RARITY_RANK: Record<VariantRarity, number> = { P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
+/** Lower rank = higher rarity (P0 始源 is best, P5 拉完了 is worst). */
+const RARITY_RANK: Record<VariantRarity, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
 
 export interface BranchRepresentative {
   branch: NtBranchId
@@ -100,7 +100,10 @@ export function pickBranchRepresentatives(
 
 const VARIANT_TOTAL = NEURON_VARIANT_CATALOG.length
 const FAMILY_TOTAL = new Set(NEURON_VARIANT_CATALOG.map((e) => e.familyId)).size
-const SLOTS_PER_FAMILY = 5
+// Derived from the catalog (uniform slots/family) so it tracks the model —
+// Collection 2.0 widened this 5 → 6 (P0–P5); a hardcoded literal would silently
+// miscount familiesComplete after the catalog grows.
+const SLOTS_PER_FAMILY = VARIANT_TOTAL / FAMILY_TOTAL
 
 /**
  * Build the card payload from local Dexie state. `userId` is optional: when

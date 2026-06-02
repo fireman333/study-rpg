@@ -37,11 +37,19 @@
 //        key (active-squad selection envelope). LWW via backfill/active-squad.ts.
 //        Additive — v7 clients drop the key; a v8 client reading a v7 bundle (no
 //        activeSquad) preserves its local squad. NO Dexie bump (rides meta).
+//   v9 — rework-neurons-collection-gacha 2026-06-02 (Collection 2.0 spine): the
+//        gacha flip. neuronVariants rows gain a `copies` field (MAX-merge carve-out
+//        in the adapter); familyAccrual gains `pullCount` (MAX-merge, P0 pity);
+//        two new currency meta keys `neuralEnergyEarned` / `neuralEnergySpent`
+//        (MAX-merge counters). NO new adapter — all ride existing tables/meta.
+//        Additive + reader-tolerant: a v8 client reading a v9 bundle drops the new
+//        meta keys and ignores copies/pullCount; a v9 client reading a v8 bundle
+//        sees no currency keys (balance starts at 0) and copies/pullCount default.
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 8
+export const SCHEMA_VERSION = 9
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'
