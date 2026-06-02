@@ -48,3 +48,20 @@ describe('buildLeaderboardPayload — total_study_min wiring', () => {
     expect(payload.total_study_min).toBe(999999)
   })
 })
+
+describe('buildLeaderboardPayload — open collection (variant_count distinct, no family_complete)', () => {
+  it('variant_count equals the distinct neuronVariants row count (dupes do not inflate)', async () => {
+    await db.neuronVariants.bulkPut([
+      { familyId: '藥理學', slotIndex: 0, rarity: 'P0', displayName: 'a', spriteKey: 'variant:藥理學:0', rolledAt: 1, wasPityFloor: false, copies: 1 },
+      { familyId: '藥理學', slotIndex: 1, rarity: 'P5', displayName: 'b', spriteKey: 'variant:藥理學:1', rolledAt: 2, wasPityFloor: false, copies: 5 },
+      { familyId: '解剖學', slotIndex: 0, rarity: 'P0', displayName: 'c', spriteKey: 'variant:解剖學:0', rolledAt: 3, wasPityFloor: false, copies: 1 },
+    ])
+    const payload = await buildLeaderboardPayload('TestNick', true)
+    expect(payload.variant_count).toBe(3) // 3 distinct rows; copies=5 does NOT inflate
+  })
+
+  it('payload does not carry a family_complete field (retired)', async () => {
+    const payload = await buildLeaderboardPayload('TestNick', true)
+    expect('family_complete' in payload).toBe(false)
+  })
+})

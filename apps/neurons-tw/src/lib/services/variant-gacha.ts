@@ -5,7 +5,8 @@
  *
  * Capability spec: openspec/specs/neuron-variant-gacha/spec.md
  *
- * A pull: require balance ≥ PULL_COST and family not fully collected → in one tx
+ * A pull: require balance ≥ PULL_COST (open-collection — no completeness gate; a
+ * fully-collected family is still pullable and yields a dupe) → in one tx
  * spend PULL_COST, bump familyAccrual.pullCount (the P0 soft-pity clock), roll a
  * rarity (P0 soft-pity applied; P0 excluded once owned), resolve the (family,
  * rarity) catalog variant, then persist a new row (copies=1, provenance stamped)
@@ -134,7 +135,7 @@ export async function getPullableState(familyId: string): Promise<PullableState>
   }
 }
 
-export type PullRejectReason = 'insufficient' | 'complete' | 'error'
+export type PullRejectReason = 'insufficient' | 'error'
 
 export interface PullResult {
   ok: boolean
@@ -159,11 +160,11 @@ export async function pullVariant(
   }
 
   try {
-    // Preflight (outside tx): balance + completeness.
+    // Preflight (outside tx): balance only. Open-collection — a fully-collected
+    // family is still pullable (the within-tier pick necessarily yields a dupe);
+    // there is no completeness gate.
     const balanceBefore = await readBalance()
     if (balanceBefore < PULL_COST) return { ok: false, reason: 'insufficient' }
-    const state = await getPullableState(familyId)
-    if (state.complete) return { ok: false, reason: 'complete' }
 
     // DMN variant-rate-up: consume the buff (own tx on dmnActiveBuffs) BEFORE the
     // pull tx (different table scope). When active, the pull rolls twice and keeps

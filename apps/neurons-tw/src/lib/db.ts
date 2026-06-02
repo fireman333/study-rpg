@@ -414,6 +414,44 @@ export class NeuronsDB extends Dexie {
             row.pullCount = 0
           })
       })
+    // Per rework-neurons-open-collection. Schema indices IDENTICAL to v11 (no
+    // row-shape change — the open-collection rework is completion-logic + view +
+    // achievement/leaderboard reframe). The v12 work is the THIRD full reset of
+    // the collection: an owner-chosen clean slate (NOT a row-shape necessity;
+    // design D5). Same preserve discipline as v11 — wipe neuronVariants + reset
+    // P0 pity, PRESERVE neural-energy balance + all study progress.
+    this.version(12)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // THIRD full reset — collection only (open-collection clean slate).
+        // PRESERVE everything else INCLUDING the neural-energy balance: AP /
+        // synapses / mastery / question history / bookmarks / achievements /
+        // totalStudyMinutes / neuralEnergyEarned / neuralEnergySpent. No
+        // grandfather, no migration banner.
+        await tx.table('neuronVariants').clear()
+        await tx
+          .table('familyAccrual')
+          .toCollection()
+          .modify((row: FamilyAccrualRow) => {
+            row.unlockedSlots = []
+            row.pullCount = 0
+          })
+      })
   }
 }
 

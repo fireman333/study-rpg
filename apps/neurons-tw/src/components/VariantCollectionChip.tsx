@@ -1,7 +1,8 @@
 /**
- * Per-family variant collection chip — shows `🧬 X / N` (or `🏆 N / N` celebratory
- * when complete), where N is the family's pyramid total. Subscribes to
- * variant-gacha events for live updates without page reload.
+ * Per-family variant collection chip — shows `🧬 X 隻` (pure count, no denominator;
+ * the catalog total is hidden in the open-collection范式, so there is no `X / N`
+ * and no celebratory full-collection state). Subscribes to variant-gacha events
+ * for live updates without page reload.
  *
  * Spec: openspec/specs/neuron-variant-gacha/spec.md
  *   "Connectome page family cards SHALL display collected-variant count"
@@ -9,7 +10,7 @@
 
 import { useEffect, useState } from 'react'
 import { db } from '../lib/db'
-import { subscribeVariantGachaEvents, slotsForFamily } from '../lib/services/variant-gacha'
+import { subscribeVariantGachaEvents } from '../lib/services/variant-gacha'
 
 interface Props {
   familyId: string
@@ -17,7 +18,6 @@ interface Props {
 
 export default function VariantCollectionChip({ familyId }: Props): JSX.Element {
   const [count, setCount] = useState(0)
-  const total = slotsForFamily(familyId)
 
   useEffect(() => {
     let cancelled = false
@@ -37,17 +37,9 @@ export default function VariantCollectionChip({ familyId }: Props): JSX.Element 
     }
   }, [familyId])
 
-  const complete = total > 0 && count >= total
-  const style: React.CSSProperties = complete
-    ? { ...baseChipStyle, color: '#b58900', borderColor: '#b58900', background: '#fdf6e3' }
-    : baseChipStyle
-
   return (
-    <span
-      style={style}
-      title={complete ? `完整收集 ${total} / ${total} 變體` : `已收集 ${count} / ${total} 變體`}
-    >
-      {complete ? '🏆' : '🧬'} {count} / {total}
+    <span style={baseChipStyle} title={`已收集 ${count} 隻變體`}>
+      🧬 {count} 隻
     </span>
   )
 }

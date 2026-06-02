@@ -1,11 +1,13 @@
 /**
- * CollectionPage — the /collection variant dex (Collection 2.0).
+ * CollectionPage — the /collection variant dex (open collection).
  *
- * Pokédex-style browse of all 11 families × 6 tiers (P0–P5): collected cards +
- * uncollected rarity-labeled silhouettes. A neural-energy balance HUD + a
- * per-family PULL control drive the gacha (study earns energy → spend to pull).
- * Tapping a collected card sets it as that family's representative. Each collected
- * card shows a `× N` dupe badge + a provenance birth caption.
+ * Open-ended browse: renders ONLY the variants the player has collected — no
+ * silhouettes, no pre-shown rarity, no catalog-sized slot grid, and the finite
+ * catalog total is hidden (no `X / N`, no 全部收集). Cards are grouped by family.
+ * A neural-energy balance HUD + a per-family PULL control drive the gacha (study
+ * earns energy → spend to pull); pulling never disables on completion (a full
+ * family yields a dupe). Tapping a collected card sets it as that family's
+ * representative. Each card shows a `× N` dupe badge + a provenance birth caption.
  *
  * Capability spec: openspec/specs/neurons-variant-collection-view/spec.md
  */
@@ -13,7 +15,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
-import { NEURON_VARIANT_CATALOG, PULL_COST, type NeuronVariantDef } from '@study-rpg/content-neurons-tw'
+import { NEURON_VARIANT_CATALOG, PULL_COST } from '@study-rpg/content-neurons-tw'
 import { db, type NeuronVariantRow, type VariantRarity } from '../lib/db'
 import {
   getRepresentativesRaw,
@@ -21,7 +23,7 @@ import {
   setRepresentative,
   type RepresentativeMap,
 } from '../lib/services/representatives'
-import { pullVariant, slotsForFamily } from '../lib/services/variant-gacha'
+import { pullVariant } from '../lib/services/variant-gacha'
 import { useEnergyBalance } from '../lib/services/currency'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
@@ -116,15 +118,14 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     [pack.subjects],
   )
 
-  // Slots per family from the catalog, sorted by slot index (0 = P0 apex first).
-  const slotsByFamily = useMemo(() => {
-    const map = new Map<string, NeuronVariantDef[]>()
+  // Catalog description lookup (familyId:slotIndex → description) for collected
+  // cards. Open collection renders only collected rows, so we no longer build a
+  // per-family slot grid — just resolve each collected variant's description.
+  const descByKey = useMemo(() => {
+    const map = new Map<string, string>()
     for (const entry of NEURON_VARIANT_CATALOG) {
-      const list = map.get(entry.familyId) ?? []
-      list.push(entry)
-      map.set(entry.familyId, list)
+      map.set(slotKey(entry.familyId, entry.slotIndex), entry.description)
     }
-    for (const list of map.values()) list.sort((a, b) => a.slotIndex - b.slotIndex)
     return map
   }, [])
 
@@ -144,7 +145,6 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   const selectAll = (): void => setVisible(new Set(families.map((f) => f.id)))
 
   const collectedCount = state.collectedKeys.size
-  const total = NEURON_VARIANT_CATALOG.length
   const shownFamilies = families.filter((f) => visible.has(f.id))
 
   return (
@@ -152,8 +152,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
       <header style={headerStyle}>
         <h1 style={titleStyle}>神經元圖鑑</h1>
         <p style={subtitleStyle}>
-          11 科 × 6 階（P0–P5）變體，共 {total} 隻。已收集 <strong>{collectedCount}</strong> 隻。
-          唸書與答對累積神經能量，於各科抽卡解鎖變體。
+          已收集 <strong>{collectedCount}</strong> 隻。唸書與答對累積神經能量，於各科抽卡解鎖變體。
         </p>
         <div style={energyHudStyle} aria-label={`神經能量 ${balance}`}>
           ⚡ 神經能量 <strong style={{ fontSize: '1.05rem' }}>{balance}</strong>
@@ -181,17 +180,19 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
         <p style={emptyHintStyle}>（已隱藏所有科別，點「全部」恢復顯示）</p>
       ) : (
         shownFamilies.map((family) => {
-          const slots = slotsByFamily.get(family.id) ?? []
           const repSlot = state.representatives[family.id]
           const repRow =
             repSlot != null ? state.collected.get(slotKey(family.id, repSlot)) : undefined
-          const owned = slots.filter((s) =>
-            state.collectedKeys.has(slotKey(family.id, s.slotIndex)),
-          ).length
-          const familyTotal = slotsForFamily(family.id)
-          const complete = owned >= familyTotal
+          // Open collection: render ONLY collected rows for this family, sorted by
+          // slot index (P0 apex first). No silhouettes, no catalog slot grid, no
+          // denominator — the catalog total stays hidden from the player.
+          const familyRows = [...state.collected.values()]
+            .filter((r) => r.familyId === family.id)
+            .sort((a, b) => a.slotIndex - b.slotIndex)
           const isPulling = pulling === family.id
-          const canPull = !complete && balance >= PULL_COST && !pulling
+          // Pull disables ONLY below cost — a fully-collected family is still
+          // pullable (yields a dupe); no 全部收集 disabled state.
+          const canPull = balance >= PULL_COST && !pulling
           return (
             <section key={family.id} style={familySectionStyle} aria-label={family.label}>
               <div style={familyHeaderRowStyle}>
@@ -200,57 +201,37 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                     <VariantSprite row={repRow} size={28} alt={`${family.label} 代表`} />
                   )}
                   {family.label}
-                  <span style={ownedCountStyle}>
-                    {owned}/{familyTotal}
-                  </span>
+                  <span style={ownedCountStyle}>🧬 {familyRows.length} 隻</span>
                 </h2>
                 <button
                   type="button"
                   disabled={!canPull}
                   onClick={() => void handlePull(family.id)}
-                  style={
-                    complete
-                      ? pullButtonCompleteStyle
-                      : canPull
-                        ? pullButtonStyle
-                        : pullButtonDisabledStyle
-                  }
+                  style={canPull ? pullButtonStyle : pullButtonDisabledStyle}
                   title={
-                    complete
-                      ? '全部收集'
-                      : balance < PULL_COST
-                        ? `神經能量不足（需 ${PULL_COST}）`
-                        : `花 ${PULL_COST} 神經能量在 ${family.label} 抽卡`
+                    balance < PULL_COST
+                      ? `神經能量不足（需 ${PULL_COST}）`
+                      : `花 ${PULL_COST} 神經能量在 ${family.label} 抽卡`
                   }
                 >
-                  {complete
-                    ? '✅ 全部收集'
-                    : isPulling
-                      ? '抽卡中…'
-                      : `🎴 抽卡（${PULL_COST}）`}
+                  {isPulling ? '抽卡中…' : `🎴 抽卡（${PULL_COST}）`}
                 </button>
               </div>
-              <div style={slotRowStyle}>
-                {slots.map((slot) => {
-                  const row = state.collected.get(slotKey(family.id, slot.slotIndex))
-                  if (row) {
-                    return (
-                      <VariantSlotCard
-                        key={slot.slotIndex}
-                        row={row}
-                        description={slot.description}
-                        isRepresentative={repSlot === slot.slotIndex}
-                        onSetRepresentative={() =>
-                          void setRepresentative(family.id, slot.slotIndex)
-                        }
-                      />
-                    )
-                  }
-                  return (
-                    <VariantSlotSilhouette key={slot.slotIndex} rarity={slot.rarity} />
-                  )
-                })}
-              </div>
+              {familyRows.length > 0 && (
+                <div style={slotRowStyle}>
+                  {familyRows.map((row) => (
+                    <VariantSlotCard
+                      key={row.slotIndex}
+                      row={row}
+                      description={descByKey.get(slotKey(family.id, row.slotIndex)) ?? ''}
+                      isRepresentative={repSlot === row.slotIndex}
+                      onSetRepresentative={() =>
+                        void setRepresentative(family.id, row.slotIndex)
+                      }
+                    />
+                  ))}
+                </div>
+              )}
             </section>
           )
         })
@@ -299,23 +280,6 @@ function VariantSlotCard({
           row keeps grid layout stable across caption lengths. */}
       <div style={captionRowStyle} data-provenance-caption={caption}>{caption}</div>
     </button>
-  )
-}
-
-function VariantSlotSilhouette({ rarity }: { rarity: VariantRarity }): JSX.Element {
-  const color = RARITY_COLOR[rarity]
-  return (
-    <div style={{ ...cardStyle, borderColor: '#c9b48f', opacity: 0.6, cursor: 'default' }}>
-      <div style={{ ...rarityChipStyle, color, borderColor: color, opacity: 0.85 }}>
-        {RARITY_LABEL[rarity]}
-      </div>
-      <div style={{ ...spriteWrapStyle, background: '#e7dcc0' }}>
-        <span style={silhouetteStyle}>?</span>
-      </div>
-      <div style={{ ...cardNameStyle, color: '#a3946f' }}>未收集</div>
-      <p style={cardDescStyle}>抽卡有機會獲得</p>
-      <div style={captionRowStyle} aria-hidden="true" />
-    </div>
   )
 }
 
@@ -437,14 +401,6 @@ const pullButtonDisabledStyle: React.CSSProperties = {
   cursor: 'not-allowed',
 }
 
-const pullButtonCompleteStyle: React.CSSProperties = {
-  ...pullButtonStyle,
-  background: '#fdf6e3',
-  color: '#b58900',
-  borderColor: '#b58900',
-  cursor: 'default',
-}
-
 const slotRowStyle: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
@@ -513,12 +469,6 @@ const spriteWrapStyle: React.CSSProperties = {
   background: '#f4ecd8',
   border: '1px solid #c9b48f',
   borderRadius: '6px',
-}
-
-const silhouetteStyle: React.CSSProperties = {
-  fontSize: '2.4rem',
-  color: '#c9b48f',
-  fontWeight: 700,
 }
 
 const cardNameStyle: React.CSSProperties = {
