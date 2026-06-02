@@ -82,10 +82,13 @@ describe('pullVariant', () => {
     expect(await readBalance()).toBe(PULL_COST - 1)
   })
 
-  it('is rejected (no spend) when the family is fully collected', async () => {
+  it('pulls a dupe (no rejection) when the family is fully collected', async () => {
+    // Open collection: a fully-collected family is still pullable; the within-tier
+    // pick necessarily lands on an owned slot → dupe (copies +1). No 全部收集 gate.
+    vi.spyOn(Math, 'random').mockReturnValue(0.5) // P0 excluded (owned) → lands P5
     await seedFamily('藥理學')
     await awardEnergy(100)
-    // 藥理學 pyramid total = 7 (slots 0..6) — seed all to mark it complete.
+    // 藥理學 pyramid total = 7 (slots 0..6) — seed all so every pull is a dupe.
     for (let slotIndex = 0; slotIndex <= 6; slotIndex++) {
       await db.neuronVariants.put({
         familyId: '藥理學',
@@ -99,9 +102,13 @@ describe('pullVariant', () => {
       })
     }
     const r = await pullVariant('藥理學', resolve)
-    expect(r.ok).toBe(false)
-    expect(r.reason).toBe('complete')
-    expect(await readBalance()).toBe(100)
+    expect(r.ok).toBe(true)
+    expect(r.isDupe).toBe(true)
+    // Spent cost + bumped pullCount; no new row (still 7), a copies increment.
+    expect(await readBalance()).toBe(100 - PULL_COST)
+    expect(await db.neuronVariants.where('familyId').equals('藥理學').count()).toBe(7)
+    const acc = await db.familyAccrual.get('藥理學')
+    expect(acc?.pullCount).toBe(1)
   })
 
   it('within-tier roll can land on the second P5 variant (slot 6)', async () => {

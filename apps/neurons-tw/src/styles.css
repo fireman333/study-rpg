@@ -92,7 +92,7 @@ body:has(.modal-backdrop) {
  * Decision 1 so the @media below can retune it). The var lives on the list so
  * the header + data rows share one source of truth (custom props inherit). */
 .neurons-lb-list {
-  --neurons-lb-cols: 3rem 1fr 4rem 4rem 5rem 4.5rem 5.5rem;
+  --neurons-lb-cols: 3rem 1fr 4rem 5rem 4.5rem 5.5rem;
 }
 
 .neurons-lb-row {
@@ -108,15 +108,13 @@ body:has(.modal-backdrop) {
   }
 
   .neurons-lb-cell--variant,
-  .neurons-lb-cell--family,
   .neurons-lb-cell--ap,
   .neurons-lb-cell--synapse,
   .neurons-lb-cell--study {
     display: none;
   }
 
-  /* Re-show only the cell matching the active sort (FILTER_PRIMARY_STAT).
-   * `family` is never a sort key, so it has no re-show rule (stays hidden). */
+  /* Re-show only the cell matching the active sort (FILTER_PRIMARY_STAT). */
   .neurons-lb-list[data-active-stat='variant_count'] .neurons-lb-cell--variant,
   .neurons-lb-list[data-active-stat='total_AP'] .neurons-lb-cell--ap,
   .neurons-lb-list[data-active-stat='synapse_strong'] .neurons-lb-cell--synapse,

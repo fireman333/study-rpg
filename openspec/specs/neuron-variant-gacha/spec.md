@@ -2,7 +2,7 @@
 
 ## Purpose
 
-AP-slot-driven variant collection for neurons-mode. Subscribes to `connectome.variantSlotUnlocked` events from `connectome-collection`, rolls a P1-P5 rarity per slot (with slot-4 P3 / slot-5 P2 pity floors via deterministic reroll), persists the result in a `neuronVariants` Dexie table with composite PK `(familyId, slotIndex)`, surfaces a modal+toast reveal, and powers a `🧬 X / 5` collection chip on each family card. Closed cap = 11 families × 5 slots = 55 lifetime variants — Pokédex-style progression target. Backfills variants for already-unlocked slots silently on first boot post-upgrade. Borrowed pattern from 二階 `recruitment-gacha` per `neurons-mode` Req 5; no doctor/hospital semantics.
+Player-initiated, currency-gated variant collection for neurons-mode. Study (correct answers + reading minutes) mints neural energy; the player spends it on a per-family `pullVariant` that rolls a P0–P5 pyramid rarity (explicit per-catalog-entry rarity; P0 apex via soft-pity, excluded once owned), persists the result in a `neuronVariants` Dexie table with composite PK `(familyId, slotIndex)`, and surfaces a modal+toast reveal. Open collection — pulling never disables on completion (a fully-collected family yields a dupe, `copies + 1`), and family cards show a pure-count `🧬 X 隻` chip with no denominator and no celebratory full-collection state (the finite catalog total is hidden from the player). Borrowed pattern from 二階 `recruitment-gacha` per `neurons-mode` Req 5; no doctor/hospital semantics.
 ## Requirements
 ### Requirement: Core SHALL expose `rollGachaWithFloor` generic helper without breaking existing gacha / loot APIs
 
@@ -134,25 +134,31 @@ the variant is a P0 obtained via soft-pity (`wasPityFloor === true`).
 
 ### Requirement: Connectome page family cards SHALL display collected-variant count
 
-The connectome homepage family card SHALL render a `🧬 X / N` chip, where `X` is the
-count of `neuronVariants` rows for that `familyId` and `N` is the family's **pyramid
-total** (the number of variants the catalog declares for that family). The chip SHALL
-update live via `useLiveQuery`. When `X === N` the chip SHALL render a celebratory
-variant (gold + 🏆) with no reward side-effect. The chip SHALL be visible even when
-nothing is collected (`🧬 0 / N`).
+The connectome homepage family card SHALL render a `🧬 X 隻` chip, where `X` is the
+count of `neuronVariants` rows for that `familyId`. The chip SHALL be a **pure count**
+with no denominator — it SHALL NOT render `X / N`, a catalog total, a progress
+indicator, or a celebratory `X === N` (gold / 🏆) full-collection state (those leak
+the hidden cap). The chip SHALL update live via `useLiveQuery` and SHALL be visible
+even when nothing is collected (`🧬 0 隻`).
 
-#### Scenario: Chip reflects live count out of the family's pyramid total
+#### Scenario: Chip reflects live pure count
 
-- **GIVEN** the `neuronVariants` table contains 3 rows for `familyId='解剖學'` whose
-  pyramid total is `N`
+- **GIVEN** the `neuronVariants` table contains 3 rows for `familyId='解剖學'`
 - **WHEN** the connectome homepage renders
-- **THEN** the 解剖學 card SHALL display `🧬 3 / N`
+- **THEN** the 解剖學 card SHALL display `🧬 3 隻` (no denominator)
 
-#### Scenario: Full collection renders the celebratory chip
+#### Scenario: Fully-collected family shows no celebratory or denominator state
 
-- **GIVEN** all `N` variants for `familyId='免疫學'` are collected
+- **GIVEN** all variants for `familyId='免疫學'` are collected
 - **WHEN** the homepage renders
-- **THEN** the chip SHALL render `🏆 N / N` with a gold accent and no reward fires
+- **THEN** the chip SHALL render `🧬 <count> 隻` with no `/N`, no gold/🏆 accent, and no
+  reward side-effect
+
+#### Scenario: Empty family shows zero count
+
+- **GIVEN** the `neuronVariants` table has no rows for `familyId='病理學'`
+- **WHEN** the homepage renders
+- **THEN** the 病理學 card SHALL display `🧬 0 隻`
 
 ### Requirement: Each variant SHALL capture study-context provenance at mint time
 
@@ -402,16 +408,17 @@ counters SHALL sync via the `counters.ts` MAX-merge post-pass.
 
 The neurons mode SHALL expose a player-initiated `pullVariant(familyId)` action that
 is the **only** mechanism producing `neuronVariants` rows. A pull SHALL require
-balance ≥ `PULL_COST` (=20) and that the family is not fully collected; otherwise it
-SHALL be rejected (no spend). On success, inside a single Dexie transaction, the
-system SHALL: add `PULL_COST` to `neuralEnergySpent`, increment
+balance ≥ `PULL_COST` (=20); otherwise it SHALL be rejected (no spend). A pull SHALL
+NOT be gated on collection completeness — a fully-collected family is still pullable
+(the result is necessarily a duplicate). On success, inside a single Dexie
+transaction, the system SHALL: add `PULL_COST` to `neuralEnergySpent`, increment
 `familyAccrual.pullCount`, roll a rarity tier (P0 soft-pity applied), **select a
 variant within the rolled tier (uniform among that family's catalog variants of that
 tier)**, and either persist a new row (`copies = 1`, provenance stamped) or increment
-`copies` on the existing row. A pull MAY yield a dupe in any non-P0 tier (no
-new-variant guarantee beyond P0 pity; the dupe sink is a later phase). The reveal
-SHALL fire only after commit. There SHALL be NO slot-unlock subscriber and NO manual
-ticket/fate-card roll path.
+`copies` on the existing row. A pull MAY yield a dupe in any tier (no new-variant
+guarantee beyond P0 pity; the dupe sink is a later phase `add-neurons-dupe-fusion`).
+The reveal SHALL fire only after commit. There SHALL be NO slot-unlock subscriber and
+NO manual ticket/fate-card roll path.
 
 #### Scenario: Pull spends cost and yields a variant within the rolled tier
 
@@ -427,11 +434,12 @@ ticket/fate-card roll path.
 - **WHEN** a pull is attempted
 - **THEN** no spend SHALL occur, no row/copies SHALL change, and the pull SHALL be a no-op
 
-#### Scenario: Pull rejected when family fully collected
+#### Scenario: Pull on a fully-collected family yields a dupe (no rejection)
 
-- **GIVEN** all of `免疫學`'s variants are collected
+- **GIVEN** all of `免疫學`'s variants are collected AND balance ≥ 20
 - **WHEN** a pull is attempted for `免疫學`
-- **THEN** the pull SHALL be rejected with no spend (UI surfaces a 全部收集 state)
+- **THEN** the pull SHALL proceed (spend 20, `pullCount` +1) and resolve to a duplicate
+  (`copies` increment on an existing row), with NO rejection and NO 全部收集 state
 
 ### Requirement: P0 apex tier SHALL exist per family with a soft-pity ramp
 
@@ -457,21 +465,22 @@ obtained while the pity ramp is active SHALL set `wasPityFloor = true` on its ro
 
 ### Requirement: Existing collection SHALL be fully reset on the Dexie v11 upgrade with no grandfather
 
-The Dexie schema SHALL bump to **v11**. The v10→v11 `.upgrade()` callback SHALL clear
+The Dexie schema SHALL bump to **v12**. The v11→v12 `.upgrade()` callback SHALL clear
 the `neuronVariants` table and reset every `familyAccrual` row's `unlockedSlots` to
 `[]` and `pullCount` to `0` (so P0 pity restarts on the fresh collection). It SHALL
 NOT change the `neuronVariants` primary key. Study progress (AP, synapses, mastery,
 question history, bookmarks, achievements, `totalStudyMinutes`) **and the
 neural-energy balance counters (`neuralEnergyEarned` / `neuralEnergySpent`)** SHALL be
 preserved. There SHALL be NO grandfather logic and NO migration banner. A
-`db-v10-to-v11-migration.test.ts` fixture (per the `dexie-fixture-lint` rule) SHALL
-seed a v10 save and assert the reset + preservation split.
+`db-v11-to-v12-migration.test.ts` fixture (per the `dexie-fixture-lint` rule) SHALL
+seed a v11 save and assert the reset + preservation split. (This is the third
+collection reset; it is an owner-chosen clean slate, not a row-shape necessity.)
 
-#### Scenario: v11 upgrade clears collection and resets pity, preserves study + energy
+#### Scenario: v12 upgrade clears collection and resets pity, preserves study + energy
 
-- **GIVEN** a v10 save with collected variants, non-zero AP, synapses, and a non-zero
+- **GIVEN** a v11 save with collected variants, non-zero AP, synapses, and a non-zero
   neural-energy balance
-- **WHEN** the DB opens at v11
+- **WHEN** the DB opens at v12
 - **THEN** `neuronVariants` SHALL be empty and every `familyAccrual.pullCount` SHALL be `0`
 - **AND** AP, synapses, mastery rows, and the `neuralEnergyEarned`/`neuralEnergySpent`
   counters SHALL be unchanged

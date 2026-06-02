@@ -16,14 +16,13 @@
 
 import {
   NEURONS_ACHIEVEMENTS,
-  VARIANT_COUNT_BY_FAMILY,
   type NeuronsAchievement,
   type NeuronsAchievementStats,
   type NeuronsPlayerSnapshot,
   type FamilyMasteryTier,
 } from '@study-rpg/content-neurons-tw'
 
-import { db, todayISO, type NeuronVariantRow } from '../db'
+import { db, todayISO } from '../db'
 import { deriveMasteryTier } from '../mastery/mastery-tier'
 import { dispatchReward } from './achievement-reward'
 import { pushAchievementToast } from '../achievement-toast-queue'
@@ -68,21 +67,9 @@ export async function buildAchievementStats(): Promise<NeuronsAchievementStats> 
     ? totalQuestionsCorrect / totalQuestionsAnswered
     : 0
 
-  // Variant collection signals
+  // Variant collection signals. Open collection: the collection metric is the
+  // total DISTINCT variant count (no family-complete concept).
   const variantCount = variants.length
-  const variantsByFamily = new Map<string, NeuronVariantRow[]>()
-  for (const v of variants) {
-    const list = variantsByFamily.get(v.familyId) ?? []
-    list.push(v)
-    variantsByFamily.set(v.familyId, list)
-  }
-  // A family is complete when it owns every slot its catalog declares (pyramid
-  // total — derived per family, not a hardcoded count; rework-neurons-variant-pyramid).
-  let familyCompleteCount = 0
-  for (const [familyId, list] of variantsByFamily.entries()) {
-    const total = VARIANT_COUNT_BY_FAMILY[familyId] ?? 0
-    if (total > 0 && list.length >= total) familyCompleteCount += 1
-  }
 
   // Natural P1 = a P1 obtained without the soft-pity floor. Rarity is now an
   // explicit field (decoupled from slotIndex), so read it directly; `wasPityFloor`
@@ -149,7 +136,6 @@ export async function buildAchievementStats(): Promise<NeuronsAchievementStats> 
     currentQuizCorrectStreak: currentStreak,
     maxQuizCorrectStreak: maxStreak,
     variantCount,
-    familyCompleteCount,
     naturalP1VariantCount,
     variantPityFloorCount,
     naturalP1DistinctFamilies,

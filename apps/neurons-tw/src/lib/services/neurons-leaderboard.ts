@@ -16,7 +16,6 @@ import { db, type LeaderboardProfileRow } from '../db'
 import { readTotalStudyMinutes } from './reading-timer'
 import {
   NEURONS_ACHIEVEMENTS,
-  VARIANT_COUNT_BY_FAMILY,
   tierRank,
   type NeuronsAchievement,
 } from '@study-rpg/content-neurons-tw'
@@ -42,7 +41,6 @@ export interface LeaderboardRow {
   user_id: string
   nickname: string
   variant_count: number
-  family_complete: number
   total_AP: number
   synapse_strong: number
   total_study_min: number
@@ -59,7 +57,6 @@ export interface LeaderboardSnapshot {
 export interface NeuronsLeaderboardPayload {
   nickname: string
   variant_count: number
-  family_complete: number
   total_AP: number
   synapse_strong: number
   total_study_min: number
@@ -75,8 +72,8 @@ export interface NicknameCheckResponse {
 
 /**
  * Build the upsert payload from local Dexie state. Computes:
- * - variant_count = neuronVariants row count
- * - family_complete = count of families with all 5 slots filled
+ * - variant_count = neuronVariants row count (distinct collected — the sole
+ *   collection metric; open collection has no family-complete signal)
  * - total_AP = sum of familyAccrual.ap across all families
  * - synapse_strong = count of synapses with state='strong'
  * - total_study_min = sum of meta['totalStudyMinutes'] accrued by the
@@ -94,19 +91,6 @@ export async function buildLeaderboardPayload(
 
   const variant_count = variants.length
 
-  const familyCounts = new Map<string, number>()
-  for (const v of variants) {
-    familyCounts.set(v.familyId, (familyCounts.get(v.familyId) ?? 0) + 1)
-  }
-  // Complete = owns every slot the family's catalog declares (pyramid total,
-  // derived per family — not a hardcoded count; rework-neurons-variant-pyramid).
-  const family_complete = Array.from(familyCounts.entries()).filter(
-    ([familyId, c]) => {
-      const total = VARIANT_COUNT_BY_FAMILY[familyId] ?? 0
-      return total > 0 && c >= total
-    },
-  ).length
-
   const total_AP = accruals.reduce((sum, a) => sum + (a.ap ?? 0), 0)
   const synapse_strong = synapses.filter((s) => s.state === 'strong').length
 
@@ -121,7 +105,6 @@ export async function buildLeaderboardPayload(
   return {
     nickname,
     variant_count,
-    family_complete,
     total_AP,
     synapse_strong,
     total_study_min,

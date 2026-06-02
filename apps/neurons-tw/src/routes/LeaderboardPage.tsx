@@ -254,8 +254,7 @@ function LeaderboardGrid({
       <div style={headerRowStyle} className="neurons-lb-row">
         <span style={rankCellStyle}>#</span>
         <span style={nicknameCellStyle}>暱稱</span>
-        <span style={statCellStyle} className="neurons-lb-cell--variant">變體 / 55</span>
-        <span style={statCellStyle} className="neurons-lb-cell--family">家族 / 11</span>
+        <span style={statCellStyle} className="neurons-lb-cell--variant">變體</span>
         <span style={statCellStyle} className="neurons-lb-cell--ap">AP</span>
         <span style={statCellStyle} className="neurons-lb-cell--synapse">Synapse</span>
         <span style={statCellStyle} className="neurons-lb-cell--study">唸書(分)</span>
@@ -274,7 +273,6 @@ function LeaderboardGrid({
             <span style={statCellWithPrimary(primaryStat === 'variant_count')} className="neurons-lb-cell--variant">
               {row.variant_count}
             </span>
-            <span style={statCellStyle} className="neurons-lb-cell--family">{row.family_complete}</span>
             <span style={statCellWithPrimary(primaryStat === 'total_AP')} className="neurons-lb-cell--ap">
               {row.total_AP.toLocaleString()}
             </span>
