@@ -83,7 +83,7 @@ const SECTIONS: Section[] = [
       <>
         <p>
           每個 family（如 藥理學 = VTA Dopaminergic）有 P0–P5 稀有度<strong>金字塔</strong>，
-          共 7 個變體 slot（越常見的 tier 變體越多；P0 始源為每科唯一的超稀有 apex）。
+          共 10 個變體 slot（越常見的 tier 變體越多；P0 始源為每科唯一的超稀有 apex）。
         </p>
         <p>
           收集走<strong>抽卡</strong>：答對題目（+3）與唸書（每分鐘 +2）累積<strong>神經能量</strong>，
@@ -91,8 +91,8 @@ const SECTIONS: Section[] = [
           抽到已擁有的會變重複（copies +1）。不用付費、純靠唸書。
         </p>
         <p>
-          11 個 family × 7 slot = 77 variants 為完整收集目標。
-          整體進度顯示在 Overview 頂部 status chip 的「🧬 變體 X / 77」。
+          11 個 family × 10 slot = 110 variants 為完整收集目標。
+          整體進度顯示在 Overview 頂部 status chip 的「🧬 變體 X / 110」。
         </p>
       </>
     ),

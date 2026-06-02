@@ -6,19 +6,32 @@ import {
 } from '@study-rpg/content-neurons-tw'
 
 /**
- * Pyramid-catalog shape (rework-neurons-variant-pyramid). The content pack's
- * module-load `assertCatalogShape` already throws on any violation; these tests
- * pin the D3a shape (77 = 11 × 7) + the structural invariants explicitly.
+ * Pyramid-catalog shape. The content pack's module-load `assertCatalogShape`
+ * already throws on any violation; these tests pin the shipped shape
+ * (110 = 11 × 10, D1 Option A "thicken mids" — expand-neuron-variant-catalog)
+ * + the structural invariants explicitly.
  */
 
 const FAMILIES = [...new Set(NEURON_VARIANT_CATALOG.map((e) => e.familyId))]
 const RARE_TO_COMMON: Rarity[] = ['P0', 'P1', 'P2', 'P3', 'P4', 'P5']
 
+// D1 Option A per-family slot → rarity layout (slots 0..9):
+//   0=P0 | 1=P5 2=P4 3=P3 4=P2 5=P1 | 6=P5 7=P4 8=P3 9=P2
+// → per-tier slot-sets: P0{0} P1{5} P2{4,9} P3{3,8} P4{2,7} P5{1,6}
+const SLOTS_BY_TIER: Record<Rarity, number[]> = {
+  P0: [0],
+  P1: [5],
+  P2: [4, 9],
+  P3: [3, 8],
+  P4: [2, 7],
+  P5: [1, 6],
+}
+
 describe('pyramid variant catalog', () => {
-  it('ships 11 families × 7 slots = 77 entries (D3a)', () => {
-    expect(NEURON_VARIANT_CATALOG).toHaveLength(77)
+  it('ships 11 families × 10 slots = 110 entries', () => {
+    expect(NEURON_VARIANT_CATALOG).toHaveLength(110)
     expect(FAMILIES).toHaveLength(11)
-    for (const f of FAMILIES) expect(VARIANT_COUNT_BY_FAMILY[f]).toBe(7)
+    for (const f of FAMILIES) expect(VARIANT_COUNT_BY_FAMILY[f]).toBe(10)
   })
 
   it('gives each family exactly one P0 apex at slotIndex 0', () => {
@@ -30,21 +43,24 @@ describe('pyramid variant catalog', () => {
     }
   })
 
-  it('uses contiguous unique slotIndex 0..N-1 per family', () => {
+  it('uses contiguous unique slotIndex 0..9 per family', () => {
     for (const f of FAMILIES) {
       const slots = NEURON_VARIANT_CATALOG.filter((e) => e.familyId === f)
         .map((e) => e.slotIndex)
         .sort((a, b) => a - b)
-      expect(slots).toEqual([0, 1, 2, 3, 4, 5, 6])
+      expect(slots).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     }
   })
 
-  it('reads rarity from the explicit field, decoupled from slot index', () => {
-    // Two P5 variants per family at distinct slots (1 and 6) — same tier, different slot.
+  it('reads rarity from the explicit field, with the D1 Option A per-tier slot-sets', () => {
+    // Each tier's slots are decoupled from rarity (same tier lives at non-adjacent slots).
     for (const f of FAMILIES) {
-      const p5 = NEURON_VARIANT_CATALOG.filter((e) => e.familyId === f && e.rarity === 'P5')
-      expect(p5).toHaveLength(2)
-      expect(new Set(p5.map((e) => e.slotIndex))).toEqual(new Set([1, 6]))
+      for (const tier of RARE_TO_COMMON) {
+        const slots = NEURON_VARIANT_CATALOG.filter(
+          (e) => e.familyId === f && e.rarity === tier,
+        ).map((e) => e.slotIndex)
+        expect(new Set(slots)).toEqual(new Set(SLOTS_BY_TIER[tier]))
+      }
     }
   })
 

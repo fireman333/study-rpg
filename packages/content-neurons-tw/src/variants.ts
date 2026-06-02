@@ -597,6 +597,68 @@ const RAW_CATALOG: RawVariantDef[] = [
   { familyId: '生理學', slotIndex: 6, rarity: 'P5', displayName: '皮層實習主管', spriteKey: variantKey('生理學', 6), description: '剛分化的 L5 見習元,投射軸突還沒找到 thalamus 的門牌。' },
   { familyId: '胚胎學', slotIndex: 6, rarity: 'P5', displayName: '邊緣帶新兵', spriteKey: variantKey('胚胎學', 6), description: '初抵 marginal zone 的 Cajal-Retzius 幼元,手裡的 Reelin 還沒拆封。' },
   { familyId: '微生物學', slotIndex: 6, rarity: 'P5', displayName: '嗅球幼生', spriteKey: variantKey('微生物學', 6), description: '基底膜上最年輕的 OSN,第一次被外界氣味嗆得睜不開核仁。' },
+
+  // ─── Mid-tier deepening (expand-neuron-variant-catalog, D1 Option A) ────────
+  // +3 slots per family at slotIndex 7/8/9 (rarity P4/P3/P2) — a SECOND variant
+  // of each mid tier, thickening the pyramid's middle (77 → 110). New personas are
+  // additional career-stages of the family's already-anchored neuron type (no new
+  // neuroscience claims; mechanisms reuse the established slot-1..5 anchors).
+  // Per family the tier counts become P0×1 / P1×1 / P2×2 / P3×2 / P4×2 / P5×2 = 10.
+
+  // 藥理學 — VTA Dopaminergic (DA)
+  { familyId: '藥理學', slotIndex: 7, rarity: 'P4', displayName: '渴望編碼員', spriteKey: variantKey('藥理學', 7), description: '學會把「想要」的訊號編碼進 phasic burst,預期報酬時就先點亮核仁。' },
+  { familyId: '藥理學', slotIndex: 8, rarity: 'P3', displayName: '動機放大器', spriteKey: variantKey('藥理學', 8), description: '熟練在動機低落時加碼多巴胺脈衝,把猶豫一把推成行動。' },
+  { familyId: '藥理學', slotIndex: 9, rarity: 'P2', displayName: '成癮迴路智者', spriteKey: variantKey('藥理學', 9), description: '看遍 incentive salience 的高低起伏,懂得在過度刺激前自我節流。' },
+
+  // 公共衛生學 — SNc Dopaminergic (DA)
+  { familyId: '公共衛生學', slotIndex: 7, rarity: 'P4', displayName: '節律維穩員', spriteKey: variantKey('公共衛生學', 7), description: '在 putamen 維持穩定 tonic firing,讓每個動作起步都不卡頓。' },
+  { familyId: '公共衛生學', slotIndex: 8, rarity: 'P3', displayName: '自噬守衛', spriteKey: variantKey('公共衛生學', 8), description: '勤於清除受損粒線體,用 autophagy 延緩黑質的退化時鐘。' },
+  { familyId: '公共衛生學', slotIndex: 9, rarity: 'P2', displayName: '黑質長壽智者', spriteKey: variantKey('公共衛生學', 9), description: '歷經數十年仍維持完整 dopamine 合成,是抗退化的活字典。' },
+
+  // 寄生蟲學 — Enteric Serotonergic (5HT)
+  { familyId: '寄生蟲學', slotIndex: 7, rarity: 'P4', displayName: '黏膜節律工', spriteKey: variantKey('寄生蟲學', 7), description: '調校腸黏膜 5-HT 釋放,讓分節運動準時開合。' },
+  { familyId: '寄生蟲學', slotIndex: 8, rarity: 'P3', displayName: '迷走線報員', spriteKey: variantKey('寄生蟲學', 8), description: '透過 vagal afferent 把腸道狀態悄悄上報腦幹,連騷動都瞞不過。' },
+  { familyId: '寄生蟲學', slotIndex: 9, rarity: 'P2', displayName: '菌相外交官', spriteKey: variantKey('寄生蟲學', 9), description: '與 microbiota 周旋談判,在被寄生蟲拉扯時仍守住腸-腦訊號。' },
+
+  // 組織學 — MRN Serotonergic (5HT)
+  { familyId: '組織學', slotIndex: 7, rarity: 'P4', displayName: '慢波調溫員', spriteKey: variantKey('組織學', 7), description: '在慢波睡眠期微調 5-HT 張力,替大腦設定夜間的恆溫基線。' },
+  { familyId: '組織學', slotIndex: 8, rarity: 'P3', displayName: '焦慮緩衝師', spriteKey: variantKey('組織學', 8), description: '在杏仁核過載前釋出血清素,把驚慌按回穩定基線。' },
+  { familyId: '組織學', slotIndex: 9, rarity: 'P2', displayName: '晝夜節律協調者', spriteKey: variantKey('組織學', 9), description: '統合中縫核與生理時鐘的時序,讓情緒隨晝夜溫柔起伏。' },
+
+  // 生物化學 — Cerebellar Purkinje (GABA)
+  { familyId: '生物化學', slotIndex: 7, rarity: 'P4', displayName: '抑制權重師', spriteKey: variantKey('生物化學', 7), description: '精算 GABA 輸出強度,替深部小腦核設定剛剛好的剎車力道。' },
+  { familyId: '生物化學', slotIndex: 8, rarity: 'P3', displayName: '誤差回授工', spriteKey: variantKey('生物化學', 8), description: '讀取 climbing fiber 的 error signal,逐次修正運動預測的偏差。' },
+  { familyId: '生物化學', slotIndex: 9, rarity: 'P2', displayName: '運動模型大師', spriteKey: variantKey('生物化學', 9), description: '在腦中建構肢體的內部模型,動作未出手就已先算好軌跡。' },
+
+  // 病理學 — Striatal MSN (GABA)
+  { familyId: '病理學', slotIndex: 7, rarity: 'P4', displayName: '多巴胺取證員', spriteKey: variantKey('病理學', 7), description: '比對 D1/D2 訊號落差,為每個行為蒐集該不該執行的證據。' },
+  { familyId: '病理學', slotIndex: 8, rarity: 'P3', displayName: '習慣編纂官', spriteKey: variantKey('病理學', 8), description: '把反覆出現的動作寫成基底節的程序記憶判例。' },
+  { familyId: '病理學', slotIndex: 9, rarity: 'P2', displayName: '衝動量刑大師', spriteKey: variantKey('病理學', 9), description: '在衝動與克制之間精算量刑,讓 go 與 no-go 各得其所。' },
+
+  // 免疫學 — PV+ Cortical Interneuron (GABA)
+  { familyId: '免疫學', slotIndex: 7, rarity: 'P4', displayName: '節律校時員', spriteKey: variantKey('免疫學', 7), description: '把零散的 40Hz 脈衝對齊成整齊的 gamma 方陣。' },
+  { familyId: '免疫學', slotIndex: 8, rarity: 'P3', displayName: '受體守關人', spriteKey: variantKey('免疫學', 8), description: '在 NMDAR 被抗體圍攻時,死守突觸後膜的訊號完整。' },
+  { familyId: '免疫學', slotIndex: 9, rarity: 'P2', displayName: '同步指揮大師', spriteKey: variantKey('免疫學', 9), description: '統御整片皮質的 gamma 同步,連免疫風暴中也不亂節拍。' },
+
+  // 解剖學 — DRG Sensory Afferent (Glu)
+  { familyId: '解剖學', slotIndex: 7, rarity: 'P4', displayName: '觸壓校準工', spriteKey: variantKey('解剖學', 7), description: '微調機械受體閾值,分辨輕觸與重壓之間的細微差別。' },
+  { familyId: '解剖學', slotIndex: 8, rarity: 'P3', displayName: '本體覺領航員', spriteKey: variantKey('解剖學', 8), description: '整合肌梭與關節訊號,讓身體隨時知道四肢在哪。' },
+  { familyId: '解剖學', slotIndex: 9, rarity: 'P2', displayName: '感覺整合大師', spriteKey: variantKey('解剖學', 9), description: '把痛溫觸壓本體覺融成單一身體影像,毫秒級回報中樞。' },
+
+  // 生理學 — Cortical Pyramidal L5 (Glu)
+  { familyId: '生理學', slotIndex: 7, rarity: 'P4', displayName: '輸出排程工', spriteKey: variantKey('生理學', 7), description: '安排 corticofugal 訊號的優先順序,讓最重要的指令先發車。' },
+  { familyId: '生理學', slotIndex: 8, rarity: 'P3', displayName: '注意力調度官', spriteKey: variantKey('生理學', 8), description: '動態分配皮層資源,把算力導向當下最該關注的目標。' },
+  { familyId: '生理學', slotIndex: 9, rarity: 'P2', displayName: '決策整合大師', spriteKey: variantKey('生理學', 9), description: '匯流多腦區的證據與動機,做出整個皮層都服從的裁示。' },
+
+  // 胚胎學 — Cajal-Retzius (Glu)
+  { familyId: '胚胎學', slotIndex: 7, rarity: 'P4', displayName: '遷移嚮導', spriteKey: variantKey('胚胎學', 7), description: '沿 radial glia 為後到的神經元標記正確的落腳樓層。' },
+  { familyId: '胚胎學', slotIndex: 8, rarity: 'P3', displayName: '皮層測量師', spriteKey: variantKey('胚胎學', 8), description: '校準 inside-out 分層的厚薄,確保每一層都不偏移。' },
+  { familyId: '胚胎學', slotIndex: 9, rarity: 'P2', displayName: '發育藍圖大師', spriteKey: variantKey('胚胎學', 9), description: '統籌 neurogenesis 的時序與梯度,把皮層藍圖一筆筆落實。' },
+
+  // 微生物學 — Olfactory Sensory (Glu)
+  { familyId: '微生物學', slotIndex: 7, rarity: 'P4', displayName: '受體輪替工', spriteKey: variantKey('微生物學', 7), description: '在嗅上皮持續汰換更新 OSN,維持嗅覺受體庫的多樣。' },
+  { familyId: '微生物學', slotIndex: 8, rarity: 'P3', displayName: '揮發物追蹤員', spriteKey: variantKey('微生物學', 8), description: '追蹤空氣中的揮發性代謝物,鎖定潛在病原的來源方向。' },
+  { familyId: '微生物學', slotIndex: 9, rarity: 'P2', displayName: '黏膜防線大師', spriteKey: variantKey('微生物學', 9), description: '協調嗅黏膜免疫與菌相,把上呼吸道守成第一道氣味長城。' },
 ]
 
 /** Public catalog — `rarity` is authored per entry (decoupled from slotIndex). */
@@ -608,6 +670,11 @@ export const VARIANT_COUNT_BY_FAMILY: Record<string, number> =
     acc[e.familyId] = (acc[e.familyId] ?? 0) + 1
     return acc
   }, {})
+
+/** Total variants the catalog declares (the open-collection finite total). Single
+ * canonical source — consumers (Overview chip denominator, character card, leaderboard
+ * opt-in copy) import this instead of recomputing `NEURON_VARIANT_CATALOG.length`. */
+export const NEURON_VARIANT_TOTAL = NEURON_VARIANT_CATALOG.length
 
 /** Tier order from commonest (P5) to rarest (P0) — for the pyramid invariant. */
 const RARITY_COMMON_TO_RARE: Rarity[] = ['P5', 'P4', 'P3', 'P2', 'P1', 'P0']

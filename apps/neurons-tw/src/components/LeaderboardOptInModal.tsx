@@ -19,6 +19,7 @@ import {
   persistLeaderboardProfile,
   pushNeuronsLeaderboardRow,
 } from '../lib/services/neurons-leaderboard'
+import { NEURON_VARIANT_TOTAL } from '@study-rpg/content-neurons-tw'
 import { db } from '../lib/db'
 
 interface Props {
@@ -175,7 +176,7 @@ export default function LeaderboardOptInModal({
             勾選同意後，以下五個資料會在排行榜被其他玩家看到：
           </p>
           <ul style={fieldsListStyle}>
-            <li>變體收集數量（X / 55）</li>
+            <li>變體收集數量（X / {NEURON_VARIANT_TOTAL}）</li>
             <li>完整集齊家族數（X / 11）</li>
             <li>Action Potential 總量</li>
             <li>Strong Synapse 數</li>

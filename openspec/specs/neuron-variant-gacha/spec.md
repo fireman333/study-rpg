@@ -299,7 +299,9 @@ the single source of truth for variant `displayName` / `description` / `rarity`.
 The `@study-rpg/content-neurons-tw` package SHALL export `NEURON_VARIANT_CATALOG:
 NeuronVariantDef[]` shaped as a **per-family rarity pyramid**: each family declares a
 variable number of variants per tier, with rising rarity holding fewer variants and
-exactly one P0 apex (`slotIndex = 0`) per family. Each entry SHALL have:
+exactly one P0 apex (`slotIndex = 0`) per family. The catalog SHALL currently ship
+**110 variants = 11 families × 10 slots** (uniform per family:
+P0×1 / P1×1 / P2×2 / P3×2 / P4×2 / P5×2). Each entry SHALL have:
 
 ```typescript
 interface NeuronVariantDef {
@@ -325,6 +327,14 @@ below it (pyramid invariant); and `spriteKey === 'variant:' + familyId + ':' + s
   declare no more variants than the commoner tier (pyramid invariant)
 - **AND** each family's `slotIndex` values SHALL be contiguous `0..N-1` and unique
 
+#### Scenario: Catalog ships 110 variants across 11 families of 10 slots each
+
+- **WHEN** a consumer imports `NEURON_VARIANT_CATALOG`
+- **THEN** `NEURON_VARIANT_CATALOG` SHALL contain exactly 110 entries
+- **AND** every family SHALL declare exactly 10 variants (`VARIANT_COUNT_BY_FAMILY[f] === 10`)
+- **AND** each family's per-tier counts SHALL be `P0×1 / P1×1 / P2×2 / P3×2 / P4×2 / P5×2`
+- **AND** each family's `slotIndex` values SHALL be contiguous `0..9`
+
 #### Scenario: Rarity is read from the explicit field, not the slot index
 
 - **GIVEN** a family with two `P5` variants at `slotIndex` 1 and 2
@@ -335,19 +345,19 @@ below it (pyramid invariant); and `spriteKey === 'variant:' + familyId + ':' + s
 
 The `theme-pixel-neurons` `SPRITE_MAP` SHALL include `variant:<familyId>:<slotIndex>`
 for **every** catalog entry (one key per pyramid slot) plus the terminal
-`variant:default` fallback. The 55 legacy base keys SHALL keep their existing real
-PNGs. The 11 P0 keys (`slotIndex 0`) SHALL resolve to **real art** wired in this
-change (the staged P0 apex sprites). Any base-tier slot beyond the existing 55 base
-sprites MAY resolve to a placeholder until the roster-art-fill follow-up; the lookup
-SHALL never produce a broken image (falls back to `variant:default`).
+`variant:default` fallback. All 110 keys (`slotIndex 0..9` per family) SHALL resolve to
+**real art** PNGs: the 77 keys shipped before this change (`slotIndex 0..6`) keep their
+existing PNGs, and the 33 new keys (`slotIndex 7 / 8 / 9`) SHALL each ship a real PNG
+in this change (no placeholders). The terminal `variant:default` remains as a defensive
+fallback so the lookup SHALL never produce a broken image.
 
-#### Scenario: Every catalog key resolves
+#### Scenario: Every catalog key resolves to real art
 
 - **WHEN** the developer iterates all `(familyId, slotIndex)` pairs in the catalog
-- **THEN** `SPRITE_MAP['variant:'+familyId+':'+slotIndex]` SHALL resolve to a
-  non-empty URL for each, OR fall back to `variant:default` (never a broken image)
+- **THEN** `SPRITE_MAP['variant:'+familyId+':'+slotIndex]` SHALL resolve to a non-empty
+  real-art URL for each (the `variant:default` fallback SHALL be unused in practice)
 
-#### Scenario: P0 keys now resolve to real art
+#### Scenario: P0 keys resolve to real art
 
 - **WHEN** the developer reads a `variant:<familyId>:0` key
 - **THEN** it SHALL resolve to a real (non-placeholder) P0 sprite PNG

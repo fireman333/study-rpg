@@ -184,45 +184,45 @@ export const NEURONS_ACHIEVEMENTS: readonly NeuronsAchievement[] = [
   {
     id: 'variant-fifteen',
     name: '小型集落',
-    description: '收集 15 個 variants — colony 開始成形。',
+    description: '收集 20 個 variants — colony 開始成形。',
     tier: 'P3',
     category: 'variant',
     hidden: false,
-    predicate: variantsAtLeast(15),
+    predicate: variantsAtLeast(20),
     reward: { kind: 'leaderboard' },
   },
   {
     id: 'variant-thirty',
     name: '群落擴張',
-    description: '收集 30 個 variants — 過半典藏。',
+    description: '收集 40 個 variants — colony 持續壯大。',
     tier: 'P2',
     category: 'variant',
     hidden: false,
-    predicate: variantsAtLeast(30),
+    predicate: variantsAtLeast(40),
     reward: { kind: 'leaderboard' },
   },
   {
     id: 'variant-fifty',
     name: '半壁江山',
-    description: '收集 50 個 variants — 典藏過半。',
+    description: '收集 70 個 variants — 典藏過半。',
     tier: 'P2',
     category: 'variant',
     hidden: false,
-    predicate: variantsAtLeast(50),
+    predicate: variantsAtLeast(70),
     reward: { kind: 'leaderboard' },
   },
   {
-    // P1 composite: 量 (60 distinct variants) × 廣質 (natural P1 apex across ≥ 3
-    // families). Genuine multi-dimension — at 60 distinct the breadth gate is NOT
-    // implied (you can amass 60 yet hold natural P1 apexes in < 3 families), so
+    // P1 composite: 量 (90 distinct variants) × 廣質 (natural P1 apex across ≥ 3
+    // families). Genuine multi-dimension — at 90 distinct the breadth gate is NOT
+    // implied (you can amass 90 yet hold natural P1 apexes in < 3 families), so
     // this satisfies the anti-grind P1 rule without a degenerate full-dex AND.
     id: 'variant-grand-collector',
     name: '萬神殿建構者',
-    description: '收集 60 個 variants 且 在 ≥ 3 個家族擁有自然 P1 apex — connectome 萬神殿就位。',
+    description: '收集 90 個 variants 且 在 ≥ 3 個家族擁有自然 P1 apex — connectome 萬神殿就位。',
     tier: 'P1',
     category: 'variant',
     hidden: false,
-    predicate: (_p, s) => s.variantCount >= 60 && s.naturalP1DistinctFamilies >= 3,
+    predicate: (_p, s) => s.variantCount >= 90 && s.naturalP1DistinctFamilies >= 3,
     reward: { kind: 'title', title: '萬神殿建構者' },
     composite: true,
   },
