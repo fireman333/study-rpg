@@ -25,6 +25,8 @@ import {
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
 import VariantSprite from '../components/VariantSprite'
+import ShareCardModal from '../components/ShareCardModal'
+import { useAuth } from '../lib/auth/AuthContext'
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
   P1: 'P1 夯',
@@ -59,6 +61,8 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     collectedKeys: new Set(),
     representatives: {},
   })
+  const { user } = useAuth()
+  const [shareOpen, setShareOpen] = useState(false)
 
   useEffect(() => {
     const sub = liveQuery(async () => {
@@ -131,7 +135,16 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           11 科 × 5 階變體，共 {total} 隻。已收集 <strong>{collectedCount}</strong> 隻。
           答對該科題目累積放電跨過門檻即解鎖新變體。
         </p>
+        <button type="button" style={shareBtnStyle} onClick={() => setShareOpen(true)}>
+          🔗 分享角色卡
+        </button>
       </header>
+
+      <ShareCardModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        userId={user?.id ?? null}
+      />
 
       <FamilyFilterChips
         families={families}
@@ -265,6 +278,19 @@ const subtitleStyle: React.CSSProperties = {
   fontSize: '0.82rem',
   color: '#8c6d4a',
   lineHeight: 1.5,
+}
+
+const shareBtnStyle: React.CSSProperties = {
+  marginTop: '0.7rem',
+  fontFamily: 'inherit',
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  padding: '0.4rem 1rem',
+  borderRadius: '6px',
+  border: '2px solid #b8893a',
+  background: '#d4a04d',
+  color: '#fff',
+  cursor: 'pointer',
 }
 
 const emptyHintStyle: React.CSSProperties = {
