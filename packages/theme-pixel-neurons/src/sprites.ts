@@ -130,6 +130,24 @@ const animatedSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
+// Context-driven decor overlays — 3 universal transparent-bg PNGs composited
+// onto any base variant sprite per provenance (context-driven-variant-art).
+// Filenames map directly: `redemption.png` → `decor:redemption`, etc. Until the
+// real assets land the keys default to TRANSPARENT_PIXEL (no broken-image icon;
+// "no asset" renders as "no decor"). See `../SPRITE_GENERATION.md`.
+const decorSpriteModules = import.meta.glob('../sprites/decor/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const decorSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(decorSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    return [`decor:${stem}`, url]
+  }),
+)
+
 // 11 subject icon keys (matched to FAMILY_BY_SUBJECT in content-neurons-tw build.ts)
 const SUBJECT_IDS = [
   '藥理學',
@@ -266,6 +284,9 @@ const CORE_KEYS = [
 // 4 NT-branch hub keys — `branch:da` / `branch:5ht` / `branch:gaba` / `branch:glu`.
 const BRANCH_KEYS = ['branch:da', 'branch:5ht', 'branch:gaba', 'branch:glu'] as const
 
+// 3 context-driven decor overlay keys (context-driven-variant-art).
+const DECOR_KEYS = ['decor:redemption', 'decor:milestone', 'decor:elder'] as const
+
 export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ...CORE_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
   // Subject icons: real sprite if file present, else defensive fallback to placeholder
@@ -275,6 +296,8 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ]),
   // NT-branch hub icons: real sprite if file present, else placeholder
   ...BRANCH_KEYS.map((k) => [k, branchSprites[k] ?? TRANSPARENT_PIXEL]),
+  // Decor overlays: real PNG if file present, else transparent placeholder
+  ...DECOR_KEYS.map((k) => [k, decorSprites[k] ?? TRANSPARENT_PIXEL]),
   // Root brain icon (central Neuron Connectome).
   ['root:brain', rootSprite ?? TRANSPARENT_PIXEL],
   ...ITEM_ART_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),

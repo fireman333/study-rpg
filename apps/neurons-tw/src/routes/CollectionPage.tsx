@@ -14,7 +14,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
 import { NEURON_VARIANT_CATALOG, type NeuronVariantDef } from '@study-rpg/content-neurons-tw'
-import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { db, type NeuronVariantRow, type VariantRarity } from '../lib/db'
 import { AP_THRESHOLDS } from '../lib/connectome/ap-counter'
 import {
@@ -25,6 +24,7 @@ import {
 } from '../lib/services/representatives'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
+import VariantSprite from '../components/VariantSprite'
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
   P1: 'P1 夯',
@@ -146,9 +146,18 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
         shownFamilies.map((family) => {
           const slots = slotsByFamily.get(family.id) ?? []
           const repSlot = state.representatives[family.id]
+          const repRow =
+            repSlot != null ? state.collected.get(slotKey(family.id, repSlot)) : undefined
           return (
             <section key={family.id} style={familySectionStyle} aria-label={family.label}>
-              <h2 style={familyTitleStyle}>{family.label}</h2>
+              <h2 style={familyTitleStyle}>
+                {repRow && (
+                  // Family representative shown with its context decor (decision B) —
+                  // family card 掃一眼有出身故事.
+                  <VariantSprite row={repRow} size={28} alt={`${family.label} 代表`} />
+                )}
+                {family.label}
+              </h2>
               <div style={slotRowStyle}>
                 {slots.map((slot) => {
                   const row = state.collected.get(slotKey(family.id, slot.slotIndex))
@@ -193,7 +202,6 @@ function VariantSlotCard({
   onSetRepresentative: () => void
 }): JSX.Element {
   const color = RARITY_COLOR[row.rarity]
-  const spriteUrl = SPRITE_MAP[row.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
   const caption = variantBirthCaption(row)
   return (
     <button
@@ -206,7 +214,7 @@ function VariantSlotCard({
       {isRepresentative && <span style={repMarkerStyle} aria-hidden="true">★</span>}
       <div style={{ ...rarityChipStyle, color, borderColor: color }}>{RARITY_LABEL[row.rarity]}</div>
       <div style={spriteWrapStyle}>
-        <img src={spriteUrl} alt={row.displayName} style={spriteStyle} />
+        <VariantSprite row={row} size={64} alt={row.displayName} />
       </div>
       <div style={cardNameStyle}>{row.displayName}</div>
       <p style={cardDescStyle}>{description}</p>
@@ -269,6 +277,9 @@ const emptyHintStyle: React.CSSProperties = {
 const familySectionStyle: React.CSSProperties = { marginTop: '1.4rem' }
 
 const familyTitleStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
   margin: '0 0 0.6rem',
   fontSize: '1rem',
   fontWeight: 700,
@@ -332,11 +343,6 @@ const spriteWrapStyle: React.CSSProperties = {
   borderRadius: '6px',
 }
 
-const spriteStyle: React.CSSProperties = {
-  width: '64px',
-  height: '64px',
-  imageRendering: 'pixelated',
-}
 
 const silhouetteStyle: React.CSSProperties = {
   fontSize: '2.4rem',
