@@ -4,7 +4,7 @@
 // db.gameCounters (key 'singleton') instead of db.players ('p1').
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getHospitalDB } from '../../db/schema'
+import { getHospitalDB, refreshDailyTickets } from '../../db/schema'
 import { getSupabase } from '../auth/client'
 import { useAuth } from '../auth/AuthContext'
 import { createSyncEngine } from './engine'
@@ -303,6 +303,24 @@ export function useSync(): UseSyncReturn {
                 // eslint-disable-next-line no-console
                 console.warn(
                   '[achievement-backfill] failed, will retry on next pull cycle:',
+                  err,
+                )
+              }
+              // Re-evaluate the daily ticket AFTER the pull reconciles. The
+              // cold-start force-pull overwrites the local `tickets` row (incl.
+              // lastRefreshDay) with the cloud snapshot, rolling back the +1
+              // that App boot's refreshDailyTickets() granted before sync ran.
+              // Re-running here is idempotent on lastRefreshDay (no-ops once
+              // granted for the day); the re-grant is hook-tracked (this fires
+              // after applyingFromCloud resets to false) so it marks dirty and
+              // the existing debounced push persists it to cloud. Per
+              // fix-medexam2-ticket-cloud-clobber recruitment-gacha delta.
+              try {
+                await refreshDailyTickets()
+              } catch (err) {
+                // eslint-disable-next-line no-console
+                console.warn(
+                  '[daily-ticket] post-pull refresh failed, will retry on next pull cycle:',
                   err,
                 )
               }

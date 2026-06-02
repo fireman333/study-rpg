@@ -117,6 +117,41 @@ async function readHospitalStateBlob(db: HospitalDB): Promise<HospitalStateBlob>
   return { gameCounters, gachaStats, tickets, rooms, affinity }
 }
 
+/**
+ * Local LWW comparison baseline for the collapsed `hospital_state` blob.
+ *
+ * Returns the MAX `_updatedAt` across ALL five contributing tables
+ * (gameCounters / gachaStats / tickets singletons + every rooms / affinity
+ * row), matching the push side's `max(rows.updated_at)` in
+ * `buildBundleSnapshot`. Using only `gameCounters._updatedAt` here (the prior
+ * behavior) under-counts passenger-only writes — a `tickets`-only grant (daily
+ * refresh / banner-unlock bonus) that does NOT also touch gameCounters left the
+ * baseline stale and let an older cloud blob (whose `updated_at` merely exceeds
+ * the last gameCounters write) revert the freshly-granted ticket. Per
+ * `fix-medexam2-ticket-cloud-clobber` cloud-sync delta.
+ *
+ * Returns `undefined` when no contributing row carries a numeric `_updatedAt`
+ * (e.g. post account-switch wipe) so `cloudIsNewer` treats cloud as newer.
+ */
+async function readHospitalStateLocalMaxUpdatedAt(
+  db: HospitalDB,
+): Promise<number | undefined> {
+  // Reuse readHospitalStateBlob so the five-table enumeration lives in ONE
+  // place (also written by writeHospitalStateBlob + extraDexieTables); a 6th
+  // passenger table only needs adding there. The blob types strip `_updatedAt`,
+  // so read it via a WithUpdatedAt cast. (Distinct from migration.ts
+  // getMaxLocalUpdatedAt, which scans 8 tables for the gate; this is scoped to
+  // exactly the 5 collapsed blob tables.)
+  const blob = await readHospitalStateBlob(db)
+  const rows = [blob.gameCounters, blob.gachaStats, blob.tickets, ...blob.rooms, ...blob.affinity]
+  let max: number | undefined
+  for (const row of rows) {
+    const ts = (row as WithUpdatedAt<object> | null)?._updatedAt
+    if (typeof ts === 'number' && (max === undefined || ts > max)) max = ts
+  }
+  return max
+}
+
 async function writeHospitalStateBlob(
   db: HospitalDB,
   blob: HospitalStateBlob,
@@ -161,7 +196,8 @@ async function writeHospitalStateBlob(
   )
 }
 
-const HOSPITAL_STATE: TableAdapter = {
+// Exported for adapter-level unit tests (mirrors HOSPITAL_QUESTION_HISTORY).
+export const HOSPITAL_STATE: TableAdapter = {
   postgresTable: 'hospital_state',
   shape: 'singleton',
   // Canonical dirty-marker key for the aggregated blob. `gameCounters` is
@@ -192,11 +228,13 @@ const HOSPITAL_STATE: TableAdapter = {
     const cloudMs = Date.parse(cloudRow.updated_at)
     if (!Number.isFinite(cloudMs)) return false
     if (!force) {
-      const local = (await (db as HospitalDB).gameCounters.get(GAME_COUNTERS_ID)) as
-        | WithUpdatedAt<GameCountersRow>
-        | undefined
-      const localMs = local?._updatedAt
-      if (!cloudIsNewer(cloudRow.updated_at, localMs)) return false
+      // Compare against the MAX `_updatedAt` across all five collapsed tables,
+      // not gameCounters alone — otherwise a passenger-only write (e.g. a
+      // tickets daily-refresh / banner-unlock grant that doesn't touch
+      // gameCounters) is reverted by an older cloud blob. Mirrors the push
+      // side's max(rows.updated_at). Per fix-medexam2-ticket-cloud-clobber.
+      const localMax = await readHospitalStateLocalMaxUpdatedAt(db as HospitalDB)
+      if (!cloudIsNewer(cloudRow.updated_at, localMax)) return false
     }
     await writeHospitalStateBlob(db as HospitalDB, blob, cloudMs)
     return true
