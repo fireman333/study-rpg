@@ -12,6 +12,7 @@ import { resolve } from 'node:path'
 
 import { NEURONS_ACHIEVEMENTS, NEURONS_ACHIEVEMENTS_STATS } from '../src/achievements'
 import { validateNeuronsAchievementCatalog } from '../src/achievement-validator'
+import { FAMILY_NT_BRANCH, type NtBranchId } from '../src/families'
 
 // 一階 corpus source = 考選部-authoritative reconciled artifacts committed under
 // packages/content-neurons-tw/data/medexam-reconciled (see reconcile/README.md).
@@ -33,76 +34,69 @@ const FIGURES_DIR = resolve(import.meta.dirname, '..', 'figures')
 // Forced to hasImage:false so they show neither a figure nor a [圖] placeholder.
 const FALSE_POSITIVE_HASIMAGE = new Set<string>(['111-2-醫學一-生理學-Q57'])
 
-const NT_COLOR = {
+const NT_COLOR: Record<NtBranchId, string> = {
   DA: '#d4a04d',
   '5HT': '#c44d4d',
   GABA: '#6a9bc4',
   Glu: '#6a8c3f',
-} as const
-
-type NtBranch = keyof typeof NT_COLOR
+}
 
 interface FamilyMap {
   family: string
-  ntBranch: NtBranch
   persona: string
 }
 
-/** 11-subject mapping per design.md Decision 1. Key = subject.id (verbatim from medexam-tw for 9; new ids 微生物學 / 免疫學 for split). */
+/**
+ * 11-subject display mapping per design.md Decision 1 (family name + persona).
+ * NT branch lives in the single canonical source `../src/families` →
+ * `FAMILY_NT_BRANCH` (per add-neurons-per-branch-decor D2); the `group` /
+ * `color` columns below derive from it, so build output never drifts from the
+ * runtime branch map. Key = subject.id (verbatim from medexam-tw for 9; new ids
+ * 微生物學 / 免疫學 for split).
+ */
 const FAMILY_BY_SUBJECT: Record<string, FamilyMap> = {
   藥理學: {
     family: 'VTA Dopaminergic — Thrill-Seeker',
-    ntBranch: 'DA',
     persona: 'The Thrill-Seeker 尋樂者',
   },
   公共衛生學: {
     family: 'SNc Dopaminergic — Aging Guardian',
-    ntBranch: 'DA',
     persona: 'The Aging Guardian 長者守護',
   },
   寄生蟲學: {
     family: "Enteric Serotonergic — Puppeteer's Puppet",
-    ntBranch: '5HT',
     persona: "The Puppeteer's Puppet 寄生木偶",
   },
   組織學: {
     family: 'MRN Serotonergic — Quiet Curator',
-    ntBranch: '5HT',
     persona: 'The Quiet Curator 沉默策展人',
   },
   生物化學: {
     family: 'Cerebellar Purkinje — Mathematician',
-    ntBranch: 'GABA',
     persona: 'The Mathematician 數學家',
   },
   病理學: {
     family: 'Striatal MSN — Judge',
-    ntBranch: 'GABA',
     persona: 'The Judge 法官',
   },
   免疫學: {
     family: 'PV+ Cortical Interneuron — Sentry Under Siege',
-    ntBranch: 'GABA',
     persona: 'The Sentry Under Siege 圍城警衛',
   },
   解剖學: {
     family: 'DRG Sensory Afferent — Scout',
-    ntBranch: 'Glu',
     persona: 'The Scout 探險家',
   },
   生理學: {
     family: 'Cortical Pyramidal L5 — CEO',
-    ntBranch: 'Glu',
     persona: 'The CEO 執行長',
   },
   胚胎學: {
     family: 'Cajal-Retzius — Pioneer Architect',
-    ntBranch: 'Glu',
     persona: 'The Pioneer Architect 拓荒建築師',
   },
   微生物學: {
     family: 'Olfactory Sensory — Sentinel',
-    ntBranch: 'Glu',
     persona: 'The Sentinel 哨兵（前線守門員）',
   },
 }
@@ -251,14 +245,18 @@ function main(): void {
   for (const q of outputQuestions) {
     subjectTotals[q.subject] = (subjectTotals[q.subject] ?? 0) + 1
   }
-  const outputSubjects = Object.entries(FAMILY_BY_SUBJECT).map(([id, m]) => ({
-    id,
-    displayName: m.family,
-    group: m.ntBranch,
-    color: NT_COLOR[m.ntBranch],
-    iconKey: `subject:${id}`,
-    totalQuestions: subjectTotals[id] ?? 0,
-  }))
+  const outputSubjects = Object.entries(FAMILY_BY_SUBJECT).map(([id, m]) => {
+    const ntBranch = FAMILY_NT_BRANCH[id]
+    if (!ntBranch) throw new Error(`No NT branch for subject "${id}" in FAMILY_NT_BRANCH`)
+    return {
+      id,
+      displayName: m.family,
+      group: ntBranch,
+      color: NT_COLOR[ntBranch],
+      iconKey: `subject:${id}`,
+      totalQuestions: subjectTotals[id] ?? 0,
+    }
+  })
 
   // Step 8: Assertions
   const orphanSubjects = outputSubjects.filter((s) => s.totalQuestions === 0)
@@ -338,7 +336,7 @@ function main(): void {
   }
 
   // Step 7: Counters
-  const ntCount = (br: NtBranch) => outputSubjects.filter((s) => s.group === br).length
+  const ntCount = (br: NtBranchId) => outputSubjects.filter((s) => s.group === br).length
   console.log(`---`)
   console.log(
     `imported: ${outputQuestions.length} / skipped: 0 / total: ${outputQuestions.length}`,

@@ -89,5 +89,5 @@ export const THEME_PIXEL_NEURONS: ThemePack = {
 
 export { ITEM_CATALOG } from './items'
 export { COSMETIC_CATALOG, COSMETIC_CATALOG_SIZE } from './cosmetics'
-export { SPRITE_MAP } from './sprites'
+export { SPRITE_MAP, decorSpriteUrl } from './sprites'
 export { SKILL_TREE_PIXEL_NEURONS } from './skillTree'

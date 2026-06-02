@@ -70,6 +70,8 @@ export async function getContentPack(baseUrl = '/content/neurons-tw'): Promise<C
   }
 }
 
+export { FAMILY_NT_BRANCH, type NtBranchId } from './families'
+
 export {
   NEURON_VARIANT_CATALOG,
   VARIANT_RARITY_WEIGHTS,
