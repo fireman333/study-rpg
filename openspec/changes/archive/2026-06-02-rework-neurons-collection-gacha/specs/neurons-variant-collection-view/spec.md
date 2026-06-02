@@ -1,35 +1,17 @@
 # neurons-variant-collection-view (delta) — Collection 2.0 Phase 2 spine
 
+## REMOVED Requirements
+
+### Requirement: The dex SHALL show all 5 slots per family with uncollected slots as silhouettes carrying their unlock threshold
+
+**Reason**: The slot model changes from 5 AP-unlock slots to 6 fixed-rarity slots
+(P0–P5), and AP no longer gates collection. Replaced by the 6-slot rarity-labeled
+dex (see ADDED "The dex SHALL show all 6 slots per family with uncollected slots as
+rarity-labeled silhouettes").
+
 ## MODIFIED Requirements
 
-### Requirement: The dex SHALL show all 6 slots per family with uncollected slots as rarity-labeled silhouettes
-
-The page SHALL render every family's **6** slots (`slotIndex 0..5`, one per rarity
-tier P0–P5) derived from the variant catalog. A collected `(familyId, slotIndex)`
-SHALL render as a collected card; an uncollected slot SHALL render as a dimmed
-silhouette displaying the slot's **rarity** (e.g. `P0` / `P5`) — NOT an AP unlock
-threshold (AP no longer gates collection). The dex SHALL render the complete 66-slot
-set even when nothing is collected.
-
-#### Scenario: Uncollected slot renders a silhouette with its rarity
-
-- **GIVEN** the player has not collected `(familyId='藥理學', slotIndex=0)` (P0)
-- **WHEN** the collection page renders
-- **THEN** that slot SHALL render as a dimmed silhouette displaying `P0` (not an AP threshold)
-
-#### Scenario: Empty collection renders an all-silhouette 66-slot dex
-
-- **GIVEN** the player has collected zero variants
-- **WHEN** the page renders
-- **THEN** all 66 slots SHALL render as rarity-labeled silhouettes and the page SHALL NOT be blank
-
-#### Scenario: Collected slot renders a full card
-
-- **GIVEN** the player has collected `(familyId='藥理學', slotIndex=1)`
-- **WHEN** the page renders
-- **THEN** that slot SHALL render as a collected variant card (not a silhouette)
-
-### Requirement: Each collected variant card SHALL show sprite, name, rarity, description, copies, pity chip, and a reserved caption row
+### Requirement: Each collected variant card SHALL show sprite, name, rarity, description, pity chip, and a reserved caption row
 
 A collected card SHALL display the variant's sprite, `displayName`, rarity badge, the
 catalog `description`, a `× N` copies badge when `copies > 1`, and a `保底` chip when
@@ -57,6 +39,33 @@ The card SHALL NOT show a slot-number label.
 - **THEN** the card SHALL show a `保底` chip
 
 ## ADDED Requirements
+
+### Requirement: The dex SHALL show all 6 slots per family with uncollected slots as rarity-labeled silhouettes
+
+The page SHALL render every family's **6** slots (`slotIndex 0..5`, one per rarity
+tier P0–P5) derived from the variant catalog. A collected `(familyId, slotIndex)`
+SHALL render as a collected card; an uncollected slot SHALL render as a dimmed
+silhouette displaying the slot's **rarity** (e.g. `P0` / `P5`) — NOT an AP unlock
+threshold (AP no longer gates collection). The dex SHALL render the complete 66-slot
+set even when nothing is collected.
+
+#### Scenario: Uncollected slot renders a silhouette with its rarity
+
+- **GIVEN** the player has not collected `(familyId='藥理學', slotIndex=0)` (P0)
+- **WHEN** the collection page renders
+- **THEN** that slot SHALL render as a dimmed silhouette displaying `P0` (not an AP threshold)
+
+#### Scenario: Empty collection renders an all-silhouette 66-slot dex
+
+- **GIVEN** the player has collected zero variants
+- **WHEN** the page renders
+- **THEN** all 66 slots SHALL render as rarity-labeled silhouettes and the page SHALL NOT be blank
+
+#### Scenario: Collected slot renders a full card
+
+- **GIVEN** the player has collected `(familyId='藥理學', slotIndex=1)`
+- **WHEN** the page renders
+- **THEN** that slot SHALL render as a collected variant card (not a silhouette)
 
 ### Requirement: The collection page SHALL display the neural-energy balance and provide a per-family pull control
 

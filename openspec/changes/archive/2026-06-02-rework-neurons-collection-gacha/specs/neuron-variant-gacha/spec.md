@@ -21,7 +21,161 @@ deleted from the content pack.
 backfill) — see ADDED "Existing collection SHALL be fully reset on the Dexie v10
 upgrade with no grandfather".
 
+### Requirement: Rarity weight distribution SHALL be P5/P4/P3/P2/P1 = 60/25/10/4/1
+
+**Reason**: Replaced by a P0–P5 pyramid weight table summing to 100 (adds the P0
+始源 tier at weight 0.7) — see ADDED "Rarity weight distribution SHALL be a P0–P5
+pyramid summing to 100".
+
+### Requirement: Content pack SHALL ship a 55-entry `NEURON_VARIANT_CATALOG` with one named variant per `(familyId, slotIndex)` pair
+
+**Reason**: Replaced by a 66-entry catalog with a fixed rarity per variant (adds the
+`slotIndex 0` P0 entry per family) — see ADDED "Content pack SHALL ship a 66-entry
+`NEURON_VARIANT_CATALOG` with a fixed rarity per variant".
+
+### Requirement: Theme pack SHALL register 55 placeholder variant sprite keys plus terminal default
+
+**Reason**: Replaced by 66-key registration (adds the 11 P0 `slotIndex 0` keys) — see
+ADDED "Theme pack SHALL register 66 variant sprite keys plus terminal default".
+
+### Requirement: Provenance SHALL sync via the neurons R2 bundle with LWW and cross-version tolerance
+
+**Reason**: The R2 sync requirement is restated for the gacha collection — variants
+ride the same bundle but resolve `copies` via a MONOTONIC MAX-merge carve-out rather
+than LWW. See ADDED "Variant collection SHALL sync via the neurons R2 bundle with
+copies MAX-merge and cross-version tolerance".
+
 ## MODIFIED Requirements
+
+### Requirement: Content pack SHALL export a default variant-title mapping per rarity tier
+
+The package SHALL export `DEFAULT_VARIANT_TITLE_BY_RARITY: Record<Rarity, string>`
+covering `P0..P5`, used to compose the persisted `displayName` as
+`"<catalog.displayName> · <title>"`. The mapping SHALL include a P0 title (e.g.
+`始源核`) in addition to the existing P1–P5 titles.
+
+#### Scenario: Mapping is complete for all six tiers
+
+- **WHEN** a consumer imports `DEFAULT_VARIANT_TITLE_BY_RARITY`
+- **THEN** it SHALL contain entries for `P0`, `P1`, `P2`, `P3`, `P4`, `P5`
+- **AND** `DEFAULT_VARIANT_TITLE_BY_RARITY.P0` SHALL be a non-empty string
+
+### Requirement: Variant SHALL be persisted in `neuronVariants` Dexie table with composite primary key `(familyId, slotIndex)`
+
+The Dexie schema SHALL retain the composite primary key `[familyId, slotIndex]`
+(NOT changed — Dexie cannot change a PK in an upgrade). `slotIndex` ranges `0..5`.
+The row shape SHALL be:
+
+```typescript
+interface NeuronVariantRow {
+  familyId: string
+  slotIndex: number          // 0..5
+  rarity: 'P0'|'P1'|'P2'|'P3'|'P4'|'P5'
+  displayName: string
+  spriteKey: string
+  rolledAt: number
+  copies: number             // ≥ 1; increments on a dupe pull (Phase 3 consumes)
+  wasPityFloor: boolean      // repurposed: true iff a P0 obtained via soft-pity
+  provenance?: NeuronVariantProvenance
+}
+```
+
+`copies` is a non-indexed additive field (no `.stores()` index change). Row content
+(`rarity`/`displayName`/`spriteKey`/`provenance`) is immutable after mint; only
+`copies` mutates. The `.stores()` index string SHALL remain
+`'[familyId+slotIndex], familyId, rolledAt'`.
+
+#### Scenario: New variant persists with copies = 1
+
+- **GIVEN** the player pulls a not-yet-owned `(familyId='藥理學', slotIndex=2)` (P4)
+- **WHEN** the pull resolves
+- **THEN** a row SHALL exist with `slotIndex=2`, `rarity='P4'`, `copies=1`, a composed
+  `displayName`, the resolved `spriteKey`, and a `rolledAt` timestamp
+
+#### Scenario: Dupe pull increments copies, never duplicates the row
+
+- **GIVEN** a row exists for `(藥理學, 2)` with `copies=1`
+- **WHEN** a pull resolves to the same `(藥理學, 2)`
+- **THEN** the row's `copies` SHALL become 2
+- **AND** the `neuronVariants` row count for that pair SHALL remain 1
+- **AND** `rarity` / `displayName` / `rolledAt` SHALL be unchanged
+
+### Requirement: Unlock reveal SHALL surface both a modal and a toast, sourced from the motion library
+
+When a pull resolves, the system SHALL render a `VariantUnlockModal` (full-screen,
+dismiss-required) and push a toast onto the existing toast host. The modal SHALL show
+the resolved sprite (`image-rendering: pixelated`), the family display name, the
+variant's composed `displayName`, a rarity badge (P0–P5 label + tier name), a
+duplicate indicator when the pull was a dupe (copy count / 碎片 hint), and a P0/pity
+accent when applicable. The modal SHALL render only after the pull's Dexie
+transaction commits. Timing constants SHALL be imported from the motion library
+(no local `8000` / `0.3` literals). Reduced-motion SHALL degrade entry to opacity
+fade. The slot-floor `保底` semantics are replaced: a `保底` marker SHALL appear iff
+the variant is a P0 obtained via soft-pity (`wasPityFloor === true`).
+
+#### Scenario: New-variant pull renders the reveal
+
+- **GIVEN** a pull resolves to a new `(familyId='生理學', slotIndex=4, rarity='P2')`
+- **WHEN** the reveal renders
+- **THEN** the modal SHALL show the family name, composed `displayName`, the `P2 頂級`
+  badge, and the pixelated sprite, with NO duplicate indicator
+
+#### Scenario: Dupe pull reveal shows the duplicate indicator
+
+- **GIVEN** a pull resolves to an already-owned variant (copies → 2)
+- **WHEN** the reveal renders
+- **THEN** the modal/toast SHALL convey the result is a duplicate (count / 碎片 hint)
+
+#### Scenario: Toast auto-dismiss sources from the motion library
+
+- **WHEN** the reveal toast component is audited for the literal `8000`
+- **THEN** that literal SHALL NOT appear; the file SHALL import `TOAST_AUTO_DISMISS_MS`
+
+### Requirement: Connectome page family cards SHALL display collected-variant count
+
+The connectome homepage family card SHALL render a `🧬 X / 6` chip, where `X` is the
+count of `neuronVariants` rows for that `familyId` and 6 is the per-family tier count
+(P0–P5). The chip SHALL update live via `useLiveQuery`. When `X === 6` the chip SHALL
+render a celebratory variant (gold + 🏆) with no reward side-effect. The chip SHALL be
+visible even when nothing is collected (`🧬 0 / 6`).
+
+#### Scenario: Chip reflects live count out of six
+
+- **GIVEN** the `neuronVariants` table contains 3 rows for `familyId='解剖學'`
+- **WHEN** the connectome homepage renders
+- **THEN** the 解剖學 card SHALL display `🧬 3 / 6`
+
+#### Scenario: Full collection renders the celebratory chip
+
+- **GIVEN** all 6 variants for `familyId='免疫學'` are collected
+- **WHEN** the homepage renders
+- **THEN** the chip SHALL render `🏆 6 / 6` with a gold accent and no reward fires
+
+### Requirement: Each variant SHALL capture study-context provenance at mint time
+
+When a `neuronVariants` row is created by a pull, the system SHALL stamp a
+`provenance` object: `bornAtISO` (local date at pull), `apAtUnlock` (the family AP at
+pull time — retained field name, now carries AP-at-pull), `wasRedemption` (always
+`false` for pulls — pulls are not tied to a specific question), `streakAtMint`
+(daily streak at pull). A variant minted while `streakAtMint >= MILESTONE_STREAK_THRESHOLD`
+SHALL be a 里程碑 individual. Provenance SHALL be written in the same transaction as
+the row and SHALL be immutable. Dupe pulls (no new row) SHALL NOT alter existing
+provenance.
+
+#### Scenario: Pull stamps provenance on a new variant
+
+- **GIVEN** a pull mints a new variant while the player's streak is 3
+- **WHEN** the row is created
+- **THEN** `provenance` SHALL be `{ bornAtISO: <today>, apAtUnlock: <family AP>,
+  wasRedemption: false, streakAtMint: 3 }` and it SHALL NOT be a 里程碑 individual
+
+#### Scenario: Dupe pull does not rewrite provenance
+
+- **GIVEN** a dupe pull increments `copies` on an existing row
+- **WHEN** the pull resolves
+- **THEN** the existing row's `provenance` SHALL be unchanged
+
+## ADDED Requirements
 
 ### Requirement: Rarity weight distribution SHALL be a P0–P5 pyramid summing to 100
 
@@ -92,59 +246,6 @@ The build-time `assertCatalogShape` guard SHALL enforce 66 entries, every
 - **WHEN** the catalog is filtered to `rarity === 'P0'`
 - **THEN** there SHALL be exactly 11 entries, one per family, each with `slotIndex === 0`
 
-### Requirement: Content pack SHALL export a default variant-title mapping for all six rarity tiers
-
-The package SHALL export `DEFAULT_VARIANT_TITLE_BY_RARITY: Record<Rarity, string>`
-covering `P0..P5`, used to compose the persisted `displayName` as
-`"<catalog.displayName> · <title>"`. The mapping SHALL include a P0 title (e.g.
-`始源核`) in addition to the existing P1–P5 titles.
-
-#### Scenario: Mapping is complete for all six tiers
-
-- **WHEN** a consumer imports `DEFAULT_VARIANT_TITLE_BY_RARITY`
-- **THEN** it SHALL contain entries for `P0`, `P1`, `P2`, `P3`, `P4`, `P5`
-- **AND** `DEFAULT_VARIANT_TITLE_BY_RARITY.P0` SHALL be a non-empty string
-
-### Requirement: Variant SHALL be persisted in `neuronVariants` with composite PK `(familyId, slotIndex)` and a `copies` count
-
-The Dexie schema SHALL retain the composite primary key `[familyId, slotIndex]`
-(NOT changed — Dexie cannot change a PK in an upgrade). `slotIndex` ranges `0..5`.
-The row shape SHALL be:
-
-```typescript
-interface NeuronVariantRow {
-  familyId: string
-  slotIndex: number          // 0..5
-  rarity: 'P0'|'P1'|'P2'|'P3'|'P4'|'P5'
-  displayName: string
-  spriteKey: string
-  rolledAt: number
-  copies: number             // ≥ 1; increments on a dupe pull (Phase 3 consumes)
-  wasPityFloor: boolean      // repurposed: true iff a P0 obtained via soft-pity
-  provenance?: NeuronVariantProvenance
-}
-```
-
-`copies` is a non-indexed additive field (no `.stores()` index change). Row content
-(`rarity`/`displayName`/`spriteKey`/`provenance`) is immutable after mint; only
-`copies` mutates. The `.stores()` index string SHALL remain
-`'[familyId+slotIndex], familyId, rolledAt'`.
-
-#### Scenario: New variant persists with copies = 1
-
-- **GIVEN** the player pulls a not-yet-owned `(familyId='藥理學', slotIndex=2)` (P4)
-- **WHEN** the pull resolves
-- **THEN** a row SHALL exist with `slotIndex=2`, `rarity='P4'`, `copies=1`, a composed
-  `displayName`, the resolved `spriteKey`, and a `rolledAt` timestamp
-
-#### Scenario: Dupe pull increments copies, never duplicates the row
-
-- **GIVEN** a row exists for `(藥理學, 2)` with `copies=1`
-- **WHEN** a pull resolves to the same `(藥理學, 2)`
-- **THEN** the row's `copies` SHALL become 2
-- **AND** the `neuronVariants` row count for that pair SHALL remain 1
-- **AND** `rarity` / `displayName` / `rolledAt` SHALL be unchanged
-
 ### Requirement: Theme pack SHALL register 66 variant sprite keys plus terminal default
 
 The `theme-pixel-neurons` `SPRITE_MAP` SHALL include `variant:<familyId>:<slotIndex>`
@@ -164,81 +265,6 @@ SHALL never produce a broken image (falls back to `variant:default`).
 
 - **WHEN** the developer reads a `variant:<familyId>:0` key
 - **THEN** it MAY resolve to a placeholder sprite without failing the build
-
-### Requirement: Pull reveal SHALL surface a modal and a toast, sourced from the motion library
-
-When a pull resolves, the system SHALL render a `VariantUnlockModal` (full-screen,
-dismiss-required) and push a toast onto the existing toast host. The modal SHALL show
-the resolved sprite (`image-rendering: pixelated`), the family display name, the
-variant's composed `displayName`, a rarity badge (P0–P5 label + tier name), a
-duplicate indicator when the pull was a dupe (copy count / 碎片 hint), and a P0/pity
-accent when applicable. The modal SHALL render only after the pull's Dexie
-transaction commits. Timing constants SHALL be imported from the motion library
-(no local `8000` / `0.3` literals). Reduced-motion SHALL degrade entry to opacity
-fade. The slot-floor `保底` semantics are replaced: a `保底` marker SHALL appear iff
-the variant is a P0 obtained via soft-pity (`wasPityFloor === true`).
-
-#### Scenario: New-variant pull renders the reveal
-
-- **GIVEN** a pull resolves to a new `(familyId='生理學', slotIndex=4, rarity='P2')`
-- **WHEN** the reveal renders
-- **THEN** the modal SHALL show the family name, composed `displayName`, the `P2 頂級`
-  badge, and the pixelated sprite, with NO duplicate indicator
-
-#### Scenario: Dupe pull reveal shows the duplicate indicator
-
-- **GIVEN** a pull resolves to an already-owned variant (copies → 2)
-- **WHEN** the reveal renders
-- **THEN** the modal/toast SHALL convey the result is a duplicate (count / 碎片 hint)
-
-#### Scenario: Toast auto-dismiss sources from the motion library
-
-- **WHEN** the reveal toast component is audited for the literal `8000`
-- **THEN** that literal SHALL NOT appear; the file SHALL import `TOAST_AUTO_DISMISS_MS`
-
-### Requirement: Connectome page family cards SHALL display collected-variant count out of six
-
-The connectome homepage family card SHALL render a `🧬 X / 6` chip, where `X` is the
-count of `neuronVariants` rows for that `familyId` and 6 is the per-family tier count
-(P0–P5). The chip SHALL update live via `useLiveQuery`. When `X === 6` the chip SHALL
-render a celebratory variant (gold + 🏆) with no reward side-effect. The chip SHALL be
-visible even when nothing is collected (`🧬 0 / 6`).
-
-#### Scenario: Chip reflects live count out of six
-
-- **GIVEN** the `neuronVariants` table contains 3 rows for `familyId='解剖學'`
-- **WHEN** the connectome homepage renders
-- **THEN** the 解剖學 card SHALL display `🧬 3 / 6`
-
-#### Scenario: Full collection renders the celebratory chip
-
-- **GIVEN** all 6 variants for `familyId='免疫學'` are collected
-- **WHEN** the homepage renders
-- **THEN** the chip SHALL render `🏆 6 / 6` with a gold accent and no reward fires
-
-### Requirement: Each variant SHALL capture study-context provenance at pull time
-
-When a `neuronVariants` row is created by a pull, the system SHALL stamp a
-`provenance` object: `bornAtISO` (local date at pull), `apAtUnlock` (the family AP at
-pull time — retained field name, now carries AP-at-pull), `wasRedemption` (always
-`false` for pulls — pulls are not tied to a specific question), `streakAtMint`
-(daily streak at pull). A variant minted while `streakAtMint >= MILESTONE_STREAK_THRESHOLD`
-SHALL be a 里程碑 individual. Provenance SHALL be written in the same transaction as
-the row and SHALL be immutable. Dupe pulls (no new row) SHALL NOT alter existing
-provenance.
-
-#### Scenario: Pull stamps provenance on a new variant
-
-- **GIVEN** a pull mints a new variant while the player's streak is 3
-- **WHEN** the row is created
-- **THEN** `provenance` SHALL be `{ bornAtISO: <today>, apAtUnlock: <family AP>,
-  wasRedemption: false, streakAtMint: 3 }` and it SHALL NOT be a 里程碑 individual
-
-#### Scenario: Dupe pull does not rewrite provenance
-
-- **GIVEN** a dupe pull increments `copies` on an existing row
-- **WHEN** the pull resolves
-- **THEN** the existing row's `provenance` SHALL be unchanged
 
 ### Requirement: Variant collection SHALL sync via the neurons R2 bundle with copies MAX-merge and cross-version tolerance
 
@@ -262,8 +288,6 @@ unknown keys). The shared sync Worker is bundle-opaque and SHALL NOT change.
 - **GIVEN** a client at `SCHEMA_VERSION = 8` reads a bundle at version 9
 - **WHEN** the bundle is validated
 - **THEN** no error SHALL be raised and unknown currency keys SHALL be dropped
-
-## ADDED Requirements
 
 ### Requirement: Study activity SHALL mint a neural-energy pull currency
 
