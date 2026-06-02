@@ -33,11 +33,15 @@
 //        wins immutable). Forward-compat: a v6 client reading a v7 bundle
 //        preserves `provenance` in the row JSON (it does not interpret it); a
 //        v7 client reading a v6 bundle sees rows with no `provenance` → 元老.
+//   v8 — add-neurons-study-squad 2026-06-02: adds the `activeSquad` synced meta
+//        key (active-squad selection envelope). LWW via backfill/active-squad.ts.
+//        Additive — v7 clients drop the key; a v8 client reading a v7 bundle (no
+//        activeSquad) preserves its local squad. NO Dexie bump (rides meta).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 7
+export const SCHEMA_VERSION = 8
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

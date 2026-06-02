@@ -335,6 +335,10 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   // add-neurons-variant-collection-view). Timestamped envelope; LWW enforced
   // by backfill/representatives.ts post-pass (NOT the first-write-wins below).
   'representativeVariants',
+  // Active squad selection (per add-neurons-study-squad). Timestamped envelope
+  // `{ members, updatedAt }`; LWW enforced by backfill/active-squad.ts post-pass
+  // (NOT the first-write-wins below).
+  'activeSquad',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {

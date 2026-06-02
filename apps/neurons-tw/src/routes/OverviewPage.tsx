@@ -9,9 +9,12 @@ import { FamilyPicker, type FamilyAccrual } from '../components/FamilyPicker'
 import { ConnectomeTreeSvg } from '../components/connectome/ConnectomeTreeSvg'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
+import StudySquadPanel from '../components/StudySquadPanel'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
 import { filterPoolByFamily, filterPoolByYear } from '../lib/services/quiz-pool'
+import { useQuestionHistory } from '../lib/services/question-history'
+import { buildWrongQuestionPool, onExpeditionComplete } from '../lib/services/expedition'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { YearFilterBar } from '../components/YearFilterBar'
 import { db } from '../lib/db'
@@ -34,6 +37,9 @@ type QuizEntry = string | null | undefined
 
 export default function OverviewPage({ pack }: Props): JSX.Element {
   const [quizEntry, setQuizEntry] = useState<QuizEntry>(undefined)
+  // 出征 (expedition) is a separate, mutually-exclusive QuizModal entry on the
+  // cross-subject wrong-question pool. (add-neurons-study-squad)
+  const [expeditionOpen, setExpeditionOpen] = useState(false)
   const [totalStudyMin, setTotalStudyMin] = useState(0)
   const [stats, setStats] = useState<ProgressStats>({
     variants: 0,
@@ -59,6 +65,20 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const totalPoolSize = useMemo(
     () => (yearActive ? filterPoolByYear(pack.questions, yearSet).length : pack.questions.length),
     [pack.questions, yearSet, yearActive],
+  )
+
+  // 出征 pool — all-subject currently-unmastered questions (lastResult==='wrong').
+  // NOT year-filtered: it is the player's wrong set regardless of exam year.
+  // The 出征 button only needs the COUNT (cheap, O(history)); the full-corpus
+  // materialization runs only while the drill is actually open.
+  const questionHistory = useQuestionHistory()
+  const wrongCount = useMemo(
+    () => questionHistory.reduce((n, h) => (h.lastResult === 'wrong' ? n + 1 : n), 0),
+    [questionHistory],
+  )
+  const expeditionPool = useMemo(
+    () => (expeditionOpen ? buildWrongQuestionPool(pack.questions, questionHistory) : []),
+    [expeditionOpen, pack.questions, questionHistory],
   )
 
   useEffect(() => {
@@ -112,6 +132,13 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     void readTotalStudyMinutes().then(setTotalStudyMin)
   }, [timer.minutesFired])
 
+  // Open a regular (non-expedition) quiz; the two are mutually exclusive, so
+  // opening one always closes the other.
+  const openRegularQuiz = (familyId: string | null): void => {
+    setExpeditionOpen(false)
+    setQuizEntry(familyId)
+  }
+
   const onTimerToggle = (): void => {
     if (timer.status === 'idle') {
       timer.start()
@@ -161,7 +188,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           <button
             type="button"
             style={randomQuizButtonStyle}
-            onClick={() => setQuizEntry(null)}
+            onClick={() => openRegularQuiz(null)}
             aria-label="跨 family 隨機答題"
             title={`從全部 ${totalPoolSize} 題隨機抽題`}
           >
@@ -174,6 +201,17 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         </p>
         <YearFilterBar />
       </section>
+
+      {/* ── Study squad: party + 出征 (add-neurons-study-squad). Sits above the
+            connectome tree as a deploy-from-the-map surface; its own block so it
+            never overlaps the SVG graph. ── */}
+      <StudySquadPanel
+        expeditionCount={wrongCount}
+        onExpedition={() => {
+          setQuizEntry(undefined)
+          setExpeditionOpen(true)
+        }}
+      />
 
       {/* ── First-visit guidance while the connectome is still empty (stateless;
             auto-hides on first synapse). Replaces the old "0 連線" framing. ── */}
@@ -234,11 +272,21 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       <FamilyPicker
         pack={pack}
         accrualByFamily={accrualByFamily}
-        onStartQuiz={(familyId) => setQuizEntry(familyId)}
+        onStartQuiz={openRegularQuiz}
       />
 
-      {quizEntry !== undefined && (
+      {quizEntry !== undefined && expeditionOpen === false && (
         <QuizModal pool={quizPool} onClose={() => setQuizEntry(undefined)} />
+      )}
+
+      {/* 出征 (expedition) drill — cross-subject wrong questions. Its onComplete
+          fires the no-op reward seam (Phase 4 plugs in here). (add-neurons-study-squad) */}
+      {expeditionOpen && (
+        <QuizModal
+          pool={expeditionPool}
+          onClose={() => setExpeditionOpen(false)}
+          onComplete={onExpeditionComplete}
+        />
       )}
 
       <footer style={{ marginTop: '2rem', fontSize: '0.8em', color: '#5a3f29' }}>
