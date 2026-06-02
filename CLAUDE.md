@@ -398,6 +398,34 @@ Key handles:
 
 Full change reference: `openspec/changes/archive/2026-06-01-add-neurons-wrong-questions-subtab/` (proposal / design / specs / tasks).
 
+## Neurons context-driven variant art (M_3rd ext, 2026-06-02)
+
+`apps/neurons-tw` turns each collected variant's **birth-context provenance** (from `add-neurons-variant-provenance`) into a glanceable **visual** layer — Pikmin Bloom step 3「帽子=出身」. Capability spec: [`openspec/specs/neurons-variant-context-art/spec.md`](openspec/specs/neurons-variant-context-art/spec.md) (new). The text birth-caption (`lib/variant-caption.ts`) is the sibling text channel; this is the visual channel.
+
+**Background-watermark model (all context art renders BEHIND the neuron).** The neuron always paints on top at full opacity → never occluded, and there are no positioned foreground badges to align. This is a **design pivot (2026-06-02)** made during the live verify pass: earlier cuts (ornate foreground overlays, then iconographic corner badges + a top-left EEG glyph) crowded the soma and had alignment problems the owner rejected — "做成半透明背景圖，比較不會有對齊問題".
+
+**Two channels, both pure-derived at render (zero new state):**
+1. **Decor = 3 universal full-bleed neuro-field textures** composited as faint backdrops (`objectFit:cover`, opacity 0.11 single / 0.07 stacked) behind the neuron, chosen from `provenance`:
+   - `decor:redemption` — action-potential **firing field** — `provenance.wasRedemption === true` (LTP 浴火重生)
+   - `decor:milestone` — **myelinated-axon field** (nodes of Ranvier) — `streakAtMint >= MILESTONE_STREAK_THRESHOLD` (7, saltatory milestone)
+   - `decor:elder` — antique **Cajal histology plate** — `provenance === undefined` (元老/傳承)
+   救贖 + 里程碑 **stack**; 元老 is mutually exclusive (requires absent provenance).
+2. **Brain-wave band** from the variant's birth **hour-of-day**: `brainwaveBand(rolledAt)` reads the hour in a **fixed Asia/Taipei tz** (rolledAt is absolute → cross-device deterministic) → circadian epoch's dominant EEG band: 00–06 **δ** / 06–12 **β** / 12–18 **α** / 18–24 **θ**. Every row gets a band (incl. 元老 — `rolledAt` always exists). Rendered as a colour-coded **δ/θ/α/β** Greek-letter corner watermark (`BAND_META[band].color`, opacity 0.75) — the card's **only colour accent**. NO full-cell colour wash (an earlier per-band wash made the grid look like a rainbow; owner flagged "不同顏色背景"). Band↔state mapping **OpenEvidence-grounded** (NEJM Brown 2010 `10.1056/NEJMra0808281`; Constant 2012 `10.1111/j.1460-9592.2012.03883.x`): δ deep-sleep / θ drowsy-REM / α relaxed / β alert.
+
+Context art is orthogonal to the **rarity** channel (P1–P5 colour / chip / spin) — rarity uses colour, context uses neuro-field texture + band letter.
+
+Key handles:
+- Pure helper `apps/neurons-tw/src/lib/variant-decor.ts` → `variantContextArt(row): { decor: DecorKey[]; band: BandKey }` + `brainwaveBand(rolledAt)` + `BAND_META`. Mirror of `variant-caption.ts`. Unit-tested (`__tests__/variant-decor.test.ts`, 16 cases: decor mapping + stack + elder + birth-hour→band incl. 4 boundaries + elder-gets-a-band).
+- Shared composer `apps/neurons-tw/src/components/VariantSprite.tsx` (`{ row, size, alt, children }`): `position:relative; overflow:hidden` wrap → faint decor field(s) → band letter → base sprite **on top**. Optional `children` lets a caller pass an animated base (modal hero evolve sheet / alive idle img) so reveal animation is preserved. **Adding any new collected-variant render site MUST go through `VariantSprite`.**
+- 3 render sites wired: `routes/CollectionPage.tsx` `VariantSlotCard` (dex card, size 64) + family-`<section>` header **mini representative** (size 28 — decision B 2026-06-02, since the representative isn't shown on the connectome homepage; family node there uses the `subject:` icon) + `components/VariantUnlockModal.tsx` (mint reveal, size 128).
+- Theme reg: `packages/theme-pixel-neurons/sprites/decor/{redemption,milestone,elder}.png` (384×384 full-bleed neuro-field textures, 16-color transparent, Gemini-gen + chroma-key/quantize) via `sprites/decor/*.png` glob in `src/sprites.ts` (`DECOR_KEYS`, `?? TRANSPARENT_PIXEL` → missing asset = no field, never a broken image).
+
+**Zero schema / sync change.** Decor + band are a pure function of the already-synced `provenance` + `rolledAt` — no Dexie `.version()` bump, no R2 bundle `SCHEMA_VERSION` bump, no new adapter. A second device computes identical art. (No Dexie change → no upgrade-fixture-lint trigger.)
+
+Deferred follow-ups: per-NT-branch flavoured decor (4×3=12 assets); sparser milestone myelin field (currently ~93% coverage → soft gold haze at low opacity). Ship universal first, revisit with telemetry.
+
+Full change reference: `openspec/changes/context-driven-variant-art/` (proposal / design / specs / tasks).
+
 ## Source data path
 
 題庫原始 .md 在使用者本機（**不在 repo 內**）：

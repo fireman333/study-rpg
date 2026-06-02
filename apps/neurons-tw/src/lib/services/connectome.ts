@@ -97,7 +97,22 @@ export async function runDailyResetIfNeeded(): Promise<void> {
   emitAll(pending)
 }
 
-export async function recordCorrectAnswer(familyId: string): Promise<void> {
+/**
+ * Optional mint-time context for a correct answer. `wasRedemption` is computed
+ * by the quiz flow (the triggering question's pre-answer `everWrong`) and
+ * forwarded into the `connectome.variantSlotUnlocked` payload so the variant
+ * gacha can stamp 救贖 provenance. Omitted → treated as `false` (backward-
+ * compatible). (add-neurons-variant-provenance)
+ */
+export interface CorrectAnswerContext {
+  wasRedemption?: boolean
+}
+
+export async function recordCorrectAnswer(
+  familyId: string,
+  ctx?: CorrectAnswerContext,
+): Promise<void> {
+  const wasRedemption = ctx?.wasRedemption ?? false
   const today = todayISO()
   let pending: PendingEvent[] = []
   let masteryUpdate: MasteryUpdate | null = null
@@ -147,7 +162,7 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     for (const slotIndex of newlyUnlockedSlots) {
       pending.push({
         name: 'connectome.variantSlotUnlocked',
-        payload: { familyId, slotIndex, apAtUnlock: newAp },
+        payload: { familyId, slotIndex, apAtUnlock: newAp, wasRedemption },
       })
     }
 

@@ -4,7 +4,9 @@ import { useRespectsReducedMotion, RARITY_TIMINGS } from '../lib/motion'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { subscribeVariantGachaEvents, type VariantRolledPayload } from '../lib/services/variant-gacha'
 import type { VariantRarity } from '../lib/db'
+import { variantBirthCaption } from '../lib/variant-caption'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
+import VariantSprite from './VariantSprite'
 
 interface QueuedReveal {
   id: number
@@ -110,21 +112,29 @@ export default function VariantUnlockModal(): JSX.Element {
           <div style={{ ...rarityBadgeStyle, color, borderColor: color }}>{RARITY_LABEL[variant.rarity]}</div>
           <div style={slotChipStyle}>Slot {variant.slotIndex}</div>
           <div style={spriteWrapStyle}>
-            {SPRITE_MAP[`${variant.spriteKey}:evolve`] ? (
-              // Hero variant ships an evolve sheet → play the 進化爆光 on reveal.
-              <SpriteSheetPlayer spriteKeyBase={variant.spriteKey} state="evolve" size={128} />
-            ) : (
-              <img
-                src={spriteUrl}
-                alt={variant.displayName}
-                className="neuron-sprite--alive"
-                style={spriteStyle}
-              />
-            )}
+            {/* VariantSprite composes context decor + season tint over the base;
+                the base (hero evolve sheet, else the alive idle sprite) is passed
+                as children so the existing reveal animation is preserved. */}
+            <VariantSprite row={variant} size={128} alt={variant.displayName}>
+              {SPRITE_MAP[`${variant.spriteKey}:evolve`] ? (
+                // Hero variant ships an evolve sheet → play the 進化爆光 on reveal.
+                <SpriteSheetPlayer spriteKeyBase={variant.spriteKey} state="evolve" size={128} />
+              ) : (
+                <img
+                  src={spriteUrl}
+                  alt={variant.displayName}
+                  className="neuron-sprite--alive"
+                  style={spriteStyle}
+                />
+              )}
+            </VariantSprite>
           </div>
           <div style={familyNameStyle}>{familyDisplayName}</div>
           <div style={variantNameStyle}>{variant.displayName}</div>
           {variant.wasPityFloor && <div style={pityChipStyle}>保底</div>}
+          {/* Birth caption (add-neurons-variant-provenance) — the study context
+              that grew this variant, surfaced at the moment of mint. */}
+          <div style={captionStyle}>{variantBirthCaption(variant)}</div>
           <button
             type="button"
             onClick={dismissCurrent}
@@ -232,6 +242,15 @@ const pityChipStyle: React.CSSProperties = {
   borderRadius: '999px',
   color: '#b58900',
   fontWeight: 600,
+}
+
+const captionStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  color: '#8c6d4a',
+  textAlign: 'center',
+  lineHeight: 1.4,
+  marginTop: '0.1rem',
+  maxWidth: '17rem',
 }
 
 const dismissButtonStyle: React.CSSProperties = {

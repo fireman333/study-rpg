@@ -7,7 +7,7 @@
  * Spec: openspec/changes/wire-neurons-content-and-theme/specs/neurons-mode/spec.md
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { NEURONS_ACHIEVEMENTS, NEURONS_ACHIEVEMENTS_STATS } from '../src/achievements'
@@ -24,6 +24,14 @@ const MEDEXAM_SOURCE_ROOT =
   resolve(process.env.HOME ?? '/', 'Desktop/國考/一階國考/陽明國考考古/_extracted')
 const ALLOW_SKIPS = process.env.MEDEXAM_ALLOW_SKIPS === '1'
 const OUT_DIR = resolve(import.meta.dirname, '..', 'dist')
+// Question figures committed alongside the content pack. Presence of
+// `figures/<question-id>.png` is the source of truth for a question's figure:
+// the build sets imagePath + forces hasImage. See add-neurons-question-figures design D1/D3.
+const FIGURES_DIR = resolve(import.meta.dirname, '..', 'figures')
+// Questions whose upstream `hasImage` flag is a false positive (flagged by the
+// unreliable `**有附圖**：是` source marker, but the stem references no figure).
+// Forced to hasImage:false so they show neither a figure nor a [圖] placeholder.
+const FALSE_POSITIVE_HASIMAGE = new Set<string>(['111-2-醫學一-生理學-Q57'])
 
 const NT_COLOR = {
   DA: '#d4a04d',
@@ -114,6 +122,7 @@ interface MedexamQuestion {
   answer: string
   explanation: string
   hasImage?: boolean
+  imagePath?: string | null  // set by build when a figures/<id>.png exists (see FIGURES_DIR)
   hasOptionImages?: boolean
   microImmune?: '微生物學' | '免疫學'  // baked split (self-contained; no _extracted needed in CI)
   meta: { year: number; session: number; book: string; paper: string; qNumber: number; pageRef?: string }
@@ -199,18 +208,42 @@ function main(): void {
     `Read medexam-tw: ${medexamSubjects.length} subjects, ${medexamQuestions.length} questions`,
   )
 
-  // Step 2 + 3: 直送 9 subjects verbatim + split 微生物暨免疫學
+  // Figure wiring: load the committed figure files once. A question with a
+  // matching figures/<id>.png gets imagePath + hasImage:true (figure existence
+  // is authoritative). False-positive flags get hasImage:false. See design D3.
+  const figureIds = new Set(
+    existsSync(FIGURES_DIR)
+      ? readdirSync(FIGURES_DIR)
+          .filter((f) => f.endsWith('.png'))
+          .map((f) => f.slice(0, -'.png'.length))
+      : [],
+  )
+  let figuresWired = 0
+  let flaggedNoFigure = 0
+  function wireFigure<T extends MedexamQuestion>(q: T): T {
+    if (FALSE_POSITIVE_HASIMAGE.has(q.id)) {
+      return { ...q, hasImage: false, imagePath: null }
+    }
+    if (figureIds.has(q.id)) {
+      figuresWired += 1
+      return { ...q, hasImage: true, imagePath: `content/neurons-tw/figures/${q.id}.png` }
+    }
+    if (q.hasImage) flaggedNoFigure += 1
+    return q
+  }
+
+  // Step 2 + 3: 直送 9 subjects verbatim + split 微生物暨免疫學 (+ figure wiring)
   let splitMicro = 0
   let splitImmune = 0
   let untaggedFallback = 0
   const outputQuestions = medexamQuestions.map((q) => {
-    if (q.subject !== '微生物暨免疫學') return q
+    if (q.subject !== '微生物暨免疫學') return wireFigure(q)
     const { subject, tagged } = classifyMicroImmune(q)
     if (!tagged) untaggedFallback += 1
     if (subject === '微生物學') splitMicro += 1
     else splitImmune += 1
     const { microImmune: _drop, ...rest } = q // strip build-only hint from output
-    return { ...rest, subject }
+    return wireFigure({ ...rest, subject })
   })
 
   // Step 4: Generate subjects.json from FAMILY_BY_SUBJECT
@@ -293,6 +326,17 @@ function main(): void {
   writeFileSync(resolve(OUT_DIR, 'subjects.json'), JSON.stringify(outputSubjects, null, 2))
   writeFileSync(resolve(OUT_DIR, 'questions.json'), JSON.stringify(outputQuestions))
 
+  // Step 6b: Copy question figures into dist/figures (copy-content.mjs then → app public/)
+  let figuresCopied = 0
+  if (existsSync(FIGURES_DIR)) {
+    const figOut = resolve(OUT_DIR, 'figures')
+    mkdirSync(figOut, { recursive: true })
+    for (const f of readdirSync(FIGURES_DIR).filter((n) => n.endsWith('.png'))) {
+      copyFileSync(resolve(FIGURES_DIR, f), resolve(figOut, f))
+      figuresCopied += 1
+    }
+  }
+
   // Step 7: Counters
   const ntCount = (br: NtBranch) => outputSubjects.filter((s) => s.group === br).length
   console.log(`---`)
@@ -304,6 +348,9 @@ function main(): void {
   )
   console.log(
     `subjects: ${outputSubjects.length} (DA ${ntCount('DA')} / 5-HT ${ntCount('5HT')} / GABA ${ntCount('GABA')} / Glu ${ntCount('Glu')})`,
+  )
+  console.log(
+    `figures: wired ${figuresWired} (imagePath set) / copied ${figuresCopied} files / flagged-without-figure ${flaggedNoFigure} (→ [圖] fallback)`,
   )
   console.log(`Written: ${OUT_DIR}`)
 
