@@ -8,10 +8,6 @@ import MotionDemoPage from './routes/MotionDemoPage' // dev self-verify only —
 import LeaderboardPage from './routes/LeaderboardPage'
 import ConnectomeToastHost from './components/SynapseFormationToast'
 import VariantUnlockModal from './components/VariantUnlockModal'
-import {
-  backfillUnlockedSlots,
-  registerVariantGachaSubscriber,
-} from './lib/services/variant-gacha'
 import { backfillAchievementsFromCurrentStats } from './lib/services/achievement'
 import { initializeDmnTrigger } from './lib/services/dmn-trigger'
 import AchievementsPage from './routes/AchievementsPage'
@@ -43,24 +39,15 @@ export default function App(): JSX.Element {
     }
     getContentPack(`${import.meta.env.BASE_URL}content/neurons-tw`)
       .then(async (pack) => {
-        const familyById = new Map(pack.subjects.map((s) => [s.id, s]))
-        const resolveFamilyDisplayName = (familyId: string): string =>
-          familyById.get(familyId)?.displayName ?? familyId
-        registerVariantGachaSubscriber(resolveFamilyDisplayName)
         // Register DMN trigger detector — subscribes to connectome events for
         // behavior-axis bonus draws. Idempotent on StrictMode double-mount.
         // Time-axis (reading-timer) inactive until polish-neurons-pre-ship.
+        // (Collection 2.0: no variant-gacha subscriber — variants come from the
+        // player-initiated pull on /collection.)
         initializeDmnTrigger()
-        // Backfill variants for slots the player already crossed AP threshold
-        // for before this change shipped. Awaited (not fire-and-forget) so
-        // chips mount with the correct count on first render. Silent inside —
-        // NO modal/toast for backfilled variants. Total boot cost: ~50ms for a
-        // typical save (a few rows); errors logged but do not block boot.
-        await backfillUnlockedSlots(resolveFamilyDisplayName)
         // Silent achievement backfill — write rows for predicates already
-        // satisfied by current Dexie state (no toast / modal / reward). Safe
-        // to run AFTER variant backfill so variant-derived predicates see
-        // the latest variant rows. Idempotent on subsequent boots.
+        // satisfied by current Dexie state (no toast / modal / reward).
+        // Idempotent on subsequent boots.
         await backfillAchievementsFromCurrentStats()
         setState({ loading: false, pack })
       })

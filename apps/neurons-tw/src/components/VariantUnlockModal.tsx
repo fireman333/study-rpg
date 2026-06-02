@@ -14,6 +14,7 @@ interface QueuedReveal {
 }
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
+  P0: 'P0 始源',
   P1: 'P1 夯',
   P2: 'P2 頂級',
   P3: 'P3 人上人',
@@ -22,6 +23,7 @@ const RARITY_LABEL: Record<VariantRarity, string> = {
 }
 
 const RARITY_COLOR: Record<VariantRarity, string> = {
+  P0: '#a64dd4',
   P1: '#d4a04d',
   P2: '#c44d4d',
   P3: '#6a8c3f',
@@ -51,10 +53,11 @@ export default function VariantUnlockModal(): JSX.Element {
   const current = queue[0]
   if (!current) return <></>
 
-  const { variant, familyDisplayName } = current.payload
+  const { variant, familyDisplayName, isDupe } = current.payload
   const spriteUrl = SPRITE_MAP[variant.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
   const color = RARITY_COLOR[variant.rarity]
-  const timing = RARITY_TIMINGS[variant.rarity]
+  // P0 apex shares P1's grand spin spectacle (motion lib timing covers P1–P5).
+  const timing = RARITY_TIMINGS[variant.rarity === 'P0' ? 'P1' : variant.rarity]
   // Card entry duration (in seconds for Framer Motion) follows the centralized
   // baseline. Reduced-motion users still get a brief opacity-only fade.
   const cardDurationSec = reduced ? 0.18 : Math.max(timing.total, 1000) / 1000
@@ -77,7 +80,7 @@ export default function VariantUnlockModal(): JSX.Element {
         key={current.id}
         role="dialog"
         aria-modal="true"
-        aria-label={`新變體解鎖：${familyDisplayName} ${variant.displayName}`}
+        aria-label={`${isDupe ? '重複變體' : '新變體解鎖'}：${familyDisplayName} ${variant.displayName}`}
         initial={overlayInitial}
         animate={overlayAnimate}
         exit={overlayExit}
@@ -110,7 +113,9 @@ export default function VariantUnlockModal(): JSX.Element {
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{ ...rarityBadgeStyle, color, borderColor: color }}>{RARITY_LABEL[variant.rarity]}</div>
-          <div style={slotChipStyle}>Slot {variant.slotIndex}</div>
+          {isDupe && (
+            <div style={dupeChipStyle}>重複 × {variant.copies}（碎片留待融合）</div>
+          )}
           <div style={spriteWrapStyle}>
             {/* VariantSprite composes context decor + season tint over the base;
                 the base (hero evolve sheet, else the alive idle sprite) is passed
@@ -192,14 +197,14 @@ const rarityBadgeStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
 }
 
-const slotChipStyle: React.CSSProperties = {
-  alignSelf: 'flex-start',
-  fontSize: '0.7rem',
-  padding: '0.1rem 0.5rem',
+const dupeChipStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  padding: '0.1rem 0.6rem',
   border: '1px solid #8c6d4a',
   borderRadius: '999px',
-  color: '#5a3f29',
-  background: '#fff',
+  color: '#8c6d4a',
+  background: '#f4ecd8',
 }
 
 const spriteWrapStyle: React.CSSProperties = {
