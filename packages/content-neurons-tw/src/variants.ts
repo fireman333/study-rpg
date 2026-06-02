@@ -10,13 +10,15 @@
  * Persistent displayName at roll time = "<catalog.displayName> · <rarity title>".
  */
 
-export type Rarity = 'P1' | 'P2' | 'P3' | 'P4' | 'P5'
+export type Rarity = 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'P5'
 
-export type SlotIndex = 1 | 2 | 3 | 4 | 5
+export type SlotIndex = 0 | 1 | 2 | 3 | 4 | 5
 
 export interface NeuronVariantDef {
   familyId: string
   slotIndex: SlotIndex
+  /** Fixed rarity tier (Collection 2.0) — derived from SLOT_RARITY[slotIndex]. */
+  rarity: Rarity
   /** Unique persona name reflecting slot's narrative role within the family. */
   displayName: string
   spriteKey: string
@@ -24,35 +26,54 @@ export interface NeuronVariantDef {
   description: string
 }
 
+/** Catalog literal shape before the derived `rarity` field is attached. */
+type RawVariantDef = Omit<NeuronVariantDef, 'rarity'>
+
 export interface VariantRarityTier {
   id: Rarity
   weight: number
 }
 
 /**
- * Canonical weight table — P5 拉完了 = 60, P1 夯 = 1. Sums to 100. Mirrors
- * recruitment-gacha. Edit here for dogfood balance — single source of truth.
+ * Canonical P0–P5 pyramid weight table (Collection 2.0). Sums to 100. P0 始源 is
+ * the per-family super-rare apex; its EFFECTIVE per-pull rate is further shaped by
+ * the soft-pity ramp at roll time (see `rollRarityWithP0Pity`) and falls to 0 once
+ * the family's P0 is owned. Edit here for dogfood balance — single source of truth.
  */
 export const VARIANT_RARITY_WEIGHTS: VariantRarityTier[] = [
-  { id: 'P5', weight: 60 },
+  { id: 'P5', weight: 59 },
   { id: 'P4', weight: 25 },
   { id: 'P3', weight: 10 },
   { id: 'P2', weight: 4 },
-  { id: 'P1', weight: 1 },
+  { id: 'P1', weight: 1.3 },
+  { id: 'P0', weight: 0.7 },
 ]
 
 /**
- * Per-slot floor. Slot 4 → P3 minimum; slot 5 → P2 minimum. Slots 1-3 no floor.
+ * Fixed rarity per slot index (Collection 2.0). slot 0 = P0 apex; the legacy five
+ * sprites map plain→common (slot 1 = P5) … apex→rare (slot 5 = P1).
  */
-export const SLOT_RARITY_FLOOR: Record<SlotIndex, Rarity | null> = {
-  1: null,
-  2: null,
-  3: null,
-  4: 'P3',
-  5: 'P2',
+export const SLOT_RARITY: Record<SlotIndex, Rarity> = {
+  0: 'P0',
+  1: 'P5',
+  2: 'P4',
+  3: 'P3',
+  4: 'P2',
+  5: 'P1',
 }
 
-export const VARIANT_REROLL_CAP = 5
+// ─── P0 soft-pity (keyed on per-family pull count) ──────────────────────────
+/** Base per-pull P0 probability before the pity ramp (≈ "mythic" feel). */
+export const P0_BASE_RATE = 0.007
+/** Pull count after which the P0 rate begins ramping upward. */
+export const P0_PITY_START = 40
+/** Additional P0 probability per pull beyond the start (≈ +5pp/pull). */
+export const P0_PITY_RAMP = 0.05
+
+// ─── Pull currency (neural energy) — dogfood-tuned game-loop numbers ─────────
+export const CORRECT_ANSWER_ENERGY = 3
+export const READING_MINUTE_ENERGY = 2
+export const PULL_COST = 20
 
 /**
  * Streak-milestone gate for variant provenance (add-neurons-variant-provenance).
@@ -68,6 +89,7 @@ export const MILESTONE_STREAK_THRESHOLD = 7
  * the same character count for typography parity.
  */
 export const DEFAULT_VARIANT_TITLE_BY_RARITY: Record<Rarity, string> = {
+  P0: '始源核',
   P1: '神經元始祖',
   P2: '共振核心',
   P3: '穩態突觸',
@@ -92,7 +114,7 @@ const FAMILY_IDS = [
 const variantKey = (familyId: string, slotIndex: SlotIndex): string =>
   `variant:${familyId}:${slotIndex}`
 
-export const NEURON_VARIANT_CATALOG: NeuronVariantDef[] = [
+const RAW_CATALOG: RawVariantDef[] = [
   // 藥理學 — VTA Dopaminergic — Thrill-Seeker (DA)
   {
     familyId: '藥理學',
@@ -499,17 +521,42 @@ export const NEURON_VARIANT_CATALOG: NeuronVariantDef[] = [
     spriteKey: variantKey('微生物學', 5),
     description: '永恆再生的傳奇 OSN,神話級對抗各種病原入侵嗅覺系統。',
   },
+
+  // ─── P0 始源 apex (slotIndex 0) — one super-rare per family ────────────────
+  // Collection 2.0 spine: placeholder personas + placeholder sprites. Real P0
+  // art + OE-grounded flavour land in the later roster-art / flavour phases.
+  { familyId: '藥理學', slotIndex: 0, displayName: '多巴胺創世核', spriteKey: variantKey('藥理學', 0), description: '傳說中點燃第一道獎賞訊號的始源 VTA 元,整個多巴胺宇宙由此擴張。' },
+  { familyId: '公共衛生學', slotIndex: 0, displayName: '黑質永恆核', spriteKey: variantKey('公共衛生學', 0), description: '從未退化的原初 SNc 元,被視為抗老神話的源頭。' },
+  { familyId: '寄生蟲學', slotIndex: 0, displayName: '腦腸始源核', spriteKey: variantKey('寄生蟲學', 0), description: '最初建立腦腸軸對話的 5-HT 元,連寄生蟲都只是它故事裡的註腳。' },
+  { familyId: '組織學', slotIndex: 0, displayName: '中縫始源核', spriteKey: variantKey('組織學', 0), description: '中縫核的原初之聲,所有情緒節律的第一個和弦。' },
+  { familyId: '生物化學', slotIndex: 0, displayName: '小腦始源核', spriteKey: variantKey('生物化學', 0), description: '第一個算出運動時序的 Purkinje 始祖,平衡之數由此而生。' },
+  { familyId: '病理學', slotIndex: 0, displayName: '紋狀始源核', spriteKey: variantKey('病理學', 0), description: '基底節最初的審判者,go 與 no-go 的原始法典刻於其上。' },
+  { familyId: '免疫學', slotIndex: 0, displayName: '皮質始源核', spriteKey: variantKey('免疫學', 0), description: '第一個穩定 40Hz 的 PV+ 始祖,皮質防線的奠基石。' },
+  { familyId: '解剖學', slotIndex: 0, displayName: '感官始源核', spriteKey: variantKey('解剖學', 0), description: '最早描繪全身體感地圖的 DRG 始祖,毫秒級感知的原點。' },
+  { familyId: '生理學', slotIndex: 0, displayName: '皮層始源核', spriteKey: variantKey('生理學', 0), description: '第一個向下投射的 L5 錐體始祖,所有 corticofugal 指令的源頭。' },
+  { familyId: '胚胎學', slotIndex: 0, displayName: '發育始源核', spriteKey: variantKey('胚胎學', 0), description: '在皮層尚未成形前就抵達的 Cajal-Retzius 始祖,大腦藍圖的締造者。' },
+  { familyId: '微生物學', slotIndex: 0, displayName: '嗅覺始源核', spriteKey: variantKey('微生物學', 0), description: '永恆再生的原初 OSN,第一個分辨敵我氣味的守護始祖。' },
 ]
 
 /**
- * Build-time guard: catalog SHALL contain exactly 55 entries (11 families × 5
- * slots) with non-empty displayName / spriteKey / description and slotIndex in
- * [1, 5]. Throws at module load on any violation.
+ * Public catalog — each raw entry gains its fixed `rarity` derived from
+ * `SLOT_RARITY[slotIndex]` (single source of truth, no per-entry duplication).
+ */
+export const NEURON_VARIANT_CATALOG: NeuronVariantDef[] = RAW_CATALOG.map((e) => ({
+  ...e,
+  rarity: SLOT_RARITY[e.slotIndex],
+}))
+
+/**
+ * Build-time guard (Collection 2.0): catalog SHALL contain exactly 66 entries
+ * (11 families × 6 tiers, slotIndex 0–5) with non-empty displayName / spriteKey /
+ * description, `rarity === SLOT_RARITY[slotIndex]`, and canonical spriteKey.
+ * Throws at module load on any violation.
  */
 function assertCatalogShape(catalog: NeuronVariantDef[]): void {
-  if (catalog.length !== 55) {
+  if (catalog.length !== 66) {
     throw new Error(
-      `[neuron-variant-catalog] expected 55 entries (11 families × 5 slots), got ${catalog.length}`,
+      `[neuron-variant-catalog] expected 66 entries (11 families × 6 tiers), got ${catalog.length}`,
     )
   }
   const seen = new Set<string>()
@@ -517,9 +564,14 @@ function assertCatalogShape(catalog: NeuronVariantDef[]): void {
     if (!FAMILY_IDS.includes(entry.familyId as (typeof FAMILY_IDS)[number])) {
       throw new Error(`[neuron-variant-catalog] unknown familyId "${entry.familyId}"`)
     }
-    if (![1, 2, 3, 4, 5].includes(entry.slotIndex)) {
+    if (![0, 1, 2, 3, 4, 5].includes(entry.slotIndex)) {
       throw new Error(
         `[neuron-variant-catalog] entry ${entry.familyId}:${entry.slotIndex} has invalid slotIndex`,
+      )
+    }
+    if (entry.rarity !== SLOT_RARITY[entry.slotIndex]) {
+      throw new Error(
+        `[neuron-variant-catalog] entry ${entry.familyId}:${entry.slotIndex} rarity must equal SLOT_RARITY[${entry.slotIndex}]="${SLOT_RARITY[entry.slotIndex]}" (got "${entry.rarity}")`,
       )
     }
     if (!entry.displayName || !entry.spriteKey || !entry.description) {
@@ -540,7 +592,7 @@ function assertCatalogShape(catalog: NeuronVariantDef[]): void {
     seen.add(key)
   }
   for (const familyId of FAMILY_IDS) {
-    for (const slotIndex of [1, 2, 3, 4, 5] as const) {
+    for (const slotIndex of [0, 1, 2, 3, 4, 5] as const) {
       if (!seen.has(`${familyId}|${slotIndex}`)) {
         throw new Error(`[neuron-variant-catalog] missing entry for ${familyId}:${slotIndex}`)
       }
@@ -559,4 +611,36 @@ export function composeVariantDisplayName(
   rarity: Rarity,
 ): string {
   return `${catalogDisplayName} · ${DEFAULT_VARIANT_TITLE_BY_RARITY[rarity]}`
+}
+
+/**
+ * Effective per-pull P0 probability given the family's monotonic pull count.
+ * Base rate until `P0_PITY_START`, then ramps `P0_PITY_RAMP` per pull, clamped to
+ * [0, 1] (near-guaranteed by ~pull 60). Pure — dogfood-tune the three constants.
+ */
+export function effectiveP0Rate(pullCount: number): number {
+  const ramped = P0_BASE_RATE + Math.max(0, pullCount - P0_PITY_START) * P0_PITY_RAMP
+  return Math.min(1, Math.max(0, ramped))
+}
+
+/**
+ * Roll a rarity for a pull (Collection 2.0). P0 is offered first with its
+ * soft-pity rate UNLESS the family already owns its P0 (then P0 is excluded and
+ * its mass falls to the P1–P5 proportional roll). Remaining tiers are weight-
+ * rolled from `VARIANT_RARITY_WEIGHTS` (excluding P0). Pure; inject `rng` for tests.
+ */
+export function rollRarityWithP0Pity(
+  pullCount: number,
+  p0Owned: boolean,
+  rng: () => number = Math.random,
+): Rarity {
+  if (!p0Owned && rng() < effectiveP0Rate(pullCount)) return 'P0'
+  const tiers = VARIANT_RARITY_WEIGHTS.filter((t) => t.id !== 'P0')
+  const total = tiers.reduce((sum, t) => sum + t.weight, 0)
+  let r = rng() * total
+  for (const tier of tiers) {
+    r -= tier.weight
+    if (r < 0) return tier.id
+  }
+  return tiers[tiers.length - 1].id
 }

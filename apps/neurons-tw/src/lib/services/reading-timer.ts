@@ -17,8 +17,10 @@
  * (meta['totalStudyMinutes']) is persisted to Dexie + synced cross-device.
  */
 
+import { READING_MINUTE_ENERGY } from '@study-rpg/content-neurons-tw'
 import { db } from '../db'
 import { dmnReadingTimerSubscriber } from './dmn-trigger'
+import { awardEnergy } from './currency'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
 export type ReadingTimerPauseReason = 'manual' | 'visibility' | 'idle' | null
@@ -77,6 +79,8 @@ async function fireMinuteSideEffects(): Promise<void> {
     await Promise.all([
       incrementTotalStudyMinutes(),
       dmnReadingTimerSubscriber.onMinutesAccrued(1),
+      // Collection 2.0 faucet: each reading minute mints pull currency.
+      awardEnergy(READING_MINUTE_ENERGY),
     ])
     console.info('[reading-timer] +1 minute accrued')
   } catch (err) {

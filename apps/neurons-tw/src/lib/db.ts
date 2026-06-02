@@ -20,8 +20,17 @@ export interface FamilyAccrualRow {
   ap: number
   firedToday: boolean
   lastFireDate: string | null
+  /**
+   * Vestigial after Collection 2.0 (AP no longer unlocks slots). Kept for
+   * schema continuity; reset to [] on the v10 upgrade.
+   */
   unlockedSlots: number[]
   sameDayCorrect: number
+  /**
+   * Monotonic per-family gacha pull count — the P0 soft-pity clock
+   * (Collection 2.0). Non-indexed additive field. Synced MAX-merge.
+   */
+  pullCount: number
 }
 
 export interface MetaRow {
@@ -42,7 +51,7 @@ export interface FamilyMasteryRow {
   total: number
 }
 
-export type VariantRarity = 'P1' | 'P2' | 'P3' | 'P4' | 'P5'
+export type VariantRarity = 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'P5'
 
 /**
  * Study-context captured at the moment a variant is minted (the Pikmin Bloom
@@ -64,16 +73,28 @@ export interface NeuronVariantProvenance {
 
 export interface NeuronVariantRow {
   familyId: string
+  /** Variant index 0–5 (Collection 2.0): 0 = P0 apex, 1–5 = legacy sprites. */
   slotIndex: number
   rarity: VariantRarity
   displayName: string
   spriteKey: string
   rolledAt: number
+  /**
+   * Repurposed for Collection 2.0: `true` iff a P0 obtained via the soft-pity
+   * ramp (drives the dex `保底` chip). `false` for everything else.
+   */
   wasPityFloor: boolean
+  /**
+   * Duplicate count (Collection 2.0). Always written by the pull (≥ 1; increments
+   * on a dupe pull). Optional in the type for back-compat with rows from external
+   * bundles that predate the field — read sites default to 1 (`copies ?? 1`).
+   * Non-indexed additive field. Synced via MAX-merge (Phase 3 fusion consumes it).
+   */
+  copies?: number
   /**
    * Optional study-context provenance (add-neurons-variant-provenance). Absent
    * on pre-upgrade rows → rendered as a 元老 / 傳承 individual (no backfill
-   * write). Non-indexed additive field — NO Dexie `.version()` bump (design D2).
+   * write). Non-indexed additive field.
    */
   provenance?: NeuronVariantProvenance
 }
@@ -314,6 +335,45 @@ export class NeuronsDB extends Dexie {
       questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
       questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
     })
+    // Per rework-neurons-collection-gacha (Collection 2.0 Phase 2). Schema indices
+    // are IDENTICAL to v9 (the new `copies` + `pullCount` fields are non-indexed,
+    // and the neuronVariants PK [familyId+slotIndex] is RETAINED — Dexie cannot
+    // change a PK in an upgrade; dexie_pk_change_pitfall). The v10 work is the
+    // FULL RESET upgrade callback below.
+    this.version(10)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // FULL RESET — collection only. The variant schema/semantics changed
+        // (slot range 0–5, fixed rarity, copies); wipe the collection + gacha
+        // state. PRESERVE study progress: AP / synapses / mastery / question
+        // history / bookmarks / achievements / totalStudyMinutes. No grandfather,
+        // no migration banner (per rework-neurons-collection-gacha design D8).
+        await tx.table('neuronVariants').clear()
+        await tx
+          .table('familyAccrual')
+          .toCollection()
+          .modify((row: FamilyAccrualRow) => {
+            row.unlockedSlots = []
+            row.pullCount = 0
+          })
+        await tx.table('meta').put({ key: 'neuralEnergyEarned', value: '0' })
+        await tx.table('meta').put({ key: 'neuralEnergySpent', value: '0' })
+      })
   }
 }
 
@@ -338,6 +398,7 @@ export async function initFamilyAccrualIfEmpty(pack: ContentPack): Promise<void>
           lastFireDate: null,
           unlockedSlots: [],
           sameDayCorrect: 0,
+          pullCount: 0,
         })),
       )
       const existingMeta = await db.meta.get('lastResetDate')

@@ -114,21 +114,27 @@ const familyAccrualAdapter: TableAdapter<'familyAccrual'> = {
           continue
         }
         const local = await db.familyAccrual.get(familyId)
-        // No explicit updatedAt; AP is monotonic per family, so keep MAX(ap)
-        // and prefer incoming for non-ap fields when ap ties.
-        const localAp =
-          typeof (local as unknown as Record<string, unknown> | undefined)?.ap === 'number'
-            ? ((local as unknown as Record<string, unknown>).ap as number)
-            : -1
-        const incomingAp =
-          typeof (incoming as Record<string, unknown>).ap === 'number'
-            ? ((incoming as Record<string, unknown>).ap as number)
-            : -1
+        const localRec = local as unknown as Record<string, unknown> | undefined
+        const incRec = incoming as Record<string, unknown>
+        // AP + pullCount are both monotonic per family → MAX-merge each. The
+        // higher-AP row supplies the non-counter fields (firedToday / dates), but
+        // pullCount (the P0 pity clock) is ALWAYS MAX-merged independently.
+        const localAp = typeof localRec?.ap === 'number' ? (localRec.ap as number) : -1
+        const incomingAp = typeof incRec.ap === 'number' ? (incRec.ap as number) : -1
+        const localPull = typeof localRec?.pullCount === 'number' ? (localRec.pullCount as number) : 0
+        const incPull = typeof incRec.pullCount === 'number' ? (incRec.pullCount as number) : 0
+        const mergedPull = Math.max(localPull, incPull)
         if (incomingAp < localAp) {
-          skipped++
+          // Keep local non-counter fields, but still MAX-merge pullCount.
+          if (local && mergedPull !== localPull) {
+            await db.familyAccrual.put({ ...(local as object), pullCount: mergedPull } as never)
+            applied++
+          } else {
+            skipped++
+          }
           continue
         }
-        await db.familyAccrual.put(incoming as never)
+        await db.familyAccrual.put({ ...(incoming as object), pullCount: mergedPull } as never)
         applied++
       }
     })
@@ -199,11 +205,23 @@ const neuronVariantsAdapter: TableAdapter<'neuronVariants'> = {
           continue
         }
         const local = await db.neuronVariants.get([familyId, slotIndex])
-        // Variants are immutable once rolled — first-write wins. The optional
-        // `provenance` object (add-neurons-variant-provenance) rides inside this
-        // whole-row JSON automatically: no per-field merge, no monotonic logic.
+        // Collection 2.0: row IDENTITY + content (rarity / displayName / spriteKey
+        // / provenance) is immutable once minted, but `copies` mutates on dupe
+        // pulls → MAX-merge carve-out (mirrors the everWrong / dmnEventLog
+        // monotonic discipline). Keep local content; take MAX(copies) + earliest
+        // rolledAt. DO NOT replace copies-MAX with LWW.
         if (local) {
-          skipped++
+          const localCopies = typeof local.copies === 'number' ? local.copies : 1
+          const incCopies = typeof row.copies === 'number' ? (row.copies as number) : 1
+          const mergedCopies = Math.max(localCopies, incCopies)
+          const incRolledAt = typeof row.rolledAt === 'number' ? (row.rolledAt as number) : local.rolledAt
+          const mergedRolledAt = Math.min(local.rolledAt, incRolledAt)
+          if (mergedCopies !== localCopies || mergedRolledAt !== local.rolledAt) {
+            await db.neuronVariants.put({ ...local, copies: mergedCopies, rolledAt: mergedRolledAt })
+            applied++
+          } else {
+            skipped++
+          }
           continue
         }
         await db.neuronVariants.put(incoming as never)
@@ -339,6 +357,11 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   // `{ members, updatedAt }`; LWW enforced by backfill/active-squad.ts post-pass
   // (NOT the first-write-wins below).
   'activeSquad',
+  // Neural-energy pull currency (Collection 2.0). Two MONOTONIC counters; the
+  // real merge is the MAX-merge post-pass in backfill/counters.ts (balance =
+  // earned − spent). Listed here so they ride the bundle meta snapshot/apply.
+  'neuralEnergyEarned',
+  'neuralEnergySpent',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {

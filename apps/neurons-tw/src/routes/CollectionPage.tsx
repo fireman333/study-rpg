@@ -1,11 +1,11 @@
 /**
- * CollectionPage — the /collection variant dex.
+ * CollectionPage — the /collection variant dex (Collection 2.0).
  *
- * Pokédex-style browse of all 11 families × 5 slots: collected cards +
- * uncollected silhouettes (with AP unlock threshold). Family-filter chips
- * default to all-shown. Tapping a collected card sets it as that family's
- * representative. Each collected card reserves an (empty) caption row that a
- * later capability (add-neurons-variant-provenance) fills.
+ * Pokédex-style browse of all 11 families × 6 tiers (P0–P5): collected cards +
+ * uncollected rarity-labeled silhouettes. A neural-energy balance HUD + a
+ * per-family PULL control drive the gacha (study earns energy → spend to pull).
+ * Tapping a collected card sets it as that family's representative. Each collected
+ * card shows a `× N` dupe badge + a provenance birth caption.
  *
  * Capability spec: openspec/specs/neurons-variant-collection-view/spec.md
  */
@@ -13,20 +13,24 @@
 import { useEffect, useMemo, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
-import { NEURON_VARIANT_CATALOG, type NeuronVariantDef } from '@study-rpg/content-neurons-tw'
+import { NEURON_VARIANT_CATALOG, PULL_COST, type NeuronVariantDef } from '@study-rpg/content-neurons-tw'
 import { db, type NeuronVariantRow, type VariantRarity } from '../lib/db'
-import { AP_THRESHOLDS } from '../lib/connectome/ap-counter'
 import {
   getRepresentativesRaw,
   filterStaleRepresentatives,
   setRepresentative,
   type RepresentativeMap,
 } from '../lib/services/representatives'
+import { pullVariant, SLOTS_PER_FAMILY } from '../lib/services/variant-gacha'
+import { useEnergyBalance } from '../lib/services/currency'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
 import VariantSprite from '../components/VariantSprite'
+import ShareCardModal from '../components/ShareCardModal'
+import { useAuth } from '../lib/auth/AuthContext'
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
+  P0: 'P0 始源',
   P1: 'P1 夯',
   P2: 'P2 頂級',
   P3: 'P3 人上人',
@@ -35,6 +39,7 @@ const RARITY_LABEL: Record<VariantRarity, string> = {
 }
 
 const RARITY_COLOR: Record<VariantRarity, string> = {
+  P0: '#a64dd4',
   P1: '#d4a04d',
   P2: '#c44d4d',
   P3: '#6a8c3f',
@@ -59,6 +64,15 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     collectedKeys: new Set(),
     representatives: {},
   })
+  const { user } = useAuth()
+  const [shareOpen, setShareOpen] = useState(false)
+  const balance = useEnergyBalance()
+  const [pulling, setPulling] = useState<string | null>(null)
+
+  const resolveName = useMemo(() => {
+    const byId = new Map(pack.subjects.map((s) => [s.id, s.displayName]))
+    return (id: string): string => byId.get(id) ?? id
+  }, [pack.subjects])
 
   useEffect(() => {
     const sub = liveQuery(async () => {
@@ -85,13 +99,24 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     return () => sub.unsubscribe()
   }, [])
 
+  const handlePull = async (familyId: string): Promise<void> => {
+    if (pulling) return
+    setPulling(familyId)
+    try {
+      // The global VariantUnlockModal renders the reveal off the variantRolled event.
+      await pullVariant(familyId, resolveName)
+    } finally {
+      setPulling(null)
+    }
+  }
+
   // Families come from the content pack subjects (canonical family list + order).
   const families: FamilyChipOption[] = useMemo(
     () => pack.subjects.map((s) => ({ id: s.id, label: shortFamilyLabel(s.displayName) })),
     [pack.subjects],
   )
 
-  // Slots per family from the catalog, sorted by slot index.
+  // Slots per family from the catalog, sorted by slot index (0 = P0 apex first).
   const slotsByFamily = useMemo(() => {
     const map = new Map<string, NeuronVariantDef[]>()
     for (const entry of NEURON_VARIANT_CATALOG) {
@@ -104,7 +129,6 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   }, [])
 
   const [visible, setVisible] = useState<Set<string>>(() => new Set())
-  // Initialise visible = all families once the pack subjects resolve.
   useEffect(() => {
     setVisible(new Set(families.map((f) => f.id)))
   }, [families])
@@ -128,10 +152,23 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
       <header style={headerStyle}>
         <h1 style={titleStyle}>神經元圖鑑</h1>
         <p style={subtitleStyle}>
-          11 科 × 5 階變體，共 {total} 隻。已收集 <strong>{collectedCount}</strong> 隻。
-          答對該科題目累積放電跨過門檻即解鎖新變體。
+          11 科 × 6 階（P0–P5）變體，共 {total} 隻。已收集 <strong>{collectedCount}</strong> 隻。
+          唸書與答對累積神經能量，於各科抽卡解鎖變體。
         </p>
+        <div style={energyHudStyle} aria-label={`神經能量 ${balance}`}>
+          ⚡ 神經能量 <strong style={{ fontSize: '1.05rem' }}>{balance}</strong>
+          <span style={energyHintStyle}>（每抽 {PULL_COST}）</span>
+        </div>
+        <button type="button" style={shareBtnStyle} onClick={() => setShareOpen(true)}>
+          🔗 分享角色卡
+        </button>
       </header>
+
+      <ShareCardModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        userId={user?.id ?? null}
+      />
 
       <FamilyFilterChips
         families={families}
@@ -148,16 +185,50 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           const repSlot = state.representatives[family.id]
           const repRow =
             repSlot != null ? state.collected.get(slotKey(family.id, repSlot)) : undefined
+          const owned = slots.filter((s) =>
+            state.collectedKeys.has(slotKey(family.id, s.slotIndex)),
+          ).length
+          const complete = owned >= SLOTS_PER_FAMILY
+          const isPulling = pulling === family.id
+          const canPull = !complete && balance >= PULL_COST && !pulling
           return (
             <section key={family.id} style={familySectionStyle} aria-label={family.label}>
-              <h2 style={familyTitleStyle}>
-                {repRow && (
-                  // Family representative shown with its context decor (decision B) —
-                  // family card 掃一眼有出身故事.
-                  <VariantSprite row={repRow} size={28} alt={`${family.label} 代表`} />
-                )}
-                {family.label}
-              </h2>
+              <div style={familyHeaderRowStyle}>
+                <h2 style={familyTitleStyle}>
+                  {repRow && (
+                    <VariantSprite row={repRow} size={28} alt={`${family.label} 代表`} />
+                  )}
+                  {family.label}
+                  <span style={ownedCountStyle}>
+                    {owned}/{SLOTS_PER_FAMILY}
+                  </span>
+                </h2>
+                <button
+                  type="button"
+                  disabled={!canPull}
+                  onClick={() => void handlePull(family.id)}
+                  style={
+                    complete
+                      ? pullButtonCompleteStyle
+                      : canPull
+                        ? pullButtonStyle
+                        : pullButtonDisabledStyle
+                  }
+                  title={
+                    complete
+                      ? '全部收集'
+                      : balance < PULL_COST
+                        ? `神經能量不足（需 ${PULL_COST}）`
+                        : `花 ${PULL_COST} 神經能量在 ${family.label} 抽卡`
+                  }
+                >
+                  {complete
+                    ? '✅ 全部收集'
+                    : isPulling
+                      ? '抽卡中…'
+                      : `🎴 抽卡（${PULL_COST}）`}
+                </button>
+              </div>
               <div style={slotRowStyle}>
                 {slots.map((slot) => {
                   const row = state.collected.get(slotKey(family.id, slot.slotIndex))
@@ -175,10 +246,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                     )
                   }
                   return (
-                    <VariantSlotSilhouette
-                      key={slot.slotIndex}
-                      threshold={AP_THRESHOLDS[slot.slotIndex - 1] ?? 0}
-                    />
+                    <VariantSlotSilhouette key={slot.slotIndex} rarity={slot.rarity} />
                   )
                 })}
               </div>
@@ -203,6 +271,7 @@ function VariantSlotCard({
 }): JSX.Element {
   const color = RARITY_COLOR[row.rarity]
   const caption = variantBirthCaption(row)
+  const copies = row.copies ?? 1
   return (
     <button
       type="button"
@@ -212,6 +281,11 @@ function VariantSlotCard({
       aria-pressed={isRepresentative}
     >
       {isRepresentative && <span style={repMarkerStyle} aria-hidden="true">★</span>}
+      {copies > 1 && (
+        <span style={copiesBadgeStyle} aria-label={`重複 ${copies} 隻`}>
+          × {copies}
+        </span>
+      )}
       <div style={{ ...rarityChipStyle, color, borderColor: color }}>{RARITY_LABEL[row.rarity]}</div>
       <div style={spriteWrapStyle}>
         <VariantSprite row={row} size={64} alt={row.displayName} />
@@ -227,15 +301,18 @@ function VariantSlotCard({
   )
 }
 
-function VariantSlotSilhouette({ threshold }: { threshold: number }): JSX.Element {
+function VariantSlotSilhouette({ rarity }: { rarity: VariantRarity }): JSX.Element {
+  const color = RARITY_COLOR[rarity]
   return (
-    <div style={{ ...cardStyle, borderColor: '#c9b48f', opacity: 0.55, cursor: 'default' }}>
-      <div style={{ ...rarityChipStyle, color: '#a3946f', borderColor: '#c9b48f' }}>?</div>
+    <div style={{ ...cardStyle, borderColor: '#c9b48f', opacity: 0.6, cursor: 'default' }}>
+      <div style={{ ...rarityChipStyle, color, borderColor: color, opacity: 0.85 }}>
+        {RARITY_LABEL[rarity]}
+      </div>
       <div style={{ ...spriteWrapStyle, background: '#e7dcc0' }}>
         <span style={silhouetteStyle}>?</span>
       </div>
-      <div style={{ ...cardNameStyle, color: '#a3946f' }}>未解鎖</div>
-      <p style={cardDescStyle}>需累積放電 {threshold}</p>
+      <div style={{ ...cardNameStyle, color: '#a3946f' }}>未收集</div>
+      <p style={cardDescStyle}>抽卡有機會獲得</p>
       <div style={captionRowStyle} aria-hidden="true" />
     </div>
   )
@@ -267,6 +344,39 @@ const subtitleStyle: React.CSSProperties = {
   lineHeight: 1.5,
 }
 
+const shareBtnStyle: React.CSSProperties = {
+  marginTop: '0.7rem',
+  fontFamily: 'inherit',
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  padding: '0.4rem 1rem',
+  borderRadius: '6px',
+  border: '2px solid #b8893a',
+  background: '#d4a04d',
+  color: '#fff',
+  cursor: 'pointer',
+}
+
+const energyHudStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.3rem',
+  marginTop: '0.6rem',
+  padding: '0.3rem 0.8rem',
+  background: '#fff7df',
+  border: '2px solid #d4a04d',
+  borderRadius: '999px',
+  fontSize: '0.85rem',
+  color: '#5a3e1a',
+  fontWeight: 700,
+}
+
+const energyHintStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  fontWeight: 400,
+  color: '#8c6d4a',
+}
+
 const emptyHintStyle: React.CSSProperties = {
   marginTop: '1.5rem',
   textAlign: 'center',
@@ -276,16 +386,62 @@ const emptyHintStyle: React.CSSProperties = {
 
 const familySectionStyle: React.CSSProperties = { marginTop: '1.4rem' }
 
+const familyHeaderRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.6rem',
+  margin: '0 0 0.6rem',
+  borderBottom: '2px solid #d8c7a0',
+  paddingBottom: '0.2rem',
+  flexWrap: 'wrap',
+}
+
 const familyTitleStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: '0.5rem',
-  margin: '0 0 0.6rem',
+  margin: 0,
   fontSize: '1rem',
   fontWeight: 700,
   color: '#5a3e1a',
-  borderBottom: '2px solid #d8c7a0',
-  paddingBottom: '0.2rem',
+}
+
+const ownedCountStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  color: '#8c6d4a',
+}
+
+const pullButtonStyle: React.CSSProperties = {
+  padding: '0.35rem 0.8rem',
+  background: '#d4a04d',
+  color: '#fff',
+  borderWidth: '2px',
+  borderStyle: 'solid',
+  borderColor: '#b8893a',
+  borderRadius: '6px',
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  fontFamily: 'inherit',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+}
+
+const pullButtonDisabledStyle: React.CSSProperties = {
+  ...pullButtonStyle,
+  background: '#e8dcc0',
+  color: '#a89074',
+  borderColor: '#c4a878',
+  cursor: 'not-allowed',
+}
+
+const pullButtonCompleteStyle: React.CSSProperties = {
+  ...pullButtonStyle,
+  background: '#fdf6e3',
+  color: '#b58900',
+  borderColor: '#b58900',
+  cursor: 'default',
 }
 
 const slotRowStyle: React.CSSProperties = {
@@ -297,7 +453,8 @@ const slotRowStyle: React.CSSProperties = {
 const cardStyle: React.CSSProperties = {
   position: 'relative',
   background: '#fbf6e9',
-  border: '2px solid',
+  borderWidth: '2px',
+  borderStyle: 'solid',
   borderRadius: '8px',
   padding: '1.2rem 0.6rem 0.6rem',
   display: 'flex',
@@ -318,13 +475,27 @@ const repMarkerStyle: React.CSSProperties = {
   color: '#d4a04d',
 }
 
+const copiesBadgeStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '0.3rem',
+  left: '0.4rem',
+  fontSize: '0.65rem',
+  fontWeight: 700,
+  color: '#8c6d4a',
+  background: '#f4ecd8',
+  border: '1px solid #c9b48f',
+  borderRadius: '999px',
+  padding: '0 0.35rem',
+}
+
 const rarityChipStyle: React.CSSProperties = {
   position: 'absolute',
   top: '-0.6rem',
   left: '50%',
   transform: 'translateX(-50%)',
   background: '#fbf6e9',
-  border: '2px solid',
+  borderWidth: '2px',
+  borderStyle: 'solid',
   padding: '0.05rem 0.5rem',
   borderRadius: '999px',
   fontSize: '0.65rem',
@@ -342,7 +513,6 @@ const spriteWrapStyle: React.CSSProperties = {
   border: '1px solid #c9b48f',
   borderRadius: '6px',
 }
-
 
 const silhouetteStyle: React.CSSProperties = {
   fontSize: '2.4rem',

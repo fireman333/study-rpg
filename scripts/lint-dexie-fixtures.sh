@@ -69,7 +69,11 @@ for schema_file in $SCHEMA_FILES; do
   if [ -z "$base_versions" ]; then
     new_versions="$head_versions"
   else
-    new_versions=$(comm -23 <(echo "$head_versions") <(echo "$base_versions"))
+    # comm requires LEXICALLY-sorted input; base/head_versions are numeric-sorted
+    # (`sort -nu`), which diverges from lexical order at double digits (e.g. v10 <
+    # v2 lexically). Re-sort both lexically here so comm doesn't abort with
+    # "input is not in sorted order" once a schema reaches version 10+.
+    new_versions=$(comm -23 <(echo "$head_versions" | sort) <(echo "$base_versions" | sort))
   fi
 
   if [ -z "$new_versions" ]; then
