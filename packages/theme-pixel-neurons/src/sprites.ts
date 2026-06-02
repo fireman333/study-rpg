@@ -130,11 +130,14 @@ const animatedSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
-// Context-driven decor overlays — 3 universal transparent-bg PNGs composited
-// onto any base variant sprite per provenance (context-driven-variant-art).
-// Filenames map directly: `redemption.png` → `decor:redemption`, etc. Until the
-// real assets land the keys default to TRANSPARENT_PIXEL (no broken-image icon;
-// "no asset" renders as "no decor"). See `../SPRITE_GENERATION.md`.
+// Context-driven decor overlays — transparent-bg PNGs composited onto any base
+// variant sprite per provenance (context-driven-variant-art) + flavoured per NT
+// branch (add-neurons-per-branch-decor). Filename → key: universal `<type>.png`
+// → `decor:<type>` (e.g. `redemption.png` → `decor:redemption`); per-branch
+// `<type>-<branch>.png` → `decor:<type>:<branch>` (the single `-` becomes `:`,
+// e.g. `redemption-da.png` → `decor:redemption:da`). Type + branch ids contain
+// no `-`, so the split is unambiguous. Missing keys default to TRANSPARENT_PIXEL
+// (no broken-image icon; "no asset" renders as "no decor"). See `../SPRITE_GENERATION.md`.
 const decorSpriteModules = import.meta.glob('../sprites/decor/*.png', {
   eager: true,
   query: '?url',
@@ -144,7 +147,7 @@ const decorSpriteModules = import.meta.glob('../sprites/decor/*.png', {
 const decorSprites: Record<string, string> = Object.fromEntries(
   Object.entries(decorSpriteModules).map(([path, url]) => {
     const stem = path.replace(/.*\/(.+)\.png$/, '$1')
-    return [`decor:${stem}`, url]
+    return [`decor:${stem.replace('-', ':')}`, url]
   }),
 )
 
@@ -284,8 +287,12 @@ const CORE_KEYS = [
 // 4 NT-branch hub keys — `branch:da` / `branch:5ht` / `branch:gaba` / `branch:glu`.
 const BRANCH_KEYS = ['branch:da', 'branch:5ht', 'branch:gaba', 'branch:glu'] as const
 
-// 3 context-driven decor overlay keys (context-driven-variant-art).
-const DECOR_KEYS = ['decor:redemption', 'decor:milestone', 'decor:elder'] as const
+// Decor overlays (universal `decor:<type>` + per-branch `decor:<type>:<branch>`,
+// context-driven-variant-art + add-neurons-per-branch-decor) are NOT registered
+// in SPRITE_MAP — they are resolved exclusively via `decorSpriteUrl`, which reads
+// the globbed `decorSprites` map directly with a per-branch → universal → empty
+// fallback. Keeping a single decor path (no parallel SPRITE_MAP entries) avoids
+// drift.
 
 export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ...CORE_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
@@ -296,8 +303,7 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ]),
   // NT-branch hub icons: real sprite if file present, else placeholder
   ...BRANCH_KEYS.map((k) => [k, branchSprites[k] ?? TRANSPARENT_PIXEL]),
-  // Decor overlays: real PNG if file present, else transparent placeholder
-  ...DECOR_KEYS.map((k) => [k, decorSprites[k] ?? TRANSPARENT_PIXEL]),
+  // (decor keys intentionally omitted — see decorSpriteUrl)
   // Root brain icon (central Neuron Connectome).
   ['root:brain', rootSprite ?? TRANSPARENT_PIXEL],
   ...ITEM_ART_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
@@ -310,3 +316,21 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   // Animated hero sheets (variant:<family>:<slot>:<state>) — only present sheets registered.
   ...Object.entries(animatedSprites),
 ])
+
+/**
+ * Resolve a context-art decor texture URL with the per-branch → universal →
+ * none fallback chain (add-neurons-per-branch-decor). `universalKey` is e.g.
+ * `'decor:redemption'`; `branch` is the variant's NT branch (`'DA' | '5HT' |
+ * 'GABA' | 'Glu'`, any case) or null. Returns the per-branch real asset if a
+ * file is present, else the universal real asset if present, else the
+ * transparent placeholder ("no asset" = "no visible field", never a broken
+ * image). Consults `decorSprites` (real globbed files only), so a missing
+ * texture at either level degrades gracefully.
+ */
+export function decorSpriteUrl(universalKey: string, branch: string | null): string {
+  if (branch) {
+    const perBranch = decorSprites[`${universalKey}:${branch.toLowerCase()}`]
+    if (perBranch) return perBranch
+  }
+  return decorSprites[universalKey] ?? TRANSPARENT_PIXEL
+}

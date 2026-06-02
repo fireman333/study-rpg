@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { MILESTONE_STREAK_THRESHOLD } from '@study-rpg/content-neurons-tw'
+import { MILESTONE_STREAK_THRESHOLD, FAMILY_NT_BRANCH, type NtBranchId } from '@study-rpg/content-neurons-tw'
 import type { NeuronVariantRow, NeuronVariantProvenance } from '../lib/db'
 import { variantContextArt, brainwaveBand, BAND_META, type BandKey } from '../lib/variant-decor'
 
@@ -14,13 +14,14 @@ import { variantContextArt, brainwaveBand, BAND_META, type BandKey } from '../li
 function makeRow(
   provenance: NeuronVariantProvenance | undefined,
   rolledAt = Date.UTC(2026, 5, 2, 1, 0, 0), // Taipei 09:00 → beta by default
+  familyId = '藥理學',
 ): NeuronVariantRow {
   return {
-    familyId: '藥理學',
+    familyId,
     slotIndex: 1,
     rarity: 'P3',
     displayName: '初代代謝師 · 穩態突觸',
-    spriteKey: 'variant:藥理學:1',
+    spriteKey: `variant:${familyId}:1`,
     rolledAt,
     wasPityFloor: false,
     ...(provenance ? { provenance } : {}),
@@ -100,5 +101,53 @@ describe('brainwaveBand — birth hour (Asia/Taipei) → circadian band', () => 
       expect(m.color).toMatch(/^#/)
       expect(m.hz).toMatch(/Hz/)
     }
+  })
+})
+
+describe('variantContextArt — NT-branch derivation (add-neurons-per-branch-decor)', () => {
+  // Hardcoded canonical expectation (NOT derived from FAMILY_NT_BRANCH) so an
+  // accidental edit to the map is caught. Mirrors the spec scenario.
+  const EXPECTED: Record<string, NtBranchId> = {
+    藥理學: 'DA',
+    公共衛生學: 'DA',
+    寄生蟲學: '5HT',
+    組織學: '5HT',
+    生物化學: 'GABA',
+    病理學: 'GABA',
+    免疫學: 'GABA',
+    解剖學: 'Glu',
+    生理學: 'Glu',
+    胚胎學: 'Glu',
+    微生物學: 'Glu',
+  }
+
+  it('every one of the 11 families resolves to its canonical NT branch', () => {
+    for (const [familyId, branch] of Object.entries(EXPECTED)) {
+      const art = variantContextArt(makeRow(prov(), undefined, familyId))
+      expect(art.branch, familyId).toBe(branch)
+    }
+  })
+
+  it('FAMILY_NT_BRANCH (the single source) matches the canonical expectation exactly', () => {
+    expect(FAMILY_NT_BRANCH).toEqual(EXPECTED)
+  })
+
+  it('an unknown familyId yields a null branch (composer falls back to universal)', () => {
+    const art = variantContextArt(makeRow(prov(), undefined, '不存在的科目'))
+    expect(art.branch).toBeNull()
+  })
+
+  it('branch derivation does not disturb the decor or band channels', () => {
+    // 救贖 + 里程碑 Glu family → same decor + band as the family-agnostic case.
+    const art = variantContextArt(
+      makeRow(
+        prov({ wasRedemption: true, streakAtMint: MILESTONE_STREAK_THRESHOLD }),
+        Date.UTC(2026, 5, 1, 19, 0, 0), // Taipei 03:00 → delta
+        '解剖學',
+      ),
+    )
+    expect(art.decor).toEqual(['decor:milestone', 'decor:redemption'])
+    expect(art.band).toBe('delta')
+    expect(art.branch).toBe('Glu')
   })
 })

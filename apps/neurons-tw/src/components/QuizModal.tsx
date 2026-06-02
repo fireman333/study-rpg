@@ -7,12 +7,21 @@ import { SpikeTrainFiring, AnswerFeedbackFlash } from '../lib/motion'
 import { useQuizHotkeys, type QuizPhase } from '../lib/hooks/useQuizHotkeys'
 import { toggleBookmark, useIsBookmarked } from '../lib/services/bookmarks'
 import { toggleEasy, toggleGuessed, useFlag } from '../lib/services/question-flags'
+import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
+import SquadCelebration from './SquadCelebration'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 
 interface Props {
   pool: Question[]
   onClose: () => void
+  /**
+   * Optional session-end callback (per add-neurons-study-squad). Fires once when
+   * the player ends the session, with answered-session stats. The 出征 entry on
+   * the homepage wires this to the no-op `onExpeditionComplete` reward seam;
+   * normal quiz entries omit it (no-op).
+   */
+  onComplete?: (stats: { total: number; correct: number }) => void
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -24,7 +33,7 @@ function shuffle<T>(arr: T[]): T[] {
   return copy
 }
 
-export function QuizModal({ pool, onClose }: Props): JSX.Element {
+export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
   // Build session pool once: exclude image-option questions + shuffle.
   const sessionPool = useMemo(
     () => shuffle(pool.filter((q) => !q.hasOptionImages)),
@@ -37,6 +46,20 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
   const [busy, setBusy] = useState(false)
   const [flash, setFlash] = useState<{ outcome: 'correct' | 'incorrect'; nonce: number } | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+  // Active squad — drives the correct-answer celebration (empty → no-op).
+  const squad = useActiveSquad()
+  // Tally correct answers this session for the onComplete seam; guard so the
+  // session-end callback fires at most once.
+  const correctCountRef = useRef(0)
+  const completedRef = useRef(false)
+
+  const handleClose = useCallback(() => {
+    if (!completedRef.current) {
+      completedRef.current = true
+      onComplete?.({ total: sessionPool.length, correct: correctCountRef.current })
+    }
+    onClose()
+  }, [onClose, onComplete, sessionPool.length])
 
   const q: Question | undefined = sessionPool[idx]
   const exhausted = idx >= sessionPool.length
@@ -54,6 +77,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
         // Instant answer-feedback flash (non-blocking, sibling overlay).
         setFlash({ outcome: isCorrect ? 'correct' : 'incorrect', nonce: Date.now() })
         if (isCorrect) {
+          correctCountRef.current += 1
           // Capture the triggering question's pre-answer `everWrong` for variant
           // provenance (救贖 individual). MUST read before recordQuestionResult
           // (below) flips it, and before recordCorrectAnswer fires the
@@ -96,11 +120,11 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
   // Esc to close
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') handleClose()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [handleClose])
 
   // Keyboard hotkeys: 1/2/3/4 highlight, Enter submit, Enter/Space advance,
   // Space/Shift+Space/↓↑/Home/End scroll the modal body container.
@@ -149,7 +173,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
       <div
         className="modal-backdrop"
         style={backdropStyle}
-        onClick={onClose}
+        onClick={handleClose}
         role="dialog"
         aria-modal="true"
         aria-label="答題完成"
@@ -157,7 +181,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
           <header style={headerStyle}>
             <span>題庫已答完</span>
-            <button style={closeBtnStyle} onClick={onClose} aria-label="關閉">
+            <button style={closeBtnStyle} onClick={handleClose} aria-label="關閉">
               ✕
             </button>
           </header>
@@ -168,7 +192,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
             </p>
           </div>
           <footer style={footerStyle}>
-            <button style={primaryBtnStyle} onClick={onClose}>
+            <button style={primaryBtnStyle} onClick={handleClose}>
               結束
             </button>
           </footer>
@@ -183,7 +207,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
       <div
         className="modal-backdrop"
         style={backdropStyle}
-        onClick={onClose}
+        onClick={handleClose}
         role="dialog"
         aria-modal="true"
         aria-label="題庫空"
@@ -191,7 +215,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
           <header style={headerStyle}>
             <span>題庫空</span>
-            <button style={closeBtnStyle} onClick={onClose}>
+            <button style={closeBtnStyle} onClick={handleClose}>
               ✕
             </button>
           </header>
@@ -202,7 +226,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
             </p>
           </div>
           <footer style={footerStyle}>
-            <button style={primaryBtnStyle} onClick={onClose}>
+            <button style={primaryBtnStyle} onClick={handleClose}>
               結束
             </button>
           </footer>
@@ -231,7 +255,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
     <div
       className="modal-backdrop"
       style={backdropStyle}
-      onClick={onClose}
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-label="答題中"
@@ -254,7 +278,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
           <span>
             第 {idx + 1} / {sessionPool.length} 題 · {q.subject}
           </span>
-          <button style={closeBtnStyle} onClick={onClose} aria-label="關閉">
+          <button style={closeBtnStyle} onClick={handleClose} aria-label="關閉">
             ✕
           </button>
         </header>
@@ -344,6 +368,9 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
                   />
                 </div>
               )}
+              {/* Active-squad celebration — bounces on every correct answer
+                  (empty squad → no-op). Per add-neurons-study-squad. */}
+              {isCorrect && <SquadCelebration key={`squad-${idx}`} squad={squad} />}
               {q.explanation && (
                 <details style={explanationStyle} open>
                   <summary style={explanationSummaryStyle}>📖 詳解</summary>
@@ -360,7 +387,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
           {revealed && <FlagButtons questionId={q.id} />}
           {revealed ? (
             <>
-              <button style={secondaryBtnStyle} onClick={onClose}>
+              <button style={secondaryBtnStyle} onClick={handleClose}>
                 結束
               </button>
               <button style={primaryBtnStyle} onClick={handleNext} autoFocus>
@@ -368,7 +395,7 @@ export function QuizModal({ pool, onClose }: Props): JSX.Element {
               </button>
             </>
           ) : (
-            <button style={secondaryBtnStyle} onClick={onClose}>
+            <button style={secondaryBtnStyle} onClick={handleClose}>
               結束
             </button>
           )}

@@ -230,3 +230,40 @@ body:has(.modal-backdrop) {
     transform: none;
   }
 }
+
+/* ── Active-squad celebration (add-neurons-study-squad) ──────────────────────
+ * The party row bounces once on a correct answer in QuizModal. A single
+ * play (not infinite) so it reads as a cheer, not idle motion; remount via
+ * `key` at the call site replays it per correct answer. Reduced-motion → static.
+ */
+@keyframes squad-celebrate-bounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-22%) scale(1.08);
+  }
+  60% {
+    transform: translateY(0) scale(1);
+  }
+  78% {
+    transform: translateY(-9%) scale(1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.squad-celebrate {
+  display: inline-flex;
+  transform-origin: center bottom;
+  animation: squad-celebrate-bounce 0.7s ease-out 1 both;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .squad-celebrate {
+    animation: none;
+    transform: none;
+  }
+}

@@ -26,7 +26,7 @@
  * β many tight low ones). The hour→epoch buckets are a circadian flavour hook.
  */
 
-import { MILESTONE_STREAK_THRESHOLD } from '@study-rpg/content-neurons-tw'
+import { MILESTONE_STREAK_THRESHOLD, FAMILY_NT_BRANCH, type NtBranchId } from '@study-rpg/content-neurons-tw'
 import type { NeuronVariantRow } from './db'
 
 export type DecorKey = 'decor:redemption' | 'decor:milestone' | 'decor:elder'
@@ -53,6 +53,13 @@ export const BAND_META: Record<BandKey, BandMeta> = {
 export interface VariantContextArt {
   decor: DecorKey[]
   band: BandKey
+  /**
+   * The variant's NT branch, derived from its family (single source
+   * `FAMILY_NT_BRANCH`). Drives per-branch decor texture selection at render;
+   * null when the family is not in the map (composer falls back to the
+   * universal texture). Per add-neurons-per-branch-decor.
+   */
+  branch: NtBranchId | null
 }
 
 /**
@@ -85,5 +92,6 @@ export function variantContextArt(row: NeuronVariantRow): VariantContextArt {
     if (p.streakAtMint >= MILESTONE_STREAK_THRESHOLD) decor.push('decor:milestone')
     if (p.wasRedemption) decor.push('decor:redemption')
   }
-  return { decor, band: brainwaveBand(row.rolledAt) }
+  const branch = FAMILY_NT_BRANCH[row.familyId] ?? null
+  return { decor, band: brainwaveBand(row.rolledAt), branch }
 }
