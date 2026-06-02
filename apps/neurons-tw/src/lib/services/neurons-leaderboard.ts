@@ -16,6 +16,7 @@ import { db, type LeaderboardProfileRow } from '../db'
 import { readTotalStudyMinutes } from './reading-timer'
 import {
   NEURONS_ACHIEVEMENTS,
+  VARIANT_COUNT_BY_FAMILY,
   tierRank,
   type NeuronsAchievement,
 } from '@study-rpg/content-neurons-tw'
@@ -97,7 +98,14 @@ export async function buildLeaderboardPayload(
   for (const v of variants) {
     familyCounts.set(v.familyId, (familyCounts.get(v.familyId) ?? 0) + 1)
   }
-  const family_complete = Array.from(familyCounts.values()).filter((c) => c === 5).length
+  // Complete = owns every slot the family's catalog declares (pyramid total,
+  // derived per family — not a hardcoded count; rework-neurons-variant-pyramid).
+  const family_complete = Array.from(familyCounts.entries()).filter(
+    ([familyId, c]) => {
+      const total = VARIANT_COUNT_BY_FAMILY[familyId] ?? 0
+      return total > 0 && c >= total
+    },
+  ).length
 
   const total_AP = accruals.reduce((sum, a) => sum + (a.ap ?? 0), 0)
   const synapse_strong = synapses.filter((s) => s.state === 'strong').length

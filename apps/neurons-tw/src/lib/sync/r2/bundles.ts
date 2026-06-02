@@ -45,11 +45,19 @@
 //        Additive + reader-tolerant: a v8 client reading a v9 bundle drops the new
 //        meta keys and ignores copies/pullCount; a v9 client reading a v8 bundle
 //        sees no currency keys (balance starts at 0) and copies/pullCount default.
+//   v10 — rework-neurons-variant-pyramid 2026-06-02: the slot model widens from a
+//        fixed 6 slots/family to a per-family P0–P5 pyramid (slotIndex 0..N-1,
+//        explicit per-variant rarity). NO new adapter / meta key — variants still
+//        ride the existing `neuronVariants` rows (PK [familyId+slotIndex] retained;
+//        the `copies` MAX-merge carve-out unchanged). The whole collection resets
+//        on the Dexie v11 upgrade. Additive + reader-tolerant: a v9 client reading
+//        a v10 bundle sees the same row shape (just more slotIndex values); a v10
+//        client reading a v9 bundle preserves rows on omission.
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 9
+export const SCHEMA_VERSION = 10
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

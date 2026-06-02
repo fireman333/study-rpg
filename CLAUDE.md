@@ -51,6 +51,12 @@ M2（一階）+ M_2nd（二階 hospital mode）並行用 git worktree 隔離。�
 - **Never** run `openspec archive --yes` raw CLI — always use `/opsx:archive` slash (it has a sync gate the raw CLI skips)
 - Engine API surface (`packages/core/src/types.ts`) is the third-party fork contract; breaking changes need a CHANGELOG entry
 - `packages/core/` stays content-agnostic — medical terms belong in theme / content packs, never in core
+
+### 互動語言（繁體中文預設）
+
+執行任何 OpenSpec workflow（`/opsx:*` 或 `openspec-*` skill：propose / apply / explore / onboard / continue / verify / archive）時，**所有對使用者的 clarifying question、AskUserQuestion 選項與說明、確認提示一律用繁體中文**。OpenSpec command template 是英文，模型容易被帶著用英文問 — 本專案明確覆寫為繁中互動（對齊使用者全域偏好）。
+
+保留英文：醫學名詞（首次附中文對照）、統計 / 程式 / 數學術語（regression、p-value、TypeScript…）、spec artifact 的 RFC 2119 normative 文字（SHALL / MUST、WHEN/THEN BDD scenario）、commit message、code comment。
 <!-- END: spec skill -->
 
 ## Deploy targets (in-flight migration)

@@ -374,6 +374,46 @@ export class NeuronsDB extends Dexie {
         await tx.table('meta').put({ key: 'neuralEnergyEarned', value: '0' })
         await tx.table('meta').put({ key: 'neuralEnergySpent', value: '0' })
       })
+    // Per rework-neurons-variant-pyramid. Schema indices IDENTICAL to v10 (the
+    // pyramid is data-only: slotIndex widens 0..5 → 0..N-1 but the PK
+    // [familyId+slotIndex] is RETAINED — Dexie cannot change a PK in an upgrade;
+    // dexie_pk_change_pitfall). The v11 work is the SECOND full reset of the
+    // collection: the variant slot model changed (variable variants per tier,
+    // explicit rarity), so wipe the collection + reset P0 pity. Unlike v10 this
+    // upgrade PRESERVES the neural-energy balance (study-earned, not collection
+    // state) — only neuronVariants + familyAccrual pullCount/unlockedSlots reset.
+    this.version(11)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // FULL RESET — collection only (pyramid slot-model change). Wipe the
+        // collection + reset P0 pity. PRESERVE everything else INCLUDING the
+        // neural-energy balance (study-earned progress): AP / synapses / mastery /
+        // question history / bookmarks / achievements / totalStudyMinutes /
+        // neuralEnergyEarned / neuralEnergySpent. No grandfather, no banner.
+        await tx.table('neuronVariants').clear()
+        await tx
+          .table('familyAccrual')
+          .toCollection()
+          .modify((row: FamilyAccrualRow) => {
+            row.unlockedSlots = []
+            row.pullCount = 0
+          })
+      })
   }
 }
 

@@ -100,7 +100,8 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
       mkVariant('藥理學', 3, 'P3'),
       mkVariant('藥理學', 4, 'P4'),
       mkVariant('藥理學', 5, 'P5'),
-      mkVariant('藥理學', 0, 'P0'), // 藥理學 now complete (6/6, P0–P5)
+      mkVariant('藥理學', 0, 'P0'),
+      mkVariant('藥理學', 6, 'P5'), // 藥理學 now complete (7/7 pyramid: P0 + slots 1–5 + extra P5 base)
       mkVariant('解剖學', 1, 'P1'),
     ])
     await db.synapses.bulkPut([
@@ -123,9 +124,9 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
 
     expect(payload.nickname).toBe('測試員')
     expect(payload.title).toBe('神經元大師')
-    expect(payload.variantCount).toBe(7)
-    expect(payload.variantTotal).toBe(66)
-    expect(payload.familiesComplete).toBe(1) // only 藥理學 has all 6 (P0–P5)
+    expect(payload.variantCount).toBe(8)
+    expect(payload.variantTotal).toBe(77)
+    expect(payload.familiesComplete).toBe(1) // only 藥理學 has all 7 (pyramid)
     expect(payload.familyTotal).toBe(11)
     expect(payload.totalAp).toBe(150)
     expect(payload.strongSynapseCount).toBe(2)

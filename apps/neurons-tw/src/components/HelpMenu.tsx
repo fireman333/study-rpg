@@ -78,21 +78,21 @@ const SECTIONS: Section[] = [
   {
     id: 'variant-unlock',
     icon: '🧬',
-    title: '變體解鎖',
+    title: '變體收集（抽卡）',
     body: (
       <>
         <p>
-          每個 family（如 藥理學 = VTA Dopaminergic）有 P5 → P1 的 5 個變體 slot。
-          每次答對該 family 的題目會累積該 family 的 <strong>action potential (AP)</strong>，
-          達到對應門檻時自動解鎖該 variant — 不用花券、不用手動抽。
+          每個 family（如 藥理學 = VTA Dopaminergic）有 P0–P5 稀有度<strong>金字塔</strong>，
+          共 7 個變體 slot（越常見的 tier 變體越多；P0 始源為每科唯一的超稀有 apex）。
         </p>
         <p>
-          門檻為 P5 = 1、P4 = 5、P3 = 15、P2 = 40、P1 = 100 AP。
-          解鎖後變體會跑出 reveal 動畫並登錄在首頁的連結組家族分支樹上。
+          收集走<strong>抽卡</strong>：答對題目（+3）與唸書（每分鐘 +2）累積<strong>神經能量</strong>，
+          每抽花 20 點、指定 family 抽一隻。稀有度由權重決定（P5 最常見 … P0 最稀有，附軟保底），
+          抽到已擁有的會變重複（copies +1）。不用付費、純靠唸書。
         </p>
         <p>
-          11 個 family × 5 slot = 55 variants 為完整收集目標。
-          整體進度顯示在 Overview 頂部 status chip 的「🧬 變體 X / 55」。
+          11 個 family × 7 slot = 77 variants 為完整收集目標。
+          整體進度顯示在 Overview 頂部 status chip 的「🧬 變體 X / 77」。
         </p>
       </>
     ),

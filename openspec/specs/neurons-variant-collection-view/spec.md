@@ -112,14 +112,15 @@ The dex slot grid SHALL use an intrinsic auto-fill column track (`repeat(auto-fi
 - **THEN** the slot grid SHALL show several columns on desktop (e.g. ≥ 4 at ≥ 768px) and reflow to 1–2 columns on phone widths (≤ 414px)
 - **AND** the filter chip bar SHALL wrap and remain usable at mobile widths
 
-### Requirement: The dex SHALL show all 6 slots per family with uncollected slots as rarity-labeled silhouettes
+### Requirement: The dex SHALL show all pyramid slots per family with uncollected slots as rarity-labeled silhouettes
 
-The page SHALL render every family's **6** slots (`slotIndex 0..5`, one per rarity
-tier P0–P5) derived from the variant catalog. A collected `(familyId, slotIndex)`
-SHALL render as a collected card; an uncollected slot SHALL render as a dimmed
-silhouette displaying the slot's **rarity** (e.g. `P0` / `P5`) — NOT an AP unlock
-threshold (AP no longer gates collection). The dex SHALL render the complete 66-slot
-set even when nothing is collected.
+The page SHALL render **every slot the catalog declares for a family** (`slotIndex
+0..N-1`, the family's pyramid total) derived from the variant catalog. A collected
+`(familyId, slotIndex)` SHALL render as a collected card; an uncollected slot SHALL
+render as a dimmed silhouette displaying the slot's **rarity** (e.g. `P0` / `P5`) —
+NOT an AP unlock threshold (AP no longer gates collection). The slot count per family
+SHALL be derived from the catalog, never hardcoded. The dex SHALL render the complete
+slot set even when nothing is collected.
 
 #### Scenario: Uncollected slot renders a silhouette with its rarity
 
@@ -127,17 +128,24 @@ set even when nothing is collected.
 - **WHEN** the collection page renders
 - **THEN** that slot SHALL render as a dimmed silhouette displaying `P0` (not an AP threshold)
 
-#### Scenario: Empty collection renders an all-silhouette 66-slot dex
+#### Scenario: Empty collection renders an all-silhouette dex sized to the catalog
 
 - **GIVEN** the player has collected zero variants
 - **WHEN** the page renders
-- **THEN** all 66 slots SHALL render as rarity-labeled silhouettes and the page SHALL NOT be blank
+- **THEN** every catalog slot SHALL render as a rarity-labeled silhouette and the page
+  SHALL NOT be blank
 
 #### Scenario: Collected slot renders a full card
 
 - **GIVEN** the player has collected `(familyId='藥理學', slotIndex=1)`
 - **WHEN** the page renders
 - **THEN** that slot SHALL render as a collected variant card (not a silhouette)
+
+#### Scenario: A family with multiple variants in a tier renders each as its own slot
+
+- **GIVEN** family `藥理學` declares two `P5` variants (`slotIndex` 1 and 6)
+- **WHEN** the dex renders the 藥理學 section
+- **THEN** both `P5` slots SHALL render as separate cards/silhouettes labeled `P5`
 
 ### Requirement: The collection page SHALL display the neural-energy balance and provide a per-family pull control
 

@@ -227,11 +227,17 @@ for (const nt of ['da', '5ht', 'gaba', 'glu'] as const) {
   }
 }
 
-// neuron-variant-gacha placeholder keys (11 families × 5 slots = 55)
-// Real sprites deferred to a follow-up generate-neuron-variant-sprites change.
+// neuron-variant-gacha pyramid keys (11 families × 7 slots 0..6 = 77,
+// rework-neurons-variant-pyramid). slot 0 = P0 apex (real art wired this change);
+// slots 1-5 = existing real art; slot 6 = the new pyramid P5 base (placeholder
+// until the roster-art-fill follow-up). Each maps to the real glob'd sprite if the
+// file is present, else TRANSPARENT_PIXEL. The theme can't import the content
+// catalog (cyclic dep) so the slot span is hardcoded; the consumer also falls back
+// to variant:default for any unmapped key, so a future non-uniform pyramid still
+// degrades gracefully.
 const VARIANT_ART_KEYS: string[] = []
 for (const subjectId of SUBJECT_IDS) {
-  for (let slot = 1; slot <= 5; slot += 1) {
+  for (let slot = 0; slot <= 6; slot += 1) {
     VARIANT_ART_KEYS.push(`variant:${subjectId}:${slot}`)
   }
 }
