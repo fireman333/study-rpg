@@ -2,7 +2,7 @@
  * DMN event dispatcher — applies the one-time effect of a drawn card.
  *
  * Branches on `eventKind`:
- *  - family-buff       → insert dmnActiveBuffs row, AP bonus while active
+ *  - family-buff       → insert dmnActiveBuffs row, maze-energy multiplier while active
  *  - variant-rate-up   → insert dmnActiveBuffs row, single-consume on next slot unlock
  *  - quick-review-batch → emit `dmn.quickReviewBatchRequested` event for UI to surface
  *  - streak-shield     → set meta['dmnStreakShieldAvailable'] = true
@@ -18,6 +18,7 @@
 import {
   DMN_CARD_CATALOG,
   DMN_FAMILY_BUFF_DURATION_MS,
+  FAMILY_BUFF_ENERGY_MULT,
   type DmnActiveBuffRow,
   type DmnCardRow,
 } from '@study-rpg/content-neurons-tw'
@@ -27,7 +28,10 @@ import { db } from '../db'
 // ─── Event bus for UI-consumed events (quick-review-batch) ──────────────────
 
 type DmnUiEventMap = {
+  // Dispatcher → toast: a quick-review-batch card was drawn (arm the CTA).
   'dmn.quickReviewBatchRequested': { sourceCardId: string }
+  // Toast → OverviewPage: player tapped the CTA; open a 5-question 出征 mini-batch.
+  'dmn.quickReviewStart': Record<string, never>
 }
 
 type DmnUiListener<E extends keyof DmnUiEventMap> = (payload: DmnUiEventMap[E]) => void
@@ -150,10 +154,12 @@ async function dispatchStreakShield(card: DmnCardRow): Promise<void> {
 
 /**
  * Read active `family-buff` rows matching the given familyId that haven't
- * expired. Returns the AP bonus (currently always +1 if a buff is active).
- * Caller: `connectome.recordCorrectAnswer`.
+ * expired. Returns the maze-energy MULTIPLIER (`FAMILY_BUFF_ENERGY_MULT` if a
+ * buff is active for this family, else 1.0). Caller: the post-commit maze faucet
+ * in `connectome.recordCorrectAnswer`. (realign-dmn-event-rewards-to-maze: was
+ * an additive AP bonus; AP no longer gates progression post-maze.)
  */
-export async function getActiveFamilyBuffBonus(familyId: string): Promise<number> {
+export async function getActiveFamilyBuffMultiplier(familyId: string): Promise<number> {
   const now = Date.now()
   const buffs = await db.dmnActiveBuffs
     .where('buffKind')
@@ -161,10 +167,10 @@ export async function getActiveFamilyBuffBonus(familyId: string): Promise<number
     .toArray()
   for (const b of buffs) {
     if (b.familyId === familyId && b.expiresAt > now) {
-      return 1
+      return FAMILY_BUFF_ENERGY_MULT
     }
   }
-  return 0
+  return 1
 }
 
 /**

@@ -127,6 +127,7 @@ export {
   DMN_EXPEDITION_DAILY_CAP,
   DMN_BEHAVIOR_AXIS_DAILY_CAP,
   DMN_FAMILY_BUFF_DURATION_MS,
+  FAMILY_BUFF_ENERGY_MULT,
   type DmnRarity,
   type DmnEventKind,
   type DmnCardDef,

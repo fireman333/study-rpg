@@ -178,3 +178,13 @@ export const DMN_EXPEDITION_DAILY_CAP = DMN_EXPEDITION_MILESTONES.length
 
 export const DMN_BEHAVIOR_AXIS_DAILY_CAP = 3
 export const DMN_FAMILY_BUFF_DURATION_MS = 60 * 60 * 1000 // 1 hour
+
+/**
+ * family-buff maze-energy multiplier (realign-dmn-event-rewards-to-maze).
+ * While an active family-buff matches the answered family, that family's
+ * post-commit maze-energy faucet is multiplied by this (composing with the
+ * mastery + streak multipliers). Replaces the legacy "+AP" effect (AP no longer
+ * gates progression post-promote-maze-to-home). Faithful to the old "+2 AP =
+ * 2× per-answer rate". Dogfood-tunable game-loop number (NOT OE-anchored).
+ */
+export const FAMILY_BUFF_ENERGY_MULT = 2

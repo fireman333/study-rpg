@@ -27,7 +27,7 @@ import {
 import { deriveMasteryTier, masteryEnergyMultiplier } from '../mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
-import { getActiveFamilyBuffBonus } from './dmn-event-dispatcher'
+import { getActiveFamilyBuffMultiplier } from './dmn-event-dispatcher'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
@@ -121,7 +121,7 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
 
   await db.transaction(
     'rw',
-    [db.synapses, db.familyAccrual, db.meta, db.familyMastery, db.dmnActiveBuffs],
+    [db.synapses, db.familyAccrual, db.meta, db.familyMastery],
     async (tx) => {
     pending.push(...(await runDailyResetIfNeededInTx(today)))
     masteryUpdate = await recordAttemptInTx(tx, familyId, true)
@@ -140,10 +140,10 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     }
 
     const prevAp = accrual.ap
-    // DMN family-buff: +1 extra AP per correct answer while a family-buff
-    // targeting this familyId is active. Reads dmnActiveBuffs inside the tx.
-    const dmnApBonus = await getActiveFamilyBuffBonus(familyId)
-    const newAp = prevAp + 1 + dmnApBonus
+    // family-buff no longer affects AP (realign-dmn-event-rewards-to-maze): it
+    // multiplies the post-commit maze-energy faucet instead (AP no longer gates
+    // progression post-promote-maze-to-home). AP gain = flat +1 per correct.
+    const newAp = prevAp + 1
     const prevFiredToday = accrual.firedToday
     const newSameDayCorrect = accrual.sameDayCorrect + 1
 
@@ -213,7 +213,8 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   // Post-commit: maze per-branch energy accrual (promote-maze-to-home / Model A).
   // This is the SOLE correct-answer energy faucet now — routed to the answered
   // subject's NT branch pool via FAMILY_NT_BRANCH, scaled by streak + mastery
-  // tier (mastery accelerates energy per wire-mastery-energy-acceleration).
+  // tier (mastery accelerates energy per wire-mastery-energy-acceleration) +
+  // an active DMN family-buff (×FAMILY_BUFF_ENERGY_MULT, realign-dmn-event-rewards-to-maze).
   // Dynamic import avoids a circular static dep; best-effort (channel `[maze]`).
   try {
     const { branchOfFamily } = await import('../maze/graph')
@@ -222,7 +223,11 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
       const { accrueMazeEnergy, CORRECT_ENERGY, streakMultiplier } = await import('../maze/economy')
       const { getStreaks } = await import('./streak')
       const { current } = await getStreaks()
-      await accrueMazeEnergy(branch, CORRECT_ENERGY * streakMultiplier(current) * masteryMult)
+      const familyBuffMult = await getActiveFamilyBuffMultiplier(familyId)
+      await accrueMazeEnergy(
+        branch,
+        CORRECT_ENERGY * streakMultiplier(current) * masteryMult * familyBuffMult,
+      )
     }
   } catch (err) {
     console.error('[maze] correct-answer energy accrual failed:', err)

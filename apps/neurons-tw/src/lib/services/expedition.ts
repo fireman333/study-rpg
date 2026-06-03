@@ -35,6 +35,20 @@ export function buildWrongQuestionPool(
 }
 
 /**
+ * Quick-review mini-batch (realign-dmn-event-rewards-to-maze): a capped slice of
+ * the wrong-question pool, opened by the DMN `quick-review-batch` event. Pure +
+ * testable. Returns at most `n` currently-wrong questions (fewer if fewer exist,
+ * empty if none). Clears flow through the same `onExpeditionComplete` path.
+ */
+export function buildQuickReviewPool(
+  pool: readonly Question[],
+  history: readonly QuestionHistoryRow[],
+  n = 5,
+): Question[] {
+  return buildWrongQuestionPool(pool, history).slice(0, Math.max(0, n))
+}
+
+/**
  * Summary of a completed expedition session, handed to the reward seam.
  */
 export interface ExpeditionSession {

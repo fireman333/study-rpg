@@ -1,27 +1,32 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
+import { useQuestionHistory } from '../lib/services/question-history'
 import { useRespectsReducedMotion } from '../lib/motion'
 
 /**
- * Minimal toast subscriber for the `dmn.quickReviewBatchRequested` event.
+ * Toast for the DMN `quick-review-batch` event
+ * (realign-dmn-event-rewards-to-maze).
  *
- * Full implementation requires an SRS-due quiz modal pipeline that doesn't
- * exist in neurons-tw yet (study mode + SRS scheduler land in a future
- * follow-up). For now we surface a 4-second notification so the player gets
- * acknowledgement that the card's effect fired; the actual 5-question batch
- * is wired when the SRS pipeline ships.
+ * When a quick-review-batch card is drawn, surface an actionable CTA: if the
+ * player has currently-wrong questions, a "▶ 5 題快速複習" button that emits
+ * `dmn.quickReviewStart` — OverviewPage opens a ≤5-question 出征 mini-batch whose
+ * clears credit the expedition DMN draw axis (closed loop). If there are no
+ * wrong questions, the toast just acknowledges there is nothing to review.
  */
 export default function DmnQuickReviewToast(): JSX.Element {
   const [visible, setVisible] = useState(false)
   const reduced = useRespectsReducedMotion()
+  const history = useQuestionHistory()
+  const hasWrong = history.some((h) => h.lastResult === 'wrong')
 
   useEffect(() => {
     let activeTimer: ReturnType<typeof setTimeout> | null = null
     const handler = (): void => {
       setVisible(true)
       if (activeTimer !== null) clearTimeout(activeTimer)
-      activeTimer = setTimeout(() => setVisible(false), 4000)
+      // Longer than the old 4s notice — the player needs time to tap the CTA.
+      activeTimer = setTimeout(() => setVisible(false), 10000)
     }
     dmnUiEvents.on('dmn.quickReviewBatchRequested', handler)
     return () => {
@@ -34,6 +39,11 @@ export default function DmnQuickReviewToast(): JSX.Element {
 
   const transition = { duration: reduced ? 0.18 : 0.32, ease: 'easeOut' as const }
 
+  const startReview = (): void => {
+    dmnUiEvents.emit('dmn.quickReviewStart', {})
+    setVisible(false)
+  }
+
   return (
     <AnimatePresence>
       <motion.div
@@ -45,11 +55,18 @@ export default function DmnQuickReviewToast(): JSX.Element {
         style={toastStyle}
       >
         <span style={{ fontSize: '1.1rem' }}>✦</span>
-        <div>
+        <div style={{ flex: 1 }}>
           <div style={titleStyle}>Quick Review 啟動</div>
-          <div style={subtitleStyle}>
-            5 道 SRS due 題已排入下一輪複習（SRS 模組上線後生效）
-          </div>
+          {hasWrong ? (
+            <>
+              <div style={subtitleStyle}>清掉一批錯題，順手換 DMN 抽卡</div>
+              <button type="button" onClick={startReview} style={ctaStyle}>
+                ▶ 5 題快速複習
+              </button>
+            </>
+          ) : (
+            <div style={subtitleStyle}>目前沒有錯題可複習 ✦</div>
+          )}
         </div>
       </motion.div>
     </AnimatePresence>
@@ -85,4 +102,17 @@ const subtitleStyle: React.CSSProperties = {
   fontSize: '0.72rem',
   color: '#b8b3d4',
   lineHeight: 1.4,
+}
+
+const ctaStyle: React.CSSProperties = {
+  marginTop: '0.5rem',
+  background: '#5d4ec4',
+  border: 'none',
+  borderRadius: '6px',
+  padding: '0.4rem 0.8rem',
+  color: '#fff',
+  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontSize: '0.8rem',
+  fontWeight: 700,
+  cursor: 'pointer',
 }

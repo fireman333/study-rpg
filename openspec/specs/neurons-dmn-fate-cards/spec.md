@@ -135,28 +135,42 @@ The `DmnEventKind` enum SHALL include exactly these five values, each with a def
 
 | `eventKind` | Effect | Magnitude bound |
 |---|---|---|
-| `family-buff` | Randomly select 1 of the 11 neuron families; for the next 1 hour wall-clock, correct answers attributed to that family SHALL grant +2 AP instead of +1 | +1 extra AP per correct answer, capped at 1-hour duration |
-| `variant-rate-up` | Override the rarity weight table for the **next** `connectome.variantSlotUnlocked` event from the player's session, using weights 20/30/30/15/5 instead of the default 60/25/10/4/1 | Single slot unlock, then revert to default weights |
-| `quick-review-batch` | Immediately surface 5 SRS-due questions in a chained quiz modal (any subject), bypassing the normal SRS queue UI | 5 questions; correct answers grant normal AP + correct-streak |
-| `streak-shield` | Grant a single-use streak immunity token; the next time the player would lose their daily streak (1 day of no app open), the token SHALL be consumed instead and streak preserved | 1 single-use token, never expires |
-| `hidden-reveal` | Reveal the `artworkId` of the next undrawn P1 DMN card in the catalog as a "spoiler hint" — the card's silhouette in `DmnCollectionPage` SHALL render with reduced opacity instead of solid silhouette | UI-only effect; zero gameplay impact |
+| `family-buff` | Randomly select 1 of the 11 neuron families; for the next 1 hour wall-clock, correct answers attributed to that family SHALL have their post-commit maze-energy faucet multiplied by `FAMILY_BUFF_ENERGY_MULT` (default 2). The buff has NO AP effect (AP no longer gates progression post-`promote-maze-to-home`). | × `FAMILY_BUFF_ENERGY_MULT` maze energy for the buffed family, capped at 1-hour duration |
+| `variant-rate-up` | When active, the **next** `pullVariant` (the maze-settle pull) SHALL roll the rarity twice and keep the rarer outcome (single-consume), then revert. | One pull, then revert to a single roll |
+| `quick-review-batch` | Arm an actionable 5-question 出征 mini-batch: surface a clickable CTA that opens the expedition `QuizModal` on ≤5 currently-wrong questions (`questionHistory.lastResult === 'wrong'`). Clears flow through `onExpeditionComplete` and credit the expedition DMN draw axis like any 出征. Non-intrusive (the CTA arms; the player chooses to start). | ≤5 questions; clears feed the per-day-capped expedition axis |
+| `streak-shield` | Grant a single-use streak immunity token; the next time the player would break their correct-answer streak (a wrong answer), the token SHALL be consumed instead and the current streak preserved. | 1 single-use token, never expires |
+| `hidden-reveal` | Reveal the `cardId` of the next undrawn P1 DMN card in the catalog as a "spoiler hint" — the card's silhouette in `DmnCollectionPage` SHALL render with reduced opacity instead of a solid silhouette | UI-only effect; zero gameplay impact |
 
 Each `eventKind` SHALL have **at least 3 cards** in the catalog carrying it (5 × 3 = 15 minimum allocation; remaining 5 catalog slots distribute by rarity preference).
 
-#### Scenario: family-buff dispatches with bounded duration
+#### Scenario: family-buff multiplies the buffed family's maze energy
 
 - **WHEN** a card with `eventKind === 'family-buff'` is drawn and dispatched
 - **THEN** a new row SHALL be added to `dmnActiveBuffs` with `buffKind: 'family-buff'`, `familyId: <randomly selected>`, and `expiresAt: <now + 1 hour>`
-- **AND** quiz-rewards service SHALL grant +2 AP for correct answers matching that `familyId` until `expiresAt` is reached
-- **AND** at `expiresAt`, the row SHALL be removed (or marked expired) and AP grant SHALL revert to +1
+- **AND** while active, a correct answer in that `familyId` SHALL accrue `FAMILY_BUFF_ENERGY_MULT`× the maze energy it otherwise would (composed with the existing streak + mastery multipliers) to that family's branch
+- **AND** the buff SHALL NOT alter AP for that family (AP gain stays +1 per correct answer)
+- **AND** at `expiresAt` the row SHALL be removed (or treated as expired) and the energy multiplier SHALL revert to 1.0
 
-#### Scenario: variant-rate-up consumed by single slot unlock
+#### Scenario: family-buff does not affect other families
 
-- **GIVEN** the player has an active `variant-rate-up` buff and 0 variant slots unlocked in the current session
-- **WHEN** the player triggers the next `connectome.variantSlotUnlocked` event
-- **THEN** the `neuron-variant-gacha` roll for that slot SHALL use weights 20/30/30/15/5 instead of the default
-- **AND** after the roll completes, the buff SHALL be marked consumed and removed from `dmnActiveBuffs`
-- **AND** subsequent slot unlocks SHALL revert to default rarity weights
+- **GIVEN** an active `family-buff` for family A
+- **WHEN** the player answers a question correctly in family B (B ≠ A)
+- **THEN** family B's maze energy SHALL accrue with multiplier 1.0 (no buff)
+
+#### Scenario: variant-rate-up consumed by the next settle pull
+
+- **GIVEN** the player has an active `variant-rate-up` buff
+- **WHEN** the next `pullVariant` (maze settle) runs
+- **THEN** the rarity SHALL be rolled twice and the rarer outcome kept
+- **AND** after the pull completes, the buff SHALL be consumed and removed from `dmnActiveBuffs`
+- **AND** subsequent pulls SHALL revert to a single rarity roll
+
+#### Scenario: quick-review-batch arms a capped expedition mini-batch
+
+- **WHEN** a card with `eventKind === 'quick-review-batch'` is drawn and dispatched
+- **THEN** `dmn.quickReviewBatchRequested` SHALL be emitted and the toast SHALL surface a clickable "5 題快速複習" CTA
+- **AND** activating the CTA SHALL open the expedition `QuizModal` on at most 5 currently-wrong questions (fewer if fewer are wrong; if none, the CTA SHALL be absent and the toast SHALL state there is nothing to review)
+- **AND** clears in the mini-batch SHALL be credited to the expedition DMN draw axis via `onExpeditionComplete` (subject to the per-day cap)
 
 ### Requirement: Drawing a DMN card SHALL produce exactly one new dmnCard row + one event dispatch + permanent collection entry
 

@@ -144,9 +144,9 @@ const SECTIONS: Section[] = [
           （每日上限 3）。
         </p>
         <p>
-          5 種一次性事件：family-buff（隨機 family AP +2/正確、1 hr）、
-          variant-rate-up（下次 slot 解鎖權重提升）、quick-review-batch（5 道 SRS due 題彈出）、
-          streak-shield（下次 streak 斷掉時免疫）、hidden-reveal（在 /dmn 頁顯示下一張未抽 P1 的剪影提示）。
+          5 種一次性事件：family-buff（隨機 family 的 maze 能量 ×2、1 hr）、
+          variant-rate-up（下次抽卡 roll 兩次取較稀有）、quick-review-batch（5 題錯題快速複習，出征 mini-batch）、
+          streak-shield（答錯時保住連對 streak 一次）、hidden-reveal（在 /dmn 頁顯示下一張未抽 P1 的剪影提示）。
         </p>
         <p>
           全收集 + 永久陳列在「<a href="/dmn">DMN</a>」頁面。

@@ -14,7 +14,8 @@ import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
 import { filterPoolByFamily, filterPoolByYear } from '../lib/services/quiz-pool'
 import { useQuestionHistory } from '../lib/services/question-history'
-import { buildWrongQuestionPool, onExpeditionComplete } from '../lib/services/expedition'
+import { buildWrongQuestionPool, buildQuickReviewPool, onExpeditionComplete } from '../lib/services/expedition'
+import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { YearFilterBar } from '../components/YearFilterBar'
 import { useMaze } from '../lib/maze/useMaze'
@@ -39,6 +40,9 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // 出征 (expedition) is a separate, mutually-exclusive QuizModal entry on the
   // cross-subject wrong-question pool. (add-neurons-study-squad)
   const [expeditionOpen, setExpeditionOpen] = useState(false)
+  // Quick-review mini-batch: when true, the open expedition is capped to ≤5
+  // wrong questions (DMN quick-review-batch event, realign-dmn-event-rewards-to-maze).
+  const [quickReviewActive, setQuickReviewActive] = useState(false)
   const [totalStudyMin, setTotalStudyMin] = useState(0)
   const [stats, setStats] = useState<ProgressStats>({ variants: 0, dmnOwned: 0 })
   const [accrualByFamily, setAccrualByFamily] = useState<Map<string, FamilyAccrual>>(new Map())
@@ -74,10 +78,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     () => questionHistory.reduce((n, h) => (h.lastResult === 'wrong' ? n + 1 : n), 0),
     [questionHistory],
   )
-  const expeditionPool = useMemo(
-    () => (expeditionOpen ? buildWrongQuestionPool(pack.questions, questionHistory) : []),
-    [expeditionOpen, pack.questions, questionHistory],
-  )
+  const expeditionPool = useMemo(() => {
+    if (!expeditionOpen) return []
+    return quickReviewActive
+      ? buildQuickReviewPool(pack.questions, questionHistory, 5)
+      : buildWrongQuestionPool(pack.questions, questionHistory)
+  }, [expeditionOpen, quickReviewActive, pack.questions, questionHistory])
 
   useEffect(() => {
     initMasteryForPack(pack).catch(() => {
@@ -129,6 +135,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // opening one always closes the other.
   const openRegularQuiz = (familyId: string | null): void => {
     setExpeditionOpen(false)
+    setQuickReviewActive(false)
     setQuizEntry(familyId)
   }
 
@@ -137,8 +144,23 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const openExpedition = (): void => {
     if (wrongCount === 0) return
     setQuizEntry(undefined)
+    setQuickReviewActive(false) // full expedition, not a quick-review mini-batch
     setExpeditionOpen(true)
   }
+
+  // DMN quick-review-batch: the toast CTA emits `dmn.quickReviewStart`; open the
+  // expedition modal capped to ≤5 wrong questions. Clears credit the expedition
+  // DMN draw axis via onExpeditionComplete (closed loop). No-op if nothing wrong.
+  useEffect(() => {
+    const handler = (): void => {
+      if (wrongCount === 0) return
+      setQuizEntry(undefined)
+      setQuickReviewActive(true)
+      setExpeditionOpen(true)
+    }
+    dmnUiEvents.on('dmn.quickReviewStart', handler)
+    return () => dmnUiEvents.off('dmn.quickReviewStart', handler)
+  }, [wrongCount])
 
   const onTimerToggle = (): void => {
     if (timer.status === 'idle') {
@@ -262,12 +284,16 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         <QuizModal pool={quizPool} onClose={() => setQuizEntry(undefined)} />
       )}
 
-      {/* 出征 (expedition) drill — cross-subject wrong questions. Its onComplete
-          fires the no-op reward seam. (add-neurons-study-squad) */}
+      {/* 出征 (expedition) drill — cross-subject wrong questions (full pool, or a
+          ≤5 quick-review mini-batch when quickReviewActive). onComplete credits
+          the expedition DMN draw axis. (add-neurons-study-squad / realign-dmn-event-rewards-to-maze) */}
       {expeditionOpen && (
         <QuizModal
           pool={expeditionPool}
-          onClose={() => setExpeditionOpen(false)}
+          onClose={() => {
+            setExpeditionOpen(false)
+            setQuickReviewActive(false)
+          }}
           onComplete={onExpeditionComplete}
         />
       )}
