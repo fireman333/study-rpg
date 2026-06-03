@@ -1,8 +1,35 @@
-# deploy-pipeline Specification
+## REMOVED Requirements
 
-## Purpose
-TBD - created by archiving change add-gh-pages-deploy. Update Purpose after archive.
-## Requirements
+### Requirement: Deploy workflow triggers on main push and manual dispatch
+
+**Reason**: GitHub Pages is fully retired by this change. `.github/workflows/deploy.yml` is deleted; `https://<owner>.github.io/study-rpg/` and `/study-rpg/hospital/` both return GitHub 404. Cloudflare Pages (its own trigger described under "Cloudflare Pages is the sole production deploy target") is now the only deploy.
+
+### Requirement: Workflow uses official actions and minimum-required permissions
+
+**Reason**: This requirement scoped the GitHub Pages `deploy.yml` actions (`upload-pages-artifact`, `deploy-pages`) and its `pages: write` / `id-token: write` permissions. With `deploy.yml` deleted, it no longer applies. Cloudflare Pages permissions are covered by "Cloudflare Pages workflow uses minimum-required permissions and scoped CF API token".
+
+### Requirement: Concurrent deploys are serialized
+
+**Reason**: Described the GitHub Pages `concurrency: { group: pages }` block in `deploy.yml`. GitHub Pages is retired. The Cloudflare Pages workflow carries its own `concurrency: { group: deploy-cf-pages }` (see its permissions requirement).
+
+### Requirement: Setup checklist documented for repo owner
+
+**Reason**: The checklist walked an owner/fork through GitHub Pages repo settings (Settings → Pages → Source = "GitHub Actions"). GitHub Pages is retired; Cloudflare Pages is a Direct-Upload project deployed by the owner via `pnpm run deploy:cf` or the CF workflow, needing no per-fork Pages-enablement step.
+
+### Requirement: SPA route fallback works on GitHub Pages for BrowserRouter apps
+
+**Reason**: Described the `404.html` rafgraph/spa-github-pages fallback for the 一階 BrowserRouter app on GitHub Pages, plus the 二階 HashRouter exemption. Both the 一階 app and the GitHub Pages deploy are removed. Cloudflare Pages SPA routing is covered by "SPA fallback via `_redirects` for Cloudflare Pages".
+
+### Requirement: Migration banner on GitHub Pages during bake
+
+**Reason**: The `DomainMigrationBanner` was gated on `VITE_DEPLOY_TARGET === 'gh-pages'` to nudge GitHub Pages users to `med-study-rpg.com`. With GitHub Pages retired and the 一階 app deleted, there is no surface to render it and no legacy origin to migrate from.
+
+### Requirement: Cloudflare Pages deploy target alongside GitHub Pages
+
+**Reason**: Replaced by "Cloudflare Pages is the sole production deploy target" — GitHub Pages no longer exists, 一階 (`/1st/`) is removed, and the combined project now assembles only neurons.
+
+## ADDED Requirements
+
 ### Requirement: Cloudflare Pages is the sole production deploy target
 
 The repository SHALL produce a single Cloudflare Pages deployment of its in-repo apps. There is no GitHub Pages deploy. The combined Cloudflare Pages project (`med-study-rpg`, Direct Upload mode) SHALL serve from the custom domain `med-study-rpg.com` with the following layout:
@@ -44,6 +71,8 @@ The combined build sequence SHALL:
 
 - **WHEN** `wrangler pages project list` is run against the production account
 - **THEN** the `med-study-rpg` project row SHALL show `Git Provider: No`
+
+## MODIFIED Requirements
 
 ### Requirement: Deploy uses pre-built content artifacts
 

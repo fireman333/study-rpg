@@ -3,19 +3,18 @@
  * Assemble dist-cf/ for Cloudflare Pages deploy.
  *
  * Inputs (must exist before this runs):
- *   apps/medexam-tw/dist/                ← 一階, built with VITE_DEPLOY_BASE=/1st/
- *   apps/neurons-tw/dist/                ← 神經元 (M_3rd), built with VITE_DEPLOY_BASE=/neurons/
+ *   apps/neurons-tw/dist/                ← 神經元 (M_3rd, canonical), built with VITE_DEPLOY_BASE=/neurons/
  *   scripts/cf-landing-template.html     ← root landing page
  *
- *   NOTE: 二階 (/2nd/) is no longer assembled here — it ships from the
- *   standalone repo / CF project med-study-rpg-2nd, fronted by the edge-router
- *   Worker on med-study-rpg.com/2nd/* (split-medexam2-standalone §5).
+ *   NOTE: 一階 (/1st/) was removed (remove-medexam-tw-and-promote-neurons).
+ *   二階 (/2nd/) is not assembled here — it ships from the standalone repo / CF
+ *   project med-study-rpg-2nd, fronted by the edge-router Worker on
+ *   med-study-rpg.com/2nd/* (split-medexam2-standalone §5).
  *
  * Output:
  *   dist-cf/
  *     index.html                         ← copy of cf-landing-template.html
  *     _redirects                         ← SPA fallback rules
- *     1st/                               ← 一階 dist
  *     neurons/                           ← 神經元 dist
  *
  * Specs:
@@ -33,7 +32,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 
 const ROUTES = [
-  { src: 'apps/medexam-tw/dist', dest: '1st' },
+  // 一階 (/1st/) removed (remove-medexam-tw-and-promote-neurons).
   // 二階 (/2nd/) extracted to standalone repo + CF project med-study-rpg-2nd;
   // the edge-router Worker now serves med-study-rpg.com/2nd/* from there, so the
   // combined project no longer assembles it (split-medexam2-standalone §5).

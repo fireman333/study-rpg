@@ -59,14 +59,13 @@ M2（一階）+ M_2nd（二階 hospital mode）並行用 git worktree 隔離。�
 保留英文：醫學名詞（首次附中文對照）、統計 / 程式 / 數學術語（regression、p-value、TypeScript…）、spec artifact 的 RFC 2119 normative 文字（SHALL / MUST、WHEN/THEN BDD scenario）、commit message、code comment。
 <!-- END: spec skill -->
 
-## Deploy targets (in-flight migration)
+## Deploy targets
 
-Two parallel deploys during the 2–4 week migration bake (started 2026-05-22, change `add-med-study-rpg-domain-migration`):
+GitHub Pages is **retired** and 一階 (`medexam-tw`) is **removed** (`remove-medexam-tw-and-promote-neurons`, 2026-06-03). `https://fireman333.github.io/study-rpg/` + `/study-rpg/hospital/` → GitHub 404; `med-study-rpg.com/1st/` → 404. The app shell is served only from Cloudflare Pages on `med-study-rpg.com`:
 
-| Target | URL — 一階 | URL — 二階 | URL — 神經元 (M_3rd) | Pipeline |
-|---|---|---|---|---|
-| **GitHub Pages** (legacy) | `https://fireman333.github.io/study-rpg/` | ~~`/study-rpg/hospital/`~~ → **301-redirects** to `med-study-rpg.com/2nd/` (no longer serves the app; `split-medexam2-standalone` §6, via `apps/medexam-tw/public/404.html`) | — (neurons-tw NOT published to GH Pages; spec `neurons-deploy` Req 1) | `.github/workflows/deploy.yml` builds 一階 only (二階 build + merge removed §5.3b); sets `VITE_DEPLOY_TARGET=gh-pages` so `DomainMigrationBanner` surfaces |
-| **Cloudflare Pages** (new home) | `https://med-study-rpg.com/1st/` | `https://med-study-rpg.com/2nd/` — served by the **standalone** repo + its own CF project `med-study-rpg-2nd`, fronted by the edge-router Worker on `med-study-rpg.com/2nd/*` (NOT the combined project; `split-medexam2-standalone`) | `https://med-study-rpg.com/neurons/` | CF Pages **direct-upload** mode (combined project name `med-study-rpg`, no GitHub integration). Owner runs `pnpm deploy:cf` from local — wraps **two** app builds (一階 + neurons; 二階 split out §5) each with its own `VITE_DEPLOY_BASE` + `node scripts/build-cf-pages-dist.mjs` (assembles `dist-cf/{1st,neurons}`) + `wrangler pages deploy dist-cf --project-name med-study-rpg --branch main`. Vite env vars (`VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` / `VITE_SYNC_WORKER_URL`) come from local shell env at deploy time — NOT from repo secrets. |
+| Target | URL — 神經元 (canonical) | URL — 二階 | Pipeline |
+|---|---|---|---|
+| **Cloudflare Pages** (`med-study-rpg.com`) | `https://med-study-rpg.com/neurons/` | `https://med-study-rpg.com/2nd/` — served by the **standalone** repo + its own CF project `med-study-rpg-2nd`, fronted by the edge-router Worker on `med-study-rpg.com/2nd/*` (NOT the combined project; `split-medexam2-standalone`) | Combined CF Pages **direct-upload** project `med-study-rpg` (no GitHub integration). `.github/workflows/deploy-cf-pages.yml` on main push builds **neurons only** + `node scripts/build-cf-pages-dist.mjs` (assembles `dist-cf/neurons/` + root hub landing) + `wrangler pages deploy`. Owner can also run `pnpm deploy:cf` locally (Vite env vars `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` / `VITE_SYNC_WORKER_URL` from local shell env). Root `med-study-rpg.com/` serves the hub landing (`scripts/cf-landing-template.html`, 2 cards: 二階 + neurons). |
 
 ### 二階 standalone deploy (`split-medexam2-standalone`, 2026-06-03)
 

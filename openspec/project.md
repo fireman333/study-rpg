@@ -26,8 +26,8 @@
 - **Styling**: vanilla CSS + CSS variables（沿用 KlaudeHealthEducation 風格），**不**用 Tailwind / shadcn
 - **動畫**: Framer Motion
 - **題庫 ingestion**: build-time `scripts/build.ts` 把 .md → `questions.json`
-- **Deploy**: GitHub Pages + Actions（單 URL share，零配額焦慮）
-- **Monorepo**: pnpm workspaces — `packages/core/`、`packages/theme-pixel-medical/`、`packages/theme-pixel-hospital/`（二階 scaffold）、`packages/content-medexam-tw/`、`packages/content-medexam2-tw/`（二階 scaffold）、`apps/medexam-tw/`、`apps/medexam2-hospital-tw/`（二階 scaffold）
+- **Deploy**: Cloudflare Pages (`med-study-rpg.com`, direct-upload) + GitHub Actions（GitHub Pages retired 2026-06-03 via `remove-medexam-tw-and-promote-neurons`）
+- **Monorepo**: pnpm workspaces — `packages/core/`、`packages/theme-pixel-neurons/`、`packages/content-neurons-tw/`、`apps/neurons-tw/`（一階 app + content/theme 與 dormant 二階 source 已於 2026-06-03 `remove-medexam-tw-and-promote-neurons` 移除；產品 二階 在 standalone repo `study-rpg-2nd`）
 - **License**: engine + theme = AGPL-3.0；default content pack = CC-BY-NC-4.0（詳解 © 陽明國考考古題小組）
 - **作者背景約束**: 非 CS 背景醫學生，Claude Code vibe-coding；新 dependency 要 vibe-coding-friendly（避免 Next.js SSR/RSC 過度抽象、避免學新 Tailwind utility）
 
@@ -188,8 +188,8 @@ git push origin main
 
 ## Deploy & Distribution
 
-- **取得方式**: 直接打開 https://fireman333.github.io/study-rpg/（暫定 URL；待 repo 上 GitHub）
-- **更新機制**: GitHub Actions 自動 build → push gh-pages branch；無需玩家操作
+- **取得方式**: 直接打開 https://med-study-rpg.com/neurons/（神經元 canonical app；root `med-study-rpg.com/` = hub landing）
+- **更新機制**: push main → GitHub Actions (`deploy-cf-pages.yml`) 自動 build neurons + wrangler deploy 到 Cloudflare Pages；無需玩家操作
 - **安裝門檻**: 零（瀏覽器即可，無下載、無註冊、無 email）
 - **存檔遷移**: IndexedDB 本機保存 + Export/Import JSON button（手動跨裝置）；M4 引入 Supabase cloud sync
 - **Fork 友善**: monorepo 設計讓第三方 fork 後可只改 `packages/content-*` 接自己的題庫，不碰 engine
