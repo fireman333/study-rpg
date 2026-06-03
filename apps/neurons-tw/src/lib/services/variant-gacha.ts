@@ -22,7 +22,13 @@ import {
   type NeuronVariantDef,
   type Rarity,
 } from '@study-rpg/content-neurons-tw'
-import { db, todayISO, type NeuronVariantRow, type NeuronVariantProvenance } from '../db'
+import {
+  db,
+  todayISO,
+  type NeuronVariantRow,
+  type NeuronVariantProvenance,
+  type NeuronInstanceRow,
+} from '../db'
 import { emitVariantCollected } from './connectome'
 import { getStreaks } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
@@ -31,6 +37,50 @@ import { readBalance, spendEnergyInTx } from './currency'
 
 /** Rarity rank for "take the rarer" (P0 rarest = 0). */
 const RARITY_RANK: Record<Rarity, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
+
+/**
+ * Device-stable instance id (add-neurons-dupe-fusion). NOT a Dexie `++id` — an
+ * auto-increment collides across devices under R2 union sync. New pulls use a
+ * random suffix (each pull is a genuinely new individual minted on one device);
+ * the v13 migration uses a deterministic `:m<i>` suffix instead so two devices
+ * expanding the same legacy `copies` converge.
+ */
+function mintInstanceId(familyId: string, slotIndex: number, rolledAt: number): string {
+  return `${familyId}:${slotIndex}:${rolledAt}:${Math.random().toString(36).slice(2, 8)}`
+}
+
+/** Build one individual instance row for a freshly-minted neuron (its own birth context). */
+export function buildInstance(
+  familyId: string,
+  slotIndex: number,
+  rarity: Rarity,
+  spriteKey: string,
+  rolledAt: number,
+  provenance: NeuronVariantProvenance,
+): NeuronInstanceRow {
+  return {
+    instanceId: mintInstanceId(familyId, slotIndex, rolledAt),
+    familyId,
+    slotIndex,
+    rarity,
+    spriteKey,
+    rolledAt,
+    provenance,
+    consumedAt: null,
+  }
+}
+
+/**
+ * Current OWNED individual count (add-neurons-dupe-fusion) — held instances
+ * (`consumedAt == null`). Distinct from `neuronVariants.copies`, which is the
+ * monotonic lifetime-mint count kept for MAX-merge sync.
+ */
+export async function currentOwnedCount(familyId: string, slotIndex?: number): Promise<number> {
+  const rows = await db.neuronInstances.where('familyId').equals(familyId).toArray()
+  return rows.filter(
+    (r) => r.consumedAt === null && (slotIndex === undefined || r.slotIndex === slotIndex),
+  ).length
+}
 
 const CATALOG_BY_FAMILY = new Map<string, NeuronVariantDef[]>()
 for (const def of NEURON_VARIANT_CATALOG) {
@@ -179,7 +229,7 @@ export async function pullVariant(
     // narrow a variable assigned only inside an async callback).
     const out = await db.transaction(
       'rw',
-      [db.meta, db.familyAccrual, db.neuronVariants],
+      [db.meta, db.familyAccrual, db.neuronVariants, db.neuronInstances],
       async (): Promise<{
         rarity: Rarity
         isDupe: boolean
@@ -209,32 +259,45 @@ export async function pullVariant(
         if (tierDefs.length === 0) throw new Error(`no catalog variant for ${familyId} ${rarity}`)
         const target = tierDefs[Math.floor(Math.random() * tierDefs.length)]
 
-        const existing = await db.neuronVariants.get([familyId, target.slotIndex])
-        if (existing) {
-          const row: NeuronVariantRow = { ...existing, copies: (existing.copies ?? 1) + 1 }
-          await db.neuronVariants.put(row)
-          return { rarity, isDupe: true, resultRow: row, persistedNew: false }
-        }
-
+        // Each pull mints an INDIVIDUAL (add-neurons-dupe-fusion) with its own
+        // birth context (provenance + rolledAt) so dupes render distinct context-art.
+        const rolledAtNow = Date.now()
         const provenance: NeuronVariantProvenance = {
           bornAtISO: todayISO(),
           apAtUnlock: accrual.ap,
           wasRedemption: false, // pulls are not question-tied (no 救贖 for pulls)
           streakAtMint,
         }
+
+        const existing = await db.neuronVariants.get([familyId, target.slotIndex])
+        if (existing) {
+          // Dupe: bump the slot's lifetime-mint count (`copies`, MAX-merge sync)
+          // AND mint a new individual. The slot-row provenance is NOT rewritten
+          // (gacha spec); the new individual carries this pull's own provenance.
+          const row: NeuronVariantRow = { ...existing, copies: (existing.copies ?? 1) + 1 }
+          await db.neuronVariants.put(row)
+          await db.neuronInstances.add(
+            buildInstance(familyId, target.slotIndex, rarity, target.spriteKey, rolledAtNow, provenance),
+          )
+          return { rarity, isDupe: true, resultRow: row, persistedNew: false }
+        }
+
         const row: NeuronVariantRow = {
           familyId,
           slotIndex: target.slotIndex,
           rarity,
           displayName: composeVariantDisplayName(target.displayName, rarity),
           spriteKey: target.spriteKey,
-          rolledAt: Date.now(),
+          rolledAt: rolledAtNow,
           // 保底 flag: a P0 obtained while the soft-pity ramp was active.
           wasPityFloor: rarity === 'P0' && newPullCount > P0_PITY_START,
           copies: 1,
           provenance,
         }
         await db.neuronVariants.put(row)
+        await db.neuronInstances.add(
+          buildInstance(familyId, target.slotIndex, rarity, target.spriteKey, rolledAtNow, provenance),
+        )
         return { rarity, isDupe: false, resultRow: row, persistedNew: true }
       },
     )
@@ -284,19 +347,23 @@ export async function mintVariantSlot(
   try {
     const { current: streakAtMint } = await getStreaks()
     const prevStats = await buildAchievementStats()
-    const out = await db.transaction('rw', [db.familyAccrual, db.neuronVariants], async () => {
+    const out = await db.transaction('rw', [db.familyAccrual, db.neuronVariants, db.neuronInstances], async () => {
       const accrual = await db.familyAccrual.get(familyId)
-      const existing = await db.neuronVariants.get([familyId, slotIndex])
-      if (existing) {
-        const row: NeuronVariantRow = { ...existing, copies: (existing.copies ?? 1) + 1 }
-        await db.neuronVariants.put(row)
-        return { isDupe: true, resultRow: row, persistedNew: false }
-      }
+      const rolledAtNow = Date.now()
       const provenance: NeuronVariantProvenance = {
         bornAtISO: todayISO(),
         apAtUnlock: accrual?.ap ?? 0,
         wasRedemption: false,
         streakAtMint,
+      }
+      const existing = await db.neuronVariants.get([familyId, slotIndex])
+      if (existing) {
+        const row: NeuronVariantRow = { ...existing, copies: (existing.copies ?? 1) + 1 }
+        await db.neuronVariants.put(row)
+        await db.neuronInstances.add(
+          buildInstance(familyId, slotIndex, def.rarity, def.spriteKey, rolledAtNow, provenance),
+        )
+        return { isDupe: true, resultRow: row, persistedNew: false }
       }
       const row: NeuronVariantRow = {
         familyId,
@@ -304,12 +371,15 @@ export async function mintVariantSlot(
         rarity: def.rarity,
         displayName: composeVariantDisplayName(def.displayName, def.rarity),
         spriteKey: def.spriteKey,
-        rolledAt: Date.now(),
+        rolledAt: rolledAtNow,
         wasPityFloor: false,
         copies: 1,
         provenance,
       }
       await db.neuronVariants.put(row)
+      await db.neuronInstances.add(
+        buildInstance(familyId, slotIndex, def.rarity, def.spriteKey, rolledAtNow, provenance),
+      )
       return { isDupe: false, resultRow: row, persistedNew: true }
     })
 

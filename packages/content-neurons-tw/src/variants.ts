@@ -66,6 +66,13 @@ export const READING_MINUTE_ENERGY = 2
 export const PULL_COST = 20
 
 /**
+ * Tier-promote cost (add-neurons-dupe-fusion): number of held SURPLUS individuals
+ * of the same rarity tier consumed to mint one individual of the next-rarer tier.
+ * Single dogfood-tunable source of truth. `neuron-variant-fusion` spec.
+ */
+export const PROMOTE_COST_K = 3
+
+/**
  * Streak-milestone gate for variant provenance (add-neurons-variant-provenance).
  * A variant minted while the player's daily correct-streak is `>=` this value
  * is flagged a 里程碑 individual in its birth caption. Single tunable constant

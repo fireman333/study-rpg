@@ -94,6 +94,9 @@ export interface NeuronsAchievementStats {
   /** Highest single-family AP value. */
   maxFamilyAP: number
 
+  /** Lifetime tier-promotes performed (add-neurons-dupe-fusion). 0 if never. */
+  promoteCount: number
+
   /** Total synapses ever formed (count of rows in synapses table). */
   synapseFormedCount: number
   /** Synapses currently in 'strong' state. */
