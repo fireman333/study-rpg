@@ -204,17 +204,18 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   // try/catch inside triggerAchievementCheck so failure doesn't break gameplay.
   await triggerAchievementCheck(prevStats)
 
-  // Post-commit: brain-maze growth-signal accrual (add-neurons-brain-maze-slice).
-  // DA-branch families only; dynamic import avoids a circular static dep and
-  // matches the achievement/dmn hook discipline. Best-effort — never breaks the
-  // answer flow (channel `[maze]`).
+  // Post-commit: brain-maze growth-signal accrual (expand-neurons-brain-maze-all-branches).
+  // Routes to the answered subject's NT branch pool via FAMILY_NT_BRANCH; dynamic
+  // import avoids a circular static dep and matches the achievement/dmn hook
+  // discipline. Best-effort — never breaks the answer flow (channel `[maze]`).
   try {
-    const { MAZE_FAMILIES } = await import('../maze/graph')
-    if (MAZE_FAMILIES.includes(familyId)) {
+    const { branchOfFamily } = await import('../maze/graph')
+    const branch = branchOfFamily(familyId)
+    if (branch) {
       const { accrueMazeSignal, CORRECT_SIGNAL, streakMultiplier } = await import('../maze/economy')
       const { getStreaks } = await import('./streak')
       const { current } = await getStreaks()
-      await accrueMazeSignal(CORRECT_SIGNAL * streakMultiplier(current))
+      await accrueMazeSignal(branch, CORRECT_SIGNAL * streakMultiplier(current))
     }
   } catch (err) {
     console.error('[maze] correct-answer signal accrual failed:', err)
