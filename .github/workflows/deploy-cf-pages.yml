@@ -51,16 +51,24 @@ jobs:
       - name: Install dependencies (monorepo)
         run: pnpm install --frozen-lockfile
 
-      # neurons-tw scaffold (M_3rd). Currently auth-less / sync-less, so only
-      # VITE_DEPLOY_BASE + VITE_COMMIT_SHA are needed. Added 2026-05-25 to
-      # unbreak CF Pages deploy after `add-neurons-deploy` registered the app
-      # in scripts/build-cf-pages-dist.mjs ROUTES but forgot to add the build
-      # step here — every CF Pages deploy since then failed at the
-      # `Assemble dist-cf` step with "Required input missing: apps/neurons-tw/dist".
+      # neurons-tw is the canonical app (M_3rd, promoted 2026-06-03). It ships
+      # Google sign-in + R2 cloud sync + leaderboard + achievements, so the
+      # Supabase + Worker env MUST be baked at build time. Without
+      # VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY, getSupabase() returns null
+      # → cloud sync disabled and the sign-in UI never renders in prod
+      # (fixed 2026-06-03; the prior step only passed VITE_DEPLOY_BASE +
+      # VITE_COMMIT_SHA from when neurons was an auth-less scaffold).
+      # Neurons sync is R2-only (fixed 'neurons' bundle) and does NOT read
+      # VITE_CLOUD_SYNC_BACKEND / VITE_CLOUD_SYNC_READ_BACKEND, so those are
+      # intentionally omitted.
       - name: Build neurons-tw for /neurons/
         env:
           VITE_DEPLOY_BASE: /neurons/
           VITE_COMMIT_SHA: ${{ github.sha }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_CLOUD_SYNC_ENABLED: 'true'
+          VITE_SYNC_WORKER_URL: https://api.med-study-rpg.com
           # Scaffold has 免疫學 subject with zero questions assigned —
           # content-neurons-tw build script normally errors on orphan subjects
           # but supports the same MEDEXAM_ALLOW_SKIPS=1 escape as
