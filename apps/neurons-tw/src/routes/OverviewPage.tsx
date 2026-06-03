@@ -12,8 +12,13 @@ import { HomepageOnboarding } from '../components/HomepageOnboarding'
 import StudySquadPanel from '../components/StudySquadPanel'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
-import { filterPoolByFamily, filterPoolByYear } from '../lib/services/quiz-pool'
+import { filterPoolByFamily, filterPoolByYear, filterPoolByNewOnly } from '../lib/services/quiz-pool'
 import { useQuestionHistory } from '../lib/services/question-history'
+import {
+  buildDueReviewPool,
+  computeFamilyModeCounts,
+  type QuizMode,
+} from '../lib/services/srs-scheduler'
 import { buildWrongQuestionPool, buildQuickReviewPool, onExpeditionComplete } from '../lib/services/expedition'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
@@ -30,10 +35,10 @@ interface ProgressStats {
   dmnOwned: number
 }
 
-// QuizModal entry state. `null` 代表跨 family 隨機；`string` 代表特定 family；
-// `undefined` 代表 modal 未開。三態化讓 OverviewPage 不再保留「先選 family
-// 再點 CTA」 的中間狀態 — 對齊 二階 RecruitmentBanner 每張卡片自己開 modal 的 pattern。
-type QuizEntry = string | null | undefined
+// QuizModal entry state. `null` = 🎲 跨 family 隨機（沿用原行為）；`undefined` =
+// modal 未開；object = 特定 family + mode（🆕 新題 / 🔄 錯題，per
+// add-neurons-quiz-mode-chips-and-srs）。
+type QuizEntry = { familyId: string; mode: QuizMode } | null | undefined
 
 export default function OverviewPage({ pack }: Props): JSX.Element {
   const [quizEntry, setQuizEntry] = useState<QuizEntry>(undefined)
@@ -57,11 +62,36 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const yearSet = useMemo(() => effectiveYearSet(persistedYears), [persistedYears])
   const yearActive = yearSet.size < ALL_YEARS.length
 
+  // Full question-history (drives 出征 count, the per-mode pools, and the
+  // per-family 🆕/🔄 chip badges).
+  const questionHistory = useQuestionHistory()
+
   const quizPool = useMemo(() => {
     if (quizEntry === undefined) return []
-    const byFamily = filterPoolByFamily(pack.questions, quizEntry)
-    return yearActive ? filterPoolByYear(byFamily, yearSet) : byFamily
-  }, [pack.questions, quizEntry, yearSet, yearActive])
+    if (quizEntry === null) {
+      // 🎲 cross-family random — unchanged (whole year-scoped corpus).
+      return yearActive ? filterPoolByYear(pack.questions, yearSet) : [...pack.questions]
+    }
+    const { familyId, mode } = quizEntry
+    const byFamily = filterPoolByFamily(pack.questions, familyId)
+    const scoped = yearActive ? filterPoolByYear(byFamily, yearSet) : byFamily
+    return mode === 'fresh'
+      ? filterPoolByNewOnly(scoped, questionHistory)
+      : buildDueReviewPool(scoped, questionHistory)
+  }, [pack.questions, quizEntry, yearSet, yearActive, questionHistory])
+
+  // Per-family 新題 (unseen) + 錯題 (due) counts for the FamilyPicker chip badges.
+  const modeCountsByFamily = useMemo(
+    () =>
+      computeFamilyModeCounts(
+        pack.questions,
+        questionHistory,
+        yearActive
+          ? (q) => typeof q.meta?.year === 'number' && yearSet.has(q.meta.year)
+          : () => true,
+      ),
+    [pack.questions, questionHistory, yearSet, yearActive],
+  )
 
   // Random-quiz CTA count reflects the year-filtered total corpus.
   const totalPoolSize = useMemo(
@@ -73,7 +103,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // NOT year-filtered: it is the player's wrong set regardless of exam year.
   // The 出征 button only needs the COUNT (cheap, O(history)); the full-corpus
   // materialization runs only while the drill is actually open.
-  const questionHistory = useQuestionHistory()
   const wrongCount = useMemo(
     () => questionHistory.reduce((n, h) => (h.lastResult === 'wrong' ? n + 1 : n), 0),
     [questionHistory],
@@ -131,12 +160,18 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     void readTotalStudyMinutes().then(setTotalStudyMin)
   }, [timer.minutesFired])
 
-  // Open a regular (non-expedition) quiz; the two are mutually exclusive, so
-  // opening one always closes the other.
-  const openRegularQuiz = (familyId: string | null): void => {
+  // Open quizzes; expedition is mutually exclusive, so opening one closes it.
+  // 🎲 cross-family random keeps the existing whole-corpus behavior (entry null).
+  const openRandomQuiz = (): void => {
     setExpeditionOpen(false)
     setQuickReviewActive(false)
-    setQuizEntry(familyId)
+    setQuizEntry(null)
+  }
+  // Per-family 🆕 新題 / 🔄 錯題 entry (add-neurons-quiz-mode-chips-and-srs).
+  const openFamilyQuiz = (familyId: string, mode: QuizMode): void => {
+    setExpeditionOpen(false)
+    setQuickReviewActive(false)
+    setQuizEntry({ familyId, mode })
   }
 
   // Open the 出征 expedition drill (cross-subject wrong questions); mutually
@@ -212,7 +247,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           <button
             type="button"
             style={randomQuizButtonStyle}
-            onClick={() => openRegularQuiz(null)}
+            onClick={openRandomQuiz}
             aria-label="跨 family 隨機答題"
             title={`從全部 ${totalPoolSize} 題隨機抽題`}
           >
@@ -277,11 +312,16 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       <FamilyPicker
         pack={pack}
         accrualByFamily={accrualByFamily}
-        onStartQuiz={openRegularQuiz}
+        modeCountsByFamily={modeCountsByFamily}
+        onStartQuiz={openFamilyQuiz}
       />
 
       {quizEntry !== undefined && expeditionOpen === false && (
-        <QuizModal pool={quizPool} onClose={() => setQuizEntry(undefined)} />
+        <QuizModal
+          pool={quizPool}
+          preserveOrder={quizEntry !== null && quizEntry.mode === 'review'}
+          onClose={() => setQuizEntry(undefined)}
+        />
       )}
 
       {/* 出征 (expedition) drill — cross-subject wrong questions (full pool, or a

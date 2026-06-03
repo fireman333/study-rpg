@@ -80,11 +80,21 @@
 //        drops the new key; a v13 client reading a v12 bundle (no
 //        instanceNicknames key) applies an empty array → preserves its local
 //        nicknames on omission (omission ≠ clear).
+//   v14 — add-neurons-quiz-mode-chips-and-srs 2026-06-04: the `questionHistory`
+//        rows gain SRS schedule fields (interval / easeFactor / nextDueAt /
+//        attempts / correctCount). NO new adapter / meta key — the fields ride
+//        inside the existing `questionHistory` row JSON under row-level LWW (the
+//        everWrong monotonic-OR carve-out unchanged). Additive + reader-tolerant:
+//        a v13 client reading a v14 bundle keeps the unknown fields in the row
+//        JSON it doesn't interpret; a v14 client reading a v13 bundle sees rows
+//        with no SRS fields → defaults to fresh (interval 0 / not due) and never
+//        wipes a local schedule on a newer-but-pre-v15 incoming (preserve-on-
+//        omission in the adapter merge).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 13
+export const SCHEMA_VERSION = 14
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

@@ -1,21 +1,19 @@
 /**
- * Per-family quiz entry grid — NT-branch-grouped portrait cards with an
- * embedded 「🎯 答題」 button per family. Mirrors the 二階 hospital app
- * `RecruitmentBanner` pattern: every subject card is its own quiz entry,
- * so the player picks a family AND starts answering in one click instead
- * of selecting a filter then hitting a separate global CTA.
+ * Per-family quiz entry grid — NT-branch-grouped portrait cards. Each card
+ * carries TWO quiz-mode chips (per add-neurons-quiz-mode-chips-and-srs):
+ *   🆕 新題 — only never-answered questions (badge = unseen count)
+ *   🔄 錯題 — SRS-scheduled due review (badge = today's due count)
+ * replacing the prior single 「🎯 答題」 button. The player picks a family AND a
+ * mode in one click.
  *
- * Spec parity: openspec/specs/neurons-mode/spec.md still upheld — Overview
- * still surfaces a family subject picker that scopes the active quiz pool;
- * the picker is now the action surface itself.
- *
- * Visual baseline: 二階 hospital `RecruitmentBanner` (per-subject card with
- * 「📚 學習」 + 「🎫 招募」 action row). Neurons keeps NT-branch grouping
- * (DA / 5-HT / GABA / Glu) since that's a teaching anchor the player needs.
+ * Spec: openspec/specs/neurons-quiz-modes/spec.md + neurons-homepage (MODIFIED).
+ * The neurons-mode family-picker contract is still upheld — the picker scopes
+ * the active quiz pool and is the action surface itself.
  */
 
 import type { ContentPack, Subject } from '@study-rpg/core'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
+import type { FamilyModeCounts, QuizMode } from '../lib/services/srs-scheduler'
 import MasteryChip from './MasteryChip'
 import VariantCollectionChip from './VariantCollectionChip'
 
@@ -44,12 +42,14 @@ const BRANCH_ACCENT: Record<typeof NT_BRANCHES[number], string> = {
 
 interface Props {
   pack: ContentPack
-  onStartQuiz: (familyId: string) => void
+  onStartQuiz: (familyId: string, mode: QuizMode) => void
   /** Per-family connectome accrual; when present each card shows AP + next-slot + variant chip + fired-today badge. */
   accrualByFamily?: Map<string, FamilyAccrual>
+  /** Per-family 新題 (unseen) + 錯題 (due) counts for the two mode-chip badges. */
+  modeCountsByFamily?: Map<string, FamilyModeCounts>
 }
 
-export function FamilyPicker({ pack, onStartQuiz, accrualByFamily }: Props): JSX.Element {
+export function FamilyPicker({ pack, onStartQuiz, accrualByFamily, modeCountsByFamily }: Props): JSX.Element {
   return (
     <section style={pickerSectionStyle} aria-label="選 family 直接答題">
       <header style={headerRowStyle}>
@@ -77,7 +77,8 @@ export function FamilyPicker({ pack, onStartQuiz, accrualByFamily }: Props): JSX
                     key={s.id}
                     family={s}
                     accrual={accrualByFamily?.get(s.id)}
-                    onStartQuiz={() => onStartQuiz(s.id)}
+                    counts={modeCountsByFamily?.get(s.id)}
+                    onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
                   />
                 ))}
               </div>
@@ -92,16 +93,22 @@ export function FamilyPicker({ pack, onStartQuiz, accrualByFamily }: Props): JSX
 function FamilyCard({
   family,
   accrual,
+  counts,
   onStartQuiz,
 }: {
   family: Subject
   accrual?: FamilyAccrual
-  onStartQuiz: () => void
+  counts?: FamilyModeCounts
+  onStartQuiz: (mode: QuizMode) => void
 }): JSX.Element {
   const accent = family.color ?? '#8c6d4a'
   const spriteUrl = SPRITE_MAP[`subject:${family.id}`] ?? ''
   const isEmpty = family.totalQuestions === 0
   const ap = accrual?.ap ?? 0
+  const freshCount = counts?.fresh ?? (isEmpty ? 0 : family.totalQuestions)
+  const dueCount = counts?.due ?? 0
+  const freshDisabled = isEmpty || freshCount === 0
+  const reviewDisabled = dueCount === 0
   return (
     <article style={familyCardStyle(accent)} aria-label={`${family.id} · ${family.displayName}`}>
       <header style={cardHeaderStyle}>
@@ -131,15 +138,34 @@ function FamilyCard({
         <span style={countChipStyle(accent)}>{family.totalQuestions} 題</span>
       </div>
 
-      <button
-        type="button"
-        onClick={onStartQuiz}
-        disabled={isEmpty}
-        style={isEmpty ? quizButtonDisabledStyle : quizButtonStyle(accent)}
-        title={isEmpty ? '本 family 目前無題目' : `從 ${family.id} 抽題答題`}
-      >
-        🎯 答題
-      </button>
+      <div style={modeChipRowStyle}>
+        <button
+          type="button"
+          onClick={() => onStartQuiz('fresh')}
+          disabled={freshDisabled}
+          style={freshDisabled ? modeChipDisabledStyle : modeChipFreshStyle(accent)}
+          title={
+            isEmpty
+              ? '本 family 目前無題目'
+              : freshCount === 0
+                ? '本 family 已全部答過'
+                : `從 ${family.id} 出沒答過的新題（${freshCount} 題）`
+          }
+        >
+          🆕 新題
+          <span style={modeChipBadgeStyle}>{freshCount === 0 && !isEmpty ? '全部答過' : freshCount}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => onStartQuiz('review')}
+          disabled={reviewDisabled}
+          style={reviewDisabled ? modeChipDisabledStyle : modeChipReviewStyle(accent)}
+          title={reviewDisabled ? '今日沒有到期的複習題' : `複習 ${family.id} 今日到期的 ${dueCount} 題`}
+        >
+          🔄 錯題
+          <span style={modeChipBadgeStyle}>{reviewDisabled ? '今日無到期' : dueCount}</span>
+        </button>
+      </div>
     </article>
   )
 }
@@ -312,31 +338,50 @@ function countChipStyle(accent: string): React.CSSProperties {
   }
 }
 
-function quizButtonStyle(accent: string): React.CSSProperties {
+const modeChipRowStyle: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '0.4rem',
+}
+
+function modeChipBaseStyle(): React.CSSProperties {
   return {
-    width: '100%',
-    padding: '0.45rem 0.5rem',
-    background: accent,
-    color: '#fff',
-    border: `1px solid ${accent}`,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.12rem',
+    padding: '0.4rem',
     borderRadius: '4px',
-    fontSize: '0.9rem',
+    fontSize: '0.82rem',
     fontWeight: 700,
     fontFamily: 'inherit',
     cursor: 'pointer',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+    lineHeight: 1.15,
+    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+    minWidth: 0,
   }
 }
 
-const quizButtonDisabledStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.45rem 0.5rem',
-  background: '#e8dcc0',
+function modeChipFreshStyle(accent: string): React.CSSProperties {
+  return { ...modeChipBaseStyle(), background: accent, color: '#fff', border: `1px solid ${accent}` }
+}
+
+function modeChipReviewStyle(accent: string): React.CSSProperties {
+  return { ...modeChipBaseStyle(), background: '#fff', color: accent, border: `1.5px solid ${accent}` }
+}
+
+const modeChipDisabledStyle: React.CSSProperties = {
+  ...modeChipBaseStyle(),
+  background: '#ece3d0',
   color: '#a89074',
-  border: '1px solid #c4a878',
-  borderRadius: '4px',
-  fontSize: '0.9rem',
-  fontWeight: 700,
-  fontFamily: 'inherit',
+  border: '1px solid #d3c4a4',
   cursor: 'not-allowed',
+  boxShadow: 'none',
+}
+
+const modeChipBadgeStyle: React.CSSProperties = {
+  fontSize: '0.7rem',
+  fontWeight: 600,
+  opacity: 0.92,
 }

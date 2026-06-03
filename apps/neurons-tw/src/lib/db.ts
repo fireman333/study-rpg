@@ -223,6 +223,17 @@ export interface QuestionHistoryRow {
   everWrong: boolean
   lastAnsweredAt: number
   updatedAt: number
+  // ─── SRS schedule (Dexie v15+, add-neurons-quiz-mode-chips-and-srs) ─────────
+  // Optional: rows written before v15 — and v15-backfilled `correct` rows — may
+  // lack these. The scheduler treats absent/null as fresh (interval 0, not due).
+  // `nextDueAt` is the only indexed SRS field (powers the due-queue scan); a
+  // null/undefined nextDueAt is simply absent from the index, so the 錯題 query
+  // naturally returns only scheduled-and-due rows.
+  interval?: number
+  easeFactor?: number
+  nextDueAt?: number | null
+  attempts?: number
+  correctCount?: number
 }
 
 export class NeuronsDB extends Dexie {
@@ -576,6 +587,50 @@ export class NeuronsDB extends Dexie {
       neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
       instanceNicknames: 'instanceId, updatedAt',
     })
+    // Per add-neurons-quiz-mode-chips-and-srs. Additive: questionHistory gains
+    // SRS schedule fields (interval / easeFactor / nextDueAt / attempts /
+    // correctCount) + a `nextDueAt` secondary index for the 錯題 due-queue scan.
+    // NO PK change (dexie_pk_change_pitfall). The upgrade callback backfills
+    // currently-wrong rows (lastResult==='wrong', not yet scheduled) as
+    // immediately-due so the 錯題 review chip has content the moment a player
+    // upgrades; `correct` rows are left unscheduled (nextDueAt absent).
+    this.version(15)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt, nextDueAt',
+        neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+        instanceNicknames: 'instanceId, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // Backfill: seed currently-wrong rows as immediately-due. Literals mirror
+        // @study-rpg/core STANDARD_INITIAL_INTERVALS[0] (3) + DEFAULT_EASE (2.5);
+        // kept inline so the upgrade callback stays self-contained.
+        const now = Date.now()
+        await tx
+          .table('questionHistory')
+          .toCollection()
+          .modify((row: Record<string, unknown>) => {
+            if (row.lastResult === 'wrong' && row.nextDueAt == null) {
+              row.interval = 3
+              row.easeFactor = 2.5
+              row.nextDueAt = now
+              if (typeof row.attempts !== 'number') row.attempts = 1
+              if (typeof row.correctCount !== 'number') row.correctCount = 0
+            }
+          })
+      })
   }
 }
 
