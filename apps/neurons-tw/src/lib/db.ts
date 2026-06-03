@@ -127,6 +127,20 @@ export interface NeuronInstanceRow {
   consumedAt: number | null
 }
 
+/**
+ * Per-instance custom nickname (Dexie v14 — add-neurons-instance-rename).
+ * Keyed by the device-stable `instanceId`. `nickname` = the player's custom name;
+ * empty string = explicitly cleared (falls back to persona display). Sync = per-row
+ * LWW on `updatedAt` (mirrors questionFlags; NOT monotonic — a nickname is mutable
+ * + clearable). Clearing writes '' + a fresh `updatedAt` rather than deleting the
+ * row, so the clear propagates cross-device under LWW.
+ */
+export interface InstanceNicknameRow {
+  instanceId: string
+  nickname: string
+  updatedAt: number
+}
+
 export interface LeaderboardProfileRow {
   user_id: string
   nickname: string
@@ -243,6 +257,10 @@ export class NeuronsDB extends Dexie {
   // neuronVariants PK) untouched. Each row = one individual neuron (Pikmin-Bloom
   // style). consumedAt = soft-delete set by tier-promote (monotonic-OR sync).
   neuronInstances!: EntityTable<NeuronInstanceRow, 'instanceId'>
+  // ─── Instance nicknames (Dexie v14+) ────────────────────────────────────
+  // Per add-neurons-instance-rename. Additive — 1 new table; existing tables
+  // untouched. Per-instance custom name; LWW-on-updatedAt sync.
+  instanceNicknames!: EntityTable<InstanceNicknameRow, 'instanceId'>
 
   constructor() {
     super('neurons-rpg')
@@ -536,6 +554,28 @@ export class NeuronsDB extends Dexie {
         }
         if (instances.length > 0) await tx.table('neuronInstances').bulkAdd(instances)
       })
+    // Per add-neurons-instance-rename. Additive: 1 new table `instanceNicknames`
+    // (per-instance custom nicknames). All existing store index strings IDENTICAL
+    // to v13 (NO PK change — dexie_pk_change_pitfall). No data migration (new empty
+    // table), no collection/energy reset, no banner.
+    this.version(14).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      dmnCards: 'cardId, obtainedAt, rarity',
+      dmnEventLog: 'cardId, dispatchedAt',
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+      questionBookmarks: 'questionId, family, addedAt, updatedAt',
+      questionBookmarkTombstones: 'questionId, updatedAt',
+      questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+      questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+      neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+      instanceNicknames: 'instanceId, updatedAt',
+    })
   }
 }
 

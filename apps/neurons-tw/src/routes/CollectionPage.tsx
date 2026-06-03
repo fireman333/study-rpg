@@ -13,7 +13,7 @@
  * Capability spec: openspec/specs/neurons-variant-collection-view/spec.md
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
 import { NEURON_VARIANT_CATALOG, PROMOTE_COST_K } from '@study-rpg/content-neurons-tw'
@@ -28,6 +28,11 @@ import { promoteTier } from '../lib/services/variant-fusion'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
 import VariantSprite from '../components/VariantSprite'
+import {
+  useInstanceNicknames,
+  setInstanceNickname,
+  NICKNAME_MAX_LEN,
+} from '../lib/services/instance-nickname'
 import ShareCardModal from '../components/ShareCardModal'
 import { useAuth } from '../lib/auth/AuthContext'
 
@@ -106,6 +111,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   const { user } = useAuth()
   const [shareOpen, setShareOpen] = useState(false)
   const [promoting, setPromoting] = useState<string | null>(null)
+  const nicknames = useInstanceNicknames()
 
   const resolveName = useMemo(() => {
     const byId = new Map(pack.subjects.map((s) => [s.id, s.displayName]))
@@ -288,6 +294,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                       key={row.slotIndex}
                       row={row}
                       instances={state.instancesBySlot.get(slotKey(family.id, row.slotIndex)) ?? []}
+                      nicknames={nicknames}
                       description={descByKey.get(slotKey(family.id, row.slotIndex)) ?? ''}
                       isRepresentative={repSlot === row.slotIndex}
                       onSetRepresentative={() =>
@@ -324,12 +331,14 @@ function instanceAsRow(inst: NeuronInstanceRow, displayName: string): NeuronVari
 function VariantSlotCard({
   row,
   instances,
+  nicknames,
   description,
   isRepresentative,
   onSetRepresentative,
 }: {
   row: NeuronVariantRow
   instances: NeuronInstanceRow[]
+  nicknames: Map<string, string>
   description: string
   isRepresentative: boolean
   onSetRepresentative: () => void
@@ -341,6 +350,20 @@ function VariantSlotCard({
   // Stable display order for the individuals strip (oldest birth first).
   const ordered = [...instances].sort((a, b) => a.rolledAt - b.rolledAt)
   const [expanded, setExpanded] = useState(false)
+  // Per-instance rename (add-neurons-instance-rename): inline edit state.
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draft, setDraft] = useState('')
+  // Suppress the blur-commit fired when Escape (cancel) or Enter (already
+  // committed) unmounts the input.
+  const skipBlurCommit = useRef(false)
+  const beginRename = (instanceId: string, current: string): void => {
+    setDraft(current)
+    setEditingId(instanceId)
+  }
+  const commitRename = (instanceId: string): void => {
+    void setInstanceNickname(instanceId, draft)
+    setEditingId(null)
+  }
   return (
     <div style={cardWrapStyle}>
       <button
@@ -368,26 +391,89 @@ function VariantSlotCard({
             row keeps grid layout stable across caption lengths. */}
         <div style={captionRowStyle} data-provenance-caption={caption}>{caption}</div>
       </button>
-      {/* Individual layer (add-neurons-dupe-fusion): expand to see each held
-          individual with its own birth context-art (Pikmin-Bloom). Button sits
-          OUTSIDE the card button (no nested <button>). */}
-      {heldCount > 1 && ordered.length > 1 && (
+      {/* Individual layer (add-neurons-dupe-fusion + add-neurons-instance-rename):
+          expand to see each held individual with its own birth context-art and
+          rename it. Available for ANY owned slot (incl. a single individual) so
+          every neuron is renamable. Button sits OUTSIDE the card button. */}
+      {ordered.length >= 1 && (
         <button
           type="button"
           style={expandBtnStyle}
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
         >
-          {expanded ? '▾ 收合個體' : `▸ 展開 ${ordered.length} 隻個體`}
+          {expanded
+            ? '▾ 收合個體'
+            : ordered.length > 1
+              ? `▸ 展開 ${ordered.length} 隻個體 · 命名`
+              : '▸ 個體 · 命名'}
         </button>
       )}
       {expanded && (
         <div style={individualsGridStyle}>
-          {ordered.map((inst) => (
-            <div key={inst.instanceId} style={miniSpriteWrapStyle} title={variantBirthCaption(instanceAsRow(inst, row.displayName))}>
-              <VariantSprite row={instanceAsRow(inst, row.displayName)} size={40} alt={row.displayName} />
-            </div>
-          ))}
+          {ordered.map((inst) => {
+            const nick = nicknames.get(inst.instanceId) ?? ''
+            const isEditing = editingId === inst.instanceId
+            return (
+              <div key={inst.instanceId} style={individualRowStyle}>
+                <div
+                  style={miniSpriteWrapStyle}
+                  title={variantBirthCaption(instanceAsRow(inst, nick || row.displayName))}
+                >
+                  <VariantSprite
+                    row={instanceAsRow(inst, nick || row.displayName)}
+                    size={40}
+                    alt={nick || row.displayName}
+                  />
+                </div>
+                <div style={individualTextStyle}>
+                  {isEditing ? (
+                    <input
+                      style={nicknameInputStyle}
+                      value={draft}
+                      maxLength={NICKNAME_MAX_LEN}
+                      autoFocus
+                      placeholder="取個名字…"
+                      aria-label={`為 ${row.displayName} 命名`}
+                      onChange={(e) => setDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          skipBlurCommit.current = true
+                          commitRename(inst.instanceId)
+                        } else if (e.key === 'Escape') {
+                          skipBlurCommit.current = true
+                          setEditingId(null)
+                        }
+                      }}
+                      onBlur={() => {
+                        if (skipBlurCommit.current) {
+                          skipBlurCommit.current = false
+                          return
+                        }
+                        commitRename(inst.instanceId)
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <span style={individualNameStyle}>{nick || row.displayName}</span>
+                      {nick && <span style={individualPersonaStyle}>{row.displayName}</span>}
+                    </>
+                  )}
+                </div>
+                {!isEditing && (
+                  <button
+                    type="button"
+                    style={renameBtnStyle}
+                    onClick={() => beginRename(inst.instanceId, nick)}
+                    aria-label={`重新命名 ${nick || row.displayName}`}
+                    title="重新命名"
+                  >
+                    ✏️
+                  </button>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
@@ -635,8 +721,7 @@ const expandBtnStyle: React.CSSProperties = {
 
 const individualsGridStyle: React.CSSProperties = {
   display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'center',
+  flexDirection: 'column',
   gap: '0.3rem',
   padding: '0.3rem',
   background: '#f4ecd8',
@@ -647,7 +732,65 @@ const individualsGridStyle: React.CSSProperties = {
 const miniSpriteWrapStyle: React.CSSProperties = {
   width: 40,
   height: 40,
+  flexShrink: 0,
   background: '#fbf6e9',
   border: '1px solid #c9b48f',
   borderRadius: '4px',
+}
+
+const individualRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.4rem',
+  padding: '0.2rem 0.3rem',
+  background: '#fbf6e9',
+  border: '1px solid #c9b48f',
+  borderRadius: '4px',
+}
+
+const individualTextStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  minWidth: 0,
+  lineHeight: 1.2,
+}
+
+const individualNameStyle: React.CSSProperties = {
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  color: '#3a2a1a',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}
+
+const individualPersonaStyle: React.CSSProperties = {
+  fontSize: '0.64rem',
+  color: '#9b8c70',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}
+
+const nicknameInputStyle: React.CSSProperties = {
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '0.15rem 0.35rem',
+  fontSize: '0.78rem',
+  fontFamily: 'inherit',
+  color: '#3a2a1a',
+  background: '#fff',
+  border: '1px solid #d4a04d',
+  borderRadius: '4px',
+}
+
+const renameBtnStyle: React.CSSProperties = {
+  flexShrink: 0,
+  padding: '0.1rem 0.3rem',
+  background: 'transparent',
+  border: 'none',
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+  lineHeight: 1,
 }

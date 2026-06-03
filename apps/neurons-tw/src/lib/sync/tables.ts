@@ -822,6 +822,53 @@ const neuronInstancesAdapter: TableAdapter<'neuronInstances'> = {
   },
 }
 
+// ---- Instance nicknames (Dexie v14 — add-neurons-instance-rename) ---------
+
+const instanceNicknamesAdapter: TableAdapter<'instanceNicknames'> = {
+  name: 'instanceNicknames',
+  async snapshot(db) {
+    return await db.instanceNicknames.toArray()
+  },
+  async apply(db, rows) {
+    // Per-row LWW on updatedAt (mirrors questionFlags). NOT monotonic — a
+    // nickname is mutable + clearable; a cleared nickname is an empty-string
+    // row with a fresh updatedAt (NOT a delete), which propagates under LWW.
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.instanceNicknames, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const instanceId = row.instanceId
+        if (typeof instanceId !== 'string') {
+          skipped++
+          continue
+        }
+        const updatedAt = pickUpdatedAt(row)
+        if (updatedAt === null) {
+          skipped++
+          continue
+        }
+        const existing = await db.instanceNicknames.get(instanceId)
+        if (existing && existing.updatedAt >= updatedAt) {
+          skipped++
+          continue
+        }
+        await db.instanceNicknames.put({
+          instanceId,
+          nickname: typeof row.nickname === 'string' ? row.nickname : '',
+          updatedAt,
+        })
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
 // ---- Adapter registry -----------------------------------------------------
 
 export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
@@ -840,4 +887,5 @@ export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
   questionFlagsAdapter,
   questionHistoryAdapter,
   neuronInstancesAdapter,
+  instanceNicknamesAdapter,
 ]

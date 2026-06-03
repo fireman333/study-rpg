@@ -72,11 +72,19 @@
 //        frontier recomputes; collected variants — hence the dex — are unaffected).
 //        The retired global `neuralEnergyEarned/Spent` keys remain present-but-
 //        unused for rollback safety.
+//   v13 — add-neurons-instance-rename 2026-06-04: adds the `instanceNicknames`
+//        adapter (per-instance custom nicknames; Dexie v14). Merge is per-row
+//        LWW on `updatedAt` (NOT monotonic — nicknames are mutable + clearable;
+//        a cleared nickname is an empty-string row with a fresh updatedAt, NOT a
+//        delete). Additive + reader-tolerant: a v12 client reading a v13 bundle
+//        drops the new key; a v13 client reading a v12 bundle (no
+//        instanceNicknames key) applies an empty array → preserves its local
+//        nicknames on omission (omission ≠ clear).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 12
+export const SCHEMA_VERSION = 13
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'
