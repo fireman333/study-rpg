@@ -366,6 +366,9 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
                 <details style={explanationStyle} open>
                   <summary style={explanationSummaryStyle}>📖 詳解</summary>
                   <div style={explanationBodyStyle}>{q.explanation}</div>
+                  {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
+                    <p style={aiNoteStyle}>🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
+                  )}
                 </details>
               )}
               <p style={questionIdStyle}>題號 {q.id}</p>
@@ -650,6 +653,14 @@ const explanationBodyStyle: React.CSSProperties = {
   lineHeight: 1.6,
   color: '#3a2a1a',
   whiteSpace: 'pre-wrap',
+}
+
+const aiNoteStyle: React.CSSProperties = {
+  marginTop: '0.6rem',
+  fontSize: '0.74rem',
+  lineHeight: 1.5,
+  color: '#8a5a2a',
+  fontStyle: 'italic',
 }
 
 const questionIdStyle: React.CSSProperties = {

@@ -13,15 +13,35 @@ import os, sys, re, json
 from reconcile import (parse_ym_md, norm, sim, clean_explanation, parse_corrections,
                        YM_ROOT, BOOK_SUBJECTS)
 from parse_moex import parse_questions, parse_answers
+import parse_moex_1101
+from parse_moex_layout import parse_questions_layout
 
 MATCH_THRESHOLD = 0.55
+
+# Sittings whose 考選部 PDFs use a non-standard layout needing a dedicated parser.
+# 104-1 = combined 醫師中醫師 exam (試題代號 1101): bare-number question starts +
+# PUA option glyphs + column-major answer grid.
+SPECIAL_PARSERS = {(104, 1): parse_moex_1101}
+
+# Individual questions whose standard (fitz) parse truncates the stem because PyMuPDF
+# detaches wrapped 2nd-lines on that page layout. The layout parser (pdftotext -layout)
+# recovers them. Audit (audit_106_114.py) found these are the ONLY truncations in 106–114.
+# Scoped per-question so the rest of the paper keeps its (cleaner) standard-parse stems.
+LAYOUT_FIX = {(112, 2): {'一': [62, 63, 64]}}
+
+
+# 104/105 (舊分組) were extracted into a single placeholder-bucket .md per book
+# (醫學一→解剖學, 醫學二→生理學); the real subject comes from manual blocks in
+# finalize, not the folder. These buckets are not in the modern BOOK_SUBJECTS scan,
+# so add them here (os.path.exists guards modern years that have no such folder).
+EXTRA_YM_BUCKETS = {'醫學一': [], '醫學二': ['生理學']}
 
 
 def load_ym_pool(year, sess):
     """All 陽明 non-missing questions for a year-session, tagged with book/subject/qn."""
     pool = []
     for book, subs in BOOK_SUBJECTS.items():
-        for subj in subs:
+        for subj in subs + EXTRA_YM_BUCKETS.get(book, []):
             p = os.path.join(YM_ROOT, book, subj, f'{year}-{sess}.md')
             if not os.path.exists(p):
                 continue
@@ -39,8 +59,17 @@ def load_moex(year, sess, bshort):
     base = f'pdf/{year}/{year}-{sess}_醫學{bshort}'
     if not os.path.exists(base + '_試題.pdf'):
         return None
-    mq = parse_questions(base + '_試題.pdf')
-    ma = parse_answers(base + '_答案.pdf')
+    parser = SPECIAL_PARSERS.get((year, sess))
+    pq = parser.parse_questions if parser else parse_questions
+    pa = parser.parse_answers if parser else parse_answers
+    mq = pq(base + '_試題.pdf')
+    ma = pa(base + '_答案.pdf')
+    fix = LAYOUT_FIX.get((year, sess), {}).get(bshort)
+    if fix:
+        layq = parse_questions_layout(base + '_試題.pdf')
+        for qn in fix:
+            if qn in layq:
+                mq[qn] = layq[qn]
     corr = parse_corrections(base + '_更正答案.pdf') if os.path.exists(base + '_更正答案.pdf') else {}
     return mq, ma, corr
 
