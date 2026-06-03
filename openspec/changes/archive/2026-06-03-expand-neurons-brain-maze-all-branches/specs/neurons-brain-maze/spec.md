@@ -1,9 +1,5 @@
-# neurons-brain-maze Specification
+## MODIFIED Requirements
 
-## Purpose
-
-A fog-of-war exploration view over a DA-pathway brain map for `apps/neurons-tw`, on an independent `/maze-beta` route (MVP vertical slice; does not touch the connectome / collection views). Studying DA subjects (藥理 / 公衛) and reading accrue "growth signal" that advances a growth cone along dopaminergic white-matter tracts; reaching a fogged node reveals + collects that node's variant slot (1 node = 1 of the 20 DA variant slots). The base-map fiber graph is produced by a build-time pipeline (image → HSV mask → Zhang-Suen skeleton → hub-rooted Dijkstra walk paths → RDP → committed graph JSON; zero runtime recomputation). Display obeys the open-collection paradigm: fog of war (no pre-revealed shape / rarity), pure-count chip 「🧠 已連線 X 個腦區」 (no denominator), no completion milestone. Lit-node state is derived from collected variants (painless migration). Designed per-branch so 5HT / GABA / Glu regions can be added additively.
-## Requirements
 ### Requirement: Independent maze-beta route
 
 The system SHALL expose a brain-maze exploration view at the route `/maze-beta` in `apps/neurons-tw`, covering all four neurotransmitter regions (DA = 藥理學 + 公共衛生學, 20 nodes; 5HT = 寄生蟲學 + 組織學, 20 nodes; GABA = 生物化學 + 病理學 + 免疫學, 30 nodes; Glu = 解剖學 + 生理學 + 胚胎學 + 微生物學, 40 nodes; 110 nodes total), derived from `FAMILY_NT_BRANCH` and the 110-variant catalog. The maze SHALL NOT modify, read-write, or visually alter the existing connectome / Collection 2.0 view. The route MUST be fully additive and reversible.
@@ -74,95 +70,6 @@ Collected variants SHALL act as exploration units ("Pikmin"), partitioned by NT 
 - **AND** the speed increases monotonically with B's collection strength
 - **AND** collecting variants in branch B does not change another branch's team speed
 
-### Requirement: Node settle reveals and collects the reached node
-
-When accumulated growth signal advances exploration to reach a fogged node, the system SHALL settle: reveal the node and collect that node's specific variant slot via the existing `neuron-variant-gacha` mint path (emitting the same reveal / provenance / achievement / leaderboard side-effects as a pull; rarity = the slot's authored catalog rarity). A settle SHALL play a reveal chime. Because the frontier only ever targets fogged (uncollected) nodes, every settle yields a previously-uncollected slot (family pity is trivially satisfied). A settle SHALL NOT spend energy currency — exploration signal is the cost.
-
-#### Scenario: Reaching a node reveals and collects it
-
-- **WHEN** accumulated growth signal advances exploration to reach a fogged node
-- **THEN** that node's variant slot is collected via the gacha mint path
-- **AND** the node is lit and its variant revealed
-- **AND** a reveal chime plays
-
-#### Scenario: Every settle yields a previously-uncollected slot
-
-- **WHEN** a settle resolves while fogged nodes remain
-- **THEN** the collected slot was previously uncollected (a new node lights)
-
-#### Scenario: Settle does not spend energy currency
-
-- **WHEN** a node settle occurs
-- **THEN** the neural-energy balance is unchanged (the cost was the exploration signal)
-
-### Requirement: Fog-of-war display
-
-Unexplored nodes SHALL be rendered as fog: no silhouette, no pre-revealed shape, no pre-revealed rarity. The NT region outline SHALL be visible (the player knows a DA region exists), but the individual nodes within the region SHALL remain fogged until explored. Fog SHALL clear progressively as nodes are lit.
-
-#### Scenario: Unexplored node shows no pre-revealed information
-
-- **WHEN** a node has not yet been explored
-- **THEN** it renders as fog with no silhouette, shape, or rarity hint
-- **AND** the surrounding DA region outline is still visible
-
-#### Scenario: Fog clears on lighting
-
-- **WHEN** a node is lit (explored or migrated)
-- **THEN** the fog around that node clears and the node renders as a lit connected-region marker (a two-layer dot — branch-colour fill, white edge), with its grown-axon path drawn
-- **AND** the variant joins the collection (revealed via the settle modal on exploration; visible in the collection view)
-
-### Requirement: Pure-count progress chip
-
-The maze SHALL display progress as a pure count chip 「🧠 已連線 X 個腦區」 with no denominator (no X/20, no X/110). The system SHALL NOT display a completion percentage, family-complete state, or any closed-cap / completion milestone.
-
-#### Scenario: Chip shows count without denominator
-
-- **WHEN** the player has lit X nodes
-- **THEN** the chip reads 「🧠 已連線 X 個腦區」
-- **AND** no total / denominator / percentage is shown
-
-#### Scenario: No completion milestone
-
-- **WHEN** the player lights all available nodes
-- **THEN** no "family complete" or "100% complete" milestone is surfaced
-- **AND** the maze does not enter a disabled / finished terminal state
-
-### Requirement: Collected-variant to lit-node migration
-
-Lit-node state for already-collected variants SHALL be derived from the existing collected-variant state, read-only. The system SHALL NOT duplicate-store lit state for migrated nodes, run a backfill, or show a migration banner.
-
-#### Scenario: Existing player sees collected variants pre-lit
-
-- **WHEN** an existing player who has collected DA variants first opens `/maze-beta`
-- **THEN** the nodes for those collected variants are already lit
-- **AND** no backfill write or migration banner occurs
-
-### Requirement: Build-time image-to-graph pipeline
-
-The base-map fiber graph SHALL be produced by a build-time pipeline (run once, output committed as a static JSON asset, zero runtime recomputation): load a flat-saturated single-color (per-branch) base image → per-pixel HSV-threshold color mask → optional morphological close (repair 1–3px gaps; off by default for clean source images) → Zhang-Suen skeletonize → convert skeleton to a graph (degree-1 = endpoint, degree-2 = continuation, degree-≥3 = branch) → trace edges into ordered polylines → route hub-rooted walk paths to each node (Dijkstra) → simplify polylines (RDP) → arc-length parameterize → write graph JSON. Analysis resolution SHALL be at least 384×256. The runtime SHALL consume the JSON only and SHALL NOT recompute skeletonization.
-
-#### Scenario: Pipeline emits a static graph JSON
-
-- **WHEN** the build-time pipeline runs on the DA base image
-- **THEN** it writes a graph JSON containing nodes (with topology kind: endpoint / branch) and per-node hub-rooted walk polylines
-- **AND** the analysis was performed at ≥ 384×256 resolution
-
-#### Scenario: Runtime does not recompute
-
-- **WHEN** the maze loads at runtime
-- **THEN** it reads the committed graph JSON
-- **AND** it does not run skeletonization or image analysis at runtime
-
-### Requirement: Runtime sprite walks the fiber center
-
-At runtime the exploration sprite SHALL move by arc-length tween along an edge polyline, so it travels along the visual center of the base-map fiber (not a pixel grid, not a fiber edge). Any pathfinding (BFS / Dijkstra) SHALL be used only for route selection between nodes, never for the visual movement itself.
-
-#### Scenario: Sprite travels the fiber centerline smoothly
-
-- **WHEN** the sprite advances along an edge
-- **THEN** it follows the polyline by arc-length, staying on the fiber centerline
-- **AND** the motion is smooth (continuous arc-length interpolation), not pixel-grid stepping
-
 ### Requirement: Exploration walker sprite
 
 Per NT branch, the leading exploration sprite (the growth cone) that walks that branch's fiber SHALL be rendered as the player's representative collected variant for that branch — selected as the rarest collected variant in that branch, tie-broken by most-recently collected. When the player has zero collected variants in a branch, the system SHALL render a generic growth-cone fallback sprite for that branch instead. Each branch's walker selection SHALL be recomputed when the player's collection changes.
@@ -210,6 +117,8 @@ The maze SHALL encode each NT branch's identity using three redundant channels �
 
 - **WHEN** the four branches are rendered overlaid with color information removed (grayscale)
 - **THEN** every branch is still distinguishable from the other three by line style and node shape
+
+## ADDED Requirements
 
 ### Requirement: Multi-branch overlay rendering with branch filter chips
 
@@ -261,4 +170,3 @@ The other three branches SHALL inherit DA's shared code path (rendering, economy
 
 - **WHEN** the multi-branch refactor is in place
 - **THEN** DA's fog/settle/walker/persistence behaviour is equivalent to the pre-change DA-only slice (verified by the DA assertions in the maze tests)
-
