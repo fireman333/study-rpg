@@ -1,9 +1,15 @@
 name: Deploy Cloudflare Pages
 
-# Deploys both apps to Cloudflare Pages (med-study-rpg.com/1st/ + /2nd/) when
-# main updates. The CF Pages project is configured in **Direct Upload** mode
-# (Git Provider: No), so the dashboard does NOT auto-deploy on git push —
-# this workflow is what bridges the gap.
+# Deploys the combined CF Pages project (med-study-rpg.com/neurons/ + root
+# landing) when main updates. 二階 (/2nd/) ships from its own standalone repo
+# + CF project (med-study-rpg-2nd), fronted by the edge-router Worker on
+# med-study-rpg.com/2nd/* — it is NOT built here (split-medexam2-standalone §5).
+# 一階 (/1st/) was removed and GitHub Pages fully retired
+# (remove-medexam-tw-and-promote-neurons), so this is now the ONLY deploy
+# workflow for the in-repo app shell.
+# The CF Pages project is configured in **Direct Upload** mode (Git Provider:
+# No), so the dashboard does NOT auto-deploy on git push — this workflow is
+# what bridges the gap.
 #
 # Required repo secrets (Settings → Secrets and variables → Actions):
 #   CF_API_TOKEN     Cloudflare API token. Scopes needed for THIS workflow:
@@ -11,11 +17,6 @@ name: Deploy Cloudflare Pages
 #                    used by deploy-worker.yml). Regenerate token in CF
 #                    dashboard → My Profile → API Tokens if missing.
 #   CF_ACCOUNT_ID    Cloudflare account ID (already set for deploy-worker.yml).
-#
-# Two parallel deploys during the bake period (per openspec/specs/deploy-pipeline):
-#   - .github/workflows/deploy.yml         → GitHub Pages (legacy)
-#   - .github/workflows/deploy-cf-pages.yml → Cloudflare Pages (new home)
-# Both fire on main push; failures in one do NOT block the other.
 
 on:
   push:
@@ -50,49 +51,24 @@ jobs:
       - name: Install dependencies (monorepo)
         run: pnpm install --frozen-lockfile
 
-      - name: Build 一階 (medexam-tw) for /1st/
-        env:
-          VITE_DEPLOY_BASE: /1st/
-          # Supabase Auth / cloud sync — same secrets as deploy.yml. Without
-          # these, useAuth() returns status='disabled' and the AuthButton
-          # + SyncStatusChip never render (verified on prod 2026-05-23).
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_CLOUD_SYNC_ENABLED: 'true'
-          VITE_COMMIT_SHA: ${{ github.sha }}
-          # R2 migration flags — pass-through secrets, safe defaults via
-          # backend-config nonEmpty() when unset.
-          VITE_CLOUD_SYNC_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_BACKEND }}
-          VITE_CLOUD_SYNC_READ_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_READ_BACKEND }}
-          # Worker custom domain — CF-specific override of the default
-          # workers.dev URL the secret might point at.
-          VITE_SYNC_WORKER_URL: https://api.med-study-rpg.com
-          # VITE_DEPLOY_TARGET intentionally NOT set — banner must stay
-          # hidden on the new domain.
-        run: pnpm --filter @study-rpg/medexam-tw build
-
-      - name: Build 二階 (medexam2-hospital-tw) for /2nd/
-        env:
-          VITE_DEPLOY_BASE: /2nd/
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_CLOUD_SYNC_ENABLED: 'true'
-          VITE_COMMIT_SHA: ${{ github.sha }}
-          VITE_CLOUD_SYNC_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_BACKEND }}
-          VITE_CLOUD_SYNC_READ_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_READ_BACKEND }}
-          VITE_SYNC_WORKER_URL: https://api.med-study-rpg.com
-        run: pnpm --filter @study-rpg/medexam2-hospital-tw build
-
-      # neurons-tw scaffold (M_3rd). Currently auth-less / sync-less, so only
-      # VITE_DEPLOY_BASE + VITE_COMMIT_SHA are needed. Added 2026-05-25 to
-      # unbreak CF Pages deploy after `add-neurons-deploy` registered the app
-      # in scripts/build-cf-pages-dist.mjs ROUTES but forgot to add the build
-      # step here — every CF Pages deploy since then failed at the
-      # `Assemble dist-cf` step with "Required input missing: apps/neurons-tw/dist".
+      # neurons-tw is the canonical app (M_3rd, promoted 2026-06-03). It ships
+      # Google sign-in + R2 cloud sync + leaderboard + achievements, so the
+      # Supabase + Worker env MUST be baked at build time. Without
+      # VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY, getSupabase() returns null
+      # → cloud sync disabled and the sign-in UI never renders in prod
+      # (fixed 2026-06-03; the prior step only passed VITE_DEPLOY_BASE +
+      # VITE_COMMIT_SHA from when neurons was an auth-less scaffold).
+      # Neurons sync is R2-only (fixed 'neurons' bundle) and does NOT read
+      # VITE_CLOUD_SYNC_BACKEND / VITE_CLOUD_SYNC_READ_BACKEND, so those are
+      # intentionally omitted.
       - name: Build neurons-tw for /neurons/
         env:
           VITE_DEPLOY_BASE: /neurons/
           VITE_COMMIT_SHA: ${{ github.sha }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_CLOUD_SYNC_ENABLED: 'true'
+          VITE_SYNC_WORKER_URL: https://api.med-study-rpg.com
           # Scaffold has 免疫學 subject with zero questions assigned —
           # content-neurons-tw build script normally errors on orphan subjects
           # but supports the same MEDEXAM_ALLOW_SKIPS=1 escape as

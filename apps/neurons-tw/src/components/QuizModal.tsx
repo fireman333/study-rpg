@@ -279,7 +279,7 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
           <QuestionFigure key={q.id} q={q} />
 
           <div style={optionsGridStyle}>
-            {optionKeys.map((key) => {
+            {optionKeys.map((key, optIdx) => {
               const optText = q.options[key]
               let border = '2px solid #d4c4a0'
               let bg = '#fdf8ee'
@@ -325,6 +325,11 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
                 >
                   <span style={optionKeyStyle}>{key}</span>
                   <span>{optText}</span>
+                  {!revealed && optIdx < 4 && (
+                    <span className="quiz-hotkey-badge" aria-hidden>
+                      {['₁', '₂', '₃', '₄'][optIdx]}
+                    </span>
+                  )}
                 </button>
               )
             })}
@@ -377,7 +382,7 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
         </div>
 
         <footer style={footerStyle}>
-          <BookmarkButton question={q} />
+          <BookmarkButton question={q} hotkeyVisible={revealed} />
           {revealed && <FlagButtons questionId={q.id} />}
           {revealed ? (
             <>
@@ -386,6 +391,9 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
               </button>
               <button style={primaryBtnStyle} onClick={handleNext} autoFocus>
                 下一題 →
+                <span className="quiz-hotkey-badge quiz-hotkey-badge--enter" aria-hidden>
+                  ↵
+                </span>
               </button>
             </>
           ) : (
@@ -417,6 +425,7 @@ function FlagButtons({ questionId }: { questionId: string }): JSX.Element {
       >
         <span aria-hidden>✨</span>
         <span className="flag-btn-label">太簡單</span>
+        <span className="quiz-hotkey-badge" aria-hidden>₂</span>
       </button>
       <button
         type="button"
@@ -428,13 +437,20 @@ function FlagButtons({ questionId }: { questionId: string }): JSX.Element {
       >
         <span aria-hidden>🤔</span>
         <span className="flag-btn-label">我亂猜的</span>
+        <span className="quiz-hotkey-badge" aria-hidden>₃</span>
       </button>
     </>
   )
 }
 
 /** ⭐ bookmark toggle button — lives in QuizModal footer, both phases. */
-function BookmarkButton({ question }: { question: Question }): JSX.Element {
+function BookmarkButton({
+  question,
+  hotkeyVisible,
+}: {
+  question: Question
+  hotkeyVisible: boolean
+}): JSX.Element {
   const bookmarked = useIsBookmarked(question.id)
   return (
     <button
@@ -447,6 +463,11 @@ function BookmarkButton({ question }: { question: Question }): JSX.Element {
     >
       <span aria-hidden>{bookmarked ? '★' : '☆'}</span>
       <span className="bookmark-btn-label">{bookmarked ? '已收藏' : '收藏'}</span>
+      {hotkeyVisible && (
+        <span className="quiz-hotkey-badge" aria-hidden>
+          ₁
+        </span>
+      )}
     </button>
   )
 }
@@ -571,6 +592,7 @@ const optionsGridStyle: React.CSSProperties = {
 }
 
 const optionCardStyle: React.CSSProperties = {
+  position: 'relative',
   display: 'flex',
   alignItems: 'flex-start',
   gap: '0.6rem',
@@ -686,6 +708,7 @@ const footerStyle: React.CSSProperties = {
 // the action buttons (結束 / 下一題) to the right. Subtle visual weight so it
 // doesn't compete with the primary action.
 const bookmarkBtnStyle: React.CSSProperties = {
+  position: 'relative',
   marginRight: 'auto',
   padding: '0.4rem 0.9rem',
   borderRadius: '6px',
@@ -712,6 +735,7 @@ const bookmarkBtnActiveStyle: React.CSSProperties = {
 // FlagButtons — ✨ 太簡單 / 🤔 我亂猜的 toggle buttons in answered phase.
 // Share base layout with bookmark btn but use category-specific accent colors.
 const flagBtnBaseStyle: React.CSSProperties = {
+  position: 'relative',
   padding: '0.4rem 0.7rem',
   borderRadius: '6px',
   fontSize: '0.88rem',
@@ -753,6 +777,7 @@ const flagGuessedActiveStyle: React.CSSProperties = {
 }
 
 const baseBtnStyle: React.CSSProperties = {
+  position: 'relative',
   padding: '0.5rem 1.1rem',
   borderRadius: '6px',
   fontSize: '0.95rem',

@@ -31,3 +31,6 @@ supabase/.temp/
 
 # codex CLI scratch image output (fallback workdir when running from project root)
 output/
+
+# session-bus cross-session message queue (ephemeral, per-worktree; session-bus skill)
+.claude-msgs/
