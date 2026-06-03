@@ -26,6 +26,7 @@ import {
   initFamilyMasteryIfEmpty,
   type MasteryUpdate,
 } from './mastery'
+import { deriveMasteryTier, masteryEnergyMultiplier, applyMasteryToEnergy } from '../mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { getActiveFamilyBuffBonus } from './dmn-event-dispatcher'
@@ -111,6 +112,11 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   const today = todayISO()
   let pending: PendingEvent[] = []
   let masteryUpdate: MasteryUpdate | null = null
+  // Mastery-axis energy acceleration (wire-mastery-energy-acceleration): the
+  // answered family's mastery tier multiplies BOTH correct-answer energy faucets.
+  // Derived once in-tx (post-increment), reused at the post-commit maze faucet so
+  // the two counters stay in lockstep ("one energy" until #3 unifies them).
+  let masteryMult = 1
   // Capture stats BEFORE the write transaction so the achievement diff sees
   // the pre-mutation state. Read-only, no transaction needed.
   const prevStats = await buildAchievementStats()
@@ -121,6 +127,9 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     async (tx) => {
     pending.push(...(await runDailyResetIfNeededInTx(today)))
     masteryUpdate = await recordAttemptInTx(tx, familyId, true)
+    masteryMult = masteryEnergyMultiplier(
+      deriveMasteryTier(masteryUpdate.next.correct, masteryUpdate.next.total),
+    )
     // Co-commit streak counter increment with mastery / synapse writes per
     // neurons-achievements spec Req "Streak counter SHALL be persisted...".
     await incrementCurrentStreak()
@@ -143,7 +152,7 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     // Collection 2.0: every correct answer mints pull currency. AP no longer
     // unlocks variant slots (acquisition is now the currency-gated gacha pull),
     // so no slot-crossing computation / variantSlotUnlocked emission here.
-    await awardEnergyInTx(CORRECT_ANSWER_ENERGY)
+    await awardEnergyInTx(applyMasteryToEnergy(CORRECT_ANSWER_ENERGY, masteryMult))
 
     const justFired = !prevFiredToday && shouldFire(newSameDayCorrect)
     const updatedAccrual: FamilyAccrualRow = {
@@ -215,7 +224,7 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
       const { accrueMazeSignal, CORRECT_SIGNAL, streakMultiplier } = await import('../maze/economy')
       const { getStreaks } = await import('./streak')
       const { current } = await getStreaks()
-      await accrueMazeSignal(branch, CORRECT_SIGNAL * streakMultiplier(current))
+      await accrueMazeSignal(branch, CORRECT_SIGNAL * streakMultiplier(current) * masteryMult)
     }
   } catch (err) {
     console.error('[maze] correct-answer signal accrual failed:', err)

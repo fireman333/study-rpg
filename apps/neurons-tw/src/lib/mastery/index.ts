@@ -4,7 +4,13 @@
  * Capability spec: openspec/specs/neuron-family-mastery/spec.md
  */
 
-export { deriveMasteryTier, TIER_LABELS, TIER_COLORS } from './mastery-tier'
+export {
+  deriveMasteryTier,
+  TIER_LABELS,
+  TIER_COLORS,
+  masteryEnergyMultiplier,
+  applyMasteryToEnergy,
+} from './mastery-tier'
 export type { MasteryTier } from './mastery-tier'
 
 export { MasteryEventEmitter } from './events'

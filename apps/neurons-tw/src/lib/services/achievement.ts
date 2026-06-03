@@ -127,9 +127,11 @@ export async function buildAchievementStats(): Promise<NeuronsAchievementStats> 
   const todayCorrectCount = accruals.reduce((sum, a) => sum + a.sameDayCorrect, 0)
 
   const totalStudyMinutes = await readMetaInt('totalStudyMinutes')
+  const promoteCount = await readMetaInt('promoteCount')
 
   return {
     totalStudyMinutes,
+    promoteCount,
     totalQuestionsAnswered,
     totalQuestionsCorrect,
     overallAccuracy,

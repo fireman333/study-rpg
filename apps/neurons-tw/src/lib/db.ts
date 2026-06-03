@@ -99,6 +99,34 @@ export interface NeuronVariantRow {
   provenance?: NeuronVariantProvenance
 }
 
+/**
+ * One INDIVIDUAL neuron (Dexie v13+, add-neurons-dupe-fusion). Every pull (new OR
+ * dupe) mints one of these — the Pikmin-Bloom "each copy is its own creature" layer.
+ * `neuronVariants` stays the slot-ownership index (one row per slot, `copies` =
+ * monotonic lifetime-mint count for MAX-merge sync); the CURRENT owned count is
+ * derived from these rows (`consumedAt == null`).
+ *
+ * `instanceId` is a DEVICE-STABLE string (NOT a Dexie `++id` — auto-increment
+ * collides across devices under R2 sync). Immutable after mint. Sync: union by
+ * `instanceId`; `consumedAt` resolves monotonic-OR (a tier-promote soft-deletes
+ * by setting `consumedAt`, never hard-deletes — mirrors `everWrong` / `dmnEventLog`
+ * discipline so a consumed individual never resurrects cross-device).
+ * Per neuron-variant-fusion spec.
+ */
+export interface NeuronInstanceRow {
+  instanceId: string
+  familyId: string
+  slotIndex: number
+  rarity: VariantRarity
+  spriteKey: string
+  /** This individual's own birth instant (drives its brainwave-band context-art). */
+  rolledAt: number
+  /** This individual's own birth context (decor field軸B); absent → 元老 / 傳承. */
+  provenance?: NeuronVariantProvenance
+  /** null = held; epoch ms once consumed by a tier-promote (soft-delete, monotonic). */
+  consumedAt: number | null
+}
+
 export interface LeaderboardProfileRow {
   user_id: string
   nickname: string
@@ -210,6 +238,11 @@ export class NeuronsDB extends Dexie {
   // Per add-neurons-wrong-questions-subtab. Additive — 1 new table. Backs the
   // 錯題 sub-tabs (目前未答對 / 歷史曾錯). everWrong = monotonic-OR (sync adapter).
   questionHistory!: EntityTable<QuestionHistoryRow, 'questionId'>
+  // ─── Neuron individuals (Dexie v13+) ────────────────────────────────────
+  // Per add-neurons-dupe-fusion. Additive — 1 new table; existing tables (incl.
+  // neuronVariants PK) untouched. Each row = one individual neuron (Pikmin-Bloom
+  // style). consumedAt = soft-delete set by tier-promote (monotonic-OR sync).
+  neuronInstances!: EntityTable<NeuronInstanceRow, 'instanceId'>
 
   constructor() {
     super('neurons-rpg')
@@ -451,6 +484,57 @@ export class NeuronsDB extends Dexie {
             row.unlockedSlots = []
             row.pullCount = 0
           })
+      })
+    // Per add-neurons-dupe-fusion. Additive: 1 new table `neuronInstances` (the
+    // individual layer). Existing stores' index strings IDENTICAL to v12 (NO PK
+    // change — dexie_pk_change_pitfall). The v13 work is the upgrade callback that
+    // EXPANDS each owned slot's `copies` into individual rows (no collection reset,
+    // no energy reset, no banner).
+    this.version(13)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+        // Individual layer. PK = device-stable instanceId; secondary indices on
+        // familyId / slotIndex / rarity (collection + promote queries) + consumedAt
+        // (held-vs-consumed filter). everWrong-style soft-delete on consumedAt.
+        neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+      })
+      .upgrade(async (tx) => {
+        // EXPAND existing copies → individuals. For each neuronVariants row with
+        // copies=N, mint N instances: the first inherits the row's provenance +
+        // rolledAt; the rest are 元老 (provenance undefined). Deterministic ids
+        // (NO random) so two devices migrating the same collection converge under
+        // union sync. Additive — no collection reset, no energy reset, no banner.
+        const variants = (await tx.table('neuronVariants').toArray()) as NeuronVariantRow[]
+        const instances: NeuronInstanceRow[] = []
+        for (const v of variants) {
+          const n = Math.max(1, v.copies ?? 1)
+          for (let i = 0; i < n; i++) {
+            instances.push({
+              instanceId: `${v.familyId}:${v.slotIndex}:${v.rolledAt}:m${i}`,
+              familyId: v.familyId,
+              slotIndex: v.slotIndex,
+              rarity: v.rarity,
+              spriteKey: v.spriteKey,
+              rolledAt: v.rolledAt,
+              provenance: i === 0 ? v.provenance : undefined,
+              consumedAt: null,
+            })
+          }
+        }
+        if (instances.length > 0) await tx.table('neuronInstances').bulkAdd(instances)
       })
   }
 }

@@ -754,6 +754,61 @@ const questionHistoryAdapter: TableAdapter<'questionHistory'> = {
   },
 }
 
+// ---- Neuron individuals (Dexie v13 — add-neurons-dupe-fusion) -------------
+
+const neuronInstancesAdapter: TableAdapter<'neuronInstances'> = {
+  name: 'neuronInstances',
+  async snapshot(db) {
+    // Snapshot ALL instances incl. consumed — consumed must propagate so a
+    // promoted-away individual never resurrects on the other device.
+    return await db.neuronInstances.toArray()
+  },
+  async apply(db, rows) {
+    // Critical: UNION by instanceId (individuals are immutable) + `consumedAt`
+    // resolves MONOTONIC-OR (once set on either side it stays set, keep the
+    // EARLIER instant). A tier-promote soft-deletes by setting consumedAt; this
+    // discipline guarantees a consumed individual never resurrects cross-device.
+    // Mirrors dmnEventLog monotonic-union + questionHistory everWrong. DO NOT
+    // replace with LWW.
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.neuronInstances, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const instanceId = row.instanceId
+        if (typeof instanceId !== 'string') {
+          skipped++
+          continue
+        }
+        const incConsumedAt = typeof row.consumedAt === 'number' ? (row.consumedAt as number) : null
+        const local = await db.neuronInstances.get(instanceId)
+        if (!local) {
+          await db.neuronInstances.put(incoming as never)
+          applied++
+          continue
+        }
+        // Both sides have it — resolve consumedAt monotonic-OR (earliest non-null).
+        const localConsumed = local.consumedAt
+        let mergedConsumed: number | null = localConsumed
+        if (incConsumedAt !== null) {
+          mergedConsumed = localConsumed === null ? incConsumedAt : Math.min(localConsumed, incConsumedAt)
+        }
+        if (mergedConsumed !== localConsumed) {
+          await db.neuronInstances.put({ ...local, consumedAt: mergedConsumed })
+          applied++
+        } else {
+          skipped++
+        }
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
 // ---- Adapter registry -----------------------------------------------------
 
 export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
@@ -771,4 +826,5 @@ export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
   questionBookmarkTombstonesAdapter,
   questionFlagsAdapter,
   questionHistoryAdapter,
+  neuronInstancesAdapter,
 ]

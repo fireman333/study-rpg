@@ -53,11 +53,21 @@
 //        on the Dexie v11 upgrade. Additive + reader-tolerant: a v9 client reading
 //        a v10 bundle sees the same row shape (just more slotIndex values); a v10
 //        client reading a v9 bundle preserves rows on omission.
+//   v11 — add-neurons-dupe-fusion 2026-06-03: adds the `neuronInstances` adapter
+//        (the Pikmin-Bloom individual layer; Dexie v13). Each pull mints an
+//        individual; tier-promote consumes K surplus individuals. Merge is UNION
+//        by instanceId + `consumedAt` MONOTONIC-OR (a consumed/promoted-away
+//        individual never resurrects — mirrors dmnEventLog/everWrong). Additive +
+//        reader-tolerant: a v10 client reading a v11 bundle drops the new key; a
+//        v11 client reading a v10 bundle (no neuronInstances key) preserves its
+//        local instances (the v13 upgrade already expanded legacy copies). The
+//        promote counters (`promoteCount` / `rarestPromotedRank`) stay LOCAL meta
+//        (achievement ROWS sync via the achievements table).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 10
+export const SCHEMA_VERSION = 11
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

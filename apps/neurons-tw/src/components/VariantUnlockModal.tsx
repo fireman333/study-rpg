@@ -114,7 +114,7 @@ export default function VariantUnlockModal(): JSX.Element {
         >
           <div style={{ ...rarityBadgeStyle, color, borderColor: color }}>{RARITY_LABEL[variant.rarity]}</div>
           {isDupe && (
-            <div style={dupeChipStyle}>重複 × {variant.copies}（碎片留待融合）</div>
+            <div style={dupeChipStyle}>又一隻個體（可於圖鑑融合升階）</div>
           )}
           <div style={spriteWrapStyle}>
             {/* VariantSprite composes context decor + season tint over the base;

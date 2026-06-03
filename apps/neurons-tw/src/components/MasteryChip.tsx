@@ -8,7 +8,13 @@
 
 import { useEffect, useState } from 'react'
 import { NumberTickUp } from '../lib/motion'
-import { deriveMasteryTier, TIER_COLORS, TIER_LABELS, type MasteryTier } from '../lib/mastery'
+import {
+  deriveMasteryTier,
+  masteryEnergyMultiplier,
+  TIER_COLORS,
+  TIER_LABELS,
+  type MasteryTier,
+} from '../lib/mastery'
 import { getMastery, masteryEvents } from '../lib/services/mastery'
 
 interface Props {
@@ -47,6 +53,9 @@ export default function MasteryChip({ familyId, displayName }: Props): JSX.Eleme
 
   const tier: MasteryTier = deriveMasteryTier(correct, total)
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : null
+  // Mastery-axis energy boost (wire-mastery-energy-acceleration): show the active
+  // acceleration when the family's tier multiplies energy acquisition (> 1.0).
+  const energyBoostPct = Math.round((masteryEnergyMultiplier(tier) - 1) * 100)
 
   return (
     <span
@@ -70,6 +79,14 @@ export default function MasteryChip({ familyId, displayName }: Props): JSX.Eleme
       <span style={{ color: '#8c6d4a' }}>
         {accuracy !== null ? `${accuracy}%` : '—'}
       </span>
+      {energyBoostPct > 0 && (
+        <span
+          style={{ color: TIER_COLORS[tier], fontWeight: 600 }}
+          title="熟練度加速能量獲取"
+        >
+          ⚡+{energyBoostPct}%
+        </span>
+      )}
     </span>
   )
 }

@@ -41,6 +41,9 @@ const streakAtLeast = (n: number) => (_p: NeuronsPlayerSnapshot, s: NeuronsAchie
 const variantsAtLeast = (n: number) => (_p: NeuronsPlayerSnapshot, s: NeuronsAchievementStats) =>
   s.variantCount >= n
 
+const promotesAtLeast = (n: number) => (_p: NeuronsPlayerSnapshot, s: NeuronsAchievementStats) =>
+  s.promoteCount >= n
+
 const synapseFormedAtLeast = (n: number) =>
   (_p: NeuronsPlayerSnapshot, s: NeuronsAchievementStats) => s.synapseFormedCount >= n
 
@@ -225,6 +228,38 @@ export const NEURONS_ACHIEVEMENTS: readonly NeuronsAchievement[] = [
     predicate: (_p, s) => s.variantCount >= 90 && s.naturalP1DistinctFamilies >= 3,
     reward: { kind: 'title', title: '萬神殿建構者' },
     composite: true,
+  },
+  {
+    // Tier-promote (add-neurons-dupe-fusion) — fusion is a variant-collection
+    // verb, so these live in the variant category.
+    id: 'variant-first-fusion',
+    name: '初次融合',
+    description: '完成第 1 次融合 — 用重複的軸突材料包髓鞘，升出一隻更高階的 neuron。',
+    tier: 'P4',
+    category: 'variant',
+    hidden: false,
+    predicate: promotesAtLeast(1),
+    reward: { kind: 'leaderboard' },
+  },
+  {
+    id: 'variant-fusion-adept',
+    name: '髓鞘工匠',
+    description: '累積 10 次融合 — 重複不再是負擔，而是升階的材料。',
+    tier: 'P3',
+    category: 'variant',
+    hidden: false,
+    predicate: promotesAtLeast(10),
+    reward: { kind: 'leaderboard' },
+  },
+  {
+    id: 'variant-fusion-master',
+    name: '融合大師',
+    description: '累積 30 次融合 — 把 connectome 的重複能量煉成稀有譜系。',
+    tier: 'P2',
+    category: 'variant',
+    hidden: false,
+    predicate: promotesAtLeast(30),
+    reward: { kind: 'title', title: '融合大師' },
   },
 
   // ━━━ SYNAPSE (4) ━━━
