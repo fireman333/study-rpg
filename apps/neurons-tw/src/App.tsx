@@ -184,6 +184,6 @@ const activeNavBoxStyle: React.CSSProperties = {
   ...navBoxStyle,
   background: '#d4a04d',
   color: '#fff',
-  borderColor: '#b8893a',
+  border: '2px solid #b8893a',
   boxShadow: '0 2px 6px rgba(180, 137, 58, 0.4)',
 }
