@@ -54,6 +54,37 @@ const BRANCHES = [
     families: ['藥理學', '公共衛生學'],
     slotsPerFamily: 10,
   },
+  {
+    branch: '5HT',
+    image: '5ht-basemap.png',
+    // magenta/rose fibers (~330° standard hue). Navy bg (hue ~222) is rejected by
+    // the value floor (dark); gray outline + white sparkle watermark by the sat floor.
+    hue: [315, 348],
+    minValue: 100,
+    minSat: 0.42,
+    families: ['寄生蟲學', '組織學'],
+    slotsPerFamily: 10,
+  },
+  {
+    branch: 'GABA',
+    image: 'gaba-basemap.png',
+    // green fibers (~148° standard hue).
+    hue: [128, 168],
+    minValue: 100,
+    minSat: 0.42,
+    families: ['生物化學', '病理學', '免疫學'],
+    slotsPerFamily: 10,
+  },
+  {
+    branch: 'Glu',
+    image: 'glu-basemap.png',
+    // cyan fibers (~190° standard hue). Distinct from navy bg (~222°) + value floor.
+    hue: [172, 212],
+    minValue: 100,
+    minSat: 0.42,
+    families: ['解剖學', '生理學', '胚胎學', '微生物學'],
+    slotsPerFamily: 10,
+  },
 ]
 
 const SPUR_MIN = 4 // skeleton spur shorter than this (px) is pruned

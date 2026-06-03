@@ -6,14 +6,16 @@ import {
   streakMultiplier,
   walkerFraction,
   accrueMazeSignal,
+  accrueReadingSignalAllBranches,
   reconcileSettles,
   readMazeSignalState,
-  collectedDaKeys,
+  collectedKeys,
   SIGNAL_PER_NODE,
   CORRECT_SIGNAL,
+  READING_SIGNAL,
 } from '../lib/maze/economy'
 import { pickWalkerVariant } from '../lib/maze/useMaze'
-import { MAZE_FAMILIES, MAZE_GRAPH, nodeKey } from '../lib/maze/graph'
+import { FAMILIES_BY_BRANCH, MAZE_GRAPHS, NT_BRANCHES, nodeKey } from '../lib/maze/graph'
 import type { NeuronVariantRow } from '../lib/db'
 
 const resolve = (id: string): string => id
@@ -27,7 +29,7 @@ beforeEach(async () => {
   await db.open()
 })
 
-describe('team speed + streak multipliers', () => {
+describe('team speed + streak multipliers (shared across branches)', () => {
   it('base speed is never below 1 (empty team still progresses)', () => {
     expect(mazeSpeedMultiplier(0)).toBe(1)
   })
@@ -51,58 +53,95 @@ describe('walkerFraction', () => {
   })
 })
 
-describe('accrueMazeSignal', () => {
-  it('adds base × speed multiplier and persists', async () => {
-    await accrueMazeSignal(CORRECT_SIGNAL) // empty team → ×1
-    expect((await readMazeSignalState()).signal).toBeCloseTo(CORRECT_SIGNAL, 6)
-    // collect 5 DA variants → speed buff > 1 → next accrual is larger
-    for (let i = 0; i < 5; i++) await db.neuronVariants.put(row(MAZE_FAMILIES[0], i, 'P5'))
-    await accrueMazeSignal(CORRECT_SIGNAL)
-    const total = (await readMazeSignalState()).signal
-    expect(total).toBeGreaterThan(CORRECT_SIGNAL * 2) // second accrual was buffed
+describe('accrueMazeSignal (per-branch pools)', () => {
+  it('adds base × speed multiplier and persists into the branch pool', async () => {
+    await accrueMazeSignal('DA', CORRECT_SIGNAL) // empty team → ×1
+    expect((await readMazeSignalState('DA')).signal).toBeCloseTo(CORRECT_SIGNAL, 6)
+    for (let i = 0; i < 5; i++) await db.neuronVariants.put(row(FAMILIES_BY_BRANCH.DA[0], i, 'P5'))
+    await accrueMazeSignal('DA', CORRECT_SIGNAL)
+    expect((await readMazeSignalState('DA')).signal).toBeGreaterThan(CORRECT_SIGNAL * 2) // buffed
   })
-})
 
-describe('reconcileSettles', () => {
-  it('mints one fogged node per SIGNAL_PER_NODE of accrued signal', async () => {
-    await db.meta.put({ key: 'maze:da:signal', value: String(SIGNAL_PER_NODE * 3) })
-    const { newlyLit } = await reconcileSettles(resolve)
-    expect(newlyLit).toHaveLength(3)
-    const collected = await collectedDaKeys()
-    expect(collected.size).toBe(3)
-    expect((await readMazeSignalState()).settles).toBe(3)
-    // every settled node is a real DA maze node
-    for (const n of newlyLit) {
-      expect(MAZE_GRAPH.nodes.some((m) => nodeKey(m.familyId, m.slotIndex) === nodeKey(n.familyId, n.slotIndex))).toBe(true)
+  it('pools are isolated — accruing one branch does not move another', async () => {
+    await accrueMazeSignal('DA', CORRECT_SIGNAL)
+    expect((await readMazeSignalState('DA')).signal).toBeGreaterThan(0)
+    for (const b of ['5HT', 'GABA', 'Glu'] as const) {
+      expect((await readMazeSignalState(b)).signal).toBe(0)
     }
   })
 
-  it('is idempotent — re-running with no new signal mints nothing', async () => {
+  it('the branch speed buff only counts that branch collection', async () => {
+    // collect 5 GABA variants — DA accrual stays at base ×1
+    for (let i = 0; i < 5; i++) await db.neuronVariants.put(row(FAMILIES_BY_BRANCH.GABA[0], i, 'P5'))
+    await accrueMazeSignal('DA', CORRECT_SIGNAL)
+    expect((await readMazeSignalState('DA')).signal).toBeCloseTo(CORRECT_SIGNAL, 6) // unbuffed
+  })
+})
+
+describe('accrueReadingSignalAllBranches', () => {
+  it('splits reading signal evenly across all 4 branch pools', async () => {
+    await accrueReadingSignalAllBranches(READING_SIGNAL)
+    const per = READING_SIGNAL / NT_BRANCHES.length
+    for (const b of NT_BRANCHES) {
+      expect((await readMazeSignalState(b)).signal).toBeCloseTo(per, 6) // empty teams → ×1
+    }
+  })
+})
+
+describe('collectedKeys (per branch)', () => {
+  it('returns only that branch family slots', async () => {
+    await db.neuronVariants.put(row(FAMILIES_BY_BRANCH.DA[0], 0, 'P5'))
+    await db.neuronVariants.put(row(FAMILIES_BY_BRANCH.GABA[0], 0, 'P5'))
+    expect((await collectedKeys('DA')).size).toBe(1)
+    expect((await collectedKeys('GABA')).size).toBe(1)
+    expect((await collectedKeys('5HT')).size).toBe(0)
+  })
+})
+
+describe('reconcileSettles (per branch)', () => {
+  it('mints one fogged node per SIGNAL_PER_NODE of accrued signal', async () => {
+    await db.meta.put({ key: 'maze:gaba:signal', value: String(SIGNAL_PER_NODE * 3) })
+    const { newlyLit } = await reconcileSettles('GABA', resolve)
+    expect(newlyLit).toHaveLength(3)
+    expect((await collectedKeys('GABA')).size).toBe(3)
+    expect((await readMazeSignalState('GABA')).settles).toBe(3)
+    for (const n of newlyLit) {
+      expect(MAZE_GRAPHS.GABA.nodes.some((m) => nodeKey(m.familyId, m.slotIndex) === nodeKey(n.familyId, n.slotIndex))).toBe(true)
+    }
+  })
+
+  it('settle routes to the correct branch only (DA untouched)', async () => {
+    await db.meta.put({ key: 'maze:5ht:signal', value: String(SIGNAL_PER_NODE * 2) })
+    await reconcileSettles('5HT', resolve)
+    expect((await collectedKeys('5HT')).size).toBe(2)
+    expect((await collectedKeys('DA')).size).toBe(0)
+  })
+
+  it('is idempotent — re-running with no new signal mints nothing (DA regression guard)', async () => {
     await db.meta.put({ key: 'maze:da:signal', value: String(SIGNAL_PER_NODE * 2) })
-    await reconcileSettles(resolve)
-    const after1 = (await collectedDaKeys()).size
-    const { newlyLit } = await reconcileSettles(resolve)
+    await reconcileSettles('DA', resolve)
+    const after1 = (await collectedKeys('DA')).size
+    const { newlyLit } = await reconcileSettles('DA', resolve)
     expect(newlyLit).toHaveLength(0)
-    expect((await collectedDaKeys()).size).toBe(after1)
+    expect((await collectedKeys('DA')).size).toBe(after1)
   })
 
   it('guarantees previously-uncollected slots (never dupes a fogged settle)', async () => {
-    // pre-collect one DA node, then settle 2 more — they must be DISTINCT new slots
-    await db.neuronVariants.put(row(MAZE_FAMILIES[0], 0, 'P5'))
+    await db.neuronVariants.put(row(FAMILIES_BY_BRANCH.DA[0], 0, 'P5'))
     await db.meta.put({ key: 'maze:da:signal', value: String(SIGNAL_PER_NODE * 2) })
-    const { newlyLit } = await reconcileSettles(resolve)
+    const { newlyLit } = await reconcileSettles('DA', resolve)
     expect(newlyLit).toHaveLength(2)
     const keys = newlyLit.map((n) => nodeKey(n.familyId, n.slotIndex))
-    expect(new Set(keys).size).toBe(2) // distinct
-    expect(keys).not.toContain(nodeKey(MAZE_FAMILIES[0], 0)) // not the pre-collected one
+    expect(new Set(keys).size).toBe(2)
+    expect(keys).not.toContain(nodeKey(FAMILIES_BY_BRANCH.DA[0], 0))
   })
 
-  it('stops settling when all nodes are lit (no infinite mint)', async () => {
-    await db.meta.put({ key: 'maze:da:signal', value: String(SIGNAL_PER_NODE * 100) })
-    const { newlyLit } = await reconcileSettles(resolve)
-    expect(newlyLit.length).toBe(20) // all 20 nodes, no more
-    expect((await collectedDaKeys()).size).toBe(20)
-    const again = await reconcileSettles(resolve)
+  it('stops settling when all of a branch is lit (Glu = 40, no infinite mint)', async () => {
+    await db.meta.put({ key: 'maze:glu:signal', value: String(SIGNAL_PER_NODE * 200) })
+    const { newlyLit } = await reconcileSettles('Glu', resolve)
+    expect(newlyLit.length).toBe(40)
+    expect((await collectedKeys('Glu')).size).toBe(40)
+    const again = await reconcileSettles('Glu', resolve)
     expect(again.newlyLit).toHaveLength(0)
   })
 })
