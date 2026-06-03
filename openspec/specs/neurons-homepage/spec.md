@@ -29,14 +29,14 @@ The neurons-tw homepage (`/`) SHALL render the **maze brain-map** (the four-regi
 
 ### Requirement: Homepage SHALL display a cap-aware "next DMN draw" progress ring driven by real reading-timer data
 
-The homepage SHALL replace the prose rule line describing DMN draw timing with a `DmnDrawProgressRing` whose fill reflects reading minutes accrued toward the next 30-minute time-axis threshold, sourced from `readDmnMeta()` / the wired reading-timer + DMN time-axis. The ring SHALL be daily-cap aware: when the daily time-axis draw cap is reached it SHALL render an explicit terminal state rather than continuing a misleading countdown.
+The homepage SHALL replace the prose rule line describing DMN draw timing with a `DmnDrawProgressRing` whose fill reflects the expedition-axis DMN draws earned today toward the daily cap (`dmnTimeAxisDrawsConsumedToday / DMN_EXPEDITION_DAILY_CAP`), sourced from `readDmnMeta()`. (Per `add-neurons-expedition-rewards`, the first DMN axis is driven by 出征 wrong-question clears, NOT reading minutes; the `dmnTimeAxisMinutesAccrued` counter now carries cumulative expedition clears today, surfaced in the ring caption.) The ring SHALL be daily-cap aware: when the daily expedition-axis draw cap is reached it SHALL render an explicit terminal state rather than continuing a misleading countdown.
 
-#### Scenario: Ring fills as reading minutes accrue
-- **WHEN** the reading timer accrues minutes within the current 30-minute window
-- **THEN** the ring fill advances proportionally toward the next draw threshold
+#### Scenario: Ring fills as expedition draws are earned today
+- **WHEN** the player earns expedition-axis DMN draws within the current local-TZ day (clearing wrong-questions in 出征)
+- **THEN** the ring fill advances proportionally toward the daily cap
 
 #### Scenario: Ring reflects the daily cap as a terminal state
-- **WHEN** the daily time-axis DMN draw cap has been reached
+- **WHEN** the daily expedition-axis DMN draw cap has been reached
 - **THEN** the ring shows a "今日抽卡已達上限" terminal state instead of a countdown toward another draw
 
 #### Scenario: No prose rule line remains for DMN timing

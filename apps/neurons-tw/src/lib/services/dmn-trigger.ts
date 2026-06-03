@@ -1,11 +1,12 @@
 /**
  * DMN trigger detector — single service at app boot.
  *
- * Responsibilities (per add-neurons-dmn-fate-card spec):
- * - Maintain time-axis + behavior-axis daily counters with caps
+ * Responsibilities (per add-neurons-dmn-fate-card + add-neurons-expedition-rewards):
+ * - Maintain expedition-axis + behavior-axis daily counters with caps
  * - Listen to 3 connectome events for behavior-axis bonus draws
- * - Expose ReadingTimerSubscriber interface that the reading-timer service uses
- *   to push minutes into the time-axis counter (wired via reading-timer.ts)
+ * - Expose `creditExpeditionDraws(pool, cleared)` that the expedition completion
+ *   path (onExpeditionComplete) invokes per session to grant percentage-milestone
+ *   draws (the first axis is now expedition clears, NOT reading minutes)
  * - Daily-reset lazily at first interaction crossing local-TZ midnight
  *
  * Capability spec: openspec/specs/neurons-dmn-fate-cards/spec.md
@@ -13,8 +14,8 @@
 
 import {
   DMN_BEHAVIOR_AXIS_DAILY_CAP,
-  DMN_TIME_AXIS_DAILY_CAP,
-  DMN_TIME_AXIS_MINUTES_PER_DRAW,
+  DMN_EXPEDITION_DAILY_CAP,
+  DMN_EXPEDITION_MILESTONES,
   type DmnMetaSnapshot,
 } from '@study-rpg/content-neurons-tw'
 
@@ -24,6 +25,12 @@ import { events as connectomeEvents } from './connectome'
 // ─── Meta key constants ─────────────────────────────────────────────────────
 
 const META_KEYS = {
+  // ⚠️ LEGACY KEY NAMES (add-neurons-expedition-rewards): the first axis is now
+  // the EXPEDITION axis (clears), not the reading-time axis. These two synced
+  // meta keys keep their old names to avoid a SYNCED_META_KEYS change + R2
+  // bundle SCHEMA_VERSION bump. `timeMinutes` now stores cumulative expedition
+  // clears today (display/telemetry only — does NOT gate draws); `timeDrawsToday`
+  // now counts expedition-axis draws granted today.
   timeMinutes: 'dmnTimeAxisMinutesAccrued',
   timeDrawsToday: 'dmnTimeAxisDrawsConsumedToday',
   behaviorDrawsToday: 'dmnBehaviorAxisDrawsConsumedToday',
@@ -133,48 +140,51 @@ async function grantBehaviorAxisDraw(reason: string): Promise<boolean> {
 }
 
 /**
- * Increment time-axis minute accrual. Called by reading-timer subscriber.
- * When accrued minutes crosses a multiple of 30, grants +1 draw if time
- * cap not reached.
+ * Per-milestone clear-count threshold for a given session pool size:
+ * `clamp(round(pct × pool), min, max)`. The clamp keeps draws reachable on
+ * large backlogs and non-trivial on tiny ones (see DMN_EXPEDITION_MILESTONES).
  */
-export async function accrueReadingMinutes(deltaMinutes: number): Promise<void> {
-  if (deltaMinutes <= 0) return
+function milestoneThreshold(pool: number, pct: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, Math.round(pct * pool)))
+}
+
+/**
+ * Expedition-axis draw credit (add-neurons-expedition-rewards). Invoked by the
+ * expedition completion path (`onExpeditionComplete`) once per session.
+ *
+ * @param pool    - wrong-question count the session opened against
+ * @param cleared - wrong→correct flips this session (= session correct count in
+ *                  the wrong-only pool)
+ *
+ * Grants +1 draw per DMN_EXPEDITION_MILESTONES threshold met by `cleared`,
+ * capped per day via `dmnTimeAxisDrawsConsumedToday`. Also accumulates `cleared`
+ * into `dmnTimeAxisMinutesAccrued` (cumulative clears today; display only).
+ * Returns the number of draws granted this call.
+ */
+export async function creditExpeditionDraws(pool: number, cleared: number): Promise<number> {
+  if (cleared <= 0 || pool <= 0) return 0
   await maybeRunDailyReset()
+  const metMilestones = DMN_EXPEDITION_MILESTONES.filter(
+    (m) => cleared >= milestoneThreshold(pool, m.pct, m.min, m.max),
+  ).length
+  let granted = 0
   await db.transaction('rw', db.meta, async () => {
-    const prevMinutes = parseIntSafe((await db.meta.get(META_KEYS.timeMinutes))?.value)
-    const newMinutes = prevMinutes + deltaMinutes
-    await writeMetaInt(META_KEYS.timeMinutes, newMinutes)
-    // Count how many 30-min thresholds we crossed within today's cap
-    const prevCrossed = Math.floor(prevMinutes / DMN_TIME_AXIS_MINUTES_PER_DRAW)
-    const newCrossed = Math.floor(newMinutes / DMN_TIME_AXIS_MINUTES_PER_DRAW)
-    const deltaCrossings = newCrossed - prevCrossed
-    if (deltaCrossings <= 0) return
+    // Always record cumulative clears today (display/telemetry).
+    const prevClears = parseIntSafe((await db.meta.get(META_KEYS.timeMinutes))?.value)
+    await writeMetaInt(META_KEYS.timeMinutes, prevClears + cleared)
+    if (metMilestones <= 0) return
     const consumed = parseIntSafe((await db.meta.get(META_KEYS.timeDrawsToday))?.value)
-    const headroom = Math.max(0, DMN_TIME_AXIS_DAILY_CAP - consumed)
-    const grantCount = Math.min(deltaCrossings, headroom)
+    const grantCount = Math.min(metMilestones, Math.max(0, DMN_EXPEDITION_DAILY_CAP - consumed))
     if (grantCount === 0) return
     const available = parseIntSafe((await db.meta.get(META_KEYS.drawsAvailable))?.value)
     await writeMetaInt(META_KEYS.timeDrawsToday, consumed + grantCount)
     await writeMetaInt(META_KEYS.drawsAvailable, available + grantCount)
-    console.info(`[dmn] +${grantCount} time-axis draw(s) granted (minutes=${newMinutes})`)
+    granted = grantCount
   })
-}
-
-// ─── ReadingTimerSubscriber interface ──────────────────────────────────────
-
-/**
- * Contract for the reading-timer service to publish minute ticks.
- * WIRED: reading-timer.ts `fireMinuteSideEffects` calls
- * `dmnReadingTimerSubscriber.onMinutesAccrued(1)` each accrued minute, so the
- * DMN time-axis (30-min accrual → bonus draw) is live.
- */
-export interface ReadingTimerSubscriber {
-  /** Called by the timer each time accrued minutes advance. */
-  onMinutesAccrued(deltaMinutes: number): Promise<void>
-}
-
-export const dmnReadingTimerSubscriber: ReadingTimerSubscriber = {
-  onMinutesAccrued: accrueReadingMinutes,
+  if (granted > 0) {
+    console.info(`[dmn] +${granted} expedition-axis draw(s) granted (pool=${pool}, cleared=${cleared})`)
+  }
+  return granted
 }
 
 // ─── Boot init ──────────────────────────────────────────────────────────────

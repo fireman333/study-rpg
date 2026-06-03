@@ -12,6 +12,7 @@
 
 import type { Question } from '@study-rpg/core'
 import type { QuestionHistoryRow } from '../db'
+import { creditExpeditionDraws } from './dmn-trigger'
 
 /**
  * Build the cross-subject expedition pool: questions whose latest result is
@@ -44,14 +45,19 @@ export interface ExpeditionSession {
 }
 
 /**
- * Reward seam — invoked when an expedition session ends.
+ * Reward seam — invoked when an expedition session ends
+ * (add-neurons-expedition-rewards, Phase 4).
  *
- * ⚠️ PHASE 1: this is an intentional NO-OP. It grants nothing and returns
- * nothing. It exists so `add-neurons-expedition-rewards` (Phase 4) can attach
- * probabilistic supplement / glial-cell reward dispatch here WITHOUT reworking
- * the squad / QuizModal / homepage wiring. Do NOT add reward, probabilistic,
- * gacha, currency, or pull-rate logic in this phase.
+ * Credits the DMN fate-card expedition axis: the session's `correct` count (in
+ * the wrong-only expedition pool, equal to wrong→correct flips) against `total`
+ * (the wrong pool the session opened against) drives the percentage-with-clamp
+ * milestones (`DMN_EXPEDITION_MILESTONES`), granting up to 2 DMN draws/day.
+ *
+ * Best-effort: a reward failure MUST NOT throw out of the expedition close
+ * flow. Fire-and-forget with a caught rejection.
  */
-export function onExpeditionComplete(_session: ExpeditionSession): void {
-  // No-op extension point. Phase 4 replaces this body.
+export function onExpeditionComplete(session: ExpeditionSession): void {
+  void creditExpeditionDraws(session.total, session.correct).catch((err) => {
+    console.error('[expedition-reward] DMN draw credit failed:', err)
+  })
 }

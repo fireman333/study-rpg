@@ -6,7 +6,10 @@
  * Wire-up:
  *   - Each game-minute (60 accumulated seconds) → fires Promise.all of:
  *     (a) increment meta['totalStudyMinutes'] (synced via SYNCED_META_KEYS)
- *     (b) dmnReadingTimerSubscriber.onMinutesAccrued(1) — activates DMN time-axis
+ *     (b) accrue maze per-branch energy (the reading energy faucet)
+ *   NOTE: reading no longer grants DMN draws (add-neurons-expedition-rewards
+ *   moved the DMN first axis to expedition clears). Reading still fuels maze
+ *   energy + 累積閱讀.
  *
  * State machine: idle → reading → paused → reading → ... → idle
  *
@@ -18,7 +21,6 @@
  */
 
 import { db } from '../db'
-import { dmnReadingTimerSubscriber } from './dmn-trigger'
 import { accrueReadingEnergyAllBranches, READING_ENERGY } from '../maze/economy'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
@@ -77,7 +79,6 @@ async function fireMinuteSideEffects(): Promise<void> {
   try {
     await Promise.all([
       incrementTotalStudyMinutes(),
-      dmnReadingTimerSubscriber.onMinutesAccrued(1),
       // Maze per-branch energy faucet (promote-maze-to-home / Model A): reading
       // has no subject/NT context → split the per-minute energy evenly across all
       // 4 branch pools. This is the ONLY energy faucet for reading now (the former

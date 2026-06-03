@@ -4,10 +4,14 @@
  * when nothing is currently wrong.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import 'fake-indexeddb/auto'
 import type { Question } from '@study-rpg/core'
-import type { QuestionHistoryRow } from '../lib/db'
+import { db, todayISO, type QuestionHistoryRow } from '../lib/db'
 import { buildWrongQuestionPool, onExpeditionComplete } from '../lib/services/expedition'
+import { readDmnMeta } from '../lib/services/dmn-trigger'
+
+const flush = (): Promise<void> => new Promise((r) => setTimeout(r, 20))
 
 const q = (id: string, subject: string): Question =>
   ({
@@ -74,9 +78,29 @@ describe('buildWrongQuestionPool', () => {
   })
 })
 
-describe('onExpeditionComplete (Phase 1 reward seam)', () => {
-  it('is a no-op that returns nothing and never throws', () => {
-    expect(onExpeditionComplete({ total: 10, correct: 4 })).toBeUndefined()
+describe('onExpeditionComplete (Phase 4 reward seam → DMN expedition axis)', () => {
+  beforeEach(async () => {
+    await db.delete()
+    await db.open()
+    await db.meta.put({ key: 'dmnLastDailyResetDate', value: todayISO() })
+  })
+
+  it('returns void synchronously and never throws (best-effort, fire-and-forget)', () => {
+    expect(onExpeditionComplete({ total: 40, correct: 12 })).toBeUndefined()
     expect(() => onExpeditionComplete({ total: 0, correct: 0 })).not.toThrow()
+  })
+
+  it('credits the DMN expedition axis with cleared count (pool=total, cleared=correct)', async () => {
+    onExpeditionComplete({ total: 40, correct: 12 }) // 12 ≥ 25% milestone (10)
+    await flush()
+    const meta = await readDmnMeta()
+    expect(meta.dmnDrawsAvailable).toBe(1)
+    expect(meta.dmnTimeAxisMinutesAccrued).toBe(12) // cumulative clears recorded
+  })
+
+  it('zero clears grants no draw', async () => {
+    onExpeditionComplete({ total: 40, correct: 0 })
+    await flush()
+    expect((await readDmnMeta()).dmnDrawsAvailable).toBe(0)
   })
 })

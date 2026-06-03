@@ -51,7 +51,7 @@ export function HomepageOnboarding(): JSX.Element | null {
       <strong style={openerStyle}>👋 歡迎！這裡只要像考生一樣唸書 + 做題</strong>
       <ol style={stepsStyle}>
         <li>
-          <strong>📖 開始閱讀</strong>：按計時器累積閱讀時間 → 賺神經能量，每 30 分鐘換一次 DMN 抽卡。
+          <strong>📖 開始閱讀</strong>：按計時器累積閱讀時間 → 賺神經能量推進腦圖收集。
         </li>
         <li>
           <strong>🎲 答題</strong>：跨 family 隨機練，或點下方科目卡指定範圍。答對讓該科的神經傳導物分支賺能量。

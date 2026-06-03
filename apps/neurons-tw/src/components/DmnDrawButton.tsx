@@ -24,7 +24,7 @@ export default function DmnDrawButton(): JSX.Element {
   let title: string
   if (isComplete) title = 'DMN 圖鑑已蒐集完整 — 累積經驗繼續 +AP'
   else if (status.drawsAvailable === 0)
-    title = '累積唸書 30 分鐘、或觸發 connectome 里程碑解鎖 DMN 抽卡'
+    title = '出征清除錯題、或觸發 connectome 里程碑解鎖 DMN 抽卡'
   else title = `你有 ${status.drawsAvailable} 次 DMN 抽卡可用`
 
   return (

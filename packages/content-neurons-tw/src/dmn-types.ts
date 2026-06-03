@@ -124,9 +124,16 @@ export interface DmnActiveBuffRow {
  * at the boundary.
  */
 export interface DmnMetaSnapshot {
-  /** Counter — total time-axis minutes accrued today. Resets at midnight. */
+  /**
+   * Counter — cumulative expedition clears today (display / telemetry only;
+   * draws are granted per-session, NOT by this cumulative counter). Resets at
+   * midnight. NOTE: the meta key name `dmnTimeAxisMinutesAccrued` is LEGACY and
+   * kept stable — since `add-neurons-expedition-rewards` the first axis is the
+   * EXPEDITION axis (clears), not reading minutes. The name is frozen to avoid a
+   * `SYNCED_META_KEYS` change + R2 bundle SCHEMA_VERSION bump.
+   */
   dmnTimeAxisMinutesAccrued: number
-  /** Counter — time-axis draws already credited today. Capped at 2. */
+  /** Counter — expedition-axis draws already credited today. Capped at DMN_EXPEDITION_DAILY_CAP. */
   dmnTimeAxisDrawsConsumedToday: number
   /** Counter — behavior-axis draws already credited today. Capped at 3. */
   dmnBehaviorAxisDrawsConsumedToday: number
@@ -138,8 +145,36 @@ export interface DmnMetaSnapshot {
   dmnLifetimeDrawsConsumed: number
 }
 
-/** Constants for trigger semantics. */
-export const DMN_TIME_AXIS_MINUTES_PER_DRAW = 30
-export const DMN_TIME_AXIS_DAILY_CAP = 2
+/**
+ * Expedition-axis DMN draw milestones (add-neurons-expedition-rewards).
+ *
+ * On each completed 出征 session, let `pool` = the wrong-question count the
+ * session opened against and `cleared` = the number cleared this session. For
+ * each milestone below whose threshold `clamp(round(pct × pool), min, max)` is
+ * met by `cleared`, +1 DMN draw is granted (subject to the per-day cap below).
+ *
+ * The clamp keeps draws REACHABLE on large backlogs (pool 300 → 15 / 30, not
+ * 75 / 150) and NON-TRIVIAL on tiny backlogs (pool 8 → 3 / 6, not 2 / 4) while
+ * keeping the proportional feel in the mid band (pool 40 → 10 / 20).
+ *
+ * Dogfood-tunable game-loop numbers (NOT OE-anchored).
+ */
+export interface DmnExpeditionMilestone {
+  /** Fraction of the session's opening wrong-pool that earns this draw. */
+  pct: number
+  /** Floor on the clear-count threshold (prevents trivially cheap draws). */
+  min: number
+  /** Ceiling on the clear-count threshold (keeps big backlogs reachable). */
+  max: number
+}
+
+export const DMN_EXPEDITION_MILESTONES: readonly DmnExpeditionMilestone[] = [
+  { pct: 0.25, min: 3, max: 15 },
+  { pct: 0.5, min: 6, max: 30 },
+]
+
+/** Per-day cap on expedition-axis draws = number of milestones. */
+export const DMN_EXPEDITION_DAILY_CAP = DMN_EXPEDITION_MILESTONES.length
+
 export const DMN_BEHAVIOR_AXIS_DAILY_CAP = 3
 export const DMN_FAMILY_BUFF_DURATION_MS = 60 * 60 * 1000 // 1 hour

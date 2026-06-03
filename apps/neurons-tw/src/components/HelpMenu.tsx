@@ -136,8 +136,8 @@ const SECTIONS: Section[] = [
           抽到的卡同時觸發一次性事件 + 進入永久收集。
         </p>
         <p>
-          <strong>時間軸觸發</strong>：累積閱讀每 30 min +1 draw（每日上限 2）。
-          <em>（reading-timer 在後續 release 接上後啟用，目前 inactive。）</em>
+          <strong>出征觸發</strong>：每場 ⚔️ 出征清掉約 25% / 50% 目前錯題各 +1 draw（每日上限 2）。
+          清越多錯題、抽得越多——把弱點變成抽卡機會。
         </p>
         <p>
           <strong>行為軸觸發</strong>：變體解鎖 / synapse 形成 / synapse 強化各 +1 draw

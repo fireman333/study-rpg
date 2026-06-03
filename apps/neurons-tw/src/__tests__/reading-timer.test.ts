@@ -107,11 +107,15 @@ describe('reading-timer service', () => {
     expect(getReadingTimerState().minutesFired).toBe(2)
   })
 
-  it('publishes minute ticks to DMN time-axis (dmnTimeAxisMinutesAccrued grows)', async () => {
+  it('does NOT feed the DMN axis (reading decoupled from DMN draws per add-neurons-expedition-rewards)', async () => {
     start()
     await vi.advanceTimersByTimeAsync(60_000)
-    const row = await db.meta.get('dmnTimeAxisMinutesAccrued')
-    expect(row?.value).toBe('1')
+    // Reading still increments study minutes...
+    expect(await readTotalStudyMinutes()).toBe(1)
+    // ...but no longer touches the DMN expedition-axis counter (now expedition-driven).
+    // (Reading's maze-energy faucet is covered by mastery-energy-faucets.test.ts.)
+    expect(await db.meta.get('dmnTimeAxisMinutesAccrued')).toBeUndefined()
+    expect(await db.meta.get('dmnDrawsAvailable')).toBeUndefined()
   })
 
   it('pause stops tick accrual', async () => {

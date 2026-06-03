@@ -1,32 +1,29 @@
 /**
  * DmnDrawProgressRing — replaces the homepage prose rule line ("每 30 min 觸發 DMN
- * 抽卡…") with a visual ring showing reading-minutes accrued toward the next
- * time-axis DMN draw. Daily-cap aware: once the time-axis daily cap is reached it
- * renders an explicit terminal state instead of a misleading countdown.
+ * 抽卡…") with a visual ring showing today's EXPEDITION-axis DMN draws earned
+ * toward the daily cap. Daily-cap aware: once the cap is reached it renders an
+ * explicit terminal state instead of a misleading countdown.
  *
- * Data source is the already-wired reading-timer → DMN time-axis (`readDmnMeta`,
- * `dmnTimeAxisMinutesAccrued` / `dmnTimeAxisDrawsConsumedToday`). Live via Dexie
- * liveQuery so it advances as minutes accrue and as draws become available.
+ * Data source is the DMN expedition axis (`readDmnMeta`, `dmnTimeAxisDrawsConsumedToday`
+ * = expedition draws today, `dmnTimeAxisMinutesAccrued` = cumulative expedition
+ * clears today; legacy key names per add-neurons-expedition-rewards). Live via
+ * Dexie liveQuery so it advances as the player clears wrong-questions in 出征.
  *
- * Covers the TIME-axis story only ("reading accrues toward a draw"); behaviour-
- * axis draws (variant / synapse events) surface via their own toasts.
+ * Covers the EXPEDITION-axis story only ("clearing wrong-questions earns draws");
+ * behaviour-axis draws (variant / synapse events) surface via their own toasts.
  *
  * Spec: openspec/specs/neurons-homepage/spec.md
  *   "Homepage SHALL display a cap-aware 'next DMN draw' progress ring driven by
- *    real reading-timer data"
+ *    real reading-timer data" (data source moved to expedition axis)
  */
 
 import { useEffect, useState } from 'react'
 import { liveQuery } from 'dexie'
-import {
-  DMN_TIME_AXIS_MINUTES_PER_DRAW,
-  DMN_TIME_AXIS_DAILY_CAP,
-} from '@study-rpg/content-neurons-tw'
+import { DMN_EXPEDITION_DAILY_CAP } from '@study-rpg/content-neurons-tw'
 import { readDmnMeta } from '../lib/services/dmn-trigger'
 
 interface RingState {
-  minutesIntoWindow: number
-  minutesToNext: number
+  clearsToday: number
   drawsToday: number
   drawsAvailable: number
   capped: boolean
@@ -42,12 +39,10 @@ export function DmnDrawProgressRing(): JSX.Element {
   useEffect(() => {
     const sub = liveQuery(async () => {
       const meta = await readDmnMeta()
-      const per = DMN_TIME_AXIS_MINUTES_PER_DRAW
-      const minutesIntoWindow = meta.dmnTimeAxisMinutesAccrued % per
-      const capped = meta.dmnTimeAxisDrawsConsumedToday >= DMN_TIME_AXIS_DAILY_CAP
+      const capped = meta.dmnTimeAxisDrawsConsumedToday >= DMN_EXPEDITION_DAILY_CAP
       return {
-        minutesIntoWindow,
-        minutesToNext: per - minutesIntoWindow,
+        // legacy key name; now = cumulative expedition clears today
+        clearsToday: meta.dmnTimeAxisMinutesAccrued,
         drawsToday: meta.dmnTimeAxisDrawsConsumedToday,
         drawsAvailable: meta.dmnDrawsAvailable,
         capped,
@@ -59,22 +54,25 @@ export function DmnDrawProgressRing(): JSX.Element {
     return () => sub.unsubscribe()
   }, [])
 
-  const per = DMN_TIME_AXIS_MINUTES_PER_DRAW
-  const fraction = state && !state.capped ? state.minutesIntoWindow / per : state?.capped ? 1 : 0
+  const fraction = state
+    ? state.capped
+      ? 1
+      : Math.min(1, state.drawsToday / DMN_EXPEDITION_DAILY_CAP)
+    : 0
   const offset = C * (1 - fraction)
   const ringColor = state?.capped ? 'var(--signal-amber, #f0a830)' : 'var(--signal-cyan, #38e0d0)'
 
   const centerLabel = (() => {
     if (!state) return '—'
     if (state.capped) return '滿'
-    return `${state.minutesToNext}`
+    return `${state.drawsToday}/${DMN_EXPEDITION_DAILY_CAP}`
   })()
 
   const caption = (() => {
     if (!state) return '載入 DMN 進度中…'
-    if (state.capped) return '今日抽卡已達上限 · 明日重置'
     const avail = state.drawsAvailable > 0 ? ` · 可抽 ${state.drawsAvailable}` : ''
-    return `再讀 ${state.minutesToNext} min 觸發下個 DMN 抽卡${avail}`
+    if (state.capped) return `今日出征抽卡已達上限 · 明日重置${avail}`
+    return `出征清錯題換 DMN 抽卡 · 今日已清 ${state.clearsToday} 題${avail}`
   })()
 
   return (

@@ -123,8 +123,8 @@ export {
   DMN_RARITY_WEIGHTS,
   DMN_RARITIES,
   DMN_EVENT_TYPES,
-  DMN_TIME_AXIS_MINUTES_PER_DRAW,
-  DMN_TIME_AXIS_DAILY_CAP,
+  DMN_EXPEDITION_MILESTONES,
+  DMN_EXPEDITION_DAILY_CAP,
   DMN_BEHAVIOR_AXIS_DAILY_CAP,
   DMN_FAMILY_BUFF_DURATION_MS,
   type DmnRarity,
@@ -134,6 +134,7 @@ export {
   type DmnEventLogRow,
   type DmnActiveBuffRow,
   type DmnMetaSnapshot,
+  type DmnExpeditionMilestone,
 } from './dmn-types'
 
 export { DMN_CARD_CATALOG } from './dmn-cards'
