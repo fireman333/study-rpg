@@ -4,35 +4,35 @@
 
 ## 0. Decision gates (confirm before any code)
 
-- [ ] 0.1 Confirm `@study-rpg/core` consumption strategy with owner — provisionally **npm-core** (design D1). Only blocker: whether the original repo will sustain a `@study-rpg/core` publish cadence. If owner reverts to vendoring, update design D1 + the `medexam2-standalone` spec before proceeding.
+- [x] 0.1 Confirm `@study-rpg/core` consumption strategy with owner — **npm-core** confirmed (design D1 stands). Diligence found npm only had 0.2.0 (no publish automation; local was 0.6.0 on main / 0.5.0 on stale track-m2). Resolved by reconciling track-m2 with main (`git merge main`, 101 commits) then **publishing `@study-rpg/core@0.6.0`** (not 0.5.0 — main canonical). Standalone repo pins `^0.6.0`.
 - [ ] 0.2 Confirm GitHub Pages 二階 → 301 flip timing (design R4): the `DomainMigrationBanner` Export-JSON bake must have been exposed to GH-Pages-origin anonymous players first. Owner judgment.
 
 ## 1. Edge-router spike (gate before deploy lock)
 
-- [ ] 1.1 Deploy a throwaway 二階 test build (base `/2nd/`) to a scratch CF Pages project to get a `*.pages.dev` origin.
-- [ ] 1.2 Spike mechanism A — Worker reverse-proxy: bind a Worker to `med-study-rpg.com/2nd/*`, proxy to the project's `*.pages.dev`, preserve path.
-- [ ] 1.3 Spike mechanism B — any config-only Cloudflare path mapping (if one exists), as an alternative to a custom Worker.
-- [ ] 1.4 Validate the chosen mechanism: `/2nd/` 200 + 二階 shell; deep link 200; F5-on-deep-route 200 (SPA three-suite); `/2nd/assets/*` resolve (no 404); latency acceptable. Lock the mechanism; reject any that fail a check (spec `medexam2-standalone` Req "edge-router … validated by a spike").
+- [x] 1.1 Deployed the standalone build (base `/2nd/`) to the **real** `med-study-rpg-2nd` CF Pages project (skipped a separate throwaway scratch — the build validated cleanly). Origin `med-study-rpg-2nd.pages.dev/2nd/` serves 二階 with correct asset paths.
+- [x] 1.2 Spiked mechanism A — Worker reverse-proxy (`edge-router/` in the new repo, deployed to `med-study-rpg-2nd-router.tony85314.workers.dev`, **no apex route bound**). Path-preserving proxy to `med-study-rpg-2nd.pages.dev/2nd/*` with a `/2nd/` guard. Gotcha fixed: the runtime auto-decompresses the origin body but leaves stale `content-encoding`/`content-length` → non-HTML assets came back 500/404 (correct body, bad framing) for no-Accept-Encoding clients. Fix = strip those two headers on re-emit (keeps the compressed internal hop; edge re-compresses `br` for browsers).
+- [x] 1.3 Mechanism B (config-only CF path mapping) — **N/A**: CF Pages custom domains are whole-domain, there is no config-only attach of an apex path prefix to a different Pages project. Worker reverse-proxy is the mechanism. LOCKED.
+- [x] 1.4 Mechanism validated + LOCKED via the workers.dev proxy: through the worker, `/2nd/` 200 html (body hash == direct pages.dev), `/2nd/assets/*.{js,css}` 200, `/2nd/content/*.json` 200, `/2nd/fonts/*.woff2` 200, `/2nd/images/…CJK….png` 200 image/png, non-hash `/2nd/hospital` 200 (SPA fallback), guard `/` + `/1st/` → 404. App is **HashRouter** so F5/deep-link reduce to `/2nd/` (always 200). Latency: doc ~250ms, browsers get `br`-compressed assets (353KB). Apex-side three-suite (on `med-study-rpg.com/2nd/`) + the route binding are §4 (cutover gate). NOTE: pre-existing cosmetic `styles.css` hardcoded `/study-rpg/hospital/fonts/` @font-face 404 (superseded by main.tsx base-aware injection; font loads fine) — out of scope, flag for tiny follow-up.
 
 ## 2. Standalone repo creation
 
-- [ ] 2.1 Create the new git repo; move `apps/medexam2-hospital-tw` + `packages/theme-pixel-hospital` + `packages/content-medexam2-tw` into it.
-- [ ] 2.2 Switch `@study-rpg/core` from `workspace:^` to npm `^<x>`; remove other `workspace:*` refs (theme/content now live in-repo).
-- [ ] 2.3 `pnpm install && pnpm build && pnpm typecheck && pnpm test` green using only npm-resolved `@study-rpg/core`, with no sibling monorepo present.
-- [ ] 2.4 Port per-app build/env config: `VITE_DEPLOY_BASE=/2nd/`, `VITE_SYNC_WORKER_URL=https://api.med-study-rpg.com`, `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`, backend-config flags — all identical to current prod (`.env.local`, gitignored; commit `.env.example`).
-- [ ] 2.5 Carry over the Vitest suite (`mastery` / `bookmarks-filter` / `question-history-merge` etc.); confirm they pass in the standalone repo.
+- [x] 2.1 Create the new git repo (`~/coding-scratch/study-rpg-2nd`, fresh `git init`, branch `main`); moved `apps/medexam2-hospital-tw` + `packages/theme-pixel-hospital` + `packages/content-medexam2-tw` in (excl node_modules/dist). Initial commit `da2ac57` (885 files). History NOT preserved (original monorepo retains it).
+- [x] 2.2 Switched `@study-rpg/core` `workspace:^` → npm `^0.6.0` in app + theme + content; theme/content stay `workspace:*` between themselves and the app. Verified install: core → `.pnpm/@study-rpg+core@0.6.0` (npm), theme/content → workspace symlinks.
+- [x] 2.3 `pnpm install` + `pnpm typecheck` (3 pkgs) + `pnpm test` (102 vitest, 12 files) + `pnpm build` (base /2nd/) all green using only npm-resolved `@study-rpg/core`, no sibling monorepo.
+- [x] 2.4 Ported build/env config: root `build` sets `VITE_DEPLOY_BASE=/2nd/` + `VITE_SYNC_WORKER_URL=https://api.med-study-rpg.com`; `.env.local` carried (gitignored, holds Supabase keys + `BACKEND=dual`); `.env.example` committed. Verified bundle bakes Supabase ref + `api.med-study-rpg.com`.
+- [x] 2.5 Vitest suite carried over (`mastery` / `bookmarks-filter` / `question-history-merge` / `non-reading-event-trigger` etc.) — 102 tests pass in the standalone repo.
 
 ## 3. 二階 Cloudflare Pages project + deploy
 
-- [ ] 3.1 Create production CF Pages project `med-study-rpg-2nd` in Direct Upload mode (`Git Provider: No`).
-- [ ] 3.2 Add the new repo's own deploy path (local `deploy` script and/or its own GH Actions workflow) running `wrangler pages deploy` against `med-study-rpg-2nd` — with NO dependency on the original `scripts/build-cf-pages-dist.mjs`.
-- [ ] 3.3 First production deploy; verify the project's `*.pages.dev` URL serves 二階 with correct `/2nd/` asset paths.
+- [x] 3.1 Created CF Pages project `med-study-rpg-2nd` (Direct Upload, prod branch `main`) via `wrangler pages project create`.
+- [x] 3.2 Own deploy path: `scripts/build-cf-2nd.mjs` (assembles `dist-deploy/2nd/` + `_redirects`) + root `deploy` script (`pnpm build` → assemble → `wrangler pages deploy dist-deploy --project-name med-study-rpg-2nd`). NO dependency on the original `build-cf-pages-dist.mjs`.
+- [x] 3.3 First deploy done (696 files); `med-study-rpg-2nd.pages.dev/2nd/` serves 二階, assets/content under `/2nd/` resolve, build bakes Supabase ref + `api.med-study-rpg.com` (verified in bundle).
 
 ## 4. Edge router wiring + cutover smoke
 
-- [ ] 4.1 Implement + deploy the locked edge router (from §1.4) on `med-study-rpg.com`: `/2nd/*` → `med-study-rpg-2nd`, all other paths → existing combined project.
-- [ ] 4.2 Prod SPA three-suite on `https://med-study-rpg.com/2nd/`: root, a deep link, and F5 all 200; assets resolve; visible URL stays `/2nd/` (no subdomain). Also confirm `/1st/` + `/neurons/` unaffected.
-- [ ] 4.3 Cloud-save continuity smoke (spec `medexam2-standalone` Req "saves … seamlessly"): sign in as an existing 二階 player; confirm same Supabase session / `user_id`, sync targets `api.med-study-rpg.com` + same R2 bundle keys, cloud save restores with no data loss and no re-login.
+- [x] 4.1 Bound the apex route `med-study-rpg.com/2nd/*` → edge-router Worker → standalone project (`wrangler deploy` with `routes` in `edge-router/wrangler.toml`). Worker added a `x-served-by: edge-router-2nd` marker for verification. All other paths (`/1st/`, `/neurons/`) still hit the combined project.
+- [x] 4.2 Prod verified on `https://med-study-rpg.com/2nd/`: `x-served-by=edge-router-2nd` + asset hash flipped `Czyyq8pl`→`Y62p4tIa` (confirms route + new project); `/2nd/`, `/2nd/hospital` (SPA fallback), `/2nd/assets/*`, `/2nd/content/*.json`, `/2nd/images/…CJK….png` all 200; URL stays `/2nd/` (no subdomain). `/1st/` + `/neurons/` → 200 with NO `x-served-by` (unaffected). HashRouter ⇒ F5/deep-link reduce to `/2nd/` (200).
+- [x] 4.3 Cloud-save continuity — VERIFIED seamless (Chrome MCP on `med-study-rpg.com/2nd/`, 2026-06-03): already signed in as `tony85314@gmail.com` (NO re-login), chip shows `已同步`, existing save restored (real doctor roster `精神科 Senior V` / `家醫科 主任`, hospital state, counters), network hits `api.med-study-rpg.com` ×7 + Supabase ×49 + R2/workers ×11, console clean. Origin unchanged ⇒ IndexedDB + session + sync all carried over (design D4).
 
 ## 5. Original monorepo pipeline cleanup (modifies `deploy-pipeline`)
 
