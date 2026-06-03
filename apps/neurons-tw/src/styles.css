@@ -265,3 +265,31 @@ body:has(.modal-backdrop) {
     transform: none;
   }
 }
+
+/* ─── Quiz keyboard hotkey badges (add-neurons-quiz-hotkey-hints) ─── */
+/* Subscript number / Enter arrow shown at bottom-left of choice + modifier
+ * buttons, mirroring 二階 medexam2-hospital-tw. Desktop-only via
+ * `@media (hover: hover) and (pointer: fine)` — touch devices hide the badge
+ * (the hotkey listener stays attached but is harmless without a keyboard).
+ * Host buttons get `position: relative` via inline style in QuizModal.tsx. */
+.quiz-hotkey-badge {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .quiz-hotkey-badge {
+    display: inline-block;
+    position: absolute;
+    left: 6px;
+    bottom: 3px;
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.55;
+    pointer-events: none;
+    color: #3a2a1a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .quiz-hotkey-badge--enter {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+}
