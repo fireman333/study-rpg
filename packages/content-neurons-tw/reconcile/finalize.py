@@ -7,17 +7,66 @@ was leaving the 免疫學 neuron family empty on every CI deploy).
 import json, os, re
 from reconcile_all import reconcile_year
 from reconcile import YM_ROOT
+from parse_moex_layout import parse_questions_layout
 
-# User-confirmed 106-1 contiguous subject blocks (old grouping)
-OLD_106_1 = {
-    '醫學一': [(1, 28, '解剖學'), (29, 32, '胚胎學'), (33, 41, '組織學'),
-              (42, 74, '微生物暨免疫學'), (75, 82, '寄生蟲學'), (83, 100, '公共衛生學')],
-    '醫學二': [(1, 25, '生理學'), (26, 50, '生物化學'), (51, 76, '藥理學'), (77, 100, '病理學')],
+# AI-generated-explanation sitting: 115-1 has 考選部 questions/answers but no 陽明 詳解.
+# Stems/options come from the owner-supplied 試題 PDFs; answer/subject/詳解 from the
+# pre-generated + adversarially-verified out/115/115_explanations.json.
+AI_115_CREDIT = '考選部（試題與標準答案）+ AI 生成詳解（Gemini，未經陽明審定）'
+_115_QPDF = {'醫學一': os.path.expanduser('~/Downloads/115020_1301.pdf'),
+             '醫學二': os.path.expanduser('~/Downloads/115020_2301.pdf')}
+
+
+def load_115_records():
+    """Build 115-1 records from out/115/115_explanations.json + owner 試題 PDFs."""
+    expl_path = 'out/115/115_explanations.json'
+    expl = json.load(open(expl_path, encoding='utf-8'))
+    qs_by_book = {b: parse_questions_layout(p) for b, p in _115_QPDF.items()}
+    recs = []
+    for e in expl.values():
+        book, qn = e['book'], e['q_num']
+        q = qs_by_book[book].get(qn)
+        if not q:
+            raise ValueError(f'115 {book} Q{qn} present in explanations but not in 試題 PDF')
+        accepted = None
+        if e.get('disputed'):
+            accepted = list('ABCD')        # 一律給分 → finalize sets disputed=True
+        elif e.get('accepted_answers'):
+            accepted = list(e['accepted_answers'])
+        recs.append({
+            'year': 115, 'sess': 1, 'book': book, 'qNum': qn, 'subject': e['subject'],
+            'stem': q['stem'], 'options': q['options'], 'answer': e['authoritative'],
+            'acceptedAnswers': accepted, 'explanation': e['explanation'],
+            'hasImage': bool(re.search(r'[下如附本左右上]圖|圖[示中所]|如下圖', q['stem'])),
+            'sourceCredit': AI_115_CREDIT, 'explanationSource': 'ai-generated',
+            'id': f"115-1-{book}-{e['subject']}-Q{qn}",
+        })
+    return recs
+
+# User-confirmed contiguous subject blocks for 舊分組 sittings (醫一 holds 微免/寄生/公衛).
+# 醫一 is identical across 104/105 (stem-verified + 科目-label-confirmed 2026-06-03).
+_MED1_OLD = [(1, 28, '解剖學'), (29, 32, '胚胎學'), (33, 41, '組織學'),
+             (42, 74, '微生物暨免疫學'), (75, 82, '寄生蟲學'), (83, 100, '公共衛生學')]
+# 醫二 varies by ±1 across sittings.
+_MED2_104_105_A = [(1, 25, '生理學'), (26, 50, '生物化學'), (51, 75, '藥理學'), (76, 100, '病理學')]
+_MED2_105_2 = [(1, 24, '生理學'), (25, 50, '生物化學'), (51, 74, '藥理學'), (75, 100, '病理學')]
+
+OLD_BLOCKS = {
+    (106, 1): {'醫學一': _MED1_OLD,
+               '醫學二': [(1, 25, '生理學'), (26, 50, '生物化學'), (51, 76, '藥理學'), (77, 100, '病理學')]},
+    (104, 1): {'醫學一': _MED1_OLD, '醫學二': _MED2_104_105_A},
+    (104, 2): {'醫學一': _MED1_OLD, '醫學二': _MED2_104_105_A},
+    (105, 1): {'醫學一': _MED1_OLD, '醫學二': _MED2_104_105_A},
+    (105, 2): {'醫學一': _MED1_OLD, '醫學二': _MED2_105_2},
 }
 
 
-def subject_106_1(book, qn):
-    for a, b, s in OLD_106_1[book]:
+def old_subject(year, sess, book, qn):
+    """Return the manual-block subject for a 舊分組 sitting, or None for modern grouping."""
+    blocks = OLD_BLOCKS.get((year, sess))
+    if not blocks:
+        return None
+    for a, b, s in blocks[book]:
         if a <= qn <= b:
             return s
     return None
@@ -79,14 +128,18 @@ SOURCE_CREDIT = '考選部（試題與標準答案）+ 陽明國考考古題小�
 
 def main():
     all_recs = []
-    for year in range(106, 115):
+    for year in [104, 105] + list(range(106, 115)):
         recs, _ = reconcile_year(year)
         for r in recs:
-            if (r['year'], r['sess']) == (106, 1):
-                r['subject'] = subject_106_1(r['book'], r['qNum'])
+            blk_subj = old_subject(r['year'], r['sess'], r['book'], r['qNum'])
+            if blk_subj:
+                r['subject'] = blk_subj
                 r['subjectSource'] = 'manual-block'
             r['id'] = f"{r['year']}-{r['sess']}-{r['book']}-{r['subject']}-Q{r['qNum']}"
         all_recs.extend(recs)
+
+    # 115-1: AI-generated-explanation sitting (separate provenance path)
+    all_recs.extend(load_115_records())
 
     # emit app-schema questions.json
     out_q = []
@@ -98,8 +151,10 @@ def main():
             'meta': {'year': r['year'], 'session': r['sess'], 'book': r['book'],
                      'paper': 'medexam-1' if r['book'] == '醫學一' else 'medexam-2',
                      'qNumber': r['qNum']},
-            'sourceCredit': SOURCE_CREDIT,
+            'sourceCredit': r.get('sourceCredit', SOURCE_CREDIT),
         }
+        if r.get('explanationSource'):
+            rec['explanationSource'] = r['explanationSource']
         acc = r.get('acceptedAnswers')
         if acc:
             if len(acc) >= 4:
@@ -121,15 +176,17 @@ def main():
              for s in order if s in counts]
 
     # meta.json
+    papers = len({(q['meta']['year'], q['meta']['session'], q['meta']['book']) for q in out_q})
     out_m = {
         'id': 'medexam-tw', 'displayName': '台灣一階醫師國考', 'locale': 'zh-TW',
-        'builtAt': '2026-05-30T00:00:00.000Z',
+        'builtAt': '2026-06-03T00:00:00.000Z',
         'sourceCredit': SOURCE_CREDIT,
         'sourceUrl': 'https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx',
         'license': 'CC-BY-NC-4.0',
-        'stats': {'totalQuestions': len(out_q), 'papers': 36, 'subjects': len(out_s),
+        'stats': {'totalQuestions': len(out_q), 'papers': papers, 'subjects': len(out_s),
                   'withExplanation': sum(1 for q in out_q if q['explanation'].strip()),
                   'gapsFilled': sum(1 for q in out_q if not q['explanation'].strip()),
+                  'aiGenerated': sum(1 for q in out_q if q.get('explanationSource') == 'ai-generated'),
                   'disputed': sum(1 for q in out_q if q.get('disputed')),
                   'multiAnswer': sum(1 for q in out_q if 'acceptedAnswers' in q)},
     }

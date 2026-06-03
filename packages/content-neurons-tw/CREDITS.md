@@ -11,6 +11,12 @@
 - **Contact / Takedown**: 若版權人不同意本 content pack 之使用，請開 GitHub Issue 或聯絡 repo 維護者，承諾 24 hr 內下架相關內容
 - **License (this content pack)**: CC-BY-NC-4.0
 
+## AI-generated explanations (115-1 詳解)
+- **What**: 115-1（2026 年場次）考選部已公布試題 + 標準答案，但陽明國考考古題小組尚未發布詳解。該 200 題（醫學一/二各 100）之詳解由 **Gemini** 生成、再經跨模型對抗驗證（`reconcile/generate_115.py` + `verify_115.py`）。
+- **Provenance**: 每題標 `explanationSource: 'ai-generated'` + `sourceCredit:「考選部（試題與標準答案）+ AI 生成詳解（Gemini，未經陽明審定）」`；App QuizModal 於詳解區塊顯示「🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考」免責標註。
+- **Verification**: Gemini 獨立作答與考選部標準答案 199/199 一致（Q66 多選給分、Q95 一律給分除外）；對抗驗證 pass 修正 3 題，低信心題經 owner 審閱。
+- **Caveat**: AI 詳解可能含錯誤；以考選部標準答案為準，詳解僅供學習參考。陽明日後發布官方詳解時應替換。
+
 ## Question figures (題目附圖)
 - **What**: 19 張依賴附圖才能作答的題目（病理切片 / 大體標本 / 解剖示意 / 生化作圖）之圖，自上述官方考選部歷屆試題 PDF 擷取（題幹引用「如圖 / 附圖 / 圖示 / 下圖 / 圖中 / 箭頭」者）。檔案位於 `figures/<question-id>.png`，於 build 時自動對映到該題的 `imagePath`。
 - **License / posture**: 比照題庫整體 — **非營利**、CC-BY-NC-4.0、署名、**24 hr takedown SLA**（開 Issue 即下架）。圖內若含第三方 atlas 來源之病理 / 組織切片，依台灣著作權法 §65 合理使用主張 + takedown 兜底。

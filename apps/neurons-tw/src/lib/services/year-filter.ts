@@ -18,8 +18,8 @@ import { db } from '../db'
 
 export const YEAR_FILTER_META_KEY = 'quiz.yearFilter'
 
-/** 民國 years available in the neurons (一階) corpus (106–114 inclusive). */
-export const ALL_YEARS: readonly number[] = [106, 107, 108, 109, 110, 111, 112, 113, 114]
+/** 民國 years available in the neurons (一階) corpus (104, 105, 106–114, 115). */
+export const ALL_YEARS: readonly number[] = [104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115]
 
 const ALL_YEARS_SET: ReadonlySet<number> = new Set(ALL_YEARS)
 
