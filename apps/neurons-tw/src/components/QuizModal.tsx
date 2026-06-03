@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { Question } from '@study-rpg/core'
+import type { Question, BinaryReviewPrev, BinaryReviewResult } from '@study-rpg/core'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
+import {
+  scheduleSrsForAnswer,
+  applyEasyModifier,
+  applyGuessedModifier,
+  restoreDefaultSrs,
+} from '../lib/services/srs-scheduler'
 import { SpikeTrainFiring, AnswerFeedbackFlash } from '../lib/motion'
 import { useQuizHotkeys, type QuizPhase } from '../lib/hooks/useQuizHotkeys'
 import { toggleBookmark, useIsBookmarked } from '../lib/services/bookmarks'
@@ -21,6 +27,13 @@ interface Props {
    * normal quiz entries omit it (no-op).
    */
   onComplete?: (stats: { total: number; correct: number }) => void
+  /**
+   * Preserve the incoming pool order instead of shuffling (per
+   * add-neurons-quiz-mode-chips-and-srs). The 🔄 錯題 review mode passes a
+   * pre-ordered oldest-due-first pool, so it must not be reshuffled. Defaults
+   * to false (新題 / 隨機 / 出征 keep the existing shuffle).
+   */
+  preserveOrder?: boolean
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -32,12 +45,13 @@ function shuffle<T>(arr: T[]): T[] {
   return copy
 }
 
-export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
-  // Build session pool once: exclude image-option questions + shuffle.
-  const sessionPool = useMemo(
-    () => shuffle(pool.filter((q) => !q.hasOptionImages)),
-    [pool],
-  )
+export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: Props): JSX.Element {
+  // Build session pool once: exclude image-option questions, then shuffle unless
+  // the caller preserves order (錯題 review mode serves oldest-due-first).
+  const sessionPool = useMemo(() => {
+    const filtered = pool.filter((q) => !q.hasOptionImages)
+    return preserveOrder ? filtered : shuffle(filtered)
+  }, [pool, preserveOrder])
 
   const [idx, setIdx] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
@@ -51,6 +65,11 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
   // session-end callback fires at most once.
   const correctCountRef = useRef(0)
   const completedRef = useRef(false)
+  // SRS snapshots for the just-answered question, captured in handlePick: the
+  // pre-answer prev (so ✨/🤔 recompute from the same baseline) and the default
+  // post-answer schedule (so toggling a modifier OFF restores it). Reset on Next.
+  const prevSrsRef = useRef<BinaryReviewPrev | null>(null)
+  const defaultPostSrsRef = useRef<BinaryReviewResult | null>(null)
 
   const handleClose = useCallback(() => {
     if (!completedRef.current) {
@@ -90,6 +109,15 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
         } catch (err) {
           console.error('[question-history] failed to record result', err)
         }
+        // Update the SRS schedule for this question — runs on EVERY answer
+        // regardless of mode (二階 skipSrs semantics). Best-effort, own channel.
+        try {
+          const sched = await scheduleSrsForAnswer(q.id, q.subject, isCorrect)
+          prevSrsRef.current = sched.prev
+          defaultPostSrsRef.current = sched.result
+        } catch (err) {
+          console.error('[srs] failed to schedule review', err)
+        }
       } finally {
         setBusy(false)
       }
@@ -100,6 +128,10 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
   const handleNext = useCallback(() => {
     setPicked(null)
     setHighlighted(null)
+    // Drop the answered question's SRS snapshots — the next question captures
+    // its own in handlePick.
+    prevSrsRef.current = null
+    defaultPostSrsRef.current = null
     setIdx((i) => i + 1)
     // Scroll the modal body back to top on next-question so the player sees
     // the new stem from the start rather than mid-scroll from the last reveal.
@@ -129,16 +161,35 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
     if (!cur) return
     void toggleBookmark(cur)
   }, [sessionPool, idx])
-  const handleToggleEasy = useCallback(() => {
-    const cur = sessionPool[idx]
-    if (!cur) return
-    void toggleEasy(cur.id)
-  }, [sessionPool, idx])
-  const handleToggleGuessed = useCallback(() => {
-    const cur = sessionPool[idx]
-    if (!cur) return
-    void toggleGuessed(cur.id)
-  }, [sessionPool, idx])
+  // ✨「太簡單」 / 🤔「我亂猜的」: persist the flag AND adjust the SRS schedule.
+  // Toggling ON recomputes from the pre-answer prev (easy → lengthen, guessed →
+  // interval 1); toggling OFF restores the default post-answer schedule. (✨ does
+  // NOT clear everWrong in neurons — the questionHistory adapter merges everWrong
+  // monotonic-OR, so a clear would be futile + contradict the 永久錯題庫 invariant.)
+  const runFlagToggle = useCallback(
+    async (kind: 'easy' | 'guessed') => {
+      const cur = sessionPool[idx]
+      if (!cur) return
+      const toggleFn = kind === 'easy' ? toggleEasy : toggleGuessed
+      const applyFn = kind === 'easy' ? applyEasyModifier : applyGuessedModifier
+      let on = false
+      try {
+        on = await toggleFn(cur.id)
+      } catch (err) {
+        console.error(`[question-flags] toggle ${kind} failed`, err)
+        return
+      }
+      try {
+        if (on) await applyFn(cur.id, prevSrsRef.current)
+        else if (defaultPostSrsRef.current) await restoreDefaultSrs(cur.id, defaultPostSrsRef.current)
+      } catch (err) {
+        console.error(`[srs] ${kind} modifier failed`, err)
+      }
+    },
+    [sessionPool, idx],
+  )
+  const handleToggleEasy = useCallback(() => runFlagToggle('easy'), [runFlagToggle])
+  const handleToggleGuessed = useCallback(() => runFlagToggle('guessed'), [runFlagToggle])
   useQuizHotkeys({
     isOpen: sessionPool[idx] !== undefined && idx < sessionPool.length,
     phase,
@@ -383,7 +434,13 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
 
         <footer style={footerStyle}>
           <BookmarkButton question={q} hotkeyVisible={revealed} />
-          {revealed && <FlagButtons questionId={q.id} />}
+          {revealed && (
+            <FlagButtons
+              questionId={q.id}
+              onEasy={handleToggleEasy}
+              onGuessed={handleToggleGuessed}
+            />
+          )}
           {revealed ? (
             <>
               <button style={secondaryBtnStyle} onClick={handleClose}>
@@ -408,17 +465,26 @@ export function QuizModal({ pool, onClose, onComplete }: Props): JSX.Element {
 }
 
 /**
- * ✨ 太簡單 + 🤔 我亂猜的 toggle buttons — answered phase only.
- * Future SRS pipeline will consume these flags as scheduling inputs.
+ * ✨ 太簡單 + 🤔 我亂猜的 toggle buttons — answered phase only. Persist the
+ * binary flag AND adjust the SRS schedule via the lifted handlers (which read
+ * the question's pre-answer SRS snapshot). Per add-neurons-quiz-mode-chips-and-srs.
  */
-function FlagButtons({ questionId }: { questionId: string }): JSX.Element {
+function FlagButtons({
+  questionId,
+  onEasy,
+  onGuessed,
+}: {
+  questionId: string
+  onEasy: () => void
+  onGuessed: () => void
+}): JSX.Element {
   const { easyMarked, guessedMarked } = useFlag(questionId)
   return (
     <>
       <button
         type="button"
         style={easyMarked ? flagEasyActiveStyle : flagEasyStyle}
-        onClick={() => void toggleEasy(questionId)}
+        onClick={onEasy}
         aria-pressed={easyMarked}
         aria-label={easyMarked ? '取消 ✨ 標記 (2)' : '標記 ✨ 太簡單 (2)'}
         title={easyMarked ? '取消 ✨ 標記（鍵盤 2）' : '標記 ✨ 太簡單（鍵盤 2）'}
@@ -430,7 +496,7 @@ function FlagButtons({ questionId }: { questionId: string }): JSX.Element {
       <button
         type="button"
         style={guessedMarked ? flagGuessedActiveStyle : flagGuessedStyle}
-        onClick={() => void toggleGuessed(questionId)}
+        onClick={onGuessed}
         aria-pressed={guessedMarked}
         aria-label={guessedMarked ? '取消 🤔 標記 (3)' : '標記 🤔 我亂猜的 (3)'}
         title={guessedMarked ? '取消 🤔 標記（鍵盤 3）' : '標記 🤔 我亂猜的（鍵盤 3）'}

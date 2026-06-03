@@ -15,6 +15,11 @@
 
 import type { Question } from '@study-rpg/core'
 
+/** Minimal shape `filterPoolByNewOnly` needs from a question-history row. */
+interface AnsweredRef {
+  questionId: string
+}
+
 /**
  * Filter a question pool by family. Returns a new array (does not mutate input).
  *
@@ -43,4 +48,21 @@ export function filterPoolByYear(
   yearSet: ReadonlySet<number>,
 ): Question[] {
   return pool.filter((q) => typeof q.meta?.year === 'number' && yearSet.has(q.meta.year))
+}
+
+/**
+ * Filter a question pool down to NEVER-answered questions — the 🆕 新題 mode
+ * (add-neurons-quiz-mode-chips-and-srs). A question is "new" iff it has no
+ * `questionHistory` row. Returns a new array. Compose after `filterPoolByFamily`
+ * / `filterPoolByYear`.
+ *
+ * @param pool - typically a family + year-scoped pool
+ * @param history - the questionHistory rows (any object carrying `questionId`)
+ */
+export function filterPoolByNewOnly(
+  pool: readonly Question[],
+  history: readonly AnsweredRef[],
+): Question[] {
+  const answered = new Set(history.map((h) => h.questionId))
+  return pool.filter((q) => !answered.has(q.id))
 }

@@ -7,7 +7,7 @@
 // mirrors Supabase upsert_lww shape), neurons-tw uses direct Dexie row shapes
 // in the bundle. Simpler — neurons-tw never had a Supabase data path.
 
-import type { NeuronsDB } from '../db'
+import type { NeuronsDB, QuestionHistoryRow } from '../db'
 
 /** Result of applying a single incoming row. */
 export type ApplyOutcome = 'wrote' | 'skipped' | 'merged'
@@ -705,6 +705,25 @@ const questionFlagsAdapter: TableAdapter<'questionFlags'> = {
 
 // ---- Question history (Dexie v9 — add-neurons-wrong-questions-subtab) ----
 
+/**
+ * Pick the optional SRS schedule fields off a row (incoming JSON or a local row)
+ * for the questionHistory merge. Per add-neurons-quiz-mode-chips-and-srs: these
+ * ride the row under plain row-level LWW (the everWrong monotonic-OR carve-out is
+ * unchanged). A v(prev) client omits them → absent (defaults to fresh on read).
+ */
+function pickSrsFields(
+  src: Record<string, unknown> | QuestionHistoryRow | undefined,
+): Partial<Pick<QuestionHistoryRow, 'interval' | 'easeFactor' | 'nextDueAt' | 'attempts' | 'correctCount'>> {
+  if (!src) return {}
+  const out: Record<string, unknown> = {}
+  if (typeof src.interval === 'number') out.interval = src.interval
+  if (typeof src.easeFactor === 'number') out.easeFactor = src.easeFactor
+  if (typeof src.nextDueAt === 'number' || src.nextDueAt === null) out.nextDueAt = src.nextDueAt
+  if (typeof src.attempts === 'number') out.attempts = src.attempts
+  if (typeof src.correctCount === 'number') out.correctCount = src.correctCount
+  return out
+}
+
 const questionHistoryAdapter: TableAdapter<'questionHistory'> = {
   name: 'questionHistory',
   async snapshot(db) {
@@ -746,12 +765,20 @@ const questionHistoryAdapter: TableAdapter<'questionHistory'> = {
             everWrong: incEverWrong,
             lastAnsweredAt: incLastAnsweredAt,
             updatedAt: incUpdatedAt,
+            // SRS schedule rides the row (v15+); a v<15 client omits these.
+            ...pickSrsFields(row),
           })
           applied++
           continue
         }
         // incoming wins on ties (mirrors lwwPick `b >= a`).
         const incomingNewer = incLastAnsweredAt >= local.lastAnsweredAt
+        // SRS fields follow row-level LWW. But a put() replaces the whole row, so
+        // a newer-but-pre-v15 incoming (no SRS fields) must NOT wipe the local
+        // schedule — only adopt incoming SRS when it actually carries fields.
+        const incSrs = pickSrsFields(row)
+        const localSrs = pickSrsFields(local)
+        const srs = incomingNewer && Object.keys(incSrs).length > 0 ? incSrs : localSrs
         await db.questionHistory.put({
           questionId,
           family: incomingNewer && incFamily ? incFamily : local.family,
@@ -759,6 +786,7 @@ const questionHistoryAdapter: TableAdapter<'questionHistory'> = {
           everWrong: local.everWrong || incEverWrong, // monotonic-OR
           lastAnsweredAt: Math.max(local.lastAnsweredAt, incLastAnsweredAt),
           updatedAt: Math.max(local.updatedAt, incUpdatedAt),
+          ...srs,
         })
         applied++
       }
