@@ -51,3 +51,33 @@ export const TIER_COLORS: Record<MasteryTier, string> = {
   P5: '#8c6d4a', // brown
   none: '#9b9b9b', // muted grey
 }
+
+/**
+ * Mastery → energy-acquisition multiplier (wire-mastery-energy-acceleration).
+ *
+ * The 精通軸 (mastery axis) accelerates the 能量軸: a practiced family yields energy
+ * faster per correct answer (Hebbian consolidation). Single source of truth —
+ * consumed by both correct-answer energy faucets (connectome.recordCorrectAnswer)
+ * and the MasteryChip display.
+ *
+ * First-cut, dogfood-tunable. Monotonic non-decreasing none/P5 → P1; never < 1.0.
+ * Spec: openspec/specs/neuron-family-mastery/spec.md
+ *   "Mastery tier SHALL accelerate energy acquisition via a pure multiplier function"
+ */
+const MASTERY_ENERGY_MULTIPLIER: Record<MasteryTier, number> = {
+  none: 1.0,
+  P5: 1.0,
+  P4: 1.05,
+  P3: 1.1,
+  P2: 1.2,
+  P1: 1.3,
+}
+
+export function masteryEnergyMultiplier(tier: MasteryTier): number {
+  return MASTERY_ENERGY_MULTIPLIER[tier]
+}
+
+/** Apply a mastery multiplier to an integer energy base (gacha-energy faucet). */
+export function applyMasteryToEnergy(base: number, mult: number): number {
+  return Math.round(base * mult)
+}
