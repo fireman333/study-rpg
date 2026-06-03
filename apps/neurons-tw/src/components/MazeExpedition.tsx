@@ -9,10 +9,12 @@
  * Plus the bobbing squad on top. Pure CSS transform / background-position (60fps,
  * battery-friendly, not rAF-throttled in backgrounded tabs).
  *
- * Squad = the rarest collected variants (P0 first), reusing their existing立繪 via
- * <VariantSprite>. Empty collection → growth-cone marchers so the band still reads.
+ * Squad = the rarest collected variants (P0 first), rendered as clean transparent
+ * sprites via SPRITE_MAP[spriteKey] (deliberately NOT <VariantSprite> — skips its
+ * context-art decor so the busy parallax stays readable). Empty collection →
+ * growth-cone marchers so the band still reads.
  *
- * Shown alongside the maze when the player presses 「出發遠征」. Self-contained —
+ * Shown alongside the maze when the player presses 「顯示遠征動畫」. Self-contained —
  * injects its own @keyframes.
  */
 import { useEffect, useState, type CSSProperties } from 'react'
@@ -88,7 +90,7 @@ const wrapStyle: CSSProperties = {
   boxShadow: '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
 }
 
-export default function MazeExpedition(): JSX.Element {
+export default function MazeExpedition({ onHide }: { onHide?: () => void }): JSX.Element {
   const squad = useExpeditionSquad()
 
   // depth-stagger: alternate near (bigger, lower, opaque) / far (smaller, higher, faded)
@@ -98,7 +100,7 @@ export default function MazeExpedition(): JSX.Element {
       : FALLBACK_COLORS.map((c, i) => ({ key: `cone-${i}`, color: c, i }))
 
   return (
-    <div style={wrapStyle} role="img" aria-label="神經元小隊遠征中">
+    <div style={wrapStyle} aria-label="神經元小隊遠征動畫">
       <style>{KEYFRAMES}</style>
 
       {/* 1. far sky — rolling brain sulci, slowest */}
@@ -151,6 +153,19 @@ export default function MazeExpedition(): JSX.Element {
 
       {/* caption */}
       <span className="exp-caption">🧠 小隊遠征中…</span>
+
+      {/* quick-hide — kill the animation when it distracts from reading / answering */}
+      {onHide && (
+        <button
+          type="button"
+          className="exp-hide"
+          onClick={onHide}
+          aria-label="隱藏遠征動畫"
+          title="隱藏遠征動畫（閱讀／答題時不干擾；旅程仍持續）"
+        >
+          −
+        </button>
+      )}
     </div>
   )
 }
@@ -211,11 +226,27 @@ const KEYFRAMES = `
 }
 
 .exp-caption {
-  position: absolute; right: 10px; top: 8px; z-index: 4;
+  position: absolute; left: 10px; top: 8px; z-index: 4;
   font-size: 0.72rem; color: #efeaff;
   background: rgba(10,8,30,0.5); border: 1px solid #2a2750;
   border-radius: 999px; padding: 2px 9px;
   font-family: 'Cubic 11', 'Noto Sans TC', sans-serif;
+}
+
+.exp-hide {
+  position: absolute; right: 8px; top: 7px; z-index: 5;
+  width: 22px; height: 22px; padding: 0; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid #2a2750; border-radius: 999px;
+  background: rgba(10,8,30,0.55); color: #cfc8ff;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  font-family: 'Cubic 11', 'Noto Sans TC', sans-serif;
+}
+.exp-hide:hover { background: rgba(40,30,70,0.85); color: #fff; }
+
+/* Respect OS reduced-motion: freeze every layer + the bob (static scene, no churn). */
+@media (prefers-reduced-motion: reduce) {
+  .exp-sky, .exp-ground, .exp-particles, .exp-marcher { animation: none !important; }
 }
 
 @keyframes exp-scroll-sky { to { background-position-x: -${SKY_TILE}px; } }

@@ -154,7 +154,15 @@ const overlayAt = (x: number, y: number, size: number): CSSProperties => ({
 export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Element {
   const view = useMaze(pack)
   const [visible, setVisible] = useState<Set<NtBranchId>>(() => new Set(NT_BRANCHES))
-  const [expeditionOn, setExpeditionOn] = useState(false)
+  const [expeditionOn, setExpeditionOn] = useState(() => {
+    try { return localStorage.getItem('neurons:maze:expeditionShown') === '1' } catch { return false }
+  })
+  // Persist show/hide so hiding the animation (distracting while reading / answering)
+  // sticks across reloads; turning it on likewise sticks.
+  const setExpedition = (on: boolean) => {
+    setExpeditionOn(on)
+    try { localStorage.setItem('neurons:maze:expeditionShown', on ? '1' : '0') } catch { /* private mode */ }
+  }
   const prevCount = useRef(view.totalConnectedCount)
 
   // Soft "connect" chime on a newly-lit node (settle reveal) — WebAudio, no asset.
@@ -203,7 +211,7 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
           <button
             type="button"
             aria-pressed={expeditionOn}
-            onClick={() => setExpeditionOn((v) => !v)}
+            onClick={() => setExpedition(!expeditionOn)}
             style={{
               border: `1px solid ${expeditionOn ? '#ffb33e' : '#2a2750'}`,
               background: expeditionOn ? '#ffb33e22' : '#120f29',
@@ -215,7 +223,7 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
               fontFamily: 'inherit',
             }}
           >
-            {expeditionOn ? '🛑 收起遠征' : '🚀 出發遠征'}
+            {expeditionOn ? '🚀 隱藏遠征動畫' : '🚀 顯示遠征動畫'}
           </button>
         </div>
 
@@ -253,8 +261,8 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
         </div>
       </header>
 
-      {/* 遠征動畫帶 — 按「出發遠征」顯示，與 maze 同時播放 */}
-      {expeditionOn && <MazeExpedition />}
+      {/* 遠征動畫帶 — 按「顯示遠征動畫」顯示，與 maze 同時播放；純裝飾，旅程本身一直在跑 */}
+      {expeditionOn && <MazeExpedition onHide={() => setExpedition(false)} />}
 
       <div style={stageStyle}>
         {/* always-on shared brain outline (never hidden by chips) */}
