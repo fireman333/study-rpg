@@ -307,6 +307,9 @@ export async function answerERConsult(opts: {
         revenue: counters.revenue + revenueDelta,
         reputation: counters.reputation + reputationDelta,
         erConsultActive: null,
+        // Stamp shared cooldown for `rewire-hospital-events-to-non-reading-trigger`
+        // — prevents nav-roll re-fire within 3 min of dialog close.
+        lastInteractionEventAt: now,
       })
 
       const rewardGained = revenueDelta + reputationDelta
@@ -336,15 +339,21 @@ export async function answerERConsult(opts: {
  */
 export async function skipERConsult(active: ERConsultActiveState): Promise<void> {
   const db = getHospitalDB()
+  const now = Date.now()
   await db.transaction('rw', [db.gameCounters, db.erConsultLog], async () => {
     const counters = await db.gameCounters.get('singleton')
     if (!counters) return
     const cur = counters.erConsultActive ?? null
     if (!cur || cur.questionId !== active.questionId) return
-    await db.gameCounters.put({ ...counters, erConsultActive: null })
+    await db.gameCounters.put({
+      ...counters,
+      erConsultActive: null,
+      // Stamp shared cooldown (per rewire-hospital-events-to-non-reading-trigger).
+      lastInteractionEventAt: now,
+    })
     await appendERConsultLog({
       triggeredAt: active.triggeredAt,
-      resolvedAt: Date.now(),
+      resolvedAt: now,
       subjectId: active.subjectId,
       questionId: active.questionId,
       resolution: 'skipped',

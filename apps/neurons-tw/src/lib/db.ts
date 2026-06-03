@@ -1,5 +1,10 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
+import type {
+  DmnActiveBuffRow,
+  DmnCardRow,
+  DmnEventLogRow,
+} from '@study-rpg/content-neurons-tw'
 
 export type SynapseState = 'dormant' | 'weak' | 'strong'
 
@@ -15,8 +20,17 @@ export interface FamilyAccrualRow {
   ap: number
   firedToday: boolean
   lastFireDate: string | null
+  /**
+   * Vestigial after Collection 2.0 (AP no longer unlocks slots). Kept for
+   * schema continuity; reset to [] on the v10 upgrade.
+   */
   unlockedSlots: number[]
   sameDayCorrect: number
+  /**
+   * Monotonic per-family gacha pull count — the P0 soft-pity clock
+   * (Collection 2.0). Non-indexed additive field. Synced MAX-merge.
+   */
+  pullCount: number
 }
 
 export interface MetaRow {
@@ -24,22 +38,65 @@ export interface MetaRow {
   value: string
 }
 
+/**
+ * `meta` key for the homepage first-visit onboarding dismissal flag. Single
+ * source of truth so the onboarding component + the debug-reset path agree.
+ * Value `'true'` = dismissed (never re-show). (revamp-neurons-homepage-experience)
+ */
+export const HOMEPAGE_ONBOARDING_DISMISSED_KEY = 'homepageOnboardingDismissed'
+
 export interface FamilyMasteryRow {
   familyId: string
   correct: number
   total: number
 }
 
-export type VariantRarity = 'P1' | 'P2' | 'P3' | 'P4' | 'P5'
+export type VariantRarity = 'P0' | 'P1' | 'P2' | 'P3' | 'P4' | 'P5'
+
+/**
+ * Study-context captured at the moment a variant is minted (the Pikmin Bloom
+ * "birth context"). Display-only — read solely by the dex-card caption renderer
+ * in add-neurons-variant-provenance; stored as discrete fields so a later
+ * study-context→rarity capability can consume them without re-plumbing signals.
+ * Immutable after mint.
+ */
+export interface NeuronVariantProvenance {
+  /** Local-date string at mint (`'2026-06-01'`); the caption's birth date. */
+  bornAtISO: string
+  /** Family AP at unlock (equals the slot threshold; stored for forward-compat). */
+  apAtUnlock: number
+  /** Triggering correct answer's question had `everWrong === true` before the answer. */
+  wasRedemption: boolean
+  /** Player's daily correct-streak value at mint (≥ MILESTONE_STREAK_THRESHOLD → 里程碑). */
+  streakAtMint: number
+}
 
 export interface NeuronVariantRow {
   familyId: string
+  /** Variant index 0–5 (Collection 2.0): 0 = P0 apex, 1–5 = legacy sprites. */
   slotIndex: number
   rarity: VariantRarity
   displayName: string
   spriteKey: string
   rolledAt: number
+  /**
+   * Repurposed for Collection 2.0: `true` iff a P0 obtained via the soft-pity
+   * ramp (drives the dex `保底` chip). `false` for everything else.
+   */
   wasPityFloor: boolean
+  /**
+   * Duplicate count (Collection 2.0). Always written by the pull (≥ 1; increments
+   * on a dupe pull). Optional in the type for back-compat with rows from external
+   * bundles that predate the field — read sites default to 1 (`copies ?? 1`).
+   * Non-indexed additive field. Synced via MAX-merge (Phase 3 fusion consumes it).
+   */
+  copies?: number
+  /**
+   * Optional study-context provenance (add-neurons-variant-provenance). Absent
+   * on pre-upgrade rows → rendered as a 元老 / 傳承 individual (no backfill
+   * write). Non-indexed additive field.
+   */
+  provenance?: NeuronVariantProvenance
 }
 
 export interface LeaderboardProfileRow {
@@ -63,6 +120,69 @@ export interface AchievementRow {
   notificationShown: boolean
 }
 
+/**
+ * Per-question bookmark row (Dexie v7+). PK = questionId — at most one
+ * row per question per user. `addedAt` is set once on first add; `updatedAt`
+ * updates on every write (used for R2 LWW sync).
+ *
+ * Per add-neurons-question-bookmarks spec.
+ */
+export interface QuestionBookmarkRow {
+  questionId: string
+  family: string
+  addedAt: number
+  updatedAt: number
+}
+
+/**
+ * Tombstone row for a removed bookmark (Dexie v7+). Carries cross-device
+ * delete propagation through the R2 LWW pipeline — a tombstone with
+ * `updatedAt > local bookmark updatedAt` triggers delete on apply.
+ */
+export interface QuestionBookmarkTombstoneRow {
+  questionId: string
+  updatedAt: number
+}
+
+/**
+ * Per-question binary modifier flags (Dexie v8+). Two flags coexist on one
+ * row — easyMarked (「✨ 太簡單」) and guessedMarked (「🤔 我亂猜的」).
+ *
+ * Both can be true simultaneously. Row is created lazily on first flag set;
+ * deletion is not supported (both flags → false keeps the row alive for
+ * cross-device LWW convergence). Per add-neurons-srs-binary-modifiers spec.
+ *
+ * Future `add-neurons-srs-pipeline` will consume these as SRS scheduling
+ * inputs (easy → longer interval, guessed → shorter / re-queue).
+ */
+export interface QuestionFlagRow {
+  questionId: string
+  easyMarked: boolean
+  guessedMarked: boolean
+  updatedAt: number
+}
+
+/**
+ * Per-question answer-result history (Dexie v9+). One row per answered
+ * question. `lastResult` is LWW (the most recent attempt); `everWrong` is a
+ * monotonic-OR flag — once the player answers wrong it stays `true` forever,
+ * even after a later correct answer. Backs the 「目前未答對」(`lastResult==='wrong'`)
+ * + 「歷史曾錯」(`everWrong===true`) sub-tabs on `/bookmarks`.
+ *
+ * Per add-neurons-wrong-questions-subtab spec. Sync: the questionHistory
+ * adapter resolves `everWrong` via monotonic-OR (NOT LWW) — see
+ * lib/sync/tables.ts. `everWrong` is intentionally NOT a Dexie index (IndexedDB
+ * cannot index booleans); the two sub-tabs filter in JS off a full `toArray()`.
+ */
+export interface QuestionHistoryRow {
+  questionId: string
+  family: string
+  lastResult: 'correct' | 'wrong'
+  everWrong: boolean
+  lastAnsweredAt: number
+  updatedAt: number
+}
+
 export class NeuronsDB extends Dexie {
   synapses!: EntityTable<SynapseRow, 'pairKey'>
   familyAccrual!: EntityTable<FamilyAccrualRow, 'familyId'>
@@ -71,6 +191,25 @@ export class NeuronsDB extends Dexie {
   neuronVariants!: Table<NeuronVariantRow, [string, number]>
   leaderboardProfile!: EntityTable<LeaderboardProfileRow, 'user_id'>
   achievements!: EntityTable<AchievementRow, 'id'>
+  // ─── DMN fate-card tables (Dexie v6+) ──────────────────────────────────
+  // Per add-neurons-dmn-fate-card spec. All additive — no PK change to existing
+  // tables (per dexie_pk_change_pitfall.md discipline).
+  dmnCards!: EntityTable<DmnCardRow, 'cardId'>
+  dmnEventLog!: EntityTable<DmnEventLogRow, 'cardId'>
+  dmnActiveBuffs!: Table<DmnActiveBuffRow, number>
+  // ─── Question bookmarks (Dexie v7+) ─────────────────────────────────────
+  // Per add-neurons-question-bookmarks. Additive — 2 new tables, existing
+  // tables untouched. Tombstones table carries cross-device delete propagation.
+  questionBookmarks!: EntityTable<QuestionBookmarkRow, 'questionId'>
+  questionBookmarkTombstones!: EntityTable<QuestionBookmarkTombstoneRow, 'questionId'>
+  // ─── Question flags (Dexie v8+) ─────────────────────────────────────────
+  // Per add-neurons-srs-binary-modifiers. Additive — single composite row
+  // per question carries both easyMarked + guessedMarked flags.
+  questionFlags!: EntityTable<QuestionFlagRow, 'questionId'>
+  // ─── Question answer-result history (Dexie v9+) ─────────────────────────
+  // Per add-neurons-wrong-questions-subtab. Additive — 1 new table. Backs the
+  // 錯題 sub-tabs (目前未答對 / 歷史曾錯). everWrong = monotonic-OR (sync adapter).
+  questionHistory!: EntityTable<QuestionHistoryRow, 'questionId'>
 
   constructor() {
     super('neurons-rpg')
@@ -116,6 +255,203 @@ export class NeuronsDB extends Dexie {
       // openspec/specs/neurons-achievements/spec.md "Dexie v5" requirement.
       achievements: 'id, unlockedAt',
     })
+    // Per add-neurons-dmn-fate-card. Additive: 3 new tables, existing tables
+    // unchanged. New `meta` keys (dmnDrawsAvailable / dmnTimeAxisMinutesAccrued
+    // / etc.) reuse the existing `meta` table — no schema entry needed.
+    this.version(6).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      // DMN card persistence. PK = cardId (closed-cap catalog of 20 entries);
+      // secondary indices on obtainedAt + rarity for collection page queries.
+      dmnCards: 'cardId, obtainedAt, rarity',
+      // Idempotency log. PK = cardId — one row per dispatched card. Sync uses
+      // monotonic-union merge (see r2/tables.ts adapter).
+      dmnEventLog: 'cardId, dispatchedAt',
+      // Runtime buff rows (family-buff / variant-rate-up). Auto-inc PK; secondary
+      // indices on expiresAt for cleanup queries + buffKind for type filter.
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+    })
+    // Per add-neurons-question-bookmarks. Additive: 2 new tables.
+    // questionBookmarks: PK = questionId (one row per bookmarked question);
+    //   secondary indices on family (filter queries) + addedAt (chronological)
+    //   + updatedAt (LWW sync).
+    // questionBookmarkTombstones: PK = questionId; indexed on updatedAt.
+    this.version(7).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      dmnCards: 'cardId, obtainedAt, rarity',
+      dmnEventLog: 'cardId, dispatchedAt',
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+      questionBookmarks: 'questionId, family, addedAt, updatedAt',
+      questionBookmarkTombstones: 'questionId, updatedAt',
+    })
+    // Per add-neurons-srs-binary-modifiers. Additive: 1 new table.
+    // questionFlags: PK = questionId (one row per question); secondary
+    //   indices on easyMarked / guessedMarked for filter queries +
+    //   updatedAt for LWW sync.
+    this.version(8).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      dmnCards: 'cardId, obtainedAt, rarity',
+      dmnEventLog: 'cardId, dispatchedAt',
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+      questionBookmarks: 'questionId, family, addedAt, updatedAt',
+      questionBookmarkTombstones: 'questionId, updatedAt',
+      questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+    })
+    // Per add-neurons-wrong-questions-subtab. Additive: 1 new table.
+    // questionHistory: PK = questionId; secondary indices on family + lastResult
+    //   (filter queries) + lastAnsweredAt (sort) + updatedAt (LWW sync).
+    //   everWrong is NOT indexed — IndexedDB cannot index booleans; the
+    //   歷史曾錯 sub-tab filters everWrong in JS off a full toArray().
+    this.version(9).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      dmnCards: 'cardId, obtainedAt, rarity',
+      dmnEventLog: 'cardId, dispatchedAt',
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+      questionBookmarks: 'questionId, family, addedAt, updatedAt',
+      questionBookmarkTombstones: 'questionId, updatedAt',
+      questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+      questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+    })
+    // Per rework-neurons-collection-gacha (Collection 2.0 Phase 2). Schema indices
+    // are IDENTICAL to v9 (the new `copies` + `pullCount` fields are non-indexed,
+    // and the neuronVariants PK [familyId+slotIndex] is RETAINED — Dexie cannot
+    // change a PK in an upgrade; dexie_pk_change_pitfall). The v10 work is the
+    // FULL RESET upgrade callback below.
+    this.version(10)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // FULL RESET — collection only. The variant schema/semantics changed
+        // (slot range 0–5, fixed rarity, copies); wipe the collection + gacha
+        // state. PRESERVE study progress: AP / synapses / mastery / question
+        // history / bookmarks / achievements / totalStudyMinutes. No grandfather,
+        // no migration banner (per rework-neurons-collection-gacha design D8).
+        await tx.table('neuronVariants').clear()
+        await tx
+          .table('familyAccrual')
+          .toCollection()
+          .modify((row: FamilyAccrualRow) => {
+            row.unlockedSlots = []
+            row.pullCount = 0
+          })
+        await tx.table('meta').put({ key: 'neuralEnergyEarned', value: '0' })
+        await tx.table('meta').put({ key: 'neuralEnergySpent', value: '0' })
+      })
+    // Per rework-neurons-variant-pyramid. Schema indices IDENTICAL to v10 (the
+    // pyramid is data-only: slotIndex widens 0..5 → 0..N-1 but the PK
+    // [familyId+slotIndex] is RETAINED — Dexie cannot change a PK in an upgrade;
+    // dexie_pk_change_pitfall). The v11 work is the SECOND full reset of the
+    // collection: the variant slot model changed (variable variants per tier,
+    // explicit rarity), so wipe the collection + reset P0 pity. Unlike v10 this
+    // upgrade PRESERVES the neural-energy balance (study-earned, not collection
+    // state) — only neuronVariants + familyAccrual pullCount/unlockedSlots reset.
+    this.version(11)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // FULL RESET — collection only (pyramid slot-model change). Wipe the
+        // collection + reset P0 pity. PRESERVE everything else INCLUDING the
+        // neural-energy balance (study-earned progress): AP / synapses / mastery /
+        // question history / bookmarks / achievements / totalStudyMinutes /
+        // neuralEnergyEarned / neuralEnergySpent. No grandfather, no banner.
+        await tx.table('neuronVariants').clear()
+        await tx
+          .table('familyAccrual')
+          .toCollection()
+          .modify((row: FamilyAccrualRow) => {
+            row.unlockedSlots = []
+            row.pullCount = 0
+          })
+      })
+    // Per rework-neurons-open-collection. Schema indices IDENTICAL to v11 (no
+    // row-shape change — the open-collection rework is completion-logic + view +
+    // achievement/leaderboard reframe). The v12 work is the THIRD full reset of
+    // the collection: an owner-chosen clean slate (NOT a row-shape necessity;
+    // design D5). Same preserve discipline as v11 — wipe neuronVariants + reset
+    // P0 pity, PRESERVE neural-energy balance + all study progress.
+    this.version(12)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // THIRD full reset — collection only (open-collection clean slate).
+        // PRESERVE everything else INCLUDING the neural-energy balance: AP /
+        // synapses / mastery / question history / bookmarks / achievements /
+        // totalStudyMinutes / neuralEnergyEarned / neuralEnergySpent. No
+        // grandfather, no migration banner.
+        await tx.table('neuronVariants').clear()
+        await tx
+          .table('familyAccrual')
+          .toCollection()
+          .modify((row: FamilyAccrualRow) => {
+            row.unlockedSlots = []
+            row.pullCount = 0
+          })
+      })
   }
 }
 
@@ -140,6 +476,7 @@ export async function initFamilyAccrualIfEmpty(pack: ContentPack): Promise<void>
           lastFireDate: null,
           unlockedSlots: [],
           sameDayCorrect: 0,
+          pullCount: 0,
         })),
       )
       const existingMeta = await db.meta.get('lastResetDate')

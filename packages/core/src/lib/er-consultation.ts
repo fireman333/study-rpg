@@ -13,11 +13,17 @@ import type { SubjectId, QuestionId } from '../types'
 export const ER_CONSULT_REWARD_MULTIPLIER = 1.8
 
 /**
- * Cadence: tick interval between ER consult rolls. Tick frequency is set by the
- * host (medexam2 uses 5s/tick, so 72 ticks = 6 min, 120 ticks = 10 min).
- * Re-randomized after each roll fires.
+ * @deprecated since `rewire-hospital-events-to-non-reading-trigger` (2026-05-26).
+ * The medexam2-hospital-tw consumer moved ER consult rolls off the reading-session
+ * tick onto interaction-based probabilistic rolls (see content-pack
+ * `ER_ROLL_PROBABILITY` + `NON_READING_EVENT_COOLDOWN_MS`). These constants are
+ * retained as part of the published `@study-rpg/core` API for external forks
+ * still using a tick-based scheduler. Will be removed in a future major release.
  */
 export const ER_CONSULT_TICK_INTERVAL_MIN = 72
+/**
+ * @deprecated See `ER_CONSULT_TICK_INTERVAL_MIN`.
+ */
 export const ER_CONSULT_TICK_INTERVAL_MAX = 120
 
 /** Cap on `erConsultLog` rows; oldest deleted on overflow. */

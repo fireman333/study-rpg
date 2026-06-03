@@ -25,6 +25,7 @@ import {
   setERConsultSettings,
   skipERConsult,
 } from '../services/er-consultation'
+import { maybeRollNonReadingEvent } from '../services/non-reading-event-trigger'
 
 const EXPLANATION_FALLBACK = '📌 此題詳解暫無 — 可至[陽明國考考古題小組](https://sites.google.com/view/ymmedexam/ans)查詢'
 
@@ -134,6 +135,11 @@ function ERConsultDialogInner({
     if (wasCorrect) {
       setToast(`+${result.revenueDelta} 💰 / +${result.reputationDelta} 聲望`)
     }
+    // Hook A — `rewire-hospital-events-to-non-reading-trigger`: ER answer is
+    // a quiz commit. Cooldown was just stamped by `answerERConsult` so this
+    // call almost always skips at the gate; included for symmetry with
+    // QuizModal so any code reviewer can predict the trigger surface.
+    void maybeRollNonReadingEvent('quiz')
   }
 
   async function requestSkip(): Promise<void> {

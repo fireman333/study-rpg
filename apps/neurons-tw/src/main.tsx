@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import { db } from './lib/db'
 import '@study-rpg/theme-pixel-neurons/styles/global.css'
+import './styles.css'
 
 if (import.meta.env.DEV) {
   db.open().then(async () => {

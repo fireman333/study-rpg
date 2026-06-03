@@ -13,6 +13,7 @@
  */
 
 import { db } from '../db'
+import { consumeStreakShield } from './dmn-event-dispatcher'
 
 const KEY_CURRENT = 'currentQuizCorrectStreak'
 const KEY_MAX = 'maxQuizCorrectStreak'
@@ -44,5 +45,19 @@ export async function incrementCurrentStreak(): Promise<void> {
 
 /** Reset current to 0; preserve max. Caller invokes from active transaction. */
 export async function resetCurrentStreak(): Promise<void> {
+  // DMN streak-shield: if an armed shield is available, consume it instead of
+  // resetting current. Shield prevents one streak break (per DMN spec Req
+  // "Five DMN event types SHALL be defined with bounded magnitudes" — streak-
+  // shield row). Best-effort: failure to read shield falls through to normal
+  // reset.
+  try {
+    const shielded = await consumeStreakShield()
+    if (shielded) {
+      console.info('[streak] DMN streak-shield consumed; preserving current streak')
+      return
+    }
+  } catch (err) {
+    console.error('[streak] shield check failed; proceeding with reset:', err)
+  }
   await db.meta.put({ key: KEY_CURRENT, value: '0' })
 }

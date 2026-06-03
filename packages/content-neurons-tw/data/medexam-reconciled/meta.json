@@ -1,0 +1,18 @@
+{
+  "id": "medexam-tw",
+  "displayName": "台灣一階醫師國考",
+  "locale": "zh-TW",
+  "builtAt": "2026-05-30T00:00:00.000Z",
+  "sourceCredit": "考選部（試題與標準答案）+ 陽明國考考古題小組（詳解，CC-BY-NC）",
+  "sourceUrl": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx",
+  "license": "CC-BY-NC-4.0",
+  "stats": {
+    "totalQuestions": 3600,
+    "papers": 36,
+    "subjects": 10,
+    "withExplanation": 3184,
+    "gapsFilled": 416,
+    "disputed": 27,
+    "multiAnswer": 54
+  }
+}

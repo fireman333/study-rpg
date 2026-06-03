@@ -51,6 +51,12 @@ M2（一階）+ M_2nd（二階 hospital mode）並行用 git worktree 隔離。�
 - **Never** run `openspec archive --yes` raw CLI — always use `/opsx:archive` slash (it has a sync gate the raw CLI skips)
 - Engine API surface (`packages/core/src/types.ts`) is the third-party fork contract; breaking changes need a CHANGELOG entry
 - `packages/core/` stays content-agnostic — medical terms belong in theme / content packs, never in core
+
+### 互動語言（繁體中文預設）
+
+執行任何 OpenSpec workflow（`/opsx:*` 或 `openspec-*` skill：propose / apply / explore / onboard / continue / verify / archive）時，**所有對使用者的 clarifying question、AskUserQuestion 選項與說明、確認提示一律用繁體中文**。OpenSpec command template 是英文，模型容易被帶著用英文問 — 本專案明確覆寫為繁中互動（對齊使用者全域偏好）。
+
+保留英文：醫學名詞（首次附中文對照）、統計 / 程式 / 數學術語（regression、p-value、TypeScript…）、spec artifact 的 RFC 2119 normative 文字（SHALL / MUST、WHEN/THEN BDD scenario）、commit message、code comment。
 <!-- END: spec skill -->
 
 ## Deploy targets (in-flight migration)
@@ -101,10 +107,12 @@ pnpm -r typecheck
 
 Key handles for R2 path:
 - Worker: `https://study-rpg-sync-worker.tony85314.workers.dev` (source at `cloudflare/sync-worker/`)
-- Blob layout: `users/<user_id>/<bundle>-snapshot.json.gz` (gzipped JSON, schema_version 1)
+- Blob layout: `users/<user_id>/<bundle>-snapshot.json.gz` (gzipped JSON body holds `meta.schema_version`; R2 `customMetadata['schema-version']` is the **server-authoritative** copy as of `add-bundle-schema-version-guard` 2026-05-27)
 - Migration banner: `apps/<app>/src/components/MigrationBanner.tsx`
 - R2 client adapter: `apps/<app>/src/lib/sync/r2/{client,bundles,engine-r2,migrate-from-supabase}.ts`
 - Reconcile script: `scripts/reconcile.ts` (run via `pnpm reconcile --session <path>`)
+
+**Worker-side schema_version downgrade guard** (Phase 1 opt-in, shipped 2026-05-27 via `add-bundle-schema-version-guard`): PUT presign requests SHOULD include `schema_version: <N>` in the body. When present, the Worker HEADs the existing R2 blob's `customMetadata['schema-version']` (legacy / absent treated as 0), refuses 409 `r2_schema_downgrade_refused` if `incoming < existing`, otherwise mints a presigned URL with `x-amz-meta-schema-version: <N>` baked into the SigV4 `X-Amz-SignedHeaders` scope. Client MUST send the exact header at PUT time (response `requiredHeaders` field tells it what to send) — omission or tampering causes R2 to reject with 403 SignatureDoesNotMatch. Client-side localStorage guard remains active during P1; legacy clients omitting `schema_version` get the pre-change behaviour (no enforcement) for grace period. Smoke: `bash cloudflare/sync-worker/scripts/smoke-presign-sv.sh`. Spec: [`openspec/specs/dexie-schema-guards/spec.md`](openspec/specs/dexie-schema-guards/spec.md). Follow-ups: `require-bundle-schema-version-in-presign` (P2 — make required), `remove-client-side-sv-downgrade-guard` (P3 — single source of truth).
 
 ### Project + env
 
@@ -345,6 +353,85 @@ Each hook wrapped in try/catch (`[achievement]` channel) so failure doesn't brea
 
 Full change reference: `openspec/changes/archive/2026-05-25-add-neurons-achievements/`.
 
+## DMN fate cards (M_3rd ext, 2026-05-27)
+
+`apps/neurons-tw` ships a mixed-trigger (time-axis + behavior-axis) fate-card collection system themed on **Default Mode Network** — the brain's resting-state network that produces "spontaneous insight" while the player rests. Catalog = 20 cards × 4-tier rarity (P1 鑽石 × 2 / P2 金 × 4 / P3 銀 × 6 / P4 銅 × 8) with weights 2/10/30/58. Each card simultaneously triggers a one-time event + enters the permanent collection (Pokédex-style closed cap).
+
+Five event kinds (each ≥ 4 cards in catalog — build-time validator enforces ≥ 3 minimum):
+- `family-buff`: random family AP +2/correct for 1 hour
+- `variant-rate-up`: next variant slot unlock uses boosted weights 20/30/30/15/5 (single-consume)
+- `quick-review-batch`: surface 5 SRS-due questions (placeholder toast until SRS pipeline ships)
+- `streak-shield`: one-use immunity to next streak break
+- `hidden-reveal`: silhouette-hint next undrawn P1 card on `/dmn` page
+
+Trigger axes:
+- **Time axis** (cap 2 draws/day): +1 draw per 30 min accrued reading time. **Currently inactive** — `ReadingTimerSubscriber` interface is wired but no timer service publishes to it; will activate when `polish-neurons-pre-ship` ships the reading-timer
+- **Behavior axis** (cap 3 draws/day): listens to `connectome.variantSlotUnlocked` / `connectome.synapseFormed` / `connectome.synapseStrengthened` — each grants +1 bonus draw. (Spec amendment 2026-05-27 dropped `streak.dayIncreased` because neurons-tw has no daily-open streak service, and dropped `actionPotentialThresholdCrossed` because AP thresholds = variant slot thresholds → redundant.)
+
+Catalog + types + validator: `packages/content-neurons-tw/src/{dmn-types,dmn-cards,dmn-card-validator}.ts`. Smoke fixture: `scripts/verify-dmn-validator.ts` (7 cases pass). Catalog uses well-established DMN neuroscience anchors (mPFC / PCC / precuneus / angular gyrus / hippocampal sharp-wave ripples / REM consolidation per Buckner & DiNicola 2019, Raichle 2015).
+
+**Critical sync semantics — `dmnEventLog` uses MONOTONIC-UNION merge, NOT LWW.** `apps/neurons-tw/src/lib/sync/tables.ts` `dmnEventLogAdapter.apply()` carries the carve-out: rows present on either side stay in the union; both sides converge to the same set; earlier `dispatchedAt` wins as the provenance instant. This neutralizes the "fresh-state device pulls bundle and re-triggers all dispatched events" failure mode. Mirrors 二階 `everWrong` monotonic-OR discipline. **DO NOT replace with LWW** — locked by Vitest `dmn-event-idempotency.test.ts`.
+
+**R2 bundle schema bump v1 → v2 + reader tolerance.** `apps/neurons-tw/src/lib/sync/r2/bundles.ts`:
+- `SCHEMA_VERSION` 1 → 2 (additive: adds 3 new adapter keys `dmnCards` / `dmnEventLog` / `dmnActiveBuffs` + 8 new meta keys to the allowlist)
+- `validateBundleMeta` now `console.info(...)` + continues parse on `schema_version > SCHEMA_VERSION` (was: throw `unsupported_schema_version`). Defends `< 1` still. This is the **forward-compat tolerance pattern** that lets v1 clients pull v2 bundles without dying — unknown adapter keys silently drop because `applyBundleSnapshot` iterates only locally-registered adapters
+- v2 client reading v1 bundle: `dmn-*` fields absent → preserve-on-omission (empty local tables stay empty; non-empty local tables not overwritten with empty incoming)
+
+Worker is bundle-opaque (pure presigned-URL transport) — no Worker code change needed for the v2 bump.
+
+Dexie versions claimed in flight (neurons-tw): v6 = `add-neurons-dmn-fate-card` (adds `dmnCards` / `dmnEventLog` / `dmnActiveBuffs` tables).
+
+Trigger detector + draw orchestrator + event dispatcher + 3 consumer hooks (family-buff in `connectome.recordCorrectAnswer`, variant-rate-up in `variant-gacha`, streak-shield in `streak.resetCurrentStreak`) all in `apps/neurons-tw/src/lib/services/dmn-*.ts`. UI: `DmnDrawButton` (top nav), `DmnDrawModal` (modal + reveal inline), `DmnCollectionPage` (`/dmn` route, responsive grid), `DmnQuickReviewToast` (placeholder for quick-review-batch event).
+
+Test coverage: `apps/neurons-tw/src/__tests__/{db-v6-migration,dmn-draw-mechanics,dmn-event-idempotency,dmn-bundle-cross-version,dmn-trigger-counters}.test.ts` — 27 Vitest tests covering v6 migration, draw orchestrator, event log idempotency + monotonic-union, schema_version forward-compat, daily cap enforcement. Run via `pnpm --filter @study-rpg/neurons-tw test` (vitest infra newly bootstrapped in this change, mirroring 二階).
+
+Sprite assets ship as `dmn:card:<cardId>` × 20 + `dmn:card-back` × 1 placeholders (1×1 transparent PNG) — real pixel-art deferred to follow-up `generate-dmn-card-artworks` (codex CLI batch, ~1 hr; mirror `generate-neurons-sprites` pattern).
+
+Full change reference: `openspec/changes/add-neurons-dmn-fate-card/` (proposal / design / specs / tasks).
+
+## Neurons wrong-answer list (M_3rd ext, 2026-06-01)
+
+`apps/neurons-tw` ships a 「錯題」 review experience on `/bookmarks`, mirroring 二階 `wrong-answer-list` but built fresh because neurons had **no per-question result tracking** before this change (`recordCorrectAnswer`/`recordIncorrectAnswer` only ever took `familyId`). Capability spec: [`openspec/specs/neurons-wrong-answer-list/spec.md`](openspec/specs/neurons-wrong-answer-list/spec.md).
+
+`/bookmarks` is now a three-tab container: **手動收藏** (existing ⭐ list, default) / **目前未答對** (`lastResult === 'wrong'`) / **歷史曾錯** (`everWrong === true`, never leaves). The two wrong-answer tabs are live derived views of a new `questionHistory` Dexie store — no separate store, no grace toast (permanent error library by design). Wrong-answer rows are display-only (no inline actions). A single shared filter bar (科目 family + **年份** year + ✨/🤔 標記) applies across all three tabs; exam year is parsed from the question id prefix (`106-1-醫學一-解剖學-Q1` → `106`, helper `lib/wrong-answer-filter.ts`).
+
+Key handles:
+- New `questionHistory` Dexie store (**v9**, additive): `{ questionId, family, lastResult, everWrong, lastAnsweredAt, updatedAt }`. `everWrong` is NOT indexed (IndexedDB can't index booleans) — the 歷史曾錯 tab filters in JS off a full `toArray()`. v8→v9 upgrade fixture at `apps/neurons-tw/src/__tests__/db-v8-to-v9-migration.test.ts`.
+- Recording: `lib/services/question-history.ts` `recordQuestionResult(questionId, family, isCorrect)` (monotonic-OR `everWrong`) + single `useQuestionHistory()` live-query hook (BookmarksPage derives both wrong views from one subscription). Wired in `QuizModal.handlePick` after the existing record calls, best-effort try/catch (channel `[question-history]`) so it never breaks the answer flow. **neurons has only one answer entry point (QuizModal)** — any future answer mode MUST also call `recordQuestionResult`.
+- **Critical sync semantics — `questionHistory` uses MONOTONIC-OR merge for `everWrong`, NOT LWW.** `apps/neurons-tw/src/lib/sync/tables.ts` `questionHistoryAdapter` resolves `everWrong = (local?.everWrong ?? false) || incoming.everWrong`; `lastResult`/`family`/`lastAnsweredAt` are LWW on the greater `lastAnsweredAt`. Mirrors 二階 `everWrong` + neurons `dmnEventLog` discipline. **DO NOT replace with LWW** — locked by `apps/neurons-tw/src/__tests__/question-history-merge.test.ts`.
+- R2 bundle `SCHEMA_VERSION` bumped **4 → 5** (`lib/sync/r2/bundles.ts`); additive + reader tolerance (v4 clients drop the unknown key, v9 clients reading v4 bundles preserve local). Worker is bundle-opaque — no Worker change.
+- Existing players: **no backfill, no banner** — the error library accrues from upgrade onward.
+
+Full change reference: `openspec/changes/archive/2026-06-01-add-neurons-wrong-questions-subtab/` (proposal / design / specs / tasks).
+
+## Neurons context-driven variant art (M_3rd ext, 2026-06-02)
+
+`apps/neurons-tw` turns each collected variant's **birth-context provenance** (from `add-neurons-variant-provenance`) into a glanceable **visual** layer — Pikmin Bloom step 3「帽子=出身」. Capability spec: [`openspec/specs/neurons-variant-context-art/spec.md`](openspec/specs/neurons-variant-context-art/spec.md) (new). The text birth-caption (`lib/variant-caption.ts`) is the sibling text channel; this is the visual channel.
+
+**Background-watermark model (all context art renders BEHIND the neuron).** The neuron always paints on top at full opacity → never occluded, and there are no positioned foreground badges to align. This is a **design pivot (2026-06-02)** made during the live verify pass: earlier cuts (ornate foreground overlays, then iconographic corner badges + a top-left EEG glyph) crowded the soma and had alignment problems the owner rejected — "做成半透明背景圖，比較不會有對齊問題".
+
+**Two channels, both pure-derived at render (zero new state):**
+1. **Decor = 3 universal full-bleed neuro-field textures** composited as faint backdrops (`objectFit:cover`, opacity 0.11 single / 0.07 stacked) behind the neuron, chosen from `provenance`:
+   - `decor:redemption` — action-potential **firing field** — `provenance.wasRedemption === true` (LTP 浴火重生)
+   - `decor:milestone` — **myelinated-axon field** (nodes of Ranvier) — `streakAtMint >= MILESTONE_STREAK_THRESHOLD` (7, saltatory milestone)
+   - `decor:elder` — antique **Cajal histology plate** — `provenance === undefined` (元老/傳承)
+   救贖 + 里程碑 **stack**; 元老 is mutually exclusive (requires absent provenance).
+2. **Brain-wave band** from the variant's birth **hour-of-day**: `brainwaveBand(rolledAt)` reads the hour in a **fixed Asia/Taipei tz** (rolledAt is absolute → cross-device deterministic) → circadian epoch's dominant EEG band: 00–06 **δ** / 06–12 **β** / 12–18 **α** / 18–24 **θ**. Every row gets a band (incl. 元老 — `rolledAt` always exists). Rendered as a colour-coded **δ/θ/α/β** Greek-letter corner watermark (`BAND_META[band].color`, opacity 0.75) — the card's **only colour accent**. NO full-cell colour wash (an earlier per-band wash made the grid look like a rainbow; owner flagged "不同顏色背景"). Band↔state mapping **OpenEvidence-grounded** (NEJM Brown 2010 `10.1056/NEJMra0808281`; Constant 2012 `10.1111/j.1460-9592.2012.03883.x`): δ deep-sleep / θ drowsy-REM / α relaxed / β alert.
+
+Context art is orthogonal to the **rarity** channel (P1–P5 colour / chip / spin) — rarity uses colour, context uses neuro-field texture + band letter.
+
+Key handles:
+- Pure helper `apps/neurons-tw/src/lib/variant-decor.ts` → `variantContextArt(row): { decor: DecorKey[]; band: BandKey }` + `brainwaveBand(rolledAt)` + `BAND_META`. Mirror of `variant-caption.ts`. Unit-tested (`__tests__/variant-decor.test.ts`, 16 cases: decor mapping + stack + elder + birth-hour→band incl. 4 boundaries + elder-gets-a-band).
+- Shared composer `apps/neurons-tw/src/components/VariantSprite.tsx` (`{ row, size, alt, children }`): `position:relative; overflow:hidden` wrap → faint decor field(s) → band letter → base sprite **on top**. Optional `children` lets a caller pass an animated base (modal hero evolve sheet / alive idle img) so reveal animation is preserved. **Adding any new collected-variant render site MUST go through `VariantSprite`.**
+- 3 render sites wired: `routes/CollectionPage.tsx` `VariantSlotCard` (dex card, size 64) + family-`<section>` header **mini representative** (size 28 — decision B 2026-06-02, since the representative isn't shown on the connectome homepage; family node there uses the `subject:` icon) + `components/VariantUnlockModal.tsx` (mint reveal, size 128).
+- Theme reg: `packages/theme-pixel-neurons/sprites/decor/{redemption,milestone,elder}.png` (384×384 full-bleed neuro-field textures, 16-color transparent, Gemini-gen + chroma-key/quantize) via `sprites/decor/*.png` glob in `src/sprites.ts` (`DECOR_KEYS`, `?? TRANSPARENT_PIXEL` → missing asset = no field, never a broken image).
+
+**Zero schema / sync change.** Decor + band are a pure function of the already-synced `provenance` + `rolledAt` — no Dexie `.version()` bump, no R2 bundle `SCHEMA_VERSION` bump, no new adapter. A second device computes identical art. (No Dexie change → no upgrade-fixture-lint trigger.)
+
+Deferred follow-ups: per-NT-branch flavoured decor (4×3=12 assets); sparser milestone myelin field (currently ~93% coverage → soft gold haze at low opacity). Ship universal first, revisit with telemetry.
+
+Full change reference: `openspec/changes/context-driven-variant-art/` (proposal / design / specs / tasks).
+
 ## Source data path
 
 題庫原始 .md 在使用者本機（**不在 repo 內**）：
@@ -401,5 +488,7 @@ Full change reference: `openspec/changes/add-bookmarks-filters-and-wrong-history
 - `font-family: 'Cubic 11'` 必須來自 host app `public/fonts/`（透過 `@font-face`），theme package 不能直接 ship webfont 給 npm consumer，因 npm 不會自動 publish 字型檔
 - **Hospital tier display / canonical separation**（2026-05-23 via `add-abbreviated-tier-labels-medexam2`）— UI 顯示走 `apps/medexam2-hospital-tw/src/lib/tier-labels.ts` 的 `tierLabel()` 短稱（診所 / 區域 / 醫中 / 大廟）；canonical type strings 仍為 `'診所' | '區域醫院' | '醫學中心' | '國家級教學醫院'`（HospitalTier union），這些 canonical 值散落於 Dexie、R2 bundle、D1 leaderboard、`HOSPITAL_TIER_TO_NUM` mapping、scene key mapping、所有 spec scenarios。**規則**：任何**用戶可見**的 tier 字串渲染都應該走 `tierLabel()`；任何**程式邏輯**比較或儲存值都用 canonical。HelpMenu 是例外，第一次提到每個 tier 時用「短稱（canonical）」雙寫格式以幫舊玩家對應。Tutorial / 簡短提示用短稱即可（無 disambiguation）。aria-label / accessibility 文字可用 canonical 給 screen readers
 - **SRS first-interval lengthening + opt-in modifiers**（2026-05-25 via `tune-srs-binary-modifiers-and-intervals`）— `STANDARD_INITIAL_INTERVALS` changed `[1, 6]` → `[3, 7]` in `packages/core/src/lib/srs.ts`. 一階 + 二階 QuizModal 答對狀態多 2 顆 opt-in 按鈕：✨ 「太簡單」(`reviewCardEasy/Binary` — `ease ×1.5`、`interval ×3`、二階順手 `everWrong = false`) 和 🤔 「我亂猜的」(`reviewCardGuessed/Binary` — `interval = 1`、ease 不扣). 二階 `everWrong` 同步 merge 從 monotonic-OR 改 row-level LWW via `lastAnsweredAt`，所以 「太簡單」 的 explicit clear 可跨裝置 propagate；舊 client 沒寫 `everWrong` 欄位的 payload 仍保 local true（preserve-on-omission fallback）。DEV-only `globalThis.__srs.getStats()` 暴露 ease distribution / button click count / due queue size（prod build 已驗 strip 乾淨，0 hits）
-- **Vite `.env.local` 是 per-app 不是 monorepo root**（2026-05-25 踩過，付出代價：兩次 prod 部署 regression 把 一階+二階 cloud sync 整個關掉 40 分鐘）— Vite build 時讀的是 **CWD 的 `.env.local`**。`pnpm --filter @study-rpg/<app> build` 切換到 `apps/<app>/`，所以 Vite 讀的是 `apps/<app>/.env.local`，**不是 repo root 的 `.env.local`**。**規則**：每個 app（`apps/medexam-tw/`、`apps/medexam2-hospital-tw/`、`apps/neurons-tw/`）各放一份 `.env.local`（已都 gitignored），即使內容一模一樣。Root `.env.local` 可以留給 backend admin scripts（`scripts/bulk-migrate.ts` / `reconcile.ts` 等用 dotenv 從 cwd 讀）。**症狀**：build 完的 JS bundle 沒含 `jakdyjxojokyqxeiuukx` 字串、`getSupabase()` 回 `null`、console 噴 `[auth] Supabase env vars missing → cloud sync disabled`、UI 不顯示 sign-in CTA / 已同步 chip。**驗證指令**：`curl -s https://med-study-rpg.com/<subpath>/assets/index-<hash>.js | grep -c jakdyjxojokyqxeiuukx`，0 = env 沒 baked、>=1 = OK。
+- **Vite `.env.local` 是 per-app 不是 monorepo root**（2026-05-25 踩過，付出代價：兩次 prod 部署 regression 把 一階+二階 cloud sync 整個關掉 40 分鐘）— Vite build 時讀的是 **CWD 的 `.env.local`**。`pnpm --filter @study-rpg/<app> build` 切換到 `apps/<app>/`，所以 Vite 讀的是 `apps/<app>/.env.local`，**不是 repo root 的 `.env.local`**。**規則**：每個 app（`apps/medexam-tw/`、`apps/medexam2-hospital-tw/`、`apps/neurons-tw/`）各放一份 `.env.local`（已都 gitignored），即使內容一模一樣。Root `.env.local` 可以留給 backend admin scripts（`scripts/bulk-migrate.ts` / `reconcile.ts` 等用 dotenv 從 cwd 讀）。**症狀**：build 完的 JS bundle 沒含 `jakdyjxojokyqxeiuukx` 字串、`getSupabase()` 回 `null`、console 噴 `[auth] Supabase env vars missing → cloud sync disabled`、UI 不顯示 sign-in CTA / 已同步 chip。**驗證指令**：`curl -s https://med-study-rpg.com/<subpath>/assets/index-<hash>.js | grep -c jakdyjxojokyqxeiuukx`，0 = env 沒 baked、>=1 = OK。**Cross-worktree 維度**（2026-05-30 neurons 踩過）：`.env.local` 既是 per-app 又是 per-worktree（gitignored 不跨 worktree 傳）。`pnpm deploy:cf` 永遠從 **deploy worktree `~/coding-scratch/study-rpg`** 跑，所以**每個要上 CF Pages 的 app 在 deploy worktree 都要有自己的 `.env.local`**——光在 dev worktree（`study-rpg-neurons` / `study-rpg-m2`）放不夠。加新 app（如 `neurons-tw`）時最容易漏：dev worktree 有、deploy worktree 沒有 → dev 看起來正常、prod silent 少 env。修法 = 在 `~/coding-scratch/study-rpg/apps/<app>/.env.local` 補一份。
+- **`pushAllNow` 清 dirty marker 是 conditional，不要改回 unconditional**（2026-05-27 via `audit-pushallnow-dirty-marker-semantics` — AAD-v2 §13.2 root-cause follow-up）— 一階 + 二階 sync engine `pushAllNow` 結尾的 `for (const [dexieTable, set] of dirty.perTable.entries())` 迴圈，**只清 supabaseOk && r2Ok 的 table**。任何 adapter / R2 bundle push throw 時，對應 dexieTable 留在 dirty set 等下次 push retry。**舊行為 (bug)**：unconditional `for (const set of dirty.perTable.values()) set.clear()` 不論成功失敗都清掉，transient failure 就 silently 丟資料。AAD-v2 startup probe 只擋 `unknown table` partial-migration 一種失敗形狀；其他 transient（network / 503 / JWT expired / R2 hiccup）都會踩。**Reference correct pattern**：[`pushNow:271-273`](apps/medexam2-hospital-tw/src/lib/sync/engine.ts:271) 已有 `if (allBundlesOk) { clear }` gate 是對的，`pushAllNow` 過去是 outlier。**neurons-tw 不受影響**：用不同 `pending: boolean` 架構，沒 `dirty.perTable` Map。**Spec**: [`openspec/specs/cloud-sync/spec.md`](openspec/specs/cloud-sync/spec.md) `Requirement: pushAllNow clears dirty markers conditionally per adapter outcome`。**測試 coverage 是 follow-up `add-sync-engine-partial-failure-tests`**，目前靠 prod offline-mode smoke 驗（trigger 寫 → Network → Throttling → Offline → 等 debounce → 重開網路 → 看 chip 是否從 🟡 回 🟢 + 資料是否真的 propagate）。
+- **Dexie schema bump 必帶 v(N-1) → v(N) upgrade fixture**（2026-05-27 via `enforce-dexie-upgrade-fixture-rule` — 推 §13.3 follow-up of AAD-v2）— CI workflow `.github/workflows/dexie-fixture-lint.yml` 與本機 `pnpm lint:dexie-fixtures` 會掃 PR / push diff，**任何**新 `.version(N)` 宣告（散落於 `apps/medexam2-hospital-tw/src/db/schema.ts` / `apps/neurons-tw/src/lib/db.ts` / `packages/core/src/lib/db.ts` 等檔）若 sibling `__tests__/` 下找不到含字面 `.version(N-1).stores(` 的測試就 fail。**Canonical pattern**：[`apps/medexam2-hospital-tw/src/__tests__/retirement-tombstone.test.ts:30`](apps/medexam2-hospital-tw/src/__tests__/retirement-tombstone.test.ts)。**完整規則**：[`docs/DEXIE_UPGRADE_FIXTURE_RULE.md`](docs/DEXIE_UPGRADE_FIXTURE_RULE.md)。**Escape hatch**（真的緊急 only，必須配 follow-up PR 補 fixture）：`SKIP_DEXIE_FIXTURE_LINT=1 pnpm lint:dexie-fixtures`。**為什麼這條重要**：v1 cut of `add-r2-cloud-sync-migration`（`dac4eae` reverted by `99eac9b`）一個 pk-change 把 prod 兩個 URL 對所有 v18 user 全打掛 40 min；fixture-first dev 在 v2 fix 抓到第二輪 `AbortError` regression（`&doctorId` unique-index activation 順序）— 沒這條 lint 下次有人改 schema 就會在 prod 重複踩。
 - **CF Pages vs GH Pages deploy asymmetry**（learned 2026-05-25 via `add-neurons-deploy` chain — 兩次連續 hotfix `78a3ed0` + `e638ca8` 才修好）— 兩個 deploy workflow **走完全不同的 pipeline**：`deploy.yml` (GH Pages) 只 build 一階 + 二階、然後把 二階 dist merge 進 一階 `dist/hospital/` 子路徑；`deploy-cf-pages.yml` (CF Pages) build 一階 + 二階 + neurons-tw 各自 dist，然後 call `scripts/build-cf-pages-dist.mjs` 組裝。**踩坑模式**：加新 app 到 monorepo 時，`build-cf-pages-dist.mjs` ROUTES 更新了但 `deploy-cf-pages.yml` 沒加對應 build step → `Required input missing: apps/<name>/dist`，CF Pages 全部失敗、GH Pages 卻照常成功（因為 GH workflow 根本不 build 那個 app）— 只看 GH Pages URL 完全看不出 prod 已經死靜默幾小時，新 commit 看似 ship 但 CF Pages 服務的是上一次成功的 cached snapshot。**規則**：(1) 加新 app 必須**同時**更新 `scripts/build-cf-pages-dist.mjs` ROUTES + `.github/workflows/deploy-cf-pages.yml` build step（兩份 atomic update，否則 prod 死靜默）；(2) 任何 deploy-affecting commit 完 push 後**必跑** `gh run list --branch main --limit 5`，看「Deploy to GitHub Pages」+「Deploy Cloudflare Pages」**兩個都綠**才算 ship；(3) 任何新 content pack 的 build 一定要支援 `MEDEXAM_ALLOW_SKIPS=1` env 跳過 orphan subjects，這是 scaffold 階段唯一不卡 CI 的 escape — 加 build step 時別忘了帶這個 env。

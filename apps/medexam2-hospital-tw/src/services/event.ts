@@ -71,6 +71,7 @@ export async function resolveMalpractice(action: MalpracticeAction): Promise<Mal
         pendingEventId: null,
         pendingEventTriggeredAt: null,
         lastEventResolvedAt: now,
+        lastInteractionEventAt: now,
       })
       await db.eventLog.add({
         triggeredAt: counters.pendingEventTriggeredAt ?? now,
@@ -95,6 +96,7 @@ export async function resolveMalpractice(action: MalpracticeAction): Promise<Mal
       pendingEventId: null,
       pendingEventTriggeredAt: null,
       lastEventResolvedAt: now,
+      lastInteractionEventAt: now,
     })
     await db.eventLog.add({
       triggeredAt: counters.pendingEventTriggeredAt ?? now,
@@ -128,6 +130,7 @@ export async function resolveVipPatient(): Promise<VipOutcome> {
       pendingEventId: null,
       pendingEventTriggeredAt: null,
       lastEventResolvedAt: now,
+      lastInteractionEventAt: now,
     })
     await db.eventLog.add({
       triggeredAt: counters.pendingEventTriggeredAt ?? now,
@@ -170,6 +173,7 @@ export async function resolveEmergencyShift(): Promise<EmergencyShiftOutcome> {
       pendingEventId: null,
       pendingEventTriggeredAt: null,
       lastEventResolvedAt: now,
+      lastInteractionEventAt: now,
     })
     await db.eventLog.add({
       triggeredAt: counters.pendingEventTriggeredAt ?? now,
@@ -212,6 +216,7 @@ export async function resolveAudit(): Promise<AuditOutcome> {
       pendingEventId: null,
       pendingEventTriggeredAt: null,
       lastEventResolvedAt: now,
+      lastInteractionEventAt: now,
     })
     await db.eventLog.add({
       triggeredAt: counters.pendingEventTriggeredAt ?? now,

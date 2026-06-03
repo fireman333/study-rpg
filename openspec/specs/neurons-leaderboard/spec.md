@@ -2,14 +2,12 @@
 
 ## Purpose
 
-Opt-in global ranking for M_3rd track `apps/neurons-tw` with 5 filter tabs (composite / variants / AP / synapse / study), Top 100 + my-rank chip, Cloudflare D1-backed (`leaderboard_neurons` table) with hourly KV-cached snapshots refreshed twice per hour by the existing Worker scheduled cron (shared with `hospital-leaderboard` schedule). 5 public numeric fields (`variant_count` 0–55 / `family_complete` 0–11 / `total_AP` / `synapse_strong` / `total_study_min`) plus 2-12 codepoint case-insensitive-unique nickname. Anti-cheat policy is full-trust + UI footer disclosure ("自填無驗證"); Worker enforces only sanity bounds + nickname format validation.
+Opt-in global ranking for M_3rd track `apps/neurons-tw` with 5 filter tabs (composite / variants / AP / synapse / study), Top 100 + my-rank chip, Cloudflare D1-backed (`leaderboard_neurons` table) with hourly KV-cached snapshots refreshed twice per hour by the existing Worker scheduled cron (shared with `hospital-leaderboard` schedule). 4 public numeric fields (`variant_count` 0–77 distinct collected, shown without a denominator / `total_AP` / `synapse_strong` / `total_study_min`) plus 2-12 codepoint case-insensitive-unique nickname. The open-collection范式 retired the `family_complete` signal (its D1 column is left vestigial, unused). Anti-cheat policy is full-trust + UI footer disclosure ("自填無驗證"); Worker enforces only sanity bounds + nickname format validation.
 
-Composite ranking sorts by `variant_count DESC, family_complete DESC, total_study_min DESC` (clean tie-break chain, no weighted formula). Data plane is fully isolated from 二階 `hospital-leaderboard`: separate D1 table, separate KV prefix `leaderboard:neurons:top100:*`, separate endpoint prefix `/leaderboard/neurons/*`, separate nickname uniqueness pool. Reserves one nullable column `badges_csv` from day-one schema for future `add-neurons-achievements` population — no migration needed when that ships.
+Composite ranking sorts by `variant_count DESC, total_study_min DESC` (clean tie-break chain, no weighted formula). Data plane is fully isolated from 二階 `hospital-leaderboard`: separate D1 table, separate KV prefix `leaderboard:neurons:top100:*`, separate endpoint prefix `/leaderboard/neurons/*`, separate nickname uniqueness pool. Reserves one nullable column `badges_csv` from day-one schema for `add-neurons-achievements` population — no migration needed.
 
 Borrowed pattern from 二階 `hospital-leaderboard` per `neurons-mode` Req 5 borrowing rules: independent capability spec, independent infrastructure, no modification of source capability. Cloud-sync push integration deferred to `add-neurons-deploy` — this capability ships endpoints + UI + manual-push button as interim, scheduled cron is fully wired and self-refreshing.
-
 ## Requirements
-
 ### Requirement: Opt-in modal SHALL gate leaderboard participation with consent checkbox and nickname
 
 The system SHALL present a one-time opt-in modal the first time an authenticated player opens the neurons-tw `/leaderboard` tab. The modal SHALL:
@@ -82,11 +80,13 @@ The leaderboard UI SHALL provide **five** filter tabs that determine the ranking
 
 | Tab order | Tab | Sort key |
 |---|---|---|
-| 1 | 綜合排名 | `variant_count DESC, family_complete DESC, total_study_min DESC` |
+| 1 | 綜合排名 | `variant_count DESC, total_study_min DESC` |
 | 2 | 變體收集排名 | `variant_count DESC` |
 | 3 | AP 排名 | `total_AP DESC` |
 | 4 | Synapse 強連結排名 | `synapse_strong DESC` |
 | 5 | 累積唸書時間排名 | `total_study_min DESC` |
+
+The `family_complete` field SHALL NOT participate in any ranking (the open-collection范式 retires the family-completion concept). `variant_count` is the sole collection-ranking signal.
 
 #### Scenario: Default tab is 綜合排名
 
@@ -101,7 +101,7 @@ The leaderboard UI SHALL provide **five** filter tabs that determine the ranking
 #### Scenario: Composite ranking tie-breaker order
 
 - **WHEN** two players have identical `variant_count` in the 綜合排名 tab
-- **THEN** the player with higher `family_complete` SHALL rank above the other; if `family_complete` also ties, the player with higher `total_study_min` SHALL rank above; if all three tie, ordering MAY be arbitrary but MUST be stable within a single snapshot
+- **THEN** the player with higher `total_study_min` SHALL rank above; if both tie, ordering MAY be arbitrary but MUST be stable within a single snapshot
 
 #### Scenario: Synapse tab empty-state copy for early game
 
@@ -110,7 +110,7 @@ The leaderboard UI SHALL provide **five** filter tabs that determine the ranking
 
 ### Requirement: Top 100 list plus my-rank chip SHALL render in pixel-art tabular grid
 
-The leaderboard UI SHALL display up to 100 ranked rows for the active filter as a pixel-art tabular grid (not an unstyled list), rendering one row per opted-in player with cells for: rank / nickname / `variant_count` (with `/55` suffix) / `family_complete` (with `/11` suffix) / `total_AP` / `synapse_strong` / `total_study_min` (formatted as `Xh Ym`). The grid SHALL use the existing pixel design tokens (`--frame-cell-light` / `--frame-cell-dark` border colors from `theme-pixel-neurons`, `--accent-gold` for rank-1 emphasis, Cubic 11 font for nicknames and numeric stats) so the visual style matches the rest of the neurons-tw UI shell.
+The leaderboard UI SHALL display up to 100 ranked rows for the active filter as a pixel-art tabular grid (not an unstyled list), rendering one row per opted-in player with cells for: rank / nickname / `variant_count` (a **pure count**, no `/N` denominator — the catalog total is hidden) / `total_AP` / `synapse_strong` / `total_study_min` (formatted as `Xh Ym`). The grid SHALL NOT render a `family_complete` cell. The grid SHALL use the existing pixel design tokens (`--frame-cell-light` / `--frame-cell-dark` border colors from `theme-pixel-neurons`, `--accent-gold` for rank-1 emphasis, Cubic 11 font for nicknames and numeric stats) so the visual style matches the rest of the neurons-tw UI shell.
 
 The player's own current rank SHALL remain accessible regardless of scroll position via either the existing sticky top chip OR a new sticky-bottom "my row" repeat that mirrors the user's row data.
 
@@ -118,6 +118,12 @@ The player's own current rank SHALL remain accessible regardless of scroll posit
 
 - **WHEN** the leaderboard backend has ≥ 100 opted-in players and the player views any filter tab
 - **THEN** the UI SHALL display 100 rows in a single scrollable tabular grid where each row aligns its cells vertically with the row above and below
+
+#### Scenario: variant_count cell shows a pure count
+
+- **WHEN** any row renders its `variant_count` cell
+- **THEN** the cell SHALL show the integer count alone, with no `/55`, `/77`, or any denominator suffix
+- **AND** no `family_complete` cell SHALL be present in the row
 
 #### Scenario: All rows displayed when < 100 opted-in players
 
@@ -128,31 +134,6 @@ The player's own current rank SHALL remain accessible regardless of scroll posit
 
 - **WHEN** any row's display rank is 1, 2, or 3
 - **THEN** that row's rank cell SHALL be styled with gold (rank 1) / silver (rank 2) / bronze (rank 3) accent color and pixel-art emboss, distinct from the default frame color used by ranks 4–100
-
-#### Scenario: My-row visually highlighted when present in top 100
-
-- **WHEN** the current authenticated user's `user_id` matches one of the rows in the active filter's top 100
-- **THEN** that row SHALL be highlighted with `--accent-gold` border (or equivalent pixel design token) so the user can spot themselves at a glance while scrolling
-
-#### Scenario: My-rank chip shows when player is opted in
-
-- **WHEN** an opted-in player views any filter tab
-- **THEN** a chip SHALL display「你目前第 X 名 (共 N 人)」using the player's rank in the active filter; if the player's row is scrolled offscreen the chip MAY be pinned (e.g., via `position: sticky` or a sticky-bottom repeat row that mirrors the player's data) so it stays visible while scrolling the grid
-
-#### Scenario: My-rank chip hidden when player is opted out
-
-- **WHEN** a player has not opted in (or has opted out)
-- **THEN** the my-rank chip SHALL be hidden and an explanation「未加入排行 — 至「設定」開啟以參與」 SHALL be shown in its place
-
-#### Scenario: Mobile viewport prioritizes essential columns
-
-- **WHEN** the leaderboard page is rendered at viewport width < 768 px
-- **THEN** the grid SHALL show at minimum: rank, nickname, the active filter's primary stat bolded, and one secondary stat; non-essential columns MAY be hidden via CSS to prevent horizontal overflow; the row order and underlying row data MUST remain identical to the desktop layout
-
-#### Scenario: Empty leaderboard state
-
-- **WHEN** the active filter's snapshot has zero rows
-- **THEN** an empty-state message「期待第一個上榜的 neurons-tw 玩家！」 SHALL render in place of the grid; no empty grid frame SHALL appear
 
 ### Requirement: Hourly KV cache refresh SHALL pre-compute all five filter snapshots twice per hour
 
@@ -177,15 +158,14 @@ The leaderboard backend SHALL pre-compute the top-100 ranking for each of the fi
 
 The Worker `POST /leaderboard/neurons/upsert` endpoint SHALL enforce last-write-wins semantics using `updated_at` (millisecond epoch) and SHALL reject payloads whose values fall outside known sanity bounds:
 
-- `variant_count ∈ [0, 55]`
-- `family_complete ∈ [0, 11]`
+- `variant_count ∈ [0, 77]`
 - `total_AP ≥ 0`
 - `synapse_strong ≥ 0`
 - `total_study_min ≥ 0`
 - `nickname` length 2-12 codepoints, matches stored regex (basic anti-injection: no control chars, no leading/trailing whitespace)
 - `badges_csv` (when present) matches `^([a-z]+:P[1-4])(,[a-z]+:P[1-4]){0,5}$` (mirror 二階 pattern, ≤ 6 entries, ≤ 60 chars)
 
-Rejected payloads SHALL log a structured warning but MUST NOT surface a UI error to the player (silent server-side filtering, mirror 二階 pattern). The D1 table SHALL declare `CHECK` constraints matching every numeric sanity bound as defence-in-depth.
+The `family_complete` field SHALL NO LONGER be validated, sorted, or required; if present in a legacy payload it SHALL be ignored (not written). The endpoint SHALL touch only the neurons code path (`/leaderboard/neurons/*`, `leaderboard_neurons` table, `leaderboard:neurons:top100:*` KV); the 二階 `leaderboard_m2` path SHALL be unchanged. Rejected payloads SHALL log a structured warning but MUST NOT surface a UI error to the player (silent server-side filtering, mirror 二階 pattern). The D1 table SHALL declare `CHECK` constraints matching every numeric sanity bound as defence-in-depth.
 
 The request MUST be authenticated (Supabase JWT in `Authorization: Bearer <token>` header). The Worker SHALL verify the JWT via the existing JWKS endpoint reused from `leaderboard.ts`. The `user_id` SHALL be derived from the JWT `sub` claim, NOT from the request body.
 
@@ -194,15 +174,15 @@ The request MUST be authenticated (Supabase JWT in `Authorization: Bearer <token
 - **WHEN** an upsert arrives with `updated_at` older than the existing D1 row's `updated_at`
 - **THEN** the Worker SHALL leave the existing row unchanged and respond `200 OK` (avoid client retry storm)
 
-#### Scenario: Out-of-bounds variant_count rejected
+#### Scenario: Out-of-bounds variant_count rejected at the 77 bound
 
-- **WHEN** an upsert arrives with `variant_count = 56` or `variant_count = -1`
+- **WHEN** an upsert arrives with `variant_count = 78` or `variant_count = -1`
 - **THEN** the Worker SHALL discard the upsert, log a structured warning with the offending user_id, and respond `200 OK` with `dropped: "variant_count_oob"` without writing to D1
 
-#### Scenario: Out-of-bounds family_complete rejected
+#### Scenario: Legacy family_complete field is ignored
 
-- **WHEN** an upsert arrives with `family_complete = 12` (impossible: only 11 families)
-- **THEN** the Worker SHALL discard the upsert with `dropped: "family_complete_oob"`
+- **WHEN** an upsert arrives carrying a `family_complete` value (from an old client)
+- **THEN** the Worker SHALL NOT validate or persist it as a ranking signal and SHALL still accept the rest of the payload (no rejection on its account)
 
 #### Scenario: Missing JWT rejected with 401
 
@@ -218,7 +198,7 @@ The request MUST be authenticated (Supabase JWT in `Authorization: Bearer <token
 
 ### Requirement: Push leaderboard row SHALL be triggered on cloud sync when wired (deferred), with manual-push button as interim
 
-The system SHALL provide a client-side adapter `pushNeuronsLeaderboardRow(client)` that builds the upsert payload from local Dexie state (`neuronVariants` → `variant_count` + `family_complete`; `familyAccrual` → `total_AP`; `synapses` where `state='strong'` → `synapse_strong`; existing study-minute accumulator → `total_study_min`; `leaderboardProfile` → `nickname` + `is_public`) and POSTs to `/leaderboard/neurons/upsert`.
+The system SHALL provide a client-side adapter `pushNeuronsLeaderboardRow(client)` that builds the upsert payload from local Dexie state (`neuronVariants` → `variant_count`; `familyAccrual` → `total_AP`; `synapses` where `state='strong'` → `synapse_strong`; existing study-minute accumulator → `total_study_min`; `leaderboardProfile` → `nickname` + `is_public`) and POSTs to `/leaderboard/neurons/upsert`. The adapter SHALL NOT compute or send `family_complete`.
 
 The adapter SHALL be wired into the cloud-sync pipeline in a separate follow-up change (`add-neurons-deploy`), piggy-backing the existing R2 bundle push debounce window. In the interim (this change ships with no cloud sync), the adapter SHALL be reachable via:
 
@@ -245,11 +225,11 @@ Players who have never opted in SHALL NOT have their data pushed.
 - **WHEN** an authenticated player who has never opted in triggers any path that would otherwise upsert
 - **THEN** the leaderboard adapter SHALL skip the upsert call entirely; no D1 row SHALL be created
 
-#### Scenario: family_complete computed from neuronVariants by client at push time
+#### Scenario: variant_count computed from neuronVariants by client at push time
 
 - **WHEN** the adapter builds the payload
-- **THEN** `family_complete` SHALL equal `count of family IDs in db.neuronVariants where the count of variants for that family equals 5`
-- **AND** the count SHALL be computed from `db.neuronVariants.toArray()` at push time, NOT cached from a separate source
+- **THEN** `variant_count` SHALL equal `count of rows in db.neuronVariants` computed from `db.neuronVariants.toArray()` at push time, NOT cached from a separate source
+- **AND** the payload SHALL NOT include a `family_complete` field
 
 #### Scenario: synapse_strong computed from synapses table at push time
 
@@ -337,38 +317,26 @@ The endpoint SHALL only query `leaderboard_neurons.nickname_lower` index; it SHA
 
 ### Requirement: D1 schema SHALL include a reserved `badges_csv` column for future achievement integration
 
-The `leaderboard_neurons` D1 table SHALL include from initial migration one nullable column reserved for `add-neurons-achievements`:
+The `leaderboard_neurons` D1 table SHALL include one nullable column reserved for `add-neurons-achievements`:
 
-- `badges_csv TEXT DEFAULT ''` — populated by future change with `<category>:P<tier>` CSV entries, max 60 chars, max 6 entries
+- `badges_csv TEXT DEFAULT ''` — populated with `<category>:P<tier>` CSV entries, max 60 chars, max 6 entries
 
-This change SHALL ship with `badges_csv` at its default value (empty string). `add-neurons-achievements` SHALL populate it without requiring a schema migration. The Worker `upsert` endpoint SHALL accept `badges_csv` as an optional payload field; missing values SHALL be treated as default empty string.
+The Worker `upsert` endpoint SHALL accept `badges_csv` as an optional payload field; missing values SHALL be treated as default empty string.
 
-This change SHALL NOT reserve a `variant_completion_count` (or `subject_mastery_count`-equivalent) column. The existing `family_complete` column already covers that signal — `family_complete * 5 = variant completion count`. If `add-neurons-achievements` later needs a genuinely different metric column (e.g., rarity-weighted score), it SHALL ship its own migration at that time. The trade-off is one cheap future migration step in exchange for keeping the day-one schema free of redundant signals.
+This change SHALL NOT add or drop any D1 column. The `variant_count` column is the sole collection metric. The pre-existing `family_complete` column SHALL be left **vestigial** (no longer written, sorted, or read) — SQLite column-drop is avoided as unnecessary; a future cleanup MAY drop it. No new D1 migration is required by this change.
 
-#### Scenario: Schema migration 0003 creates badges_csv at default
+#### Scenario: No new D1 column is added or dropped
 
-- **WHEN** `wrangler d1 migrations apply study-rpg-leaderboard --remote` runs the new `0003_neurons_leaderboard.sql`
-- **THEN** the `leaderboard_neurons` table SHALL be created with `badges_csv TEXT DEFAULT ''`
-- **AND** the existing `leaderboard_m2` table SHALL remain untouched
+- **WHEN** the developer inspects the table via `wrangler d1 execute study-rpg-leaderboard --command "PRAGMA table_info(leaderboard_neurons)"`
+- **THEN** the table SHALL retain `variant_count` and `badges_csv`
+- **AND** the `family_complete` column SHALL still exist physically but be unused (no read/sort/write path)
+- **AND** the `leaderboard_m2` table SHALL remain untouched
 
-#### Scenario: Schema does NOT include variant_completion_count
+#### Scenario: variant_count is the sole collection signal
 
-- **WHEN** the developer inspects the migrated table via `wrangler d1 execute study-rpg-leaderboard --command "PRAGMA table_info(leaderboard_neurons)"`
-- **THEN** the table SHALL NOT have a column named `variant_completion_count`
-- **AND** the table SHALL have `family_complete` as the sole collection-completion signal
-
-#### Scenario: Worker accepts missing badges_csv field
-
-- **WHEN** a client (this change's pre-achievement state) sends an upsert payload omitting `badges_csv`
-- **THEN** the Worker SHALL persist the row with `badges_csv = ''`
-- **AND** the upsert SHALL succeed
-
-#### Scenario: Worker validates badges_csv format when populated
-
-- **WHEN** a future client (`add-neurons-achievements`) sends an upsert with `badges_csv = 'mastery:P1,recruitment:P2'`
-- **THEN** the Worker SHALL validate against regex `^([a-z]+:P[1-4])(,[a-z]+:P[1-4]){0,5}$` and accept the payload
-- **WHEN** a malformed payload like `badges_csv = 'mastery:P9'` arrives
-- **THEN** the Worker SHALL discard the upsert with `dropped: "badges_csv_format"` and log a structured warning
+- **WHEN** the leaderboard ranks or displays collection progress
+- **THEN** it SHALL use `variant_count` only
+- **AND** SHALL NOT read `family_complete` from any row
 
 ### Requirement: HomePage promo banner SHALL surface leaderboard discovery on first visit
 
@@ -455,3 +423,4 @@ The `neurons-leaderboard` capability SHALL maintain complete data isolation from
 - **THEN** the file SHALL NOT import from `'./leaderboard.ts'` (the 二階 module)
 - **AND** the file MAY import shared helpers from a future `'./lib/auth-utils.ts'` or `'./lib/lww.ts'` (extracted as common code)
 - **AND** the file SHALL NOT query `leaderboard_m2` directly
+

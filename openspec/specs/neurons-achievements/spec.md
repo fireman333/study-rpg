@@ -13,9 +13,7 @@ Three live trigger hook sites: `connectome.ts recordCorrectAnswer` / `connectome
 UI: `/achievements` route with 2 sub-tabs + 2 filter dropdowns + strict hidden filtering (locked-hidden entries are invisible across all surfaces); `AchievementCard` + `BadgeSprite` (placeholder rendering with atlas swap deferred to follow-up); `AchievementToastHost` (P2-P4) + `AchievementUnlockModal` (P1 full-screen) both wrap `neurons-motion-library` primitives.
 
 Leaderboard integration: `deriveAchievementSnapshot(unlocked)` produces max-tier-per-category CSV with hidden category excluded — fits existing Worker regex `^([a-z]+:P[1-4])(,[a-z]+:P[1-4]){0,5}$` (6 max entries). Uses `leaderboard_neurons.badges_csv` column reserved from day-one by `add-neurons-leaderboard` Req 11 — no D1 migration needed. `NicknameWithBadges` renders inline 20px badges on `LeaderboardPage`. `TitleSelector` in `LeaderboardSettingsControls` writes `leaderboardProfile.selectedTitle`.
-
 ## Requirements
-
 ### Requirement: Achievement catalog entry shape SHALL be a declarative record with predicate-based unlock condition
 
 The neurons-achievements system SHALL define each achievement as a declarative record stored in `packages/content-neurons-tw/src/achievements.ts` and exported as `NEURONS_ACHIEVEMENTS: readonly Achievement[]`. Each entry MUST have these fields:
@@ -558,7 +556,7 @@ The `neurons-achievements` capability spec SHALL explicitly cite 二階 `achieve
 
 - doctor recruit → variant gacha (slot unlock)
 - hospital tier upgrade → synapse state machine
-- subject_mastery_count → already covered by `neurons-leaderboard.family_complete` (no new D1 column)
+- subject_mastery_count → distinct-variant collection count (`db.neuronVariants` row count); the retired `neurons-leaderboard.family_complete` signal is no longer used
 - 14 科 → 11 family
 - 7 category × 4 tier structure ✓ (re-used)
 - Build-time composite validator ✓ (re-used, adapted to metadata flag)
@@ -582,3 +580,32 @@ This capability SHALL NOT introduce equipment, ticket, or new currency as reward
 - **WHEN** a developer reads the `AchievementReward` type
 - **THEN** the type union SHALL contain exactly 2 kinds: `'leaderboard'` and `'title'`
 - **AND** `'equipment'`, `'ticket'`, `'cosmetic'`, `'currency'` SHALL NOT be valid kinds
+
+### Requirement: Collection milestone achievements SHALL count distinct variants, not family completion
+
+The achievement catalog SHALL express collection progress as **「收集 N 隻」 distinct-variant milestones**, evaluated against the total count of distinct collected variants (`db.neuronVariants` row count). The catalog SHALL NOT contain any 「科別全收集 / family-complete」 predicate, and the achievement stat SHALL NOT expose a `familyCompleteCount` field — it SHALL expose a total distinct-variant count (`variantCount`) instead. Lower-tier (P4–P2) milestones SHALL be an ascending single-dimension distinct-count ladder; the P1 鑽石 collection capstone SHALL remain a **genuine multi-dimension composite** (breadth × quality, e.g. a high distinct count AND natural-P1 apexes across multiple families) so it satisfies the existing P1 `composite` rule WITHOUT a validator change and WITHOUT a degenerate single-condition predicate. Counting SHALL be by distinct variant (not by `copies`). The reframe SHALL NOT change the `AchievementReward` channels (still exactly `leaderboard` + `title`).
+
+#### Scenario: Catalog has no family-complete predicate
+
+- **WHEN** the `NEURONS_ACHIEVEMENTS` catalog is inspected
+- **THEN** no entry SHALL reference family completion or a `familyCompleteCount` stat
+- **AND** collection-progress entries SHALL reference the total distinct-variant count
+
+#### Scenario: Distinct-variant milestone unlocks at its threshold
+
+- **GIVEN** a P2 milestone defined at 50 distinct variants
+- **WHEN** the achievement check runs after a pull that crosses 50 distinct variants
+- **THEN** that milestone SHALL unlock
+
+#### Scenario: Milestone counts distinct variants, not copies
+
+- **GIVEN** the player has 10 distinct variants, one of which has `copies = 5`
+- **WHEN** the milestone stat is computed
+- **THEN** the distinct-variant count SHALL be `10` (duplicates do NOT inflate the milestone count)
+
+#### Scenario: P1 collection capstone is a genuine composite
+
+- **WHEN** the P1 collection-capstone entry is inspected
+- **THEN** its predicate SHALL combine ≥ 2 dimensions (e.g. distinct count AND natural-P1 family breadth) and SHALL declare `composite: true`
+- **AND** the build-time validator SHALL pass without a collection-cap whitelist exception
+

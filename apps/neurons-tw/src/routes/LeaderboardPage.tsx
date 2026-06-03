@@ -250,15 +250,14 @@ function LeaderboardGrid({
           同一天兩個 family 各答對 5 題形成 synapse，連續同日重激發兩次達 strong 狀態
         </div>
       )}
-    <div style={gridStyle}>
-      <div style={headerRowStyle}>
+    <div style={gridStyle} className="neurons-lb-list" data-active-stat={primaryStat}>
+      <div style={headerRowStyle} className="neurons-lb-row">
         <span style={rankCellStyle}>#</span>
         <span style={nicknameCellStyle}>暱稱</span>
-        <span style={statCellStyle}>變體 / 55</span>
-        <span style={statCellStyle}>家族 / 11</span>
-        <span style={statCellStyle}>AP</span>
-        <span style={statCellStyle}>Synapse</span>
-        <span style={statCellStyle}>唸書(分)</span>
+        <span style={statCellStyle} className="neurons-lb-cell--variant">變體</span>
+        <span style={statCellStyle} className="neurons-lb-cell--ap">AP</span>
+        <span style={statCellStyle} className="neurons-lb-cell--synapse">Synapse</span>
+        <span style={statCellStyle} className="neurons-lb-cell--study">唸書(分)</span>
       </div>
       {snapshot.rows.map((row, idx) => {
         const rank = idx + 1
@@ -268,20 +267,19 @@ function LeaderboardGrid({
           ...(isMe ? myRowStyle : {}),
         }
         return (
-          <div key={row.user_id} style={rowStyleFinal}>
+          <div key={row.user_id} style={rowStyleFinal} className="neurons-lb-row">
             <span style={{ ...rankCellStyle, ...rankAccent(rank) }}>{rank}</span>
             <NicknameWithBadges nickname={row.nickname} badgesCsv={row.badges_csv ?? ''} />
-            <span style={statCellWithPrimary(primaryStat === 'variant_count')}>
+            <span style={statCellWithPrimary(primaryStat === 'variant_count')} className="neurons-lb-cell--variant">
               {row.variant_count}
             </span>
-            <span style={statCellStyle}>{row.family_complete}</span>
-            <span style={statCellWithPrimary(primaryStat === 'total_AP')}>
+            <span style={statCellWithPrimary(primaryStat === 'total_AP')} className="neurons-lb-cell--ap">
               {row.total_AP.toLocaleString()}
             </span>
-            <span style={statCellWithPrimary(primaryStat === 'synapse_strong')}>
+            <span style={statCellWithPrimary(primaryStat === 'synapse_strong')} className="neurons-lb-cell--synapse">
               {row.synapse_strong}
             </span>
-            <span style={statCellWithPrimary(primaryStat === 'total_study_min')}>
+            <span style={statCellWithPrimary(primaryStat === 'total_study_min')} className="neurons-lb-cell--study">
               {formatStudyMin(row.total_study_min)}
             </span>
           </div>
@@ -417,7 +415,9 @@ const gridStyle: React.CSSProperties = {
 
 const headerRowStyle: React.CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: '3rem 1fr 4rem 4rem 5rem 4.5rem 5.5rem',
+  // grid-template-columns moved to .neurons-lb-row (styles.css) via
+  // --neurons-lb-cols so the ≤480px @media can collapse it (Decision 1:
+  // inline would otherwise beat the CSS @media).
   gap: '0.4rem',
   padding: '0.4rem 0.6rem',
   background: '#e8dcc0',
@@ -429,7 +429,7 @@ const headerRowStyle: React.CSSProperties = {
 
 const dataRowStyle: React.CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: '3rem 1fr 4rem 4rem 5rem 4.5rem 5.5rem',
+  // grid-template-columns moved to .neurons-lb-row (styles.css) — see headerRowStyle.
   gap: '0.4rem',
   padding: '0.4rem 0.6rem',
   borderBottom: '1px solid #d4c4a0',

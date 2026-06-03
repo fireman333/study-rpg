@@ -77,10 +77,9 @@ export interface NeuronsAchievementStats {
   /** Highest consecutive correct streak ever achieved (monotonic). */
   maxQuizCorrectStreak: number
 
-  /** Total variants persisted (sum across all families × slots; closed cap = 55). */
+  /** Total DISTINCT variants collected (open collection — the sole collection
+   *  metric; no family-complete concept). */
   variantCount: number
-  /** Number of families with all 5 slots filled (0–11). */
-  familyCompleteCount: number
   /** Number of P1 variants ever rolled NOT via pity floor (natural P1). */
   naturalP1VariantCount: number
   /** Number of variants flagged wasPityFloor=true (slot 4/5 entries). */

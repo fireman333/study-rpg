@@ -16,6 +16,10 @@ import type { NeuronsDB } from '../../db'
 const MAX_MERGE_KEYS: ReadonlyArray<string> = [
   'maxQuizCorrectStreak',
   'totalStudyMinutes',
+  // Neural-energy pull currency (Collection 2.0). Both monotonic; balance =
+  // earned − spent is derived at read. MAX-merge converges cross-device.
+  'neuralEnergyEarned',
+  'neuralEnergySpent',
 ]
 
 /**

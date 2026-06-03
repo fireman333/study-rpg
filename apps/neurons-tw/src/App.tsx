@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom'
 import type { ContentPack } from '@study-rpg/core'
 import { getContentPack } from '@study-rpg/content-neurons-tw'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
 import OverviewPage from './routes/OverviewPage'
-import ConnectomePage from './routes/ConnectomePage'
-import MotionDemoPage from './routes/MotionDemoPage'
+import MotionDemoPage from './routes/MotionDemoPage' // dev self-verify only — not linked from prod navbar
 import LeaderboardPage from './routes/LeaderboardPage'
 import ConnectomeToastHost from './components/SynapseFormationToast'
 import VariantUnlockModal from './components/VariantUnlockModal'
-import {
-  backfillUnlockedSlots,
-  registerVariantGachaSubscriber,
-} from './lib/services/variant-gacha'
 import { backfillAchievementsFromCurrentStats } from './lib/services/achievement'
+import { initializeDmnTrigger } from './lib/services/dmn-trigger'
 import AchievementsPage from './routes/AchievementsPage'
 import AchievementToastHost from './components/AchievementToastHost'
 import AchievementUnlockModal from './components/AchievementUnlockModal'
+import DmnCollectionPage from './routes/DmnCollectionPage'
+import DmnDrawButton from './components/DmnDrawButton'
+import BookmarksPage from './routes/BookmarksPage'
+import CollectionPage from './routes/CollectionPage'
+import MazeBetaPage from './routes/MazeBetaPage'
+import DmnQuickReviewToast from './components/DmnQuickReviewToast'
+import HelpMenu from './components/HelpMenu'
 import { AuthProvider } from './lib/auth/AuthContext'
 import { AuthGate } from './components/AuthGate'
 import { SyncMount } from './lib/sync/SyncMount'
@@ -37,20 +40,15 @@ export default function App(): JSX.Element {
     }
     getContentPack(`${import.meta.env.BASE_URL}content/neurons-tw`)
       .then(async (pack) => {
-        const familyById = new Map(pack.subjects.map((s) => [s.id, s]))
-        const resolveFamilyDisplayName = (familyId: string): string =>
-          familyById.get(familyId)?.displayName ?? familyId
-        registerVariantGachaSubscriber(resolveFamilyDisplayName)
-        // Backfill variants for slots the player already crossed AP threshold
-        // for before this change shipped. Awaited (not fire-and-forget) so
-        // chips mount with the correct count on first render. Silent inside —
-        // NO modal/toast for backfilled variants. Total boot cost: ~50ms for a
-        // typical save (a few rows); errors logged but do not block boot.
-        await backfillUnlockedSlots(resolveFamilyDisplayName)
+        // Register DMN trigger detector — subscribes to connectome events for
+        // behavior-axis bonus draws. Idempotent on StrictMode double-mount.
+        // Time-axis (reading-timer) inactive until polish-neurons-pre-ship.
+        // (Collection 2.0: no variant-gacha subscriber — variants come from the
+        // player-initiated pull on /collection.)
+        initializeDmnTrigger()
         // Silent achievement backfill — write rows for predicates already
-        // satisfied by current Dexie state (no toast / modal / reward). Safe
-        // to run AFTER variant backfill so variant-derived predicates see
-        // the latest variant rows. Idempotent on subsequent boots.
+        // satisfied by current Dexie state (no toast / modal / reward).
+        // Idempotent on subsequent boots.
         await backfillAchievementsFromCurrentStats()
         setState({ loading: false, pack })
       })
@@ -74,40 +72,63 @@ export default function App(): JSX.Element {
         <VariantUnlockModal />
         <AchievementToastHost />
         <AchievementUnlockModal />
+        <DmnQuickReviewToast />
+        <HelpMenu />
         <main style={pageStyle}>
-          <nav style={navStyle}>
-            <NavLink to="/" style={navLinkStyle} end>
-              {({ isActive }) => <span style={isActive ? activeLinkStyle : undefined}>總覽</span>}
-            </NavLink>
-            <NavLink to="/connectome" style={navLinkStyle}>
-              {({ isActive }) => (
-                <span style={isActive ? activeLinkStyle : undefined}>Connectome 連結組</span>
-              )}
-            </NavLink>
-            <NavLink to="/leaderboard" style={navLinkStyle}>
-              {({ isActive }) => (
-                <span style={isActive ? activeLinkStyle : undefined}>排名</span>
-              )}
-            </NavLink>
-            <NavLink to="/achievements" style={navLinkStyle}>
-              {({ isActive }) => (
-                <span style={isActive ? activeLinkStyle : undefined}>成就</span>
-              )}
-            </NavLink>
-            <NavLink to="/motion-demo" style={navLinkStyle}>
-              {({ isActive }) => (
-                <span style={isActive ? activeLinkStyle : undefined}>動畫 demo</span>
-              )}
-            </NavLink>
-            <span style={{ marginLeft: 'auto' }}>
+          <header style={topBarStyle}>
+            <h1 style={appTitleStyle}>神經元 RPG · LTP</h1>
+            <nav className="neurons-nav">
+              <NavLink to="/" style={navLinkStyle} end>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>連結組 →</span>
+                )}
+              </NavLink>
+              <NavLink to="/collection" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>圖鑑 →</span>
+                )}
+              </NavLink>
+              <NavLink to="/maze-beta" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>迷宮 →</span>
+                )}
+              </NavLink>
+              <NavLink to="/dmn" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>DMN →</span>
+                )}
+              </NavLink>
+              <NavLink to="/bookmarks" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>收藏 →</span>
+                )}
+              </NavLink>
+              <NavLink to="/achievements" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>成就 →</span>
+                )}
+              </NavLink>
+              <NavLink to="/leaderboard" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>排名 →</span>
+                )}
+              </NavLink>
+            </nav>
+            <span style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <DmnDrawButton />
               <AuthGate />
             </span>
-          </nav>
+          </header>
           <Routes>
             <Route path="/" element={<OverviewPage pack={pack} />} />
-            <Route path="/connectome" element={<ConnectomePage pack={pack} />} />
+            {/* /connectome is fused into the homepage — redirect old bookmarks. */}
+            <Route path="/connectome" element={<Navigate to="/" replace />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="/dmn" element={<DmnCollectionPage />} />
+            <Route path="/collection" element={<CollectionPage pack={pack} />} />
+            <Route path="/maze-beta" element={<MazeBetaPage pack={pack} />} />
+            <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
             <Route path="/motion-demo" element={<MotionDemoPage />} />
           </Routes>
         </main>
@@ -117,18 +138,27 @@ export default function App(): JSX.Element {
 }
 
 const pageStyle: React.CSSProperties = {
-  maxWidth: 820,
-  margin: '2rem auto',
+  maxWidth: 960,
+  margin: '1.5rem auto',
   padding: '0 1.25rem',
   fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
 }
 
-const navStyle: React.CSSProperties = {
+const topBarStyle: React.CSSProperties = {
   display: 'flex',
-  gap: '1rem',
+  alignItems: 'center',
+  gap: '0.75rem',
   marginBottom: '1.25rem',
-  borderBottom: '2px solid #8c6d4a',
-  paddingBottom: '0.5rem',
+  flexWrap: 'wrap',
+}
+
+const appTitleStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '1.1rem',
+  fontWeight: 700,
+  color: '#3a2a1a',
+  letterSpacing: '0.05em',
+  whiteSpace: 'nowrap',
 }
 
 const navLinkStyle: React.CSSProperties = {
@@ -137,8 +167,23 @@ const navLinkStyle: React.CSSProperties = {
   fontWeight: 600,
 }
 
-const activeLinkStyle: React.CSSProperties = {
-  borderBottom: '2px solid #b58900',
-  paddingBottom: '0.25rem',
-  color: '#b58900',
+const navBoxStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '0.35rem 0.7rem',
+  border: '2px solid #8c6d4a',
+  borderRadius: '4px',
+  background: '#fdf6e3',
+  color: '#5a3f29',
+  fontSize: '0.88rem',
+  fontWeight: 600,
+  whiteSpace: 'nowrap',
+  transition: 'background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease',
+}
+
+const activeNavBoxStyle: React.CSSProperties = {
+  ...navBoxStyle,
+  background: '#d4a04d',
+  color: '#fff',
+  border: '2px solid #b8893a',
+  boxShadow: '0 2px 6px rgba(180, 137, 58, 0.4)',
 }

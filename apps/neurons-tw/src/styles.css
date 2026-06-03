@@ -1,0 +1,267 @@
+/*
+ * neurons-tw responsive layout — first dedicated stylesheet.
+ *
+ * Scope (add-neurons-mobile-rwd): homepage top-nav + FamilyPicker cards +
+ * modal/toast overlays only. Connectome SVG + list pages are out of scope.
+ *
+ * Mirrors apps/medexam2-hospital-tw/src/styles.css patterns (480/768
+ * breakpoints, horizontal-scroll nav + fade mask, body scroll lock) for
+ * cross-app consistency.
+ *
+ * Decision 1 (design.md): inline style objects beat external CSS, so any
+ * property a breakpoint must control was REMOVED from its inline object and
+ * re-expressed here. Desktop (≥768px) base values live outside @media so the
+ * desktop layout stays pixel-identical.
+ */
+
+/* ── Body scroll lock while a modal backdrop is mounted ──────────────────── */
+
+/* Disable pull-to-refresh so a swipe-down that reaches a modal's scroll top
+ * can't accidentally reload the SPA. */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Lock page scroll behind any modal backdrop so touch-drag can't scroll the
+ * page underneath. Modal-internal scroll containers (e.g. QuizModal body with
+ * overflow-y:auto) still scroll because they're their own overflow context. */
+body:has(.modal-backdrop) {
+  overflow: hidden;
+}
+
+/* ── Top-nav (App.tsx header <nav>) ──────────────────────────────────────── */
+
+/* Base = the former inline navStyle (display/gap/flex-wrap moved here per
+ * Decision 1). Desktop keeps the wrapping flex row, identical to before. */
+.neurons-nav {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+/* ≤480px: switch from wrap to a single horizontally-scrollable row so the
+ * header stays compact instead of ballooning (measured 34px→150px at 375px). */
+@media (max-width: 480px) {
+  .neurons-nav {
+    flex-basis: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+    padding-bottom: 3px;
+    /* Fade the right edge to hint that more nav items exist off-screen. */
+    -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  }
+
+  /* NavLink renders an <a>; keep tabs from shrinking — scroll instead. */
+  .neurons-nav > a {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  .neurons-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .neurons-nav::-webkit-scrollbar-thumb {
+    background: #8c6d4a;
+    border-radius: 2px;
+  }
+}
+
+/* ── FamilyPicker card grid (FamilyPicker.tsx branchRow) ─────────────────── */
+
+/* Base = former inline gridTemplateColumns (moved here per Decision 1). */
+.neurons-family-grid {
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+}
+
+/* <768px: single column so cards never shrink below a legible width. */
+@media (max-width: 768px) {
+  .neurons-family-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Leaderboard rows (LeaderboardPage) ──────────────────────────────────── */
+
+/* Desktop base = the former inline gridTemplateColumns (moved here per
+ * Decision 1 so the @media below can retune it). The var lives on the list so
+ * the header + data rows share one source of truth (custom props inherit). */
+.neurons-lb-list {
+  --neurons-lb-cols: 3rem 1fr 4rem 5rem 4.5rem 5.5rem;
+}
+
+.neurons-lb-row {
+  grid-template-columns: var(--neurons-lb-cols);
+}
+
+/* ≤480px: collapse to rank + nickname + the active-sorted stat only, mirroring
+ * 二階's --leaderboard-cols + cell-hiding. Hiding the 4 off-stats leaves exactly
+ * 3 cells for the 3-col template (else the extra cells would wrap to new rows). */
+@media (max-width: 480px) {
+  .neurons-lb-list {
+    --neurons-lb-cols: 2.6rem minmax(0, 1fr) 4.5rem;
+  }
+
+  .neurons-lb-cell--variant,
+  .neurons-lb-cell--ap,
+  .neurons-lb-cell--synapse,
+  .neurons-lb-cell--study {
+    display: none;
+  }
+
+  /* Re-show only the cell matching the active sort (FILTER_PRIMARY_STAT). */
+  .neurons-lb-list[data-active-stat='variant_count'] .neurons-lb-cell--variant,
+  .neurons-lb-list[data-active-stat='total_AP'] .neurons-lb-cell--ap,
+  .neurons-lb-list[data-active-stat='synapse_strong'] .neurons-lb-cell--synapse,
+  .neurons-lb-list[data-active-stat='total_study_min'] .neurons-lb-cell--study {
+    display: block;
+  }
+}
+
+/* ── Resting-state ambient firing (revamp-neurons-homepage-experience) ──────
+ *
+ * Compositor-driven (opacity / transform only) so the animation keeps running
+ * in a backgrounded tab (no JS requestAnimationFrame to throttle) and stays
+ * cheap at 60fps. Consumed by the AmbientFiring primitive + ConnectomeHero.
+ * Every rule is wrapped so a single `prefers-reduced-motion: reduce` media
+ * query disables all of it (the primitives also gate in JS as a belt-and-braces).
+ */
+@keyframes neuron-firing-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes neuron-signal-travel {
+  0% {
+    stroke-dashoffset: var(--signal-dash, 40);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+.neuron-firing-node {
+  animation: neuron-firing-pulse 2.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.neuron-signal-edge {
+  stroke-dasharray: var(--signal-dash, 40);
+  animation: neuron-signal-travel 2.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neuron-firing-node,
+  .neuron-signal-edge {
+    animation: none;
+  }
+  .neuron-signal-edge {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ── Variant sprite idle "alive" (add-neurons-sprite-animation-slice) ───────
+ *
+ * Low-cost idle for variant 立繪: gold glow pulse (filter) + deliberately
+ * subtle sway (transform rotate ±1.5°), on different periods so they drift
+ * out of phase (organic, not jelly). Compositor-driven; transform-box/origin
+ * keep SVG <image> swaying from its base without shifting the node. Apply
+ * `.neuron-sprite--alive` to the <img> / SVG <image> that shows a variant.
+ */
+@keyframes neuron-idle-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(255, 210, 110, 0.25)) brightness(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgba(255, 210, 110, 0.6)) brightness(1.06);
+  }
+}
+
+@keyframes neuron-idle-sway {
+  0% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+  100% {
+    transform: rotate(-1.5deg);
+  }
+}
+
+.neuron-sprite--alive {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation:
+    neuron-idle-glow 3.1s ease-in-out infinite,
+    neuron-idle-sway 4.3s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neuron-sprite--alive {
+    animation: none;
+    filter: none;
+    transform: none;
+  }
+}
+
+/* ── Active-squad celebration (add-neurons-study-squad) ──────────────────────
+ * The party row bounces once on a correct answer in QuizModal. A single
+ * play (not infinite) so it reads as a cheer, not idle motion; remount via
+ * `key` at the call site replays it per correct answer. Reduced-motion → static.
+ */
+@keyframes squad-celebrate-bounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-22%) scale(1.08);
+  }
+  60% {
+    transform: translateY(0) scale(1);
+  }
+  78% {
+    transform: translateY(-9%) scale(1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.squad-celebrate {
+  display: inline-flex;
+  transform-origin: center bottom;
+  animation: squad-celebrate-bounce 0.7s ease-out 1 both;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .squad-celebrate {
+    animation: none;
+    transform: none;
+  }
+}

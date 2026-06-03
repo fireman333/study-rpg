@@ -21,6 +21,7 @@
     "deploy:cf": "pnpm run build:cf && wrangler pages deploy dist-cf --project-name med-study-rpg --branch main --commit-dirty=true",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
+    "lint:dexie-fixtures": "BASE_REF=origin/main HEAD_REF=HEAD bash scripts/lint-dexie-fixtures.sh",
     "gen-status": "node scripts/gen-status.mjs",
     "reconcile": "tsx scripts/reconcile.ts",
     "bulk-migrate": "tsx scripts/bulk-migrate.ts"

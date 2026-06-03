@@ -114,21 +114,27 @@ const familyAccrualAdapter: TableAdapter<'familyAccrual'> = {
           continue
         }
         const local = await db.familyAccrual.get(familyId)
-        // No explicit updatedAt; AP is monotonic per family, so keep MAX(ap)
-        // and prefer incoming for non-ap fields when ap ties.
-        const localAp =
-          typeof (local as unknown as Record<string, unknown> | undefined)?.ap === 'number'
-            ? ((local as unknown as Record<string, unknown>).ap as number)
-            : -1
-        const incomingAp =
-          typeof (incoming as Record<string, unknown>).ap === 'number'
-            ? ((incoming as Record<string, unknown>).ap as number)
-            : -1
+        const localRec = local as unknown as Record<string, unknown> | undefined
+        const incRec = incoming as Record<string, unknown>
+        // AP + pullCount are both monotonic per family → MAX-merge each. The
+        // higher-AP row supplies the non-counter fields (firedToday / dates), but
+        // pullCount (the P0 pity clock) is ALWAYS MAX-merged independently.
+        const localAp = typeof localRec?.ap === 'number' ? (localRec.ap as number) : -1
+        const incomingAp = typeof incRec.ap === 'number' ? (incRec.ap as number) : -1
+        const localPull = typeof localRec?.pullCount === 'number' ? (localRec.pullCount as number) : 0
+        const incPull = typeof incRec.pullCount === 'number' ? (incRec.pullCount as number) : 0
+        const mergedPull = Math.max(localPull, incPull)
         if (incomingAp < localAp) {
-          skipped++
+          // Keep local non-counter fields, but still MAX-merge pullCount.
+          if (local && mergedPull !== localPull) {
+            await db.familyAccrual.put({ ...(local as object), pullCount: mergedPull } as never)
+            applied++
+          } else {
+            skipped++
+          }
           continue
         }
-        await db.familyAccrual.put(incoming as never)
+        await db.familyAccrual.put({ ...(incoming as object), pullCount: mergedPull } as never)
         applied++
       }
     })
@@ -199,9 +205,23 @@ const neuronVariantsAdapter: TableAdapter<'neuronVariants'> = {
           continue
         }
         const local = await db.neuronVariants.get([familyId, slotIndex])
-        // Variants are immutable once rolled — first-write wins.
+        // Collection 2.0: row IDENTITY + content (rarity / displayName / spriteKey
+        // / provenance) is immutable once minted, but `copies` mutates on dupe
+        // pulls → MAX-merge carve-out (mirrors the everWrong / dmnEventLog
+        // monotonic discipline). Keep local content; take MAX(copies) + earliest
+        // rolledAt. DO NOT replace copies-MAX with LWW.
         if (local) {
-          skipped++
+          const localCopies = typeof local.copies === 'number' ? local.copies : 1
+          const incCopies = typeof row.copies === 'number' ? (row.copies as number) : 1
+          const mergedCopies = Math.max(localCopies, incCopies)
+          const incRolledAt = typeof row.rolledAt === 'number' ? (row.rolledAt as number) : local.rolledAt
+          const mergedRolledAt = Math.min(local.rolledAt, incRolledAt)
+          if (mergedCopies !== localCopies || mergedRolledAt !== local.rolledAt) {
+            await db.neuronVariants.put({ ...local, copies: mergedCopies, rolledAt: mergedRolledAt })
+            applied++
+          } else {
+            skipped++
+          }
           continue
         }
         await db.neuronVariants.put(incoming as never)
@@ -317,6 +337,31 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'maxQuizCorrectStreak',
   'totalStudyMinutes',
   'currentQuizCorrectStreak',
+  // DMN fate-card trigger counters (per add-neurons-dmn-fate-card spec).
+  // Counter-style (drawsAvailable / lifetime) → first-write-wins below; daily
+  // axis counters reset at midnight so brief sync of stale values is OK.
+  'dmnDrawsAvailable',
+  'dmnLifetimeDrawsConsumed',
+  'dmnTimeAxisMinutesAccrued',
+  'dmnTimeAxisDrawsConsumedToday',
+  'dmnBehaviorAxisDrawsConsumedToday',
+  'dmnLastDailyResetDate',
+  // DMN dispatcher state (single-row flags).
+  'dmnStreakShieldAvailable',
+  'dmnHiddenRevealedArtworkIds',
+  // Variant collection: representative-variant selection (per
+  // add-neurons-variant-collection-view). Timestamped envelope; LWW enforced
+  // by backfill/representatives.ts post-pass (NOT the first-write-wins below).
+  'representativeVariants',
+  // Active squad selection (per add-neurons-study-squad). Timestamped envelope
+  // `{ members, updatedAt }`; LWW enforced by backfill/active-squad.ts post-pass
+  // (NOT the first-write-wins below).
+  'activeSquad',
+  // Neural-energy pull currency (Collection 2.0). Two MONOTONIC counters; the
+  // real merge is the MAX-merge post-pass in backfill/counters.ts (balance =
+  // earned − spent). Listed here so they ride the bundle meta snapshot/apply.
+  'neuralEnergyEarned',
+  'neuralEnergySpent',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {
@@ -357,6 +402,358 @@ const metaAdapter: TableAdapter<'meta'> = {
   },
 }
 
+// ---- DMN fate cards (closed-cap, first-write-wins per cardId) -------------
+
+const dmnCardsAdapter: TableAdapter<'dmnCards'> = {
+  name: 'dmnCards',
+  async snapshot(db) {
+    return await db.dmnCards.toArray()
+  },
+  async apply(db, rows) {
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.dmnCards, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const cardId = (incoming as Record<string, unknown>).cardId
+        if (typeof cardId !== 'string') {
+          skipped++
+          continue
+        }
+        const local = await db.dmnCards.get(cardId)
+        // Closed-cap collection — first draw wins. Keep the EARLIER obtainedAt
+        // if both sides have a row (parallels achievement first-unlock semantics).
+        if (local) {
+          const localAt = local.obtainedAt
+          const incomingAt = (incoming as Record<string, unknown>).obtainedAt
+          if (typeof incomingAt === 'number' && incomingAt < localAt) {
+            await db.dmnCards.put(incoming as never)
+            applied++
+          } else {
+            skipped++
+          }
+          continue
+        }
+        await db.dmnCards.put(incoming as never)
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
+// ---- DMN event log (MONOTONIC-UNION merge — never overwrite "dispatched") -
+
+const dmnEventLogAdapter: TableAdapter<'dmnEventLog'> = {
+  name: 'dmnEventLog',
+  async snapshot(db) {
+    return await db.dmnEventLog.toArray()
+  },
+  async apply(db, rows) {
+    // Critical: this adapter uses MONOTONIC-UNION merge (NOT LWW). Once any
+    // device has logged a cardId as dispatched, that signal must propagate
+    // across all devices and never be overwritten — otherwise a fresh-state
+    // device would re-trigger the event when its bundle apply runs. Mirrors
+    // 二階 add-bookmarks-filters-and-wrong-history-medexam2's `everWrong`
+    // monotonic-OR discipline.
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.dmnEventLog, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const cardId = (incoming as Record<string, unknown>).cardId
+        if (typeof cardId !== 'string') {
+          skipped++
+          continue
+        }
+        const local = await db.dmnEventLog.get(cardId)
+        if (local) {
+          // Already logged here — preserve EARLIER dispatchedAt (provenance
+          // for first-dispatch instant).
+          const localAt = local.dispatchedAt
+          const incomingAt = (incoming as Record<string, unknown>).dispatchedAt
+          if (typeof incomingAt === 'number' && incomingAt < localAt) {
+            await db.dmnEventLog.put(incoming as never)
+            applied++
+          } else {
+            skipped++
+          }
+          continue
+        }
+        // Union: incoming had it, we didn't — record without re-triggering
+        // the side effect (dispatcher reads this log to short-circuit).
+        await db.dmnEventLog.put(incoming as never)
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
+// ---- DMN active buffs (LWW on expiresAt; filter expired after merge) -----
+
+const dmnActiveBuffsAdapter: TableAdapter<'dmnActiveBuffs'> = {
+  name: 'dmnActiveBuffs',
+  async snapshot(db) {
+    // Only sync non-expired rows — no point pushing stale buffs.
+    const now = Date.now()
+    const all = await db.dmnActiveBuffs.toArray()
+    return all.filter((b) => b.expiresAt > now)
+  },
+  async apply(db, rows) {
+    let applied = 0
+    let skipped = 0
+    const now = Date.now()
+    await db.transaction('rw', db.dmnActiveBuffs, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const expiresAt = row.expiresAt
+        // Reject already-expired rows.
+        if (typeof expiresAt !== 'number' || expiresAt <= now) {
+          skipped++
+          continue
+        }
+        // Match by sourceCardId — same source card cannot dispatch buff twice
+        // (idempotent across devices via the event log; this adapter then
+        // dedups the buff row itself).
+        const sourceCardId = row.sourceCardId
+        if (typeof sourceCardId !== 'string') {
+          skipped++
+          continue
+        }
+        const all = await db.dmnActiveBuffs.toArray()
+        const existing = all.find((b) => b.sourceCardId === sourceCardId)
+        if (existing) {
+          skipped++
+          continue
+        }
+        // Strip incoming.id — let Dexie auto-assign locally so we don't
+        // collide with an existing auto-inc.
+        const { id: _id, ...payload } = row
+        await db.dmnActiveBuffs.add(payload as never)
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
+// ---- Question bookmarks (Dexie v7 — add-neurons-question-bookmarks) ----
+
+const questionBookmarksAdapter: TableAdapter<'questionBookmarks'> = {
+  name: 'questionBookmarks',
+  async snapshot(db) {
+    return await db.questionBookmarks.toArray()
+  },
+  async apply(db, rows) {
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.questionBookmarks, db.questionBookmarkTombstones, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const questionId = row.questionId
+        if (typeof questionId !== 'string') {
+          skipped++
+          continue
+        }
+        const updatedAt = pickUpdatedAt(row)
+        if (updatedAt === null) {
+          skipped++
+          continue
+        }
+        // Check tombstone: if local tombstone is newer than incoming bookmark,
+        // the bookmark was deleted later — keep deleted (skip the incoming row).
+        const tomb = await db.questionBookmarkTombstones.get(questionId)
+        if (tomb && tomb.updatedAt > updatedAt) {
+          skipped++
+          continue
+        }
+        const existing = await db.questionBookmarks.get(questionId)
+        if (existing && existing.updatedAt >= updatedAt) {
+          skipped++
+          continue
+        }
+        // Re-add un-deletes — clear stale tombstone since incoming bookmark
+        // post-dates it.
+        if (tomb && tomb.updatedAt <= updatedAt) {
+          await db.questionBookmarkTombstones.delete(questionId)
+        }
+        await db.questionBookmarks.put(row as never)
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
+const questionBookmarkTombstonesAdapter: TableAdapter<'questionBookmarkTombstones'> = {
+  name: 'questionBookmarkTombstones',
+  async snapshot(db) {
+    return await db.questionBookmarkTombstones.toArray()
+  },
+  async apply(db, rows) {
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.questionBookmarks, db.questionBookmarkTombstones, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const questionId = row.questionId
+        if (typeof questionId !== 'string') {
+          skipped++
+          continue
+        }
+        const updatedAt = pickUpdatedAt(row)
+        if (updatedAt === null) {
+          skipped++
+          continue
+        }
+        const existing = await db.questionBookmarkTombstones.get(questionId)
+        if (existing && existing.updatedAt >= updatedAt) {
+          skipped++
+          continue
+        }
+        await db.questionBookmarkTombstones.put({ questionId, updatedAt })
+        // Delete propagation: if incoming tombstone post-dates a local
+        // bookmark, remove that local bookmark.
+        const bookmark = await db.questionBookmarks.get(questionId)
+        if (bookmark && bookmark.updatedAt < updatedAt) {
+          await db.questionBookmarks.delete(questionId)
+        }
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
+// ---- Question flags (Dexie v8 — add-neurons-srs-binary-modifiers) ----
+
+const questionFlagsAdapter: TableAdapter<'questionFlags'> = {
+  name: 'questionFlags',
+  async snapshot(db) {
+    return await db.questionFlags.toArray()
+  },
+  async apply(db, rows) {
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.questionFlags, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const questionId = row.questionId
+        if (typeof questionId !== 'string') {
+          skipped++
+          continue
+        }
+        const updatedAt = pickUpdatedAt(row)
+        if (updatedAt === null) {
+          skipped++
+          continue
+        }
+        const existing = await db.questionFlags.get(questionId)
+        if (existing && existing.updatedAt >= updatedAt) {
+          skipped++
+          continue
+        }
+        // Coerce booleans defensively — older clients may not set both fields.
+        await db.questionFlags.put({
+          questionId,
+          easyMarked: !!row.easyMarked,
+          guessedMarked: !!row.guessedMarked,
+          updatedAt,
+        })
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
+// ---- Question history (Dexie v9 — add-neurons-wrong-questions-subtab) ----
+
+const questionHistoryAdapter: TableAdapter<'questionHistory'> = {
+  name: 'questionHistory',
+  async snapshot(db) {
+    return await db.questionHistory.toArray()
+  },
+  async apply(db, rows) {
+    // Critical: `everWrong` uses MONOTONIC-OR merge (NOT LWW). Once any device
+    // records a question as ever-wrong, that signal must propagate and never be
+    // cleared by a stale `correct` row — otherwise the 歷史曾錯 list would lose
+    // entries on a cross-device race. Mirrors 二階 wrong-answer-list everWrong
+    // discipline + neurons dmnEventLog monotonic-union. The other fields
+    // (lastResult / family / lastAnsweredAt) resolve by LWW on the greater
+    // lastAnsweredAt. DO NOT replace everWrong with plain LWW.
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.questionHistory, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const questionId = row.questionId
+        if (typeof questionId !== 'string') {
+          skipped++
+          continue
+        }
+        const incLastAnsweredAt = typeof row.lastAnsweredAt === 'number' ? row.lastAnsweredAt : 0
+        const incEverWrong = row.everWrong === true
+        const incLastResult = row.lastResult === 'wrong' ? 'wrong' : 'correct'
+        const incFamily = typeof row.family === 'string' ? row.family : ''
+        const incUpdatedAt = typeof row.updatedAt === 'number' ? row.updatedAt : incLastAnsweredAt
+        const local = await db.questionHistory.get(questionId)
+        if (!local) {
+          await db.questionHistory.put({
+            questionId,
+            family: incFamily,
+            lastResult: incLastResult,
+            everWrong: incEverWrong,
+            lastAnsweredAt: incLastAnsweredAt,
+            updatedAt: incUpdatedAt,
+          })
+          applied++
+          continue
+        }
+        // incoming wins on ties (mirrors lwwPick `b >= a`).
+        const incomingNewer = incLastAnsweredAt >= local.lastAnsweredAt
+        await db.questionHistory.put({
+          questionId,
+          family: incomingNewer && incFamily ? incFamily : local.family,
+          lastResult: incomingNewer ? incLastResult : local.lastResult,
+          everWrong: local.everWrong || incEverWrong, // monotonic-OR
+          lastAnsweredAt: Math.max(local.lastAnsweredAt, incLastAnsweredAt),
+          updatedAt: Math.max(local.updatedAt, incUpdatedAt),
+        })
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
 // ---- Adapter registry -----------------------------------------------------
 
 export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
@@ -367,4 +764,11 @@ export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
   achievementsAdapter,
   leaderboardProfileAdapter,
   metaAdapter,
+  dmnCardsAdapter,
+  dmnEventLogAdapter,
+  dmnActiveBuffsAdapter,
+  questionBookmarksAdapter,
+  questionBookmarkTombstonesAdapter,
+  questionFlagsAdapter,
+  questionHistoryAdapter,
 ]

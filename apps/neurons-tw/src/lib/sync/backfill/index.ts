@@ -9,6 +9,8 @@ import {
   backfillMaxMergeCounters,
   extractBundleMetaMap,
 } from './counters'
+import { backfillRepresentativesLWW } from './representatives'
+import { backfillActiveSquadLWW } from './active-squad'
 
 export async function runOnPullComplete(
   db: NeuronsDB,
@@ -23,6 +25,29 @@ export async function runOnPullComplete(
     await backfillMaxMergeCounters(db, incomingMeta)
   } catch (err) {
     console.warn('[sync.backfill] step 1 (counters) failed', err)
+  }
+
+  // Step 1b — Representative-variant LWW reconcile (independent of counters /
+  // achievements; the meta adapter is first-write-wins, this enforces LWW).
+  try {
+    const incomingMeta = pull.snapshot
+      ? extractBundleMetaMap(pull.snapshot.data)
+      : {}
+    await backfillRepresentativesLWW(db, incomingMeta)
+  } catch (err) {
+    console.warn('[sync.backfill] step 1b (representatives) failed', err)
+  }
+
+  // Step 1c — Active-squad LWW reconcile (independent of counters / achievements;
+  // the meta adapter is first-write-wins, this enforces LWW). Per
+  // add-neurons-study-squad.
+  try {
+    const incomingMeta = pull.snapshot
+      ? extractBundleMetaMap(pull.snapshot.data)
+      : {}
+    await backfillActiveSquadLWW(db, incomingMeta)
+  } catch (err) {
+    console.warn('[sync.backfill] step 1c (active-squad) failed', err)
   }
 
   // Step 2 — Achievement backfill. Silent (no toast / no reward dispatch).

@@ -1,0 +1,53 @@
+name: Dexie upgrade fixture lint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**/*.ts'
+      - 'packages/**/*.ts'
+      - 'scripts/lint-dexie-fixtures.sh'
+      - '.github/workflows/dexie-fixture-lint.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/**/*.ts'
+      - 'packages/**/*.ts'
+      - 'scripts/lint-dexie-fixtures.sh'
+      - '.github/workflows/dexie-fixture-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # Need full history so `git show $BASE_REF:$file` works against the
+          # base ref of the PR (or HEAD~1 on push).
+          fetch-depth: 0
+
+      - name: Resolve refs
+        id: refs
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            BEFORE="${{ github.event.before }}"
+            # First push to a new branch sets `before` to all-zeros; fall back to HEAD~1.
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              BEFORE="HEAD~1"
+            fi
+            echo "base=$BEFORE" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Dexie fixture lint
+        env:
+          BASE_REF: ${{ steps.refs.outputs.base }}
+          HEAD_REF: ${{ steps.refs.outputs.head }}
+        run: bash scripts/lint-dexie-fixtures.sh

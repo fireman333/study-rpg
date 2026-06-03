@@ -49,7 +49,15 @@ import {
   type ToastEventOutcome,
 } from '@study-rpg/content-medexam2-tw'
 import { useAuth } from './lib/auth/AuthContext'
-import type { TickEventToastInfo } from './lib/tick'
+import {
+  hospitalEventToastQueue,
+  type HospitalToastEntry,
+} from './lib/hospital-event-toast-queue'
+import {
+  isPlayerContentRoute,
+  maybeRollNonReadingEvent,
+} from './services/non-reading-event-trigger'
+import { useLocation } from 'react-router-dom'
 
 const TIER_DELTA_LABEL: Record<Room['type'], string> = {
   outpatient: '門診',
@@ -70,6 +78,28 @@ function describeTierJump(prevTier: HospitalTier, newTier: HospitalTier): string
     if (delta[type] > 0) parts.push(`+${delta[type]} ${TIER_DELTA_LABEL[type]}`)
   }
   return `🎉 升級為 ${newTier}！${parts.join(' ')}`
+}
+
+/**
+ * Hook B for `rewire-hospital-events-to-non-reading-trigger`:
+ * fires `maybeRollNonReadingEvent('nav')` when the pathname changes and the
+ * new path is a player-content route. Lives inside `<HashRouter>` so
+ * `useLocation` resolves correctly. Skips initial mount (no synthetic nav
+ * roll on cold open) and skips same-path re-renders.
+ */
+function NonReadingNavListener(): null {
+  const location = useLocation()
+  const prevPathRef = useRef<string | null>(null)
+  useEffect(() => {
+    const current = location.pathname
+    const prev = prevPathRef.current
+    prevPathRef.current = current
+    if (prev === null) return // initial mount — not a nav event
+    if (prev === current) return
+    if (!isPlayerContentRoute(current)) return
+    void maybeRollNonReadingEvent('nav')
+  }, [location.pathname])
+  return null
 }
 
 function App() {
@@ -133,21 +163,18 @@ function App() {
     setTimeout(() => setUpgradeNotice(null), 8000)
   }, [])
 
-  const handleToastEvent = useCallback((info: TickEventToastInfo) => {
-    setEventToast({ event: info.event, outcome: info.outcome })
-  }, [])
-
-  // modal-event trigger relies on Dexie liveQuery in <EventModal/>; no React
-  // state needed here, but accept the callback to flush console logs in dev.
-  const handleModalEvent = useCallback((_event: EventDefinition) => {
-    // Modal renders via liveQuery on gameCounters.pendingEventId
+  // Subscribe to the hospital-event toast queue. Service-layer events
+  // (non-reading-event-trigger) push toast entries here. Modal events
+  // continue to render via Dexie liveQuery inside <EventModal />.
+  useEffect(() => {
+    return hospitalEventToastQueue.subscribe((entry: HospitalToastEntry | null) => {
+      if (entry) setEventToast({ event: entry.event, outcome: entry.outcome })
+    })
   }, [])
 
   useStudySessionTick(
     ready ? handleCapped : undefined,
     ready ? handleUpgrade : undefined,
-    ready ? handleToastEvent : undefined,
-    ready ? handleModalEvent : undefined,
   )
 
   // M4 cloud sync: mounts engine on authed + drives migration / conflict modals.
@@ -208,6 +235,7 @@ function App() {
   return (
     <HashRouter>
       <CustomTooltipHost />
+      <NonReadingNavListener />
       <DomainMigrationBanner />
       <div className="header-controls">
         <AuthButton />
@@ -293,7 +321,10 @@ function App() {
         <EventToast
           event={eventToast.event}
           outcome={eventToast.outcome}
-          onDismiss={() => setEventToast(null)}
+          onDismiss={() => {
+            setEventToast(null)
+            hospitalEventToastQueue.clear()
+          }}
         />
       )}
       <HelpMenu onResetProgress={sync.safeResetAccountData} signedIn={!!user} />

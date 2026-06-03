@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useRespectsReducedMotion } from '../lib/motion'
+import { useRespectsReducedMotion, RARITY_TIMINGS } from '../lib/motion'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { subscribeVariantGachaEvents, type VariantRolledPayload } from '../lib/services/variant-gacha'
 import type { VariantRarity } from '../lib/db'
+import { variantBirthCaption } from '../lib/variant-caption'
+import { SpriteSheetPlayer } from './SpriteSheetPlayer'
+import VariantSprite from './VariantSprite'
 
 interface QueuedReveal {
   id: number
@@ -11,6 +14,7 @@ interface QueuedReveal {
 }
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
+  P0: 'P0 始源',
   P1: 'P1 夯',
   P2: 'P2 頂級',
   P3: 'P3 人上人',
@@ -19,6 +23,7 @@ const RARITY_LABEL: Record<VariantRarity, string> = {
 }
 
 const RARITY_COLOR: Record<VariantRarity, string> = {
+  P0: '#a64dd4',
   P1: '#d4a04d',
   P2: '#c44d4d',
   P3: '#6a8c3f',
@@ -48,9 +53,17 @@ export default function VariantUnlockModal(): JSX.Element {
   const current = queue[0]
   if (!current) return <></>
 
-  const { variant, familyDisplayName } = current.payload
+  const { variant, familyDisplayName, isDupe } = current.payload
   const spriteUrl = SPRITE_MAP[variant.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
   const color = RARITY_COLOR[variant.rarity]
+  // P0 apex shares P1's grand spin spectacle (motion lib timing covers P1–P5).
+  const timing = RARITY_TIMINGS[variant.rarity === 'P0' ? 'P1' : variant.rarity]
+  // Card entry duration (in seconds for Framer Motion) follows the centralized
+  // baseline. Reduced-motion users still get a brief opacity-only fade.
+  const cardDurationSec = reduced ? 0.18 : Math.max(timing.total, 1000) / 1000
+  // P1 spectacle spin per `neurons-mode` spec: 3 turns over 1.5s ease-out cubic.
+  // Non-P1 rarities have spinTurns === 0 and the wrapper is a no-op.
+  const spinTurns = reduced ? 0 : timing.spinTurns
 
   const overlayInitial = reduced ? { opacity: 0 } : { opacity: 0 }
   const overlayAnimate = { opacity: 1 }
@@ -58,7 +71,8 @@ export default function VariantUnlockModal(): JSX.Element {
   const cardInitial = reduced ? { opacity: 0 } : { opacity: 0, scale: 0.85 }
   const cardAnimate = reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }
   const cardExit = reduced ? { opacity: 0 } : { opacity: 0, scale: 0.95 }
-  const transition = { duration: reduced ? 0.18 : 0.35, ease: 'easeOut' as const }
+  const overlayTransition = { duration: reduced ? 0.18 : 0.35, ease: 'easeOut' as const }
+  const cardTransition = { duration: cardDurationSec, ease: 'easeOut' as const }
 
   return (
     <AnimatePresence>
@@ -66,34 +80,66 @@ export default function VariantUnlockModal(): JSX.Element {
         key={current.id}
         role="dialog"
         aria-modal="true"
-        aria-label={`新變體解鎖：${familyDisplayName} ${variant.displayName}`}
+        aria-label={`${isDupe ? '重複變體' : '新變體解鎖'}：${familyDisplayName} ${variant.displayName}`}
         initial={overlayInitial}
         animate={overlayAnimate}
         exit={overlayExit}
-        transition={transition}
+        transition={overlayTransition}
+        className="modal-backdrop"
         style={overlayStyle}
         onClick={dismissCurrent}
       >
+        {/*
+          Spin wrapper — P1 SHALL spin >= 3 turns over >= 1500ms ease-out cubic
+          per `neurons-mode` spec. P2-P5 have spinTurns === 0 → no-op wrapper.
+          Reduced-motion gets spinTurns 0 regardless of rarity.
+        */}
+        <motion.div
+          initial={{ rotate: 0 }}
+          animate={{ rotate: 360 * spinTurns }}
+          transition={{
+            duration: spinTurns === 0 ? 0 : 1.5,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          style={{ display: 'inline-block' }}
+          onClick={(e) => e.stopPropagation()}
+        >
         <motion.div
           initial={cardInitial}
           animate={cardAnimate}
           exit={cardExit}
-          transition={transition}
+          transition={cardTransition}
           style={{ ...cardStyle, borderColor: color }}
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{ ...rarityBadgeStyle, color, borderColor: color }}>{RARITY_LABEL[variant.rarity]}</div>
-          <div style={slotChipStyle}>Slot {variant.slotIndex}</div>
+          {isDupe && (
+            <div style={dupeChipStyle}>重複 × {variant.copies}（碎片留待融合）</div>
+          )}
           <div style={spriteWrapStyle}>
-            <img
-              src={spriteUrl}
-              alt={variant.displayName}
-              style={spriteStyle}
-            />
+            {/* VariantSprite composes context decor + season tint over the base;
+                the base (hero evolve sheet, else the alive idle sprite) is passed
+                as children so the existing reveal animation is preserved. */}
+            <VariantSprite row={variant} size={128} alt={variant.displayName}>
+              {SPRITE_MAP[`${variant.spriteKey}:evolve`] ? (
+                // Hero variant ships an evolve sheet → play the 進化爆光 on reveal.
+                <SpriteSheetPlayer spriteKeyBase={variant.spriteKey} state="evolve" size={128} />
+              ) : (
+                <img
+                  src={spriteUrl}
+                  alt={variant.displayName}
+                  className="neuron-sprite--alive"
+                  style={spriteStyle}
+                />
+              )}
+            </VariantSprite>
           </div>
           <div style={familyNameStyle}>{familyDisplayName}</div>
           <div style={variantNameStyle}>{variant.displayName}</div>
           {variant.wasPityFloor && <div style={pityChipStyle}>保底</div>}
+          {/* Birth caption (add-neurons-variant-provenance) — the study context
+              that grew this variant, surfaced at the moment of mint. */}
+          <div style={captionStyle}>{variantBirthCaption(variant)}</div>
           <button
             type="button"
             onClick={dismissCurrent}
@@ -104,6 +150,7 @@ export default function VariantUnlockModal(): JSX.Element {
           {queue.length > 1 && (
             <div style={queueHintStyle}>還有 {queue.length - 1} 個變體待揭曉</div>
           )}
+        </motion.div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
@@ -150,14 +197,14 @@ const rarityBadgeStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
 }
 
-const slotChipStyle: React.CSSProperties = {
-  alignSelf: 'flex-start',
-  fontSize: '0.7rem',
-  padding: '0.1rem 0.5rem',
+const dupeChipStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  padding: '0.1rem 0.6rem',
   border: '1px solid #8c6d4a',
   borderRadius: '999px',
-  color: '#5a3f29',
-  background: '#fff',
+  color: '#8c6d4a',
+  background: '#f4ecd8',
 }
 
 const spriteWrapStyle: React.CSSProperties = {
@@ -200,6 +247,15 @@ const pityChipStyle: React.CSSProperties = {
   borderRadius: '999px',
   color: '#b58900',
   fontWeight: 600,
+}
+
+const captionStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  color: '#8c6d4a',
+  textAlign: 'center',
+  lineHeight: 1.4,
+  marginTop: '0.1rem',
+  maxWidth: '17rem',
 }
 
 const dismissButtonStyle: React.CSSProperties = {

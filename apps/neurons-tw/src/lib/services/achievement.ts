@@ -22,7 +22,7 @@ import {
   type FamilyMasteryTier,
 } from '@study-rpg/content-neurons-tw'
 
-import { db, todayISO, type NeuronVariantRow } from '../db'
+import { db, todayISO } from '../db'
 import { deriveMasteryTier } from '../mastery/mastery-tier'
 import { dispatchReward } from './achievement-reward'
 import { pushAchievementToast } from '../achievement-toast-queue'
@@ -67,21 +67,14 @@ export async function buildAchievementStats(): Promise<NeuronsAchievementStats> 
     ? totalQuestionsCorrect / totalQuestionsAnswered
     : 0
 
-  // Variant collection signals
+  // Variant collection signals. Open collection: the collection metric is the
+  // total DISTINCT variant count (no family-complete concept).
   const variantCount = variants.length
-  const variantsByFamily = new Map<string, NeuronVariantRow[]>()
-  for (const v of variants) {
-    const list = variantsByFamily.get(v.familyId) ?? []
-    list.push(v)
-    variantsByFamily.set(v.familyId, list)
-  }
-  let familyCompleteCount = 0
-  for (const list of variantsByFamily.values()) {
-    if (list.length === 5) familyCompleteCount += 1
-  }
 
-  // Natural P1 = rarity P1 AND slot index ∈ {1,2,3} (slots 4/5 always wasPityFloor=true per variant-gacha spec)
-  const naturalP1Variants = variants.filter((v) => v.rarity === 'P1' && v.slotIndex <= 3)
+  // Natural P1 = a P1 obtained without the soft-pity floor. Rarity is now an
+  // explicit field (decoupled from slotIndex), so read it directly; `wasPityFloor`
+  // is only ever set for P0, so every P1 is natural — but keep the guard explicit.
+  const naturalP1Variants = variants.filter((v) => v.rarity === 'P1' && !v.wasPityFloor)
   const naturalP1VariantCount = naturalP1Variants.length
   const naturalP1DistinctFamilies = new Set(naturalP1Variants.map((v) => v.familyId)).size
 
@@ -133,15 +126,16 @@ export async function buildAchievementStats(): Promise<NeuronsAchievementStats> 
   const isFirstSaveDay = saveCreatedDate === today
   const todayCorrectCount = accruals.reduce((sum, a) => sum + a.sameDayCorrect, 0)
 
+  const totalStudyMinutes = await readMetaInt('totalStudyMinutes')
+
   return {
-    totalStudyMinutes: 0, // reading-timer not yet wired in neurons-tw
+    totalStudyMinutes,
     totalQuestionsAnswered,
     totalQuestionsCorrect,
     overallAccuracy,
     currentQuizCorrectStreak: currentStreak,
     maxQuizCorrectStreak: maxStreak,
     variantCount,
-    familyCompleteCount,
     naturalP1VariantCount,
     variantPityFloorCount,
     naturalP1DistinctFamilies,

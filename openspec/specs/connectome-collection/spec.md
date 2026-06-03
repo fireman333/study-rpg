@@ -3,39 +3,43 @@
 ## Purpose
 
 Implements step 3 of the `neurons-mode` Hebbian game loop: a synapse state machine (`dormant → weak → strong`), same-day cross-family co-fire detection (N=5 correct answers per family per local-TZ calendar day), LTD decay (one level after 7+ days without co-fire, never removing a synapse), a monotonic per-family Action Potential counter with a 5-step variant slot unlock threshold ladder, and a stub `/connectome` view grouping the 11 neuron families by NT branch alongside a synapse table. Daily reset runs lazily on the next user interaction crossing local-TZ midnight; all per-answer writes are wrapped in a single Dexie transaction with events emitted only after commit.
-
 ## Requirements
-
 ### Requirement: Per-family Action Potential SHALL be tracked as monotonic counter incremented by correct quiz answers
 
-The neurons mode SHALL maintain a per-neuron-family `actionPotential` (AP) counter that:
+The neurons mode SHALL maintain a per-neuron-family `actionPotential` (AP) counter
+that:
 
-- Starts at 0 for each of the 11 neuron families on save creation
+- Starts at 0 for each of the 11 families on save creation
 - Increments by exactly 1 for every correct quiz answer attributed to that family
-- Is monotonic (never decreases for any reason — no per-day reset, no decay, no reset on slot unlock)
+  (plus any active DMN family-buff bonus)
+- Is monotonic (never decreases — no per-day reset, no decay)
 - Persists across sessions via the local Dexie `familyAccrual` table
 
-AP is the substrate for variant slot unlock (per the variant-slot requirement below); it does NOT determine variant rarity (rarity is `neuron-variant-gacha` capability's responsibility) and it is distinct from the `affinity` counter (which drives gacha pity).
+AP is a **display + progression signal** (shown on the connectome homepage, and
+recorded as `apAtUnlock` provenance at pull time). AP SHALL NOT gate variant
+collection — variant acquisition is the `neuron-variant-gacha` capability's
+currency-gated pull. AP is distinct from `pullCount` (the per-family P0 pity clock).
 
 #### Scenario: Initial AP is zero for all families
 
 - **GIVEN** the player creates a new save in neurons-tw
 - **THEN** every family's `actionPotential` SHALL equal 0
-- **AND** the `familyAccrual` table SHALL contain one row per neuron family (11 rows total) initialized with `ap = 0`
+- **AND** the `familyAccrual` table SHALL contain one row per family initialized with
+  `ap = 0` and `pullCount = 0`
 
 #### Scenario: Correct answer increments AP by exactly 1
 
 - **GIVEN** a family's current `actionPotential` is `X`
 - **WHEN** the player answers a question correctly attributed to that family
-- **THEN** that family's `actionPotential` SHALL become `X + 1`
-- **AND** no other family's `actionPotential` SHALL be affected
+- **THEN** that family's `actionPotential` SHALL become `X + 1` (plus DMN bonus if active)
+- **AND** no `connectome.variantSlotUnlocked` event SHALL be emitted (the event no longer exists)
 
-#### Scenario: Incorrect answer does not change AP
+#### Scenario: AP no longer unlocks variants
 
-- **GIVEN** a family's current `actionPotential` is `X`
-- **WHEN** the player answers a question incorrectly attributed to that family
-- **THEN** that family's `actionPotential` SHALL remain `X`
-- **AND** no AP-related event SHALL be emitted
+- **GIVEN** a family's AP crosses any value (e.g. 10, 30, 80)
+- **WHEN** the answer commits
+- **THEN** no variant row SHALL be created as a result of the AP value
+- **AND** variants SHALL only be created by an explicit player pull
 
 ### Requirement: Synapse SHALL be created between two families upon first same-day co-firing reaching N=5 threshold per family
 
@@ -144,42 +148,6 @@ The daily reset job (see daily reset requirement) SHALL run an LTD decay pass:
 - **AND** the synapse's `lastCoFireDate` SHALL remain unchanged
 - **AND** no `connectome.synapseDecayed` event SHALL be emitted
 
-### Requirement: Variant slot unlock SHALL emit event when family AP crosses one of five threshold values
-
-The neurons mode SHALL declare a fixed AP threshold ladder mapping to 5 variant slot indices (1-5):
-
-| Slot index | AP threshold |
-|---|---|
-| 1 | 10 |
-| 2 | 30 |
-| 3 | 80 |
-| 4 | 200 |
-| 5 | 500 |
-
-When a family's `actionPotential` crosses one of these thresholds upward (i.e., before increment was below threshold, after is at or above), the system SHALL emit a `connectome.variantSlotUnlocked` event with payload `{ familyId, slotIndex, apAtUnlock }`. The system SHALL persist a per-family `unlockedSlots` set (or equivalent) so each slot fires its event at most once over the save's lifetime.
-
-This capability SHALL NOT implement the variant gacha logic itself (no roll-and-assign, no rarity selection); the gacha behavior is `wire-neuron-variant-gacha` capability's responsibility. This capability only exposes the unlock signal.
-
-#### Scenario: AP crossing 10 emits slot 1 unlock event exactly once
-
-- **GIVEN** a family's `actionPotential` is 9 and `unlockedSlots` is empty
-- **WHEN** the player answers a correct question for that family
-- **THEN** the family's `actionPotential` SHALL become 10
-- **AND** a `connectome.variantSlotUnlocked` event SHALL have been emitted with payload `{ familyId, slotIndex: 1, apAtUnlock: 10 }`
-- **AND** the family's `unlockedSlots` SHALL include 1
-
-#### Scenario: Subsequent AP increments past 10 do not re-emit slot 1 event
-
-- **GIVEN** a family's `actionPotential` is 10 and `unlockedSlots = {1}`
-- **WHEN** the player answers another correct question for that family (AP → 11)
-- **THEN** no `connectome.variantSlotUnlocked` event SHALL be emitted for slot 1
-- **AND** the family's `unlockedSlots` SHALL still equal `{1}`
-
-#### Scenario: Crossing multiple thresholds in a single answer (impossible by increment-1 rule) is therefore not a concern
-
-- **GIVEN** AP increments by exactly 1 per correct answer (per the AP requirement)
-- **THEN** at most one slot SHALL ever unlock per single correct answer
-
 ### Requirement: Daily reset SHALL run lazily on next user interaction crossing local-TZ midnight
 
 The system SHALL use a lazy daily reset strategy rather than a background scheduler:
@@ -210,38 +178,122 @@ The reset SHALL handle multi-day gaps (user opens the app after a multi-day abse
 - **THEN** the daily reset sequence SHALL NOT run again
 - **AND** `meta.lastResetDate` SHALL remain `"2026-05-31"`
 
-### Requirement: Stub Connectome view SHALL display all 11 families grouped by NT branch plus a synapse table
+### Requirement: Connectome homepage view SHALL display all 11 families grouped by NT branch on the homepage with a dimmed-skeleton empty state
 
-The neurons mode SHALL ship a minimal `/connectome` route view containing:
+The neurons mode SHALL render the connectome on the homepage route (`/`) consisting
+of:
 
-- A section organized into 4 columns labeled by NT branch (`DA` / `5-HT` / `GABA` / `Glu`), with each column listing the family cards assigned to that branch (per content pack metadata)
-- Each family card SHALL display: family `displayName`, sprite (via `artKey`), current `actionPotential`, next slot threshold (or "MAX" if all 5 slots unlocked), and a `firedToday` badge when applicable
-- A synapse table section listing all rows from the `synapses` table with columns: family A `displayName`, family B `displayName`, state (`dormant` / `weak` / `strong`), `lastCoFireDate`, `daysSinceCoFire`
-- An empty-state message when no synapses exist explaining the N=5 same-day co-fire rule
+- The polished SVG Linnean tree as the primary visual
+- A family-detail section organized into 4 NT-branch groups (`DA` / `5-HT` / `GABA` /
+  `Glu`), each listing its family cards
+- Each family card SHALL display: family `displayName`, sprite (via `artKey`), current
+  `actionPotential`, the `🧬 X / 6` collection chip, and a `firedToday` badge when
+  applicable. The card SHALL **NOT** display a "next slot threshold" / "MAX" line
+  (slot-unlock thresholds are removed).
 
-The view SHALL NOT render any polished SVG / Canvas Linnean phylogenetic tree (deferred to a follow-up change). Synapse formation feedback to the user SHALL come from toast notifications (per the toast requirement), not from this view alone.
+When the `synapses` table is empty, the tree SHALL render a dimmed grayscale skeleton
+of all 11 families + NT-branch structure plus an action-guidance callout naming the
+N=5 same-day co-fire rule. The family-card detail section SHALL remain accessible and
+SHALL NOT be hidden behind a default-collapsed section.
 
-#### Scenario: Connectome view renders all 11 families in correct NT-branch columns
+#### Scenario: Homepage family card shows AP and collection chip, not a slot threshold
 
-- **GIVEN** the player navigates to `/connectome`
-- **WHEN** the page renders
-- **THEN** there SHALL be exactly 4 NT-branch columns labeled `DA`, `5-HT`, `GABA`, `Glu`
-- **AND** every family from the content pack SHALL appear in exactly one column matching its `ntBranch` field
-- **AND** every family card SHALL display `displayName`, sprite via `artKey`, `actionPotential`, and next slot threshold
+- **WHEN** the homepage renders a family card
+- **THEN** the card SHALL show `displayName`, sprite, `actionPotential`, and the
+  `🧬 X / 6` chip
+- **AND** the card SHALL NOT show a "next slot threshold" or "MAX" line
 
-#### Scenario: Empty-state message appears when no synapses exist
+#### Scenario: Homepage renders all 11 families in correct NT-branch groups
 
-- **GIVEN** the `synapses` table is empty
-- **WHEN** the page renders
-- **THEN** the synapse table section SHALL show an empty-state message that names the rule (≥ 5 correct in 2 families on the same day forms a synapse)
-- **AND** no rows SHALL appear in the synapse table
+- **WHEN** the homepage renders
+- **THEN** there SHALL be exactly 4 NT-branch groups (`DA`, `5-HT`, `GABA`, `Glu`)
+- **AND** every content-pack family SHALL appear in exactly one group matching its
+  `ntBranch`
 
-#### Scenario: Synapse table renders one row per synapse with state and lastCoFireDate
+#### Scenario: Empty connectome renders a dimmed skeleton plus guidance
 
-- **GIVEN** the `synapses` table contains a row with `pairKey = "藥理學|解剖學"`, `state = weak`, `lastCoFireDate = "2026-05-30"`
-- **AND** today is `"2026-06-02"`
-- **WHEN** the page renders
-- **THEN** the synapse table SHALL contain a row showing family A `藥理學`, family B `解剖學`, state `weak`, `lastCoFireDate` `2026-05-30`, `daysSinceCoFire` `3`
+- **WHEN** the `synapses` table is empty
+- **THEN** the tree SHALL render a dimmed grayscale skeleton of all 11 family leaves +
+  the 4 NT-branch structure
+- **AND** an action-guidance callout SHALL name the N=5 same-day co-fire rule
+
+### Requirement: Polished SVG Linnean phylogenetic tree SHALL render the connectome on the homepage with two-channel recency-and-strength edge styling
+
+The homepage SHALL render a polished SVG visualization as its primary visual, organized as a Linnean phylogenetic tree with:
+
+- A root spanning the full width of the visualization
+- Exactly 4 NT-branch sub-roots labeled `DA`, `5-HT`, `GABA`, `Glu`, fanning out from the root with vertical spacing computed by a pure layout function; each sub-root SHALL be visually distinguishable via its label and the family color of its first child leaf
+- 11 neuron-family leaf nodes — each family from the content pack SHALL appear as exactly one leaf attached to its declared `ntBranch` sub-root
+- Each leaf node SHALL render the family's sprite (via `artKey`) at a size legible without zoom (≥ 32px desktop, ≥ 28px mobile), the family's `displayName` label adjacent, and the family's current `actionPotential` in a small chip
+- A `firedToday` indicator (visual halo or 🔥 glyph) SHALL appear on the leaf node when `firedToday` is true
+
+Synapses SHALL render as SVG `<path>` elements between cross-NT-branch family leaves, styled by **two orthogonal channels** derived at render time from `(state, lastCoFireDate, today)`:
+
+- **Channel 1 — stroke width / weight encodes accumulated strength** (the internal `SynapseState`): `dormant` = thin, `weak` = medium, `strong` = thick.
+- **Channel 2 — brightness (opacity + glow) encodes recency**: computed from `daysSinceCoFire = today − lastCoFireDate`, mapping `0` days → brightest and `≥ 7` days → a dim but legible floor (never invisible). Co-firing resets recency to brightest.
+- **Every formed synapse renders a visible edge, including `dormant`** (reversing the prior "dormant SHALL NOT render"). A newly-formed synapse (`dormant`, `daysSinceCoFire = 0`) SHALL therefore render at brightest.
+- The EEG cyan/amber color tokens MAY be retained for aesthetic coherence; numeric `lastCoFireDate` / days-since SHALL be available only via the per-edge hover/focus tooltip (the only numeric surface — no text state labels on the tree).
+
+The SVG SHALL be responsive: at viewport width ≥ 768px a wide horizontal layout (root left, branches fanning right); at < 768px a compact vertical layout (root top, branches stacking down) without DOM remount (CSS / viewBox-driven, not React conditional rendering).
+
+#### Scenario: SVG tree renders 4 NT-branch sub-roots and 11 family leaves
+- **WHEN** the homepage renders and the SVG tree mounts
+- **THEN** there SHALL be exactly 4 NT-branch sub-root elements with `aria-label` attributes containing `DA`, `5-HT`, `GABA`, `Glu`
+- **AND** there SHALL be exactly 11 family leaf elements, one per content-pack family, each anchored under its declared `ntBranch` sub-root
+
+#### Scenario: Dormant synapse renders a visible edge
+- **GIVEN** the `synapses` table contains a row with `state = dormant` and `lastCoFireDate = today`
+- **WHEN** the SVG tree mounts
+- **THEN** a visible `<path>` edge SHALL render for that pair at thin stroke width and brightest recency styling (it SHALL NOT be hidden)
+
+#### Scenario: Fresh synapse is brightest; idle synapse dims toward the 7-day floor
+- **GIVEN** synapse A has `lastCoFireDate = today` and synapse B has `lastCoFireDate = 6 days ago`
+- **WHEN** the SVG tree mounts
+- **THEN** edge A SHALL render at the brightest recency level
+- **AND** edge B SHALL render dimmed toward the floor (visibly fading) while remaining legible
+
+#### Scenario: Strong vs weak distinguished by thickness
+- **GIVEN** a `strong` synapse and a `weak` synapse both co-fired today
+- **WHEN** the SVG tree mounts
+- **THEN** the `strong` edge SHALL render thicker than the `weak` edge (thickness encodes accumulated strength), both at brightest recency
+
+#### Scenario: Compact vertical layout activates below 768px viewport
+- **GIVEN** the homepage renders inside a viewport of width 600px
+- **WHEN** the SVG tree mounts
+- **THEN** the tree SHALL use a vertical (top-to-bottom) layout with the root at the top and the 4 NT-branch sub-roots stacked beneath, using the same SVG DOM structure (no React conditional re-mount)
+
+### Requirement: SVG tree synapse formation, strengthening, decay, and slot-unlock SHALL drive Framer Motion animations gated by useRespectsReducedMotion
+
+The SVG tree SHALL animate state transitions using Framer Motion (`motion.path`, `motion.g`) and the timing tokens defined in `neurons-motion-library`'s `SYNAPSE_TIMINGS` requirement:
+
+- **Synapse formation** (`connectome.synapseFormed` event arrives): the new edge `<path>` SHALL animate `pathLength` from 0 → 1 over `SYNAPSE_TIMINGS.formation` ms with an ease-out curve, accompanied by a brief birth glow burst that lands the edge at its brightest recency level, then settling to its steady thin `dormant` width — celebrating the new connection rather than hiding it
+- **Synapse strengthening** (`connectome.synapseStrengthened` event arrives): the existing edge `<path>` SHALL animate stroke width upward along the accumulated-strength channel (thin → medium → thick for dormant → weak → strong), over `SYNAPSE_TIMINGS.strengthen` ms; brightness stays at the brightest level (the pair just co-fired)
+- **Synapse decay** (`connectome.synapseDecayed` event arrives, transitioning strong→weak or weak→dormant): the edge SHALL animate stroke width DOWNWARD to its new state's thickness over `SYNAPSE_TIMINGS.decay` ms and SHALL REMAIN in the SVG DOM at its new (possibly `dormant`-thin) styling — the edge SHALL NOT be removed from the DOM (dormant edges are now visible)
+- **Recency dimming** (no event; continuous): edge brightness SHALL be re-evaluated as a function of `daysSinceCoFire` on render and on each daily reset, so idle edges visibly dim toward the 7-day floor without requiring a discrete event
+- **AP slot unlock** (`connectome.variantSlotUnlocked` event arrives): the family leaf node SHALL pulse — scale 1 → 1.15 → 1 with a brief halo glow expand and fade — over `SYNAPSE_TIMINGS.slotUnlock` ms
+
+When the `useRespectsReducedMotion()` hook returns `true`, the tree SHALL skip all animations and apply the new visual state instantly (no `pathLength` draw-in, no birth glow burst, no stroke-width morph, no scale pulse). Stroke widths (accumulated strength) and brightness (recency) SHALL still reflect the correct end-state so the visual hierarchy is preserved, and dormant edges SHALL still render (never removed).
+
+#### Scenario: Synapse formation animates pathLength draw-in and a birth glow burst
+- **GIVEN** the SVG tree is mounted and `useRespectsReducedMotion()` returns `false`
+- **WHEN** a `connectome.synapseFormed` event fires for the `藥理學|解剖學` pair
+- **THEN** the new edge `<path>` SHALL animate `pathLength` from 0 to 1 over `SYNAPSE_TIMINGS.formation` ms with an ease-out curve
+- **AND** a brief birth glow burst SHALL land the edge at its brightest recency level before settling to its steady thin `dormant` width
+- **AND** the edge SHALL be visible (not hidden) immediately after the animation completes
+
+#### Scenario: Synapse decay weak→dormant thins the edge but keeps it in the DOM
+- **GIVEN** the SVG tree shows a `weak` edge for the `藥理學|解剖學` pair and `useRespectsReducedMotion()` returns `false`
+- **WHEN** a `connectome.synapseDecayed` event fires transitioning the pair from `weak` → `dormant`
+- **THEN** the edge SHALL animate stroke width down to the thin `dormant` width over `SYNAPSE_TIMINGS.decay` ms
+- **AND** the edge SHALL REMAIN in the SVG DOM at its new dormant styling (it SHALL NOT be removed)
+- **AND** the surrounding leaf nodes SHALL NOT visually shift during the transition
+
+#### Scenario: Reduced motion skips all animations but preserves state styling and keeps dormant edges visible
+- **GIVEN** the user has set OS preference `prefers-reduced-motion: reduce` and `useRespectsReducedMotion()` returns `true`
+- **WHEN** a `connectome.synapseFormed` event fires for the `藥理學|解剖學` pair
+- **THEN** the edge `<path>` SHALL appear instantly at its final thin `dormant` width and brightest recency styling, with no `pathLength` draw-in and no birth glow burst
+- **AND** on a subsequent `connectome.synapseDecayed` weak→dormant event the edge SHALL snap to thin dormant styling and remain in the DOM (not removed)
+- **AND** the leaf nodes SHALL NOT pulse on subsequent `connectome.variantSlotUnlocked` events
 
 ### Requirement: Synapse formation and strengthening SHALL surface user-facing toast notification, decay SHALL NOT
 
@@ -260,7 +312,7 @@ The toast host (`ConnectomeToastHost`) SHALL consume `neurons-motion-library` pr
 
 The host SHALL retain its existing top-right anchored fixed-position vertical-stack layout (distinct from the motion library's single-`<Toast>` top-center primitive) so that multiple concurrent toasts remain visible without overlap.
 
-Decay events (`connectome.synapseDecayed`) SHALL NOT trigger toast notifications (to avoid negative-feedback fatigue). Decay is visible only via the synapse table's state and `daysSinceCoFire` columns.
+Decay events (`connectome.synapseDecayed`) SHALL NOT trigger toast notifications (to avoid negative-feedback fatigue). Decay is visible only via the tree edge's recency dimming (edge brightness fading toward the 7-day decay) and the per-edge hover/focus tooltip; there is no synapse table.
 
 #### Scenario: New synapse formation triggers a toast naming both families
 
@@ -272,7 +324,7 @@ Decay events (`connectome.synapseDecayed`) SHALL NOT trigger toast notifications
 
 - **WHEN** a `connectome.synapseDecayed` event fires
 - **THEN** no toast SHALL render
-- **AND** the user discovers the decay only by inspecting the synapse table or seeing a future strengthening event
+- **AND** the user discovers the decay only via the edge's recency dimming / hover tooltip or a future strengthening event
 
 #### Scenario: Standard motion users see slide-from-right entry animation
 
@@ -314,3 +366,4 @@ If the transaction fails, no events SHALL be emitted and the in-memory state SHA
 - **WHEN** a `recordCorrectAnswer` call succeeds and triggers both AP slot unlock and synapse formation
 - **THEN** all Dexie writes SHALL have committed before either `connectome.variantSlotUnlocked` or `connectome.synapseFormed` event handlers run
 - **AND** event subscribers reading from Dexie SHALL observe the committed post-call state
+

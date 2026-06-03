@@ -13,9 +13,20 @@ import type { ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRespectsReducedMotion } from './useRespectsReducedMotion'
 import { ParticleBurst } from './ParticleBurst'
+import { CelebrationHalo } from './CelebrationHalo'
 import { RARITY_TIMINGS, SKIP_THRESHOLD_MS, type Rarity } from './timings'
 
 type Stage = 'envelope' | 'flip' | 'glow' | 'particle' | 'centered' | 'done'
+
+// Enhanced-celebration intensity per rarity (1 subtle … 3 spectacle). Rides
+// within the existing reveal timeline — does NOT alter any RARITY_TIMINGS value.
+const RARITY_HALO_INTENSITY: Record<Rarity, number> = {
+  P1: 3,
+  P2: 2,
+  P3: 2,
+  P4: 1,
+  P5: 1,
+}
 
 const RARITY_COLORS: Record<Rarity, string> = {
   P1: '#d4a04d', // gold — DA branch
@@ -122,6 +133,34 @@ export function RarityRevealModal({
       }}
     >
       <div style={{ position: 'relative', perspective: '1200px' }}>
+        {/* Enhanced cinematic celebration layer — expanding halo + sparkles once
+            the card is revealed. Additive overlay; CelebrationHalo self-nulls in
+            reduced-motion. (revamp-neurons-homepage-experience) */}
+        {(stage === 'glow' || stage === 'particle' || stage === 'centered') && (
+          <CelebrationHalo
+            color={color}
+            intensity={RARITY_HALO_INTENSITY[rarity]}
+            durationMs={Math.max(500, timing.glow + (timing.particle ?? 0))}
+          />
+        )}
+        {/*
+          Spin wrapper — Z-axis rotation layered over the card's existing
+          stage-based reveal. Per `neurons-mode` spec: P1 SHALL spin >= 3 turns
+          over >= 1500ms with ease-out cubic for the「快轉 → 減速 → 定位」 feel.
+          P2-P5 have spinTurns === 0 and this wrapper becomes a no-op
+          transition. Reduced-motion users get no rotation regardless of rarity.
+        */}
+        <motion.div
+          initial={{ rotate: 0 }}
+          animate={{
+            rotate: reduced ? 0 : 360 * timing.spinTurns,
+          }}
+          transition={{
+            duration: reduced || timing.spinTurns === 0 ? 0 : 1.5,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          style={{ display: 'inline-block' }}
+        >
         <motion.div
           initial={reduced ? reducedVariants.envelope : cardVariants.envelope}
           animate={reduced ? reducedVariants[stage] : cardVariants[stage]}
@@ -167,6 +206,7 @@ export function RarityRevealModal({
               ✉︎
             </div>
           )}
+        </motion.div>
         </motion.div>
         <AnimatePresence>
           {!reduced && stage === 'particle' && (

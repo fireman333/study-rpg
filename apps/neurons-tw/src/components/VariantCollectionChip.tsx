@@ -1,7 +1,8 @@
 /**
- * Per-family variant collection chip — shows `🧬 X / 5` (or `🏆 5 / 5` celebratory
- * when complete) on each family card. Subscribes to variant-gacha events for
- * live updates without page reload.
+ * Per-family variant collection chip — shows `🧬 X 隻` (pure count, no denominator;
+ * the catalog total is hidden in the open-collection范式, so there is no `X / N`
+ * and no celebratory full-collection state). Subscribes to variant-gacha events
+ * for live updates without page reload.
  *
  * Spec: openspec/specs/neuron-variant-gacha/spec.md
  *   "Connectome page family cards SHALL display collected-variant count"
@@ -36,14 +37,9 @@ export default function VariantCollectionChip({ familyId }: Props): JSX.Element 
     }
   }, [familyId])
 
-  const complete = count >= 5
-  const style: React.CSSProperties = complete
-    ? { ...baseChipStyle, color: '#b58900', borderColor: '#b58900', background: '#fdf6e3' }
-    : baseChipStyle
-
   return (
-    <span style={style} title={complete ? '完整收集 5 / 5 變體' : `已收集 ${count} / 5 變體`}>
-      {complete ? '🏆' : '🧬'} {count} / 5
+    <span style={baseChipStyle} title={`已收集 ${count} 隻變體`}>
+      🧬 {count} 隻
     </span>
   )
 }

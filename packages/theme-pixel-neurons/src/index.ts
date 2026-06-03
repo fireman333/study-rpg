@@ -29,11 +29,26 @@ export const THEME_PIXEL_NEURONS: ThemePack = {
     '--nt-gaba': '#6a9bc4',   // GABA — 藍 / 青 (inhibition / focus)
     '--nt-glu': '#6a8c3f',    // 麩胺酸 — 綠 / 翠 (excitation / learning)
 
-    // Synapse state (Hebbian wiring layer in connectome view — wired in add-connectome-collection)
-    '--synapse-dormant': '#5a3f29',       // 灰褐
-    '--synapse-forming': '#6a9bc4',       // 藍虛線
-    '--synapse-potentiated': '#d4a04d',   // 金實線
-    '--synapse-mastered': '#6a8c3f',      // 綠 + glow
+    // Clinical EEG signal layer (data surfaces: connectome edges / stats readouts / quiz firing
+    // / data backdrops). Cold cyan/amber on near-black, evoking an EEG monitor. Added by
+    // polish-neurons-clinical-machine-aesthetic; the warm base below is intentionally preserved.
+    // These are the SINGLE SOURCE OF TRUTH for clinical-aesthetic colors — never hardcode the hex.
+    '--signal-cyan': '#38e0d0',   // primary EEG trace / active signal
+    '--signal-amber': '#f0a830',  // secondary trace / high-amplitude (mastered / alert)
+    '--signal-dim': '#2a4a52',    // inactive / dormant trace on dark data-surface
+    '--signal-bg': '#0c1418',     // deep data-surface backdrop (stats panels)
+    '--signal-bg-dim': '#16242a', // dimmer instrument canvas (connectome — keeps warm labels legible)
+    '--signal-ink': '#cfe8e2',    // light cream-cyan text on dark data surfaces
+    '--grid-line': 'rgba(56,224,208,0.10)',  // faint instrument grid on data surfaces
+    '--scanline': 'rgba(56,224,208,0.04)',   // CRT scanline overlay on data surfaces
+
+    // Synapse state (Hebbian wiring layer in connectome view — wired in add-connectome-collection;
+    // rewired to the signal layer by polish-neurons-clinical-machine-aesthetic so edges read as
+    // EEG signal traces). 3 visually-distinct states preserved: dim / cyan / amber+glow.
+    '--synapse-dormant': '#2a4a52',       // signal-dim (was #5a3f29 warm)
+    '--synapse-forming': '#38e0d0',       // signal-cyan 虛線 (was #6a9bc4)
+    '--synapse-potentiated': '#38e0d0',   // signal-cyan 實線亮 (was #d4a04d)
+    '--synapse-mastered': '#f0a830',      // signal-amber + glow (was #6a8c3f)
 
     // Rarity frame (沿用 medical theme convention)
     '--rarity-n': '#ffffff',
@@ -74,5 +89,5 @@ export const THEME_PIXEL_NEURONS: ThemePack = {
 
 export { ITEM_CATALOG } from './items'
 export { COSMETIC_CATALOG, COSMETIC_CATALOG_SIZE } from './cosmetics'
-export { SPRITE_MAP } from './sprites'
+export { SPRITE_MAP, decorSpriteUrl } from './sprites'
 export { SKILL_TREE_PIXEL_NEURONS } from './skillTree'

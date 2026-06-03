@@ -392,6 +392,14 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
     const updatedAt = updatedAtOverride ?? new Date().toISOString()
     let anyOffline = false
     let firstError: SyncErrorRecord | null = null
+    // Track per-adapter / per-bundle failures so we can clear dirty markers
+    // ONLY for tables whose active backends all succeeded. See
+    // audit-pushallnow-dirty-marker-semantics (A2) — the previous behaviour
+    // unconditionally cleared every marker after any push attempt, silently
+    // dropping retries on transient adapter failures. Reference correct
+    // pattern: `pushNow` already gates its clear on `allBundlesOk`.
+    const failedSupabaseDexieTables = new Set<string>()
+    const failedR2DexieTables = new Set<string>()
 
     if (backendConfig.writeSupabase) {
       for (const adapter of adapters) {
@@ -400,6 +408,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
           if (!payloads.length) continue
           await pushBatch(adapter.postgresTable, payloads)
         } catch (err) {
+          failedSupabaseDexieTables.add(adapter.dexieTable)
           const isNetwork = isLikelyNetworkError(err)
           anyOffline ||= isNetwork
           const rec = recordError('push', adapter.postgresTable, err)
@@ -414,6 +423,7 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
         try {
           await pushBundle(supabase, db, binding.adapters, binding.bundle, userId)
         } catch (err) {
+          for (const a of binding.adapters) failedR2DexieTables.add(a.dexieTable)
           const isNetwork = isLikelyNetworkError(err)
           anyOffline ||= isNetwork
           const rec = recordError('push', `r2:${binding.bundle}`, err)
@@ -423,8 +433,16 @@ export function createSyncEngine(opts: CreateSyncEngineOptions): SyncEngine {
       }
     }
 
-    // Clear dirty markers — pushAll covers everything pending.
-    for (const set of dirty.perTable.values()) set.clear()
+    // Conditional clear: only tables where every active backend's push
+    // succeeded. Failed tables stay dirty so the next debounced/manual push
+    // retries. Per A2 design Decision 3, dual-write mode requires BOTH
+    // backends to succeed (LWW makes redundant Supabase re-push on R2-only
+    // failure idempotent and acceptable).
+    for (const [dexieTable, set] of dirty.perTable.entries()) {
+      const supabaseOk = !backendConfig.writeSupabase || !failedSupabaseDexieTables.has(dexieTable)
+      const r2Ok       = !backendConfig.writeR2       || !failedR2DexieTables.has(dexieTable)
+      if (supabaseOk && r2Ok) set.clear()
+    }
 
     endOp('push', firstError !== null, firstError)
 

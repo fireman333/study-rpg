@@ -12,6 +12,11 @@ export type PresignOp = 'put' | 'get'
 export interface PresignResult {
   url: string
   expiresAt: number  // epoch ms
+  /** Headers the client MUST include verbatim on the subsequent PUT to R2,
+   *  baked into the SigV4 signature scope by the Worker. Only populated when
+   *  the Worker enforced schema_version (P1 opt-in, A1). Omitting or altering
+   *  any header here causes R2 to reject the PUT with 403 SignatureDoesNotMatch. */
+  requiredHeaders?: Record<string, string>
 }
 
 // Treat empty / whitespace / trailing-slash as unset or normalize. GitHub
@@ -28,10 +33,15 @@ const WORKER_URL =
 
 // Cache presigned URLs within their TTL minus a 60s safety margin so we don't
 // burn a Worker request on every push/pull when a recent URL would do.
+// PUT presigns are also keyed by schemaVersion because the signed metadata
+// header (x-amz-meta-schema-version) is baked into the URL signature — a URL
+// minted for SV=N cannot be reused for SV=N+1 (add-bundle-schema-version-guard P1).
 const cache = new Map<string, PresignResult>()
 
-function cacheKey(bundle: Bundle, op: PresignOp): string {
-  return `${bundle}:${op}`
+function cacheKey(bundle: Bundle, op: PresignOp, schemaVersion: number | null): string {
+  return op === 'put' && schemaVersion != null
+    ? `${bundle}:put:sv=${schemaVersion}`
+    : `${bundle}:${op}`
 }
 
 export function clearPresignCache(): void {
@@ -42,8 +52,11 @@ export async function requestPresign(
   supabase: SupabaseClient,
   bundle: Bundle,
   op: PresignOp,
+  schemaVersion?: number,
 ): Promise<PresignResult> {
-  const key = cacheKey(bundle, op)
+  // Only send schema_version on PUT — Worker ignores it on GET anyway.
+  const sv = op === 'put' && typeof schemaVersion === 'number' ? schemaVersion : null
+  const key = cacheKey(bundle, op, sv)
   const cached = cache.get(key)
   if (cached && cached.expiresAt - 60_000 > Date.now()) return cached
 
@@ -51,18 +64,39 @@ export async function requestPresign(
   if (error) throw new Error(`presign_no_session: ${error.message}`)
   if (!session?.access_token) throw new Error('presign_no_session')
 
+  const body: { bundle: Bundle; op: PresignOp; schema_version?: number } = { bundle, op }
+  if (sv != null) body.schema_version = sv
+
   const res = await fetch(`${WORKER_URL}/presign`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${session.access_token}`,
     },
-    body: JSON.stringify({ bundle, op }),
+    body: JSON.stringify(body),
   })
 
+  // 409 = Worker refused SV downgrade (add-bundle-schema-version-guard).
+  // Surface distinctly from client-side `r2_schema_downgrade_refused` so
+  // logs and telemetry can distinguish the two enforcement layers.
+  if (res.status === 409) {
+    let cloud: unknown
+    let incoming: unknown
+    try {
+      const parsed = (await res.json()) as { cloud?: unknown; incoming?: unknown }
+      cloud = parsed.cloud
+      incoming = parsed.incoming
+    } catch {
+      // body unparseable, leave undefined
+    }
+    throw new Error(
+      `r2_schema_downgrade_refused_by_server: cloud=${cloud ?? '?'} incoming=${incoming ?? '?'} bundle=${bundle}`,
+    )
+  }
+
   if (!res.ok) {
-    const body = await res.text().catch(() => '')
-    throw new Error(`presign_failed_${res.status}: ${body.slice(0, 200)}`)
+    const text = await res.text().catch(() => '')
+    throw new Error(`presign_failed_${res.status}: ${text.slice(0, 200)}`)
   }
 
   const result = (await res.json()) as PresignResult

@@ -57,7 +57,8 @@ export interface Question {
   hasImage?: boolean
   imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
   hasOptionImages?: boolean       // at least one option is an un-renderable image; host apps filter from quiz pools
-  disputed?: boolean              // exam authority sent the question back (送分題) — any selection counts as correct; `answer` is a placeholder
+  disputed?: boolean              // exam authority sent the question back (一律給分) — any selection counts as correct; `answer` is a placeholder
+  acceptedAnswers?: string[]      // exam authority accepted multiple keys (答Ａ或Ｃ均給分) — any listed key counts as correct; `answer` is the primary one
   meta?: Record<string, unknown>  // exam-specific extras (year, session, etc.)
   sourceCredit?: string           // attribution string
 }

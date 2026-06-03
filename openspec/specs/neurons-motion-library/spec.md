@@ -154,3 +154,151 @@ This demo enables the change to be verified end-to-end during `/opsx:apply` with
 - **WHEN** the developer reloads the browser
 - **THEN** the page SHALL re-render without a 404 in dev mode (Vite dev server SPA fallback)
 - **AND** the page SHALL re-render without a 404 in production deploy (post `add-neurons-deploy`, Cloudflare Pages SPA fallback)
+
+### Requirement: Synapse-state timing tokens SHALL be exported as public constants for the connectome tree
+
+The library SHALL export `SYNAPSE_TIMINGS` as a named TypeScript `const` with the shape `{ formation: number; strengthen: number; decay: number; slotUnlock: number }` (all ms). Default values SHALL be:
+
+- `formation: 600` — synapse edge draw-in (pathLength 0 → 1)
+- `strengthen: 400` — weak → strong stroke and glow morph
+- `decay: 600` — strong → weak morph OR weak → dormant fade-out
+- `slotUnlock: 500` — family leaf pulse + halo when an AP variant slot unlocks
+
+These constants exist so that the connectome SVG tree consumer (and any future visualization reusing the same animation grammar) can subscribe to connectome lifecycle events and animate state transitions without re-implementing the timing logic, and so that test harnesses / e2e specs can deterministically wait the published wall time.
+
+The library's existing `RARITY_TIMINGS`, `SKIP_THRESHOLD_MS`, and `TOAST_AUTO_DISMISS_MS` exports SHALL remain unchanged.
+
+#### Scenario: Consumer reads SYNAPSE_TIMINGS.formation to schedule edge animation
+
+- **GIVEN** the connectome SVG tree consumer receives a `connectome.synapseFormed` event
+- **WHEN** the consumer dispatches the edge draw-in animation
+- **THEN** the consumer SHALL read `SYNAPSE_TIMINGS.formation` from the motion library
+- **AND** the consumer SHALL set the Framer Motion `transition.duration` to that value in ms (or seconds divided by 1000) without re-declaring a literal
+
+#### Scenario: SYNAPSE_TIMINGS values match published defaults
+
+- **GIVEN** a downstream test imports `SYNAPSE_TIMINGS` from the motion library
+- **WHEN** the test asserts the default values
+- **THEN** `SYNAPSE_TIMINGS.formation` SHALL equal `600`
+- **AND** `SYNAPSE_TIMINGS.strengthen` SHALL equal `400`
+- **AND** `SYNAPSE_TIMINGS.decay` SHALL equal `600`
+- **AND** `SYNAPSE_TIMINGS.slotUnlock` SHALL equal `500`
+
+### Requirement: `/motion-demo` route SHALL expose SVG tree animation primitives for self-verify
+
+The library's existing `/motion-demo` route SHALL gain a new section titled "Synapse tree animations" with four trigger buttons, one per `SYNAPSE_TIMINGS` key, each rendering a small standalone SVG demo that drives the corresponding animation against a static 2-node sample. The buttons SHALL respect the same `useRespectsReducedMotion` gating contract as other primitives in this library.
+
+This demo enables `/opsx:apply` of `add-connectome-svg-tree` to be self-verified end-to-end against the motion library without requiring a fully populated `synapses` table on the actual `/connectome` route.
+
+#### Scenario: /motion-demo Synapse tree section renders 4 trigger buttons
+
+- **GIVEN** the user navigates to `/motion-demo`
+- **WHEN** the route renders
+- **THEN** there SHALL be a section titled `Synapse tree animations`
+- **AND** the section SHALL contain exactly 4 trigger buttons labeled `formation`, `strengthen`, `decay`, `slotUnlock`
+- **AND** each trigger SHALL drive its named animation on a small inline SVG demo with two visible leaf placeholders
+
+#### Scenario: /motion-demo Synapse animations respect reduced motion
+
+- **GIVEN** the user has set OS preference `prefers-reduced-motion: reduce`
+- **WHEN** the user clicks the `formation` trigger in the demo's Synapse tree section
+- **THEN** the edge SHALL appear instantly at its final styling
+- **AND** there SHALL be no `pathLength` draw-in animation
+
+### Requirement: EEG-anchored motion timing tokens SHALL be exported as public constants
+
+The motion library (`apps/neurons-tw/src/lib/motion/`) SHALL export two new EEG-anchored timing tokens as public named constants, mirroring the existing `RARITY_TIMINGS` / `SYNAPSE_TIMINGS` export pattern:
+
+- A **spike-train** timing token describing the correct-answer firing burst (burst duration, spike count, settle duration).
+- A **signal-oscillation** timing token describing the loading / pending oscillation (period and amplitude or equivalent).
+
+These additions SHALL NOT modify the existing `RARITY_TIMINGS` values or constraints (all rarities `total >= 1000ms`; P1 `spinTurns >= 3` and `total >= 1500ms`; P2–P5 `spinTurns === 0`), and SHALL NOT modify the existing `SYNAPSE_TIMINGS` values. The new tokens SHALL be consumable by downstream UX for duration prediction in the same way the existing tokens are.
+
+#### Scenario: New timing tokens exported and existing tokens unchanged
+
+- **WHEN** a consumer imports the motion library's public timing tokens
+- **THEN** a spike-train timing token and a signal-oscillation timing token SHALL be available as exported constants
+- **AND** `RARITY_TIMINGS` SHALL retain its pre-change values (P1 `total >= 1500` and `spinTurns >= 3`; P2–P5 `spinTurns === 0`; all `total >= 1000`)
+- **AND** `SYNAPSE_TIMINGS` (formation / strengthen / decay / slotUnlock) SHALL retain its pre-change values
+
+### Requirement: Spike-train firing and signal-oscillation primitives SHALL respect reduced-motion and be self-verifiable
+
+The spike-train firing primitive and the signal-oscillation primitive SHALL honor the `useRespectsReducedMotion` preference: when reduced motion is set, they SHALL degrade to a static / zero-duration fallback rather than animating. Both primitives SHALL be triggerable in isolation on the `/motion-demo` self-verify route so their behavior can be confirmed at apply time without driving the full quiz / loading flows.
+
+The spike-train firing primitive, when wired into the quiz correct-answer flow, SHALL render as a short peripheral EEG-spike burst that does NOT block or delay the answer-resolution interaction.
+
+#### Scenario: Reduced-motion degrades the new primitives
+
+- **GIVEN** the system `prefers-reduced-motion` preference is set
+- **WHEN** the spike-train firing or signal-oscillation primitive is triggered
+- **THEN** it SHALL render a static / zero-duration fallback rather than an animation
+
+#### Scenario: New primitives appear on the self-verify route
+
+- **GIVEN** a developer opens `/motion-demo`
+- **WHEN** the page renders its primitive triggers
+- **THEN** the spike-train firing primitive and the signal-oscillation primitive SHALL each be triggerable in isolation
+- **AND** triggering them SHALL not require driving the full quiz or loading flow
+
+#### Scenario: Spike-train does not block answer resolution
+
+- **GIVEN** the spike-train firing primitive is wired into the quiz correct-answer feedback
+- **WHEN** the player answers a question correctly
+- **THEN** the spike-train burst SHALL render as short peripheral feedback
+- **AND** the answer-resolution interaction (reward, next-question availability) SHALL NOT be blocked or delayed by the burst animation
+
+### Requirement: Reward reveal and toast primitives SHALL render an enhanced cinematic celebration layer without mutating published timing tokens
+
+The shared reward-reveal modal and celebratory toast primitives SHALL render an additional enhanced celebration layer (e.g. glow / particle / scale accent) so that synapse-formation, variant-unlock, DMN-draw, and achievement reveals feel more cinematic for every consumer, with no change required in the consuming capabilities. The celebration layer SHALL be gated by `useRespectsReducedMotion`. The enhancement SHALL NOT mutate the value of any already-published exported timing token that downstream code budgets against; new layers SHALL ride within existing total durations, and any genuinely new token SHALL be added additively rather than redefined.
+
+#### Scenario: Reveal renders the enhanced celebration layer
+- **WHEN** a reward reveal (reveal modal or celebratory toast) fires with reduced-motion off
+- **THEN** the enhanced celebration layer renders within the reveal's existing duration window, on top of the base reveal
+
+#### Scenario: Reduced-motion drops the celebration layer
+- **WHEN** the user has `prefers-reduced-motion` enabled
+- **THEN** the enhanced celebration layer is omitted and the base reveal + its end-state cue are preserved
+
+#### Scenario: Published timing tokens are unchanged
+- **WHEN** a consumer reads the exported per-rarity / reveal timing tokens after this change
+- **THEN** the previously published token values are unchanged (no silent breakage of downstream batch wall-time budgeting)
+
+#### Scenario: Consumers receive the upgrade without spec edits
+- **WHEN** variant-gacha / dmn-fate-cards / achievements / connectome-collection trigger their reveals
+- **THEN** they show the enhanced celebration with no change to their own component code or specs
+
+### Requirement: An ambient resting-state firing primitive SHALL be available, CSS-driven and reduced-motion gated
+
+The motion library SHALL export an ambient resting-state firing primitive suitable for the homepage connectome hero, implemented with CSS `@keyframes` / compositor-driven transforms (opacity / transform only) rather than a per-frame JS `requestAnimationFrame` loop, so it stays cheap at 60fps and continues animating in backgrounded tabs. It SHALL be gated by `useRespectsReducedMotion` and SHALL be self-verifiable on `/motion-demo`.
+
+#### Scenario: Ambient firing animates via CSS
+- **WHEN** the ambient firing primitive renders with reduced-motion off
+- **THEN** it animates using CSS keyframes / compositor transforms, without registering a per-frame JS rAF loop
+
+#### Scenario: Reduced-motion makes ambient firing static
+- **WHEN** the user has `prefers-reduced-motion` enabled
+- **THEN** the ambient firing primitive renders static (no animation) while preserving its visual state
+
+#### Scenario: Ambient primitive appears on the self-verify route
+- **WHEN** the `/motion-demo` route renders
+- **THEN** the ambient resting-state firing primitive is present as an isolated self-verify trigger
+
+### Requirement: An answer-resolution feedback-flash primitive SHALL be available, non-blocking and reduced-motion gated
+
+The motion library SHALL export an answer-resolution feedback-flash primitive: a green firing pulse on a correct answer and a red dim cue on an incorrect answer. The flash SHALL NOT block answer resolution or the transition to the next question. It SHALL be gated by `useRespectsReducedMotion` and SHALL be self-verifiable on `/motion-demo`.
+
+#### Scenario: Correct answer triggers a green firing pulse
+- **WHEN** a quiz answer resolves as correct with reduced-motion off
+- **THEN** a green firing-pulse flash plays and does not block the next-question transition
+
+#### Scenario: Incorrect answer triggers a red dim cue
+- **WHEN** a quiz answer resolves as incorrect with reduced-motion off
+- **THEN** a red dim feedback cue plays and does not block the next-question transition
+
+#### Scenario: Reduced-motion degrades the flash to an end-state cue
+- **WHEN** the user has `prefers-reduced-motion` enabled
+- **THEN** the feedback flash degrades to a static colour end-state cue with no motion
+
+#### Scenario: Feedback-flash primitive appears on the self-verify route
+- **WHEN** the `/motion-demo` route renders
+- **THEN** the answer-resolution feedback-flash primitive is present as an isolated self-verify trigger

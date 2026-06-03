@@ -89,19 +89,38 @@ export interface GameCountersRow {
   pendingEventId?: string | null
   /** Wall-clock ms when pendingEventId was set; powers 醫療糾紛 24-hr auto-resolve. */
   pendingEventTriggeredAt?: number | null
-  /** Wall-clock ms when the last event resolved; powers 5-min cooldown. */
+  /**
+   * Wall-clock ms when the last event resolved. Pre-v20 powered a 5-min
+   * session-time cooldown via `EVENT_POST_RESOLUTION_COOLDOWN_MS`; v20 replaced
+   * that with `lastInteractionEventAt` (wall-clock, event+ER shared). Kept for
+   * audit-trail continuity but no longer drives gating.
+   */
   lastEventResolvedAt?: number | null
+  /**
+   * Wall-clock ms when the most recent event OR ER consult resolved.
+   * Powers the unified 3-min wall-clock cooldown checked by
+   * `maybeRollNonReadingEvent`. Added v20 (rewire-hospital-events-to-non-
+   * reading-trigger). Seeded from `lastEventResolvedAt` on v19→v20 upgrade.
+   */
+  lastInteractionEventAt?: number | null
   /** Wall-clock ms when VIP throughput-boost expires. `null` when not active. */
   vipBoostUntil?: number | null
-  /** Roll-cadence counter; increments per tick, fires event at EVENT_TICK_INTERVAL. */
+  /**
+   * @deprecated since v20 — tick.ts no longer rolls events on a per-tick
+   * cadence; rolls are interaction-driven via `services/non-reading-event-
+   * trigger.ts`. Field retained on type for cross-version Dexie load safety;
+   * v20 upgrade callback deletes it from all rows.
+   */
   eventRollTickCounter?: number
   /**
    * Currently-active ER consultation. `null` when no consult pending. Spec:
    * `er-consultation` capability. Mutex-checked against `pendingEventId` and
-   * other active dialogs in tick.ts before rolling a new consult.
+   * other active dialogs before rolling a new consult.
    */
   erConsultActive?: ERConsultActiveState | null
-  /** Per-tick countdown to next ER consult roll. Decrements each tick; rolls when ≤ 0. */
+  /**
+   * @deprecated since v20 — see `eventRollTickCounter` deprecation note.
+   */
   erConsultTicksUntilRoll?: number
   /**
    * Current consecutive correct-quiz streak (resets to 0 on wrong answer).
@@ -985,6 +1004,63 @@ export class HospitalDB extends Dexie {
           })),
         )
       })
+
+    // v20: rewire-hospital-events-to-non-reading-trigger — move hospital event
+    // + ER consult roll off the reading-session tick onto interaction-based
+    // triggers. Schema delta on `gameCounters`:
+    //   - ADD `lastInteractionEventAt: number | null` (unified 3-min wall-clock
+    //     cooldown timestamp, event+ER shared). Seeded from `lastEventResolvedAt`
+    //     so newly-upgraded saves don't immediately fire a popup.
+    //   - DELETE `eventRollTickCounter` (tick no longer rolls events)
+    //   - DELETE `erConsultTicksUntilRoll` (tick no longer rolls ER)
+    // No table-shape change (store schema unchanged); migration purely
+    // mutates fields on the gameCounters singleton row. R2 m2 bundle
+    // schema_version stays at 4 — new field is optional/additive,
+    // v3-aware clients tolerate the extra key (forward-compat); deleted
+    // fields are already optional on the type so absence is safe.
+    this.version(20)
+      .stores({
+        affinity: '&subjectId',
+        doctors: '&id, subjectId, rarity, obtainedAt',
+        gachaStats: '&id',
+        tickets: '&id',
+        rooms: '&id, type, slot',
+        gameCounters: '&id',
+        mastery: '&subjectId',
+        questionHistory:
+          '&questionId, subjectId, lastAnsweredAt, nextDueAt, [lastResult+lastAnsweredAt], everWrong',
+        meta: '&key',
+        localBackup: '&key, takenAt',
+        monotonicCounters: '&id',
+        trainingHistory: '++id, doctorId, attemptedAt',
+        eventLog: '++id, triggeredAt',
+        fateCardHistory: '++id, drawnAt',
+        retirementLog: '++id, retiredAt, doctorId, _updatedAt',
+        bookmarks: '&questionId, addedAt',
+        bannerUnlockBonusLog: '&subjectId',
+        targetedTickets: '&id, status, subjectId, obtainedAt',
+        targetedTicketHistory: '++id, ticketId, at, event',
+        erConsultLog: '++id, triggeredAt, subjectId',
+        leaderboardProfile: '&user_id',
+        achievements: '&id, unlockedAt',
+        hospitalEquipment: '&equipmentId, updatedAt',
+        dailyStudyLog: '&date, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        const countersTable = tx.table<GameCountersRow, 'singleton'>('gameCounters')
+        const counters = await countersTable.get('singleton')
+        if (!counters) return
+        const row = counters as GameCountersRow & {
+          eventRollTickCounter?: number
+          erConsultTicksUntilRoll?: number
+        }
+        const seedFrom = row.lastEventResolvedAt ?? null
+        // Strip deprecated counters in-place; assign the new field.
+        delete row.eventRollTickCounter
+        delete row.erConsultTicksUntilRoll
+        row.lastInteractionEventAt = seedFrom
+        await countersTable.put(row)
+      })
   }
 }
 
@@ -1070,10 +1146,9 @@ export async function ensureSeed(): Promise<void> {
           pendingEventId: null,
           pendingEventTriggeredAt: null,
           lastEventResolvedAt: null,
+          lastInteractionEventAt: null,
           vipBoostUntil: null,
-          eventRollTickCounter: 0,
           erConsultActive: null,
-          erConsultTicksUntilRoll: 0,
         })
         if (doctorCount === 0) {
           await db.doctors.bulkPut([makeStarterDoctor('內科', 0), makeStarterDoctor('外科', 1)])

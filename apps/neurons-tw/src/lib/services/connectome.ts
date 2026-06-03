@@ -1,6 +1,12 @@
-import { db, todayISO, type FamilyAccrualRow, type SynapseRow, type SynapseState } from '../db'
 import {
-  AP_THRESHOLDS,
+  db,
+  todayISO,
+  HOMEPAGE_ONBOARDING_DISMISSED_KEY,
+  type FamilyAccrualRow,
+  type SynapseRow,
+  type SynapseState,
+} from '../db'
+import {
   ConnectomeEventEmitter,
   N_THRESHOLD,
   decodePairKey,
@@ -8,11 +14,12 @@ import {
   nextStateOnStrengthen,
   pairKey,
   shouldFire,
-  slotsCrossedByIncrement,
   type ConnectomeEventMap,
   type ConnectomeEventName,
   type ConnectomeListener,
 } from '../connectome'
+import { CORRECT_ANSWER_ENERGY } from '@study-rpg/content-neurons-tw'
+import { awardEnergyInTx } from './currency'
 import {
   recordAttemptInTx,
   emitMasteryUpdated,
@@ -21,9 +28,24 @@ import {
 } from './mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
+import { getActiveFamilyBuffBonus } from './dmn-event-dispatcher'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
+
+/**
+ * Emit the "a variant entered the collection" signal on the connectome bus
+ * (Collection 2.0). Fired by the gacha PULL when a NEW variant is minted — it
+ * drives the connectome-tree leaf refresh, the 🧬 chip live-update, and the DMN
+ * behavior-axis bonus draw. The `connectome.variantSlotUnlocked` event name is
+ * retained from the pre-gacha slot-unlock era (its consumers are unchanged);
+ * `wasRedemption` is always false for pulls (pulls are not question-tied).
+ */
+export function emitVariantCollected(
+  payload: ConnectomeEventMap['connectome.variantSlotUnlocked'],
+): void {
+  events.emit('connectome.variantSlotUnlocked', payload)
+}
 
 type PendingEvent =
   | { name: 'connectome.synapseFormed'; payload: ConnectomeEventMap['connectome.synapseFormed'] }
@@ -34,10 +56,6 @@ type PendingEvent =
   | {
       name: 'connectome.synapseDecayed'
       payload: ConnectomeEventMap['connectome.synapseDecayed']
-    }
-  | {
-      name: 'connectome.variantSlotUnlocked'
-      payload: ConnectomeEventMap['connectome.variantSlotUnlocked']
     }
 
 function daysBetweenISO(earlier: string, later: string): number {
@@ -97,7 +115,10 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   // the pre-mutation state. Read-only, no transaction needed.
   const prevStats = await buildAchievementStats()
 
-  await db.transaction('rw', db.synapses, db.familyAccrual, db.meta, db.familyMastery, async (tx) => {
+  await db.transaction(
+    'rw',
+    [db.synapses, db.familyAccrual, db.meta, db.familyMastery, db.dmnActiveBuffs],
+    async (tx) => {
     pending.push(...(await runDailyResetIfNeededInTx(today)))
     masteryUpdate = await recordAttemptInTx(tx, familyId, true)
     // Co-commit streak counter increment with mastery / synapse writes per
@@ -112,12 +133,17 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     }
 
     const prevAp = accrual.ap
-    const newAp = prevAp + 1
+    // DMN family-buff: +1 extra AP per correct answer while a family-buff
+    // targeting this familyId is active. Reads dmnActiveBuffs inside the tx.
+    const dmnApBonus = await getActiveFamilyBuffBonus(familyId)
+    const newAp = prevAp + 1 + dmnApBonus
     const prevFiredToday = accrual.firedToday
     const newSameDayCorrect = accrual.sameDayCorrect + 1
 
-    const newlyUnlockedSlots = slotsCrossedByIncrement(prevAp, newAp, accrual.unlockedSlots)
-    const updatedUnlockedSlots = [...accrual.unlockedSlots, ...newlyUnlockedSlots]
+    // Collection 2.0: every correct answer mints pull currency. AP no longer
+    // unlocks variant slots (acquisition is now the currency-gated gacha pull),
+    // so no slot-crossing computation / variantSlotUnlocked emission here.
+    await awardEnergyInTx(CORRECT_ANSWER_ENERGY)
 
     const justFired = !prevFiredToday && shouldFire(newSameDayCorrect)
     const updatedAccrual: FamilyAccrualRow = {
@@ -125,17 +151,11 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
       ap: newAp,
       firedToday: prevFiredToday || justFired,
       lastFireDate: today,
-      unlockedSlots: updatedUnlockedSlots,
+      unlockedSlots: accrual.unlockedSlots,
       sameDayCorrect: newSameDayCorrect,
+      pullCount: accrual.pullCount,
     }
     await db.familyAccrual.put(updatedAccrual)
-
-    for (const slotIndex of newlyUnlockedSlots) {
-      pending.push({
-        name: 'connectome.variantSlotUnlocked',
-        payload: { familyId, slotIndex, apAtUnlock: newAp },
-      })
-    }
 
     if (justFired) {
       const firedNow = await db.familyAccrual.toArray()
@@ -183,6 +203,23 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   // Post-commit: achievement diff against prev snapshot. Wrapped in its own
   // try/catch inside triggerAchievementCheck so failure doesn't break gameplay.
   await triggerAchievementCheck(prevStats)
+
+  // Post-commit: brain-maze growth-signal accrual (expand-neurons-brain-maze-all-branches).
+  // Routes to the answered subject's NT branch pool via FAMILY_NT_BRANCH; dynamic
+  // import avoids a circular static dep and matches the achievement/dmn hook
+  // discipline. Best-effort — never breaks the answer flow (channel `[maze]`).
+  try {
+    const { branchOfFamily } = await import('../maze/graph')
+    const branch = branchOfFamily(familyId)
+    if (branch) {
+      const { accrueMazeSignal, CORRECT_SIGNAL, streakMultiplier } = await import('../maze/economy')
+      const { getStreaks } = await import('./streak')
+      const { current } = await getStreaks()
+      await accrueMazeSignal(branch, CORRECT_SIGNAL * streakMultiplier(current))
+    }
+  } catch (err) {
+    console.error('[maze] correct-answer signal accrual failed:', err)
+  }
 }
 
 export async function recordIncorrectAnswer(familyId: string): Promise<void> {
@@ -289,8 +326,11 @@ export async function resetConnectomeForDebug(): Promise<void> {
       row.lastFireDate = null
       row.unlockedSlots = []
       row.sameDayCorrect = 0
+      row.pullCount = 0
     })
     await db.meta.put({ key: 'lastResetDate', value: todayISO() })
+    // Re-surface the homepage onboarding for a reset (fresh-start) user.
+    await db.meta.delete(HOMEPAGE_ONBOARDING_DISMISSED_KEY)
   })
 }
 
@@ -303,7 +343,6 @@ export async function dumpStateForDebug(): Promise<void> {
     familyAccrual: snapshot.familyAccrual,
     synapses: snapshot.synapses,
     meta,
-    AP_THRESHOLDS,
     N_THRESHOLD,
   })
 }

@@ -1,15 +1,25 @@
 /**
  * Sprite registry — maps theme sprite keys to runtime URLs.
  *
- * Subject icons (11 neuron families): REAL sprites generated via codex CLI per
+ * Subject icons (11 neuron families): REAL sprites generated via Gemini MCP per
  * `generate-neurons-sprites` change (2026-05-25). See `../SPRITE_GENERATION.md`
- * for prompts + regen procedure. Bundled via Vite `import.meta.glob` with
- * `?url` for cache-busting hash URLs in production.
+ * for prompts + regen procedure.
+ *
+ * DMN fate-card sprites (20 cards + 1 shared card-back): REAL sprites generated
+ * via Gemini MCP per `generate-dmn-card-artworks` change (2026-05-28). See
+ * `../CARD_SPRITE_GENERATION.md` for prompts + regen procedure.
+ *
+ * Variant gacha sprites (55 = 11 families × 5 slots): REAL sprites generated via
+ * codex CLI per `generate-neuron-variant-sprites` change (2026-05-30). See
+ * `../SPRITE_GENERATION.md` for prompts + regen procedure. The `variant:default`
+ * terminal fallback stays a 1×1 transparent placeholder.
+ *
+ * All bundled via Vite `import.meta.glob` with `?url` for cache-busting hash
+ * URLs in production.
  *
  * Other categories (core scaffold / items / cosmetics / skill placeholders)
  * still map to a 1×1 transparent PNG until their respective consumer
- * capabilities (variant gacha / achievements / dorm view / skill tree, etc.)
- * ship real assets in separate future changes.
+ * capabilities ship real assets in separate future changes.
  *
  * theme-pack-contract MUST-cover keys: character-base, slot-placeholder-{head,
  * body,weapon,charm}, plus every Item.artKey in itemCatalog. Engine boots cleanly
@@ -31,6 +41,113 @@ const subjectSprites: Record<string, string> = Object.fromEntries(
   Object.entries(subjectSpriteModules).map(([path, url]) => {
     const id = path.replace(/.*\/(.+)\.png$/, '$1')
     return [`subject:${id}`, url]
+  }),
+)
+
+// 4 NT-branch hub icons (DA / 5HT / GABA / Glu). Same glob pattern as subjects.
+const branchSpriteModules = import.meta.glob('../sprites/branches/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const branchSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(branchSpriteModules).map(([path, url]) => {
+    // Filename pattern: `<nt>-icon.png` → key `branch:<nt>` (e.g. da-icon.png → branch:da)
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1').replace(/-icon$/, '')
+    return [`branch:${stem}`, url]
+  }),
+)
+
+// Root brain icon (central Neuron Connectome node). Single file.
+const rootSpriteModules = import.meta.glob('../sprites/root/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const rootSprite: string | undefined = Object.values(rootSpriteModules)[0]
+
+// DMN fate-card sprites — 20 individual cards + 1 shared card-back, generated
+// via Gemini MCP per `generate-dmn-card-artworks` change (2026-05-28). See
+// `../CARD_SPRITE_GENERATION.md` for prompts + regen procedure. Filenames map
+// directly to cardId (English kebab-case), e.g. `dmn-mpfc-reverberation-p2.png`
+// → key `dmn:card:dmn-mpfc-reverberation-p2`. The shared `card-back.png` →
+// key `dmn:card-back`.
+const cardSpriteModules = import.meta.glob('../sprites/cards/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const cardSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(cardSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    const key = stem === 'card-back' ? 'dmn:card-back' : `dmn:card:${stem}`
+    return [key, url]
+  }),
+)
+
+// Real variant gacha sprites — 55 files `<familyId>-<slotIndex>.png` generated
+// via codex CLI per `generate-neuron-variant-sprites` change (2026-05-30). See
+// `../SPRITE_GENERATION.md`. Filename maps to key `variant:<familyId>:<slotIndex>`;
+// family IDs are Chinese and contain no `-`, so split on the LAST `-`.
+const variantSpriteModules = import.meta.glob('../sprites/variants/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const variantSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(variantSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    const dash = stem.lastIndexOf('-')
+    const familyId = stem.slice(0, dash)
+    const slot = stem.slice(dash + 1)
+    return [`variant:${familyId}:${slot}`, url]
+  }),
+)
+
+// Animated hero sprite sheets — multi-state (idle/correct/evolve) horizontal sheets
+// per `add-neurons-sprite-animation-slice`. Filename `<familyId>-<slot>-<state>.png`
+// → key `variant:<familyId>:<slot>:<state>`. Parse from the tail (state, slot) so
+// family IDs (Chinese, no `-`) join the remainder. Only the hero (藥理學-3) ships
+// sheets in this slice; other variants stay static (consumer falls back).
+const animatedSpriteModules = import.meta.glob('../sprites/animated/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const animatedSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(animatedSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    const parts = stem.split('-')
+    const state = parts.pop()
+    const slot = parts.pop()
+    const familyId = parts.join('-')
+    return [`variant:${familyId}:${slot}:${state}`, url]
+  }),
+)
+
+// Context-driven decor overlays — transparent-bg PNGs composited onto any base
+// variant sprite per provenance (context-driven-variant-art) + flavoured per NT
+// branch (add-neurons-per-branch-decor). Filename → key: universal `<type>.png`
+// → `decor:<type>` (e.g. `redemption.png` → `decor:redemption`); per-branch
+// `<type>-<branch>.png` → `decor:<type>:<branch>` (the single `-` becomes `:`,
+// e.g. `redemption-da.png` → `decor:redemption:da`). Type + branch ids contain
+// no `-`, so the split is unambiguous. Missing keys default to TRANSPARENT_PIXEL
+// (no broken-image icon; "no asset" renders as "no decor"). See `../SPRITE_GENERATION.md`.
+const decorSpriteModules = import.meta.glob('../sprites/decor/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const decorSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(decorSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    return [`decor:${stem.replace('-', ':')}`, url]
   }),
 )
 
@@ -110,14 +227,56 @@ for (const nt of ['da', '5ht', 'gaba', 'glu'] as const) {
   }
 }
 
-// neuron-variant-gacha placeholder keys (11 families × 5 slots = 55)
-// Real sprites deferred to a follow-up generate-neuron-variant-sprites change.
+// neuron-variant-gacha pyramid keys (11 families × 10 slots 0..9 = 110,
+// expand-neuron-variant-catalog). slot 0 = P0 apex; slots 1-9 = the pyramid tiers
+// (P5/P4/P3/P2/P1 + the slot-6/7/8/9 mid-tier deepening) — all real art. Each maps
+// to the real glob'd sprite if the file is present, else TRANSPARENT_PIXEL. The
+// theme can't import the content catalog (cyclic dep) so the slot span is hardcoded;
+// the consumer also falls back to variant:default for any unmapped key, so a future
+// non-uniform pyramid still degrades gracefully.
 const VARIANT_ART_KEYS: string[] = []
 for (const subjectId of SUBJECT_IDS) {
-  for (let slot = 1; slot <= 5; slot += 1) {
+  for (let slot = 0; slot <= 9; slot += 1) {
     VARIANT_ART_KEYS.push(`variant:${subjectId}:${slot}`)
   }
 }
+
+// DMN fate-card placeholder keys (20 cards + 1 shared card back = 21).
+// Real artwork deferred to follow-up generate-dmn-card-artworks change.
+// Keys MUST stay in sync with DMN_CARD_CATALOG in @study-rpg/content-neurons-tw
+// (cardId → 'dmn:card:<cardId>'). Hardcoded here to avoid cyclic dep on the
+// content pack.
+const DMN_CARD_IDS = [
+  // P1
+  'dmn-default-mode-awakening-p1',
+  'dmn-stream-of-consciousness-p1',
+  // P2
+  'dmn-hippocampal-ripples-p2',
+  'dmn-pcc-pulse-p2',
+  'dmn-mpfc-reverberation-p2',
+  'dmn-rem-pruning-p2',
+  // P3
+  'dmn-angular-association-p3',
+  'dmn-daydream-drift-p3',
+  'dmn-temporal-pole-anchor-p3',
+  'dmn-dln-switch-p3',
+  'dmn-resting-state-ripple-p3',
+  'dmn-spontaneous-discharge-p3',
+  // P4
+  'dmn-micro-mind-wander-p4',
+  'dmn-mini-self-reference-p4',
+  'dmn-posteromedial-pulse-p4',
+  'dmn-brief-swr-p4',
+  'dmn-micro-context-guard-p4',
+  'dmn-small-circuit-immunity-p4',
+  'dmn-cue-glimmer-p4',
+  'dmn-premonition-glow-p4',
+] as const
+
+const DMN_ART_KEYS: string[] = [
+  ...DMN_CARD_IDS.map((id) => `dmn:card:${id}`),
+  'dmn:card-back',
+]
 
 // Contract-required keys
 const CORE_KEYS = [
@@ -130,6 +289,16 @@ const CORE_KEYS = [
   'variant:default',
 ] as const
 
+// 4 NT-branch hub keys — `branch:da` / `branch:5ht` / `branch:gaba` / `branch:glu`.
+const BRANCH_KEYS = ['branch:da', 'branch:5ht', 'branch:gaba', 'branch:glu'] as const
+
+// Decor overlays (universal `decor:<type>` + per-branch `decor:<type>:<branch>`,
+// context-driven-variant-art + add-neurons-per-branch-decor) are NOT registered
+// in SPRITE_MAP — they are resolved exclusively via `decorSpriteUrl`, which reads
+// the globbed `decorSprites` map directly with a per-branch → universal → empty
+// fallback. Keeping a single decor path (no parallel SPRITE_MAP entries) avoids
+// drift.
+
 export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ...CORE_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
   // Subject icons: real sprite if file present, else defensive fallback to placeholder
@@ -137,8 +306,36 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
     `subject:${id}`,
     subjectSprites[`subject:${id}`] ?? TRANSPARENT_PIXEL,
   ]),
+  // NT-branch hub icons: real sprite if file present, else placeholder
+  ...BRANCH_KEYS.map((k) => [k, branchSprites[k] ?? TRANSPARENT_PIXEL]),
+  // (decor keys intentionally omitted — see decorSpriteUrl)
+  // Root brain icon (central Neuron Connectome).
+  ['root:brain', rootSprite ?? TRANSPARENT_PIXEL],
   ...ITEM_ART_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
   ...COSMETIC_ART_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
   ...SKILL_ART_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
-  ...VARIANT_ART_KEYS.map((k) => [k, TRANSPARENT_PIXEL]),
+  // Variant gacha: real sprite if file present, else defensive placeholder
+  ...VARIANT_ART_KEYS.map((k) => [k, variantSprites[k] ?? TRANSPARENT_PIXEL]),
+  // DMN fate-card sprites: real PNG if file present, else defensive placeholder
+  ...DMN_ART_KEYS.map((k) => [k, cardSprites[k] ?? TRANSPARENT_PIXEL]),
+  // Animated hero sheets (variant:<family>:<slot>:<state>) — only present sheets registered.
+  ...Object.entries(animatedSprites),
 ])
+
+/**
+ * Resolve a context-art decor texture URL with the per-branch → universal →
+ * none fallback chain (add-neurons-per-branch-decor). `universalKey` is e.g.
+ * `'decor:redemption'`; `branch` is the variant's NT branch (`'DA' | '5HT' |
+ * 'GABA' | 'Glu'`, any case) or null. Returns the per-branch real asset if a
+ * file is present, else the universal real asset if present, else the
+ * transparent placeholder ("no asset" = "no visible field", never a broken
+ * image). Consults `decorSprites` (real globbed files only), so a missing
+ * texture at either level degrades gracefully.
+ */
+export function decorSpriteUrl(universalKey: string, branch: string | null): string {
+  if (branch) {
+    const perBranch = decorSprites[`${universalKey}:${branch.toLowerCase()}`]
+    if (perBranch) return perBranch
+  }
+  return decorSprites[universalKey] ?? TRANSPARENT_PIXEL
+}

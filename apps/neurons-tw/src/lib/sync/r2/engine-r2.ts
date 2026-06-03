@@ -47,10 +47,19 @@ export async function pushBundle(
     try {
       const snapshot = await buildBundleSnapshot(db)
       const gz = await gzipBundle(snapshot)
-      const { url } = await requestPresign(supabase, 'put')
+      // Pass snapshot.meta.schema_version so the Worker can validate against
+      // R2 customMetadata['schema-version'] and bake the value into the
+      // presigned URL's signed `x-amz-meta-schema-version` header
+      // (add-bundle-schema-version-guard P1 opt-in).
+      const { url, requiredHeaders } = await requestPresign(
+        supabase,
+        'put',
+        snapshot.meta.schema_version,
+      )
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/gzip',
+        ...(requiredHeaders ?? {}),
       }
       const known = getEtag()
       if (known) headers['If-Match'] = known

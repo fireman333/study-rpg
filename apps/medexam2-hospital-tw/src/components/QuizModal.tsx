@@ -16,6 +16,7 @@ import {
 } from '../lib/mastery'
 import { emitGraceToast } from '../lib/grace-toast'
 import { applyQuizReward } from '../services/quiz-rewards'
+import { maybeRollNonReadingEvent } from '../services/non-reading-event-trigger'
 import { getNextDueCardForSubject } from '../lib/srs-scheduler'
 import { lookupSprite } from '../lib/sprite-lookup'
 import { toggleBookmark, useBookmark } from '../services/bookmarks'
@@ -405,6 +406,12 @@ export function QuizModal({ initialSubject, onClose }: QuizModalProps) {
     }
 
     for (const text of rewardResult.toastTexts) emitToast(text)
+
+    // Hook A — `rewire-hospital-events-to-non-reading-trigger`: every quiz
+    // answer commit is an interaction opportunity to roll a hospital event /
+    // ER consult. Service handles gates (reading-session / cooldown / mutex /
+    // probability) internally and is safe to call unconditionally.
+    void maybeRollNonReadingEvent('quiz')
   }
 
   async function handleNext(): Promise<void> {

@@ -70,13 +70,24 @@ export async function getContentPack(baseUrl = '/content/neurons-tw'): Promise<C
   }
 }
 
+export { FAMILY_NT_BRANCH, type NtBranchId } from './families'
+
 export {
   NEURON_VARIANT_CATALOG,
+  NEURON_VARIANT_TOTAL,
+  VARIANT_COUNT_BY_FAMILY,
   VARIANT_RARITY_WEIGHTS,
-  SLOT_RARITY_FLOOR,
-  VARIANT_REROLL_CAP,
+  P0_BASE_RATE,
+  P0_PITY_START,
+  P0_PITY_RAMP,
+  CORRECT_ANSWER_ENERGY,
+  READING_MINUTE_ENERGY,
+  PULL_COST,
+  MILESTONE_STREAK_THRESHOLD,
   DEFAULT_VARIANT_TITLE_BY_RARITY,
   composeVariantDisplayName,
+  effectiveP0Rate,
+  rollRarityWithP0Pity,
   type Rarity,
   type SlotIndex,
   type NeuronVariantDef,
@@ -106,3 +117,30 @@ export {
   validateNeuronsAchievementCatalog,
   type ValidationFailure,
 } from './achievement-validator'
+
+export {
+  DMN_RARITY_WEIGHTS,
+  DMN_RARITIES,
+  DMN_EVENT_TYPES,
+  DMN_TIME_AXIS_MINUTES_PER_DRAW,
+  DMN_TIME_AXIS_DAILY_CAP,
+  DMN_BEHAVIOR_AXIS_DAILY_CAP,
+  DMN_FAMILY_BUFF_DURATION_MS,
+  type DmnRarity,
+  type DmnEventKind,
+  type DmnCardDef,
+  type DmnCardRow,
+  type DmnEventLogRow,
+  type DmnActiveBuffRow,
+  type DmnMetaSnapshot,
+} from './dmn-types'
+
+export { DMN_CARD_CATALOG } from './dmn-cards'
+
+export {
+  validateDmnCardCatalog,
+  countByEventKind,
+  EXPECTED_CATALOG_SIZE,
+  EXPECTED_RARITY_DISTRIBUTION,
+  MIN_CARDS_PER_EVENT_KIND,
+} from './dmn-card-validator'

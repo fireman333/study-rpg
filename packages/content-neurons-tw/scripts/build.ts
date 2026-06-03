@@ -7,91 +7,96 @@
  * Spec: openspec/changes/wire-neurons-content-and-theme/specs/neurons-mode/spec.md
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { NEURONS_ACHIEVEMENTS, NEURONS_ACHIEVEMENTS_STATS } from '../src/achievements'
 import { validateNeuronsAchievementCatalog } from '../src/achievement-validator'
+import { FAMILY_NT_BRANCH, type NtBranchId } from '../src/families'
 
-const ROOT = resolve(import.meta.dirname, '..', '..', '..')
+// 一階 corpus source = 考選部-authoritative reconciled artifacts committed under
+// packages/content-neurons-tw/data/medexam-reconciled (see reconcile/README.md).
+// Self-contained so the neurons build survives the planned removal of
+// apps/medexam-tw / packages/content-medexam-tw. Override with MEDEXAM_TW_DIST.
 const MEDEXAM_TW_DIST =
-  process.env.MEDEXAM_TW_DIST ?? resolve(ROOT, 'apps/medexam-tw/public/content/medexam-tw')
+  process.env.MEDEXAM_TW_DIST ?? resolve(import.meta.dirname, '..', 'data', 'medexam-reconciled')
 const MEDEXAM_SOURCE_ROOT =
   process.env.MEDEXAM_SOURCE_ROOT ??
   resolve(process.env.HOME ?? '/', 'Desktop/國考/一階國考/陽明國考考古/_extracted')
 const ALLOW_SKIPS = process.env.MEDEXAM_ALLOW_SKIPS === '1'
 const OUT_DIR = resolve(import.meta.dirname, '..', 'dist')
+// Question figures committed alongside the content pack. Presence of
+// `figures/<question-id>.png` is the source of truth for a question's figure:
+// the build sets imagePath + forces hasImage. See add-neurons-question-figures design D1/D3.
+const FIGURES_DIR = resolve(import.meta.dirname, '..', 'figures')
+// Questions whose upstream `hasImage` flag is a false positive (flagged by the
+// unreliable `**有附圖**：是` source marker, but the stem references no figure).
+// Forced to hasImage:false so they show neither a figure nor a [圖] placeholder.
+const FALSE_POSITIVE_HASIMAGE = new Set<string>(['111-2-醫學一-生理學-Q57'])
 
-const NT_COLOR = {
+const NT_COLOR: Record<NtBranchId, string> = {
   DA: '#d4a04d',
   '5HT': '#c44d4d',
   GABA: '#6a9bc4',
   Glu: '#6a8c3f',
-} as const
-
-type NtBranch = keyof typeof NT_COLOR
+}
 
 interface FamilyMap {
   family: string
-  ntBranch: NtBranch
   persona: string
 }
 
-/** 11-subject mapping per design.md Decision 1. Key = subject.id (verbatim from medexam-tw for 9; new ids 微生物學 / 免疫學 for split). */
+/**
+ * 11-subject display mapping per design.md Decision 1 (family name + persona).
+ * NT branch lives in the single canonical source `../src/families` →
+ * `FAMILY_NT_BRANCH` (per add-neurons-per-branch-decor D2); the `group` /
+ * `color` columns below derive from it, so build output never drifts from the
+ * runtime branch map. Key = subject.id (verbatim from medexam-tw for 9; new ids
+ * 微生物學 / 免疫學 for split).
+ */
 const FAMILY_BY_SUBJECT: Record<string, FamilyMap> = {
   藥理學: {
     family: 'VTA Dopaminergic — Thrill-Seeker',
-    ntBranch: 'DA',
     persona: 'The Thrill-Seeker 尋樂者',
   },
   公共衛生學: {
     family: 'SNc Dopaminergic — Aging Guardian',
-    ntBranch: 'DA',
     persona: 'The Aging Guardian 長者守護',
   },
   寄生蟲學: {
     family: "Enteric Serotonergic — Puppeteer's Puppet",
-    ntBranch: '5HT',
     persona: "The Puppeteer's Puppet 寄生木偶",
   },
   組織學: {
     family: 'MRN Serotonergic — Quiet Curator',
-    ntBranch: '5HT',
     persona: 'The Quiet Curator 沉默策展人',
   },
   生物化學: {
     family: 'Cerebellar Purkinje — Mathematician',
-    ntBranch: 'GABA',
     persona: 'The Mathematician 數學家',
   },
   病理學: {
     family: 'Striatal MSN — Judge',
-    ntBranch: 'GABA',
     persona: 'The Judge 法官',
   },
   免疫學: {
     family: 'PV+ Cortical Interneuron — Sentry Under Siege',
-    ntBranch: 'GABA',
     persona: 'The Sentry Under Siege 圍城警衛',
   },
   解剖學: {
     family: 'DRG Sensory Afferent — Scout',
-    ntBranch: 'Glu',
     persona: 'The Scout 探險家',
   },
   生理學: {
     family: 'Cortical Pyramidal L5 — CEO',
-    ntBranch: 'Glu',
     persona: 'The CEO 執行長',
   },
   胚胎學: {
     family: 'Cajal-Retzius — Pioneer Architect',
-    ntBranch: 'Glu',
     persona: 'The Pioneer Architect 拓荒建築師',
   },
   微生物學: {
     family: 'Olfactory Sensory — Sentinel',
-    ntBranch: 'Glu',
     persona: 'The Sentinel 哨兵（前線守門員）',
   },
 }
@@ -111,7 +116,9 @@ interface MedexamQuestion {
   answer: string
   explanation: string
   hasImage?: boolean
+  imagePath?: string | null  // set by build when a figures/<id>.png exists (see FIGURES_DIR)
   hasOptionImages?: boolean
+  microImmune?: '微生物學' | '免疫學'  // baked split (self-contained; no _extracted needed in CI)
   meta: { year: number; session: number; book: string; paper: string; qNumber: number; pageRef?: string }
   sourceCredit?: string
 }
@@ -158,6 +165,11 @@ function lookupSourceTag(year: number, session: number, qNumber: number): string
 }
 
 function classifyMicroImmune(q: MedexamQuestion): { subject: '微生物學' | '免疫學'; tagged: boolean } {
+  // Prefer the split baked into the reconciled corpus (self-contained; no _extracted in CI).
+  if (q.microImmune === '微生物學' || q.microImmune === '免疫學') {
+    return { subject: q.microImmune, tagged: true }
+  }
+  // Legacy fallback: per-Q `**科目**：` tag in the source .md (needs _extracted; CI lacks it).
   const tag = lookupSourceTag(q.meta.year, q.meta.session, q.meta.qNumber)
   if (tag === null) {
     return { subject: DEFAULT_MICROIMMUNE_FALLBACK, tagged: false }
@@ -190,17 +202,42 @@ function main(): void {
     `Read medexam-tw: ${medexamSubjects.length} subjects, ${medexamQuestions.length} questions`,
   )
 
-  // Step 2 + 3: 直送 9 subjects verbatim + split 微生物暨免疫學
+  // Figure wiring: load the committed figure files once. A question with a
+  // matching figures/<id>.png gets imagePath + hasImage:true (figure existence
+  // is authoritative). False-positive flags get hasImage:false. See design D3.
+  const figureIds = new Set(
+    existsSync(FIGURES_DIR)
+      ? readdirSync(FIGURES_DIR)
+          .filter((f) => f.endsWith('.png'))
+          .map((f) => f.slice(0, -'.png'.length))
+      : [],
+  )
+  let figuresWired = 0
+  let flaggedNoFigure = 0
+  function wireFigure<T extends MedexamQuestion>(q: T): T {
+    if (FALSE_POSITIVE_HASIMAGE.has(q.id)) {
+      return { ...q, hasImage: false, imagePath: null }
+    }
+    if (figureIds.has(q.id)) {
+      figuresWired += 1
+      return { ...q, hasImage: true, imagePath: `content/neurons-tw/figures/${q.id}.png` }
+    }
+    if (q.hasImage) flaggedNoFigure += 1
+    return q
+  }
+
+  // Step 2 + 3: 直送 9 subjects verbatim + split 微生物暨免疫學 (+ figure wiring)
   let splitMicro = 0
   let splitImmune = 0
   let untaggedFallback = 0
   const outputQuestions = medexamQuestions.map((q) => {
-    if (q.subject !== '微生物暨免疫學') return q
+    if (q.subject !== '微生物暨免疫學') return wireFigure(q)
     const { subject, tagged } = classifyMicroImmune(q)
     if (!tagged) untaggedFallback += 1
     if (subject === '微生物學') splitMicro += 1
     else splitImmune += 1
-    return { ...q, subject }
+    const { microImmune: _drop, ...rest } = q // strip build-only hint from output
+    return wireFigure({ ...rest, subject })
   })
 
   // Step 4: Generate subjects.json from FAMILY_BY_SUBJECT
@@ -208,14 +245,18 @@ function main(): void {
   for (const q of outputQuestions) {
     subjectTotals[q.subject] = (subjectTotals[q.subject] ?? 0) + 1
   }
-  const outputSubjects = Object.entries(FAMILY_BY_SUBJECT).map(([id, m]) => ({
-    id,
-    displayName: m.family,
-    group: m.ntBranch,
-    color: NT_COLOR[m.ntBranch],
-    iconKey: `subject:${id}`,
-    totalQuestions: subjectTotals[id] ?? 0,
-  }))
+  const outputSubjects = Object.entries(FAMILY_BY_SUBJECT).map(([id, m]) => {
+    const ntBranch = FAMILY_NT_BRANCH[id]
+    if (!ntBranch) throw new Error(`No NT branch for subject "${id}" in FAMILY_NT_BRANCH`)
+    return {
+      id,
+      displayName: m.family,
+      group: ntBranch,
+      color: NT_COLOR[ntBranch],
+      iconKey: `subject:${id}`,
+      totalQuestions: subjectTotals[id] ?? 0,
+    }
+  })
 
   // Step 8: Assertions
   const orphanSubjects = outputSubjects.filter((s) => s.totalQuestions === 0)
@@ -283,8 +324,19 @@ function main(): void {
   writeFileSync(resolve(OUT_DIR, 'subjects.json'), JSON.stringify(outputSubjects, null, 2))
   writeFileSync(resolve(OUT_DIR, 'questions.json'), JSON.stringify(outputQuestions))
 
+  // Step 6b: Copy question figures into dist/figures (copy-content.mjs then → app public/)
+  let figuresCopied = 0
+  if (existsSync(FIGURES_DIR)) {
+    const figOut = resolve(OUT_DIR, 'figures')
+    mkdirSync(figOut, { recursive: true })
+    for (const f of readdirSync(FIGURES_DIR).filter((n) => n.endsWith('.png'))) {
+      copyFileSync(resolve(FIGURES_DIR, f), resolve(figOut, f))
+      figuresCopied += 1
+    }
+  }
+
   // Step 7: Counters
-  const ntCount = (br: NtBranch) => outputSubjects.filter((s) => s.group === br).length
+  const ntCount = (br: NtBranchId) => outputSubjects.filter((s) => s.group === br).length
   console.log(`---`)
   console.log(
     `imported: ${outputQuestions.length} / skipped: 0 / total: ${outputQuestions.length}`,
@@ -294,6 +346,9 @@ function main(): void {
   )
   console.log(
     `subjects: ${outputSubjects.length} (DA ${ntCount('DA')} / 5-HT ${ntCount('5HT')} / GABA ${ntCount('GABA')} / Glu ${ntCount('Glu')})`,
+  )
+  console.log(
+    `figures: wired ${figuresWired} (imagePath set) / copied ${figuresCopied} files / flagged-without-figure ${flaggedNoFigure} (→ [圖] fallback)`,
   )
   console.log(`Written: ${OUT_DIR}`)
 

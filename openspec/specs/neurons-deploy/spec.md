@@ -48,7 +48,9 @@ The deploy SHALL NOT also publish to GitHub Pages. This is greenfield (no legacy
 
 The neurons-tw sync engine SHALL push and pull its state to the R2 bucket `study-rpg-state` using bundle key `users/<user_id>/neurons-snapshot.json.gz`. This key MUST NOT overlap with the existing bundles `m1-snapshot.json.gz`, `m2-snapshot.json.gz`, or `bookmarks-snapshot.json.gz`.
 
-The bundle's internal JSON schema SHALL include `schema_version` (starting at 1) and a serialized snapshot of every neurons-tw Dexie table that participates in cross-device sync.
+The bundle's internal JSON schema SHALL include `schema_version` (starting at 1, current = 2) and a serialized snapshot of every neurons-tw Dexie table that participates in cross-device sync.
+
+The bundle reader SHALL be tolerant of `schema_version` values higher than the current client's `SCHEMA_VERSION`: when a client receives a bundle with `schema_version > SCHEMA_VERSION`, it SHALL log an informational message (`[sync] bundle schema_version newer than client; unknown fields will be dropped`) and continue parsing — the parser MUST NOT throw on this case. Unknown top-level fields in the bundle SHALL be silently dropped. Bundles with `schema_version < 1` SHALL still be rejected (defends against corrupt or truncated bundles).
 
 The sync engine SHALL NOT read from or write to any non-neurons bundle (m1 / m2 / bookmarks). Cross-app data flow is explicitly disallowed per `neurons-mode` Req 4.
 
@@ -76,11 +78,35 @@ The sync engine SHALL go directly to R2-only mode (no Supabase dual-write transi
 - **AND** the engine SHALL initialize as fresh-start, NOT migrate from m1 / m2 / bookmarks
 - **AND** no MigrationBanner / MigrationUploadPrompt / ConflictChooserModal SHALL be displayed (none of these components exist in neurons-tw)
 
-#### Scenario: Bundle schema_version is set on first push
+#### Scenario: Bundle schema_version is set on first push (current = 2)
 
 - **GIVEN** a fresh-start player makes their first sync push
 - **WHEN** the bundle is serialized to R2
-- **THEN** the bundle JSON SHALL contain `"schema_version": 1` at the top level
+- **THEN** the bundle JSON SHALL contain `"schema_version": 2` at the top level
+
+#### Scenario: v1 client reads v2 bundle without throwing
+
+- **GIVEN** a client running an older build with `SCHEMA_VERSION = 1`
+- **WHEN** the client pulls a bundle with `schema_version = 2` (which includes new optional `dmn-*` fields)
+- **THEN** the bundle reader SHALL NOT throw
+- **AND** the reader SHALL log an informational message indicating unknown fields will be dropped
+- **AND** the reader SHALL successfully parse and apply the v1-compatible subset of the bundle (e.g., `connectome`, `neuronVariants`, `achievements`, `leaderboardProfile`)
+- **AND** the `dmn-*` fields SHALL be silently dropped — not surfaced to the v1 client's app state, not written to the v1 client's Dexie
+
+#### Scenario: v2 client reads v1 bundle and uses defaults for missing dmn-* fields
+
+- **GIVEN** a client running the new build with `SCHEMA_VERSION = 2`
+- **WHEN** the client pulls a bundle with `schema_version = 1` (no `dmn-*` fields present)
+- **THEN** the bundle reader SHALL NOT throw
+- **AND** the reader SHALL apply the v1 fields normally
+- **AND** missing `dmn-*` fields SHALL be treated as preserve-on-omission: local Dexie `dmnCards` / `dmnEventLog` / `dmnActiveBuffs` SHALL retain their existing values (or remain empty if none) — they SHALL NOT be overwritten with empty arrays
+
+#### Scenario: Bundle with schema_version < 1 is still rejected
+
+- **GIVEN** a corrupted or hand-crafted bundle with `schema_version = 0`
+- **WHEN** the bundle reader attempts to parse it
+- **THEN** the reader SHALL throw `Error('invalid_schema_version')`
+- **AND** the sync engine SHALL surface the error rather than silently parsing garbage
 
 ### Requirement: OAuth sign-in SHALL succeed on the `/neurons/` subpath using the shared Supabase project
 

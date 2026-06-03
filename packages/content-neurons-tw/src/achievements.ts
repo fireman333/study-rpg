@@ -41,9 +41,6 @@ const streakAtLeast = (n: number) => (_p: NeuronsPlayerSnapshot, s: NeuronsAchie
 const variantsAtLeast = (n: number) => (_p: NeuronsPlayerSnapshot, s: NeuronsAchievementStats) =>
   s.variantCount >= n
 
-const familyCompleteAtLeast = (n: number) =>
-  (_p: NeuronsPlayerSnapshot, s: NeuronsAchievementStats) => s.familyCompleteCount >= n
-
 const synapseFormedAtLeast = (n: number) =>
   (_p: NeuronsPlayerSnapshot, s: NeuronsAchievementStats) => s.synapseFormedCount >= n
 
@@ -71,9 +68,9 @@ const naturalP1AtLeast = (n: number) =>
 
 export const NEURONS_ACHIEVEMENTS: readonly NeuronsAchievement[] = [
   // ━━━ STUDY (4) ━━━
-  // Note: total_study_min accumulator not yet wired in neurons-tw (see
-  // add-neurons-achievements proposal). These predicates evaluate false
-  // until a reading-timer follow-up change ships.
+  // total_study_min IS wired: reading-timer.ts accrues meta['totalStudyMinutes']
+  // and buildAchievementStats() (achievement.ts) reads it into stats, so these
+  // predicates evaluate against live accrued reading minutes.
   {
     id: 'study-warmup',
     name: '初次唸書',
@@ -187,42 +184,45 @@ export const NEURONS_ACHIEVEMENTS: readonly NeuronsAchievement[] = [
   {
     id: 'variant-fifteen',
     name: '小型集落',
-    description: '收集 15 個 variants — colony 開始成形。',
+    description: '收集 20 個 variants — colony 開始成形。',
     tier: 'P3',
     category: 'variant',
     hidden: false,
-    predicate: variantsAtLeast(15),
+    predicate: variantsAtLeast(20),
     reward: { kind: 'leaderboard' },
   },
   {
     id: 'variant-thirty',
     name: '群落擴張',
-    description: '收集 30 個 variants — 過半典藏。',
+    description: '收集 40 個 variants — colony 持續壯大。',
     tier: 'P2',
     category: 'variant',
     hidden: false,
-    predicate: variantsAtLeast(30),
+    predicate: variantsAtLeast(40),
     reward: { kind: 'leaderboard' },
   },
   {
-    id: 'variant-first-family-complete',
-    name: '初次圓滿',
-    description: '完整收集 1 個家族（5/5 slots）— Pokédex 首頁完成。',
+    id: 'variant-fifty',
+    name: '半壁江山',
+    description: '收集 70 個 variants — 典藏過半。',
     tier: 'P2',
     category: 'variant',
     hidden: false,
-    predicate: familyCompleteAtLeast(1),
+    predicate: variantsAtLeast(70),
     reward: { kind: 'leaderboard' },
   },
   {
-    // P1 composite: 廣 (5 families full) × 質 (≥ 1 P1 variant in collection)
+    // P1 composite: 量 (90 distinct variants) × 廣質 (natural P1 apex across ≥ 3
+    // families). Genuine multi-dimension — at 90 distinct the breadth gate is NOT
+    // implied (you can amass 90 yet hold natural P1 apexes in < 3 families), so
+    // this satisfies the anti-grind P1 rule without a degenerate full-dex AND.
     id: 'variant-grand-collector',
     name: '萬神殿建構者',
-    description: '完整收集 5 個家族（5/5 slots）且 至少 1 個 P1 variant — connectome 萬神殿就位。',
+    description: '收集 90 個 variants 且 在 ≥ 3 個家族擁有自然 P1 apex — connectome 萬神殿就位。',
     tier: 'P1',
     category: 'variant',
     hidden: false,
-    predicate: (_p, s) => s.familyCompleteCount >= 5 && s.naturalP1VariantCount + 0 >= 1,
+    predicate: (_p, s) => s.variantCount >= 90 && s.naturalP1DistinctFamilies >= 3,
     reward: { kind: 'title', title: '萬神殿建構者' },
     composite: true,
   },
