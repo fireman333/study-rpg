@@ -2,7 +2,7 @@
  * POST /presign — returns a presigned R2 URL scoped to the JWT-bound user.
  *
  * Request body:
- *   { bundle: 'm1' | 'm2' | 'bookmarks' | 'neurons',
+ *   { bundle: 'm2' | 'bookmarks' | 'neurons',
  *     op: 'put' | 'get',
  *     schema_version?: number  // positive integer; PUT only; opt-in P1
  *   }
@@ -31,16 +31,16 @@ import { AwsClient } from "aws4fetch";
 import type { Env } from "./index";
 import { extractBearer, verifyJWT } from "./auth";
 
-type Bundle = "m1" | "m2" | "bookmarks" | "neurons";
+// `m1` (一階 medexam-tw) removed by remove-medexam-tw-and-promote-neurons.
+// `m2` retained — the standalone 二階 app still PUT/GETs it via this shared Worker.
+type Bundle = "m2" | "bookmarks" | "neurons";
 type Op = "put" | "get";
 
-const BUNDLES: ReadonlyArray<Bundle> = ["m1", "m2", "bookmarks", "neurons"];
+const BUNDLES: ReadonlyArray<Bundle> = ["m2", "bookmarks", "neurons"];
 const OPS: ReadonlyArray<Op> = ["put", "get"];
 
 function bundleKey(userSub: string, bundle: Bundle): string {
   switch (bundle) {
-    case "m1":
-      return `users/${userSub}/m1-snapshot.json.gz`;
     case "m2":
       return `users/${userSub}/m2-snapshot.json.gz`;
     case "bookmarks":

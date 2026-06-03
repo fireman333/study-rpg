@@ -23,31 +23,6 @@ The TypeScript compiler invocation in any app's build script MUST be configured 
 - **THEN** the build SHALL exit non-zero before Vite emits any bundle
 - **AND** the error message SHALL identify the offending file and line
 
-### Requirement: Content build default subject scope
-
-The `packages/content-medexam-tw` build script SHALL default to ingesting all subjects present in the source extraction folder when `MEDEXAM_SUBJECTS` environment variable is not set.
-
-The script MUST still honor `MEDEXAM_SUBJECTS=<comma-separated-list>` for narrowing the build to specific subjects (developer fast-iterate use case).
-
-The value `MEDEXAM_SUBJECTS=all` MUST remain accepted as an explicit synonym of the default (backward compatibility for existing CI / shell scripts).
-
-#### Scenario: Default build ingests all subjects
-
-- **WHEN** `pnpm --filter @study-rpg/content-medexam-tw build` is run with `MEDEXAM_SUBJECTS` unset
-- **THEN** the resulting `dist/subjects.json` SHALL contain entries for every distinct `subject` value found in the source `.md` frontmatter
-- **AND** the resulting `dist/questions.json` SHALL include questions from all of those subjects (not a single subject)
-
-#### Scenario: Single-subject narrowing still works
-
-- **WHEN** the build is run with `MEDEXAM_SUBJECTS=藥理學`
-- **THEN** `dist/subjects.json` SHALL contain exactly one entry (`藥理學`)
-- **AND** `dist/questions.json` SHALL contain only questions whose `subject` is `藥理學`
-
-#### Scenario: Explicit `all` synonym still works
-
-- **WHEN** the build is run with `MEDEXAM_SUBJECTS=all`
-- **THEN** the output MUST be identical to running it with `MEDEXAM_SUBJECTS` unset
-
 ### Requirement: Build prints imported / skipped / total counter
 
 At the end of every build run, the script SHALL print three line-aligned numbers summarizing parse outcomes:

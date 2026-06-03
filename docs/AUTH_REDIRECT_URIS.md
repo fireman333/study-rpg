@@ -3,45 +3,46 @@
 > Single source of truth for which origins Supabase Auth + Google OAuth accept
 > as redirect targets. Audit this file before changing any sign-in flow.
 >
-> Spec: `openspec/specs/auth/spec.md` + delta in `openspec/changes/add-med-study-rpg-domain-migration/specs/auth/spec.md`.
+> Spec: `openspec/specs/auth/spec.md`.
 
-## Current state (bake period — 2026-05-22 onwards)
+## Current state (post `remove-medexam-tw-and-promote-neurons`, 2026-06-03)
 
-The repo is mid-migration from `fireman333.github.io/study-rpg/` (GitHub Pages)
-to `med-study-rpg.com` (Cloudflare Pages). Both URLs are live in parallel; the
-Supabase Auth allowlist accepts both.
+GitHub Pages is **fully retired** and 一階 (`/1st/`) is removed. The app shell
+is served only from `med-study-rpg.com` (Cloudflare Pages):
+
+- `https://med-study-rpg.com/neurons/` — neurons (canonical, in this monorepo)
+- `https://med-study-rpg.com/2nd/` — 二階 (standalone repo `study-rpg-2nd`, via the edge-router Worker)
+
+All `fireman333.github.io/study-rpg/**` and `med-study-rpg.com/1st/**` origins are
+gone. The Supabase project (`jakdyjxojokyqxeiuukx`) and its Auth config remain
+shared across the surviving apps.
 
 ### Supabase dashboard → Authentication → URL Configuration
 
-**Site URL** (primary callback target — Supabase uses this when no redirect URL
-is requested explicitly):
+**Site URL** (primary callback target when no redirect URL is requested explicitly):
 
 ```
-https://fireman333.github.io/study-rpg/
+https://med-study-rpg.com/neurons/
 ```
 
-(Remains pointed at GitHub Pages during bake. Bake-end follow-up flips to
-`https://med-study-rpg.com/1st/`.)
+(Flipped from the legacy GitHub Pages URL to the canonical neurons app when
+GitHub Pages was retired by `remove-medexam-tw-and-promote-neurons`.)
 
 **Additional Redirect URLs** (allowlist for explicit redirect requests):
 
 ```
-https://fireman333.github.io/study-rpg/**
-https://fireman333.github.io/study-rpg/hospital/**
-https://med-study-rpg.com/1st/**
 https://med-study-rpg.com/2nd/**
 https://med-study-rpg.com/neurons/**
-http://localhost:5173/**
 http://localhost:5174/**
 http://localhost:5175/**
 ```
 
-The three `localhost` entries cover the dev servers for 一階 (5173), 二階 (5174), and neurons-tw (5175).
-
-The `/neurons/**` entry is required for M_3rd neurons-tw OAuth callback per spec
-`openspec/specs/neurons-deploy/spec.md` Req 3 ("OAuth sign-in SHALL succeed on
-the `/neurons/` subpath using the shared Supabase project"). Added by change
-`add-neurons-deploy`.
+The `/neurons/**` entry is required for neurons-tw OAuth callback per spec
+`openspec/specs/neurons-deploy/spec.md` Req 3. The `/2nd/**` entry serves the
+standalone 二階 app (`med-study-rpg.com/2nd/`, unchanged by the split + this
+removal). The two `localhost` entries cover the dev servers for the standalone
+二階 (5174) and neurons-tw (5175) — 一階's `localhost:5173` entry was dropped
+with the app.
 
 ### Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client
 
@@ -55,27 +56,28 @@ https://jakdyjxojokyqxeiuukx.supabase.co/auth/v1/callback
 App origins are NOT listed in Google Cloud Console — Supabase fans out to the
 configured Site URL / Additional Redirect URLs after Google completes consent.
 
-## Bake-end follow-up (separate change, ~14–30 days after this one ships)
+## Owner action (tasks.md §7.5)
 
-When the migration banner has been live long enough that GitHub Pages traffic
-has dwindled to a trickle:
+Apply the above in the Supabase dashboard when redeploying for this change:
 
-1. Update Supabase Site URL → `https://med-study-rpg.com/1st/`
-2. Remove from Additional Redirect URLs:
+1. Site URL → `https://med-study-rpg.com/neurons/`
+2. Remove from Additional Redirect URLs (legacy, now 404):
    - `https://fireman333.github.io/study-rpg/**`
    - `https://fireman333.github.io/study-rpg/hospital/**`
-3. Update this file to reflect the post-bake state.
+   - `https://med-study-rpg.com/1st/**`
+   - `http://localhost:5173/**`
+3. Confirm the four surviving entries above remain.
 
 ## How to verify
 
 After any allowlist edit, smoke test sign-in from each surviving origin:
 
 ```bash
-# 1. Open https://med-study-rpg.com/1st/ in a clean profile
+# 1. Open https://med-study-rpg.com/neurons/ in a clean profile
 # 2. Click "Sign in with Google"
 # 3. Complete Google consent
-# 4. Confirm landing back on /1st/ with an authed session
-# 5. Repeat for /2nd/ and (during bake) the legacy GH Pages URLs
+# 4. Confirm landing back on /neurons/ with an authed session
+# 5. Repeat for /2nd/ (served by the standalone repo)
 ```
 
 If a redirect is rejected, Supabase surfaces an error like
