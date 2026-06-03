@@ -14,7 +14,8 @@
     "pretypecheck": "pnpm --filter @study-rpg/core build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:maze-graph": "node ./scripts/build-maze-graph.mjs"
   },
   "dependencies": {
     "@study-rpg/content-neurons-tw": "workspace:*",
@@ -32,6 +33,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
     "fake-indexeddb": "^6.0.0",
+    "sharp": "^0.34.0",
     "typescript": "^5.4.0",
     "vite": "^5.4.10",
     "vitest": "^2.1.4"

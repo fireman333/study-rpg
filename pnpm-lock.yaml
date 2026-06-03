@@ -173,6 +173,9 @@ importers:
       fake-indexeddb:
         specifier: ^6.0.0
         version: 6.2.5
+      sharp:
+        specifier: ^0.34.0
+        version: 0.34.5
       typescript:
         specifier: ^5.4.0
         version: 5.9.3

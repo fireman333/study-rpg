@@ -262,6 +262,78 @@ export async function pullVariant(
   }
 }
 
+/**
+ * Mint ONE SPECIFIC catalog slot deterministically — the brain-maze settle path
+ * (add-neurons-brain-maze-slice). Unlike `pullVariant` this does NOT spend energy
+ * and does NOT roll rarity: reaching a fogged maze node reveals + collects THAT
+ * node's slot (rarity = the slot's authored catalog rarity). Reuses the mint
+ * machinery so events / provenance / achievements / leaderboard all flow
+ * identically. If the slot is already owned (shouldn't happen for a fogged node)
+ * it increments `copies` (dupe). Never throws.
+ */
+export async function mintVariantSlot(
+  familyId: string,
+  slotIndex: number,
+  resolveFamilyDisplayName: ResolveFamilyDisplayName,
+): Promise<PullResult> {
+  const def = CATALOG_BY_FAMILY.get(familyId)?.find((d) => d.slotIndex === slotIndex)
+  if (!def) {
+    console.error(`[variant-gacha] mintVariantSlot: no catalog def for ${familyId} slot ${slotIndex}`)
+    return { ok: false, reason: 'error' }
+  }
+  try {
+    const { current: streakAtMint } = await getStreaks()
+    const prevStats = await buildAchievementStats()
+    const out = await db.transaction('rw', [db.familyAccrual, db.neuronVariants], async () => {
+      const accrual = await db.familyAccrual.get(familyId)
+      const existing = await db.neuronVariants.get([familyId, slotIndex])
+      if (existing) {
+        const row: NeuronVariantRow = { ...existing, copies: (existing.copies ?? 1) + 1 }
+        await db.neuronVariants.put(row)
+        return { isDupe: true, resultRow: row, persistedNew: false }
+      }
+      const provenance: NeuronVariantProvenance = {
+        bornAtISO: todayISO(),
+        apAtUnlock: accrual?.ap ?? 0,
+        wasRedemption: false,
+        streakAtMint,
+      }
+      const row: NeuronVariantRow = {
+        familyId,
+        slotIndex,
+        rarity: def.rarity,
+        displayName: composeVariantDisplayName(def.displayName, def.rarity),
+        spriteKey: def.spriteKey,
+        rolledAt: Date.now(),
+        wasPityFloor: false,
+        copies: 1,
+        provenance,
+      }
+      await db.neuronVariants.put(row)
+      return { isDupe: false, resultRow: row, persistedNew: true }
+    })
+
+    variantGachaEvents.emit('variantRolled', {
+      variant: out.resultRow,
+      isDupe: out.isDupe,
+      familyDisplayName: resolveFamilyDisplayName(familyId),
+    })
+    if (out.persistedNew) {
+      emitVariantCollected({
+        familyId,
+        slotIndex,
+        apAtUnlock: out.resultRow.provenance?.apAtUnlock ?? 0,
+        wasRedemption: false,
+      })
+    }
+    await triggerAchievementCheck(prevStats)
+    return { ok: true, rarity: def.rarity, isDupe: out.isDupe, variant: out.resultRow }
+  } catch (err) {
+    console.error(`[variant-gacha] mintVariantSlot failed for ${familyId} ${slotIndex}:`, err)
+    return { ok: false, reason: 'error' }
+  }
+}
+
 /* DEV-only debug handles for manual smoke tests. */
 if (import.meta.env.DEV) {
   ;(globalThis as unknown as { __variantGacha?: unknown }).__variantGacha = {
