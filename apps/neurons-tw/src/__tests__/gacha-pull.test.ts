@@ -1,14 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'
-import {
-  effectiveP0Rate,
-  rollRarityWithP0Pity,
-  P0_BASE_RATE,
-  PULL_COST,
-} from '@study-rpg/content-neurons-tw'
+import { effectiveP0Rate, rollRarityWithP0Pity, P0_BASE_RATE } from '@study-rpg/content-neurons-tw'
 import { db } from '../lib/db'
 import { pullVariant } from '../lib/services/variant-gacha'
-import { awardEnergy, readBalance } from '../lib/services/currency'
 
 const resolve = (id: string): string => id
 
@@ -51,7 +45,6 @@ describe('rollRarityWithP0Pity', () => {
   })
 
   it('excludes P0 when already owned', () => {
-    // rng=0 would have hit P0, but p0Owned skips it → falls to the commonest tier.
     expect(rollRarityWithP0Pity(1, true, () => 0)).toBe('P5')
   })
 
@@ -60,26 +53,16 @@ describe('rollRarityWithP0Pity', () => {
   })
 })
 
-describe('pullVariant', () => {
-  it('spends cost, bumps pullCount, and mints a new variant', async () => {
+describe('pullVariant (maze-settle triggered, free at this layer)', () => {
+  it('bumps pullCount and mints a new variant (no currency spend)', async () => {
     await seedFamily('藥理學')
-    await awardEnergy(100)
     const r = await pullVariant('藥理學', resolve)
     expect(r.ok).toBe(true)
-    expect(await readBalance()).toBe(100 - PULL_COST)
     const acc = await db.familyAccrual.get('藥理學')
     expect(acc?.pullCount).toBe(1)
     expect(await db.neuronVariants.where('familyId').equals('藥理學').count()).toBe(1)
-  })
-
-  it('is rejected (no spend) when balance is below cost', async () => {
-    await seedFamily('藥理學')
-    await awardEnergy(PULL_COST - 1)
-    const r = await pullVariant('藥理學', resolve)
-    expect(r.ok).toBe(false)
-    expect(r.reason).toBe('insufficient')
-    expect(await db.neuronVariants.count()).toBe(0)
-    expect(await readBalance()).toBe(PULL_COST - 1)
+    // Each pull mints one individual (the Pikmin-Bloom layer).
+    expect(await db.neuronInstances.where('familyId').equals('藥理學').count()).toBe(1)
   })
 
   it('pulls a dupe (no rejection) when the family is fully collected', async () => {
@@ -87,7 +70,6 @@ describe('pullVariant', () => {
     // pick necessarily lands on an owned slot → dupe (copies +1). No 全部收集 gate.
     vi.spyOn(Math, 'random').mockReturnValue(0.5) // P0 excluded (owned) → lands P5
     await seedFamily('藥理學')
-    await awardEnergy(100)
     // 藥理學 pyramid total = 7 (slots 0..6) — seed all so every pull is a dupe.
     for (let slotIndex = 0; slotIndex <= 6; slotIndex++) {
       await db.neuronVariants.put({
@@ -104,16 +86,13 @@ describe('pullVariant', () => {
     const r = await pullVariant('藥理學', resolve)
     expect(r.ok).toBe(true)
     expect(r.isDupe).toBe(true)
-    // Spent cost + bumped pullCount; no new row (still 7), a copies increment.
-    expect(await readBalance()).toBe(100 - PULL_COST)
+    // No new row (still 7); a copies increment + a new individual.
     expect(await db.neuronVariants.where('familyId').equals('藥理學').count()).toBe(7)
     const acc = await db.familyAccrual.get('藥理學')
     expect(acc?.pullCount).toBe(1)
   })
 
   it('within-tier roll can land on the second P5 variant (slot 6)', async () => {
-    // P0 owned → roll falls to P5; Math.random=0.5 → weight roll picks P5 and the
-    // within-tier index floor(0.5×2)=1 → the new pyramid base P5 at slot 6.
     vi.spyOn(Math, 'random').mockReturnValue(0.5)
     await seedFamily('藥理學')
     await db.neuronVariants.put({
@@ -126,7 +105,6 @@ describe('pullVariant', () => {
       wasPityFloor: false,
       copies: 1,
     })
-    await awardEnergy(100)
     const r = await pullVariant('藥理學', resolve)
     expect(r.ok).toBe(true)
     expect(r.rarity).toBe('P5')
@@ -136,10 +114,8 @@ describe('pullVariant', () => {
   it('increments copies on a duplicate pull', async () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
     await seedFamily('藥理學')
-    await awardEnergy(100)
-    // rng=0 → pull1 P0 (slotIndex 0, new); pull2 P5 (P0 now owned). The P5 tier
-    // holds two variants (slots 1 & 6); within-tier pick with rng=0 → index 0 →
-    // slot 1 (the first P5 in catalog order). pull3 P5 again → dupe at slot 1.
+    // rng=0 → pull1 P0 (slot 0, new); pull2 P5 (P0 now owned, within-tier index 0 →
+    // slot 1); pull3 P5 again → dupe at slot 1.
     await pullVariant('藥理學', resolve)
     await pullVariant('藥理學', resolve)
     const r3 = await pullVariant('藥理學', resolve)

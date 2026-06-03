@@ -17,7 +17,6 @@ import DmnCollectionPage from './routes/DmnCollectionPage'
 import DmnDrawButton from './components/DmnDrawButton'
 import BookmarksPage from './routes/BookmarksPage'
 import CollectionPage from './routes/CollectionPage'
-import MazeBetaPage from './routes/MazeBetaPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import HelpMenu from './components/HelpMenu'
 import { AuthProvider } from './lib/auth/AuthContext'
@@ -80,17 +79,12 @@ export default function App(): JSX.Element {
             <nav className="neurons-nav">
               <NavLink to="/" style={navLinkStyle} end>
                 {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>連結組 →</span>
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>腦圖 →</span>
                 )}
               </NavLink>
               <NavLink to="/collection" style={navLinkStyle}>
                 {({ isActive }) => (
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>圖鑑 →</span>
-                )}
-              </NavLink>
-              <NavLink to="/maze-beta" style={navLinkStyle}>
-                {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>迷宮 →</span>
                 )}
               </NavLink>
               <NavLink to="/dmn" style={navLinkStyle}>
@@ -127,7 +121,8 @@ export default function App(): JSX.Element {
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/dmn" element={<DmnCollectionPage />} />
             <Route path="/collection" element={<CollectionPage pack={pack} />} />
-            <Route path="/maze-beta" element={<MazeBetaPage pack={pack} />} />
+            {/* /maze-beta is fused into the homepage — redirect old bookmarks. */}
+            <Route path="/maze-beta" element={<Navigate to="/" replace />} />
             <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
             <Route path="/motion-demo" element={<MotionDemoPage />} />
           </Routes>

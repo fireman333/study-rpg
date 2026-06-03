@@ -4,10 +4,11 @@
  * Open-ended browse: renders ONLY the variants the player has collected — no
  * silhouettes, no pre-shown rarity, no catalog-sized slot grid, and the finite
  * catalog total is hidden (no `X / N`, no 全部收集). Cards are grouped by family.
- * A neural-energy balance HUD + a per-family PULL control drive the gacha (study
- * earns energy → spend to pull); pulling never disables on completion (a full
- * family yields a dupe). Tapping a collected card sets it as that family's
- * representative. Each card shows a `× N` dupe badge + a provenance birth caption.
+ * Collection comes from maze exploration (promote-maze-to-home / Model A): the
+ * maze node settle is the only pull path, so this page has NO pull button / energy
+ * HUD — it is the dex + tier-promote/fusion surface. Tapping a collected card sets
+ * it as that family's representative. Each card shows a `× N` dupe badge + a
+ * provenance birth caption; fusion consumes K surplus dupes → one rarer individual.
  *
  * Capability spec: openspec/specs/neurons-variant-collection-view/spec.md
  */
@@ -15,7 +16,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
-import { NEURON_VARIANT_CATALOG, PULL_COST, PROMOTE_COST_K } from '@study-rpg/content-neurons-tw'
+import { NEURON_VARIANT_CATALOG, PROMOTE_COST_K } from '@study-rpg/content-neurons-tw'
 import { db, type NeuronVariantRow, type NeuronInstanceRow, type VariantRarity } from '../lib/db'
 import {
   getRepresentativesRaw,
@@ -23,9 +24,7 @@ import {
   setRepresentative,
   type RepresentativeMap,
 } from '../lib/services/representatives'
-import { pullVariant } from '../lib/services/variant-gacha'
 import { promoteTier } from '../lib/services/variant-fusion'
-import { useEnergyBalance } from '../lib/services/currency'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
 import VariantSprite from '../components/VariantSprite'
@@ -106,8 +105,6 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   })
   const { user } = useAuth()
   const [shareOpen, setShareOpen] = useState(false)
-  const balance = useEnergyBalance()
-  const [pulling, setPulling] = useState<string | null>(null)
   const [promoting, setPromoting] = useState<string | null>(null)
 
   const resolveName = useMemo(() => {
@@ -151,17 +148,6 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     })
     return () => sub.unsubscribe()
   }, [])
-
-  const handlePull = async (familyId: string): Promise<void> => {
-    if (pulling) return
-    setPulling(familyId)
-    try {
-      // The global VariantUnlockModal renders the reveal off the variantRolled event.
-      await pullVariant(familyId, resolveName)
-    } finally {
-      setPulling(null)
-    }
-  }
 
   const handlePromote = async (familyId: string, rarity: VariantRarity): Promise<void> => {
     if (promoting) return
@@ -214,12 +200,8 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
       <header style={headerStyle}>
         <h1 style={titleStyle}>神經元圖鑑</h1>
         <p style={subtitleStyle}>
-          已收集 <strong>{collectedCount}</strong> 隻。唸書與答對累積神經能量，於各科抽卡解鎖變體。
+          已收集 <strong>{collectedCount}</strong> 隻。唸書與答對累積神經能量、在腦圖探索，走到節點即解鎖一次抽卡。
         </p>
-        <div style={energyHudStyle} aria-label={`神經能量 ${balance}`}>
-          ⚡ 神經能量 <strong style={{ fontSize: '1.05rem' }}>{balance}</strong>
-          <span style={energyHintStyle}>（每抽 {PULL_COST}）</span>
-        </div>
         <button type="button" style={shareBtnStyle} onClick={() => setShareOpen(true)}>
           🔗 分享角色卡
         </button>
@@ -255,10 +237,6 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           const totalIndividuals = held.length
           const surplus = surplusByTier(held)
           const promoteTiers = PROMOTABLE_TIERS.filter((t) => (surplus[t] ?? 0) > 0)
-          const isPulling = pulling === family.id
-          // Pull disables ONLY below cost — a fully-collected family is still
-          // pullable (yields a dupe); no 全部收集 disabled state.
-          const canPull = balance >= PULL_COST && !pulling
           return (
             <section key={family.id} style={familySectionStyle} aria-label={family.label}>
               <div style={familyHeaderRowStyle}>
@@ -274,19 +252,6 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                     <span style={individualCountStyle}>· 共 {totalIndividuals} 個體</span>
                   )}
                 </h2>
-                <button
-                  type="button"
-                  disabled={!canPull}
-                  onClick={() => void handlePull(family.id)}
-                  style={canPull ? pullButtonStyle : pullButtonDisabledStyle}
-                  title={
-                    balance < PULL_COST
-                      ? `神經能量不足（需 ${PULL_COST}）`
-                      : `花 ${PULL_COST} 神經能量在 ${family.label} 抽卡`
-                  }
-                >
-                  {isPulling ? '抽卡中…' : `🎴 抽卡（${PULL_COST}）`}
-                </button>
               </div>
               {/* Tier-promote (add-neurons-dupe-fusion): consume K surplus dupes
                   of a tier → mint one rarer individual. Only tiers with surplus
@@ -468,26 +433,6 @@ const shareBtnStyle: React.CSSProperties = {
   cursor: 'pointer',
 }
 
-const energyHudStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '0.3rem',
-  marginTop: '0.6rem',
-  padding: '0.3rem 0.8rem',
-  background: '#fff7df',
-  border: '2px solid #d4a04d',
-  borderRadius: '999px',
-  fontSize: '0.85rem',
-  color: '#5a3e1a',
-  fontWeight: 700,
-}
-
-const energyHintStyle: React.CSSProperties = {
-  fontSize: '0.72rem',
-  fontWeight: 400,
-  color: '#8c6d4a',
-}
-
 const emptyHintStyle: React.CSSProperties = {
   marginTop: '1.5rem',
   textAlign: 'center',
@@ -522,29 +467,6 @@ const ownedCountStyle: React.CSSProperties = {
   fontSize: '0.72rem',
   fontWeight: 600,
   color: '#8c6d4a',
-}
-
-const pullButtonStyle: React.CSSProperties = {
-  padding: '0.35rem 0.8rem',
-  background: '#d4a04d',
-  color: '#fff',
-  borderWidth: '2px',
-  borderStyle: 'solid',
-  borderColor: '#b8893a',
-  borderRadius: '6px',
-  fontSize: '0.82rem',
-  fontWeight: 700,
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-  whiteSpace: 'nowrap',
-}
-
-const pullButtonDisabledStyle: React.CSSProperties = {
-  ...pullButtonStyle,
-  background: '#e8dcc0',
-  color: '#a89074',
-  borderColor: '#c4a878',
-  cursor: 'not-allowed',
 }
 
 const slotRowStyle: React.CSSProperties = {

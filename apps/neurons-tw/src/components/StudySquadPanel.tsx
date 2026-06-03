@@ -1,11 +1,11 @@
 /**
  * Study-squad party panel on the connectome homepage (add-neurons-study-squad).
  *
- * Renders the active squad as a party row + an 出征 action that drills the
- * player's cross-subject wrong questions, plus a collapsible editor to assemble
- * the squad from collected variants (≤ MAX_SQUAD_SIZE). Empty squad → an
- * assemble-your-squad placeholder. The 出征 QuizModal itself is owned by
- * OverviewPage (it holds the pack + pool); this panel only signals intent.
+ * Renders the active squad as a party row + a collapsible editor to assemble the
+ * squad from collected variants (≤ MAX_SQUAD_SIZE). Empty squad → an
+ * assemble-your-squad placeholder. The 出征 action itself now lives in the
+ * homepage CTA toolbar (promote-maze-to-home); this panel is the squad-assembly
+ * surface (the assembled squad still deploys + cheers during the 出征 drill).
  *
  * Capability spec: openspec/specs/neurons-study-squad/spec.md
  */
@@ -22,13 +22,6 @@ import {
 } from '../lib/services/study-squad'
 import VariantSprite from './VariantSprite'
 
-interface Props {
-  /** Count of cross-subject wrong questions (gates the 出征 button). */
-  expeditionCount: number
-  /** Open the 出征 drill (OverviewPage owns the QuizModal). */
-  onExpedition: () => void
-}
-
 function useCollectedVariants(): NeuronVariantRow[] {
   const [rows, setRows] = useState<NeuronVariantRow[]>([])
   useEffect(() => {
@@ -41,7 +34,7 @@ function useCollectedVariants(): NeuronVariantRow[] {
   return rows
 }
 
-export default function StudySquadPanel({ expeditionCount, onExpedition }: Props): JSX.Element {
+export default function StudySquadPanel(): JSX.Element {
   const squad = useActiveSquad()
   const collected = useCollectedVariants()
   const [editing, setEditing] = useState(false)
@@ -85,27 +78,6 @@ export default function StudySquadPanel({ expeditionCount, onExpedition }: Props
           ))}
         </div>
       )}
-
-      <div style={actionRowStyle}>
-        <button
-          type="button"
-          style={expeditionCount > 0 ? expeditionButtonStyle : expeditionButtonDisabledStyle}
-          onClick={onExpedition}
-          disabled={expeditionCount === 0}
-          aria-label="出征：全科錯題練習"
-          title={
-            expeditionCount > 0
-              ? `對你目前未答對的 ${expeditionCount} 題出征`
-              : '目前沒有未答對的題目'
-          }
-        >
-          ⚔️ 出征 · 全科錯題
-          <span style={expeditionCountBadgeStyle}>{expeditionCount} 題</span>
-        </button>
-        {expeditionCount === 0 && (
-          <span style={emptyHintStyle}>目前沒有未答對的題目 — 先去答題吧。</span>
-        )}
-      </div>
 
       {editing && (
         <div style={editorStyle}>
@@ -200,50 +172,6 @@ const partyRowStyle: React.CSSProperties = {
   flexWrap: 'wrap',
   gap: '0.4rem',
   marginBottom: '0.6rem',
-}
-
-const actionRowStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  alignItems: 'center',
-  gap: '0.5rem',
-}
-
-const expeditionButtonStyle: React.CSSProperties = {
-  padding: '0.55rem 1.1rem',
-  borderRadius: '6px',
-  border: '1px solid #b8893a',
-  background: '#d4a04d',
-  color: '#fff',
-  fontSize: '0.98rem',
-  fontWeight: 700,
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-}
-
-const expeditionButtonDisabledStyle: React.CSSProperties = {
-  ...expeditionButtonStyle,
-  background: '#cdbfa6',
-  border: '1px solid #b8a98c',
-  cursor: 'not-allowed',
-  boxShadow: 'none',
-}
-
-const expeditionCountBadgeStyle: React.CSSProperties = {
-  padding: '0.1rem 0.45rem',
-  background: 'rgba(255,255,255,0.25)',
-  borderRadius: '999px',
-  fontSize: '0.78em',
-  fontWeight: 600,
-}
-
-const emptyHintStyle: React.CSSProperties = {
-  fontSize: '0.82rem',
-  color: '#8c6d4a',
 }
 
 const editorStyle: React.CSSProperties = {

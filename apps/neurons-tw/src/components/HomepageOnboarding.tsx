@@ -4,9 +4,6 @@
  * so it never reappears (including after F5). The DEV reset path
  * (`resetConnectomeForDebug`) clears the flag so a reset user sees it again.
  *
- * The existing `/connectome` empty-state callout is intentionally left in place
- * (it serves users who land directly on `/connectome`); these do not conflict.
- *
  * Spec: openspec/specs/neurons-homepage/spec.md
  *   "Homepage SHALL surface a one-tap-dismissable first-visit onboarding that
  *    never reappears once dismissed"
@@ -54,14 +51,18 @@ export function HomepageOnboarding(): JSX.Element | null {
       <strong style={openerStyle}>👋 歡迎！這裡只要像考生一樣唸書 + 做題</strong>
       <ol style={stepsStyle}>
         <li>
-          <strong>📖 開始閱讀</strong>：按計時器累積閱讀時間，每 30 分鐘換一次 DMN 抽卡。
+          <strong>📖 開始閱讀</strong>：按計時器累積閱讀時間 → 賺神經能量，每 30 分鐘換一次 DMN 抽卡。
         </li>
         <li>
-          <strong>🎲 答題</strong>：跨 family 隨機練，或點下方科目卡指定範圍。答對讓該 family 放電（fire）。
+          <strong>🎲 答題</strong>：跨 family 隨機練，或點下方科目卡指定範圍。答對讓該科的神經傳導物分支賺能量。
         </li>
         <li>
-          <strong>🔗 自動長出連線</strong>：同一天兩個 family 各答對 5 題，就在上方 connectome 長出 synapse —
-          規則不用背，畫面會替你呈現。
+          <strong>🧠 走腦圖收集</strong>：能量推著 growth cone 沿白質束前進，抵達腦區節點就抽出一隻神經元 —
+          收集的唯一方式就是探索腦圖。
+        </li>
+        <li>
+          <strong>🔗 自動長出連線</strong>：同一天兩個 family 各答對 5 題就 wire 出一條 synapse，
+          畫在腦圖上的功能連結覆蓋層 — 規則不用背，畫面會替你呈現。
         </li>
       </ol>
       <button type="button" onClick={dismiss} style={ctaStyle}>

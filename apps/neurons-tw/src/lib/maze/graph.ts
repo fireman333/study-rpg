@@ -156,6 +156,29 @@ export function foggedNodes(branch: NtBranchId, collected: ReadonlySet<string>):
 export const nextTarget = (branch: NtBranchId, collected: ReadonlySet<string>): MazeNode | null =>
   foggedNodes(branch, collected)[0] ?? null
 
+// --- Frontier-order helpers (promote-maze-to-home / Model A) ---
+// Lit state is FRONTIER-derived (cumulative settle count), NOT collected-derived,
+// because settle pulls are random (the variant collected at a settle is not
+// necessarily the lit node's own slot). Nodes light in hub-distance order.
+
+/** All of a branch's nodes ordered closest-to-hub first (stable frontier order). */
+export function nodesByPathLen(branch: NtBranchId): MazeNode[] {
+  return [...MAZE_GRAPHS[branch].nodes].sort((a, b) => a.pathLen - b.pathLen)
+}
+
+/** The lit nodes of a branch = the first `min(settles, nodeCount)` in frontier order. */
+export function litNodes(branch: NtBranchId, settles: number): MazeNode[] {
+  const n = Math.min(Math.max(0, Math.floor(settles)), MAZE_GRAPHS[branch].nodes.length)
+  return nodesByPathLen(branch).slice(0, n)
+}
+
+/** The node lit by settle index `settles` (the walker's current target), or null in 二週目 (all lit). */
+export function frontierNode(branch: NtBranchId, settles: number): MazeNode | null {
+  const nodes = nodesByPathLen(branch)
+  const i = Math.max(0, Math.floor(settles))
+  return i < nodes.length ? nodes[i] : null
+}
+
 /** Linear-interpolate a point at arc-length fraction `t` (0..1) along a node's walk path. */
 export function pointAtFraction(node: MazeNode, t: number): [number, number] {
   const { path, arc, pathLen } = node

@@ -1,21 +1,22 @@
 /**
- * Variant gacha service (Collection 2.0) — player-initiated, currency-gated,
- * per-family PULL. This is the ONLY mechanism that creates `neuronVariants` rows
- * (the pre-gacha AP-slot-unlock subscriber + backfill are gone).
+ * Variant gacha service (promote-maze-to-home / Model A) — per-family PULL,
+ * triggered ONLY by a maze node settle (lib/maze/economy `reconcileSettles`);
+ * there is no player-initiated manual pull. This is the ONLY mechanism that
+ * creates `neuronVariants` rows.
  *
  * Capability spec: openspec/specs/neuron-variant-gacha/spec.md
  *
- * A pull: require balance ≥ PULL_COST (open-collection — no completeness gate; a
- * fully-collected family is still pullable and yields a dupe) → in one tx
- * spend PULL_COST, bump familyAccrual.pullCount (the P0 soft-pity clock), roll a
- * rarity (P0 soft-pity applied; P0 excluded once owned), resolve the (family,
- * rarity) catalog variant, then persist a new row (copies=1, provenance stamped)
- * or increment `copies` on a dupe. The reveal (`variantRolled`) fires post-commit.
+ * A pull is FREE at this layer (the per-branch maze energy consumed reaching the
+ * node is the cost — see economy.ts): in one tx bump familyAccrual.pullCount (the
+ * P0 soft-pity clock), roll a rarity (P0 soft-pity applied; P0 excluded once
+ * owned), resolve the (family, rarity) catalog variant, then persist a new row
+ * (copies=1, provenance stamped) or increment `copies` on a dupe + mint a new
+ * individual. The reveal (`variantRolled`) fires post-commit. Open-collection —
+ * a fully-collected family is still pullable and yields a dupe (feeds fusion).
  */
 
 import {
   NEURON_VARIANT_CATALOG,
-  PULL_COST,
   P0_PITY_START,
   composeVariantDisplayName,
   rollRarityWithP0Pity,
@@ -33,7 +34,6 @@ import { emitVariantCollected } from './connectome'
 import { getStreaks } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { consumeVariantRateUpBuff } from './dmn-event-dispatcher'
-import { readBalance, spendEnergyInTx } from './currency'
 
 /** Rarity rank for "take the rarer" (P0 rarest = 0). */
 const RARITY_RANK: Record<Rarity, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
@@ -210,11 +210,9 @@ export async function pullVariant(
   }
 
   try {
-    // Preflight (outside tx): balance only. Open-collection — a fully-collected
-    // family is still pullable (the within-tier pick necessarily yields a dupe);
-    // there is no completeness gate.
-    const balanceBefore = await readBalance()
-    if (balanceBefore < PULL_COST) return { ok: false, reason: 'insufficient' }
+    // No balance preflight: the settle pull is free at this layer (the maze
+    // energy consumed reaching the node is the cost). Open-collection — a
+    // fully-collected family is still pullable (the within-tier pick yields a dupe).
 
     // DMN variant-rate-up: consume the buff (own tx on dmnActiveBuffs) BEFORE the
     // pull tx (different table scope). When active, the pull rolls twice and keeps
@@ -229,15 +227,13 @@ export async function pullVariant(
     // narrow a variable assigned only inside an async callback).
     const out = await db.transaction(
       'rw',
-      [db.meta, db.familyAccrual, db.neuronVariants, db.neuronInstances],
+      [db.familyAccrual, db.neuronVariants, db.neuronInstances],
       async (): Promise<{
         rarity: Rarity
         isDupe: boolean
         resultRow: NeuronVariantRow
         persistedNew: boolean
       }> => {
-        await spendEnergyInTx(PULL_COST)
-
         const accrual = await db.familyAccrual.get(familyId)
         if (!accrual) throw new Error(`no familyAccrual row for "${familyId}"`)
         const newPullCount = (accrual.pullCount ?? 0) + 1
@@ -321,85 +317,6 @@ export async function pullVariant(
     return { ok: true, rarity: out.rarity, isDupe: out.isDupe, variant: out.resultRow }
   } catch (err) {
     console.error(`[variant-gacha] pullVariant failed for ${familyId}:`, err)
-    return { ok: false, reason: 'error' }
-  }
-}
-
-/**
- * Mint ONE SPECIFIC catalog slot deterministically — the brain-maze settle path
- * (add-neurons-brain-maze-slice). Unlike `pullVariant` this does NOT spend energy
- * and does NOT roll rarity: reaching a fogged maze node reveals + collects THAT
- * node's slot (rarity = the slot's authored catalog rarity). Reuses the mint
- * machinery so events / provenance / achievements / leaderboard all flow
- * identically. If the slot is already owned (shouldn't happen for a fogged node)
- * it increments `copies` (dupe). Never throws.
- */
-export async function mintVariantSlot(
-  familyId: string,
-  slotIndex: number,
-  resolveFamilyDisplayName: ResolveFamilyDisplayName,
-): Promise<PullResult> {
-  const def = CATALOG_BY_FAMILY.get(familyId)?.find((d) => d.slotIndex === slotIndex)
-  if (!def) {
-    console.error(`[variant-gacha] mintVariantSlot: no catalog def for ${familyId} slot ${slotIndex}`)
-    return { ok: false, reason: 'error' }
-  }
-  try {
-    const { current: streakAtMint } = await getStreaks()
-    const prevStats = await buildAchievementStats()
-    const out = await db.transaction('rw', [db.familyAccrual, db.neuronVariants, db.neuronInstances], async () => {
-      const accrual = await db.familyAccrual.get(familyId)
-      const rolledAtNow = Date.now()
-      const provenance: NeuronVariantProvenance = {
-        bornAtISO: todayISO(),
-        apAtUnlock: accrual?.ap ?? 0,
-        wasRedemption: false,
-        streakAtMint,
-      }
-      const existing = await db.neuronVariants.get([familyId, slotIndex])
-      if (existing) {
-        const row: NeuronVariantRow = { ...existing, copies: (existing.copies ?? 1) + 1 }
-        await db.neuronVariants.put(row)
-        await db.neuronInstances.add(
-          buildInstance(familyId, slotIndex, def.rarity, def.spriteKey, rolledAtNow, provenance),
-        )
-        return { isDupe: true, resultRow: row, persistedNew: false }
-      }
-      const row: NeuronVariantRow = {
-        familyId,
-        slotIndex,
-        rarity: def.rarity,
-        displayName: composeVariantDisplayName(def.displayName, def.rarity),
-        spriteKey: def.spriteKey,
-        rolledAt: rolledAtNow,
-        wasPityFloor: false,
-        copies: 1,
-        provenance,
-      }
-      await db.neuronVariants.put(row)
-      await db.neuronInstances.add(
-        buildInstance(familyId, slotIndex, def.rarity, def.spriteKey, rolledAtNow, provenance),
-      )
-      return { isDupe: false, resultRow: row, persistedNew: true }
-    })
-
-    variantGachaEvents.emit('variantRolled', {
-      variant: out.resultRow,
-      isDupe: out.isDupe,
-      familyDisplayName: resolveFamilyDisplayName(familyId),
-    })
-    if (out.persistedNew) {
-      emitVariantCollected({
-        familyId,
-        slotIndex,
-        apAtUnlock: out.resultRow.provenance?.apAtUnlock ?? 0,
-        wasRedemption: false,
-      })
-    }
-    await triggerAchievementCheck(prevStats)
-    return { ok: true, rarity: def.rarity, isDupe: out.isDupe, variant: out.resultRow }
-  } catch (err) {
-    console.error(`[variant-gacha] mintVariantSlot failed for ${familyId} ${slotIndex}:`, err)
     return { ok: false, reason: 'error' }
   }
 }
