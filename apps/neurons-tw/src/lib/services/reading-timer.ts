@@ -21,6 +21,7 @@ import { READING_MINUTE_ENERGY } from '@study-rpg/content-neurons-tw'
 import { db } from '../db'
 import { dmnReadingTimerSubscriber } from './dmn-trigger'
 import { awardEnergy } from './currency'
+import { accrueMazeSignal, READING_SIGNAL } from '../maze/economy'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
 export type ReadingTimerPauseReason = 'manual' | 'visibility' | 'idle' | null
@@ -81,6 +82,9 @@ async function fireMinuteSideEffects(): Promise<void> {
       dmnReadingTimerSubscriber.onMinutesAccrued(1),
       // Collection 2.0 faucet: each reading minute mints pull currency.
       awardEnergy(READING_MINUTE_ENERGY),
+      // Brain-maze growth-signal faucet (add-neurons-brain-maze-slice): reading
+      // feeds DA exploration regardless of subject. Best-effort within Promise.all.
+      accrueMazeSignal(READING_SIGNAL),
     ])
     console.info('[reading-timer] +1 minute accrued')
   } catch (err) {
