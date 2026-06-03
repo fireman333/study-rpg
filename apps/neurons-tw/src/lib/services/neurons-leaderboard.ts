@@ -27,7 +27,7 @@ const DEFAULT_WORKER_URL = 'https://study-rpg-sync-worker.tony85314.workers.dev'
 const WORKER_URL =
   (import.meta.env.VITE_SYNC_WORKER_URL as string | undefined)?.trim() || DEFAULT_WORKER_URL
 
-export type LeaderboardFilter = 'composite' | 'variants' | 'ap' | 'synapse' | 'study'
+export type LeaderboardFilter = 'composite' | 'variants' | 'ap' | 'synapse' | 'study' | 'settles'
 
 export const LEADERBOARD_FILTERS: LeaderboardFilter[] = [
   'composite',
@@ -35,6 +35,7 @@ export const LEADERBOARD_FILTERS: LeaderboardFilter[] = [
   'ap',
   'synapse',
   'study',
+  'settles',
 ]
 
 export interface LeaderboardRow {
@@ -44,6 +45,7 @@ export interface LeaderboardRow {
   total_AP: number
   synapse_strong: number
   total_study_min: number
+  total_settles: number
   badges_csv?: string
   updated_at: number
 }
@@ -60,6 +62,7 @@ export interface NeuronsLeaderboardPayload {
   total_AP: number
   synapse_strong: number
   total_study_min: number
+  total_settles: number
   is_public: 0 | 1
   updated_at: number
   badges_csv?: string
@@ -78,6 +81,8 @@ export interface NicknameCheckResponse {
  * - synapse_strong = count of synapses with state='strong'
  * - total_study_min = sum of meta['totalStudyMinutes'] accrued by the
  *   reading-timer service (wired 2026-05-28 via polish-neurons-final)
+ * - total_settles = sum of the four meta['maze:<branch>:settles'] counters
+ *   (the maze exploration-progress axis, realign-neurons-leaderboard-to-maze)
  */
 export async function buildLeaderboardPayload(
   nickname: string,
@@ -99,6 +104,24 @@ export async function buildLeaderboardPayload(
   // inside readTotalStudyMinutes for undefined meta key).
   const total_study_min = await readTotalStudyMinutes()
 
+  // total_settles = cumulative maze settles across the four NT branches. These
+  // four keys are the same per-branch settle counters written by
+  // lib/maze/economy.ts (settlesKey = `maze:${branch.toLowerCase()}:settles`)
+  // and are members of SYNCED_META_KEYS, so the sum is cross-device-correct.
+  // Keys inlined (not imported from economy.ts) to keep zero blast radius into
+  // the maze module; read defensively so a missing key contributes 0.
+  const settlesKeys = [
+    'maze:da:settles',
+    'maze:5ht:settles',
+    'maze:gaba:settles',
+    'maze:glu:settles',
+  ]
+  const settlesRows = await Promise.all(settlesKeys.map((k) => db.meta.get(k)))
+  const total_settles = settlesRows.reduce(
+    (sum, row) => sum + (Number(row?.value ?? '0') || 0),
+    0,
+  )
+
   // Derive badges_csv from currently-unlocked achievements (hidden excluded).
   const badges_csv = await deriveBadgesCsvFromDexie()
 
@@ -108,6 +131,7 @@ export async function buildLeaderboardPayload(
     total_AP,
     synapse_strong,
     total_study_min,
+    total_settles,
     is_public: isPublic ? 1 : 0,
     updated_at: Date.now(),
     badges_csv,

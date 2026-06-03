@@ -177,10 +177,10 @@ export default function LeaderboardOptInModal({
           </p>
           <ul style={fieldsListStyle}>
             <li>變體收集數量（X / {NEURON_VARIANT_TOTAL}）</li>
-            <li>完整集齊家族數（X / 11）</li>
             <li>Action Potential 總量</li>
             <li>Strong Synapse 數</li>
             <li>累積唸書時間</li>
+            <li>探索進度（settle 次數）</li>
           </ul>
 
           <label style={consentLabelStyle}>

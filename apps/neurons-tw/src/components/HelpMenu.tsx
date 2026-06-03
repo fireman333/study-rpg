@@ -166,8 +166,8 @@ const SECTIONS: Section[] = [
           完全不上榜也可以正常玩，所有資料留在本機。
         </p>
         <p>
-          公開的 5 欄位：暱稱 / 變體解鎖數 / Synapse 形成數 / DMN 收集數 / 累積閱讀分鐘。
-          配 6 種 filter：總分綜合 / 變體數 / synapse 數 / DMN 數 / 累積閱讀 / 最近活動。
+          公開的欄位：暱稱 / 變體解鎖數 / Action Potential 總量 / Strong Synapse 數 / 累積唸書時間 / 探索進度（settle 數）。
+          配 6 種 filter 分類：綜合排名 / 變體收集 / AP 排名 / Synapse 強連結 / 累積唸書時間 / 探索進度。
         </p>
         <p>
           <strong>退出 / 改名</strong>：同一頁的 settings panel 可以改名（會再查一次撞名）

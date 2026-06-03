@@ -44,6 +44,7 @@ const FILTER_LABELS: Record<LeaderboardFilter, string> = {
   ap: 'AP 排名',
   synapse: 'Synapse 強連結',
   study: '累積唸書時間',
+  settles: '探索進度',
 }
 
 const FILTER_PRIMARY_STAT: Record<LeaderboardFilter, keyof LeaderboardRow> = {
@@ -52,6 +53,7 @@ const FILTER_PRIMARY_STAT: Record<LeaderboardFilter, keyof LeaderboardRow> = {
   ap: 'total_AP',
   synapse: 'synapse_strong',
   study: 'total_study_min',
+  settles: 'total_settles',
 }
 
 interface SnapshotCache {
@@ -258,6 +260,7 @@ function LeaderboardGrid({
         <span style={statCellStyle} className="neurons-lb-cell--ap">AP</span>
         <span style={statCellStyle} className="neurons-lb-cell--synapse">Synapse</span>
         <span style={statCellStyle} className="neurons-lb-cell--study">唸書(分)</span>
+        <span style={statCellStyle} className="neurons-lb-cell--settles">探索</span>
       </div>
       {snapshot.rows.map((row, idx) => {
         const rank = idx + 1
@@ -281,6 +284,9 @@ function LeaderboardGrid({
             </span>
             <span style={statCellWithPrimary(primaryStat === 'total_study_min')} className="neurons-lb-cell--study">
               {formatStudyMin(row.total_study_min)}
+            </span>
+            <span style={statCellWithPrimary(primaryStat === 'total_settles')} className="neurons-lb-cell--settles">
+              {row.total_settles}
             </span>
           </div>
         )
