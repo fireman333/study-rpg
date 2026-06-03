@@ -5,7 +5,7 @@
 ## 0. Decision gates (confirm before any code)
 
 - [x] 0.1 Confirm `@study-rpg/core` consumption strategy with owner — **npm-core** confirmed (design D1 stands). Diligence found npm only had 0.2.0 (no publish automation; local was 0.6.0 on main / 0.5.0 on stale track-m2). Resolved by reconciling track-m2 with main (`git merge main`, 101 commits) then **publishing `@study-rpg/core@0.6.0`** (not 0.5.0 — main canonical). Standalone repo pins `^0.6.0`.
-- [ ] 0.2 Confirm GitHub Pages 二階 → 301 flip timing (design R4): the `DomainMigrationBanner` Export-JSON bake must have been exposed to GH-Pages-origin anonymous players first. Owner judgment.
+- [x] 0.2 GitHub Pages 二階 → 301 flip timing (design R4) — **owner confirmed OK to flip** (2026-06-03): the `DomainMigrationBanner` Export-JSON bake has been exposed to GH-Pages-origin anonymous players long enough. Unblocks §5.3b + §6.
 
 ## 1. Edge-router spike (gate before deploy lock)
 
@@ -36,18 +36,19 @@
 
 ## 5. Original monorepo pipeline cleanup (modifies `deploy-pipeline`)
 
-- [ ] 5.1 Remove the `{ src: 'apps/medexam2-hospital-tw/dist', dest: '2nd' }` entry from `scripts/build-cf-pages-dist.mjs` `ROUTES`.
-- [ ] 5.2 Remove `medexam2-hospital-tw` from `build:cf` / `deploy:cf` (and drop `dev:m2` / `build:m2` if the app is gone from the workspace).
-- [ ] 5.3 Remove the 二階 build + subpath merge from `.github/workflows/deploy.yml` and `.github/workflows/deploy-cf-pages.yml`.
-- [ ] 5.4 Verify the combined CF deploy emits no `dist-cf/2nd/`; confirm 一階 (+ neurons) still deploy green — `gh run list --branch main --limit 5` shows both "Deploy to GitHub Pages" and "Deploy Cloudflare Pages" green.
+- [x] 5.1 Removed the `{ src: 'apps/medexam2-hospital-tw/dist', dest: '2nd' }` entry from `scripts/build-cf-pages-dist.mjs` `ROUTES` (+ updated the input/output docstring). `_redirects` + copy loop iterate ROUTES, so no `dist-cf/2nd/` dir and no `/2nd/` rewrite rule are emitted.
+- [x] 5.2 Removed the 二階 segment from `build:cf` (`deploy:cf` needs no edit — it only calls `build:cf`). **Kept `dev:m2` / `build:m2`**: the app dir `apps/medexam2-hospital-tw/` is still present in the original monorepo (the split *copied* it to the standalone repo, did not delete), so per the conditional the local-dev scripts stay until a separate change removes the dormant app dir.
+- [x] 5.3a (CF side, safe now) Removed the "Build 二階" step from `.github/workflows/deploy-cf-pages.yml` (+ updated header comment). Safe because the edge-router Worker already owns `med-study-rpg.com/2nd/*` (§4), so the combined project's `/2nd/` was fully shadowed dead weight.
+- [x] 5.3b (GH side — done now: §0.2 bake confirmed OK by owner) Removed the "Build 二階 app" + "Merge 二階 dist into 一階 dist subpath" steps from `.github/workflows/deploy.yml` (replaced with an explanatory comment). Landed atomically with §6.1 below so GH `/study-rpg/hospital/` transitions cleanly from "serve bundle" → "301 redirect" with no 404 gap. GH Pages now builds 一階 only (neurons not published to GH Pages).
+- [ ] 5.4 Local structural verify done (ROUTES drives both copy + `_redirects`; `node --check` passes; no `medexam2`/`/2nd/` left in active CF config — only explanatory comments). Full `gh run list --branch main --limit 5` "both green" check requires post-merge CI (the merge gate).
 
 ## 6. GitHub Pages 二階 → 301 (modifies `deploy-pipeline`)
 
-- [ ] 6.1 Update `apps/medexam-tw/public/404.html`: for `/study-rpg/hospital/...` paths, 301-equivalent redirect to `https://med-study-rpg.com/2nd/` (sub-route preserved where feasible) instead of the HashRouter restore. Leave the 一階 `pathSegmentsToKeep = 1` logic for non-hospital paths untouched. Gate on §0.2 bake timing.
-- [ ] 6.2 Verify `https://fireman333.github.io/study-rpg/hospital/` (and a sub-route) redirect to `med-study-rpg.com/2nd/` and no longer serve a 二階 bundle.
+- [x] 6.1 Updated `apps/medexam-tw/public/404.html`: the `/study-rpg/hospital[/...]` branch now `location.replace`-redirects (301-equivalent, no back-button trap) to `https://med-study-rpg.com/2nd/`. Regex widened to `^\/study-rpg\/hospital(?:\/(.*))?$` so bare `/hospital` + `/hospital/` also match (previously fell through to the 一階 restore). Sub-route preserved: a hash deep-link (`#/bookmarks`) carried as-is, a path-style sub converted to `#/<sub>` (standalone app is HashRouter). 一階 `pathSegmentsToKeep = 1` else-branch untouched.
+- [ ] 6.2 Verify `https://fireman333.github.io/study-rpg/hospital/` (and a sub-route) redirect to `med-study-rpg.com/2nd/` and no longer serve a 二階 bundle. **Post-merge** — GH Pages only rebuilds on `main` push, so this verifies after the merge gate.
 
 ## 7. Docs + final verification
 
-- [ ] 7.1 Verify OAuth redirect allowlist + Supabase Site URL need NO change (origin stays `med-study-rpg.com`); reconcile against `docs/AUTH_REDIRECT_URIS.md` (design R6) — confirm, don't assume.
-- [ ] 7.2 Update deploy-topology docs: root `CLAUDE.md` + `openspec/project.md` deploy table, and the new repo's README (document the npm-core publish→bump loop, design D1/R2).
-- [ ] 7.3 Final invariant check: backend untouched (sync Worker / R2 / D1 / KV / Supabase Auth), saves seamless, `/2nd/` URL unchanged, old GH hospital link 301s. Rollback path (design Migration Plan) documented and reversible.
+- [x] 7.1 Confirmed (not assumed) against `docs/AUTH_REDIRECT_URIS.md`: standalone 二階 origin stays `med-study-rpg.com/2nd/` (edge-router preserves URL) which is **already** in the Additional Redirect URLs allowlist; OAuth callback (`…supabase.co/auth/v1/callback`) is the same Supabase project → **no Supabase / Google config change needed**. §4.3 already proved seamless sign-in (no re-login). Added a note to the doc recording that the `/study-rpg/hospital/**` allowlist entry is now moot (301-only path) but harmless, removed with the other GH entries at bake-end.
+- [x] 7.2 Updated monorepo deploy-topology docs: root `CLAUDE.md` deploy table (GH 二階 → 301, CF combined = 一階+neurons only, + new "二階 standalone deploy" subsection with the npm-core publish→bump loop + 2-phase rollback per design Migration Plan) + `openspec/project.md` Roadmap (new `split-medexam2-standalone` row). **New repo's README** (`~/coding-scratch/study-rpg-2nd`) is a *separate* git repo / working tree — flagged for the owner to update there (out of this monorepo's scope; not edited cross-repo without confirm).
+- [ ] 7.3 Invariant check: backend untouched (sync Worker / R2 / D1 / KV / Supabase Auth) — confirmed, no backend file in this change's diff; saves seamless + `/2nd/` URL unchanged — confirmed prod §4.3; rollback path documented (`CLAUDE.md` subsection + design Migration Plan, 2-phase). **Old GH `/hospital/` → 301 verifies POST-MERGE** (= §6.2; GH Pages only rebuilds on `main` push). This task closes after the merge gate + prod smoke.

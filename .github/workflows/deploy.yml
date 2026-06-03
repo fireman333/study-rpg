@@ -60,25 +60,10 @@ jobs:
           VITE_DEPLOY_TARGET: gh-pages
         run: pnpm --filter @study-rpg/medexam-tw build
 
-      - name: Build 二階 app
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_COMMIT_SHA: ${{ github.sha }}
-          VITE_CLOUD_SYNC_ENABLED: 'true'
-          # R2 migration flags — same as 一階 build above; both apps share
-          # the Supabase project + Worker, so flag values are identical.
-          VITE_CLOUD_SYNC_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_BACKEND }}
-          VITE_CLOUD_SYNC_READ_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_READ_BACKEND }}
-          VITE_SYNC_WORKER_URL: ${{ secrets.VITE_SYNC_WORKER_URL }}
-          # Bake-period flag — see 一階 build step for rationale.
-          VITE_DEPLOY_TARGET: gh-pages
-        run: pnpm --filter @study-rpg/medexam2-hospital-tw build
-
-      - name: Merge 二階 dist into 一階 dist subpath
-        run: |
-          mkdir -p apps/medexam-tw/dist/hospital
-          cp -r apps/medexam2-hospital-tw/dist/. apps/medexam-tw/dist/hospital/
+      # 二階 (/hospital/) is no longer built or merged here. It ships from its
+      # own standalone repo + CF project (med-study-rpg.com/2nd/); the old GH
+      # Pages path /study-rpg/hospital/ now 301-redirects there via
+      # apps/medexam-tw/public/404.html (split-medexam2-standalone §5.3b/§6).
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

@@ -1,9 +1,12 @@
 name: Deploy Cloudflare Pages
 
-# Deploys both apps to Cloudflare Pages (med-study-rpg.com/1st/ + /2nd/) when
-# main updates. The CF Pages project is configured in **Direct Upload** mode
-# (Git Provider: No), so the dashboard does NOT auto-deploy on git push —
-# this workflow is what bridges the gap.
+# Deploys the combined CF Pages project (med-study-rpg.com/1st/ + /neurons/)
+# when main updates. 二階 (/2nd/) ships from its own standalone repo + CF
+# project (med-study-rpg-2nd), fronted by the edge-router Worker on
+# med-study-rpg.com/2nd/* — it is NOT built here (split-medexam2-standalone §5).
+# The CF Pages project is configured in **Direct Upload** mode (Git Provider:
+# No), so the dashboard does NOT auto-deploy on git push — this workflow is
+# what bridges the gap.
 #
 # Required repo secrets (Settings → Secrets and variables → Actions):
 #   CF_API_TOKEN     Cloudflare API token. Scopes needed for THIS workflow:
@@ -70,18 +73,6 @@ jobs:
           # VITE_DEPLOY_TARGET intentionally NOT set — banner must stay
           # hidden on the new domain.
         run: pnpm --filter @study-rpg/medexam-tw build
-
-      - name: Build 二階 (medexam2-hospital-tw) for /2nd/
-        env:
-          VITE_DEPLOY_BASE: /2nd/
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_CLOUD_SYNC_ENABLED: 'true'
-          VITE_COMMIT_SHA: ${{ github.sha }}
-          VITE_CLOUD_SYNC_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_BACKEND }}
-          VITE_CLOUD_SYNC_READ_BACKEND: ${{ secrets.VITE_CLOUD_SYNC_READ_BACKEND }}
-          VITE_SYNC_WORKER_URL: https://api.med-study-rpg.com
-        run: pnpm --filter @study-rpg/medexam2-hospital-tw build
 
       # neurons-tw scaffold (M_3rd). Currently auth-less / sync-less, so only
       # VITE_DEPLOY_BASE + VITE_COMMIT_SHA are needed. Added 2026-05-25 to

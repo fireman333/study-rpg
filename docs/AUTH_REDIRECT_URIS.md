@@ -43,6 +43,14 @@ The `/neurons/**` entry is required for M_3rd neurons-tw OAuth callback per spec
 the `/neurons/` subpath using the shared Supabase project"). Added by change
 `add-neurons-deploy`.
 
+As of `split-medexam2-standalone` (§6), `https://fireman333.github.io/study-rpg/hospital/`
+no longer serves the 二階 app — it 301-redirects to `https://med-study-rpg.com/2nd/`.
+The `/study-rpg/hospital/**` allowlist entry above is therefore **moot** (no OAuth
+callback lands on that path anymore) but harmless; it is removed alongside the other
+GH-Pages entries in the bake-end follow-up below. The standalone 二階's origin is
+unchanged (`med-study-rpg.com/2nd/`, already allowlisted), so the split itself needs
+**no** Supabase / Google OAuth config change.
+
 ### Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client
 
 **Authorized redirect URIs** (Supabase handles the OAuth dance; the only entry

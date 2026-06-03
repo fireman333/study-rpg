@@ -17,7 +17,7 @@
     "build:neurons": "pnpm --filter @study-rpg/neurons-tw build",
     "build:content": "pnpm --filter @study-rpg/content-medexam-tw build",
     "build:neurons-content": "pnpm --filter @study-rpg/content-neurons-tw build",
-    "build:cf": "VITE_DEPLOY_BASE=/1st/ pnpm --filter @study-rpg/medexam-tw build && VITE_DEPLOY_BASE=/2nd/ VITE_SYNC_WORKER_URL=https://api.med-study-rpg.com pnpm --filter @study-rpg/medexam2-hospital-tw build && VITE_DEPLOY_BASE=/neurons/ VITE_SYNC_WORKER_URL=https://api.med-study-rpg.com pnpm --filter @study-rpg/neurons-tw build && node scripts/build-cf-pages-dist.mjs",
+    "build:cf": "VITE_DEPLOY_BASE=/1st/ pnpm --filter @study-rpg/medexam-tw build && VITE_DEPLOY_BASE=/neurons/ VITE_SYNC_WORKER_URL=https://api.med-study-rpg.com pnpm --filter @study-rpg/neurons-tw build && node scripts/build-cf-pages-dist.mjs",
     "deploy:cf": "pnpm run build:cf && wrangler pages deploy dist-cf --project-name med-study-rpg --branch main --commit-dirty=true",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
