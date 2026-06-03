@@ -63,11 +63,20 @@
 //        local instances (the v13 upgrade already expanded legacy copies). The
 //        promote counters (`promoteCount` / `rarestPromotedRank`) stay LOCAL meta
 //        (achievement ROWS sync via the achievements table).
+//   v12 — promote-maze-to-home 2026-06-03: maze economy goes per-branch + synced.
+//        Adds 8 meta keys to the allowlist — `maze:<branch>:earned` (faucet) +
+//        `maze:<branch>:settles` (pull count) for DA/5HT/GABA/Glu — all MONOTONIC
+//        (MAX-merge post-pass). No new Dexie store (meta kv). Additive +
+//        reader-tolerant: a v11 client reading a v12 bundle drops the new keys; a
+//        v12 client reading a v11 bundle treats absent per-branch keys as 0 (the
+//        frontier recomputes; collected variants — hence the dex — are unaffected).
+//        The retired global `neuralEnergyEarned/Spent` keys remain present-but-
+//        unused for rollback safety.
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 11
+export const SCHEMA_VERSION = 12
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

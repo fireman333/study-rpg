@@ -359,9 +359,22 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'activeSquad',
   // Neural-energy pull currency (Collection 2.0). Two MONOTONIC counters; the
   // real merge is the MAX-merge post-pass in backfill/counters.ts (balance =
-  // earned − spent). Listed here so they ride the bundle meta snapshot/apply.
+  // earned − spent). RETIRED by promote-maze-to-home (manual pull removed) but
+  // kept here present-but-unused for reader tolerance / rollback safety.
   'neuralEnergyEarned',
   'neuralEnergySpent',
+  // Maze per-branch energy economy (promote-maze-to-home / Model A). Per-branch
+  // MONOTONIC counters (earned faucet + settle/pull count); MAX-merge post-pass
+  // in backfill/counters.ts converges them cross-device. Listed here so they
+  // ride the bundle meta snapshot/apply.
+  'maze:da:earned',
+  'maze:5ht:earned',
+  'maze:gaba:earned',
+  'maze:glu:earned',
+  'maze:da:settles',
+  'maze:5ht:settles',
+  'maze:gaba:settles',
+  'maze:glu:settles',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {

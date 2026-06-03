@@ -1,27 +1,31 @@
 /**
- * /maze-beta — brain-maze exploration view, multi-branch
- * (expand-neurons-brain-maze-all-branches; generalizes the DA-only slice).
+ * MazeBrainMap — the homepage centerpiece (promote-maze-to-home / Model A).
  *
- * Four NT regions (DA / 5HT / GABA / Glu) z-stacked on a shared brain outline
- * (always visible). Filter chips toggle each branch's tract layer + nodes + walker
- * (display-only — hidden branches still accrue/settle, design D11). Per branch the
- * dimmed basemap is fog; lit (collected) nodes reveal with their grown axon
- * (root→node walk) drawn bright; the walker (rarest collected variant of that
- * branch, or a growth-cone fallback) advances toward the next fogged node as growth
- * signal accrues. Colour-blind-safe encoding: colour + node-shape per branch (solid
- * pixelated tracts, all four distinct). Pure count chip 「🧠 已連線 X 個腦區」 — no
- * denominator, no completion milestone (open-collection paradigm, design D5).
+ * Presentational render of the four-region brain-maze, extracted from the former
+ * /maze-beta page so it can mount inside the homepage. It does NOT call useMaze
+ * itself — the page owns the single useMaze(pack) subscription and passes the
+ * `view` down (calling useMaze twice would double-fire reconcileSettles → double
+ * pulls). This component owns only view-only UI state (branch-filter visibility,
+ * expedition-animation toggle, synapse-overlay toggle) + the settle reveal chime.
  *
- * Independent route — does NOT touch the connectome / collection views (design D1).
+ * Phase 5 — the connectome synapse network is rendered as a read-only overlay on
+ * the brain frame: each formed synapse is an edge between its two families'
+ * node-cluster centroids, edge weight reflecting state (dormant/weak/strong). The
+ * overlay is render-only (never mutates synapse state) and toggleable, consistent
+ * with the branch-filter chip model (design D2; OE-grounded — functional
+ * connectivity overlaid on the structural tract map).
  */
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import type { ContentPack } from '@study-rpg/core'
+import { liveQuery } from 'dexie'
 import type { NtBranchId } from '@study-rpg/content-neurons-tw'
-import VariantSprite from '../components/VariantSprite'
-import MazeExpedition from '../components/MazeExpedition'
-import { useMaze, type BranchViewState } from '../lib/maze/useMaze'
-import { walkerFraction } from '../lib/maze/economy'
-import { NT_BRANCHES, nodeKey, pointAtFraction, type MazeNode } from '../lib/maze/graph'
+import VariantSprite from '../VariantSprite'
+import MazeExpedition from '../MazeExpedition'
+import { db, type SynapseState } from '../../lib/db'
+import { decodePairKey } from '../../lib/services/connectome'
+import { useRespectsReducedMotion } from '../../lib/motion'
+import { walkerFraction } from '../../lib/maze/economy'
+import { MAZE_GRAPHS, NT_BRANCHES, nodeKey, pointAtFraction, type MazeNode } from '../../lib/maze/graph'
+import type { BranchViewState, MazeViewState } from '../../lib/maze/useMaze'
 
 // SVG canvas units (3:2 to match the 1536×1024 base images; normalized → these).
 const VW = 150
@@ -29,9 +33,9 @@ const VH = 100
 const sx = (x: number) => x * VW
 const sy = (y: number) => y * VH
 
-const outlineUrl = new URL('../assets/maze/brain-outline.png', import.meta.url).href
+const outlineUrl = new URL('../../assets/maze/brain-outline.png', import.meta.url).href
 /** Filled brain-silhouette mask (white = brain) — tracts clip to the actual brain shape. */
-const maskUrl = new URL('../assets/maze/brain-mask.png', import.meta.url).href
+const maskUrl = new URL('../../assets/maze/brain-mask.png', import.meta.url).href
 
 type NodeShape = 'circle' | 'diamond' | 'square' | 'triangle'
 
@@ -122,23 +126,67 @@ function GrowthConeGlyph({ size, color }: { size: number; color: string }): JSX.
   )
 }
 
-const pageStyle: CSSProperties = {
-  padding: '1.25rem 1rem 3rem',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
-  color: '#e6e6fa',
-  background: '#0b0a1f',
-  minHeight: '100vh',
+// --- Synapse overlay: family node-cluster centroids on the shared brain frame ---
+// Static (graphs never move at runtime). Each family's centroid = mean of its
+// nodes' normalized (x,y) in the canonical brain frame; the overlay draws an edge
+// between the two co-firing families' centroids per formed synapse.
+const FAMILY_CENTROIDS: Map<string, [number, number]> = (() => {
+  const acc = new Map<string, { x: number; y: number; n: number }>()
+  for (const branch of NT_BRANCHES) {
+    for (const node of MAZE_GRAPHS[branch].nodes) {
+      const cur = acc.get(node.familyId) ?? { x: 0, y: 0, n: 0 }
+      cur.x += node.x
+      cur.y += node.y
+      cur.n += 1
+      acc.set(node.familyId, cur)
+    }
+  }
+  const out = new Map<string, [number, number]>()
+  for (const [fam, v] of acc) out.set(fam, [v.x / v.n, v.y / v.n])
+  return out
+})()
+
+/** Edge visual weight per synapse state (functional-connectivity overlay). */
+const SYNAPSE_EDGE: Record<SynapseState, { opacity: number; width: number }> = {
+  dormant: { opacity: 0.16, width: 0.35 },
+  weak: { opacity: 0.45, width: 0.7 },
+  strong: { opacity: 0.85, width: 1.15 },
 }
-const stageStyle: CSSProperties = {
-  position: 'relative',
-  width: '100%',
-  maxWidth: 760,
-  margin: '1rem auto 0',
-  aspectRatio: '3 / 2',
-  borderRadius: 12,
-  overflow: 'hidden',
-  background: '#070617',
-  boxShadow: '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
+const SYNAPSE_COLOR = '#a9e8ff' // bright cyan-white — functional links, distinct from coloured structural tracts
+
+interface SynapseEdgeDatum {
+  pairKey: string
+  state: SynapseState
+  a: [number, number]
+  b: [number, number]
+}
+
+/** Live read-only synapse rows → drawable edges between family centroids. */
+function useSynapseEdges(): SynapseEdgeDatum[] {
+  const [edges, setEdges] = useState<SynapseEdgeDatum[]>([])
+  useEffect(() => {
+    const sub = liveQuery(() => db.synapses.toArray()).subscribe({
+      next: (rows) => {
+        const out: SynapseEdgeDatum[] = []
+        for (const s of rows) {
+          let pair: [string, string]
+          try {
+            pair = decodePairKey(s.pairKey)
+          } catch {
+            continue
+          }
+          const a = FAMILY_CENTROIDS.get(pair[0])
+          const b = FAMILY_CENTROIDS.get(pair[1])
+          if (!a || !b) continue // family not on the brain frame (unmapped) — skip
+          out.push({ pairKey: s.pairKey, state: s.state, a, b })
+        }
+        setEdges(out)
+      },
+      error: (err) => console.warn('[maze] synapse overlay query failed:', err),
+    })
+    return () => sub.unsubscribe()
+  }, [])
+  return edges
 }
 
 const overlayAt = (x: number, y: number, size: number): CSSProperties => ({
@@ -151,9 +199,11 @@ const overlayAt = (x: number, y: number, size: number): CSSProperties => ({
   pointerEvents: 'none',
 })
 
-export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Element {
-  const view = useMaze(pack)
+export default function MazeBrainMap({ view }: { view: MazeViewState }): JSX.Element {
+  const reducedMotion = useRespectsReducedMotion()
+  const synapseEdges = useSynapseEdges()
   const [visible, setVisible] = useState<Set<NtBranchId>>(() => new Set(NT_BRANCHES))
+  const [synapseOverlayOn, setSynapseOverlayOn] = useState(true)
   const [expeditionOn, setExpeditionOn] = useState(() => {
     try { return localStorage.getItem('neurons:maze:expeditionShown') === '1' } catch { return false }
   })
@@ -188,80 +238,66 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
   const shownBranches = view.branches.filter((b) => visible.has(b.branch))
 
   return (
-    <section style={pageStyle}>
-      <header style={{ maxWidth: 760, margin: '0 auto' }}>
-        <h1 style={{ fontSize: '1.4rem', margin: 0 }}>
-          🧠 腦內迷宮 <span style={{ fontSize: '0.7rem', color: '#ffb33e' }}>BETA</span>
-        </h1>
-        <p style={{ color: '#9a96c8', fontSize: '0.85rem', margin: '0.35rem 0 0' }}>
-          唸書與答對讓各神經傳導物路徑的 growth cone 沿白質束探索 — 抵達腦區點亮收集。四套系統交織於同一顆腦。
-        </p>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 10, flexWrap: 'wrap' }}>
-          <span
-            style={{
-              background: '#15132e',
-              border: '1px solid #2a2750',
-              borderRadius: 999,
-              padding: '4px 12px',
-              fontSize: '0.95rem',
-            }}
-          >
-            🧠 已連線 {view.totalConnectedCount} 個腦區
-          </span>
-          <button
-            type="button"
-            aria-pressed={expeditionOn}
-            onClick={() => setExpedition(!expeditionOn)}
-            style={{
-              border: `1px solid ${expeditionOn ? '#ffb33e' : '#2a2750'}`,
-              background: expeditionOn ? '#ffb33e22' : '#120f29',
-              color: expeditionOn ? '#ffd98a' : '#9a96c8',
-              borderRadius: 999,
-              padding: '4px 14px',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
-            {expeditionOn ? '🚀 隱藏遠征動畫' : '🚀 顯示遠征動畫'}
-          </button>
-        </div>
+    <section style={panelStyle} aria-label="腦內迷宮（互動）">
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span style={countChipStyle}>🧠 已連線 {view.totalConnectedCount} 個腦區</span>
+        <button
+          type="button"
+          aria-pressed={synapseOverlayOn}
+          onClick={() => setSynapseOverlayOn((v) => !v)}
+          style={chipToggleStyle(synapseOverlayOn, SYNAPSE_COLOR)}
+          title="顯示／隱藏 synapse 功能連結覆蓋層"
+        >
+          🔗 {synapseOverlayOn ? '隱藏連結' : '顯示連結'}
+        </button>
+        <button
+          type="button"
+          aria-pressed={expeditionOn}
+          onClick={() => setExpedition(!expeditionOn)}
+          style={chipToggleStyle(expeditionOn, '#ffb33e')}
+        >
+          {expeditionOn ? '🚀 隱藏遠征動畫' : '🚀 顯示遠征動畫'}
+        </button>
+      </div>
 
-        {/* Branch filter chips — toggle each NT region's layer (display-only). */}
-        <div role="group" aria-label="神經傳導物路徑篩選" style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-          {view.branches.map((b) => {
-            const enc = ENCODING[b.branch]
-            const on = visible.has(b.branch)
-            return (
-              <button
-                key={b.branch}
-                type="button"
-                aria-pressed={on}
-                onClick={() => toggle(b.branch)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  border: `1px solid ${on ? enc.color : '#2a2750'}`,
-                  background: on ? `${enc.color}22` : '#120f29',
-                  color: on ? '#fff' : '#6f79ad',
-                  borderRadius: 999,
-                  padding: '3px 11px',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  opacity: on ? 1 : 0.7,
-                }}
-              >
-                <span style={{ width: 10, height: 10, borderRadius: '50%', background: enc.color, display: 'inline-block' }} />
-                {enc.label.split(' · ')[0]} · {b.connectedCount}
-              </button>
-            )
-          })}
-        </div>
-      </header>
+      <p style={hintStyle}>
+        唸書與答對讓各神經傳導物路徑的 growth cone 沿白質束探索 — 抵達腦區點亮並抽出一隻神經元。四套系統交織於同一顆腦。
+      </p>
 
-      {/* 遠征動畫帶 — 按「顯示遠征動畫」顯示，與 maze 同時播放；純裝飾，旅程本身一直在跑 */}
+      {/* Branch filter chips — toggle each NT region's layer (display-only). */}
+      <div role="group" aria-label="神經傳導物路徑篩選" style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+        {view.branches.map((b) => {
+          const enc = ENCODING[b.branch]
+          const on = visible.has(b.branch)
+          return (
+            <button
+              key={b.branch}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggle(b.branch)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                border: `1px solid ${on ? enc.color : '#2a2750'}`,
+                background: on ? `${enc.color}22` : '#120f29',
+                color: on ? '#fff' : '#6f79ad',
+                borderRadius: 999,
+                padding: '3px 11px',
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                opacity: on ? 1 : 0.7,
+              }}
+            >
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: enc.color, display: 'inline-block' }} />
+              {enc.label.split(' · ')[0]} · {b.connectedCount}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* 遠征動畫帶 — 按「顯示遠征動畫」顯示；純裝飾，旅程本身一直在跑 */}
       {expeditionOn && <MazeExpedition onHide={() => setExpedition(false)} />}
 
       <div style={stageStyle}>
@@ -296,7 +332,7 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
                   />
                 ))}
                 {/* walker trail toward the current fogged target (fainter pixels) */}
-                {b.target && <WalkerTrail target={b.target} frac={walkerFraction(b.signal)} color={enc.color} />}
+                {b.target && <WalkerTrail target={b.target} frac={walkerFraction(b.energy)} color={enc.color} />}
                 {/* lit nodes: branch-coloured shape with white edge (fog-of-war — unexplored hidden) */}
                 {b.litNodes.map((n) => (
                   <NodeMark key={`node-${n.familyId}-${n.slotIndex}`} x={n.x} y={n.y} color={enc.color} shape={enc.shape} />
@@ -309,13 +345,37 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
             )
           })}
           </g>
+
+          {/* Synapse functional-connectivity overlay (render-only; design D2). Drawn
+              above the structural tracts, between co-firing families' centroids. */}
+          {synapseOverlayOn && (
+            <g aria-label="synapse 功能連結覆蓋層">
+              {synapseEdges.map((e) => {
+                const w = SYNAPSE_EDGE[e.state]
+                return (
+                  <line
+                    key={`syn-${e.pairKey}`}
+                    x1={sx(e.a[0])}
+                    y1={sy(e.a[1])}
+                    x2={sx(e.b[0])}
+                    y2={sy(e.b[1])}
+                    stroke={SYNAPSE_COLOR}
+                    strokeWidth={w.width}
+                    strokeOpacity={w.opacity}
+                    strokeLinecap="round"
+                    style={{ transition: reducedMotion ? 'none' : 'stroke-opacity 240ms ease, stroke-width 240ms ease' }}
+                  />
+                )
+              })}
+            </g>
+          )}
         </svg>
 
         {/* HTML overlay: one frontier explorer sprite per visible branch */}
         {shownBranches.map((b) => (
           <div
             key={`walker-${b.branch}`}
-            style={{ ...overlayAt(b.walkerPos[0], b.walkerPos[1], 30), transition: 'left 240ms linear, top 240ms linear', zIndex: 5 }}
+            style={{ ...overlayAt(b.walkerPos[0], b.walkerPos[1], 30), transition: reducedMotion ? 'none' : 'left 240ms linear, top 240ms linear', zIndex: 5 }}
           >
             {b.walkerVariant ? (
               <VariantSprite row={b.walkerVariant} size={30} alt={`${ENCODING[b.branch].label} 探索領頭變體`} />
@@ -326,7 +386,7 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
         ))}
       </div>
 
-      <footer style={{ maxWidth: 760, margin: '12px auto 0', color: '#6f79ad', fontSize: '0.78rem' }}>
+      <div style={legendStyle}>
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
           {view.branches.map((b) => {
             const enc = ENCODING[b.branch]
@@ -339,11 +399,66 @@ export default function MazeBetaPage({ pack }: { pack: ContentPack }): JSX.Eleme
           })}
         </div>
         <p style={{ margin: '6px 0 0' }}>
-          霧中的腦區尚未探索 — 不預顯形狀或稀有度。抵達後揭曉並點亮。用上方晶片切換顯示的路徑。
+          霧中的腦區尚未探索 — 不預顯形狀或稀有度。抵達後揭曉並點亮。🔗 連結是各科共同放電長出的 synapse。
         </p>
-      </footer>
+      </div>
     </section>
   )
+}
+
+const panelStyle: CSSProperties = {
+  background: '#0b0a1f',
+  border: '2px solid #1d1b3a',
+  borderRadius: 12,
+  padding: '0.85rem 1rem 1rem',
+  marginBottom: '1rem',
+  color: '#e6e6fa',
+  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+}
+
+const countChipStyle: CSSProperties = {
+  background: '#15132e',
+  border: '1px solid #2a2750',
+  borderRadius: 999,
+  padding: '4px 12px',
+  fontSize: '0.95rem',
+}
+
+const chipToggleStyle = (on: boolean, accent: string): CSSProperties => ({
+  border: `1px solid ${on ? accent : '#2a2750'}`,
+  background: on ? `${accent}22` : '#120f29',
+  color: on ? '#fff' : '#9a96c8',
+  borderRadius: 999,
+  padding: '4px 14px',
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+})
+
+const hintStyle: CSSProperties = {
+  color: '#9a96c8',
+  fontSize: '0.82rem',
+  margin: '0.55rem 0 0',
+  lineHeight: 1.5,
+}
+
+const stageStyle: CSSProperties = {
+  position: 'relative',
+  width: '100%',
+  maxWidth: 760,
+  margin: '0.75rem auto 0',
+  aspectRatio: '3 / 2',
+  borderRadius: 12,
+  overflow: 'hidden',
+  background: '#070617',
+  boxShadow: '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
+}
+
+const legendStyle: CSSProperties = {
+  maxWidth: 760,
+  margin: '12px auto 0',
+  color: '#6f79ad',
+  fontSize: '0.78rem',
 }
 
 let audioCtx: AudioContext | null = null

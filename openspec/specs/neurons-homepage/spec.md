@@ -8,25 +8,24 @@ Defines the composition and behavior of the neurons-tw homepage (`/`): a hook re
 
 ### Requirement: Homepage SHALL render the interactive connectome tree as its centerpiece in a fixed-height contained-scroll panel
 
-The neurons-tw homepage (`/`) SHALL render the real labeled connectome tree (`ConnectomeTreeSvg`) as its interactive centerpiece by passing `interactive={true}`, mounted inside a **fixed-height panel**. Zooming SHALL be reachable via `ctrl`/`⌘`+wheel, two-finger pinch, and the `+` / `−` / 重置 toolbar buttons; node-drag SHALL reposition nodes and empty-canvas drag SHALL pan. A plain (unmodified) wheel over the panel SHALL scroll the page normally — the tall panel SHALL NOT trap page scroll (the Google-Maps-embed pattern), and `overscroll-behavior` containment SHALL prevent the tree from hijacking page scroll. The tree SHALL NOT be a navigation link (no `navigate('/connectome')`) — it is the homepage itself, not a thumbnail. The force-sim layout pass SHALL be allowed to run only until it self-settles (its rAF loop stops when stable).
+The neurons-tw homepage (`/`) SHALL render the **maze brain-map** (the four-region fog-of-war exploration view, per `neurons-brain-maze`) as its interactive centerpiece, mounted inside a **fixed-height panel**. The maze's own interaction model SHALL apply: per-branch frontier exploration, branch-filter chips, walker sprites, fog-of-war reveal, and the synapse overlay (per the `neurons-brain-maze` "Synapse network overlay" requirement). A plain (unmodified) wheel over the panel SHALL scroll the page normally — the panel SHALL NOT trap page scroll, and `overscroll-behavior` containment SHALL prevent the maze from hijacking page scroll. The connectome tree (`ConnectomeTreeSvg`) SHALL NOT be the homepage centerpiece and SHALL NOT be mounted on `/`.
 
-#### Scenario: Tree is interactive on the homepage
-- **WHEN** the user drags a node, pinches, or uses the toolbar over the tree panel on the homepage
-- **THEN** the tree pans / zooms (the homepage embed passes `interactive={true}`) and the zoom toolbar is present
+#### Scenario: Maze is the interactive centerpiece on the homepage
+- **WHEN** the homepage `/` renders
+- **THEN** the maze brain-map renders as the interactive centerpiece with its exploration UI (frontier / branch-filter chips / walkers / fog / synapse overlay)
+- **AND** the `ConnectomeTreeSvg` connectome tree is not mounted as the centerpiece
 
 #### Scenario: Panel does not trap page scroll
-- **WHEN** the user plain-wheel-scrolls (no modifier) with the pointer over the tree panel
-- **THEN** the page scrolls normally and the tree does NOT zoom or trap the scroll
-- **AND WHEN** the user `ctrl`/`⌘`+wheels, pinches, or clicks the `+` / `−` buttons
-- **THEN** the tree zooms
+- **WHEN** the user plain-wheel-scrolls (no modifier) with the pointer over the maze panel
+- **THEN** the page scrolls normally and the maze does NOT trap the scroll
 
-#### Scenario: Tree is not a navigation link
-- **WHEN** the user clicks a family node or empty area inside the tree
-- **THEN** the app does NOT navigate to `/connectome` (the route no longer exists) and stays on `/`
-
-#### Scenario: Tree is responsive on mobile
+#### Scenario: Maze centerpiece is responsive on mobile
 - **WHEN** the homepage is viewed below 768px width
-- **THEN** the tree panel remains legible and within viewport without horizontal overflow, retaining contained-scroll behavior
+- **THEN** the maze panel remains legible and within viewport without horizontal overflow, retaining contained-scroll behavior
+
+#### Scenario: Direct URL and F5 render the maze homepage
+- **WHEN** the user navigates directly to `/` or presses F5 on `/`
+- **THEN** the maze homepage renders fully (centerpiece + companion surfaces), not a 404 or blank shell
 
 ### Requirement: Homepage SHALL display a cap-aware "next DMN draw" progress ring driven by real reading-timer data
 
@@ -46,16 +45,26 @@ The homepage SHALL replace the prose rule line describing DMN draw timing with a
 
 ### Requirement: Homepage SHALL compose as a CTA toolbar over the interactive tree panel over the family-detail grid
 
-The homepage SHALL present, top to bottom: (1) a **CTA toolbar** containing the reading-timer toggle and the 🎲 cross-family random-quiz entry, visually grouped with the tree's zoom controls; (2) the **fixed-height interactive tree panel**; (3) a **single per-NT-branch family grid** — the `FamilyPicker` enriched to carry BOTH the per-family quiz entry (🎯 答題) AND the connectome detail (AP + next-slot threshold + mastery + variant-collection chips + `firedToday` badge). There SHALL be exactly one family-card grid (the prior separate read-only family-detail grid is folded into the enriched `FamilyPicker`, not duplicated). The `DmnDrawProgressRing`, the progress status chips, and the first-visit onboarding SHALL remain present. The dense synapse list table SHALL NOT be present anywhere in the app.
+The homepage SHALL present, top to bottom: (1) a **CTA toolbar** containing the reading-timer toggle, the 🎲 cross-family random-quiz entry, and the **⚔️ 出征 (全科錯題 expedition) entry** as a persistent CTA; (2) the **fixed-height interactive maze panel** (the brain-map centerpiece); (3) a **single per-NT-branch family grid** — the `FamilyPicker` enriched to carry BOTH the per-family quiz entry (🎯 答題) AND the family detail (AP + mastery + variant-collection chips + `firedToday` badge). There SHALL be exactly one family-card grid. The `DmnDrawProgressRing`, the progress status chips, and the first-visit onboarding SHALL remain present. Progress chips SHALL use the semantics 🧠 = reached maze nodes (= accumulated pull opportunities) and 🧬 = collected individual count. The dense synapse list table SHALL NOT be present anywhere in the app; synapse state is conveyed by the maze synapse overlay (and the existing formation/strengthening toast).
 
 #### Scenario: Single enriched family grid renders on the homepage
 - **WHEN** the homepage renders
-- **THEN** exactly one per-NT-branch family grid (4 branches DA / 5-HT / GABA / Glu) is present on `/`, each card showing AP + next slot threshold + mastery chip + variant-collection chip + the 🎯 答題 quiz entry
+- **THEN** exactly one per-NT-branch family grid (4 branches DA / 5-HT / GABA / Glu) is present on `/`, each card showing AP + mastery chip + variant-collection chip + the 🎯 答題 quiz entry
 - **AND** there SHALL NOT be a second, separate read-only family-detail grid
 
-#### Scenario: Synapse table is absent
+#### Scenario: Expedition CTA is present in the toolbar
 - **WHEN** the homepage renders
-- **THEN** no synapse list table is present anywhere in the app (synapse state is conveyed only by the tree edges + hover tooltip)
+- **THEN** the CTA toolbar contains the reading-timer toggle, the 🎲 random-quiz entry, AND the ⚔️ 出征 entry
+- **AND** triggering 出征 opens the cross-subject wrong-question expedition flow
+
+#### Scenario: Progress chips use node + collection semantics
+- **WHEN** the homepage renders the progress chips
+- **THEN** the 🧠 chip reads reached-maze-node count (no denominator) and the 🧬 chip reads collected individual count (no denominator)
+
+#### Scenario: Synapse table is absent; synapse conveyed by the maze overlay
+- **WHEN** the homepage renders
+- **THEN** no synapse list table is present anywhere in the app
+- **AND** synapse state is conveyed by the maze synapse overlay (and the existing formation/strengthening toast)
 
 ### Requirement: Homepage SHALL surface a one-tap-dismissable first-visit onboarding that never reappears once dismissed
 

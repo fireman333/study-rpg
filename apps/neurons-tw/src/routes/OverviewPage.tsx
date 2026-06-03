@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
-import { NEURON_VARIANT_TOTAL } from '@study-rpg/content-neurons-tw'
-import { initMasteryForPack } from '../lib/services/connectome'
+import { initMasteryForPack, runDailyResetIfNeeded } from '../lib/services/connectome'
 import LeaderboardPromoBanner from '../components/LeaderboardPromoBanner'
 import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncementBanner'
 import { QuizModal } from '../components/QuizModal'
 import { FamilyPicker, type FamilyAccrual } from '../components/FamilyPicker'
-import { ConnectomeTreeSvg } from '../components/connectome/ConnectomeTreeSvg'
+import MazeBrainMap from '../components/maze/MazeBrainMap'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
 import StudySquadPanel from '../components/StudySquadPanel'
@@ -18,6 +17,7 @@ import { useQuestionHistory } from '../lib/services/question-history'
 import { buildWrongQuestionPool, onExpeditionComplete } from '../lib/services/expedition'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { YearFilterBar } from '../components/YearFilterBar'
+import { useMaze } from '../lib/maze/useMaze'
 import { db } from '../lib/db'
 
 interface Props {
@@ -26,8 +26,6 @@ interface Props {
 
 interface ProgressStats {
   variants: number
-  synapsesStrong: number
-  synapsesWeak: number
   dmnOwned: number
 }
 
@@ -42,15 +40,14 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // cross-subject wrong-question pool. (add-neurons-study-squad)
   const [expeditionOpen, setExpeditionOpen] = useState(false)
   const [totalStudyMin, setTotalStudyMin] = useState(0)
-  const [stats, setStats] = useState<ProgressStats>({
-    variants: 0,
-    synapsesStrong: 0,
-    synapsesWeak: 0,
-    dmnOwned: 0,
-  })
-  const [synapseCount, setSynapseCount] = useState(0)
+  const [stats, setStats] = useState<ProgressStats>({ variants: 0, dmnOwned: 0 })
   const [accrualByFamily, setAccrualByFamily] = useState<Map<string, FamilyAccrual>>(new Map())
   const timer = useReadingTimer()
+
+  // Single useMaze subscription for the homepage (it runs reconcileSettles →
+  // pulls; mounting it twice would double-fire). MazeBrainMap is presentational
+  // and consumes this view.
+  const mazeView = useMaze(pack)
 
   const persistedYears = useYearFilter()
   const yearSet = useMemo(() => effectiveYearSet(persistedYears), [persistedYears])
@@ -86,18 +83,23 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     initMasteryForPack(pack).catch(() => {
       // Non-fatal: chips fall back to 0/0 display until next load
     })
+    // The maze is the homepage now; the connectome tree no longer mounts to drive
+    // the daily reset. Run it once on homepage open so synapse decay still ticks
+    // for a user who opens the app without answering a question that day.
+    // (recordCorrectAnswer also runs it in-tx, so this only matters for view-only days.)
+    runDailyResetIfNeeded().catch(() => {
+      // Non-fatal: decay will run on the next correct answer's in-tx reset.
+    })
   }, [pack])
 
   useEffect(() => {
-    // Read-only table reads — do NOT call loadConnectome() here: it runs the
-    // daily-reset WRITE transaction, which Dexie liveQuery forbids inside its
-    // querier (throws DexieError → stats/synapseCount/accrual would never update).
-    // The daily reset is owned by ConnectomeTreeSvg's mount + recordCorrectAnswer.
+    // Read-only table reads (no daily-reset WRITE inside the liveQuery querier —
+    // Dexie forbids writes in a querier; the reset is owned by the mount effect
+    // above + recordCorrectAnswer).
     const sub = liveQuery(async () => {
-      const [variants, dmn, synapses, familyAccrual] = await Promise.all([
-        db.neuronVariants.toArray(),
-        db.dmnCards.toArray(),
-        db.synapses.toArray(),
+      const [variants, dmn, familyAccrual] = await Promise.all([
+        db.neuronVariants.count(),
+        db.dmnCards.count(),
         db.familyAccrual.toArray(),
       ])
       const accrual = new Map<string, FamilyAccrual>(
@@ -106,20 +108,10 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           { ap: r.ap, unlockedSlots: r.unlockedSlots, firedToday: r.firedToday },
         ]),
       )
-      return {
-        stats: {
-          variants: variants.length,
-          synapsesStrong: synapses.filter((s) => s.state === 'strong').length,
-          synapsesWeak: synapses.filter((s) => s.state === 'weak').length,
-          dmnOwned: dmn.length,
-        },
-        synapseCount: synapses.length,
-        accrual,
-      }
+      return { stats: { variants, dmnOwned: dmn }, accrual }
     }).subscribe({
       next: (val) => {
         setStats(val.stats)
-        setSynapseCount(val.synapseCount)
         setAccrualByFamily(val.accrual)
       },
       error: (err) => console.warn('[OverviewPage] stats query failed:', err),
@@ -138,6 +130,14 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const openRegularQuiz = (familyId: string | null): void => {
     setExpeditionOpen(false)
     setQuizEntry(familyId)
+  }
+
+  // Open the 出征 expedition drill (cross-subject wrong questions); mutually
+  // exclusive with the regular quiz.
+  const openExpedition = (): void => {
+    if (wrongCount === 0) return
+    setQuizEntry(undefined)
+    setExpeditionOpen(true)
   }
 
   const onTimerToggle = (): void => {
@@ -175,7 +175,8 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         </div>
       </header>
 
-      {/* ── CTA toolbar (above the tree): reading toggle + cross-family random quiz ── */}
+      {/* ── CTA toolbar (above the maze): reading toggle + cross-family random quiz
+            + 全科錯題 出征 (persistent expedition CTA, per neurons-homepage). ── */}
       <section style={quizCtaSectionStyle} aria-label="核心循環入口">
         <div style={ctaButtonRowStyle}>
           <button
@@ -194,49 +195,37 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             title={`從全部 ${totalPoolSize} 題隨機抽題`}
           >
             🎲 隨機跨 family 答題
-            <span style={randomQuizCountStyle}>{totalPoolSize} 題</span>
+            <span style={ctaCountBadgeStyle}>{totalPoolSize} 題</span>
+          </button>
+          <button
+            type="button"
+            style={wrongCount > 0 ? expeditionButtonStyle : expeditionButtonDisabledStyle}
+            onClick={openExpedition}
+            disabled={wrongCount === 0}
+            aria-label="出征：全科錯題練習"
+            title={
+              wrongCount > 0
+                ? `對你目前未答對的 ${wrongCount} 題出征`
+                : '目前沒有未答對的題目 — 先去答題吧'
+            }
+          >
+            ⚔️ 出征 · 全科錯題
+            <span style={ctaCountBadgeStyle}>{wrongCount} 題</span>
           </button>
         </div>
         <p style={quizCtaHintStyle}>
-          開始閱讀累積時間，或直接答題。下方點任何 family 卡片即可指定範圍練習。
+          開始閱讀累積能量，或直接答題。下方點任何 family 卡片即可指定範圍練習；走腦圖到節點即可抽出神經元。
         </p>
         <YearFilterBar />
       </section>
 
-      {/* ── Study squad: party + 出征 (add-neurons-study-squad). Sits above the
-            connectome tree as a deploy-from-the-map surface; its own block so it
-            never overlaps the SVG graph. ── */}
-      <StudySquadPanel
-        expeditionCount={wrongCount}
-        onExpedition={() => {
-          setQuizEntry(undefined)
-          setExpeditionOpen(true)
-        }}
-      />
+      {/* ── The maze brain-map IS the homepage centerpiece (promote-maze-to-home).
+            Fixed-height contained panel; the connectome tree no longer mounts here. ── */}
+      <MazeBrainMap view={mazeView} />
 
-      {/* ── First-visit guidance while the connectome is still empty (stateless;
-            auto-hides on first synapse). Replaces the old "0 連線" framing. ── */}
-      {synapseCount === 0 && (
-        <section role="region" aria-label="新手指引" style={emptyStateCalloutStyle}>
-          <strong style={emptyStateOpenerStyle}>👋 連結組還是空的 — 先 wire 出第一條 synapse</strong>
-          <p style={emptyStateBodyStyle}>
-            用上方 <strong>🎲 隨機跨 family 答題</strong>，或下方任一 family 卡片的 <strong>🎯 答題</strong> 開始作答。
-            同一天讓 <strong>兩個 family 各答對 5 題</strong>，就會 wire 出你的第一條 synapse，下面樹上的連線會亮起來。
-          </p>
-          <p style={emptyStateFlavorStyle}>
-            Hebbian rule — &ldquo;Neurons that fire together, wire together.&rdquo;
-          </p>
-        </section>
-      )}
-
-      {/* ── The connectome IS the homepage: fixed-height interactive tree panel.
-            When empty it reads as a dimmed skeleton of what the tree can grow into. ── */}
-      <div
-        style={synapseCount === 0 ? treePanelEmptyStyle : treePanelStyle}
-        aria-label="connectome 連結組（互動）"
-      >
-        <ConnectomeTreeSvg pack={pack} interactive panelHeight="min(72vh, 600px)" />
-      </div>
+      {/* ── Study squad: party + assembly editor (出征 itself now lives in the CTA
+            toolbar above). Sits below the maze as a deploy-from-the-map surface. ── */}
+      <StudySquadPanel />
 
       <DmnDrawProgressRing />
 
@@ -245,14 +234,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           <span style={statusEmojiStyle}>🧬</span>
           <span style={statusLabelStyle}>變體</span>
           <span style={statusValueStyle}>{stats.variants}</span>
-          <span style={statusMaxStyle}>/ {NEURON_VARIANT_TOTAL}</span>
-        </div>
-        <span style={statusSepStyle}>·</span>
-        <div style={statusItemStyle}>
-          <span style={statusEmojiStyle}>🔗</span>
-          <span style={statusLabelStyle}>Synapse</span>
-          <span style={statusValueStyle}>{stats.synapsesStrong}</span>
-          <span style={statusMaxStyle}>強 / {stats.synapsesWeak} 弱</span>
+          <span style={statusMaxStyle}>隻</span>
         </div>
         <span style={statusSepStyle}>·</span>
         <div style={statusItemStyle}>
@@ -281,7 +263,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       )}
 
       {/* 出征 (expedition) drill — cross-subject wrong questions. Its onComplete
-          fires the no-op reward seam (Phase 4 plugs in here). (add-neurons-study-squad) */}
+          fires the no-op reward seam. (add-neurons-study-squad) */}
       {expeditionOpen && (
         <QuizModal
           pool={expeditionPool}
@@ -368,52 +350,6 @@ const heroStyle: React.CSSProperties = {
   borderRadius: '6px',
 }
 
-// Fixed-height interactive tree panel — the connectome IS the homepage. Bounds
-// the tree so it's a centerpiece, not a full-page-tall block; ConnectomeTreeSvg
-// gets panelHeight so its SVG fits via preserveAspectRatio meet. overflow:hidden
-// + the tree's own overscroll-behavior:contain keep gestures from chaining out.
-const treePanelStyle: React.CSSProperties = {
-  marginBottom: '1rem',
-  overflow: 'hidden',
-}
-
-// Empty connectome: lightly desaturate the tree so it reads as a skeleton of what
-// it can grow into (paired with the guidance callout above).
-const treePanelEmptyStyle: React.CSSProperties = {
-  ...treePanelStyle,
-  filter: 'saturate(0.7)',
-}
-
-const emptyStateCalloutStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #fdf2e8 0%, #f5e6d3 100%)',
-  border: '2px solid #d4a04d',
-  borderRadius: '8px',
-  padding: '0.9rem 1.1rem',
-  marginBottom: '1rem',
-  boxShadow: '0 2px 6px rgba(212, 160, 77, 0.15)',
-}
-
-const emptyStateOpenerStyle: React.CSSProperties = {
-  display: 'block',
-  fontSize: '1.05rem',
-  color: '#5a3f29',
-  marginBottom: '0.4rem',
-}
-
-const emptyStateBodyStyle: React.CSSProperties = {
-  margin: '0 0 0.45rem',
-  fontSize: '0.92rem',
-  lineHeight: 1.55,
-  color: '#3a2a1a',
-}
-
-const emptyStateFlavorStyle: React.CSSProperties = {
-  margin: 0,
-  fontSize: '0.8rem',
-  fontStyle: 'italic',
-  color: '#8c6d4a',
-}
-
 const heroTitleStyle: React.CSSProperties = {
   fontSize: '1.35rem',
   margin: '0 0 0.25rem',
@@ -448,7 +384,7 @@ const ctaButtonRowStyle: React.CSSProperties = {
 }
 
 const readingCtaButtonStyle: React.CSSProperties = {
-  flex: '1 1 220px',
+  flex: '1 1 200px',
   padding: '0.65rem 1.2rem',
   borderRadius: '6px',
   border: '1px solid #6a8c3f',
@@ -469,7 +405,7 @@ const readingActiveButtonStyle: React.CSSProperties = {
 }
 
 const randomQuizButtonStyle: React.CSSProperties = {
-  flex: '1 1 220px',
+  flex: '1 1 200px',
   padding: '0.65rem 1.2rem',
   borderRadius: '6px',
   border: '1px solid #b8893a',
@@ -486,7 +422,33 @@ const randomQuizButtonStyle: React.CSSProperties = {
   gap: '0.5rem',
 }
 
-const randomQuizCountStyle: React.CSSProperties = {
+const expeditionButtonStyle: React.CSSProperties = {
+  flex: '1 1 200px',
+  padding: '0.65rem 1.2rem',
+  borderRadius: '6px',
+  border: '1px solid #9a5a3a',
+  background: '#c06a3a',
+  color: '#fff',
+  fontSize: '1.02rem',
+  fontWeight: 700,
+  fontFamily: 'inherit',
+  cursor: 'pointer',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.5rem',
+}
+
+const expeditionButtonDisabledStyle: React.CSSProperties = {
+  ...expeditionButtonStyle,
+  background: '#cdbfa6',
+  border: '1px solid #b8a98c',
+  cursor: 'not-allowed',
+  boxShadow: 'none',
+}
+
+const ctaCountBadgeStyle: React.CSSProperties = {
   padding: '0.1rem 0.45rem',
   background: 'rgba(255,255,255,0.25)',
   borderRadius: '999px',

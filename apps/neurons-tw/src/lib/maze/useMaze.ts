@@ -1,18 +1,20 @@
 /**
- * useMaze — reactive state for the /maze-beta exploration view, multi-branch
- * (expand-neurons-brain-maze-all-branches; generalizes the DA-only slice).
+ * useMaze — reactive state for the maze exploration view, multi-branch
+ * (promote-maze-to-home / Model A; generalizes the earlier signal model).
  *
- * Builds a per-branch view state for all four NT regions from three live sources:
- *   - collected variants (Dexie liveQuery) → lit nodes (derived), walker sprite, speed buff
- *   - per-branch growth-signal state (Dexie liveQuery on meta) → walker frontier progress
- *   - reconcileSettles (per branch) → reveals + collects fogged nodes when signal crosses thresholds
+ * Builds a per-branch view state for all four NT regions from live sources:
+ *   - per-branch energy state (Dexie liveQuery on meta) → frontier progress + lit nodes
+ *   - collected variants (Dexie liveQuery) → walker sprite + team-speed buff
+ *   - reconcileSettles (per branch) → consumes energy + triggers a random pull
+ *     when accrued energy crosses the next settle's cost threshold
  *
- * Lit-node state is DERIVED from collected variants (never separately stored) →
- * existing players see their collected variants pre-lit with no backfill (design
- * D5). Settles run here (UI hook) so they can use the content pack for display-name
- * resolution and so the existing VariantUnlockModal animates each reveal for free.
- * ALL branches reconcile regardless of filter-chip visibility (visibility is
- * display-only, design D11).
+ * Lit-node state is FRONTIER-derived (cumulative settle count), NOT collected-
+ * derived — settle pulls are random so the variant collected at a settle is not
+ * necessarily the lit node's own slot. Existing players keep their stored
+ * `settles`; collection is preserved separately. Settles run here (UI hook) so
+ * they use the content pack for display-name resolution and the existing
+ * VariantUnlockModal animates each reveal. ALL branches reconcile regardless of
+ * filter-chip visibility (visibility is display-only).
  */
 import { useEffect, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
@@ -23,20 +25,20 @@ import {
   FAMILIES_BY_BRANCH,
   MAZE_GRAPHS,
   NT_BRANCHES,
-  isNodeLit,
-  nextTarget,
+  frontierNode,
+  litNodes,
   nodeKey,
   pointAtFraction,
   type MazeGraph,
   type MazeNode,
 } from './graph'
 import {
+  affordableSettles,
   mazeSpeedMultiplier,
   reconcileSettles,
-  readMazeSignalState,
-  SIGNAL_PER_NODE,
+  readMazeEnergyState,
   walkerFraction,
-  type MazeSignalState,
+  type MazeEnergyState,
 } from './economy'
 
 /** P0 rarest → P5 commonest. Lower rank = rarer. */
@@ -53,18 +55,19 @@ export function pickWalkerVariant(rows: NeuronVariantRow[]): NeuronVariantRow | 
 export interface BranchViewState {
   branch: NtBranchId
   graph: MazeGraph
-  /** Number of lit (collected) nodes in this branch. */
+  /** Number of lit (frontier-reached) nodes in this branch (capped at node count). */
   connectedCount: number
+  /** Collected `family:slot` keys (drives nothing visual now; kept for callers/tests). */
   collectedKeys: Set<string>
   litNodes: MazeNode[]
-  /** Current frontier target (nearest fogged node), or null when all lit. */
+  /** Current frontier target (node being lit next), or null in 二週目 (all lit). */
   target: MazeNode | null
   /** Walker position (normalized 0..1), interpolated along the target's path. */
   walkerPos: [number, number]
   /** Walker sprite source: rarest collected variant in branch, or null → growth-cone fallback. */
   walkerVariant: NeuronVariantRow | null
   speedMultiplier: number
-  signal: MazeSignalState
+  energy: MazeEnergyState
 }
 
 export interface MazeViewState {
@@ -85,7 +88,7 @@ function emptyBranchState(branch: NtBranchId): BranchViewState {
     walkerPos: graph.root,
     walkerVariant: null,
     speedMultiplier: 1,
-    signal: { signal: 0, settles: 0 },
+    energy: { earned: 0, settles: 0 },
   }
 }
 
@@ -109,24 +112,25 @@ export function useMaze(pack: ContentPack): MazeViewState {
         const fams = FAMILIES_BY_BRANCH[branch]
         const rows = allRows.filter((v) => fams.includes(v.familyId))
         const collectedKeys = new Set(rows.map((v) => nodeKey(v.familyId, v.slotIndex)))
-        const signal = await readMazeSignalState(branch)
+        const energy = await readMazeEnergyState(branch)
         const graph = MAZE_GRAPHS[branch]
-        const target = nextTarget(branch, collectedKeys)
-        const frac = walkerFraction(signal)
+        const lit = litNodes(branch, energy.settles)
+        const target = frontierNode(branch, energy.settles)
+        const frac = walkerFraction(energy)
         const walkerPos: [number, number] = target ? pointAtFraction(target, frac) : graph.root
         branchStates.push({
           branch,
           graph,
-          connectedCount: collectedKeys.size,
+          connectedCount: lit.length,
           collectedKeys,
-          litNodes: graph.nodes.filter((n) => isNodeLit(n, collectedKeys)),
+          litNodes: lit,
           target,
           walkerPos,
           walkerVariant: pickWalkerVariant(rows),
           speedMultiplier: mazeSpeedMultiplier(rows.length),
-          signal,
+          energy,
         })
-        if (target && Math.floor(signal.signal / SIGNAL_PER_NODE) > signal.settles) dueAny = true
+        if (affordableSettles(energy.earned) > energy.settles) dueAny = true
       }
       setView({
         branches: branchStates,
@@ -134,9 +138,9 @@ export function useMaze(pack: ContentPack): MazeViewState {
       })
 
       // Reconcile due settles for ALL branches (idempotent, guarded against
-      // re-entrancy). Hidden branches still settle — visibility is display-only
-      // (design D11). Each mint writes neuronVariants + a settles meta key →
-      // liveQuery re-fires → recompute converges.
+      // re-entrancy). Hidden branches still settle — visibility is display-only.
+      // Each settle consumes energy + triggers a random pull → writes
+      // neuronVariants + a settles meta key → liveQuery re-fires → converges.
       if (dueAny && !reconciling.current) {
         reconciling.current = true
         try {
@@ -147,12 +151,12 @@ export function useMaze(pack: ContentPack): MazeViewState {
       }
     }
 
-    // Re-run whenever collected variants OR any branch's maze signal meta keys
-    // change. readMazeSignalState issues the db.meta.get reads liveQuery tracks.
+    // Re-run whenever collected variants OR any branch's maze energy meta keys
+    // change. readMazeEnergyState issues the db.meta.get reads liveQuery tracks.
     const sub = liveQuery(async () => {
       const rows = await db.neuronVariants.toArray()
-      const states = await Promise.all(NT_BRANCHES.map((b) => readMazeSignalState(b)))
-      return { n: rows.length, sig: states.map((s) => `${s.signal}:${s.settles}`).join('|') }
+      const states = await Promise.all(NT_BRANCHES.map((b) => readMazeEnergyState(b)))
+      return { n: rows.length, e: states.map((s) => `${s.earned}:${s.settles}`).join('|') }
     }).subscribe({
       next: () => void recompute(),
       error: (err) => console.error('[maze] liveQuery error:', err),

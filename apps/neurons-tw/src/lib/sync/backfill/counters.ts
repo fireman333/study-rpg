@@ -16,10 +16,21 @@ import type { NeuronsDB } from '../../db'
 const MAX_MERGE_KEYS: ReadonlyArray<string> = [
   'maxQuizCorrectStreak',
   'totalStudyMinutes',
-  // Neural-energy pull currency (Collection 2.0). Both monotonic; balance =
-  // earned − spent is derived at read. MAX-merge converges cross-device.
+  // Neural-energy pull currency (Collection 2.0). RETIRED by promote-maze-to-home
+  // (manual pull removed); kept for reader tolerance / rollback safety.
   'neuralEnergyEarned',
   'neuralEnergySpent',
+  // Maze per-branch energy economy (promote-maze-to-home / Model A). Per-branch
+  // monotonic earned (faucet) + settles (pull count). MAX-merge converges
+  // cross-device (both only ever increase).
+  'maze:da:earned',
+  'maze:5ht:earned',
+  'maze:gaba:earned',
+  'maze:glu:earned',
+  'maze:da:settles',
+  'maze:5ht:settles',
+  'maze:gaba:settles',
+  'maze:glu:settles',
 ]
 
 /**

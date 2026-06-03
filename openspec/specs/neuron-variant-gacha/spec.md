@@ -387,69 +387,48 @@ unknown keys). The shared sync Worker is bundle-opaque and SHALL NOT change.
 
 ### Requirement: Study activity SHALL mint a neural-energy pull currency
 
-The neurons mode SHALL maintain a single study-gated currency, **neural energy**,
-persisted as two monotonic meta counters `neuralEnergyEarned` and
-`neuralEnergySpent`; the spendable **balance = earned − spent** (derived, never
-negative, never persisted). The faucet SHALL be: **+`CORRECT_ANSWER_ENERGY` (=3)**
-per correct answer (awarded inside `recordCorrectAnswer`'s transaction) and
-**+`READING_MINUTE_ENERGY` (=2)** per accrued reading minute (awarded in the
-reading-timer minute side-effect). There SHALL be **no real-money** path. The
-constants SHALL live in `content-neurons-tw` as the single source of truth. Both
-counters SHALL sync via the `counters.ts` MAX-merge post-pass.
+The neurons mode SHALL maintain a study-gated **neural energy** currency partitioned **per NT branch** (DA / 5HT / GABA / Glu), persisted as per-branch monotonic meta counters `maze:<branch>:earned` (and a per-branch consumed view via settle count). The faucet SHALL be: **+`CORRECT_ANSWER_ENERGY` (=3)** per correct answer, accrued into the branch of the answered subject resolved via `FAMILY_NT_BRANCH` (awarded in/after `recordCorrectAnswer`); and **+`READING_MINUTE_ENERGY` (=2)** per accrued reading minute, split evenly across the four branch pools. Per-branch energy SHALL be the maze exploration fuel and is consumed at node settle (per `neurons-brain-maze`), NOT spent on a player-initiated pull. There SHALL be **no real-money** path. The faucet constants SHALL live in `content-neurons-tw` as the single source of truth. Per-branch `earned` counters SHALL sync via the `counters.ts` MAX-merge post-pass. The legacy single global `neuralEnergyEarned/neuralEnergySpent` balance (whose only sink was the removed manual pull) is retired; its meta keys MAY remain present but unused (reader-tolerant) for rollback safety.
 
-#### Scenario: Correct answer mints energy
+#### Scenario: Correct answer mints energy into the subject's branch
 
-- **GIVEN** the player's `neuralEnergyEarned` is `E`
-- **WHEN** the player answers a question correctly
-- **THEN** `neuralEnergyEarned` SHALL become `E + 3`
+- **GIVEN** the player answers a question correctly in subject S
+- **WHEN** the energy faucet runs
+- **THEN** `maze:<FAMILY_NT_BRANCH[S]>:earned` SHALL increase by `CORRECT_ANSWER_ENERGY` (=3)
+- **AND** no other branch's earned counter SHALL change from that event
 
-#### Scenario: Reading minute mints energy
+#### Scenario: Reading minute mints energy across branches
 
 - **GIVEN** the reading timer accrues one full minute
-- **THEN** `neuralEnergyEarned` SHALL increase by 2
+- **THEN** `READING_MINUTE_ENERGY` (=2) SHALL be split evenly across the four branch `earned` counters
 
-#### Scenario: Balance is earned minus spent and never negative
+#### Scenario: No global manual-pull balance remains in use
 
-- **GIVEN** `neuralEnergyEarned = 50` and `neuralEnergySpent = 40`
-- **WHEN** the balance is read
-- **THEN** it SHALL be `10`
+- **WHEN** the player studies
+- **THEN** energy is accrued only into per-branch maze fuel
+- **AND** no spendable global balance gates a player-initiated pull (the manual pull is removed)
 
-### Requirement: Player SHALL initiate variant pulls per family by spending neural energy
+### Requirement: Variant pulls SHALL be triggered by maze node settle as the only pull path
 
-The neurons mode SHALL expose a player-initiated `pullVariant(familyId)` action that
-is the **only** mechanism producing `neuronVariants` rows. A pull SHALL require
-balance ≥ `PULL_COST` (=20); otherwise it SHALL be rejected (no spend). A pull SHALL
-NOT be gated on collection completeness — a fully-collected family is still pullable
-(the result is necessarily a duplicate). On success, inside a single Dexie
-transaction, the system SHALL: add `PULL_COST` to `neuralEnergySpent`, increment
-`familyAccrual.pullCount`, roll a rarity tier (P0 soft-pity applied), **select a
-variant within the rolled tier (uniform among that family's catalog variants of that
-tier)**, and either persist a new row (`copies = 1`, provenance stamped) or increment
-`copies` on the existing row. A pull MAY yield a dupe in any tier (no new-variant
-guarantee beyond P0 pity; the dupe sink is a later phase `add-neurons-dupe-fusion`).
-The reveal SHALL fire only after commit. There SHALL be NO slot-unlock subscriber and
-NO manual ticket/fate-card roll path.
+The neurons mode SHALL produce `neuronVariants` rows **only** via the maze settle cadence (per `neurons-brain-maze`), which is a continuous pull-cadence gate (not a finite one-pull-per-node budget): each cumulative settle index `N` in a branch consumes `cost(N)` energy from the branch pool and triggers exactly one `pullVariant`. The pull's target family SHALL be the lit node's `MazeNode.familyId` while the branch has fogged nodes, and the branch's least-collected family (weighted toward unowned slots) once all the branch's nodes are lit (二週目) — so the random long tail converges toward completion and never dead-ends. There SHALL be no player-initiated pull button, no slot-unlock subscriber, and no manual ticket/fate-card pull path. The pull itself SHALL NOT deduct a separate flat currency (the per-branch energy consumed at the settle is the cost). On success, inside a single Dexie transaction, the system SHALL increment `familyAccrual.pullCount`, roll a rarity tier (P0 soft-pity applied), select a variant uniformly within the rolled tier among that family's catalog variants, and either persist a new row (`copies = 1`, provenance stamped) or increment `copies` on the existing row (mint a new individual per `add-neurons-dupe-fusion`). A pull MAY yield a dupe in any tier (dupes feed `add-neurons-dupe-fusion`). The reveal SHALL fire only after commit.
 
-#### Scenario: Pull spends cost and yields a variant within the rolled tier
+#### Scenario: A settle triggers exactly one pull for the resolved family
 
-- **GIVEN** balance ≥ 20 and family `藥理學` not fully collected
-- **WHEN** the player pulls `藥理學` and the rolled tier has two variants
-- **THEN** `neuralEnergySpent` SHALL increase by 20, `familyAccrual['藥理學'].pullCount`
-  SHALL increment by 1, and the result SHALL be one of that tier's two variants —
-  either a new row (`copies = 1`) or a `copies` increment on an owned one
+- **GIVEN** branch B's accumulated energy reaches the settle threshold at cumulative index N
+- **WHEN** the settle resolves
+- **THEN** `cost(N)` energy is consumed from branch B's pool
+- **AND** exactly one `pullVariant` runs for the resolved family (lit node's family pre-completion; B's least-collected family in 二週目), rolling a tier and persisting a new row or `copies` increment
+- **AND** the reveal fires only after the transaction commits
 
-#### Scenario: Pull rejected when balance below cost
+#### Scenario: Pull cost is the consumed maze energy, not a flat currency
 
-- **GIVEN** balance < 20
-- **WHEN** a pull is attempted
-- **THEN** no spend SHALL occur, no row/copies SHALL change, and the pull SHALL be a no-op
+- **WHEN** a settle-triggered pull runs
+- **THEN** no separate flat `PULL_COST` is deducted (the consumed per-branch `cost(N)` energy was the cost)
 
-#### Scenario: Pull on a fully-collected family yields a dupe (no rejection)
+#### Scenario: No player-initiated pull path exists
 
-- **GIVEN** all of `免疫學`'s variants are collected AND balance ≥ 20
-- **WHEN** a pull is attempted for `免疫學`
-- **THEN** the pull SHALL proceed (spend 20, `pullCount` +1) and resolve to a duplicate
-  (`copies` increment on an existing row), with NO rejection and NO 全部收集 state
+- **WHEN** the player is on the `/collection` page
+- **THEN** there SHALL be no pull button and no energy-balance HUD (the page is the dex + tier-promote/fusion surface only)
+- **AND** the only mechanism creating `neuronVariants` rows is the maze node settle
 
 ### Requirement: P0 apex tier SHALL exist per family with a soft-pity ramp
 

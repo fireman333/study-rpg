@@ -18,15 +18,13 @@ import {
   type ConnectomeEventName,
   type ConnectomeListener,
 } from '../connectome'
-import { CORRECT_ANSWER_ENERGY } from '@study-rpg/content-neurons-tw'
-import { awardEnergyInTx } from './currency'
 import {
   recordAttemptInTx,
   emitMasteryUpdated,
   initFamilyMasteryIfEmpty,
   type MasteryUpdate,
 } from './mastery'
-import { deriveMasteryTier, masteryEnergyMultiplier, applyMasteryToEnergy } from '../mastery'
+import { deriveMasteryTier, masteryEnergyMultiplier } from '../mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { getActiveFamilyBuffBonus } from './dmn-event-dispatcher'
@@ -149,10 +147,9 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     const prevFiredToday = accrual.firedToday
     const newSameDayCorrect = accrual.sameDayCorrect + 1
 
-    // Collection 2.0: every correct answer mints pull currency. AP no longer
-    // unlocks variant slots (acquisition is now the currency-gated gacha pull),
-    // so no slot-crossing computation / variantSlotUnlocked emission here.
-    await awardEnergyInTx(applyMasteryToEnergy(CORRECT_ANSWER_ENERGY, masteryMult))
+    // AP no longer unlocks variant slots; energy is the per-branch maze fuel
+    // accrued post-commit below (promote-maze-to-home / Model A). No in-tx global
+    // energy faucet and no variantSlotUnlocked emission here.
 
     const justFired = !prevFiredToday && shouldFire(newSameDayCorrect)
     const updatedAccrual: FamilyAccrualRow = {
@@ -213,21 +210,22 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   // try/catch inside triggerAchievementCheck so failure doesn't break gameplay.
   await triggerAchievementCheck(prevStats)
 
-  // Post-commit: brain-maze growth-signal accrual (expand-neurons-brain-maze-all-branches).
-  // Routes to the answered subject's NT branch pool via FAMILY_NT_BRANCH; dynamic
-  // import avoids a circular static dep and matches the achievement/dmn hook
-  // discipline. Best-effort — never breaks the answer flow (channel `[maze]`).
+  // Post-commit: maze per-branch energy accrual (promote-maze-to-home / Model A).
+  // This is the SOLE correct-answer energy faucet now — routed to the answered
+  // subject's NT branch pool via FAMILY_NT_BRANCH, scaled by streak + mastery
+  // tier (mastery accelerates energy per wire-mastery-energy-acceleration).
+  // Dynamic import avoids a circular static dep; best-effort (channel `[maze]`).
   try {
     const { branchOfFamily } = await import('../maze/graph')
     const branch = branchOfFamily(familyId)
     if (branch) {
-      const { accrueMazeSignal, CORRECT_SIGNAL, streakMultiplier } = await import('../maze/economy')
+      const { accrueMazeEnergy, CORRECT_ENERGY, streakMultiplier } = await import('../maze/economy')
       const { getStreaks } = await import('./streak')
       const { current } = await getStreaks()
-      await accrueMazeSignal(branch, CORRECT_SIGNAL * streakMultiplier(current) * masteryMult)
+      await accrueMazeEnergy(branch, CORRECT_ENERGY * streakMultiplier(current) * masteryMult)
     }
   } catch (err) {
-    console.error('[maze] correct-answer signal accrual failed:', err)
+    console.error('[maze] correct-answer energy accrual failed:', err)
   }
 }
 

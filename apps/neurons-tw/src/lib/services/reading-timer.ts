@@ -17,11 +17,9 @@
  * (meta['totalStudyMinutes']) is persisted to Dexie + synced cross-device.
  */
 
-import { READING_MINUTE_ENERGY } from '@study-rpg/content-neurons-tw'
 import { db } from '../db'
 import { dmnReadingTimerSubscriber } from './dmn-trigger'
-import { awardEnergy } from './currency'
-import { accrueReadingSignalAllBranches, READING_SIGNAL } from '../maze/economy'
+import { accrueReadingEnergyAllBranches, READING_ENERGY } from '../maze/economy'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
 export type ReadingTimerPauseReason = 'manual' | 'visibility' | 'idle' | null
@@ -80,12 +78,11 @@ async function fireMinuteSideEffects(): Promise<void> {
     await Promise.all([
       incrementTotalStudyMinutes(),
       dmnReadingTimerSubscriber.onMinutesAccrued(1),
-      // Collection 2.0 faucet: each reading minute mints pull currency.
-      awardEnergy(READING_MINUTE_ENERGY),
-      // Brain-maze growth-signal faucet (expand-neurons-brain-maze-all-branches):
-      // reading has no subject/NT context → split evenly across all 4 branch pools.
-      // Best-effort within Promise.all.
-      accrueReadingSignalAllBranches(READING_SIGNAL),
+      // Maze per-branch energy faucet (promote-maze-to-home / Model A): reading
+      // has no subject/NT context → split the per-minute energy evenly across all
+      // 4 branch pools. This is the ONLY energy faucet for reading now (the former
+      // global pull-currency faucet is retired with the manual pull).
+      accrueReadingEnergyAllBranches(READING_ENERGY),
     ])
     console.info('[reading-timer] +1 minute accrued')
   } catch (err) {
