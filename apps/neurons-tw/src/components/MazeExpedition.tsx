@@ -38,6 +38,10 @@ const SQUAD_MAX = 5
 /** Branch colours for the empty-collection growth-cone fallback marchers. */
 const FALLBACK_COLORS = ['#ffb33e', '#ff5da2', '#46d27a', '#43c6ff']
 
+/** Glia companions march smaller than the squad — they're little tagalongs, not
+ * equals of the neuron party (dogfood-tunable). */
+const COMPANION_MARCHER_SCALE = 0.6
+
 /** Per-context dimensions, fed to the band as CSS variables. */
 interface BandDims {
   h: number
@@ -244,8 +248,8 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
               ) : 'companion' in m ? (
                 <img
                   src={companionSpriteUrl(m.companion)}
-                  width={size}
-                  height={size}
+                  width={Math.round(size * COMPANION_MARCHER_SCALE)}
+                  height={Math.round(size * COMPANION_MARCHER_SCALE)}
                   alt={m.companion.displayName}
                   draggable={false}
                   style={{
