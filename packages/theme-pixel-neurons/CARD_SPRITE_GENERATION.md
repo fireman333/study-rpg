@@ -1,8 +1,15 @@
 # DMN fate-card sprite generation
 
 > Companion to `SPRITE_GENERATION.md` (which documents the 11 neuron-family
-> subject icons). This file covers the 21 DMN fate-card sprites shipped by
-> `generate-dmn-card-artworks` (2026-05-28).
+> subject icons). This file covers the DMN fate-card sprites shipped by
+> `generate-dmn-card-artworks` (2026-05-28, 20 cards + 1 card-back) and the 6
+> surge/bolus cards added by `generate-acceleration-sprites` (2026-06-04). After
+> `add-neurons-acceleration-system` removed `streak-shield` (−4 cards) and added
+> `surge` + `bolus` (+6 cards), the catalog is **22 individual cards + 1 shared
+> card-back = 23**. The 6 surge/bolus prompts are in the § "Surge / bolus cards"
+> section near the bottom; the 4 removed streak-shield card PNGs
+> (`dmn-pcc-pulse-p2`, `dmn-temporal-pole-anchor-p3`, `dmn-micro-context-guard-p4`,
+> `dmn-small-circuit-immunity-p4`) were deleted in lockstep.
 
 ## Sprite inventory (which keys map to which file type)
 
@@ -11,7 +18,7 @@
 | Subject icons (neuron families) | 11 | `sprites/subjects/<id>.png` | **Real** (per `SPRITE_GENERATION.md`) |
 | NT branch hubs | 4 | `sprites/branches/<nt>-icon.png` | **Real** |
 | Root brain (Connectome center) | 1 | `sprites/root/*.png` | **Real** |
-| **DMN fate cards (20 individual)** | **20** | **`sprites/cards/<cardId>.png`** | **Real (this doc)** |
+| **DMN fate cards (22 individual)** | **22** | **`sprites/cards/<cardId>.png`** | **Real** (16 by `generate-dmn-card-artworks` + 6 surge/bolus by `generate-acceleration-sprites`) |
 | **DMN card back (shared)** | **1** | **`sprites/cards/card-back.png`** | **Real (this doc)** |
 | Items / cosmetics / skill placeholders / variant gacha | 131 | (various) | Placeholder TRANSPARENT_PIXEL — pending per-consumer changes |
 
@@ -167,6 +174,36 @@ The "NOT another anatomical neuron sprite" negative constraint is necessary beca
 ### Shared `card-back` (opaque)
 
 > GBA-era pixel art trading card BACK design, 384x384 pixels, opaque background (not transparent). A stylized brain silhouette in dark navy color #2a3a5a viewed from above, with 4 Default Mode Network hubs glowing in soft pulsing cyan and violet: mPFC at front, PCC at back, precuneus at center, angular gyrus on the sides. Symmetrical mandala-like ornament wraps the edges with thin gold trim and small four-pointed stars at corners. Style reference: tarot card back meets Pokemon TCG card back. Limited 16-color palette, flat shading, no anti-aliasing, hard pixel edges. Centered composition with even padding.
+
+## Surge / bolus cards (added by `generate-acceleration-sprites`, 2026-06-04)
+
+6 cards for the two consumable kinds `add-neurons-acceleration-system` introduced: `surge` (NE/DA phasic gain → exploration speed) and `bolus` (astrocyte-neuron lactate shuttle → maze energy). Same template + rarity framing; surge leans neuromodulator-cool (electric blue / magenta), bolus leans warm amber metabolic.
+
+> **Lesson (no-text):** the original DMN card prompts did not forbid text and came out clean, but the surge/bolus first pass produced unwanted captions (`dmn-glycogen-burst-p4` rendered "ASTROCYTE: GLYCOGEN BURST") and a rarity-badge glyph (`dmn-astrocyte-fuel-p3` rendered a "P3" medallion). Both re-rolled clean with an explicit **"ABSOLUTELY NO TEXT, no letters, no words, no labels, no numbers, no captions anywhere in the image"** line appended. Always include that constraint for card prompts.
+
+#### `dmn-locus-coeruleus-burst-p2` (藍斑核爆發 / surge, P2)
+
+> GBA-era pixel art trading card sprite, 384x384 pixels, centered with 40px padding, transparent dark purple background, flat shading, 16-color limited palette, hard pixel edges. Subject: dreamlike depiction of the locus coeruleus — a small bright blue-white nucleus in the brainstem region of a brain silhouette ERUPTING in a phasic burst of noradrenaline, radiating sharp electric-blue rays outward, with subtle motion speed-lines suggesting accelerated information processing. Color palette: deep purple #4a2a6a wash with brilliant electric-blue #5a9ad4 noradrenaline burst rays. P2 RARITY FRAME: ornate gold border, slightly thinner than P1, no diamond corners. Style: ethereal, luminous, energetic. NOT another anatomical neuron sprite.
+
+#### `dmn-lactate-shuttle-p2` (乳酸穿梭 / bolus, P2)
+
+> ...Subject: dreamlike depiction of the astrocyte-neuron lactate shuttle — a glowing star-shaped astrocyte handing off little amber lactate fuel droplets along a luminous conduit to a neuron, warm metabolic energy flowing in. Color palette: deep purple #4a2a6a wash with warm amber-orange #e0a04c lactate droplets and a soft teal astrocyte glow. P2 RARITY FRAME: ornate gold border, no diamond corners. Style: ethereal, luminous, nourishing. NOT another anatomical neuron sprite.
+
+#### `dmn-dopamine-gain-p3` (多巴胺增益 / surge, P3)
+
+> ...Subject: dreamlike depiction of the ventral tegmental area releasing a surge of dopamine that sharpens neural gain — a small glowing nucleus emitting radiant magenta-gold dopamine sparkles that make a brain silhouette crisp and bright, with subtle speed motion-lines. Color palette: deep purple #4a2a6a wash with magenta-gold #d46aa0 dopamine sparkle surge. P3 RARITY FRAME: silver border with simple geometric ornament. Style: ethereal, luminous, sharpening. NOT another anatomical neuron sprite.
+
+#### `dmn-astrocyte-fuel-p3` (星形膠細胞供能 / bolus, P3) — re-rolled with no-text
+
+> ...Subject: dreamlike depiction of glutamate-driven astrocyte glycolysis sending fuel to the front line — a star-shaped astrocyte glowing warm amber, pumping little glycogen-to-lactate fuel beads outward toward neurons in need, a warm supply glow. Color palette: deep purple #4a2a6a wash with warm amber #d4a04d fuel beads and a soft orange astrocyte glow. P3 RARITY FRAME: plain silver border with simple geometric ornament. ABSOLUTELY NO TEXT, no letters, no words, no labels, no numbers, no rarity badge anywhere in the image. NOT another anatomical neuron sprite.
+
+#### `dmn-noradrenaline-spray-p4` (去甲腎上腺素微噴 / surge, P4)
+
+> ...Subject: dreamlike depiction of a small light puff of noradrenaline misting across the cortex — a faint spray of tiny electric-blue droplets drifting over a portion of a brain silhouette, subtly raising signal-to-noise, minimal and brief. Color palette: deep purple #4a2a6a wash with pale electric-blue #6aa0d4 mist droplets. P4 RARITY FRAME: thin bronze border, minimal ornament. Style: subtle, brief, light. NOT another anatomical neuron sprite.
+
+#### `dmn-glycogen-burst-p4` (糖原微爆 / bolus, P4) — re-rolled with no-text
+
+> ...Subject: dreamlike depiction of an astrocyte mobilizing a small burst of glycogen reserve — a star-shaped astrocyte glowing warm amber with a tiny cluster of amber glycogen granules popping into little energy sparks, a small modest fuel pop. Color palette: deep purple #4a2a6a wash with small amber #d4a04d glycogen spark burst. P4 RARITY FRAME: thin bronze border, minimal ornament. ABSOLUTELY NO TEXT, no letters, no words, no labels, no numbers, no captions anywhere in the image. NOT another anatomical neuron sprite.
 
 ## Regen procedure (single card)
 
