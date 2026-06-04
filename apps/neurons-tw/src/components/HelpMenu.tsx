@@ -145,9 +145,10 @@ const SECTIONS: Section[] = [
           （每日上限 3）。
         </p>
         <p>
-          5 種一次性事件：family-buff（隨機 family 的 maze 能量 ×2、1 hr）、
+          抽到的消耗品進背包、自選時機啟用：family-buff（某 family 能量水龍頭 ×2、1 hr）、
+          surge（探索速度短暫提升）、bolus（迷宮能量短暫湧入）、
           variant-rate-up（下次抽卡 roll 兩次取較稀有）、quick-review-batch（5 題錯題快速複習，出征 mini-batch）、
-          streak-shield（答錯時保住連對 streak 一次）、hidden-reveal（在 /dmn 頁顯示下一張未抽 P1 的剪影提示）。
+          hidden-reveal（在 /dmn 頁顯示下一張未抽 P1 的剪影提示）。低機率抽到永久裝備/夥伴。
         </p>
         <p>
           全收集 + 永久陳列在「<a href="/dmn">DMN</a>」頁面。

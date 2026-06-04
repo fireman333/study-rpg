@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Implements a mixed-trigger (time-axis + behavior-axis) fate-card collection system for neurons-mode themed on Default Mode Network (DMN) — the brain's resting-state network that produces "spontaneous insight" while the player rests. Catalog ships 20 cards across 4-tier rarity (P1 鑽石 × 2 / P2 金 × 4 / P3 銀 × 6 / P4 銅 × 8) with weights 2/10/30/58. Each card simultaneously triggers a one-time event (one of five `eventKind` values: family-buff / variant-rate-up / quick-review-batch / streak-shield / hidden-reveal) AND enters a permanent Pokédex-style closed-cap collection. Pool-removal ensures unique draws; collection completes at 20/20 and the draw button disables. Cross-device sync uses a critical monotonic-union merge on the dispatch log to prevent re-trigger races on bundle apply.
+Implements a mixed-trigger (expedition-axis + behavior-axis) fate-card collection system for neurons-mode themed on Default Mode Network (DMN) — the brain's resting-state network that produces "spontaneous insight" while the player rests. The closed-cap consumable catalog ships 22 cards across 4-tier rarity (P1–P4) with rarity weights summing to 100, spanning six consumable `eventKind` values (family-buff / variant-rate-up / quick-review-batch / hidden-reveal / surge / bolus); `streak-shield` is removed for integrity. Drawing a card does NOT auto-fire its effect — each draw deposits one consumable into the `inventory` backpack (`neurons-acceleration-system`) for manual activation, OR at low probability awards a permanent equipment/companion from the separate `neurons-acceleration-system` P1–P5 catalog. Pool-removal ensures unique consumable draws; the consumable dex completes at 22/22 and draws then only roll equipment. Cross-device sync uses a critical monotonic-union merge on the dispatch log to prevent re-trigger races on bundle apply.
 
 ## Requirements
 
@@ -70,154 +70,118 @@ The combined entitlement (expedition + behavior) SHALL be tracked as a single in
 - **AND** the cumulative expedition-clears counter (`dmnTimeAxisMinutesAccrued`) SHALL reset to 0
 - **AND** `dmnDrawsAvailable` SHALL remain at 4 (unused draws persist across days)
 
-### Requirement: DMN card catalog SHALL define exactly 20 cards across 4-tier rarity (P1–P4) with weights 2/10/30/58
+### Requirement: DMN card catalog SHALL define exactly 22 cards across 4-tier rarity (P1–P4) with weights summing to 100
 
-The `packages/content-neurons-tw` package SHALL export a `DMN_CARD_CATALOG: DmnCardDef[]` containing exactly 20 cards distributed across 4 rarity tiers:
+The `packages/content-neurons-tw` package SHALL export a `DMN_CARD_CATALOG: DmnCardDef[]` containing exactly **22** consumable cards distributed across 4 rarity tiers (P1–P4). Removing `streak-shield` (4 cards) and adding two new consumable kinds (`surge`, `bolus`) at ≥ 3 cards each changes the total from 20 to 22; the per-tier counts and rarity weights SHALL be re-balanced so that rarity weights still sum to 100 and every `eventKind` retains ≥ 3 cards.
 
-- **P1** (rarity weight 2%): 2 cards
-- **P2** (rarity weight 10%): 4 cards
-- **P3** (rarity weight 30%): 6 cards
-- **P4** (rarity weight 58%): 8 cards
+Each `DmnCardDef` entry SHALL contain `cardId`, `rarity ∈ {P1,P2,P3,P4}`, `displayName`, `description`, `eventKind ∈ the 6 consumable kinds`, and `artworkId`. The catalog SHALL NOT declare P5 entries (distinguishing it from `neuron-variant-gacha`). Permanent equipment is a **separate** P1–P5 catalog (`neurons-acceleration-system`), not part of this consumable dex.
 
-Each `DmnCardDef` entry SHALL contain:
-- `cardId: string` — globally unique kebab-case identifier (e.g., `dmn-burst-firing-p1-1`)
-- `rarity: 'P1' | 'P2' | 'P3' | 'P4'`
-- `displayName: string` — player-facing card name (Traditional Chinese)
-- `description: string` — 1–2 sentence flavour blurb with neuroscience narrative anchor
-- `eventKind: DmnEventKind` — one of the 5 enum values (see event-pool requirement)
-- `artworkId: string` — sprite registry key (placeholder this change; real art via follow-up change)
-
-The catalog SHALL NOT declare 5-tier rarity (no P5 entries), distinguishing it from `neuron-variant-gacha`'s P1–P5 ladder.
-
-#### Scenario: Catalog size and rarity distribution verified
+#### Scenario: Catalog size and kind coverage verified
 
 - **GIVEN** the published `DMN_CARD_CATALOG`
-- **THEN** `DMN_CARD_CATALOG.length` SHALL equal 20
-- **AND** the count of `rarity === 'P1'` entries SHALL equal 2
-- **AND** the count of `rarity === 'P2'` entries SHALL equal 4
-- **AND** the count of `rarity === 'P3'` entries SHALL equal 6
-- **AND** the count of `rarity === 'P4'` entries SHALL equal 8
+- **THEN** `DMN_CARD_CATALOG.length` SHALL equal 22
+- **AND** no entry SHALL have `eventKind === 'streak-shield'`
+- **AND** each of the 6 consumable kinds SHALL have ≥ 3 cards
 
 #### Scenario: Card IDs are globally unique
 
 - **GIVEN** the published `DMN_CARD_CATALOG`
-- **THEN** `new Set(catalog.map(c => c.cardId)).size` SHALL equal `catalog.length` (20)
+- **THEN** `new Set(catalog.map(c => c.cardId)).size` SHALL equal `catalog.length` (22)
 
 ### Requirement: DMN catalog build-time validator SHALL reject invalid catalogs
 
 The package SHALL ship a `validateDmnCardCatalog(catalog)` function that throws on any of the following:
 
-- Catalog size ≠ 20
-- Rarity distribution ≠ 2/4/6/8 across P1/P2/P3/P4
+- Catalog size ≠ 22
+- Rarity weights not summing to 100
 - Duplicate `cardId` values
 - Any catalog entry missing any required field (`cardId`, `rarity`, `displayName`, `description`, `eventKind`, `artworkId`)
 - `rarity` value not in `{'P1','P2','P3','P4'}`
-- `eventKind` value not in the 5 defined enum values
-- Fewer than 1 card per `eventKind` value (avoid unreachable event types)
+- `eventKind` value not in the 6 defined consumable enum values (`family-buff`, `variant-rate-up`, `quick-review-batch`, `hidden-reveal`, `surge`, `bolus`) — `streak-shield` is no longer a valid kind
+- Fewer than 3 cards per `eventKind` value
 
-The validator SHALL be invoked at build time (e.g., via `tsx scripts/verify-validator.ts` or equivalent) and CI SHALL fail if validation fails.
+The validator SHALL be invoked at build time and CI SHALL fail if validation fails.
 
 #### Scenario: Validator rejects catalog with wrong size
 
-- **GIVEN** a candidate catalog with `length = 19`
+- **GIVEN** a candidate catalog with `length = 20`
 - **WHEN** `validateDmnCardCatalog(candidate)` is called
-- **THEN** the function SHALL throw an error containing the message `catalog size must equal 20, got 19`
+- **THEN** the function SHALL throw an error indicating the size must equal 22
 
-#### Scenario: Validator rejects catalog with unreachable event type
+#### Scenario: Validator rejects a streak-shield entry
 
-- **GIVEN** a candidate catalog where no card has `eventKind === 'streak-shield'`
+- **GIVEN** a candidate catalog where any card has `eventKind === 'streak-shield'`
 - **WHEN** `validateDmnCardCatalog(candidate)` is called
-- **THEN** the function SHALL throw an error indicating which `eventKind` value lacks coverage
+- **THEN** the function SHALL throw an error indicating `streak-shield` is not a valid event kind
 
-### Requirement: Five DMN event types SHALL be defined with bounded magnitudes
+### Requirement: Six DMN consumable event kinds SHALL be defined; effects deposit to the backpack (no auto-fire)
 
-The `DmnEventKind` enum SHALL include exactly these five values, each with a defined runtime effect:
+The `DmnEventKind` enum SHALL include exactly these six consumable kinds. Drawing a card of any kind SHALL deposit one unit of that consumable into the `inventory` backpack (`neurons-acceleration-system`) — effects SHALL NOT auto-fire on draw. The player activates them manually.
 
-| `eventKind` | Effect | Magnitude bound |
+| `eventKind` | Lane | Effect (on activation) |
 |---|---|---|
-| `family-buff` | Randomly select 1 of the 11 neuron families; for the next 1 hour wall-clock, correct answers attributed to that family SHALL have their post-commit maze-energy faucet multiplied by `FAMILY_BUFF_ENERGY_MULT` (default 2). The buff has NO AP effect (AP no longer gates progression post-`promote-maze-to-home`). | × `FAMILY_BUFF_ENERGY_MULT` maze energy for the buffed family, capped at 1-hour duration |
-| `variant-rate-up` | When active, the **next** `pullVariant` (the maze-settle pull) SHALL roll the rarity twice and keep the rarer outcome (single-consume), then revert. | One pull, then revert to a single roll |
-| `quick-review-batch` | Arm an actionable 5-question 出征 mini-batch: surface a clickable CTA that opens the expedition `QuizModal` on ≤5 currently-wrong questions (`questionHistory.lastResult === 'wrong'`). Clears flow through `onExpeditionComplete` and credit the expedition DMN draw axis like any 出征. Non-intrusive (the CTA arms; the player chooses to start). | ≤5 questions; clears feed the per-day-capped expedition axis |
-| `streak-shield` | Grant a single-use streak immunity token; the next time the player would break their correct-answer streak (a wrong answer), the token SHALL be consumed instead and the current streak preserved. | 1 single-use token, never expires |
-| `hidden-reveal` | Reveal the `cardId` of the next undrawn P1 DMN card in the catalog as a "spoiler hint" — the card's silhouette in `DmnCollectionPage` SHALL render with reduced opacity instead of a solid silhouette | UI-only effect; zero gameplay impact |
+| `family-buff` | energy | the buffed family's maze-energy faucet gains an additive `+1.0` energy bonus for 1 hour (preserves the prior `×2`) |
+| `surge` | speed | exploration `speedAccel` gains an additive bonus for a time window (phasic NE/DA gain modulation, OE `10.1038/s41586-022-04782-2`) |
+| `bolus` | energy | maze-energy faucet gains an additive energy bonus for a time window (acute lactate substrate, OE `10.1038/nrn.2018.19`) |
+| `variant-rate-up` | — | the next `pullVariant` rolls rarity twice and keeps the rarer (single-consume) |
+| `quick-review-batch` | — | arms a clickable ≤5-question 出征 mini-batch whose clears credit the expedition DMN draw axis |
+| `hidden-reveal` | — | reveals the next undrawn P1 card's silhouette hint in the dex (UI-only) |
 
-Each `eventKind` SHALL have **at least 3 cards** in the catalog carrying it (5 × 3 = 15 minimum allocation; remaining 5 catalog slots distribute by rarity preference).
+`streak-shield` is **removed** (integrity — see REMOVED). Each kind SHALL have ≥ 3 catalog cards.
 
-#### Scenario: family-buff multiplies the buffed family's maze energy
+#### Scenario: Drawing a consumable deposits to the backpack without firing
 
-- **WHEN** a card with `eventKind === 'family-buff'` is drawn and dispatched
-- **THEN** a new row SHALL be added to `dmnActiveBuffs` with `buffKind: 'family-buff'`, `familyId: <randomly selected>`, and `expiresAt: <now + 1 hour>`
-- **AND** while active, a correct answer in that `familyId` SHALL accrue `FAMILY_BUFF_ENERGY_MULT`× the maze energy it otherwise would (composed with the existing streak + mastery multipliers) to that family's branch
-- **AND** the buff SHALL NOT alter AP for that family (AP gain stays +1 per correct answer)
-- **AND** at `expiresAt` the row SHALL be removed (or treated as expired) and the energy multiplier SHALL revert to 1.0
+- **WHEN** a card of any consumable kind is drawn
+- **THEN** the matching `inventory` count SHALL increment by 1
+- **AND** no active-buff row SHALL be created until the player activates it
+- **AND** no AP/energy/speed effect SHALL apply at draw time
 
-#### Scenario: family-buff does not affect other families
+#### Scenario: family-buff applies only on manual activation
 
-- **GIVEN** an active `family-buff` for family A
-- **WHEN** the player answers a question correctly in family B (B ≠ A)
-- **THEN** family B's maze energy SHALL accrue with multiplier 1.0 (no buff)
+- **GIVEN** an undrawn-then-drawn `family-buff` consumable sitting in the backpack
+- **WHEN** the player activates it
+- **THEN** a random family SHALL be buffed with `+1.0` additive energy for 1 hour
+- **AND** before activation no family SHALL receive any buff
 
-#### Scenario: variant-rate-up consumed by the next settle pull
-
-- **GIVEN** the player has an active `variant-rate-up` buff
-- **WHEN** the next `pullVariant` (maze settle) runs
-- **THEN** the rarity SHALL be rolled twice and the rarer outcome kept
-- **AND** after the pull completes, the buff SHALL be consumed and removed from `dmnActiveBuffs`
-- **AND** subsequent pulls SHALL revert to a single rarity roll
-
-#### Scenario: quick-review-batch arms a capped expedition mini-batch
-
-- **WHEN** a card with `eventKind === 'quick-review-batch'` is drawn and dispatched
-- **THEN** `dmn.quickReviewBatchRequested` SHALL be emitted and the toast SHALL surface a clickable "5 題快速複習" CTA
-- **AND** activating the CTA SHALL open the expedition `QuizModal` on at most 5 currently-wrong questions (fewer if fewer are wrong; if none, the CTA SHALL be absent and the toast SHALL state there is nothing to review)
-- **AND** clears in the mini-batch SHALL be credited to the expedition DMN draw axis via `onExpeditionComplete` (subject to the per-day cap)
-
-### Requirement: Drawing a DMN card SHALL produce exactly one new dmnCard row + one event dispatch + permanent collection entry
+### Requirement: Drawing a DMN card SHALL roll equipment first, else deposit a consumable to the backpack
 
 When `dmnDrawsAvailable >= 1` and the player triggers a draw, the system SHALL:
 
 1. Decrement `dmnDrawsAvailable` by 1
-2. Select one card from the catalog where `cardId NOT IN (already-owned cardIds)` using weighted random sampling (weights = rarity weights 2/10/30/58 for P1/P2/P3/P4 cards remaining)
-3. Insert a new `dmnCards` row with `(cardId, obtainedAt, rarity, eventKind, artworkId)`
-4. Dispatch the card's `eventKind` via `dmn-event-dispatcher.ts` (see event-dispatch requirement)
-5. Append `(cardId, dispatchedAt: <now>)` to `dmnEventLog`
-6. Display `DmnCardReveal` UI (modal or toast based on rarity — P1/P2 modal, P3/P4 toast)
-7. Mark the card as permanently collected in `DmnCollectionPage`
+2. Roll `EQUIPMENT_DRAW_RATE` against the unowned equipment pool (`neurons-acceleration-system`). On a hit with a non-empty pool → award one unowned equipment (rarity-rolled) and STOP (no consumable for this draw)
+3. Otherwise select one consumable card by remaining rarity weights, insert a `dmnCards` row (collection record), and increment the matching `inventory` backpack count
+4. Append `(cardId | equipmentId, dispatchedAt)` to `dmnEventLog`
+5. Display the reveal UI (equipment vs consumable form)
 
-If `dmnDrawsAvailable === 0`, the draw button SHALL be disabled and clicking it SHALL show a tooltip explaining how to earn more draws (time axis / behavior axis).
+If `dmnDrawsAvailable === 0`, the draw button SHALL be disabled with a tooltip explaining how to earn draws.
 
-#### Scenario: Drawing a card decrements availability and creates card row
+#### Scenario: Consumable draw records collection + backpack stock
 
-- **GIVEN** `dmnDrawsAvailable = 3` and 5 cards already owned
-- **WHEN** the player taps the draw button and a card is rolled
+- **GIVEN** `dmnDrawsAvailable = 3` and the equipment roll misses
+- **WHEN** the player draws and a consumable is rolled
 - **THEN** `dmnDrawsAvailable` SHALL become 2
-- **AND** the `dmnCards` table SHALL gain exactly 1 new row
-- **AND** the new row's `cardId` SHALL NOT match any of the 5 already-owned cardIds
+- **AND** the `dmnCards` table SHALL gain exactly 1 new collection row
+- **AND** the matching `inventory` count SHALL increment by 1
+- **AND** the consumable's effect SHALL NOT fire automatically
 
-#### Scenario: Drawing with zero availability is blocked
+#### Scenario: Equipment draw awards a permanent and skips the consumable
 
-- **GIVEN** `dmnDrawsAvailable = 0`
-- **WHEN** the player taps the draw button
-- **THEN** no roll SHALL occur
-- **AND** no `dmnCards` row SHALL be created
-- **AND** the UI SHALL display tooltip explaining how to earn draws
+- **GIVEN** the equipment roll hits with a non-empty unowned pool
+- **WHEN** the draw resolves
+- **THEN** exactly one new `equipment` row SHALL be inserted
+- **AND** no `dmnCards` or `inventory` change SHALL occur for that draw
 
-### Requirement: Catalog SHALL be closed-cap — collection completes at 20 cards
+### Requirement: Consumable catalog SHALL be closed-cap — collection completes at 22 cards
 
-When the player has drawn all 20 cards (`dmnCards.length === 20`), the system SHALL:
+When the player has drawn all 22 consumable cards (`dmnCards.length === 22`), the consumable draw path SHALL be considered complete: the dex SHALL show "DMN 圖鑑已完整", and draws SHALL only ever roll equipment (until that pool is also exhausted). The catalog SHALL NOT reset or allow re-drawing owned consumables.
 
-- Disable the draw button permanently
-- Display "DMN 圖鑑已完整" message in lieu of the draw button
-- Continue to grant `dmnDrawsAvailable` increments (counter still tracks for parity), but no draws can be redeemed
-- NOT reset the catalog or allow re-drawing already-owned cards
+#### Scenario: 22nd consumable marks the consumable dex complete
 
-#### Scenario: 20th card drawn marks catalog complete
-
-- **GIVEN** the player has 19 cards owned
-- **WHEN** the player draws the 20th and final card
-- **THEN** `dmnCards.length` SHALL become 20
-- **AND** the draw button SHALL render as disabled with completion message
-- **AND** subsequent grants to `dmnDrawsAvailable` SHALL NOT enable the button (gated on `cards.length < 20`)
+- **GIVEN** the player has 21 consumable cards owned
+- **WHEN** the player draws the 22nd
+- **THEN** `dmnCards.length` SHALL become 22
+- **AND** the consumable dex SHALL render complete
+- **AND** further draws SHALL only roll equipment (or be inert if equipment is also fully owned)
 
 ### Requirement: DMN event log SHALL be idempotent and use monotonic-union merge for cross-device sync
 

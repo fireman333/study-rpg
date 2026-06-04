@@ -151,6 +151,23 @@ const decorSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
+// Permanent equipment/companion sprites (add-neurons-acceleration-system).
+// Placeholder this change (no PNGs yet → TRANSPARENT_PIXEL fallback); real art
+// via follow-up `generate-acceleration-sprites`. Filename → key:
+// `<equipmentId>.png` → `equipment:<equipmentId>`.
+const equipmentSpriteModules = import.meta.glob('../sprites/equipment/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const equipmentSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(equipmentSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    return [`equipment:${stem}`, url]
+  }),
+)
+
 // 11 subject icon keys (matched to FAMILY_BY_SUBJECT in content-neurons-tw build.ts)
 const SUBJECT_IDS = [
   '藥理學',
@@ -241,34 +258,36 @@ for (const subjectId of SUBJECT_IDS) {
   }
 }
 
-// DMN fate-card placeholder keys (20 cards + 1 shared card back = 21).
-// Real artwork deferred to follow-up generate-dmn-card-artworks change.
-// Keys MUST stay in sync with DMN_CARD_CATALOG in @study-rpg/content-neurons-tw
-// (cardId → 'dmn:card:<cardId>'). Hardcoded here to avoid cyclic dep on the
-// content pack.
+// DMN fate-card placeholder keys (22 cards + 1 shared card back = 23;
+// add-neurons-acceleration-system: streak-shield removed, surge + bolus added).
+// Real artwork deferred to a follow-up generate change. Keys MUST stay in sync
+// with DMN_CARD_CATALOG in @study-rpg/content-neurons-tw (cardId →
+// 'dmn:card:<cardId>'). Hardcoded here to avoid a cyclic dep on the content pack.
 const DMN_CARD_IDS = [
   // P1
   'dmn-default-mode-awakening-p1',
   'dmn-stream-of-consciousness-p1',
   // P2
   'dmn-hippocampal-ripples-p2',
-  'dmn-pcc-pulse-p2',
   'dmn-mpfc-reverberation-p2',
   'dmn-rem-pruning-p2',
+  'dmn-locus-coeruleus-burst-p2',
+  'dmn-lactate-shuttle-p2',
   // P3
   'dmn-angular-association-p3',
   'dmn-daydream-drift-p3',
-  'dmn-temporal-pole-anchor-p3',
   'dmn-dln-switch-p3',
   'dmn-resting-state-ripple-p3',
   'dmn-spontaneous-discharge-p3',
+  'dmn-dopamine-gain-p3',
+  'dmn-astrocyte-fuel-p3',
   // P4
   'dmn-micro-mind-wander-p4',
   'dmn-mini-self-reference-p4',
   'dmn-posteromedial-pulse-p4',
   'dmn-brief-swr-p4',
-  'dmn-micro-context-guard-p4',
-  'dmn-small-circuit-immunity-p4',
+  'dmn-noradrenaline-spray-p4',
+  'dmn-glycogen-burst-p4',
   'dmn-cue-glimmer-p4',
   'dmn-premonition-glow-p4',
 ] as const
@@ -277,6 +296,26 @@ const DMN_ART_KEYS: string[] = [
   ...DMN_CARD_IDS.map((id) => `dmn:card:${id}`),
   'dmn:card-back',
 ]
+
+// Permanent equipment art keys (12; add-neurons-acceleration-system). Hardcoded
+// (cyclic-dep guard) to mirror EQUIPMENT_CATALOG; each maps to the real glob'd
+// sprite if present, else TRANSPARENT_PIXEL (placeholder this change).
+const EQUIPMENT_ART_KEYS = [
+  // speed lane (myelin / conduction)
+  'equipment:eq-fully-myelinated-axon-p1',
+  'equipment:eq-saltatory-conduction-p2',
+  'equipment:eq-oligodendrocyte-companion-p3',
+  'equipment:eq-myelin-thickening-p3',
+  'equipment:eq-node-of-ranvier-p4',
+  'equipment:eq-single-myelin-wrap-p5',
+  // energy lane (pump / metabolic)
+  'equipment:eq-mitochondrial-powerhouse-p1',
+  'equipment:eq-sodium-potassium-pump-p2',
+  'equipment:eq-astrocyte-glycogen-p3',
+  'equipment:eq-creatine-kinase-buffer-p3',
+  'equipment:eq-lactate-reserve-p4',
+  'equipment:eq-trace-glucose-p5',
+] as const
 
 // Contract-required keys
 const CORE_KEYS = [
@@ -318,6 +357,8 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ...VARIANT_ART_KEYS.map((k) => [k, variantSprites[k] ?? TRANSPARENT_PIXEL]),
   // DMN fate-card sprites: real PNG if file present, else defensive placeholder
   ...DMN_ART_KEYS.map((k) => [k, cardSprites[k] ?? TRANSPARENT_PIXEL]),
+  // Permanent equipment sprites: real PNG if file present, else placeholder
+  ...EQUIPMENT_ART_KEYS.map((k) => [k, equipmentSprites[k] ?? TRANSPARENT_PIXEL]),
   // Animated hero sheets (variant:<family>:<slot>:<state>) — only present sheets registered.
   ...Object.entries(animatedSprites),
 ])

@@ -2,8 +2,8 @@
  * Build-time validator for the DMN fate-card catalog.
  *
  * Rules (per spec Req "DMN catalog build-time validator SHALL reject invalid catalogs"):
- * 1. Catalog size === 20
- * 2. Rarity distribution === 2/4/6/8 across P1/P2/P3/P4
+ * 1. Catalog size === 22 (add-neurons-acceleration-system: streak-shield removed, surge + bolus added)
+ * 2. Rarity distribution === 2/5/7/8 across P1/P2/P3/P4
  * 3. cardId values globally unique
  * 4. Every entry MUST have non-empty required fields (cardId / displayName / description / rarity / eventKind / artworkId)
  * 5. rarity ∈ DMN_RARITIES
@@ -28,12 +28,12 @@ export interface ValidationFailure {
   message: string
 }
 
-export const EXPECTED_CATALOG_SIZE = 20
+export const EXPECTED_CATALOG_SIZE = 22
 
 export const EXPECTED_RARITY_DISTRIBUTION: Record<DmnRarity, number> = {
   P1: 2,
-  P2: 4,
-  P3: 6,
+  P2: 5,
+  P3: 7,
   P4: 8,
 } as const
 

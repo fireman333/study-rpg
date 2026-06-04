@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import 'fake-indexeddb/auto'
 import type { Question } from '@study-rpg/core'
 import { FAMILY_BUFF_ENERGY_MULT } from '@study-rpg/content-neurons-tw'
 import { db, type QuestionHistoryRow } from '../lib/db'
 import { recordCorrectAnswer } from '../lib/services/connectome'
-import { getActiveFamilyBuffMultiplier } from '../lib/services/dmn-event-dispatcher'
 import { buildQuickReviewPool } from '../lib/services/expedition'
 import { readMazeEnergyState } from '../lib/maze/economy'
 import { branchOfFamily } from '../lib/maze/graph'
@@ -45,39 +44,12 @@ async function seedAndAnswer(buffFamilyId: string | null): Promise<number> {
   return (await readMazeEnergyState(branchOfFamily(FAMILY)!)).earned
 }
 
-describe('getActiveFamilyBuffMultiplier', () => {
-  beforeEach(async () => {
-    await db.delete()
-    await db.open()
-  })
-
-  it('returns 1 when no buff is active', async () => {
-    expect(await getActiveFamilyBuffMultiplier(FAMILY)).toBe(1)
-  })
-
-  it('returns FAMILY_BUFF_ENERGY_MULT for the matching family while active', async () => {
-    await db.dmnActiveBuffs.add({
-      buffKind: 'family-buff',
-      familyId: FAMILY,
-      expiresAt: Date.now() + 60 * 60 * 1000,
-      payload: null,
-      sourceCardId: 'c',
-    })
-    expect(await getActiveFamilyBuffMultiplier(FAMILY)).toBe(FAMILY_BUFF_ENERGY_MULT)
-    expect(await getActiveFamilyBuffMultiplier(OTHER)).toBe(1) // non-matching family
-  })
-
-  it('returns 1 for an expired buff', async () => {
-    await db.dmnActiveBuffs.add({
-      buffKind: 'family-buff',
-      familyId: FAMILY,
-      expiresAt: Date.now() - 1000,
-      payload: null,
-      sourceCardId: 'c',
-    })
-    expect(await getActiveFamilyBuffMultiplier(FAMILY)).toBe(1)
-  })
-})
+// NOTE: family-buff's active-buff → energy multiplier is now folded into the
+// acceleration `energyAccel` pool (add-neurons-acceleration-system superseded the
+// standalone getActiveFamilyBuffMultiplier helper). The end-to-end tests below
+// remain the regression guard — a family-buff still yields FAMILY_BUFF_ENERGY_MULT×
+// branch energy via energyAccel (1 + 1.0 = 2.0). See acceleration.test.ts for the
+// unit-level pool composition + cap.
 
 describe('family-buff multiplies the maze-energy faucet (not AP)', () => {
   it(`buffed family accrues ${FAMILY_BUFF_ENERGY_MULT}× the branch energy of an unbuffed answer`, async () => {

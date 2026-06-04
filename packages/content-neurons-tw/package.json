@@ -13,7 +13,8 @@
     "build": "tsx scripts/build.ts",
     "typecheck": "tsc --noEmit",
     "verify:validator": "tsx scripts/verify-validator.ts",
-    "verify:dmn": "tsx scripts/verify-dmn-validator.ts"
+    "verify:dmn": "tsx scripts/verify-dmn-validator.ts",
+    "verify:equipment": "tsx scripts/verify-equipment-validator.ts"
   },
   "peerDependencies": {
     "@study-rpg/core": "workspace:*"

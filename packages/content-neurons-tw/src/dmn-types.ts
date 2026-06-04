@@ -36,24 +36,27 @@ export const DMN_RARITIES: readonly DmnRarity[] = ['P1', 'P2', 'P3', 'P4'] as co
  * one `eventKind`. See design Decision 2 for full magnitude table.
  */
 export type DmnEventKind =
-  | 'family-buff' // random family +2 AP per correct for 1 hour
-  | 'variant-rate-up' // next variant slot unlock uses boosted weights
-  | 'quick-review-batch' // surface 5 SRS-due questions immediately
-  | 'streak-shield' // one-use immunity to next streak-break
+  | 'family-buff' // base energy consumable: buffed family's maze-energy faucet +1.0 additive for 1h
+  | 'variant-rate-up' // next variant slot unlock rolls rarity twice, keeps the rarer
+  | 'quick-review-batch' // arm a clickable ≤5-question 出征 mini-batch
   | 'hidden-reveal' // reveal next undrawn P1 card's silhouette hint
+  | 'surge' // speed consumable: exploration speedAccel += bonus for a window (NE/DA phasic gain)
+  | 'bolus' // energy consumable: maze-energy faucet += bonus for a window (lactate substrate)
 
 /** Stable tuple for iteration / validation. */
 export const DMN_EVENT_TYPES: readonly DmnEventKind[] = [
   'family-buff',
   'variant-rate-up',
   'quick-review-batch',
-  'streak-shield',
   'hidden-reveal',
+  'surge',
+  'bolus',
 ] as const
 
 /**
- * Catalog entry. 20 entries total (2 P1 / 4 P2 / 6 P3 / 8 P4) — closed-cap
- * collection per design Decision 9.
+ * Catalog entry. 22 entries total (2 P1 / 5 P2 / 7 P3 / 8 P4) — closed-cap
+ * consumable collection (add-neurons-acceleration-system: streak-shield removed,
+ * surge + bolus added). Permanent equipment is a SEPARATE P1–P5 catalog.
  */
 export interface DmnCardDef {
   /** Stable kebab-case unique id (e.g., `dmn-burst-firing-p1-1`). */
@@ -64,7 +67,7 @@ export interface DmnCardDef {
   description: string
   /** Rarity tier — drives roll weight + reveal UI form (modal vs toast). */
   rarity: DmnRarity
-  /** One of 5 event kinds — drives dispatcher branch. */
+  /** One of 6 consumable event kinds — drives dispatcher branch. */
   eventKind: DmnEventKind
   /** Sprite registry key (placeholder this change; real art via follow-up). */
   artworkId: string
@@ -100,14 +103,17 @@ export interface DmnEventLogRow {
 
 /**
  * Active buff row — runtime state for events with non-instant effect
- * (`family-buff` 1h duration, `variant-rate-up` single-consume).
- * `expiresAt` drives client-side cleanup; LWW on `expiresAt` for sync.
+ * (`family-buff` / `bolus` energy windows, `surge` speed window, `variant-rate-up`
+ * single-consume). `expiresAt` drives client-side cleanup; LWW on `expiresAt` for
+ * sync. The additive bonus an active buff contributes to the acceleration pools
+ * is derived from `buffKind` (+ `familyId` for family-buff) in
+ * `neurons-acceleration-system`.
  */
 export interface DmnActiveBuffRow {
   /** Auto-incremented PK. */
   id?: number
   /** Which event spawned this buff. */
-  buffKind: 'family-buff' | 'variant-rate-up'
+  buffKind: 'family-buff' | 'variant-rate-up' | 'surge' | 'bolus'
   /** For family-buff: which familyId. Null for other kinds. */
   familyId: string | null
   /** Epoch ms when buff expires (or single-consume sentinel for variant-rate-up). */

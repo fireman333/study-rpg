@@ -5,6 +5,8 @@ import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { db } from '../lib/db'
 import type { DmnCardRow } from '@study-rpg/content-neurons-tw'
 import { readHiddenRevealedArtworkIds } from '../lib/services/dmn-event-dispatcher'
+import BackpackPanel from '../components/BackpackPanel'
+import EquipmentDexPanel from '../components/EquipmentDexPanel'
 
 const RARITY_LABEL: Record<DmnRarity, string> = {
   P1: 'P1 鑽石',
@@ -61,6 +63,9 @@ export default function DmnCollectionPage(): JSX.Element {
         </p>
       </header>
 
+      <BackpackPanel />
+
+      <h2 style={sectionHeadingStyle}>消耗品圖鑑</h2>
       <div style={gridStyle}>
         {DMN_CARD_CATALOG.map((card) => (
           <CardTile
@@ -71,6 +76,8 @@ export default function DmnCollectionPage(): JSX.Element {
           />
         ))}
       </div>
+
+      <EquipmentDexPanel />
     </section>
   )
 }
@@ -154,6 +161,15 @@ const subtitleStyle: React.CSSProperties = {
   margin: 0,
   fontSize: '0.85rem',
   color: '#b8b3d4',
+}
+
+const sectionHeadingStyle: React.CSSProperties = {
+  maxWidth: '1100px',
+  margin: '0 auto 0.9rem',
+  fontSize: '1.2rem',
+  color: '#d4c4ff',
+  letterSpacing: '0.06em',
+  textAlign: 'center',
 }
 
 const gridStyle: React.CSSProperties = {

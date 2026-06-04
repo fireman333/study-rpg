@@ -77,7 +77,7 @@ describe('runFirstPull', () => {
     await runFirstPull(resolve)
 
     const bundle = await buildBundleSnapshot(db)
-    expect(bundle.meta.schema_version).toBe(15)
+    expect(bundle.meta.schema_version).toBe(16)
     const metaRows = (bundle.data.meta as Array<{ key: string; value: string }>) ?? []
     const byKey = new Map(metaRows.map((r) => [r.key, r.value]))
     expect(byKey.get(FIRST_PULL_DONE_KEY)).toBe('true')

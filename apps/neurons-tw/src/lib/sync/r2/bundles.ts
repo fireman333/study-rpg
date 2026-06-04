@@ -100,11 +100,20 @@
 //        v15 client reading a v14 bundle sees no first-pull keys → treats
 //        first-pull as not-yet-done (so a brand-new device offers it; once any
 //        device sets firstPullDone it converges true and gating prevents a re-roll).
+//   v16 — add-neurons-acceleration-system 2026-06-04: adds the `inventory`
+//        adapter (consumable backpack stock, per-kind LWW on updatedAt) and the
+//        `equipment` adapter (owned permanents, UNION by equipmentId + MONOTONIC
+//        on presence — owning never un-owns, mirrors neuronInstances/dmnEventLog).
+//        Dexie v16. NO new meta key (acceleration pools derive from inventory +
+//        equipment + dmnActiveBuffs at render). Additive + reader-tolerant: a v15
+//        client reading a v16 bundle drops the new keys; a v16 client reading a
+//        v15 bundle (no inventory/equipment keys) preserves local (empty → stays
+//        empty; non-empty not wiped on omission).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 15
+export const SCHEMA_VERSION = 16
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

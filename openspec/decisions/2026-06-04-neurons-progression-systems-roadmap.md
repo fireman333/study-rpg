@@ -23,8 +23,8 @@
 |---|---|---|---|---|---|
 | 能量軸 | maze neural energy | 賺取型貨幣（per-branch、monotonic） | firing / glutamate 即時活動 | 答對題(+3)、閱讀(+2 分散4分支) | ✅ shipped |
 | 精通軸 | `masteryEnergyMultiplier` | **永久** per-family 能量倍率 ×1.0–1.30 | Hebbian consolidation | 該科答對量 + 正確率雙閘 | ✅ shipped |
-| 裝備/夥伴 | companion / equipment | **永久 passive** 加成 | myelin / 寡突膠細胞 等（見 §3） | 待定（見 §3） | 🅿️ **parked → Phase 3** |
-| 補給品 | DMN fate cards | **一次性 consumable** | DMN 休息態認知：replay/consolidation/insight（見 §4） | 抽 DMN 卡 | 🔧 **改造 → Phase 2** |
+| 裝備/夥伴 | companion / equipment (speed+energy lane) | **永久 passive** 加成 | myelin / 寡突膠細胞 / Na⁺K⁺ pump（見 §3） | DMN 抽卡低機率（~5%）→ `equipment` table | ✅ **merged → `add-neurons-acceleration-system`** |
+| 補給品 | DMN fate cards → 背包 | **一次性/限時 consumable** | DMN 休息態認知 + NE/DA surge + lactate bolus（見 §4） | 抽 DMN 卡 → 背包手動啟用 | ✅ **merged → `add-neurons-acceleration-system`** |
 
 **Guardrail（避免重疊的硬規則）**：
 - DMN 補給品 **不得**發永久 passive（→ 那是裝備 lane）。
@@ -100,7 +100,7 @@
 | Phase | Change | 範圍 | 狀態 |
 |---|---|---|---|
 | **P1** | `add-neurons-first-pull` | 首抽 4 分支代表；maze + variant-gacha + onboarding + sync | ✅ SHIPPED (commit `979f913`, track-neurons) |
-| **P2+P3（合併）** | `add-neurons-acceleration-system`（暫名） | 「加速系統」一條巷：**消耗品**（DMN 卡→背包，限時/一次性速度·能量 boost；family-buff 保留+擴充）+ **永久**（裝備/夥伴 passive boost，myelin/saltatory/Nav/pump OE 已備）。streak-shield 移除 + 已收集卡從圖鑑移除。OE 在 propose 時跑。 | 🔧 grill 完成（grill #2）→ 待 `/spec propose` design-first |
+| **P2+P3（合併）** | `add-neurons-acceleration-system` | 「加速系統」一條巷：**消耗品**（DMN 卡→背包，限時/一次性速度·能量 boost；family-buff 保留+擴充；新增 surge/bolus）+ **永久**（裝備/夥伴 P1–P5 passive boost，myelin/pump OE-anchored）。streak-shield 移除（誠信）。additive `1+Σ` 雙池 + cap (energy 2.5 / speed 2.0)。Dexie v16 + R2 bundle 16。 | ✅ code-complete + verified (2026-06-04, track-neurons)；342 tests / typecheck / dexie-lint green；Chrome MCP e2e ✓；sprites = placeholder（follow-up `generate-acceleration-sprites`） |
 
 **設計重點（合併後）**：lane = 「消耗品 vs 永久」；boost 疊加公式 + cap/pacing（正回饋失速防護）；背包 + 裝備 schema（Dexie bump + R2 bundle **從 16 起跳**，首抽佔 15）；DMN 非速度/能量 kind（review/rate-up/reveal）去留待 design 決。建議 design.md 厚、`/spec propose` design-first。
 
