@@ -26,7 +26,7 @@ import {
   MAZE_GRAPHS,
   NT_BRANCHES,
   frontierNode,
-  litNodes,
+  litNodesWithStarter,
   nodeKey,
   pointAtFraction,
   type MazeGraph,
@@ -40,6 +40,7 @@ import {
   walkerFraction,
   type MazeEnergyState,
 } from './economy'
+import { readStarterFamily } from '../services/first-pull'
 
 /** P0 rarest → P5 commonest. Lower rank = rarer. */
 const RARITY_RANK: Record<VariantRarity, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
@@ -113,8 +114,10 @@ export function useMaze(pack: ContentPack): MazeViewState {
         const rows = allRows.filter((v) => fams.includes(v.familyId))
         const collectedKeys = new Set(rows.map((v) => nodeKey(v.familyId, v.slotIndex)))
         const energy = await readMazeEnergyState(branch)
+        const starterFamily = await readStarterFamily(branch)
         const graph = MAZE_GRAPHS[branch]
-        const lit = litNodes(branch, energy.settles)
+        // Lit = frontier(settles) ∪ first-pull starter node (add-neurons-first-pull).
+        const lit = litNodesWithStarter(branch, energy.settles, starterFamily)
         const target = frontierNode(branch, energy.settles)
         const frac = walkerFraction(energy)
         const walkerPos: [number, number] = target ? pointAtFraction(target, frac) : graph.root
@@ -156,7 +159,13 @@ export function useMaze(pack: ContentPack): MazeViewState {
     const sub = liveQuery(async () => {
       const rows = await db.neuronVariants.toArray()
       const states = await Promise.all(NT_BRANCHES.map((b) => readMazeEnergyState(b)))
-      return { n: rows.length, e: states.map((s) => `${s.earned}:${s.settles}`).join('|') }
+      // Track starter-family keys too so the first-pull write re-fires recompute.
+      const starters = await Promise.all(NT_BRANCHES.map((b) => readStarterFamily(b)))
+      return {
+        n: rows.length,
+        e: states.map((s) => `${s.earned}:${s.settles}`).join('|'),
+        s: starters.join('|'),
+      }
     }).subscribe({
       next: () => void recompute(),
       error: (err) => console.error('[maze] liveQuery error:', err),

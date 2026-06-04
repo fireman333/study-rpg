@@ -90,11 +90,21 @@
 //        with no SRS fields → defaults to fresh (interval 0 / not due) and never
 //        wipes a local schedule on a newer-but-pre-v15 incoming (preserve-on-
 //        omission in the adapter merge).
+//   v15 — add-neurons-first-pull 2026-06-04: adds 5 meta keys to the allowlist —
+//        `firstPullDone` (once-only flag, MONOTONIC-OR via write-if-missing,
+//        never written 'false') + `maze:<branch>:starterFamily` ×4 (one-time
+//        immutable first-write-wins; drives the starter-lit maze node). NO new
+//        adapter / Dexie bump — the first-pull variants ride the existing
+//        `neuronVariants` / `neuronInstances` collection path. Additive +
+//        reader-tolerant: a v14 client reading a v15 bundle drops the new keys; a
+//        v15 client reading a v14 bundle sees no first-pull keys → treats
+//        first-pull as not-yet-done (so a brand-new device offers it; once any
+//        device sets firstPullDone it converges true and gating prevents a re-roll).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 14
+export const SCHEMA_VERSION = 15
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

@@ -28,6 +28,8 @@ import { deriveMasteryTier, masteryEnergyMultiplier } from '../mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { getActiveFamilyBuffMultiplier } from './dmn-event-dispatcher'
+// Cycle-free keys module (NOT ./first-pull — that would cycle via variant-gacha).
+import { FIRST_PULL_DONE_KEY, STARTER_FAMILY_KEYS } from './first-pull-keys'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
@@ -343,6 +345,10 @@ export async function resetConnectomeForDebug(): Promise<void> {
     await db.meta.put({ key: 'lastResetDate', value: todayISO() })
     // Re-surface the homepage onboarding for a reset (fresh-start) user.
     await db.meta.delete(HOMEPAGE_ONBOARDING_DISMISSED_KEY)
+    // Re-enable the one-time first-pull + drop stale starter-lit nodes
+    // (add-neurons-first-pull) so a reset player starts genuinely fresh.
+    await db.meta.delete(FIRST_PULL_DONE_KEY)
+    for (const k of STARTER_FAMILY_KEYS) await db.meta.delete(k)
   })
 }
 

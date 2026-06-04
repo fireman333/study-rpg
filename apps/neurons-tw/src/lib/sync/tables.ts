@@ -375,6 +375,18 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'maze:5ht:settles',
   'maze:gaba:settles',
   'maze:glu:settles',
+  // First-pull (add-neurons-first-pull). `firstPullDone` is a once-only flag —
+  // MONOTONIC-OR: the metaAdapter is write-if-missing and we NEVER write 'false',
+  // so it converges to true everywhere (mirrors everWrong / dmnEventLog
+  // discipline; needs no special post-pass). The 4 starterFamily keys are
+  // one-time immutable writes → first-write-wins (the metaAdapter default) is
+  // safe (both devices roll independently before sync, but firstPullDone gates
+  // a second roll). Drive the starter-lit maze node (lib/maze/graph).
+  'firstPullDone',
+  'maze:da:starterFamily',
+  'maze:5ht:starterFamily',
+  'maze:gaba:starterFamily',
+  'maze:glu:starterFamily',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {
