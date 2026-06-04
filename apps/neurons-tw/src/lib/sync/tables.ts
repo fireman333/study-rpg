@@ -347,7 +347,7 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'dmnBehaviorAxisDrawsConsumedToday',
   'dmnLastDailyResetDate',
   // DMN dispatcher state (single-row flags).
-  'dmnStreakShieldAvailable',
+  // ('dmnStreakShieldAvailable' removed — integrity; add-neurons-acceleration-system)
   'dmnHiddenRevealedArtworkIds',
   // Variant collection: representative-variant selection (per
   // add-neurons-variant-collection-view). Timestamped envelope; LWW enforced
@@ -375,6 +375,18 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'maze:5ht:settles',
   'maze:gaba:settles',
   'maze:glu:settles',
+  // First-pull (add-neurons-first-pull). `firstPullDone` is a once-only flag —
+  // MONOTONIC-OR: the metaAdapter is write-if-missing and we NEVER write 'false',
+  // so it converges to true everywhere (mirrors everWrong / dmnEventLog
+  // discipline; needs no special post-pass). The 4 starterFamily keys are
+  // one-time immutable writes → first-write-wins (the metaAdapter default) is
+  // safe (both devices roll independently before sync, but firstPullDone gates
+  // a second roll). Drive the starter-lit maze node (lib/maze/graph).
+  'firstPullDone',
+  'maze:da:starterFamily',
+  'maze:5ht:starterFamily',
+  'maze:gaba:starterFamily',
+  'maze:glu:starterFamily',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {
@@ -897,6 +909,101 @@ const instanceNicknamesAdapter: TableAdapter<'instanceNicknames'> = {
   },
 }
 
+// ---- Inventory (Dexie v16 — add-neurons-acceleration-system) --------------
+
+const inventoryAdapter: TableAdapter<'inventory'> = {
+  name: 'inventory',
+  async snapshot(db) {
+    return await db.inventory.toArray()
+  },
+  async apply(db, rows) {
+    // Per-row LWW on updatedAt, keyed by `kind` (mirrors instanceNicknames).
+    // Stock is mutable (deposit on draw / decrement on activate) so LWW, NOT
+    // monotonic. Preserve-on-omission: an absent key leaves local stock intact.
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.inventory, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const kind = row.kind
+        if (typeof kind !== 'string') {
+          skipped++
+          continue
+        }
+        const updatedAt = pickUpdatedAt(row)
+        if (updatedAt === null) {
+          skipped++
+          continue
+        }
+        const existing = await db.inventory.get(kind as never)
+        if (existing && existing.updatedAt >= updatedAt) {
+          skipped++
+          continue
+        }
+        await db.inventory.put({
+          kind: kind as never,
+          count: typeof row.count === 'number' && row.count >= 0 ? Math.floor(row.count) : 0,
+          updatedAt,
+        })
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
+// ---- Equipment (Dexie v16 — add-neurons-acceleration-system) ---------------
+
+const equipmentAdapter: TableAdapter<'equipment'> = {
+  name: 'equipment',
+  async snapshot(db) {
+    return await db.equipment.toArray()
+  },
+  async apply(db, rows) {
+    // UNION by equipmentId, MONOTONIC on presence — owning a permanent never
+    // un-owns (mirrors neuronInstances / dmnEventLog). On both-present keep the
+    // EARLIER obtainedAt (provenance) + the later updatedAt; never delete.
+    // DO NOT replace with LWW (a stale empty side must not un-own).
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.equipment, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const equipmentId = row.equipmentId
+        if (typeof equipmentId !== 'string') {
+          skipped++
+          continue
+        }
+        const local = await db.equipment.get(equipmentId as never)
+        if (!local) {
+          await db.equipment.put(incoming as never)
+          applied++
+          continue
+        }
+        const incObtained = typeof row.obtainedAt === 'number' ? (row.obtainedAt as number) : local.obtainedAt
+        const incUpdated = typeof row.updatedAt === 'number' ? (row.updatedAt as number) : 0
+        const mergedObtained = Math.min(local.obtainedAt, incObtained)
+        const mergedUpdated = Math.max(local.updatedAt ?? 0, incUpdated)
+        if (mergedObtained !== local.obtainedAt || mergedUpdated !== (local.updatedAt ?? 0)) {
+          await db.equipment.put({ ...local, obtainedAt: mergedObtained, updatedAt: mergedUpdated })
+          applied++
+        } else {
+          skipped++
+        }
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
 // ---- Adapter registry -----------------------------------------------------
 
 export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
@@ -916,4 +1023,6 @@ export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
   questionHistoryAdapter,
   neuronInstancesAdapter,
   instanceNicknamesAdapter,
+  inventoryAdapter,
+  equipmentAdapter,
 ]

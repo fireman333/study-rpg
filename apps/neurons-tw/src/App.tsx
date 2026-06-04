@@ -10,6 +10,7 @@ import ConnectomeToastHost from './components/SynapseFormationToast'
 import VariantUnlockModal from './components/VariantUnlockModal'
 import { backfillAchievementsFromCurrentStats } from './lib/services/achievement'
 import { initializeDmnTrigger } from './lib/services/dmn-trigger'
+import { installConsoleErrorCapture } from './lib/services/console-error-buffer'
 import AchievementsPage from './routes/AchievementsPage'
 import AchievementToastHost from './components/AchievementToastHost'
 import AchievementUnlockModal from './components/AchievementUnlockModal'
@@ -33,6 +34,8 @@ export default function App(): JSX.Element {
   const [state, setState] = useState<AppState>({ loading: true })
 
   useEffect(() => {
+    // Capture runtime errors early so bug reports can attach the recent ring.
+    installConsoleErrorCapture()
     const root = document.documentElement
     for (const [k, v] of Object.entries(THEME_PIXEL_NEURONS.cssVars)) {
       root.style.setProperty(k, v)

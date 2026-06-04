@@ -27,7 +27,9 @@ import {
 import { deriveMasteryTier, masteryEnergyMultiplier } from '../mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
-import { getActiveFamilyBuffMultiplier } from './dmn-event-dispatcher'
+import { energyAccel } from './acceleration'
+// Cycle-free keys module (NOT ./first-pull — that would cycle via variant-gacha).
+import { FIRST_PULL_DONE_KEY, STARTER_FAMILY_KEYS } from './first-pull-keys'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
@@ -214,7 +216,9 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   // This is the SOLE correct-answer energy faucet now — routed to the answered
   // subject's NT branch pool via FAMILY_NT_BRANCH, scaled by streak + mastery
   // tier (mastery accelerates energy per wire-mastery-energy-acceleration) +
-  // an active DMN family-buff (×FAMILY_BUFF_ENERGY_MULT, realign-dmn-event-rewards-to-maze).
+  // the acceleration energy pool `energyAccel(familyId)` (add-neurons-
+  // acceleration-system — additive + hard-capped; folds in an active family-buff
+  // [+1.0 ⇒ the prior ×2] + global bolus + owned energy-lane equipment).
   // Dynamic import avoids a circular static dep; best-effort (channel `[maze]`).
   try {
     const { branchOfFamily } = await import('../maze/graph')
@@ -223,10 +227,10 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
       const { accrueMazeEnergy, CORRECT_ENERGY, streakMultiplier } = await import('../maze/economy')
       const { getStreaks } = await import('./streak')
       const { current } = await getStreaks()
-      const familyBuffMult = await getActiveFamilyBuffMultiplier(familyId)
+      const accel = await energyAccel(familyId)
       await accrueMazeEnergy(
         branch,
-        CORRECT_ENERGY * streakMultiplier(current) * masteryMult * familyBuffMult,
+        CORRECT_ENERGY * streakMultiplier(current) * masteryMult * accel,
       )
     }
   } catch (err) {
@@ -343,6 +347,10 @@ export async function resetConnectomeForDebug(): Promise<void> {
     await db.meta.put({ key: 'lastResetDate', value: todayISO() })
     // Re-surface the homepage onboarding for a reset (fresh-start) user.
     await db.meta.delete(HOMEPAGE_ONBOARDING_DISMISSED_KEY)
+    // Re-enable the one-time first-pull + drop stale starter-lit nodes
+    // (add-neurons-first-pull) so a reset player starts genuinely fresh.
+    await db.meta.delete(FIRST_PULL_DONE_KEY)
+    for (const k of STARTER_FAMILY_KEYS) await db.meta.delete(k)
   })
 }
 

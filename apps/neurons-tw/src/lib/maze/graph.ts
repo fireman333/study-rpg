@@ -179,6 +179,47 @@ export function frontierNode(branch: NtBranchId, settles: number): MazeNode | nu
   return i < nodes.length ? nodes[i] : null
 }
 
+// --- First-pull starter-lit (add-neurons-first-pull) ---
+// The one-time first-pull lights the rolled family's REPRESENTATIVE node at
+// settles=0 (a 收藏→亮節點 exception to the pure-frontier model). The lit set
+// becomes frontier ∪ { starter rep }, deduped by node identity.
+
+/**
+ * The representative node of a family within a branch = its hub-nearest node
+ * (smallest `pathLen`), tie-broken by `slotIndex` then node key for determinism.
+ * Returns null if the family has no node in the branch (defensive — shouldn't happen).
+ */
+export function representativeNode(branch: NtBranchId, familyId: string): MazeNode | null {
+  const nodes = MAZE_GRAPHS[branch].nodes.filter((n) => n.familyId === familyId)
+  if (nodes.length === 0) return null
+  return [...nodes].sort(
+    (a, b) =>
+      a.pathLen - b.pathLen ||
+      a.slotIndex - b.slotIndex ||
+      nodeKey(a.familyId, a.slotIndex).localeCompare(nodeKey(b.familyId, b.slotIndex)),
+  )[0]
+}
+
+/**
+ * Lit nodes of a branch including the first-pull starter node:
+ * `frontier(settles) ∪ { representativeNode(branch, starterFamily) }`, deduped by
+ * node identity. With `starterFamily = null` this degrades to pure `litNodes`
+ * (current behavior, byte-identical to the frontier-only model).
+ */
+export function litNodesWithStarter(
+  branch: NtBranchId,
+  settles: number,
+  starterFamily: string | null,
+): MazeNode[] {
+  const frontier = litNodes(branch, settles)
+  if (!starterFamily) return frontier
+  const rep = representativeNode(branch, starterFamily)
+  if (!rep) return frontier
+  const repKey = nodeKey(rep.familyId, rep.slotIndex)
+  if (frontier.some((n) => nodeKey(n.familyId, n.slotIndex) === repKey)) return frontier
+  return [...frontier, rep]
+}
+
 /** Linear-interpolate a point at arc-length fraction `t` (0..1) along a node's walk path. */
 export function pointAtFraction(node: MazeNode, t: number): [number, number] {
   const { path, arc, pathLen } = node

@@ -4,7 +4,14 @@ import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { useRespectsReducedMotion, RARITY_TIMINGS } from '../lib/motion'
 import { drawDmnCard, type DrawDmnCardResult } from '../lib/services/dmn-fate-card'
 import { useDmnStatus } from '../lib/hooks/useDmnStatus'
-import type { DmnRarity, DmnEventKind } from '@study-rpg/content-neurons-tw'
+import type {
+  DmnRarity,
+  DmnEventKind,
+  EquipmentDef,
+  EquipmentLane,
+  EquipmentRarity,
+  OwnedEquipmentRow,
+} from '@study-rpg/content-neurons-tw'
 
 interface Props {
   onClose: () => void
@@ -27,11 +34,35 @@ const RARITY_COLOR: Record<DmnRarity, string> = {
 }
 
 const EVENT_LABEL: Record<DmnEventKind, string> = {
-  'family-buff': 'Family Buff · 1 小時內某科 AP 加倍',
+  'family-buff': 'Family Buff · 啟用後某科能量水龍頭 1 小時加倍',
   'variant-rate-up': 'Variant Rate-Up · 下次 variant 抽卡稀有度提升',
-  'quick-review-batch': 'Quick Review · 立刻彈出 5 道 SRS due 題',
-  'streak-shield': 'Streak Shield · 下次斷 streak 時為你擋下一次',
+  'quick-review-batch': 'Quick Review · 啟用後彈出 5 道錯題快速複習',
   'hidden-reveal': 'Hidden Reveal · 透露下一張 P1 卡的輪廓',
+  surge: 'Surge · 啟用後探索速度短暫提升（神經增益）',
+  bolus: 'Bolus · 啟用後迷宮能量短暫湧入（乳酸供能）',
+}
+
+// Equipment (permanent) reveal labels — P1–P5 ladder, distinct from the DMN
+// consumable P1–P4 dex (add-neurons-acceleration-system).
+const EQUIPMENT_RARITY_LABEL: Record<EquipmentRarity, string> = {
+  P1: 'P1 鑽石',
+  P2: 'P2 金',
+  P3: 'P3 銀',
+  P4: 'P4 銅',
+  P5: 'P5 鐵',
+}
+
+const EQUIPMENT_RARITY_COLOR: Record<EquipmentRarity, string> = {
+  P1: '#7fd4ff',
+  P2: '#d4a04d',
+  P3: '#8c8c8c',
+  P4: '#a87c4d',
+  P5: '#6b6b6b',
+}
+
+const LANE_LABEL: Record<EquipmentLane, string> = {
+  speed: '⚡ 傳導速度（永久）',
+  energy: '🔋 神經能量（永久）',
 }
 
 export default function DmnDrawModal({ onClose }: Props): JSX.Element {
@@ -148,6 +179,10 @@ function DmnRevealCard({
   onClose: () => void
   reduced: boolean
 }): JSX.Element {
+  if (result.kind === 'equipment') {
+    return <EquipmentRevealCard equipment={result.equipment} def={result.def} onClose={onClose} reduced={reduced} />
+  }
+
   const { card, catalog } = result
   const color = RARITY_COLOR[card.rarity]
   const spriteUrl = SPRITE_MAP[card.artworkId] ?? SPRITE_MAP['variant:default'] ?? ''
@@ -180,6 +215,45 @@ function DmnRevealCard({
       <div style={cardNameStyle}>{card.displayName}</div>
       <p style={descStyle}>{catalog.description}</p>
       <div style={eventChipStyle}>✦ {EVENT_LABEL[card.eventKind]}</div>
+      <p style={backpackNoteStyle}>已放入背包 — 在 /dmn 背包頁手動啟用</p>
+      <button type="button" onClick={onClose} style={primaryBtnStyle}>
+        收下 ✓
+      </button>
+    </motion.div>
+  )
+}
+
+/** Permanent equipment/companion reveal (low-probability DMN draw branch). */
+function EquipmentRevealCard({
+  equipment,
+  def,
+  onClose,
+  reduced,
+}: {
+  equipment: OwnedEquipmentRow
+  def: EquipmentDef
+  onClose: () => void
+  reduced: boolean
+}): JSX.Element {
+  const color = EQUIPMENT_RARITY_COLOR[equipment.rarity]
+  const spriteUrl = SPRITE_MAP[def.artworkId] ?? SPRITE_MAP['variant:default'] ?? ''
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: reduced ? 1 : 0.92 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: reduced ? 0.18 : 0.5, ease: 'easeOut' }}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.7rem' }}
+    >
+      <div style={{ ...rarityBadgeStyle, color, borderColor: color }}>
+        ⚙ 永久裝備 · {EQUIPMENT_RARITY_LABEL[equipment.rarity]}
+      </div>
+      <div style={spriteWrapStyle}>
+        <img src={spriteUrl} alt={def.displayName} style={spriteStyle} />
+      </div>
+      <div style={cardNameStyle}>{def.displayName}</div>
+      <p style={descStyle}>{def.description}</p>
+      <div style={eventChipStyle}>{LANE_LABEL[def.lane]} · +{Math.round(def.bonus * 100)}%</div>
+      <p style={backpackNoteStyle}>永久加成已生效 — 在 /dmn 裝備頁查看</p>
       <button type="button" onClick={onClose} style={primaryBtnStyle}>
         收下 ✓
       </button>
@@ -342,5 +416,12 @@ const eventChipStyle: React.CSSProperties = {
   padding: '0.3rem 0.85rem',
   fontSize: '0.75rem',
   color: '#d4c4ff',
+  textAlign: 'center',
+}
+
+const backpackNoteStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '0.72rem',
+  color: '#8fa8c4',
   textAlign: 'center',
 }

@@ -1,34 +1,39 @@
 /**
- * DMN event dispatcher — applies the one-time effect of a drawn card.
+ * DMN consumable effect applier (add-neurons-acceleration-system).
  *
- * Branches on `eventKind`:
- *  - family-buff       → insert dmnActiveBuffs row, maze-energy multiplier while active
- *  - variant-rate-up   → insert dmnActiveBuffs row, single-consume on next slot unlock
+ * Branches on `eventKind`. This is the ACTIVATION applier — the player activates
+ * a consumable from the backpack (`inventory.activateConsumable`); the DRAW path
+ * no longer fires effects (it deposits stock — see dmn-fate-card.ts). There is
+ * therefore NO cardId-keyed idempotency here: each activation is a deliberate
+ * action gated by the backpack stock decrement.
+ *  - family-buff        → insert dmnActiveBuffs row, family-scoped energy bonus while active
+ *  - surge              → insert dmnActiveBuffs row, global speed bonus while active
+ *  - bolus              → insert dmnActiveBuffs row, global energy bonus while active
+ *  - variant-rate-up    → insert dmnActiveBuffs row, single-consume on next slot unlock
  *  - quick-review-batch → emit `dmn.quickReviewBatchRequested` event for UI to surface
- *  - streak-shield     → set meta['dmnStreakShieldAvailable'] = true
- *  - hidden-reveal     → append next undrawn P1 cardId to meta['dmnHiddenRevealedArtworkIds']
+ *  - hidden-reveal      → append next undrawn P1 cardId to meta['dmnHiddenRevealedArtworkIds']
+ *  (streak-shield removed — integrity; add-neurons-acceleration-system)
  *
- * Idempotency: dispatcher checks `dmnEventLog` before applying; if cardId
- * already logged, no-op. The orchestrator (`dmn-fate-card.ts`) writes the log
- * entry POST commit so a race between two callers cannot double-apply.
+ * The additive bonus + lane each active buff contributes to the acceleration
+ * pools is derived from `buffKind` in `acceleration.ts` (energyAccel/speedAccel).
  *
- * Capability spec: openspec/specs/neurons-dmn-fate-cards/spec.md
+ * Capability spec: openspec/specs/neurons-acceleration-system/spec.md
  */
 
 import {
   DMN_CARD_CATALOG,
   DMN_FAMILY_BUFF_DURATION_MS,
-  FAMILY_BUFF_ENERGY_MULT,
   type DmnActiveBuffRow,
-  type DmnCardRow,
+  type DmnEventKind,
 } from '@study-rpg/content-neurons-tw'
 
 import { db } from '../db'
+import { CONSUMABLE_BOOSTS } from './acceleration'
 
 // ─── Event bus for UI-consumed events (quick-review-batch) ──────────────────
 
 type DmnUiEventMap = {
-  // Dispatcher → toast: a quick-review-batch card was drawn (arm the CTA).
+  // Applier → toast: a quick-review-batch consumable was activated (arm the CTA).
   'dmn.quickReviewBatchRequested': { sourceCardId: string }
   // Toast → OverviewPage: player tapped the CTA; open a 5-question 出征 mini-batch.
   'dmn.quickReviewStart': Record<string, never>
@@ -62,53 +67,51 @@ class DmnUiEventEmitter {
 
 export const dmnUiEvents = new DmnUiEventEmitter()
 
-// ─── Meta keys for non-buff dispatch state ──────────────────────────────────
+// ─── Meta keys for non-buff applier state ───────────────────────────────────
 
-const META_STREAK_SHIELD = 'dmnStreakShieldAvailable'
 const META_HIDDEN_REVEALED = 'dmnHiddenRevealedArtworkIds'
 
-// ─── Dispatcher ─────────────────────────────────────────────────────────────
+// ─── Applier ────────────────────────────────────────────────────────────────
 
-export async function dispatchDmnEvent(card: DmnCardRow): Promise<void> {
-  // Idempotency: skip if log row already exists. The orchestrator writes the
-  // log AFTER calling dispatch (post-commit), so on a fresh draw this check
-  // passes; on a duplicate dispatch (e.g., sync round-trip re-applying a
-  // bundle), the log row pre-exists and we no-op.
-  const existing = await db.dmnEventLog.get(card.cardId)
-  if (existing !== undefined && existing.dispatchedAt < card.obtainedAt) {
-    // Card was already dispatched at an earlier instant — no-op.
-    console.info(`[dmn] event for ${card.cardId} already dispatched at ${existing.dispatchedAt}`)
-    return
-  }
-
-  switch (card.eventKind) {
+/**
+ * Apply one consumable's effect, by kind. Called from the backpack on activation
+ * (`inventory.activateConsumable`). `sourceCardId` is provenance stamped onto any
+ * resulting active-buff row (a synthetic `activate:<kind>:<ts>` id when activated
+ * from stock rather than tied to one collected card).
+ */
+export async function applyConsumableEffect(
+  kind: DmnEventKind,
+  sourceCardId: string,
+): Promise<void> {
+  switch (kind) {
     case 'family-buff':
-      await dispatchFamilyBuff(card)
+      await applyFamilyBuff(sourceCardId)
       break
     case 'variant-rate-up':
-      await dispatchVariantRateUp(card)
+      await applyVariantRateUp(sourceCardId)
       break
     case 'quick-review-batch':
-      dmnUiEvents.emit('dmn.quickReviewBatchRequested', { sourceCardId: card.cardId })
+      dmnUiEvents.emit('dmn.quickReviewBatchRequested', { sourceCardId })
       break
-    case 'streak-shield':
-      await dispatchStreakShield(card)
+    case 'surge':
+    case 'bolus':
+      await applyTimedConsumable(kind, sourceCardId)
       break
     case 'hidden-reveal':
-      await dispatchHiddenReveal(card)
+      await applyHiddenReveal(sourceCardId)
       break
     default: {
       // Exhaustiveness check
-      const _exhaustive: never = card.eventKind
+      const _exhaustive: never = kind
       console.warn(`[dmn] unknown eventKind: ${String(_exhaustive)}`)
     }
   }
 }
 
-// ─── Per-kind dispatchers ───────────────────────────────────────────────────
+// ─── Per-kind appliers ──────────────────────────────────────────────────────
 
-async function dispatchFamilyBuff(card: DmnCardRow): Promise<void> {
-  // Pick a random family from the 11 known neuron families. Reads from
+async function applyFamilyBuff(sourceCardId: string): Promise<void> {
+  // Pick a random family from the known neuron families. Reads from
   // familyAccrual to stay agnostic of content-pack catalog.
   const families = await db.familyAccrual.toArray()
   if (families.length === 0) {
@@ -122,7 +125,7 @@ async function dispatchFamilyBuff(card: DmnCardRow): Promise<void> {
     familyId: chosen.familyId,
     expiresAt,
     payload: null,
-    sourceCardId: card.cardId,
+    sourceCardId,
   }
   await db.dmnActiveBuffs.add(row)
   console.info(
@@ -130,48 +133,47 @@ async function dispatchFamilyBuff(card: DmnCardRow): Promise<void> {
   )
 }
 
-async function dispatchVariantRateUp(card: DmnCardRow): Promise<void> {
+async function applyVariantRateUp(sourceCardId: string): Promise<void> {
   // Sentinel expiresAt = far future; consumed on next variant slot unlock.
-  // We use 9999-12-31 as the "never-expires-naturally" marker; the consumer
-  // (variant-gacha) will delete the row after first use.
+  // The consumer (variant-gacha) deletes the row after first use.
   const row: DmnActiveBuffRow = {
     buffKind: 'variant-rate-up',
     familyId: null,
     expiresAt: 32503680000000, // year 3000 UTC ms
     payload: null,
-    sourceCardId: card.cardId,
+    sourceCardId,
   }
   await db.dmnActiveBuffs.add(row)
   console.info('[dmn] variant-rate-up buff queued for next slot unlock')
 }
 
-async function dispatchStreakShield(card: DmnCardRow): Promise<void> {
-  await db.meta.put({ key: META_STREAK_SHIELD, value: 'true' })
-  console.info(`[dmn] streak-shield armed (source=${card.cardId})`)
+/**
+ * surge / bolus → insert a timed dmnActiveBuffs row. The additive bonus + lane
+ * are derived from `CONSUMABLE_BOOSTS[buffKind]` in the acceleration engine;
+ * here we only stamp the kind + expiry. surge/bolus are global (familyId null).
+ */
+async function applyTimedConsumable(
+  kind: 'surge' | 'bolus',
+  sourceCardId: string,
+): Promise<void> {
+  const spec = CONSUMABLE_BOOSTS[kind]
+  if (!spec) {
+    console.warn(`[dmn] no consumable boost spec for ${kind}; skipping`)
+    return
+  }
+  const expiresAt = Date.now() + spec.durationMs
+  const row: DmnActiveBuffRow = {
+    buffKind: kind,
+    familyId: null,
+    expiresAt,
+    payload: null,
+    sourceCardId,
+  }
+  await db.dmnActiveBuffs.add(row)
+  console.info(`[dmn] ${kind} activated until ${new Date(expiresAt).toISOString()}`)
 }
 
 // ─── Consumer-side helpers ──────────────────────────────────────────────────
-
-/**
- * Read active `family-buff` rows matching the given familyId that haven't
- * expired. Returns the maze-energy MULTIPLIER (`FAMILY_BUFF_ENERGY_MULT` if a
- * buff is active for this family, else 1.0). Caller: the post-commit maze faucet
- * in `connectome.recordCorrectAnswer`. (realign-dmn-event-rewards-to-maze: was
- * an additive AP bonus; AP no longer gates progression post-maze.)
- */
-export async function getActiveFamilyBuffMultiplier(familyId: string): Promise<number> {
-  const now = Date.now()
-  const buffs = await db.dmnActiveBuffs
-    .where('buffKind')
-    .equals('family-buff')
-    .toArray()
-  for (const b of buffs) {
-    if (b.familyId === familyId && b.expiresAt > now) {
-      return FAMILY_BUFF_ENERGY_MULT
-    }
-  }
-  return 1
-}
 
 /**
  * Consume the active `variant-rate-up` buff (delete row, return true). If no
@@ -193,19 +195,6 @@ export async function consumeVariantRateUpBuff(): Promise<boolean> {
 }
 
 /**
- * Consume the streak-shield meta flag if set. Returns true if shield was
- * consumed (caller: `streak.resetCurrentStreak` — preserve streak in this
- * case). Returns false if no shield available.
- */
-export async function consumeStreakShield(): Promise<boolean> {
-  const row = await db.meta.get(META_STREAK_SHIELD)
-  if (!row || row.value !== 'true') return false
-  await db.meta.put({ key: META_STREAK_SHIELD, value: 'false' })
-  console.info('[dmn] streak-shield consumed')
-  return true
-}
-
-/**
  * Read the set of P1 artworkIds revealed via hidden-reveal (used by
  * DmnCollectionPage to render reduced-opacity silhouettes).
  */
@@ -215,7 +204,7 @@ export async function readHiddenRevealedArtworkIds(): Promise<Set<string>> {
   return new Set(row.value.split(',').filter(Boolean))
 }
 
-async function dispatchHiddenReveal(card: DmnCardRow): Promise<void> {
+async function applyHiddenReveal(sourceCardId: string): Promise<void> {
   // Reveal the next undrawn P1 card's artworkId. Pick the first un-owned P1
   // entry in catalog order; if all P1s already owned or revealed, no-op.
   const ownedRows = await db.dmnCards.toArray()
@@ -228,7 +217,7 @@ async function dispatchHiddenReveal(card: DmnCardRow): Promise<void> {
     (c) => c.rarity === 'P1' && !ownedSet.has(c.cardId) && !revealedSet.has(c.artworkId),
   )
   if (!target) {
-    console.info(`[dmn] hidden-reveal: no undrawn/unrevealed P1 cards (source=${card.cardId})`)
+    console.info(`[dmn] hidden-reveal: no undrawn/unrevealed P1 cards (source=${sourceCardId})`)
     return
   }
   revealedSet.add(target.artworkId)
@@ -236,5 +225,5 @@ async function dispatchHiddenReveal(card: DmnCardRow): Promise<void> {
     key: META_HIDDEN_REVEALED,
     value: [...revealedSet].join(','),
   })
-  console.info(`[dmn] hidden-reveal: spoiler hint for ${target.cardId} (source=${card.cardId})`)
+  console.info(`[dmn] hidden-reveal: spoiler hint for ${target.cardId} (source=${sourceCardId})`)
 }

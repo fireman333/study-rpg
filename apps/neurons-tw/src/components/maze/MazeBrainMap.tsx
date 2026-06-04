@@ -23,6 +23,8 @@ import MazeExpedition from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
 import { decodePairKey } from '../../lib/services/connectome'
 import { useRespectsReducedMotion } from '../../lib/motion'
+import { useReadingTimer } from '../../lib/hooks/useReadingTimer'
+import { getExpeditionHidden, setExpeditionHiddenPref } from '../../lib/expedition-visibility'
 import { walkerFraction } from '../../lib/maze/economy'
 import { MAZE_GRAPHS, NT_BRANCHES, nodeKey, pointAtFraction, type MazeNode } from '../../lib/maze/graph'
 import type { BranchViewState, MazeViewState } from '../../lib/maze/useMaze'
@@ -204,15 +206,15 @@ export default function MazeBrainMap({ view }: { view: MazeViewState }): JSX.Ele
   const synapseEdges = useSynapseEdges()
   const [visible, setVisible] = useState<Set<NtBranchId>>(() => new Set(NT_BRANCHES))
   const [synapseOverlayOn, setSynapseOverlayOn] = useState(true)
-  const [expeditionOn, setExpeditionOn] = useState(() => {
-    try { return localStorage.getItem('neurons:maze:expeditionShown') === '1' } catch { return false }
-  })
-  // Persist show/hide so hiding the animation (distracting while reading / answering)
-  // sticks across reloads; turning it on likewise sticks.
-  const setExpedition = (on: boolean) => {
-    setExpeditionOn(on)
-    try { localStorage.setItem('neurons:maze:expeditionShown', on ? '1' : '0') } catch { /* private mode */ }
+  // Opt-out visibility (rework-neurons-squads): the band shows by default and
+  // auto-animates while reading is active; a persisted「關閉動畫」preference hides it.
+  const [expeditionHidden, setExpeditionHidden] = useState(getExpeditionHidden)
+  const setExpeditionHide = (hidden: boolean) => {
+    setExpeditionHidden(hidden)
+    setExpeditionHiddenPref(hidden)
   }
+  // Reading-active drives the band animation (static otherwise). Read-only signal.
+  const reading = useReadingTimer()
   const prevCount = useRef(view.totalConnectedCount)
 
   // Soft "connect" chime on a newly-lit node (settle reveal) — WebAudio, no asset.
@@ -252,11 +254,11 @@ export default function MazeBrainMap({ view }: { view: MazeViewState }): JSX.Ele
         </button>
         <button
           type="button"
-          aria-pressed={expeditionOn}
-          onClick={() => setExpedition(!expeditionOn)}
-          style={chipToggleStyle(expeditionOn, '#ffb33e')}
+          aria-pressed={!expeditionHidden}
+          onClick={() => setExpeditionHide(!expeditionHidden)}
+          style={chipToggleStyle(!expeditionHidden, '#ffb33e')}
         >
-          {expeditionOn ? '🚀 隱藏遠征動畫' : '🚀 顯示遠征動畫'}
+          {expeditionHidden ? '🚀 顯示遠征動畫' : '🚀 隱藏遠征動畫'}
         </button>
       </div>
 
@@ -297,8 +299,13 @@ export default function MazeBrainMap({ view }: { view: MazeViewState }): JSX.Ele
         })}
       </div>
 
-      {/* 遠征動畫帶 — 按「顯示遠征動畫」顯示；純裝飾，旅程本身一直在跑 */}
-      {expeditionOn && <MazeExpedition onHide={() => setExpedition(false)} />}
+      {/* 神經元遠征隊動畫帶 — 預設顯示，閱讀進行時自動播；純裝飾，旅程本身一直在跑 */}
+      {!expeditionHidden && (
+        <MazeExpedition
+          onHide={() => setExpeditionHide(true)}
+          paused={reading.status !== 'reading'}
+        />
+      )}
 
       <div style={stageStyle}>
         {/* always-on shared brain outline (never hidden by chips) */}

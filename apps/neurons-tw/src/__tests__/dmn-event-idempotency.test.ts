@@ -1,19 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { db } from '../lib/db'
-import { dispatchDmnEvent } from '../lib/services/dmn-event-dispatcher'
-import type { DmnCardRow } from '@study-rpg/content-neurons-tw'
+import { applyConsumableEffect } from '../lib/services/dmn-event-dispatcher'
 
 /**
- * Verify dispatcher idempotency + sync adapter monotonic-union semantics for
- * dmnEventLog (spec Req "DMN event log SHALL be idempotent and use
- * monotonic-union merge for cross-device sync").
+ * Verify the consumable effect applier (activation path) + the dmnEventLog sync
+ * adapter monotonic-union semantics (spec Req "DMN event log SHALL use
+ * monotonic-union merge for cross-device sync"). The applier itself is NOT
+ * idempotent by cardId — activation is gated by the backpack stock decrement
+ * (add-neurons-acceleration-system); each activation deliberately spawns its
+ * effect.
  */
 
 beforeEach(async () => {
   await db.delete()
   await db.open()
-  // Seed families so family-buff dispatch has something to pick.
+  // Seed families so family-buff activation has something to pick.
   await db.familyAccrual.put({
     familyId: '藥理學',
     ap: 0,
@@ -25,45 +27,28 @@ beforeEach(async () => {
   })
 })
 
-const cardA: DmnCardRow = {
-  cardId: 'dmn-pcc-pulse-p2',
-  rarity: 'P2',
-  eventKind: 'streak-shield',
-  artworkId: 'dmn:card:dmn-pcc-pulse-p2',
-  displayName: '後扣帶皮層脈動',
-  obtainedAt: 1_700_000_000_000,
-}
-
-describe('dispatchDmnEvent idempotency', () => {
-  it('streak-shield: dispatch flips meta to true', async () => {
-    await dispatchDmnEvent(cardA)
-    const meta = await db.meta.get('dmnStreakShieldAvailable')
-    expect(meta?.value).toBe('true')
+describe('applyConsumableEffect', () => {
+  it('bolus: inserts a timed active buff row', async () => {
+    await applyConsumableEffect('bolus', 'activate:bolus:1')
+    const buffs = await db.dmnActiveBuffs.toArray()
+    expect(buffs.length).toBe(1)
+    expect(buffs[0]!.buffKind).toBe('bolus')
+    expect(buffs[0]!.expiresAt).toBeGreaterThan(Date.now())
   })
 
-  it('duplicate dispatch (after log row exists with earlier timestamp) is no-op', async () => {
-    // Simulate sync round-trip: log row arrived first via bundle apply
-    await db.dmnEventLog.put({
-      cardId: cardA.cardId,
-      dispatchedAt: cardA.obtainedAt - 1000,
-      deviceId: 'remote-device',
-    })
-    // Now the dispatcher is called with the same cardId (e.g., sync re-applied)
-    await dispatchDmnEvent(cardA)
-    // Streak shield should NOT be set — dispatcher saw the prior log row
-    // with earlier dispatchedAt and short-circuited.
-    const meta = await db.meta.get('dmnStreakShieldAvailable')
-    expect(meta).toBeUndefined()
-  })
-
-  it('family-buff: inserts active buff row with random familyId', async () => {
-    const card: DmnCardRow = { ...cardA, cardId: 'dmn-mpfc-reverberation-p2', eventKind: 'family-buff' }
-    await dispatchDmnEvent(card)
+  it('family-buff: inserts active buff row with a random familyId', async () => {
+    await applyConsumableEffect('family-buff', 'activate:family-buff:1')
     const buffs = await db.dmnActiveBuffs.toArray()
     expect(buffs.length).toBe(1)
     expect(buffs[0]!.buffKind).toBe('family-buff')
     expect(buffs[0]!.familyId).toBe('藥理學')
     expect(buffs[0]!.expiresAt).toBeGreaterThan(Date.now())
+  })
+
+  it('is NOT cardId-idempotent — two activations spawn two buffs', async () => {
+    await applyConsumableEffect('bolus', 'activate:bolus:1')
+    await applyConsumableEffect('bolus', 'activate:bolus:2')
+    expect(await db.dmnActiveBuffs.count()).toBe(2)
   })
 })
 

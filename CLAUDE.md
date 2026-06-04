@@ -195,10 +195,11 @@ reset role;
 
 ## Bug reporting (M4.5)
 
-`apps/medexam-tw` and `apps/medexam2-hospital-tw` both ship an in-app **`💬 回報問題 / 建議`** flow:
+`apps/medexam-tw`, `apps/medexam2-hospital-tw`, and `apps/neurons-tw` all ship an in-app **`💬 回報問題 / 建議`** flow:
 
 - 一階 entry: `SettingsPanel.tsx` new section.
 - 二階 entry: `HelpMenu.tsx` 9th accordion section.
+- **神經元 entry** (`add-neurons-bug-report`, 2026-06-04): `HelpMenu.tsx`「🩺 回報問題」section opens `BugReportModal.tsx`, **plus** an inline 🐞 in `QuizModal.tsx` (question-scoped, stamps `question_id`). neurons uses `NEURONS_BUG_REPORT_CATEGORIES` (12, separate const) + its own snapshot from the neurons Dexie. **Requires migration `supabase/migrations/0017_neurons_bug_reports.sql`** (owner-applied; extends `app` + `category` CHECK to admit `'neurons-tw'` + 4 neurons categories). No Dexie / R2 bump — Supabase-only.
 
 Submissions land in Supabase table **`public.bug_reports`** (migration `supabase/migrations/0004_bug_reports.sql`). RLS = `auth.uid() = user_id` per row; owner reads via `service_role` (dashboard SQL editor today, future `/bug-reports` skill after the follow-up change).
 
@@ -434,6 +435,35 @@ Key handles:
 Deferred follow-ups: per-NT-branch flavoured decor (4×3=12 assets); sparser milestone myelin field (currently ~93% coverage → soft gold haze at low opacity). Ship universal first, revisit with telemetry.
 
 Full change reference: `openspec/changes/context-driven-variant-art/` (proposal / design / specs / tasks).
+
+## Neurons acceleration system (M_3rd ext, 2026-06-04)
+
+`apps/neurons-tw` merges the two parked progression lanes (P2 DMN→supplies + P3 equipment) into one **加速系統**: a single speed·energy boost layer with **two persistence forms** — transient **consumables** (backpack, manual-activate) vs durable **permanent equipment/companions**. Capability spec: [`openspec/specs/neurons-acceleration-system/spec.md`](openspec/specs/neurons-acceleration-system/spec.md) (new). Pivot rationale in [`openspec/decisions/2026-06-04-neurons-progression-systems-roadmap.md`](openspec/decisions/2026-06-04-neurons-progression-systems-roadmap.md).
+
+**Boost model — additive `1 + Σ`, hard-capped.** `apps/neurons-tw/src/lib/services/acceleration.ts`:
+- `energyAccel(familyId)` = `min(ENERGY_ACCEL_CAP=2.5, 1 + Σ active-energy-consumable bonus + Σ owned-energy-equipment bonus)`. Wired into the correct-answer maze-energy faucet at `connectome.ts` (**replaced** the standalone `getActiveFamilyBuffMultiplier`; family-buff is now a `+1.0` energy bonus inside the pool ⇒ the prior ×2). `family-buff` is family-scoped; `bolus` is global.
+- `speedAccel()` = `min(SPEED_ACCEL_CAP=2.0, 1 + Σ surge + Σ owned-speed-equipment)`. Composed into `maze/economy.ts` `accrueMazeEnergy` (the exploration-speed lane) alongside the existing `mazeSpeedMultiplier(count)`. `speedAccel()`/`energyAccel()` return 1.0 with nothing active → no-op for un-accelerated saves.
+- Caps are dogfood-tunable game-loop numbers (NOT OE-anchored) — the explicit guard against the positive-feedback runaway (collection-count × streak × mastery × acceleration). Consumables are time-limited/one-shot, permanents few + capped ⇒ peak is bounded.
+
+**DMN draw is the single acquisition channel for both forms.** `dmn-fate-card.ts` `drawDmnCard(rng = Math.random)` rolls `EQUIPMENT_DRAW_RATE` (≈5%) vs the unowned equipment pool → on hit awards a rarity-weighted (P1–P5) permanent to the `equipment` table; else deposits a consumable to the `inventory` backpack (NO auto-fire) + the `dmnCards` dex + a `dmnEventLog` provenance row. Falls through to the other pool if one is exhausted; null only when BOTH are fully owned. `rng` is injectable for deterministic tests.
+
+**Backpack model (NO auto-fire on draw).** `inventory.ts`: `depositConsumable` (draw), `activateConsumable` (decrement-then-apply via `applyConsumableEffect`), `pruneExpiredBuffs`. Stock rows are **kept at count 0, never deleted** (per-kind LWW continuity). `dmn-event-dispatcher.ts` was refactored: `dispatchDmnEvent` (draw-time, cardId-idempotent) → **`applyConsumableEffect(kind, sourceCardId)`** (activation applier, NO cardId idempotency — activation is gated by the stock decrement). `getActiveFamilyBuffMultiplier` **removed** (superseded by `energyAccel`).
+
+**`streak-shield` removed entirely (integrity).** The only anti-learning crutch — full footprint gone (`DmnEventKind` union, catalog ×4, dispatcher case, `consumeStreakShield`, `streak.ts` consume site, `SYNCED_META_KEYS` `dmnStreakShieldAvailable`, UI copy, sprite ids, idempotency test). Players mid-armed lose it silently (no refund). The daily streak multiplier + SRS self-report buttons stay (honest mechanics).
+
+**Catalogs** (`packages/content-neurons-tw/src/`):
+- DMN consumable dex recomputed **20 → 22** (`dmn-cards.ts`): removed 4 streak-shield, added 3 `surge` (NE/DA phasic gain → speed) + 3 `bolus` (lactate shuttle → energy). Distribution P1×2 / P2×5 / P3×7 / P4×8; tier weights unchanged 2/10/30/58. Validator `dmn-card-validator.ts` size 22 + the 6-kind set. `family-buff` reframed (AP→energy copy).
+- Equipment catalog `equipment-catalog.ts` — **12 items P1–P5 × 2 lanes** (6 myelin/speed + 6 pump/metabolic-energy). Owned-once, no upgrade ladder (v1). Rarity-scaled bonus `EQUIPMENT_RARITY_BONUS` (P1 +0.30 / P2 +0.18 / P3 +0.10 / P4 +0.04 / P5 +0.01). `equipment-validator.ts`: ≥10 items, ≥2/tier, rarity-matched bonus. OE-anchored (oligodendrocyte myelin = durable speed; Na⁺/K⁺-ATPase pump = endurance NOT speed). `verify:equipment` 6/6.
+
+**Schema (additive).** Dexie **v16** (`db.ts`): new `inventory` (`kind` PK) + `equipment` (`equipmentId` PK) tables; NO pk change; no backfill (grandfather from v16). v15→v16 fixture at `__tests__/db-v15-to-v16-migration.test.ts`. R2 neurons bundle `SCHEMA_VERSION` **15 → 16** (`sync/r2/bundles.ts`): two new adapters in `sync/tables.ts` — **`inventoryAdapter` (per-kind LWW on `updatedAt`)** + **`equipmentAdapter` (UNION by equipmentId, MONOTONIC on presence — owning never un-owns; keeps earliest `obtainedAt`)**. Additive + reader-tolerant (v15 clients drop the unknown keys; v16 reading v15 preserves local). Worker is bundle-opaque — no Worker change.
+
+**UI** (`/dmn` route, `DmnCollectionPage`): `BackpackPanel` (stock list + activate + active-buff timers) above the consumable dex; `EquipmentDexPanel` (P1–P5 owned/silhouette grid) below; `DmnDrawModal` reveal branches consumable (→ "已放入背包") vs equipment (→ "永久裝備 GET"). Top-nav unchanged.
+
+**Sprites: placeholders this change.** `theme-pixel-neurons/src/sprites.ts` registers 12 `equipment:<id>` keys (new `../sprites/equipment/*.png` glob) + refreshed `DMN_CARD_IDS` to the current 22; all fall back to `TRANSPARENT_PIXEL` (no real art yet). Real art (~14: 12 equipment + surge/bolus card) is a deferred follow-up `generate-acceleration-sprites` (Gemini/codex).
+
+Test coverage: `apps/neurons-tw/src/__tests__/{acceleration,inventory,db-v15-to-v16-migration,acceleration-bundle}.test.ts` + updated `{dmn-draw-mechanics,dmn-event-idempotency,dmn-event-realign}.test.ts` (342 neurons tests green). `pnpm --filter @study-rpg/neurons-tw test` + `pnpm -r typecheck` + `pnpm lint:dexie-fixtures` clean.
+
+Full change reference: `openspec/changes/add-neurons-acceleration-system/` (proposal / design / specs / tasks).
 
 ## Source data path
 

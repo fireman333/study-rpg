@@ -22,7 +22,7 @@ interface Props {
 export default function SquadCelebration({ squad, size = 44 }: Props): JSX.Element | null {
   if (squad.length === 0) return null
   return (
-    <div style={rowStyle} aria-label="出戰隊伍歡呼" aria-hidden>
+    <div style={rowStyle} aria-label="神經元遠征隊歡呼" aria-hidden>
       {squad.map((row, i) => (
         <span
           key={variantKey(row.familyId, row.slotIndex)}

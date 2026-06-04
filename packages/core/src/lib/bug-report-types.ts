@@ -24,6 +24,34 @@ export const BUG_REPORT_CATEGORIES = [
 
 export type BugReportCategory = (typeof BUG_REPORT_CATEGORIES)[number]
 
+/**
+ * Neurons-tw category set (add-neurons-bug-report). Kept SEPARATE from the
+ * medexam `BUG_REPORT_CATEGORIES` (which carries hospital-management / doctors /
+ * events-fate-cards) so the neurons form only shows neurons-relevant choices.
+ * The four neurons-unique values (`maze-exploration` / `variant-collection` /
+ * `synapse` / `dmn-fate-cards`) are added to the shared Supabase `category`
+ * CHECK by migration `0017_neurons_bug_reports.sql` — every value here MUST be
+ * present in that CHECK (guarded by a unit test). The inline QuizModal 🐞 flow
+ * reuses `QUIZ_BUG_TARGET_TO_CATEGORY` (question-error / image-broken /
+ * explanation-error / other — already in the CHECK via migration 0007).
+ */
+export const NEURONS_BUG_REPORT_CATEGORIES = [
+  'app-stability',
+  'maze-exploration',
+  'variant-collection',
+  'synapse',
+  'dmn-fate-cards',
+  'study-session',
+  'numbers-wrong',
+  'visual-glitch',
+  'cloud-sync',
+  'corpus',
+  'feature-request',
+  'other',
+] as const
+
+export type NeuronsBugReportCategory = (typeof NEURONS_BUG_REPORT_CATEGORIES)[number]
+
 /** Inline quiz bug-report targets. Player picks one of these in QuizBugReportSheet;
  *  it maps to a BugReportCategory via QUIZ_BUG_TARGET_TO_CATEGORY. */
 export const QUIZ_BUG_TARGETS = [
@@ -60,7 +88,7 @@ export const BUG_REPORT_REPRODUCIBILITY = [
 
 export type BugReportReproducibility = (typeof BUG_REPORT_REPRODUCIBILITY)[number]
 
-export const BUG_REPORT_APPS = ['medexam-tw', 'medexam2-hospital-tw'] as const
+export const BUG_REPORT_APPS = ['medexam-tw', 'medexam2-hospital-tw', 'neurons-tw'] as const
 
 export type BugReportApp = (typeof BUG_REPORT_APPS)[number]
 

@@ -1,33 +1,43 @@
 /**
- * DMN fate-card draw orchestrator.
+ * DMN fate-card draw orchestrator (add-neurons-acceleration-system).
  *
- * Algorithm (per spec Req "Drawing a DMN card SHALL produce exactly one new
- * dmnCard row + one event dispatch + permanent collection entry"):
- * 1. Pre-check: `dmnDrawsAvailable >= 1` (else return null)
- * 2. Compute un-owned pool grouped by rarity
- * 3. Weighted-pick a rarity (P1/P2/P3/P4 weights 2/10/30/58)
- *    — if picked rarity exhausted in pool, fall back to next-highest available
- * 4. Uniform-pick a cardId from that rarity's un-owned subset
- * 5. Inside one tx: decrement dmnDrawsAvailable, insert dmnCards row,
- *    bump lifetime counter
- * 6. After commit: dispatch the card's event via dmn-event-dispatcher.ts
- * 7. Append dmnEventLog row (idempotency guard for cross-device sync)
- * 8. Return the rolled card (caller pushes to UI toast/modal queue)
+ * Each draw yields ONE of two forms (single acquisition channel, design D1):
+ *  - low-probability PERMANENT equipment (EQUIPMENT_DRAW_RATE ≈ 5% vs the
+ *    unowned equipment pool) → rarity-weighted P1–P5 → `equipment` table
+ *  - else a CONSUMABLE card → `dmnCards` dex row + `inventory` backpack stock
+ *    (NO auto-fire; the player activates from the backpack later)
+ *
+ * Algorithm:
+ * 1. Pre-check draws ≥ 1 + load owned consumable + owned equipment sets
+ * 2. Roll equipment branch: rng() < EQUIPMENT_DRAW_RATE AND unowned equipment
+ *    pool non-empty → award equipment; else consumable. If the chosen branch's
+ *    pool is empty, fall through to the other; if BOTH empty → null (no entitlement
+ *    consumed).
+ * 3. Inside one tx: re-check entitlement, persist the award, decrement
+ *    dmnDrawsAvailable, bump the lifetime counter (+ deposit consumable stock)
+ * 4. Consumable: append a dmnEventLog provenance row post-commit (NO dispatch)
  *
  * Capability spec: openspec/specs/neurons-dmn-fate-cards/spec.md
+ *                  openspec/specs/neurons-acceleration-system/spec.md
  */
 
 import {
   DMN_CARD_CATALOG,
   DMN_RARITIES,
   DMN_RARITY_WEIGHTS,
+  EQUIPMENT_CATALOG,
+  EQUIPMENT_DRAW_RATE,
+  EQUIPMENT_RARITIES,
+  EQUIPMENT_RARITY_WEIGHTS,
   type DmnCardDef,
   type DmnCardRow,
   type DmnRarity,
+  type EquipmentDef,
+  type EquipmentRarity,
+  type OwnedEquipmentRow,
 } from '@study-rpg/content-neurons-tw'
 
 import { db } from '../db'
-import { dispatchDmnEvent } from './dmn-event-dispatcher'
 import { getClientId } from '../sync/r2/bundles'
 
 const META_KEY_DRAWS = 'dmnDrawsAvailable'
@@ -39,7 +49,8 @@ function parseIntSafe(v: string | undefined): number {
   return Number.isFinite(n) ? n : 0
 }
 
-// Weighted random pick across the 4 rarity tiers.
+// ─── Consumable card selection (weighted by P1–P4 tier) ─────────────────────
+
 function pickRarity(rng: () => number = Math.random): DmnRarity {
   const total = DMN_RARITIES.reduce((s, r) => s + DMN_RARITY_WEIGHTS[r], 0)
   const target = rng() * total
@@ -56,13 +67,6 @@ function rarityOrder(r: DmnRarity): number {
   return { P1: 1, P2: 2, P3: 3, P4: 4 }[r]
 }
 
-/**
- * Pick a card from un-owned pool. Strategy:
- * - Roll rarity by weight
- * - If that rarity's un-owned subset is empty, walk down the ladder (rarer
- *   first if rolled rarity was common, else fall to next rarity) — guarantees
- *   we always return a card while pool is non-empty
- */
 function selectCardFromPool(
   ownedCardIds: Set<string>,
   rng: () => number = Math.random,
@@ -70,23 +74,16 @@ function selectCardFromPool(
   const unowned = DMN_CARD_CATALOG.filter((c) => !ownedCardIds.has(c.cardId))
   if (unowned.length === 0) return null
 
-  const byRarity: Record<DmnRarity, DmnCardDef[]> = {
-    P1: [],
-    P2: [],
-    P3: [],
-    P4: [],
-  }
+  const byRarity: Record<DmnRarity, DmnCardDef[]> = { P1: [], P2: [], P3: [], P4: [] }
   for (const card of unowned) byRarity[card.rarity].push(card)
 
-  // First try the rolled rarity
-  let target = pickRarity(rng)
+  const target = pickRarity(rng)
   if (byRarity[target].length > 0) {
     const idx = Math.floor(rng() * byRarity[target].length)
     return byRarity[target][idx]!
   }
 
-  // Fallback: walk rarity ladder. Try rarer tiers first (player gets a
-  // pleasant surprise when "their" tier is exhausted), then walk down.
+  // Fallback: walk rarity ladder, nearest tier first.
   const ranked = [...DMN_RARITIES].sort(
     (a, b) =>
       Math.abs(rarityOrder(a) - rarityOrder(target)) -
@@ -101,28 +98,127 @@ function selectCardFromPool(
   return null
 }
 
-export interface DrawDmnCardResult {
-  card: DmnCardRow
-  catalog: DmnCardDef
+// ─── Permanent equipment selection (weighted by P1–P5 rarity) ───────────────
+
+function equipmentRarityOrder(r: EquipmentRarity): number {
+  return { P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }[r]
 }
 
+function pickEquipmentRarity(rng: () => number = Math.random): EquipmentRarity {
+  const total = EQUIPMENT_RARITIES.reduce((s, r) => s + EQUIPMENT_RARITY_WEIGHTS[r], 0)
+  const target = rng() * total
+  let acc = 0
+  for (const rarity of EQUIPMENT_RARITIES) {
+    acc += EQUIPMENT_RARITY_WEIGHTS[rarity]
+    if (target < acc) return rarity
+  }
+  return EQUIPMENT_RARITIES[EQUIPMENT_RARITIES.length - 1]!
+}
+
+function selectEquipmentFromPool(
+  ownedEquipmentIds: Set<string>,
+  rng: () => number = Math.random,
+): EquipmentDef | null {
+  const unowned = EQUIPMENT_CATALOG.filter((e) => !ownedEquipmentIds.has(e.equipmentId))
+  if (unowned.length === 0) return null
+
+  const byRarity = new Map<EquipmentRarity, EquipmentDef[]>()
+  for (const r of EQUIPMENT_RARITIES) byRarity.set(r, [])
+  for (const e of unowned) byRarity.get(e.rarity)!.push(e)
+
+  const target = pickEquipmentRarity(rng)
+  const direct = byRarity.get(target)!
+  if (direct.length > 0) return direct[Math.floor(rng() * direct.length)]!
+
+  // Nearest-unowned fallback: closest tier first.
+  const ranked = [...EQUIPMENT_RARITIES].sort(
+    (a, b) =>
+      Math.abs(equipmentRarityOrder(a) - equipmentRarityOrder(target)) -
+      Math.abs(equipmentRarityOrder(b) - equipmentRarityOrder(target)),
+  )
+  for (const candidate of ranked) {
+    const pool = byRarity.get(candidate)!
+    if (pool.length > 0) return pool[Math.floor(rng() * pool.length)]!
+  }
+  return null
+}
+
+// ─── Draw result ────────────────────────────────────────────────────────────
+
+export type DrawDmnCardResult =
+  | { kind: 'consumable'; card: DmnCardRow; catalog: DmnCardDef }
+  | { kind: 'equipment'; equipment: OwnedEquipmentRow; def: EquipmentDef }
+
 /**
- * Pull a draw from `dmnDrawsAvailable`, persist + dispatch + log. Returns the
- * card + its catalog entry, or null if no draws available / collection
- * complete.
- *
- * Caller (UI) is responsible for showing reveal modal/toast based on rarity.
+ * Pull a draw from `dmnDrawsAvailable`. Yields either a permanent equipment or a
+ * consumable (deposited to the backpack — NO auto-fire). Returns null if no
+ * draws available or BOTH pools are fully owned. `rng` is injectable for tests.
  */
-export async function drawDmnCard(): Promise<DrawDmnCardResult | null> {
-  // Pre-check available draws + load owned set (outside tx to keep tx small)
-  const ownedRows = await db.dmnCards.toArray()
-  if (ownedRows.length >= DMN_CARD_CATALOG.length) {
-    console.info('[dmn] collection complete — no further draws possible')
+export async function drawDmnCard(
+  rng: () => number = Math.random,
+): Promise<DrawDmnCardResult | null> {
+  const ownedCardRows = await db.dmnCards.toArray()
+  const ownedEquipRows = await db.equipment.toArray()
+  const ownedCardSet = new Set(ownedCardRows.map((r) => r.cardId))
+  const ownedEquipSet = new Set(ownedEquipRows.map((r) => r.equipmentId))
+
+  const unownedEquipCount = EQUIPMENT_CATALOG.length - ownedEquipSet.size
+  const unownedCardCount = DMN_CARD_CATALOG.length - ownedCardSet.size
+  if (unownedEquipCount === 0 && unownedCardCount === 0) {
+    console.info('[dmn] all consumables + equipment owned — no further draws possible')
     return null
   }
 
-  const ownedSet = new Set(ownedRows.map((r) => r.cardId))
-  const catalogEntry = selectCardFromPool(ownedSet)
+  // Branch: low-prob equipment vs consumable. Fall through to the other pool if
+  // the chosen one is exhausted.
+  const wantEquipment = rng() < EQUIPMENT_DRAW_RATE && unownedEquipCount > 0
+  const drawEquipment = wantEquipment || unownedCardCount === 0
+
+  if (drawEquipment) {
+    return await drawEquipment_(ownedEquipSet, rng)
+  }
+  return await drawConsumable_(ownedCardSet, rng)
+}
+
+async function drawEquipment_(
+  ownedEquipSet: Set<string>,
+  rng: () => number,
+): Promise<DrawDmnCardResult | null> {
+  const def = selectEquipmentFromPool(ownedEquipSet, rng)
+  if (def === null) return null
+
+  const obtainedAt = Date.now()
+  const row: OwnedEquipmentRow = {
+    equipmentId: def.equipmentId,
+    rarity: def.rarity,
+    obtainedAt,
+    updatedAt: obtainedAt,
+  }
+
+  let consumed = false
+  await db.transaction('rw', db.meta, db.equipment, async () => {
+    const available = parseIntSafe((await db.meta.get(META_KEY_DRAWS))?.value)
+    if (available < 1) return
+    if ((await db.equipment.get(def.equipmentId)) !== undefined) return // race-safe
+    await db.equipment.put(row)
+    await db.meta.put({ key: META_KEY_DRAWS, value: String(available - 1) })
+    const lifetime = parseIntSafe((await db.meta.get(META_KEY_LIFETIME))?.value)
+    await db.meta.put({ key: META_KEY_LIFETIME, value: String(lifetime + 1) })
+    consumed = true
+  })
+
+  if (!consumed) {
+    console.info('[dmn] equipment draw aborted (no entitlement or race-loss)')
+    return null
+  }
+  return { kind: 'equipment', equipment: row, def }
+}
+
+async function drawConsumable_(
+  ownedCardSet: Set<string>,
+  rng: () => number,
+): Promise<DrawDmnCardResult | null> {
+  const catalogEntry = selectCardFromPool(ownedCardSet, rng)
   if (catalogEntry === null) return null
 
   const obtainedAt = Date.now()
@@ -136,15 +232,21 @@ export async function drawDmnCard(): Promise<DrawDmnCardResult | null> {
   }
 
   let consumed = false
-  await db.transaction('rw', db.meta, db.dmnCards, async () => {
+  await db.transaction('rw', db.meta, db.dmnCards, db.inventory, async () => {
     const available = parseIntSafe((await db.meta.get(META_KEY_DRAWS))?.value)
     if (available < 1) return // race-safe re-check
-    // Double-check still un-owned (race-safe)
-    if ((await db.dmnCards.get(cardRow.cardId)) !== undefined) return
+    if ((await db.dmnCards.get(cardRow.cardId)) !== undefined) return // race-safe
     await db.dmnCards.put(cardRow)
     await db.meta.put({ key: META_KEY_DRAWS, value: String(available - 1) })
     const lifetime = parseIntSafe((await db.meta.get(META_KEY_LIFETIME))?.value)
     await db.meta.put({ key: META_KEY_LIFETIME, value: String(lifetime + 1) })
+    // Deposit stock to the backpack (manual-activate; NO auto-fire).
+    const existing = await db.inventory.get(catalogEntry.eventKind)
+    await db.inventory.put({
+      kind: catalogEntry.eventKind,
+      count: (existing?.count ?? 0) + 1,
+      updatedAt: obtainedAt,
+    })
     consumed = true
   })
 
@@ -153,17 +255,17 @@ export async function drawDmnCard(): Promise<DrawDmnCardResult | null> {
     return null
   }
 
-  // Post-commit side effects: log + dispatch event.
+  // Post-commit provenance log (synced, monotonic-union; NO effect dispatch —
+  // the effect fires on backpack activation).
   try {
     await db.dmnEventLog.put({
       cardId: cardRow.cardId,
       dispatchedAt: obtainedAt,
       deviceId: getClientId(),
     })
-    await dispatchDmnEvent(cardRow)
   } catch (err) {
-    console.error('[dmn] post-commit dispatch failed (card persisted):', err)
+    console.error('[dmn] post-commit eventLog write failed (card persisted):', err)
   }
 
-  return { card: cardRow, catalog: catalogEntry }
+  return { kind: 'consumable', card: cardRow, catalog: catalogEntry }
 }

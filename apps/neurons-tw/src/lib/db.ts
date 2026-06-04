@@ -3,8 +3,21 @@ import type { ContentPack } from '@study-rpg/core'
 import type {
   DmnActiveBuffRow,
   DmnCardRow,
+  DmnEventKind,
   DmnEventLogRow,
+  OwnedEquipmentRow,
 } from '@study-rpg/content-neurons-tw'
+
+/**
+ * Backpack stock row for a consumable kind (add-neurons-acceleration-system).
+ * One row per `DmnEventKind`; `count` is the unspent stock. LWW on `updatedAt`
+ * for cross-device sync. Activation moves stock → an active-buff row.
+ */
+export interface InventoryRow {
+  kind: DmnEventKind
+  count: number
+  updatedAt: number
+}
 
 export type SynapseState = 'dormant' | 'weak' | 'strong'
 
@@ -272,6 +285,9 @@ export class NeuronsDB extends Dexie {
   // Per add-neurons-instance-rename. Additive — 1 new table; existing tables
   // untouched. Per-instance custom name; LWW-on-updatedAt sync.
   instanceNicknames!: EntityTable<InstanceNicknameRow, 'instanceId'>
+  // add-neurons-acceleration-system (v16)
+  inventory!: EntityTable<InventoryRow, 'kind'>
+  equipment!: EntityTable<OwnedEquipmentRow, 'equipmentId'>
 
   constructor() {
     super('neurons-rpg')
@@ -631,6 +647,29 @@ export class NeuronsDB extends Dexie {
             }
           })
       })
+    // add-neurons-acceleration-system. Additive: 2 new tables (inventory backpack
+    // stock + owned equipment). NO PK change (dexie_pk_change_pitfall); no upgrade
+    // callback (new empty tables, no backfill — grandfather from v16 onward).
+    this.version(16).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      dmnCards: 'cardId, obtainedAt, rarity',
+      dmnEventLog: 'cardId, dispatchedAt',
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+      questionBookmarks: 'questionId, family, addedAt, updatedAt',
+      questionBookmarkTombstones: 'questionId, updatedAt',
+      questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+      questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt, nextDueAt',
+      neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+      instanceNicknames: 'instanceId, updatedAt',
+      inventory: 'kind, updatedAt',
+      equipment: 'equipmentId, rarity, obtainedAt, updatedAt',
+    })
   }
 }
 

@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from 'react'
 import { db, HOMEPAGE_ONBOARDING_DISMISSED_KEY } from '../lib/db'
+import { FirstPullButton } from './FirstPull'
 
 type Visibility = 'loading' | 'shown' | 'hidden'
 
@@ -65,9 +66,13 @@ export function HomepageOnboarding(): JSX.Element | null {
           畫在腦圖上的功能連結覆蓋層 — 規則不用背，畫面會替你呈現。
         </li>
       </ol>
-      <button type="button" onClick={dismiss} style={ctaStyle}>
-        知道了，開始 →
-      </button>
+      <div style={ctaRowStyle}>
+        {/* One-time 首抽 CTA (add-neurons-first-pull) — shown while not yet done. */}
+        <FirstPullButton placement="onboarding" />
+        <button type="button" onClick={dismiss} style={ctaStyle}>
+          知道了，開始 →
+        </button>
+      </div>
     </section>
   )
 }
@@ -95,6 +100,13 @@ const stepsStyle: React.CSSProperties = {
   fontSize: '0.9rem',
   lineHeight: 1.6,
   color: '#3a2a1a',
+}
+
+const ctaRowStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '0.5rem',
 }
 
 const ctaStyle: React.CSSProperties = {

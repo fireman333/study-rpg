@@ -1,5 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { Question, BinaryReviewPrev, BinaryReviewResult } from '@study-rpg/core'
+import { QUIZ_BUG_TARGETS, QUIZ_BUG_TARGET_TO_CATEGORY, type QuizBugTarget } from '@study-rpg/core'
+import { useAuth } from '../lib/auth/AuthContext'
+import { submitBugReport } from '../lib/services/bug-report'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
 import {
@@ -15,6 +18,8 @@ import { toggleEasy, toggleGuessed, useFlag } from '../lib/services/question-fla
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import SquadCelebration from './SquadCelebration'
+import MazeExpedition from './MazeExpedition'
+import { getExpeditionHidden } from '../lib/expedition-visibility'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 
 interface Props {
@@ -57,6 +62,10 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   const [picked, setPicked] = useState<string | null>(null)
   const [highlighted, setHighlighted] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // Inline 🐞 report sheet — holds the question id being reported (null = closed).
+  const [bugForQuestionId, setBugForQuestionId] = useState<string | null>(null)
+  // 神經元遠征隊 band visibility — shares the homepage opt-out preference (read once).
+  const [bandHidden] = useState(getExpeditionHidden)
   const [flash, setFlash] = useState<{ outcome: 'correct' | 'incorrect'; nonce: number } | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
@@ -303,6 +312,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
       aria-label="答題中"
     >
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        {/* 神經元遠征隊 compact band — translucent, non-interactive, behind the
+            content in the upper background; honors the homepage hide preference. */}
+        {!bandHidden && <MazeExpedition compact />}
         {flash && (
           <AnswerFeedbackFlash
             key={flash.nonce}
@@ -320,10 +332,28 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
           <span>
             第 {idx + 1} / {sessionPool.length} 題 · {q.subject}
           </span>
-          <button style={closeBtnStyle} onClick={handleClose} aria-label="關閉">
-            ✕
-          </button>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <button
+              type="button"
+              style={bugBtnStyle}
+              onClick={() => setBugForQuestionId(q.id)}
+              aria-label="回報這題的問題"
+              title="回報這題的問題"
+            >
+              🐞
+            </button>
+            <button style={closeBtnStyle} onClick={handleClose} aria-label="關閉">
+              ✕
+            </button>
+          </span>
         </header>
+
+        {bugForQuestionId && (
+          <QuizBugReportSheet
+            questionId={bugForQuestionId}
+            onClose={() => setBugForQuestionId(null)}
+          />
+        )}
 
         <div style={bodyStyle} ref={scrollContainerRef}>
           <p style={stemStyle}>{q.stem}</p>
@@ -536,6 +566,207 @@ function BookmarkButton({
       )}
     </button>
   )
+}
+
+/**
+ * Inline 🐞 report sheet (add-neurons-bug-report). Compact question-scoped
+ * report: target picker → mapped category + the displayed question_id, single
+ * description field, same force-sign-in gate. Submits to Supabase bug_reports.
+ */
+const QUIZ_BUG_TARGET_LABELS: Record<QuizBugTarget, string> = {
+  question: '題目內容有誤',
+  image: '圖片問題',
+  explanation: '答案 / 詳解有誤',
+  other: '其他',
+}
+
+function QuizBugReportSheet({
+  questionId,
+  onClose,
+}: {
+  questionId: string
+  onClose: () => void
+}): JSX.Element {
+  const { user, signInWithGoogle } = useAuth()
+  const [target, setTarget] = useState<QuizBugTarget>('question')
+  const [desc, setDesc] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null)
+
+  const canSubmit = desc.trim().length > 0 && !submitting
+
+  async function handleSubmit(): Promise<void> {
+    if (!user || !canSubmit) return
+    setSubmitting(true)
+    setResult(null)
+    const res = await submitBugReport(
+      {
+        category: QUIZ_BUG_TARGET_TO_CATEGORY[target],
+        severity: 'minor',
+        what_doing: `回報題目 ${questionId}（${QUIZ_BUG_TARGET_LABELS[target]}）`,
+        what_happened: desc.trim(),
+        question_id: questionId,
+      },
+      {},
+      { authStatus: 'authed', userId: user.id },
+    )
+    setSubmitting(false)
+    setResult(res.ok ? { ok: true, msg: '✅ 已送出，謝謝！' } : { ok: false, msg: `送出失敗：${res.error}` })
+  }
+
+  return (
+    <div style={bugSheetBackdrop} onClick={onClose} role="dialog" aria-modal="true" aria-label="回報題目問題">
+      <div style={bugSheet} onClick={(e) => e.stopPropagation()}>
+        <header style={bugSheetHeader}>
+          <span>🐞 回報這題</span>
+          <button style={closeBtnStyle} onClick={onClose} aria-label="關閉">
+            ✕
+          </button>
+        </header>
+        <div style={{ padding: '0.9rem 1rem' }}>
+          <p style={bugSheetQid}>題號 {questionId}</p>
+          {!user ? (
+            <>
+              <p style={{ color: '#5a3f29', fontSize: '0.86rem', lineHeight: 1.6 }}>
+                回報需要先登入。
+              </p>
+              <button style={primaryBtnStyle} onClick={() => void signInWithGoogle()}>
+                使用 Google 登入
+              </button>
+            </>
+          ) : result?.ok ? (
+            <>
+              <p style={{ color: '#4d8c4d', fontWeight: 600, margin: '0.8rem 0', textAlign: 'center' }}>
+                {result.msg}
+              </p>
+              <button style={primaryBtnStyle} onClick={onClose}>
+                關閉
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.7rem' }}>
+                {QUIZ_BUG_TARGETS.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    style={target === t ? bugTargetActive : bugTarget}
+                    aria-pressed={target === t}
+                    onClick={() => setTarget(t)}
+                  >
+                    {QUIZ_BUG_TARGET_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                style={bugSheetTextarea}
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                placeholder="簡短說明哪裡有問題…"
+                rows={3}
+              />
+              {result && !result.ok && (
+                <p style={{ color: '#c44d4d', fontSize: '0.82rem', marginTop: '0.5rem' }}>{result.msg}</p>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.8rem' }}>
+                <button style={secondaryBtnStyle} onClick={onClose}>
+                  取消
+                </button>
+                <button
+                  style={canSubmit ? primaryBtnStyle : { ...primaryBtnStyle, opacity: 0.5, cursor: 'not-allowed' }}
+                  onClick={() => void handleSubmit()}
+                  disabled={!canSubmit}
+                >
+                  {submitting ? '送出中…' : '送出'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const bugBtnStyle: React.CSSProperties = {
+  background: 'transparent',
+  border: 'none',
+  fontSize: '1.05rem',
+  cursor: 'pointer',
+  padding: '0.25rem 0.35rem',
+  lineHeight: 1,
+}
+
+const bugSheetBackdrop: CSSProperties = {
+  position: 'absolute',
+  inset: 0,
+  background: 'rgba(20, 12, 30, 0.45)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 10,
+  padding: '1rem',
+}
+
+const bugSheet: CSSProperties = {
+  background: '#fdf8ee',
+  border: '2px solid #d4a04d',
+  borderRadius: 10,
+  boxShadow: '0 8px 28px rgba(0,0,0,0.3)',
+  width: '100%',
+  maxWidth: 420,
+  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  color: '#3a2a1a',
+}
+
+const bugSheetHeader: CSSProperties = {
+  padding: '0.6rem 0.9rem',
+  borderBottom: '1px solid #d4c4a0',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  background: '#f5e6d3',
+  fontWeight: 700,
+  color: '#5a3f29',
+}
+
+const bugSheetQid: CSSProperties = {
+  margin: '0 0 0.6rem',
+  fontSize: '0.72rem',
+  color: '#9b8c70',
+  fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+}
+
+const bugSheetTextarea: CSSProperties = {
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '0.5rem 0.6rem',
+  borderRadius: 6,
+  border: '1px solid #c4a878',
+  background: '#fff',
+  fontFamily: 'inherit',
+  fontSize: '0.9rem',
+  color: '#3a2a1a',
+  resize: 'vertical',
+}
+
+const bugTarget: CSSProperties = {
+  padding: '0.3rem 0.55rem',
+  borderRadius: 6,
+  border: '1px solid #c4a878',
+  background: 'transparent',
+  color: '#5a3f29',
+  fontSize: '0.8rem',
+  fontFamily: 'inherit',
+  cursor: 'pointer',
+}
+
+const bugTargetActive: CSSProperties = {
+  ...bugTarget,
+  background: '#d4a04d',
+  color: '#fff',
+  borderColor: '#b8893a',
+  fontWeight: 600,
 }
 
 const backdropStyle: React.CSSProperties = {

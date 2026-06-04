@@ -1,96 +1,154 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
-import { DMN_CARD_CATALOG } from '@study-rpg/content-neurons-tw'
+import { DMN_CARD_CATALOG, EQUIPMENT_CATALOG } from '@study-rpg/content-neurons-tw'
 import { db } from '../lib/db'
 import { drawDmnCard } from '../lib/services/dmn-fate-card'
 
 /**
- * Verify draw mechanics: pool-removal + cap at 20.
+ * Verify draw mechanics (add-neurons-acceleration-system): the draw branches to
+ * a low-probability permanent equipment vs a consumable (→ backpack deposit, NO
+ * auto-fire); consumable pool-removal caps at 22.
  *
- * Rarity weight distribution is NOT tested here (would need 1000s of trials
- * and is sensitive to RNG seed); the catalog validator + manual roll-loop
- * inspection are sufficient acceptance for distribution.
+ * RNG is injected for determinism: `noEquip` (≥ EQUIPMENT_DRAW_RATE → always a
+ * consumable) and `forceEquip` (0 → equipment branch, first P1). Rarity-weight
+ * distribution is not asserted (RNG-sensitive); the catalog validators cover it.
  */
 
 const META_KEY_DRAWS = 'dmnDrawsAvailable'
 
+// Never rolls equipment (0.99 ≥ EQUIPMENT_DRAW_RATE); deterministic consumable pick.
+const noEquip = (): number => 0.99
+// Always rolls equipment (0 < EQUIPMENT_DRAW_RATE), first P1 of the pool.
+const forceEquip = (): number => 0
+
 beforeEach(async () => {
   await db.delete()
   await db.open()
-  // Seed families so dispatchFamilyBuff has something to pick from.
-  await db.familyAccrual.bulkAdd(
-    DMN_CARD_CATALOG.slice(0, 1).map(() => ({
-      familyId: '藥理學',
-      ap: 0,
-      firedToday: false,
-      lastFireDate: null,
-      unlockedSlots: [],
-      sameDayCorrect: 0,
-      pullCount: 0,
-    })),
-  )
+  await db.familyAccrual.put({
+    familyId: '藥理學',
+    ap: 0,
+    firedToday: false,
+    lastFireDate: null,
+    unlockedSlots: [],
+    sameDayCorrect: 0,
+    pullCount: 0,
+  })
 })
 
 async function setDraws(n: number): Promise<void> {
   await db.meta.put({ key: META_KEY_DRAWS, value: String(n) })
 }
 
-describe('drawDmnCard', () => {
+describe('drawDmnCard — consumable branch', () => {
   it('returns null when draws available = 0', async () => {
     await setDraws(0)
-    const result = await drawDmnCard()
-    expect(result).toBeNull()
+    expect(await drawDmnCard(noEquip)).toBeNull()
   })
 
-  it('decrements drawsAvailable + inserts dmnCards row on success', async () => {
+  it('deposits to the backpack (no auto-fire) + decrements draws + inserts dmnCards', async () => {
     await setDraws(3)
-    const before = await db.dmnCards.count()
-    expect(before).toBe(0)
-    const result = await drawDmnCard()
+    expect(await db.dmnCards.count()).toBe(0)
+    const result = await drawDmnCard(noEquip)
     expect(result).not.toBeNull()
-    const after = await db.dmnCards.count()
-    expect(after).toBe(1)
-    const remaining = (await db.meta.get(META_KEY_DRAWS))?.value
-    expect(remaining).toBe('2')
+    expect(result!.kind).toBe('consumable')
+    expect(await db.dmnCards.count()).toBe(1)
+    expect((await db.meta.get(META_KEY_DRAWS))?.value).toBe('2')
+    // Backpack deposit: stock incremented for the drawn kind…
+    if (result!.kind === 'consumable') {
+      const stock = await db.inventory.get(result!.card.eventKind)
+      expect(stock?.count).toBe(1)
+    }
+    // …and NO effect auto-fired (no active buff inserted on draw).
+    expect(await db.dmnActiveBuffs.count()).toBe(0)
   })
 
-  it('never re-draws an already-owned card (pool-removal)', async () => {
-    await setDraws(20)
+  it('never re-draws an already-owned consumable (pool-removal), 22 unique', async () => {
+    await setDraws(22)
     const drawnIds = new Set<string>()
-    for (let i = 0; i < 20; i += 1) {
-      const result = await drawDmnCard()
+    for (let i = 0; i < 22; i += 1) {
+      const result = await drawDmnCard(noEquip)
       expect(result).not.toBeNull()
-      expect(drawnIds.has(result!.card.cardId)).toBe(false)
-      drawnIds.add(result!.card.cardId)
+      expect(result!.kind).toBe('consumable')
+      if (result!.kind === 'consumable') {
+        expect(drawnIds.has(result!.card.cardId)).toBe(false)
+        drawnIds.add(result!.card.cardId)
+      }
     }
-    expect(drawnIds.size).toBe(20)
-    expect(await db.dmnCards.count()).toBe(20)
+    expect(drawnIds.size).toBe(22)
+    expect(await db.dmnCards.count()).toBe(22)
   })
 
-  it('returns null when catalog complete (20/20 owned)', async () => {
-    await setDraws(25) // more draws than cards
-    for (let i = 0; i < 20; i += 1) {
-      const r = await drawDmnCard()
-      expect(r).not.toBeNull()
-    }
-    // 21st attempt — pool empty
-    const overflow = await drawDmnCard()
-    expect(overflow).toBeNull()
-  })
-
-  it('writes dmnEventLog row for each draw (idempotency log)', async () => {
+  it('writes a dmnEventLog provenance row per consumable draw', async () => {
     await setDraws(3)
-    await drawDmnCard()
-    await drawDmnCard()
-    const logCount = await db.dmnEventLog.count()
-    expect(logCount).toBe(2)
+    await drawDmnCard(noEquip)
+    await drawDmnCard(noEquip)
+    expect(await db.dmnEventLog.count()).toBe(2)
   })
 
   it('increments dmnLifetimeDrawsConsumed counter', async () => {
     await setDraws(3)
-    await drawDmnCard()
-    await drawDmnCard()
-    const lifetime = (await db.meta.get('dmnLifetimeDrawsConsumed'))?.value
-    expect(lifetime).toBe('2')
+    await drawDmnCard(noEquip)
+    await drawDmnCard(noEquip)
+    expect((await db.meta.get('dmnLifetimeDrawsConsumed'))?.value).toBe('2')
+  })
+})
+
+describe('drawDmnCard — equipment branch', () => {
+  it('forced rng awards a permanent equipment (no dmnCards / no backpack)', async () => {
+    await setDraws(1)
+    const result = await drawDmnCard(forceEquip)
+    expect(result).not.toBeNull()
+    expect(result!.kind).toBe('equipment')
+    if (result!.kind === 'equipment') {
+      expect(result!.def.rarity).toBe(result!.equipment.rarity)
+      expect(await db.equipment.get(result!.equipment.equipmentId)).toBeTruthy()
+    }
+    expect(await db.equipment.count()).toBe(1)
+    expect(await db.dmnCards.count()).toBe(0) // equipment is not a consumable card
+    expect(await db.inventory.count()).toBe(0) // no backpack deposit for equipment
+    expect((await db.meta.get(META_KEY_DRAWS))?.value).toBe('0')
+  })
+
+  it('falls back to a consumable when the equipment pool is fully owned', async () => {
+    // Own every equipment so the forced-equipment roll has an empty pool.
+    const now = Date.now()
+    await db.equipment.bulkPut(
+      EQUIPMENT_CATALOG.map((e) => ({
+        equipmentId: e.equipmentId,
+        rarity: e.rarity,
+        obtainedAt: now,
+        updatedAt: now,
+      })),
+    )
+    await setDraws(1)
+    const result = await drawDmnCard(forceEquip)
+    expect(result).not.toBeNull()
+    expect(result!.kind).toBe('consumable')
+  })
+})
+
+describe('drawDmnCard — both pools complete', () => {
+  it('returns null when all consumables AND all equipment are owned', async () => {
+    const now = Date.now()
+    await db.dmnCards.bulkPut(
+      DMN_CARD_CATALOG.map((c) => ({
+        cardId: c.cardId,
+        rarity: c.rarity,
+        eventKind: c.eventKind,
+        artworkId: c.artworkId,
+        displayName: c.displayName,
+        obtainedAt: now,
+      })),
+    )
+    await db.equipment.bulkPut(
+      EQUIPMENT_CATALOG.map((e) => ({
+        equipmentId: e.equipmentId,
+        rarity: e.rarity,
+        obtainedAt: now,
+        updatedAt: now,
+      })),
+    )
+    await setDraws(5)
+    expect(await drawDmnCard(noEquip)).toBeNull()
   })
 })

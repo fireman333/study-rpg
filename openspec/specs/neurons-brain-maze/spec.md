@@ -37,12 +37,12 @@ Each maze node SHALL correspond to exactly one neuron variant slot (1 node = 1 v
 
 ### Requirement: Growth-signal exploration economy
 
-The system SHALL maintain a per-NT-branch **neural-energy** pool that is BOTH the exploration fuel and the pull cost (one currency, no separate manual-pull balance). A correct quiz answer SHALL accrue energy into the pool of the branch that the answered subject belongs to, resolved via `FAMILY_NT_BRANCH`; reading time SHALL accrue across all four branch pools (even split). Accrual SHALL be scaled by the active answer streak and by that branch's team speed. A branch's frontier position SHALL be determined by its accumulated earned energy against the cumulative pacing cost of the nodes already settled — i.e. the frontier advances while `earned − Σcost(settled) ≥ cost(nextNode)`. The system MUST NOT introduce any monetary, IAP, ad-reward, or non-gameplay path to advance exploration or settle nodes.
+The system SHALL maintain a per-NT-branch **neural-energy** pool that is BOTH the exploration fuel and the pull cost (one currency, no separate manual-pull balance). A correct quiz answer SHALL accrue energy into the pool of the branch that the answered subject belongs to, resolved via `FAMILY_NT_BRANCH`; reading time SHALL accrue across all four branch pools (even split). Accrual SHALL be scaled by the active answer streak, by that branch's mastery tier, and by the **acceleration energy multiplier** `energyAccel` (the additive, hard-capped pool from `neurons-acceleration-system` — composing active consumables such as the reframed `family-buff`/`bolus` and owned energy-lane permanents). A branch's frontier position SHALL be determined by its accumulated earned energy against the cumulative pacing cost of the nodes already settled — i.e. the frontier advances while `earned − Σcost(settled) ≥ cost(nextNode)`. The system MUST NOT introduce any monetary, IAP, ad-reward, or non-gameplay path to advance exploration or settle nodes.
 
 #### Scenario: A correct answer accrues to the subject's branch pool
 
 - **WHEN** the user answers a question correctly in subject S
-- **THEN** earned energy is added to the per-branch pool of `FAMILY_NT_BRANCH[S]` (scaled by streak and that branch's team-speed multipliers)
+- **THEN** earned energy is added to the per-branch pool of `FAMILY_NT_BRANCH[S]` (scaled by streak, mastery, and the capped `energyAccel`)
 - **AND** no other branch's pool is changed by that event
 - **AND** when that branch's region is visible the growth cone advances toward its next fogged node
 
@@ -51,10 +51,11 @@ The system SHALL maintain a per-NT-branch **neural-energy** pool that is BOTH th
 - **WHEN** the user accrues reading time
 - **THEN** earned energy is added across the four branch pools (even split) at the reading rate
 
-#### Scenario: Streak accelerates accrual
+#### Scenario: Acceleration energy multiplier composes under its cap
 
-- **WHEN** the user has an active correct-answer streak
-- **THEN** the per-event earned-energy accrual is higher than with no streak
+- **WHEN** active energy-lane consumables and owned permanents raise `energyAccel` toward its cap
+- **THEN** the per-event accrual is multiplied by the clamped `energyAccel` (never exceeding `ENERGY_ACCEL_CAP`)
+- **AND** with no active consumable and no owned permanent `energyAccel` SHALL be `1.0` (no change to prior behavior)
 
 #### Scenario: No monetary path
 
@@ -64,7 +65,7 @@ The system SHALL maintain a per-NT-branch **neural-energy** pool that is BOTH th
 
 ### Requirement: Exploration teams from collected variants
 
-Collected variants SHALL act as exploration units ("Pikmin"), partitioned by NT branch; each branch's team explores its own region. Per branch, base exploration speed SHALL be a fixed positive value so that a player with an empty team for that branch can still make progress. A larger or rarer set of collected variants in a branch SHALL increase that branch's team exploration speed (a buff that never hard-blocks progress).
+Collected variants SHALL act as exploration units ("Pikmin"), partitioned by NT branch; each branch's team explores its own region. Per branch, base exploration speed SHALL be a fixed positive value so that a player with an empty team for that branch can still make progress. A larger or rarer set of collected variants in a branch SHALL increase that branch's team exploration speed (a buff that never hard-blocks progress). The effective exploration speed SHALL additionally be scaled by the **acceleration speed multiplier** `speedAccel` (the additive, hard-capped pool from `neurons-acceleration-system` — composing active speed-lane consumables such as `surge` and owned speed-lane permanents), clamped to `SPEED_ACCEL_CAP`.
 
 #### Scenario: Empty branch team still progresses
 
@@ -77,6 +78,12 @@ Collected variants SHALL act as exploration units ("Pikmin"), partitioned by NT 
 - **THEN** branch B's team exploration speed is higher than its base speed
 - **AND** the speed increases monotonically with B's collection strength
 - **AND** collecting variants in branch B does not change another branch's team speed
+
+#### Scenario: Acceleration speed multiplier composes under its cap
+
+- **WHEN** active `surge` consumables and/or owned speed-lane permanents raise `speedAccel`
+- **THEN** the branch's effective exploration speed SHALL be multiplied by the clamped `speedAccel` (never exceeding `SPEED_ACCEL_CAP`)
+- **AND** with no speed boost active `speedAccel` SHALL be `1.0`
 
 ### Requirement: Node settle is a continuous pull-cadence gate (not a finite per-node budget)
 
@@ -145,13 +152,24 @@ The maze SHALL display exploration progress as a pure count chip 「🧠 已連�
 
 ### Requirement: Collected-variant to lit-node migration
 
-Lit-node state SHALL be derived from the per-branch frontier progress (cumulative settle count), NOT from collected variants — because under random settle pulls the variant collected at a settle is not necessarily the lit node's own slot. The lit nodes of a branch SHALL be the first `min(settles, nodeCount)` nodes in hub-distance (`pathLen`) order. Collection progress is tracked separately (the 🧬 count + the collection dex). The system SHALL NOT run a backfill, duplicate-store lit state, or show a migration banner. Existing players' per-branch `settles` (preserved from the pre-change maze) keep their frontier; their existing collected variants remain in the collection unchanged. A player who collected variants via the (removed) manual pull but never explored the maze simply starts the frontier at their stored `settles` (no regression — exploring yields additional random pulls).
+Lit-node state SHALL be derived from the per-branch frontier progress (cumulative settle count) UNIONed with the first-pull starter-lit node(s), NOT from collected variants in general — because under random settle pulls the variant collected at a settle is not necessarily the lit node's own slot. The frontier-lit nodes of a branch SHALL be the first `min(settles, nodeCount)` nodes in hub-distance (`pathLen`) order. The starter-lit node of a branch SHALL be the representative node (hub-nearest, deterministic tie-break) of the family chosen by the one-time first-pull for that branch, persisted in `meta['maze:<branch>:starterFamily']`; it lights even when `settles = 0`. The branch's lit set SHALL be the set union of its frontier-lit nodes and its starter-lit node, deduplicated by node identity (a node reached by both first-pull and the frontier is lit exactly once). Collection progress is tracked separately (the 🧬 count + the collection dex). The system SHALL NOT run a backfill, duplicate-store frontier lit state, or show a migration banner. Existing players' per-branch `settles` (preserved from the pre-change maze) keep their frontier; their existing collected variants remain in the collection unchanged. A player who collected variants via the (removed) manual pull but never explored the maze simply starts the frontier at their stored `settles` (no regression — exploring yields additional random pulls).
 
-#### Scenario: Lit nodes derive from frontier, not collection
+#### Scenario: Lit nodes derive from frontier unioned with starter-lit, not general collection
 
-- **WHEN** a branch has `settles = K`
-- **THEN** the first `min(K, nodeCount)` nodes in `pathLen` order are lit
-- **AND** the lit set does NOT depend on which specific variants were collected
+- **WHEN** a branch has `settles = K` and a first-pull starter family is recorded
+- **THEN** the lit set is the union of the first `min(K, nodeCount)` nodes in `pathLen` order and the starter family's representative node
+- **AND** the lit set does NOT otherwise depend on which specific variants were collected
+
+#### Scenario: Starter node lit at zero settles
+
+- **WHEN** a branch has `settles = 0` and `meta['maze:<branch>:starterFamily']` is set to family F
+- **THEN** F's representative node is lit
+- **AND** no frontier nodes are lit (since `settles = 0`)
+
+#### Scenario: Frontier reaching the starter node does not double-light
+
+- **WHEN** the frontier later advances to include the node already lit by first-pull
+- **THEN** that node is lit exactly once (set union dedup), with no visual conflict
 
 #### Scenario: No backfill or migration banner
 

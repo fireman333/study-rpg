@@ -160,12 +160,14 @@ export {
 } from './lib/er-consultation'
 export {
   BUG_REPORT_CATEGORIES,
+  NEURONS_BUG_REPORT_CATEGORIES,
   BUG_REPORT_SEVERITIES,
   BUG_REPORT_REPRODUCIBILITY,
   BUG_REPORT_APPS,
   QUIZ_BUG_TARGETS,
   QUIZ_BUG_TARGET_TO_CATEGORY,
   type BugReportCategory,
+  type NeuronsBugReportCategory,
   type BugReportSeverity,
   type BugReportReproducibility,
   type BugReportApp,

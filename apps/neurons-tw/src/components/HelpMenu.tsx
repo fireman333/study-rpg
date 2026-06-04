@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import BugReportModal from './BugReportModal'
 
 interface Section {
   id: string
@@ -144,9 +145,10 @@ const SECTIONS: Section[] = [
           （每日上限 3）。
         </p>
         <p>
-          5 種一次性事件：family-buff（隨機 family 的 maze 能量 ×2、1 hr）、
+          抽到的消耗品進背包、自選時機啟用：family-buff（某 family 能量水龍頭 ×2、1 hr）、
+          surge（探索速度短暫提升）、bolus（迷宮能量短暫湧入）、
           variant-rate-up（下次抽卡 roll 兩次取較稀有）、quick-review-batch（5 題錯題快速複習，出征 mini-batch）、
-          streak-shield（答錯時保住連對 streak 一次）、hidden-reveal（在 /dmn 頁顯示下一張未抽 P1 的剪影提示）。
+          hidden-reveal（在 /dmn 頁顯示下一張未抽 P1 的剪影提示）。低機率抽到永久裝備/夥伴。
         </p>
         <p>
           全收集 + 永久陳列在「<a href="/dmn">DMN</a>」頁面。
@@ -183,13 +185,15 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          目前 neurons 尚未接 in-app 回報。請開 <a href={GITHUB_ISSUES_URL} target="_blank" rel="noopener noreferrer">
-          GitHub Issue</a>{' '}並在 title 或 label 加上「<code>neurons</code>」標籤，
-          幫助分流。
+          發現 bug 或有建議？直接在 app 內回報最快 —— 會自動附上你目前的頁面、
+          遊戲狀態統計與最近的錯誤訊息，省去你描述環境的功夫（每一項都可逐項取消）。
         </p>
         <p>
-          回報請附上：(1) 觸發步驟、(2) 預期 vs 實際行為、(3) 視窗大小 / 瀏覽器版本、
-          (4) 任何 console 錯誤訊息（F12 → Console）。也歡迎直接 PR。
+          需要先登入（避免匿名灌水、方便我們在你同意時追問）。也歡迎直接開{' '}
+          <a href={GITHUB_ISSUES_URL} target="_blank" rel="noopener noreferrer">
+            GitHub Issue
+          </a>{' '}
+          或 PR。
         </p>
       </>
     ),
@@ -199,6 +203,7 @@ const SECTIONS: Section[] = [
 export default function HelpMenu(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [bugOpen, setBugOpen] = useState(false)
 
   useEffect(() => {
     if (!isOpen) return
@@ -374,6 +379,21 @@ export default function HelpMenu(): JSX.Element {
           font-family: 'VT323', 'Courier New', monospace;
           font-size: 0.92em;
         }
+        .neurons-help-bugreport-btn {
+          margin-top: 0.6rem;
+          padding: 0.45rem 0.9rem;
+          border-radius: 6px;
+          border: 1px solid #b8893a;
+          background: #d4a04d;
+          color: #fff;
+          font-family: inherit;
+          font-weight: 700;
+          font-size: 0.86rem;
+          cursor: pointer;
+        }
+        .neurons-help-bugreport-btn:hover {
+          background: #c8923f;
+        }
 
         @media (max-width: 600px) {
           .neurons-help-fab {
@@ -455,7 +475,18 @@ export default function HelpMenu(): JSX.Element {
                         </span>
                         <span>{section.title}</span>
                       </summary>
-                      <div className="neurons-help-body">{section.body}</div>
+                      <div className="neurons-help-body">
+                        {section.body}
+                        {section.id === 'bug-report' && (
+                          <button
+                            type="button"
+                            className="neurons-help-bugreport-btn"
+                            onClick={() => setBugOpen(true)}
+                          >
+                            🩺 開啟回報表單
+                          </button>
+                        )}
+                      </div>
                     </details>
                   </li>
                 )
@@ -464,6 +495,8 @@ export default function HelpMenu(): JSX.Element {
           </div>
         </>
       )}
+
+      <BugReportModal open={bugOpen} onClose={() => setBugOpen(false)} />
     </>
   )
 }

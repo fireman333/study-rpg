@@ -1,5 +1,5 @@
 /**
- * MazeExpedition — 神經元小隊遠征動畫帶 (prototype spike)
+ * MazeExpedition — 神經元遠征隊動畫帶 (rework-neurons-squads)
  *
  * A 3-layer side-scrolling parallax band — each layer loops via background-position
  * at a different speed so the squad reads as marching forward into the brain:
@@ -9,41 +9,62 @@
  * Plus the bobbing squad on top. Pure CSS transform / background-position (60fps,
  * battery-friendly, not rAF-throttled in backgrounded tabs).
  *
- * Squad = the rarest collected variants (P0 first), rendered as clean transparent
- * sprites via SPRITE_MAP[spriteKey] (deliberately NOT <VariantSprite> — skips its
- * context-art decor so the busy parallax stays readable). Empty collection →
- * growth-cone marchers so the band still reads.
+ * Squad source = the player's active squad「神經元遠征隊」(useActiveSquad); when the
+ * squad is empty it falls back to the five rarest collected variants, and to
+ * growth-cone marchers when the collection itself is empty. Sprites render as clean
+ * transparent images (deliberately NOT <VariantSprite> — skips its context-art decor
+ * so the busy parallax stays readable).
  *
- * Shown alongside the maze when the player presses 「顯示遠征動畫」. Self-contained —
- * injects its own @keyframes.
+ * Two render contexts via CSS-variable-driven dimensions (so two instances — the
+ * homepage band + a compact band in QuizModal — never collide on global classes):
+ *   - full (homepage): large band, animates while reading-active (`paused` toggles it)
+ *   - compact (QuizModal upper background): smaller + translucent + non-interactive
+ *
+ * Self-contained — injects its own @keyframes (var-driven, so duplicate injection
+ * across instances is harmless).
  */
 import { useEffect, useState, type CSSProperties } from 'react'
 import { liveQuery } from 'dexie'
 import { db, type NeuronVariantRow } from '../lib/db'
+import { useActiveSquad } from '../lib/services/study-squad'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 
 const skyUrl = new URL('../assets/maze/expedition-sky.png', import.meta.url).href
 const groundUrl = new URL('../assets/maze/expedition-bg.png', import.meta.url).href
-
-// Each layer scrolls by exactly its own background-size width → seamless loop
-// regardless of band width (repeat-x tiles it; shifting by one tile = identical frame).
-const BAND_H = 180
-const GROUND_H = 120 // bottom tissue band height
-const SKY_TILE = 360 // sky image squished to 2:1 tile
-const GROUND_TILE = 240 // tissue 2:1 tile (GROUND_H × 2)
-const PARTICLE_TILE = 110
 
 const SQUAD_MAX = 5
 
 /** Branch colours for the empty-collection growth-cone fallback marchers. */
 const FALLBACK_COLORS = ['#ffb33e', '#ff5da2', '#46d27a', '#43c6ff']
 
+/** Per-context dimensions, fed to the band as CSS variables. */
+interface BandDims {
+  h: number
+  groundH: number
+  skyTile: number
+  groundTile: number
+  particleTile: number
+  gap: number
+  near: number
+  far: number
+  maxW: number | string
+  opacity: number
+}
+const FULL_DIMS: BandDims = {
+  h: 180, groundH: 120, skyTile: 360, groundTile: 240, particleTile: 110,
+  gap: 22, near: 96, far: 78, maxW: 760, opacity: 1,
+}
+const COMPACT_DIMS: BandDims = {
+  h: 92, groundH: 60, skyTile: 184, groundTile: 120, particleTile: 70,
+  gap: 12, near: 54, far: 44, maxW: '100%', opacity: 0.5,
+}
+
 function rarityRank(r: NeuronVariantRow['rarity']): number {
   return Number(r.slice(1)) // 'P0' → 0 (apex/rarest first)
 }
 
-/** Live squad = up to SQUAD_MAX rarest collected variants (P0 first, older as tiebreak). */
-function useExpeditionSquad(): NeuronVariantRow[] {
+/** Fallback squad = up to SQUAD_MAX rarest collected variants (P0 first, older tiebreak). */
+function useRarestFallbackSquad(): NeuronVariantRow[] {
   const [rows, setRows] = useState<NeuronVariantRow[]>([])
   useEffect(() => {
     const sub = liveQuery(() => db.neuronVariants.toArray()).subscribe({
@@ -63,7 +84,22 @@ function useExpeditionSquad(): NeuronVariantRow[] {
   return rows
 }
 
-/** Inline growth-cone glyph (empty-team fallback marcher). */
+/** Pure: the active squad drives the band; empty squad → rarest-collected fallback. */
+export function resolveBandSquad(
+  active: NeuronVariantRow[],
+  fallback: NeuronVariantRow[],
+): NeuronVariantRow[] {
+  return active.length > 0 ? active : fallback
+}
+
+/** Live band squad = active squad「神經元遠征隊」, falling back to the rarest collected. */
+function useBandSquad(): NeuronVariantRow[] {
+  const active = useActiveSquad()
+  const fallback = useRarestFallbackSquad()
+  return resolveBandSquad(active, fallback)
+}
+
+/** Inline growth-cone glyph (empty-collection fallback marcher). */
 function ConeMarcher({ size, color }: { size: number; color: string }): JSX.Element {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
@@ -78,20 +114,18 @@ function ConeMarcher({ size, color }: { size: number; color: string }): JSX.Elem
   )
 }
 
-const wrapStyle: CSSProperties = {
-  position: 'relative',
-  width: '100%',
-  maxWidth: 760,
-  height: BAND_H,
-  margin: '0.75rem auto 0',
-  borderRadius: 12,
-  overflow: 'hidden',
-  background: '#0a0820',
-  boxShadow: '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
+interface Props {
+  /** Quick-hide control (homepage band). Omitted on the compact quiz band. */
+  onHide?: () => void
+  /** Compact + translucent + non-interactive variant for the QuizModal upper background. */
+  compact?: boolean
+  /** Freeze the animation to a static scene (homepage band when reading is not active). */
+  paused?: boolean
 }
 
-export default function MazeExpedition({ onHide }: { onHide?: () => void }): JSX.Element {
-  const squad = useExpeditionSquad()
+export default function MazeExpedition({ onHide, compact = false, paused = false }: Props): JSX.Element {
+  const squad = useBandSquad()
+  const d = compact ? COMPACT_DIMS : FULL_DIMS
 
   // depth-stagger: alternate near (bigger, lower, opaque) / far (smaller, higher, faded)
   const members =
@@ -99,8 +133,36 @@ export default function MazeExpedition({ onHide }: { onHide?: () => void }): JSX
       ? squad.map((row, i) => ({ key: `${row.familyId}-${row.slotIndex}`, row, i }))
       : FALLBACK_COLORS.map((c, i) => ({ key: `cone-${i}`, color: c, i }))
 
+  const wrapStyle: CSSProperties = {
+    position: compact ? 'absolute' : 'relative',
+    ...(compact ? { left: 0, right: 0, top: 0 } : {}),
+    width: '100%',
+    maxWidth: d.maxW,
+    height: d.h,
+    margin: compact ? 0 : '0.75rem auto 0',
+    borderRadius: compact ? 0 : 12,
+    overflow: 'hidden',
+    background: compact ? 'transparent' : '#0a0820',
+    boxShadow: compact ? 'none' : '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
+    opacity: d.opacity,
+    pointerEvents: compact ? 'none' : 'auto',
+    // CSS variables drive the parallax dimensions so both instances share one
+    // (var-based) stylesheet without colliding.
+    ['--exp-h' as string]: `${d.h}px`,
+    ['--exp-ground-h' as string]: `${d.groundH}px`,
+    ['--exp-sky-tile' as string]: `${d.skyTile}px`,
+    ['--exp-ground-tile' as string]: `${d.groundTile}px`,
+    ['--exp-particle-tile' as string]: `${d.particleTile}px`,
+    ['--exp-gap' as string]: `${d.gap}px`,
+  }
+
   return (
-    <div style={wrapStyle} aria-label="神經元小隊遠征動畫">
+    <div
+      style={wrapStyle}
+      className={paused ? 'exp-paused' : undefined}
+      aria-label="神經元遠征隊動畫"
+      aria-hidden={compact ? true : undefined}
+    >
       <style>{KEYFRAMES}</style>
 
       {/* 1. far sky — rolling brain sulci, slowest */}
@@ -116,10 +178,10 @@ export default function MazeExpedition({ onHide }: { onHide?: () => void }): JSX
       <div className="exp-squad">
         {members.map((m) => {
           const near = m.i % 2 === 0
-          const size = near ? 96 : 78
+          const size = near ? d.near : d.far
           const memberStyle: CSSProperties = {
             animation: `exp-bob ${1.5 + (m.i % 3) * 0.18}s ease-in-out ${m.i * 0.16}s infinite`,
-            marginBottom: near ? 0 : 16,
+            marginBottom: near ? 0 : (compact ? 8 : 16),
             opacity: near ? 1 : 0.9,
             zIndex: near ? 2 : 1,
             filter: near ? 'none' : 'brightness(0.86)',
@@ -128,8 +190,6 @@ export default function MazeExpedition({ onHide }: { onHide?: () => void }): JSX
           return (
             <div key={m.key} className="exp-marcher" style={memberStyle}>
               {'row' in m ? (
-                // clean transparent sprite — no context-art backdrop (the parallax IS the
-                // background); soft shadow grounds it + faint halo feathers the edge.
                 <img
                   src={SPRITE_MAP[m.row.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''}
                   width={size}
@@ -151,17 +211,17 @@ export default function MazeExpedition({ onHide }: { onHide?: () => void }): JSX
         })}
       </div>
 
-      {/* caption */}
-      <span className="exp-caption">🧠 小隊遠征中…</span>
+      {/* caption — homepage only (the compact quiz band stays unobtrusive) */}
+      {!compact && <span className="exp-caption">🧠 神經元遠征隊行進中…</span>}
 
       {/* quick-hide — kill the animation when it distracts from reading / answering */}
-      {onHide && (
+      {onHide && !compact && (
         <button
           type="button"
           className="exp-hide"
           onClick={onHide}
           aria-label="隱藏遠征動畫"
-          title="隱藏遠征動畫（閱讀／答題時不干擾；旅程仍持續）"
+          title="隱藏遠征動畫（旅程仍持續）"
         >
           −
         </button>
@@ -175,18 +235,18 @@ const KEYFRAMES = `
   position: absolute; inset: 0; z-index: 0;
   background-image: url(${skyUrl});
   background-repeat: repeat-x;
-  background-size: ${SKY_TILE}px ${BAND_H}px;
+  background-size: var(--exp-sky-tile) var(--exp-h);
   image-rendering: pixelated;
   opacity: 0.92;
   animation: exp-scroll-sky 34s linear infinite;
 }
 
 .exp-ground {
-  position: absolute; left: 0; right: 0; bottom: 0; height: ${GROUND_H}px; z-index: 1;
+  position: absolute; left: 0; right: 0; bottom: 0; height: var(--exp-ground-h); z-index: 1;
   background-image: url(${groundUrl});
   background-repeat: repeat-x;
   background-position: bottom left;
-  background-size: ${GROUND_TILE}px ${GROUND_H}px;
+  background-size: var(--exp-ground-tile) var(--exp-ground-h);
   image-rendering: pixelated;
   -webkit-mask-image: linear-gradient(to top, #000 62%, transparent 100%);
   mask-image: linear-gradient(to top, #000 62%, transparent 100%);
@@ -200,7 +260,7 @@ const KEYFRAMES = `
     radial-gradient(circle at 50px 72px, rgba(150,235,255,0.55) 0 1.6px, transparent 2.4px),
     radial-gradient(circle at 84px 38px, rgba(255,170,220,0.55) 0 1.6px, transparent 2.4px);
   background-repeat: repeat;
-  background-size: ${PARTICLE_TILE}px ${PARTICLE_TILE}px;
+  background-size: var(--exp-particle-tile) var(--exp-particle-tile);
   filter: blur(0.4px);
   opacity: 0.7;
   animation: exp-scroll-particles 6.5s linear infinite;
@@ -215,7 +275,7 @@ const KEYFRAMES = `
 .exp-squad {
   position: absolute; left: 50%; bottom: 12px;
   transform: translateX(-50%);
-  display: flex; align-items: flex-end; gap: 22px;
+  display: flex; align-items: flex-end; gap: var(--exp-gap);
   z-index: 3; pointer-events: none;
 }
 .exp-marcher { display: flex; flex-direction: column; align-items: center; }
@@ -244,14 +304,21 @@ const KEYFRAMES = `
 }
 .exp-hide:hover { background: rgba(40,30,70,0.85); color: #fff; }
 
+/* Auto-trigger: when paused (homepage band while reading is not active), freeze
+   every layer + the bob to a static scene. */
+.exp-paused .exp-sky,
+.exp-paused .exp-ground,
+.exp-paused .exp-particles,
+.exp-paused .exp-marcher { animation-play-state: paused !important; }
+
 /* Respect OS reduced-motion: freeze every layer + the bob (static scene, no churn). */
 @media (prefers-reduced-motion: reduce) {
   .exp-sky, .exp-ground, .exp-particles, .exp-marcher { animation: none !important; }
 }
 
-@keyframes exp-scroll-sky { to { background-position-x: -${SKY_TILE}px; } }
-@keyframes exp-scroll-ground { to { background-position-x: -${GROUND_TILE}px; } }
-@keyframes exp-scroll-particles { to { background-position-x: -${PARTICLE_TILE}px; } }
+@keyframes exp-scroll-sky { to { background-position-x: calc(-1 * var(--exp-sky-tile)); } }
+@keyframes exp-scroll-ground { to { background-position-x: calc(-1 * var(--exp-ground-tile)); } }
+@keyframes exp-scroll-particles { to { background-position-x: calc(-1 * var(--exp-particle-tile)); } }
 @keyframes exp-bob {
   0%, 100% { transform: translateY(0) rotate(-1.5deg); }
   50%      { transform: translateY(-10px) rotate(1.5deg); }

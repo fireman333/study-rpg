@@ -24,9 +24,10 @@ Per-app split (no shared runtime helper):
 
 - `apps/medexam-tw/src/services/bug-report.ts` — reads from `getDB()` Dexie
 - `apps/medexam2-hospital-tw/src/services/bug-report.ts` — reads from `getHospitalDB()` Dexie
-- Shared types in `@study-rpg/core` (`BUG_REPORT_CATEGORIES`, `BugReportRow`, etc.)
+- `apps/neurons-tw/src/lib/services/bug-report.ts` — reads from the neurons `db` Dexie (add-neurons-bug-report, 2026-06-04). Console-error ring buffer is a separate `apps/neurons-tw/src/lib/services/console-error-buffer.ts` (installed in `App.tsx` boot).
+- Shared types in `@study-rpg/core` (`BUG_REPORT_CATEGORIES` for medexam, `NEURONS_BUG_REPORT_CATEGORIES` for neurons, `BugReportRow`, etc.)
 
-Two near-identical `BugReportModal.tsx` components (one per app). Acceptable duplication for two apps; lift to `_shared` if a third app appears.
+Three near-identical `BugReportModal.tsx` components (one per app). Acceptable duplication; lift to `_shared` only if it keeps growing. The neurons modal lives at `apps/neurons-tw/src/components/BugReportModal.tsx`; the inline 🐞 sheet is a local component inside `apps/neurons-tw/src/components/QuizModal.tsx`.
 
 ## Schema
 
@@ -58,15 +59,19 @@ Single table, immutable rows, RLS-protected.
 
 Indexes: `user_id`, `submitted_at DESC`, `severity`.
 
-### Categories (11)
+### Categories
 
+**medexam (11)** — `BUG_REPORT_CATEGORIES`:
 `app-stability` · `hospital-management` · `doctors` · `study-session` · `events-fate-cards` · `numbers-wrong` · `visual-glitch` · `cloud-sync` · `corpus` · `feature-request` · `other`
 
-UI labels (emoji + Chinese) live in `BugReportModal.tsx`'s `CATEGORY_LABEL` map. Adding a 12th category requires edits in:
+**neurons (12)** — `NEURONS_BUG_REPORT_CATEGORIES` (separate const so the neurons form only shows neurons-relevant choices):
+`app-stability` · `maze-exploration` · `variant-collection` · `synapse` · `dmn-fate-cards` · `study-session` · `numbers-wrong` · `visual-glitch` · `cloud-sync` · `corpus` · `feature-request` · `other`
 
-1. `packages/core/src/lib/bug-report-types.ts` — append to `BUG_REPORT_CATEGORIES` array.
-2. `supabase/migrations/<next>.sql` — ALTER the CHECK constraint (Postgres CHECK can't be parameterised by app code).
-3. `apps/<app>/src/components/BugReportModal.tsx` — add `CATEGORY_LABEL[<new>]`.
+The shared `bug_reports.category` CHECK is the **union** of all app category sets (medexam 11 + inline 3 from 0007 + neurons-unique 4 from 0017 = 18). The `app` column disambiguates which set is valid per app (client-enforced). UI labels (emoji + Chinese) live in each app's `BugReportModal.tsx`. A new neurons category requires edits in:
+
+1. `packages/core/src/lib/bug-report-types.ts` — append to `NEURONS_BUG_REPORT_CATEGORIES`.
+2. `supabase/migrations/<next>.sql` — ALTER the `category` CHECK (union must include it). Guarded by the `bug-report-canonical.test.ts` drift test.
+3. `apps/neurons-tw/src/components/BugReportModal.tsx` — add `CATEGORY_LABELS[<new>]`.
 
 ### Severities (4)
 
@@ -123,6 +128,8 @@ supabase db push
 ```
 
 After applying, run the queries in `supabase/sanity/bug_reports_rls.sql` to confirm RLS behavior (unauth `SELECT` → 0 rows; cross-user INSERT → rejected).
+
+**neurons-tw enablement (`0017_neurons_bug_reports.sql`, add-neurons-bug-report):** additive — recreates the `app` CHECK to add `'neurons-tw'` and the `category` CHECK to union in the four neurons-unique categories (`maze-exploration` / `variant-collection` / `synapse` / `dmn-fate-cards`). No data migration; existing medexam rows stay valid. **Must be applied before neurons clients submit** — until then a neurons INSERT fails with Postgres 23514 (the modal surfaces the error, never swallows it). Apply via dashboard SQL Editor (paste `0017`).
 
 ## Env vars
 

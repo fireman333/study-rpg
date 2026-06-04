@@ -18,6 +18,7 @@ import type { NtBranchId } from '@study-rpg/content-neurons-tw'
 import { db } from '../db'
 import { FAMILIES_BY_BRANCH, NT_BRANCHES, frontierNode, type MazeNode } from './graph'
 import { pullVariant, slotsForFamily } from '../services/variant-gacha'
+import { speedAccel } from '../services/acceleration'
 
 // --- tunable constants (front-loaded ramp; dogfood telemetry will calibrate) ---
 /** Energy per correct answer (before streak + speed multipliers). */
@@ -103,7 +104,12 @@ export async function collectedKeys(branch: NtBranchId): Promise<Set<string>> {
 export async function accrueMazeEnergy(branch: NtBranchId, base: number): Promise<void> {
   if (base <= 0) return
   const count = (await collectedKeys(branch)).size
-  const amount = base * mazeSpeedMultiplier(count)
+  // Exploration-speed lane (add-neurons-acceleration-system): the maze team-speed
+  // multiplier composes the collection-count buff with the acceleration speed pool
+  // (surge consumable + owned speed-lane equipment, hard-capped). speedAccel() = 1
+  // when nothing is active, so this is a no-op for un-accelerated saves.
+  const accel = await speedAccel()
+  const amount = base * mazeSpeedMultiplier(count) * accel
   const cur = Number((await db.meta.get(earnedKey(branch)))?.value ?? '0') || 0
   await db.meta.put({ key: earnedKey(branch), value: String(cur + amount) })
 }

@@ -147,3 +147,24 @@ export {
   EXPECTED_RARITY_DISTRIBUTION,
   MIN_CARDS_PER_EVENT_KIND,
 } from './dmn-card-validator'
+
+// Permanent equipment/companion (add-neurons-acceleration-system)
+export {
+  EQUIPMENT_RARITIES,
+  EQUIPMENT_RARITY_BONUS,
+  EQUIPMENT_RARITY_WEIGHTS,
+  EQUIPMENT_DRAW_RATE,
+  type EquipmentRarity,
+  type EquipmentLane,
+  type EquipmentDef,
+  type OwnedEquipmentRow,
+} from './equipment-types'
+
+export { EQUIPMENT_CATALOG } from './equipment-catalog'
+
+export {
+  validateEquipmentCatalog,
+  MIN_EQUIPMENT_COUNT,
+  MIN_ITEMS_PER_TIER,
+  type EquipmentValidationFailure,
+} from './equipment-validator'

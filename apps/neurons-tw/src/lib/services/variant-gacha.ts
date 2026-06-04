@@ -198,10 +198,17 @@ export interface PullResult {
 /**
  * Perform one per-family pull. Returns a structured result; never throws to the
  * caller (errors are logged + returned as `{ ok:false, reason:'error' }`).
+ *
+ * `opts.silent` (add-neurons-first-pull): batch mode for the one-time first-pull.
+ * When true, suppress the per-pull `variantRolled` reveal AND skip the inline
+ * `triggerAchievementCheck` — the first-pull orchestrator shows ONE combined
+ * reveal and runs a single achievement check after it. `emitVariantCollected`
+ * (connectome refresh) still fires; the variant is persisted identically.
  */
 export async function pullVariant(
   familyId: string,
   resolveFamilyDisplayName: ResolveFamilyDisplayName,
+  opts?: { silent?: boolean },
 ): Promise<PullResult> {
   const defs = CATALOG_BY_FAMILY.get(familyId)
   if (!defs || defs.length === 0) {
@@ -221,7 +228,7 @@ export async function pullVariant(
     if (variantRateUp) console.info('[variant-gacha] DMN variant-rate-up consumed (roll-twice-take-rarer)')
 
     const { current: streakAtMint } = await getStreaks()
-    const prevStats = await buildAchievementStats()
+    const prevStats = opts?.silent ? null : await buildAchievementStats()
 
     // The transaction RETURNS the outcome (don't mutate outer `let`s — TS cannot
     // narrow a variable assigned only inside an async callback).
@@ -298,11 +305,13 @@ export async function pullVariant(
       },
     )
 
-    variantGachaEvents.emit('variantRolled', {
-      variant: out.resultRow,
-      isDupe: out.isDupe,
-      familyDisplayName: resolveFamilyDisplayName(familyId),
-    })
+    if (!opts?.silent) {
+      variantGachaEvents.emit('variantRolled', {
+        variant: out.resultRow,
+        isDupe: out.isDupe,
+        familyDisplayName: resolveFamilyDisplayName(familyId),
+      })
+    }
     if (out.persistedNew) {
       // New variant collected → refresh connectome leaf + DMN behavior draw.
       emitVariantCollected({
@@ -312,7 +321,9 @@ export async function pullVariant(
         wasRedemption: false,
       })
     }
-    await triggerAchievementCheck(prevStats)
+    // Silent (first-pull batch): the orchestrator runs ONE achievement check
+    // after its combined reveal — skip the inline per-pull check here.
+    if (!opts?.silent && prevStats) await triggerAchievementCheck(prevStats)
 
     return { ok: true, rarity: out.rarity, isDupe: out.isDupe, variant: out.resultRow }
   } catch (err) {

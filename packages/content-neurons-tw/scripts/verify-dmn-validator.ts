@@ -51,36 +51,47 @@ assertNoThrow('real DMN_CARD_CATALOG passes', () =>
   validateDmnCardCatalog(DMN_CARD_CATALOG),
 )
 
-// Negative 1: wrong size (19 entries)
+// Negative 1: wrong size (21 entries)
 assertThrows(
-  'Catalog with 19 entries fails',
-  () => validateDmnCardCatalog(DMN_CARD_CATALOG.slice(0, 19) as DmnCardDef[]),
+  'Catalog with 21 entries fails',
+  () => validateDmnCardCatalog(DMN_CARD_CATALOG.slice(0, 21) as DmnCardDef[]),
   'WRONG_CATALOG_SIZE',
 )
 
-// Negative 2: duplicate cardId
+// Negative 2: duplicate cardId (keep size === 22)
 assertThrows(
   'Duplicate cardId fails',
   () => {
     const dup = DMN_CARD_CATALOG[0]!
-    // Replace last entry with duplicate of first — keeps size === 20
-    const mutated = [...DMN_CARD_CATALOG.slice(0, 19), dup] as DmnCardDef[]
+    const mutated = [...DMN_CARD_CATALOG.slice(0, 21), dup] as DmnCardDef[]
     validateDmnCardCatalog(mutated)
   },
   'DUPLICATE_ID',
 )
 
-// Negative 3: missing description
+// Negative 3: missing description (keep size === 22)
 assertThrows(
   'Entry with empty description fails',
   () => {
     const mutated = [
-      ...DMN_CARD_CATALOG.slice(0, 19),
-      { ...DMN_CARD_CATALOG[19]!, description: '' },
+      ...DMN_CARD_CATALOG.slice(0, 21),
+      { ...DMN_CARD_CATALOG[21]!, description: '' },
     ] as DmnCardDef[]
     validateDmnCardCatalog(mutated)
   },
   'MISSING_DESCRIPTION',
+)
+
+// Negative 3b: a streak-shield entry is rejected (kind removed for integrity)
+assertThrows(
+  'streak-shield eventKind fails',
+  () => {
+    const mutated = DMN_CARD_CATALOG.map((c, i) =>
+      i === 0 ? { ...c, eventKind: 'streak-shield' as unknown as DmnCardDef['eventKind'] } : c,
+    ) as DmnCardDef[]
+    validateDmnCardCatalog(mutated)
+  },
+  'INVALID_EVENT_KIND',
 )
 
 // Negative 4: unreachable eventKind (drop all hidden-reveal cards → 16 entries; size fails first
@@ -109,13 +120,13 @@ assertThrows(
   'WRONG_RARITY_DISTRIBUTION',
 )
 
-// Negative 6: invalid rarity (cast to bypass TS)
+// Negative 6: invalid rarity (cast to bypass TS; P5 is not a DMN tier)
 assertThrows(
   'Invalid rarity fails',
   () => {
     const mutated = [
-      ...DMN_CARD_CATALOG.slice(0, 19),
-      { ...DMN_CARD_CATALOG[19]!, rarity: 'P5' as unknown as DmnCardDef['rarity'] },
+      ...DMN_CARD_CATALOG.slice(0, 21),
+      { ...DMN_CARD_CATALOG[21]!, rarity: 'P5' as unknown as DmnCardDef['rarity'] },
     ] as DmnCardDef[]
     validateDmnCardCatalog(mutated)
   },
