@@ -4,6 +4,15 @@
 > 來源 grill：`~/.claude/scratch/grilled-neurons-首抽機制-四大家族迷宮代表-2026-06-04.md`
 > + `grilled-neurons-遊戲機制開放決策-2026-06-03.md`（裝備 OE anchor 在此）。
 
+> ## ⚠️ PIVOT (2026-06-04 grill #2 — `grilled-neurons-加速系統-DMN消耗品vs裝備永久-2026-06-04.md`)
+>
+> **§1 guardrail（DMN 不碰速度/能量）+ §3/§4/§6 的 P2/P3 分立被推翻。** 新模型：
+> - **「加速系統」一條巷子，兩種存續**：**消耗品**（DMN 命運卡 → 背包，限時/一次性速度·能量 boost）vs **永久**（裝備/夥伴 passive 速度·能量 boost）。
+> - **family-buff 保留並擴充**（不再因「重疊裝備」移除 — 它就是消耗品版速度 boost 的基礎）。
+> - **Phase 2 + Phase 3 合併**成一個 change（建議名 `add-neurons-acceleration-system`）。
+> - DMN 全部效果進背包手動啟用；streak-shield 仍移除（誠信）+ 已收集卡從 closed-cap 圖鑑移除。
+> - 下方 §1 guardrail、§3「永久 passive」定位、§4「DMN 不碰速度/能量」、§6 P2/P3 分立 **以本 PIVOT 為準**（保留原文供 history）。
+
 ## 0. 為什麼有這份檔
 
 設計首抽時發現「加速探索」的機制散落多處且**概念會互相重疊**。本檔釘出**四層進度系統的分工 (lane)**，讓未來每個 change 各歸其位、不重複造輪、不打架。
@@ -84,17 +93,16 @@
 - 斷 streak soft toast（只通知、不隱藏）✅ 保留
 - SRS「🤔 我亂猜的 / ✨ 太簡單」自陳按鈕（誠信**正向**）✅ 保留
 
-## 6. 分期計畫（✅ CONFIRMED — owner 2026-06-04）
+## 6. 分期計畫（✅ P1 SHIPPED；P2/P3 已合併 — 見 PIVOT 2026-06-04）
 
-> 鎖定：照 P1→P2→P3 順序；streak-shield 併入 P2；DMN 補給品傾向「**手動背包**」（玩家自選時機啟用）但 **P2 propose 時再 grill 確認**；DMN 神經科學 **OE 在 P2 propose 時才跑**（避免提早查放到過期）。
+> 鎖定：P1 已 ship。**P2 + P3 合併**成一條「加速系統」（消耗品 boost + 永久 boost）。背包 = 全部手動啟用；streak-shield 移除（誠信）；OE 在 propose 時跑（消耗品速度/能量 anchor + 已備的永久 myelin anchor）。
 
-| Phase | Change（暫名） | 範圍 | 依賴 |
+| Phase | Change | 範圍 | 狀態 |
 |---|---|---|---|
-| **P1** | `add-neurons-first-pull` | 首抽 4 分支代表（見首抽 grill）；碰 maze + variant-gacha + onboarding | 無，可先 ship |
-| **P2** | `rework-dmn-as-consumable-supplies` | 移 family-buff + streak-shield、DMN 補給品化、OE anchor、catalog 重平衡 | 獨立於 P1（不同檔） |
-| **P3** | `add-neurons-companion-equipment` | 永久 passive 夥伴（myelin 等）；OE anchor 已備 | 建議在 P2 後（lane 定清） |
+| **P1** | `add-neurons-first-pull` | 首抽 4 分支代表；maze + variant-gacha + onboarding + sync | ✅ SHIPPED (commit `979f913`, track-neurons) |
+| **P2+P3（合併）** | `add-neurons-acceleration-system`（暫名） | 「加速系統」一條巷：**消耗品**（DMN 卡→背包，限時/一次性速度·能量 boost；family-buff 保留+擴充）+ **永久**（裝備/夥伴 passive boost，myelin/saltatory/Nav/pump OE 已備）。streak-shield 移除 + 已收集卡從圖鑑移除。OE 在 propose 時跑。 | 🔧 grill 完成（grill #2）→ 待 `/spec propose` design-first |
 
-**順序理由**：P1 小而獨立先出；P2 先把 DMN 巷子釘死（補給品）再做 P3 裝備，避免兩者重疊。P1 與 P2 設計可平行（檔案幾乎不重疊）。
+**設計重點（合併後）**：lane = 「消耗品 vs 永久」；boost 疊加公式 + cap/pacing（正回饋失速防護）；背包 + 裝備 schema（Dexie bump + R2 bundle **從 16 起跳**，首抽佔 15）；DMN 非速度/能量 kind（review/rate-up/reveal）去留待 design 決。建議 design.md 厚、`/spec propose` design-first。
 
 ## 7. Cross-links
 
