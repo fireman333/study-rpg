@@ -45,9 +45,9 @@ export default function StudySquadPanel(): JSX.Element {
   const full = squad.length >= MAX_SQUAD_SIZE
 
   return (
-    <section style={panelStyle} aria-label="出戰隊伍">
+    <section style={panelStyle} aria-label="神經元遠征隊">
       <div style={headerRowStyle}>
-        <span style={titleStyle}>🧫 出戰隊伍</span>
+        <span style={titleStyle}>🧫 神經元遠征隊</span>
         <span style={countStyle}>
           {squad.length} / {MAX_SQUAD_SIZE}
         </span>
@@ -66,8 +66,8 @@ export default function StudySquadPanel(): JSX.Element {
       {squad.length === 0 ? (
         <p style={placeholderStyle}>
           {collected.length === 0
-            ? '先去答題收集你的第一隻 neuron，就能組出戰隊伍。'
-            : '還沒組隊 — 點「編輯隊伍」挑出你的 neuron 一起出征、答對時一起歡呼。'}
+            ? '先去答題收集你的第一隻 neuron，就能組神經元遠征隊。'
+            : '還沒組隊 — 點「編輯隊伍」挑出你的 neuron 一起出征、答對時一起歡呼，也會在迷宮動畫帶行進。'}
         </p>
       ) : (
         <div style={partyRowStyle}>

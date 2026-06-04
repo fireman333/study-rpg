@@ -18,6 +18,8 @@ import { toggleEasy, toggleGuessed, useFlag } from '../lib/services/question-fla
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import SquadCelebration from './SquadCelebration'
+import MazeExpedition from './MazeExpedition'
+import { getExpeditionHidden } from '../lib/expedition-visibility'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 
 interface Props {
@@ -62,6 +64,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   const [busy, setBusy] = useState(false)
   // Inline 🐞 report sheet — holds the question id being reported (null = closed).
   const [bugForQuestionId, setBugForQuestionId] = useState<string | null>(null)
+  // 神經元遠征隊 band visibility — shares the homepage opt-out preference (read once).
+  const [bandHidden] = useState(getExpeditionHidden)
   const [flash, setFlash] = useState<{ outcome: 'correct' | 'incorrect'; nonce: number } | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
@@ -308,6 +312,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
       aria-label="答題中"
     >
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        {/* 神經元遠征隊 compact band — translucent, non-interactive, behind the
+            content in the upper background; honors the homepage hide preference. */}
+        {!bandHidden && <MazeExpedition compact />}
         {flash && (
           <AnswerFeedbackFlash
             key={flash.nonce}

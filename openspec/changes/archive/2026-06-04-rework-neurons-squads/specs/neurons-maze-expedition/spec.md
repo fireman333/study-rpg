@@ -1,8 +1,5 @@
-# neurons-maze-expedition Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change add-neurons-maze-expedition. Update Purpose after archive.
-## Requirements
 ### Requirement: Decorative expedition animation band
 
 The system SHALL render a cosmetic side-scrolling "expedition" animation band composed of three independently-scrolling parallax layers — a far brain-sulci sky (slowest), a neural-tissue ground, and fast foreground synapse particles — that loop seamlessly to simulate the squad marching deeper into the brain. The band SHALL render in two contexts: a full-size band on the maze homepage, and a **compact, semi-transparent** band in the upper background of `QuizModal` during a quiz session. The band SHALL be purely decorative and MUST NOT read from or mutate any maze game state; the compact quiz band SHALL be non-interactive (`pointer-events: none`, low opacity, behind the question content) so it never obscures or intercepts the answer UI.
@@ -55,16 +52,6 @@ The expedition band SHALL play automatically during active-study moments rather 
 - **WHEN** the player toggles「關閉動畫」on and then reloads the page
 - **THEN** the band stays hidden on both the homepage and in QuizModal, and the persisted state records it as hidden
 
-#### Scenario: Both controls drive one state
-- **WHEN** the player hides the band via the on-band minimize control
-- **THEN** the header chip reflects the hidden state, and showing it again via the header restores the same band
-
-### Requirement: Reduced-motion and performance constraints
-
-The animation SHALL be implemented with CSS transforms / `background-position` only (no `<canvas>`, no `requestAnimationFrame` loop) so it stays 60fps and is not throttled in backgrounded tabs. When the operating system requests reduced motion (`prefers-reduced-motion: reduce`), all layer and squad animations SHALL freeze to a static scene.
-
 #### Scenario: Reduced-motion freezes the animation
-
-- **WHEN** the OS `prefers-reduced-motion` setting is `reduce` and the band is shown
-- **THEN** the parallax layers and the squad bob are static (no motion), while the scene remains visible
-
+- **WHEN** the OS `prefers-reduced-motion` setting is `reduce` and the band would otherwise play
+- **THEN** the parallax layers and the marcher bob are static (no motion), while the scene remains visible
