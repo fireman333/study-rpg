@@ -1,16 +1,16 @@
 /**
- * LeaderboardPage — 5-tab leaderboard view with pixel-art tabular grid.
+ * LeaderboardPage — 6-tab leaderboard view with pixel-art tabular grid.
  *
  * Spec: openspec/specs/neurons-leaderboard/spec.md
- *   "Five filter tabs SHALL provide composite ranking plus four single-dimension rankings"
+ *   "Six filter tabs SHALL provide composite ranking plus five single-dimension rankings"
  *   "Top 100 list plus my-rank chip SHALL render in pixel-art tabular grid"
+ *   "LeaderboardPage SHALL source the authenticated session from the app AuthContext"
  *   "Privacy and integrity disclosures SHALL surface on the leaderboard footer"
  *
- * Auth gate: pre-`add-neurons-deploy`, neurons-tw has no integrated Supabase
- * auth path. This page accepts userId/accessToken via optional props (which
- * will be wired in `add-neurons-deploy`). For interim dogfood, the page falls
- * back to an anonymous read-only view (only `fetchLeaderboardSnapshot`, which
- * does not require auth).
+ * Auth: the page sources the signed-in user from the app AuthContext via
+ * useAuth() (same hook as useSync.ts) — userId/accessToken gate the opt-in
+ * modal + settings controls. Signed-out visitors get the read-only browse view
+ * (fetchLeaderboardSnapshot only, no auth required).
  */
 
 import { useEffect, useState } from 'react'
@@ -30,13 +30,7 @@ import {
   type LeaderboardRow,
 } from '../lib/services/neurons-leaderboard'
 import type { LeaderboardProfileRow } from '../lib/db'
-
-interface Props {
-  // When auth integration arrives in add-neurons-deploy these become required.
-  userId?: string | null
-  accessToken?: string | null
-  fallbackDisplayName?: string
-}
+import { useAuth } from '../lib/auth/AuthContext'
 
 const FILTER_LABELS: Record<LeaderboardFilter, string> = {
   composite: '綜合排名',
@@ -62,7 +56,15 @@ interface SnapshotCache {
 
 const CACHE_TTL_MS = 30 * 60 * 1000 // 30 min — matches cron cadence
 
-export default function LeaderboardPage({ userId, accessToken, fallbackDisplayName }: Props): JSX.Element {
+export default function LeaderboardPage(): JSX.Element {
+  const { user, session } = useAuth()
+  const userId = user?.id ?? null
+  const accessToken = session?.access_token ?? null
+  const fallbackDisplayName =
+    (user?.user_metadata?.name as string | undefined) ??
+    (user?.user_metadata?.full_name as string | undefined) ??
+    user?.email ??
+    undefined
   const [activeFilter, setActiveFilter] = useState<LeaderboardFilter>('composite')
   const [snapshotCache, setSnapshotCache] = useState<SnapshotCache>({})
   const [loading, setLoading] = useState(false)
