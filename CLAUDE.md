@@ -465,6 +465,17 @@ Test coverage: `apps/neurons-tw/src/__tests__/{acceleration,inventory,db-v15-to-
 
 Full change reference: `openspec/changes/add-neurons-acceleration-system/` (proposal / design / specs / tasks).
 
+## Neurons living companions (M_3rd ext, 2026-06-04)
+
+`apps/neurons-tw` gives the acceleration-system's **living-cell glial companions** an on-screen presence — the "夥伴" that was previously only a dex card + passive number now **marches with the 神經元遠征隊 expedition squad** in the `MazeExpedition` animation band. Owner decision (live verify): **NOT on the brain-map** — "夥伴不放 brain-map，出征動畫才顯示". Capability spec: [`openspec/specs/neurons-living-companion/spec.md`](openspec/specs/neurons-living-companion/spec.md) (new) + MODIFIED `neurons-maze-expedition`. Pure presentational follow-on to `add-neurons-acceleration-system`.
+
+- **Companion subset = catalog flag `companion: true`** on `EquipmentDef` (`equipment-types.ts`), set on the **2 actual cells only** — `eq-oligodendrocyte-companion-p3` + `eq-astrocyte-glycogen-p3` (`equipment-catalog.ts`). Structural/molecular items (myelin wrap, node of Ranvier, Na⁺/K⁺ pump, lactate, glucose, mitochondria…) stay dex-only passive and do NOT march. Helpers `livingCompanionDefs()` / `livingCompanions(ownedIds)` (rarest-first) exported from content. The flag is orthogonal to lane/rarity/bonus — the equipment validator + dex + acceleration passive are unaffected.
+- **Render = expedition-band marchers**: `components/MazeExpedition.tsx` `useOwnedCompanions()` (liveQuery `db.equipment` → `livingCompanions`) appends companions to the band's `members` parade (at the back; index continues for coherent depth-stagger). They inherit the band's `exp-bob` + paused/hidden + reduced-motion treatment — no separate component, keyframe, or gate. Cyan-glia glow distinguishes them from the white-aura variant marchers. Rendered at `COMPANION_MARCHER_SCALE` (= 0.6, tunable) × the squad marcher size — visibly smaller tagalongs. Appears in BOTH band contexts (homepage reading band + compact QuizModal 出征 band). **No brain-map SVG overlay.**
+- **Dedicated marcher sprites** (`generate-companion-sprites`, 2026-06-04): real cute glial-cell art at `packages/theme-pixel-neurons/sprites/companion/{eq-oligodendrocyte-companion-p3,eq-astrocyte-glycogen-p3}.png` (384×384 transparent 16-color, Gemini-gen + magick). `sprites.ts` adds a `companion/*.png` glob → `companion:<id>` keys, **spread present-files-only** into `SPRITE_MAP` (NO hardcoded TRANSPARENT_PIXEL keylist) so a missing PNG leaves the key unresolved and `companionSpriteUrl()`'s `companion:<id> ?? equipment:<id> ?? variant:default` fallback still fires. Single-frame (band is CSS-`exp-bob`, not per-frame) — the earlier `generate-companion-animation-frames` idea is closed.
+- **Zero schema/sync change**: derives entirely from the already-synced `equipment` table — no Dexie `.version()` bump, no R2 `SCHEMA_VERSION` bump, no new adapter, no `SYNCED_META_KEYS`. Every device computes identical companions. Tests: `apps/neurons-tw/src/__tests__/living-companion.test.ts` (9 — catalog-subset predicate + db→ids→marcher data path; 351 neurons tests green).
+
+Full change reference: `openspec/changes/add-neurons-living-companion-render/` (proposal / design / specs / tasks).
+
 ## Source data path
 
 題庫原始 .md 在使用者本機（**不在 repo 內**）：

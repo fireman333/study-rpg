@@ -25,6 +25,8 @@ const make = (
   description: string,
   rarity: EquipmentRarity,
   lane: EquipmentLane,
+  /** Living-cell glial companion → renders as an on-screen following sprite. */
+  companion = false,
 ): EquipmentDef => ({
   equipmentId,
   displayName,
@@ -33,6 +35,7 @@ const make = (
   lane,
   bonus: EQUIPMENT_RARITY_BONUS[rarity],
   artworkId: `equipment:${equipmentId}`,
+  ...(companion ? { companion: true } : {}),
 })
 
 export const EQUIPMENT_CATALOG: readonly EquipmentDef[] = [
@@ -57,6 +60,7 @@ export const EQUIPMENT_CATALOG: readonly EquipmentDef[] = [
     '一隻會主動找軸突包髓鞘的寡突膠細胞跟著你 — 活動依賴性髓鞘化，越練越快。',
     'P3',
     'speed',
+    true, // living-cell companion → follows on screen
   ),
   make(
     'eq-myelin-thickening-p3',
@@ -101,6 +105,7 @@ export const EQUIPMENT_CATALOG: readonly EquipmentDef[] = [
     '星形膠細胞囤了一座糖原倉庫，高負荷時動員成乳酸即時供能。',
     'P3',
     'energy',
+    true, // living-cell companion → follows on screen
   ),
   make(
     'eq-creatine-kinase-buffer-p3',
@@ -124,3 +129,28 @@ export const EQUIPMENT_CATALOG: readonly EquipmentDef[] = [
     'energy',
   ),
 ] as const
+
+/** Rarity sort order (P1 strongest/rarest → P5 negligible). */
+const RARITY_RANK: Record<EquipmentRarity, number> = { P1: 0, P2: 1, P3: 2, P4: 3, P5: 4 }
+
+/**
+ * Living-cell glial companions in the catalog (`companion === true`), sorted
+ * rarest-first. These are the only items that render as on-screen following
+ * sprites (add-neurons-living-companion-render); structural/molecular items stay
+ * dex-only passive. Today: 寡突膠細胞夥伴 (P3) + 星形膠細胞糖原庫 (P3).
+ */
+export function livingCompanionDefs(): readonly EquipmentDef[] {
+  return EQUIPMENT_CATALOG.filter((e) => e.companion === true).sort(
+    (a, b) => RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity],
+  )
+}
+
+/**
+ * Owned living-cell companions (owned ∩ companion subset), rarest-first. Pure:
+ * derives the on-screen following set from an owned-equipment-id set with zero
+ * additional state, so every device computes the identical companions.
+ */
+export function livingCompanions(ownedIds: Iterable<string>): readonly EquipmentDef[] {
+  const owned = ownedIds instanceof Set ? ownedIds : new Set(ownedIds)
+  return livingCompanionDefs().filter((e) => owned.has(e.equipmentId))
+}

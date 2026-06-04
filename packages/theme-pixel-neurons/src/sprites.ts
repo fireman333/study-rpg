@@ -168,6 +168,24 @@ const equipmentSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
+// Dedicated living-companion marcher sprites (generate-companion-sprites):
+// `<equipmentId>.png` → `companion:<equipmentId>`. ONLY present files are keyed
+// (spread into SPRITE_MAP below — no hardcoded TRANSPARENT_PIXEL keylist) so a
+// missing sprite leaves the key unresolved and the expedition band's
+// `companion:<id> ?? equipment:<id>` fallback still fires.
+const companionSpriteModules = import.meta.glob('../sprites/companion/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const companionSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(companionSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    return [`companion:${stem}`, url]
+  }),
+)
+
 // 11 subject icon keys (matched to FAMILY_BY_SUBJECT in content-neurons-tw build.ts)
 const SUBJECT_IDS = [
   '藥理學',
@@ -359,6 +377,9 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   ...DMN_ART_KEYS.map((k) => [k, cardSprites[k] ?? TRANSPARENT_PIXEL]),
   // Permanent equipment sprites: real PNG if file present, else placeholder
   ...EQUIPMENT_ART_KEYS.map((k) => [k, equipmentSprites[k] ?? TRANSPARENT_PIXEL]),
+  // Dedicated companion marcher sprites — only PRESENT files keyed, so a missing
+  // one stays unresolved and the band's `companion:<id> ?? equipment:<id>` fallback fires.
+  ...Object.entries(companionSprites),
   // Animated hero sheets (variant:<family>:<slot>:<state>) — only present sheets registered.
   ...Object.entries(animatedSprites),
 ])
