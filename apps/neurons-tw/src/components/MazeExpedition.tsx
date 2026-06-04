@@ -28,6 +28,7 @@ import { liveQuery } from 'dexie'
 import { db, type NeuronVariantRow } from '../lib/db'
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
+import { livingCompanions, type EquipmentDef } from '@study-rpg/content-neurons-tw'
 
 const skyUrl = new URL('../assets/maze/expedition-sky.png', import.meta.url).href
 const groundUrl = new URL('../assets/maze/expedition-bg.png', import.meta.url).href
@@ -99,6 +100,35 @@ function useBandSquad(): NeuronVariantRow[] {
   return resolveBandSquad(active, fallback)
 }
 
+/**
+ * Owned living-cell glial companions (oligodendrocyte / astrocyte) that march
+ * with the expedition squad (add-neurons-living-companion-render). Derived live
+ * from the already-synced `equipment` table — the glia only appear here, riding
+ * along with the squad parade, never as a permanent brain-map fixture.
+ */
+function useOwnedCompanions(): readonly EquipmentDef[] {
+  const [defs, setDefs] = useState<readonly EquipmentDef[]>([])
+  useEffect(() => {
+    const sub = liveQuery(() => db.equipment.toArray()).subscribe({
+      next: (rows) => setDefs(livingCompanions(rows.map((r) => r.equipmentId))),
+      error: () => setDefs([]),
+    })
+    return () => sub.unsubscribe()
+  }, [])
+  return defs
+}
+
+/** Companion sprite — placeholder-first: real animated `companion:<id>` frames
+ * (generate-companion-animation-frames follow-up) → static `equipment:<id>` art. */
+function companionSpriteUrl(def: EquipmentDef): string {
+  return (
+    SPRITE_MAP[`companion:${def.equipmentId}`] ??
+    SPRITE_MAP[def.artworkId] ??
+    SPRITE_MAP['variant:default'] ??
+    ''
+  )
+}
+
 /** Inline growth-cone glyph (empty-collection fallback marcher). */
 function ConeMarcher({ size, color }: { size: number; color: string }): JSX.Element {
   return (
@@ -125,13 +155,22 @@ interface Props {
 
 export default function MazeExpedition({ onHide, compact = false, paused = false }: Props): JSX.Element {
   const squad = useBandSquad()
+  const companions = useOwnedCompanions()
   const d = compact ? COMPACT_DIMS : FULL_DIMS
 
   // depth-stagger: alternate near (bigger, lower, opaque) / far (smaller, higher, faded)
-  const members =
+  const squadMembers =
     squad.length > 0
       ? squad.map((row, i) => ({ key: `${row.familyId}-${row.slotIndex}`, row, i }))
       : FALLBACK_COLORS.map((c, i) => ({ key: `cone-${i}`, color: c, i }))
+  // Owned glia companions march at the BACK of the parade (glia follow the
+  // neurons); the index continues so depth-stagger + bob offsets stay coherent.
+  const companionMembers = companions.map((def, j) => ({
+    key: `companion-${def.equipmentId}`,
+    companion: def,
+    i: squadMembers.length + j,
+  }))
+  const members = [...squadMembers, ...companionMembers]
 
   const wrapStyle: CSSProperties = {
     position: compact ? 'absolute' : 'relative',
@@ -200,6 +239,21 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
                     imageRendering: 'pixelated',
                     filter:
                       'drop-shadow(0 2px 3px rgba(0,0,0,0.55)) drop-shadow(0 0 8px rgba(255,255,255,0.5)) drop-shadow(0 0 15px rgba(255,255,255,0.3))',
+                  }}
+                />
+              ) : 'companion' in m ? (
+                <img
+                  src={companionSpriteUrl(m.companion)}
+                  width={size}
+                  height={size}
+                  alt={m.companion.displayName}
+                  draggable={false}
+                  style={{
+                    imageRendering: 'pixelated',
+                    // cyan-tinted glia glow — reads as a glial companion, distinct
+                    // from the variant marchers' white aura.
+                    filter:
+                      'drop-shadow(0 2px 3px rgba(0,0,0,0.55)) drop-shadow(0 0 7px rgba(150,235,255,0.5))',
                   }}
                 />
               ) : (

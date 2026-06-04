@@ -74,6 +74,15 @@ export interface EquipmentDef {
   bonus: number
   /** Sprite registry key (placeholder this change; real art via follow-up). */
   artworkId: string
+  /**
+   * Living-cell glial companion (add-neurons-living-companion-render): when
+   * `true`, an owned copy also renders as an on-screen following sprite over the
+   * maze brain-map (the glia physically accompany the neuron). Only the catalog's
+   * actual *cells* (oligodendrocyte / astrocyte) carry this; structural/molecular
+   * items stay dex-only passive. Absent ⇒ not a companion. Orthogonal to
+   * lane/rarity/bonus — does NOT affect the acceleration passive or the validator.
+   */
+  companion?: boolean
 }
 
 /** Dexie row shape persisted in the `equipment` table. */

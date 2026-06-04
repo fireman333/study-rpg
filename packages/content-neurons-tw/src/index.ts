@@ -160,7 +160,7 @@ export {
   type OwnedEquipmentRow,
 } from './equipment-types'
 
-export { EQUIPMENT_CATALOG } from './equipment-catalog'
+export { EQUIPMENT_CATALOG, livingCompanionDefs, livingCompanions } from './equipment-catalog'
 
 export {
   validateEquipmentCatalog,
