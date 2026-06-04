@@ -27,13 +27,12 @@ const DEFAULT_WORKER_URL = 'https://study-rpg-sync-worker.tony85314.workers.dev'
 const WORKER_URL =
   (import.meta.env.VITE_SYNC_WORKER_URL as string | undefined)?.trim() || DEFAULT_WORKER_URL
 
-export type LeaderboardFilter = 'composite' | 'variants' | 'ap' | 'synapse' | 'study' | 'settles'
+export type LeaderboardFilter = 'composite' | 'variants' | 'ap' | 'study' | 'settles'
 
 export const LEADERBOARD_FILTERS: LeaderboardFilter[] = [
   'composite',
   'variants',
   'ap',
-  'synapse',
   'study',
   'settles',
 ]
@@ -43,7 +42,6 @@ export interface LeaderboardRow {
   nickname: string
   variant_count: number
   total_AP: number
-  synapse_strong: number
   total_study_min: number
   total_settles: number
   badges_csv?: string
@@ -60,7 +58,6 @@ export interface NeuronsLeaderboardPayload {
   nickname: string
   variant_count: number
   total_AP: number
-  synapse_strong: number
   total_study_min: number
   total_settles: number
   is_public: 0 | 1
@@ -78,7 +75,6 @@ export interface NicknameCheckResponse {
  * - variant_count = neuronVariants row count (distinct collected — the sole
  *   collection metric; open collection has no family-complete signal)
  * - total_AP = sum of familyAccrual.ap across all families
- * - synapse_strong = count of synapses with state='strong'
  * - total_study_min = sum of meta['totalStudyMinutes'] accrued by the
  *   reading-timer service (wired 2026-05-28 via polish-neurons-final)
  * - total_settles = sum of the four meta['maze:<branch>:settles'] counters
@@ -88,16 +84,14 @@ export async function buildLeaderboardPayload(
   nickname: string,
   isPublic: boolean,
 ): Promise<NeuronsLeaderboardPayload> {
-  const [variants, accruals, synapses] = await Promise.all([
+  const [variants, accruals] = await Promise.all([
     db.neuronVariants.toArray(),
     db.familyAccrual.toArray(),
-    db.synapses.toArray(),
   ])
 
   const variant_count = variants.length
 
   const total_AP = accruals.reduce((sum, a) => sum + (a.ap ?? 0), 0)
-  const synapse_strong = synapses.filter((s) => s.state === 'strong').length
 
   // Wired to the reading-timer service's `meta['totalStudyMinutes']` counter.
   // Returns 0 for users who have never started the timer (defensive fallback
@@ -129,7 +123,6 @@ export async function buildLeaderboardPayload(
     nickname,
     variant_count,
     total_AP,
-    synapse_strong,
     total_study_min,
     total_settles,
     is_public: isPublic ? 1 : 0,

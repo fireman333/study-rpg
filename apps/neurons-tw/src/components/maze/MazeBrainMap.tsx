@@ -47,10 +47,10 @@ type NodeShape = 'circle' | 'diamond' | 'square' | 'triangle'
  * distinguishable in grayscale.
  */
 const ENCODING: Record<NtBranchId, { color: string; label: string; shape: NodeShape }> = {
-  DA: { color: '#ffb33e', label: 'DA · 多巴胺', shape: 'circle' },
-  '5HT': { color: '#ff5da2', label: '5HT · 血清素', shape: 'diamond' },
-  GABA: { color: '#46d27a', label: 'GABA · γ-胺基丁酸', shape: 'square' },
-  Glu: { color: '#43c6ff', label: 'Glu · 麩胺酸', shape: 'triangle' },
+  DA: { color: '#ffb33e', label: '圓徑', shape: 'circle' },
+  '5HT': { color: '#ff5da2', label: '菱徑', shape: 'diamond' },
+  GABA: { color: '#46d27a', label: '方徑', shape: 'square' },
+  Glu: { color: '#43c6ff', label: '角徑', shape: 'triangle' },
 }
 
 /** Pixel-grid cell size (viewBox units) for the GBA-style tract render. */
@@ -263,11 +263,11 @@ export default function MazeBrainMap({ view }: { view: MazeViewState }): JSX.Ele
       </div>
 
       <p style={hintStyle}>
-        唸書與答對讓各神經傳導物路徑的 growth cone 沿白質束探索 — 抵達腦區點亮並抽出一隻神經元。四套系統交織於同一顆腦。
+        唸書與答對讓各探索路徑的 growth cone 沿白質束前進 — 抵達腦區點亮並抽出一隻神經元。四條路徑交織於同一顆腦。
       </p>
 
-      {/* Branch filter chips — toggle each NT region's layer (display-only). */}
-      <div role="group" aria-label="神經傳導物路徑篩選" style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+      {/* Path filter chips — toggle each region's layer (display-only). */}
+      <div role="group" aria-label="探索路徑篩選" style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
         {view.branches.map((b) => {
           const enc = ENCODING[b.branch]
           const on = visible.has(b.branch)

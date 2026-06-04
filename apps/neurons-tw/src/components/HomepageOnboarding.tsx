@@ -55,7 +55,7 @@ export function HomepageOnboarding(): JSX.Element | null {
           <strong>📖 開始閱讀</strong>：按計時器累積閱讀時間 → 賺神經能量推進腦圖收集。
         </li>
         <li>
-          <strong>🎲 答題</strong>：跨 family 隨機練，或點下方科目卡指定範圍。答對讓該科的神經傳導物分支賺能量。
+          <strong>🎲 答題</strong>：跨 family 隨機練，或點下方科目卡指定範圍。答對讓該科所屬的探索路徑賺能量。
         </li>
         <li>
           <strong>🧠 走腦圖收集</strong>：能量推著 growth cone 沿白質束前進，抵達腦區節點就抽出一隻神經元 —

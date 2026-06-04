@@ -76,30 +76,32 @@ The mapping from gameplay events to stat increments SHALL be specified in `wire-
 
 ### Requirement: Connectome visual SHALL use Linnean taxonomy, not brain anatomy
 
-The neurons mode's primary collection visual SHALL be a **Linnean-style phylogenetic taxonomy tree** organized by neurotransmitter family, NOT a brain anatomy map (no cortex / hippocampus / amygdala anatomy) and NOT a literal C. elegans connectome (no 302-named-neuron mapping).
+The 4-neurotransmitter-branch organization (DA / 5-HT / GABA / Glu) SHALL be treated as **internal organizational data only** — it MAY drive the maze region assignment, the per-branch economy, and per-branch context-art derivation — and SHALL NOT be surfaced to players as a claim that an exam subject *is* (or belongs to) a particular neurotransmitter. No player-facing surface SHALL group, label, or color-code the 11 families under a 「某科＝某神經傳導物質分支」 taxonomy.
 
-Tree structure:
-- Root: the player's connectome
-- 4 main branches: DA / 5-HT / GABA / Glu (matching the 4-stat schema)
-- Each branch hosts multiple neuron family clusters (specific assignment of 10 一階 subjects → branch + cluster deferred to `wire-neurons-content-and-theme`)
-- Each neuron family node displays its collected variants (P1–P5 rarity per `neuron-variant-gacha`)
+The primary collection visual is the maze (per `promote-maze-to-home`), which already superseded the former Linnean phylogenetic taxonomy tree; the connectome remains a read-only synapse overlay. Any residual player-facing rendering of the four NT branches as an organizing taxonomy (branch labels, a「DA/5-HT/GABA/Glu 分支」grouping section, or accent colors used specifically as a per-family *NT-branch* group tint) SHALL be removed or neutralized. The collection visual SHALL NOT render a brain-anatomy map (no cortex / hippocampus / amygdala anatomy) and SHALL NOT render a literal C. elegans connectome.
 
-Cross-cluster synapses (per the Hebbian game loop requirement) overlay the taxonomy tree as a second visual layer — the taxonomy is static phylogeny; the synapses are dynamic wiring.
+`FAMILY_NT_BRANCH` in `content-neurons-tw` is retained as the internal source of branch assignment for maze/economy/decor; only its **player-facing presentation as a neurotransmitter taxonomy** is removed. Individual variant persona flavor text (which may reference specific neuron types) is out of scope for this requirement and is unchanged here.
+
+#### Scenario: No player-facing surface claims an exam subject belongs to a neurotransmitter
+
+- **GIVEN** the player navigates any collection / maze / family-picker / leaderboard surface in neurons-tw
+- **WHEN** the surface renders
+- **THEN** it SHALL NOT present the 11 families bucketed under DA / 5-HT / GABA / Glu branch headings
+- **AND** it SHALL NOT label a family or subject as belonging to a neurotransmitter branch
+- **AND** any accent color that previously signified a family's NT-branch group SHALL no longer be presented as an NT-branch grouping signal
+
+#### Scenario: NT-branch data remains available internally
+
+- **GIVEN** the maze region assignment, the per-branch economy (`maze:<branch>:earned/settles`), and per-branch context-art decor
+- **WHEN** they read `FAMILY_NT_BRANCH`
+- **THEN** the internal branch assignment SHALL still resolve correctly (this change does not alter maze structure, economy, or decor data)
 
 #### Scenario: Connectome view never renders brain regions
 
-- **GIVEN** the player navigates to the connectome view in neurons-tw
+- **GIVEN** the player views the connectome overlay in neurons-tw
 - **WHEN** the view renders
 - **THEN** the rendered visual SHALL NOT include any brain region sprite (cortex / hippocampus / amygdala / cerebellum / brainstem etc.)
 - **AND** the visual SHALL NOT include any anatomical brain outline sprite
-- **AND** the visual SHALL render a phylogenetic tree with 4 NT-labeled root branches
-
-#### Scenario: Cluster placement on NT branches is content-pack-driven
-
-- **GIVEN** the connectome view loads
-- **WHEN** neuron family nodes are positioned
-- **THEN** each family's NT-branch assignment SHALL be read from `content-neurons-tw` metadata (not hardcoded in the app or theme)
-- **AND** changing a family's NT-branch assignment in the content pack SHALL be reflected in the view without engine code change
 
 ### Requirement: Neurons mode SHALL be data-independent from medexam-tw and medexam2-hospital-tw
 

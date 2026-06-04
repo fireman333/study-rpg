@@ -42,7 +42,7 @@ export default function LeaderboardPromoBanner(): JSX.Element | null {
       <div style={textBlockStyle}>
         <div style={headlineStyle}>🏆 加入 neurons-tw 排行榜</div>
         <div style={subStyle}>
-          看你的變體收集進度、AP 累積、Strong Synapse 數在所有玩家中排第幾名
+          看你的變體收集進度、AP 累積、探索進度在所有玩家中排第幾名
         </div>
       </div>
       <div style={actionsStyle}>

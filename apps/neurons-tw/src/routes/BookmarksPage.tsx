@@ -32,7 +32,6 @@ type TabKey = 'manual' | 'currentWrong' | 'historyWrong'
 
 const MAX_RENDER = 200
 const STEM_TRUNCATE_LEN = 100
-const NT_BRANCHES = ['DA', '5HT', 'GABA', 'Glu'] as const
 const YEAR_CHIP_COLOR = '#6a7b8c'
 
 export default function BookmarksPage({ pack }: Props): JSX.Element {
@@ -246,7 +245,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         </div>
       </section>
 
-      {/* Family filter — chips grouped by NT branch, click toggles exclusion. */}
+      {/* Family filter — flat chip row, click toggles exclusion. */}
       <section style={filterBarStyle} aria-label="科目篩選">
         <div style={filterHeaderStyle}>
           <span style={filterLabelStyle}>📚 依科目篩選</span>
@@ -257,26 +256,22 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
           )}
         </div>
         <div style={chipRowStyle}>
-          {NT_BRANCHES.flatMap((branch) =>
-            pack.subjects
-              .filter((s) => s.group === branch)
-              .map((s) => {
-                const excluded = excludedFamilies.has(s.id)
-                const color = s.color ?? '#8c6d4a'
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => toggleFamilyChip(s.id)}
-                    style={excluded ? chipExcludedStyle(color) : chipIncludedStyle(color)}
-                    aria-pressed={!excluded}
-                    title={excluded ? `加入 ${s.id}` : `排除 ${s.id}`}
-                  >
-                    {s.id}
-                  </button>
-                )
-              }),
-          )}
+          {pack.subjects.map((s) => {
+            const excluded = excludedFamilies.has(s.id)
+            const color = s.color ?? '#8c6d4a'
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => toggleFamilyChip(s.id)}
+                style={excluded ? chipExcludedStyle(color) : chipIncludedStyle(color)}
+                aria-pressed={!excluded}
+                title={excluded ? `加入 ${s.id}` : `排除 ${s.id}`}
+              >
+                {s.id}
+              </button>
+            )
+          })}
         </div>
       </section>
 

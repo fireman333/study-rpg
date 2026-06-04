@@ -23,11 +23,15 @@ export const THEME_PIXEL_NEURONS: ThemePack = {
   },
   designMd: '', // populated at build by importing DESIGN.md as text (Vite ?raw)
   cssVars: {
-    // 4 NT branch colors (anchor for sprite tint + skill tree branch + family group)
-    '--nt-da': '#d4a04d',     // 多巴胺 — 亮黃 / 金 (reward / motivation)
-    '--nt-5ht': '#c44d4d',    // 血清素 — 紅 / 珊瑚 (mood / endurance)
-    '--nt-gaba': '#6a9bc4',   // GABA — 藍 / 青 (inhibition / focus)
-    '--nt-glu': '#6a8c3f',    // 麩胺酸 — 綠 / 翠 (excitation / learning)
+    // 4 region accent colors — INTERNAL data only (maze region / family accent).
+    // NOT presented to players as a neurotransmitter taxonomy (the NT-branch
+    // grouping claim was removed by drop-neurons-nt-branch-claim-and-synapse-axis).
+    // Var names kept as internal identifiers; Phase 2 (flatten + maze redesign)
+    // may recolor / rename.
+    '--nt-da': '#d4a04d',     // 亮黃 / 金
+    '--nt-5ht': '#c44d4d',    // 紅 / 珊瑚
+    '--nt-gaba': '#6a9bc4',   // 藍 / 青
+    '--nt-glu': '#6a8c3f',    // 綠 / 翠
 
     // Clinical EEG signal layer (data surfaces: connectome edges / stats readouts / quiz firing
     // / data backdrops). Cold cyan/amber on near-black, evoking an EEG monitor. Added by

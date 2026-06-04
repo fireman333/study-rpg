@@ -36,7 +36,6 @@ const FILTER_LABELS: Record<LeaderboardFilter, string> = {
   composite: '綜合排名',
   variants: '變體收集',
   ap: 'AP 排名',
-  synapse: 'Synapse 強連結',
   study: '累積唸書時間',
   settles: '探索進度',
 }
@@ -45,7 +44,6 @@ const FILTER_PRIMARY_STAT: Record<LeaderboardFilter, keyof LeaderboardRow> = {
   composite: 'variant_count',
   variants: 'variant_count',
   ap: 'total_AP',
-  synapse: 'synapse_strong',
   study: 'total_study_min',
   settles: 'total_settles',
 }
@@ -231,36 +229,20 @@ function LeaderboardGrid({
   if (snapshot.rows.length === 0) {
     return (
       <div style={emptyStateStyle}>
-        {activeFilter === 'synapse'
-          ? '期待第一個 strong synapse 上榜！同一天兩個 family 各答對 5 題形成 synapse，連續同日重激發兩次達 strong 狀態'
-          : '期待第一個上榜的 neurons-tw 玩家！'}
+        期待第一個上榜的 neurons-tw 玩家！
       </div>
     )
   }
 
   const primaryStat = FILTER_PRIMARY_STAT[activeFilter]
 
-  // Synapse-tab zero-state: even when rows exist, every row may have
-  // synapse_strong = 0 in early game. Render an explanatory banner above
-  // the grid so players understand the column rather than seeing rows of zeros.
-  const allSynapseZero =
-    activeFilter === 'synapse' && snapshot.rows.every((r) => r.synapse_strong === 0)
-
   return (
-    <>
-      {allSynapseZero && (
-        <div style={zeroSynapseHintStyle}>
-          目前所有玩家的 strong synapse 都還是 0。期待第一個 strong synapse 上榜！
-          同一天兩個 family 各答對 5 題形成 synapse，連續同日重激發兩次達 strong 狀態
-        </div>
-      )}
     <div style={gridStyle} className="neurons-lb-list" data-active-stat={primaryStat}>
       <div style={headerRowStyle} className="neurons-lb-row">
         <span style={rankCellStyle}>#</span>
         <span style={nicknameCellStyle}>暱稱</span>
         <span style={statCellStyle} className="neurons-lb-cell--variant">變體</span>
         <span style={statCellStyle} className="neurons-lb-cell--ap">AP</span>
-        <span style={statCellStyle} className="neurons-lb-cell--synapse">Synapse</span>
         <span style={statCellStyle} className="neurons-lb-cell--study">唸書(分)</span>
         <span style={statCellStyle} className="neurons-lb-cell--settles">探索</span>
       </div>
@@ -281,9 +263,6 @@ function LeaderboardGrid({
             <span style={statCellWithPrimary(primaryStat === 'total_AP')} className="neurons-lb-cell--ap">
               {row.total_AP.toLocaleString()}
             </span>
-            <span style={statCellWithPrimary(primaryStat === 'synapse_strong')} className="neurons-lb-cell--synapse">
-              {row.synapse_strong}
-            </span>
             <span style={statCellWithPrimary(primaryStat === 'total_study_min')} className="neurons-lb-cell--study">
               {formatStudyMin(row.total_study_min)}
             </span>
@@ -294,7 +273,6 @@ function LeaderboardGrid({
         )
       })}
     </div>
-    </>
   )
 }
 
@@ -477,17 +455,6 @@ const emptyStateStyle: React.CSSProperties = {
   color: '#5a3f29',
   fontSize: '0.85rem',
   lineHeight: 1.6,
-}
-
-const zeroSynapseHintStyle: React.CSSProperties = {
-  background: '#fdf6e3',
-  border: '1px dashed #b58900',
-  borderRadius: '4px',
-  padding: '0.55rem 0.85rem',
-  marginBottom: '0.5rem',
-  color: '#5a3f29',
-  fontSize: '0.78rem',
-  lineHeight: 1.5,
 }
 
 const lastUpdatedStyle: React.CSSProperties = {

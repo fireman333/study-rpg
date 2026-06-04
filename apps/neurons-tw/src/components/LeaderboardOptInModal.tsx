@@ -173,12 +173,11 @@ export default function LeaderboardOptInModal({
         >
           <h2 style={titleStyle}>加入 neurons-tw 排行榜</h2>
           <p style={leadStyle}>
-            勾選同意後，以下五個資料會在排行榜被其他玩家看到：
+            勾選同意後，以下四個資料會在排行榜被其他玩家看到：
           </p>
           <ul style={fieldsListStyle}>
             <li>變體收集數量（X / {NEURON_VARIANT_TOTAL}）</li>
             <li>Action Potential 總量</li>
-            <li>Strong Synapse 數</li>
             <li>累積唸書時間</li>
             <li>探索進度（settle 次數）</li>
           </ul>

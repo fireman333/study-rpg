@@ -1,5 +1,5 @@
 /**
- * Per-family quiz entry grid — NT-branch-grouped portrait cards. Each card
+ * Per-family quiz entry grid — flat portrait cards. Each card
  * carries TWO quiz-mode chips (per add-neurons-quiz-mode-chips-and-srs):
  *   🆕 新題 — only never-answered questions (badge = unseen count)
  *   🔄 錯題 — SRS-scheduled due review (badge = today's due count)
@@ -26,20 +26,6 @@ export interface FamilyAccrual {
   firedToday: boolean
 }
 
-const NT_BRANCHES = ['DA', '5HT', 'GABA', 'Glu'] as const
-const BRANCH_LABEL: Record<typeof NT_BRANCHES[number], string> = {
-  DA: 'DA · 多巴胺',
-  '5HT': '5-HT · 血清素',
-  GABA: 'GABA · γ-胺基丁酸',
-  Glu: 'Glu · 麩胺酸',
-}
-const BRANCH_ACCENT: Record<typeof NT_BRANCHES[number], string> = {
-  DA: '#d4a04d',
-  '5HT': '#c44d4d',
-  GABA: '#6a9bc4',
-  Glu: '#6a8c3f',
-}
-
 interface Props {
   pack: ContentPack
   onStartQuiz: (familyId: string, mode: QuizMode) => void
@@ -55,36 +41,20 @@ export function FamilyPicker({ pack, onStartQuiz, accrualByFamily, modeCountsByF
       <header style={headerRowStyle}>
         <h2 style={pickerHeaderStyle}>📚 選 family 直接練習</h2>
         <span style={headerHintStyle}>
-          {pack.subjects.length} family · 4 NT 分支 · 同日跨 family 答對 5 題 → wire synapse
+          {pack.subjects.length} family · 同日跨 family 答對 5 題 → wire synapse
         </span>
       </header>
 
-      <div style={branchListStyle}>
-        {NT_BRANCHES.map((branch) => {
-          const families = pack.subjects.filter((s) => s.group === branch)
-          if (families.length === 0) return null
-          const accent = BRANCH_ACCENT[branch]
-          return (
-            <div key={branch}>
-              <div style={branchHeaderStyle}>
-                <span style={{ ...branchDotStyle, background: accent }} aria-hidden />
-                <span style={branchLabelTextStyle}>{BRANCH_LABEL[branch]}</span>
-                <span style={branchCountStyle}>{families.length} family</span>
-              </div>
-              <div style={branchRowStyle} className="neurons-family-grid">
-                {families.map((s) => (
-                  <FamilyCard
-                    key={s.id}
-                    family={s}
-                    accrual={accrualByFamily?.get(s.id)}
-                    counts={modeCountsByFamily?.get(s.id)}
-                    onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
-                  />
-                ))}
-              </div>
-            </div>
-          )
-        })}
+      <div style={branchRowStyle} className="neurons-family-grid">
+        {pack.subjects.map((s) => (
+          <FamilyCard
+            key={s.id}
+            family={s}
+            accrual={accrualByFamily?.get(s.id)}
+            counts={modeCountsByFamily?.get(s.id)}
+            onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
+          />
+        ))}
       </div>
     </section>
   )
@@ -201,39 +171,6 @@ const headerHintStyle: React.CSSProperties = {
   fontSize: '0.72rem',
   color: '#8c6d4a',
   letterSpacing: '0.02em',
-}
-
-const branchListStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.9rem',
-}
-
-const branchHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.4rem',
-  marginBottom: '0.45rem',
-}
-
-const branchDotStyle: React.CSSProperties = {
-  width: 8,
-  height: 8,
-  borderRadius: '50%',
-  flexShrink: 0,
-}
-
-const branchLabelTextStyle: React.CSSProperties = {
-  fontSize: '0.82rem',
-  fontWeight: 700,
-  color: '#3a2a1a',
-  letterSpacing: '0.02em',
-}
-
-const branchCountStyle: React.CSSProperties = {
-  fontSize: '0.7rem',
-  color: '#8c6d4a',
-  marginLeft: 'auto',
 }
 
 const branchRowStyle: React.CSSProperties = {

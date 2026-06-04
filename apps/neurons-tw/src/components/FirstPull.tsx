@@ -82,10 +82,10 @@ export function FirstPullButton({
       type="button"
       style={style}
       onClick={() => requestFirstPull()}
-      aria-label="首抽：點亮四大家族"
-      title="一次性首抽：四大神經傳導物家族各得一隻代表神經元"
+      aria-label="首抽：點亮四條路徑"
+      title="一次性首抽：四條探索路徑各得一隻代表神經元"
     >
-      🎲 首抽 · 點亮四大家族
+      🎲 首抽 · 點亮四條路徑
     </button>
   )
 }
