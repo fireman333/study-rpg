@@ -195,10 +195,11 @@ reset role;
 
 ## Bug reporting (M4.5)
 
-`apps/medexam-tw` and `apps/medexam2-hospital-tw` both ship an in-app **`💬 回報問題 / 建議`** flow:
+`apps/medexam-tw`, `apps/medexam2-hospital-tw`, and `apps/neurons-tw` all ship an in-app **`💬 回報問題 / 建議`** flow:
 
 - 一階 entry: `SettingsPanel.tsx` new section.
 - 二階 entry: `HelpMenu.tsx` 9th accordion section.
+- **神經元 entry** (`add-neurons-bug-report`, 2026-06-04): `HelpMenu.tsx`「🩺 回報問題」section opens `BugReportModal.tsx`, **plus** an inline 🐞 in `QuizModal.tsx` (question-scoped, stamps `question_id`). neurons uses `NEURONS_BUG_REPORT_CATEGORIES` (12, separate const) + its own snapshot from the neurons Dexie. **Requires migration `supabase/migrations/0017_neurons_bug_reports.sql`** (owner-applied; extends `app` + `category` CHECK to admit `'neurons-tw'` + 4 neurons categories). No Dexie / R2 bump — Supabase-only.
 
 Submissions land in Supabase table **`public.bug_reports`** (migration `supabase/migrations/0004_bug_reports.sql`). RLS = `auth.uid() = user_id` per row; owner reads via `service_role` (dashboard SQL editor today, future `/bug-reports` skill after the follow-up change).
 
