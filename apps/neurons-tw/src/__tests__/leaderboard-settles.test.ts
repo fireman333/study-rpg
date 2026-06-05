@@ -1,36 +1,37 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import { db } from '../lib/db'
 import { buildLeaderboardPayload } from '../lib/services/neurons-leaderboard'
 
 /**
- * Spec Req (neurons-leaderboard → "Push leaderboard row ... total_settles
- * computed from the four maze settles meta keys at push time"):
- * buildLeaderboardPayload reads the four `maze:<branch>:settles` synced meta
- * keys and sums them into payload.total_settles, defensively coercing each via
- * `Number(...) || 0`.
+ * Spec Req (neurons-leaderboard → "total_settles computed from the maze settles
+ * meta keys at push time"): buildLeaderboardPayload reads the per-FAMILY
+ * `maze:<familyId>:settles` synced meta keys (redesign-neurons-maze-rotjs-grid —
+ * replacing the 4 retired per-branch keys) and sums them into
+ * payload.total_settles, defensively coercing each via `Number(...) || 0`.
  *
- * Capability: realign-neurons-leaderboard-to-maze (探索進度 axis).
+ * Capability: 探索進度 axis (realign-neurons-leaderboard-to-maze), re-pointed to
+ * per-family keys by the flat-grid redesign.
  */
 
-const SETTLES_KEYS = [
-  'maze:da:settles',
-  'maze:5ht:settles',
-  'maze:gaba:settles',
-  'maze:glu:settles',
-]
+const settlesKey = (f: string) => `maze:${f}:settles`
+const F0 = FAMILY_IDS[0]
+const F1 = FAMILY_IDS[1]
+const F2 = FAMILY_IDS[2]
+const F3 = FAMILY_IDS[3]
 
 beforeEach(async () => {
   await db.delete()
   await db.open()
 })
 
-describe('buildLeaderboardPayload — total_settles wiring', () => {
-  it('sums the four maze:<branch>:settles meta keys', async () => {
-    await db.meta.put({ key: 'maze:da:settles', value: '5' })
-    await db.meta.put({ key: 'maze:5ht:settles', value: '3' })
-    await db.meta.put({ key: 'maze:gaba:settles', value: '2' })
-    await db.meta.put({ key: 'maze:glu:settles', value: '10' })
+describe('buildLeaderboardPayload — total_settles wiring (per family)', () => {
+  it('sums the per-family maze:<familyId>:settles meta keys', async () => {
+    await db.meta.put({ key: settlesKey(F0), value: '5' })
+    await db.meta.put({ key: settlesKey(F1), value: '3' })
+    await db.meta.put({ key: settlesKey(F2), value: '2' })
+    await db.meta.put({ key: settlesKey(F3), value: '10' })
     const payload = await buildLeaderboardPayload('TestNick', true)
     expect(payload.total_settles).toBe(20)
   })
@@ -40,26 +41,26 @@ describe('buildLeaderboardPayload — total_settles wiring', () => {
     expect(payload.total_settles).toBe(0)
   })
 
-  it('treats a missing branch key as 0 (partial accrual)', async () => {
-    // Only DA has settled; the other three branches are absent.
-    await db.meta.put({ key: 'maze:da:settles', value: '7' })
+  it('treats a missing family key as 0 (partial accrual)', async () => {
+    await db.meta.put({ key: settlesKey(F0), value: '7' })
     const payload = await buildLeaderboardPayload('TestNick', true)
     expect(payload.total_settles).toBe(7)
   })
 
   it('coerces malformed values to 0 (Number(...) || 0)', async () => {
-    await db.meta.put({ key: 'maze:da:settles', value: 'not-a-number' })
-    await db.meta.put({ key: 'maze:5ht:settles', value: '4' })
-    await db.meta.put({ key: 'maze:gaba:settles', value: '' })
-    await db.meta.put({ key: 'maze:glu:settles', value: '1' })
+    await db.meta.put({ key: settlesKey(F0), value: 'not-a-number' })
+    await db.meta.put({ key: settlesKey(F1), value: '4' })
+    await db.meta.put({ key: settlesKey(F2), value: '' })
+    await db.meta.put({ key: settlesKey(F3), value: '1' })
     const payload = await buildLeaderboardPayload('TestNick', true)
     expect(payload.total_settles).toBe(5)
   })
 
-  it('reads the exact lowercase branch keys used by the maze economy', async () => {
-    // Guard against a key-casing drift from economy.ts settlesKey().
-    for (const k of SETTLES_KEYS) await db.meta.put({ key: k, value: '1' })
+  it('ignores the retired per-branch settles keys (only per-family counts)', async () => {
+    // Stale four-branch keys must NOT contribute (they are cleared on v17 upgrade).
+    await db.meta.put({ key: 'maze:da:settles', value: '99' })
+    await db.meta.put({ key: settlesKey(F0), value: '2' })
     const payload = await buildLeaderboardPayload('TestNick', true)
-    expect(payload.total_settles).toBe(SETTLES_KEYS.length)
+    expect(payload.total_settles).toBe(2)
   })
 })

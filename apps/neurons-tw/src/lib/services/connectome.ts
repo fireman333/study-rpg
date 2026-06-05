@@ -212,27 +212,28 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   // try/catch inside triggerAchievementCheck so failure doesn't break gameplay.
   await triggerAchievementCheck(prevStats)
 
-  // Post-commit: maze per-branch energy accrual (promote-maze-to-home / Model A).
-  // This is the SOLE correct-answer energy faucet now — routed to the answered
-  // subject's NT branch pool via FAMILY_NT_BRANCH, scaled by streak + mastery
-  // tier (mastery accelerates energy per wire-mastery-energy-acceleration) +
-  // the acceleration energy pool `energyAccel(familyId)` (add-neurons-
-  // acceleration-system — additive + hard-capped; folds in an active family-buff
-  // [+1.0 ⇒ the prior ×2] + global bolus + owned energy-lane equipment).
-  // Dynamic import avoids a circular static dep; best-effort (channel `[maze]`).
+  // Post-commit: maze per-FAMILY energy accrual (redesign-neurons-maze-rotjs-grid).
+  // This is the SOLE correct-answer energy faucet now — accrued directly into the
+  // answered subject's OWN family pool (no NT-branch indirection), scaled by streak
+  // + mastery tier (mastery accelerates energy per wire-mastery-energy-acceleration)
+  // + the acceleration energy pool `energyAccel(familyId)` (add-neurons-acceleration-
+  // system — additive + hard-capped; folds in an active family-buff + global bolus +
+  // owned energy-lane equipment). The family-scoped collection speed-buff × speedAccel
+  // × synapse LTP bonus are applied inside accrueMazeEnergy. Dynamic import avoids a
+  // circular static dep; best-effort (channel `[maze]`).
   try {
-    const { branchOfFamily } = await import('../maze/graph')
-    const branch = branchOfFamily(familyId)
-    if (branch) {
-      const { accrueMazeEnergy, CORRECT_ENERGY, streakMultiplier } = await import('../maze/economy')
-      const { getStreaks } = await import('./streak')
-      const { current } = await getStreaks()
-      const accel = await energyAccel(familyId)
-      await accrueMazeEnergy(
-        branch,
-        CORRECT_ENERGY * streakMultiplier(current) * masteryMult * accel,
-      )
-    }
+    const { accrueMazeEnergy, CORRECT_ANSWER_ENERGY, streakMultiplier } = await import('../maze/economy')
+    const { getStreaks } = await import('./streak')
+    const { current } = await getStreaks()
+    const accel = await energyAccel(familyId)
+    await accrueMazeEnergy(
+      familyId,
+      CORRECT_ANSWER_ENERGY * streakMultiplier(current) * masteryMult * accel,
+    )
+    // Contextual camera (design D-camera): zoom the maze to the answered family's
+    // walker so the player watches the action-potential propagate / settle.
+    const { emitMazeFocus } = await import('../maze/maze-focus')
+    emitMazeFocus(familyId)
   } catch (err) {
     console.error('[maze] correct-answer energy accrual failed:', err)
   }

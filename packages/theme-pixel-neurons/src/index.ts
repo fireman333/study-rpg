@@ -23,15 +23,11 @@ export const THEME_PIXEL_NEURONS: ThemePack = {
   },
   designMd: '', // populated at build by importing DESIGN.md as text (Vite ?raw)
   cssVars: {
-    // 4 region accent colors — INTERNAL data only (maze region / family accent).
-    // NOT presented to players as a neurotransmitter taxonomy (the NT-branch
-    // grouping claim was removed by drop-neurons-nt-branch-claim-and-synapse-axis).
-    // Var names kept as internal identifiers; Phase 2 (flatten + maze redesign)
-    // may recolor / rename.
-    '--nt-da': '#d4a04d',     // 亮黃 / 金
-    '--nt-5ht': '#c44d4d',    // 紅 / 珊瑚
-    '--nt-gaba': '#6a9bc4',   // 藍 / 青
-    '--nt-glu': '#6a8c3f',    // 綠 / 翠
+    // (The 4 `--nt-*` branch tints were removed by redesign-neurons-maze-rotjs-grid
+    // — the flat-grid maze asserts no neurotransmitter taxonomy. character-card /
+    // variant-decor keep their OWN internal branch coloring via hardcoded fallbacks
+    // in character-card-render.ts; the maze uses a neutral per-family palette in
+    // MazeGrid.tsx. No theme var carries an NT claim anymore.)
 
     // Clinical EEG signal layer (data surfaces: connectome edges / stats readouts / quiz firing
     // / data backdrops). Cold cyan/amber on near-black, evoking an EEG monitor. Added by

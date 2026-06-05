@@ -1,106 +1,116 @@
 import { describe, it, expect } from 'vitest'
-import { FAMILY_NT_BRANCH, type NtBranchId } from '@study-rpg/content-neurons-tw'
+import { FAMILY_IDS, VARIANT_COUNT_BY_FAMILY } from '@study-rpg/content-neurons-tw'
 import {
-  MAZE_GRAPHS,
-  NT_BRANCHES,
-  FAMILIES_BY_BRANCH,
-  branchOfFamily,
+  FAMILY_GRAPHS,
+  GRID_W,
+  GRID_H,
+  GRID_CENTER,
+  GRID_SYNAPSES,
+  WEAVE_BRIDGES,
   nodeKey,
-  isNodeLit,
-  foggedNodes,
-  nextTarget,
-  pointAtFraction,
+  familyNodeCount,
+  litNodes,
+  frontierNode,
+  representativeNode,
+  pointAtArc,
+  synapseCell,
 } from '../lib/maze/graph'
 
-const EXPECTED: Record<NtBranchId, number> = { DA: 20, '5HT': 20, GABA: 30, Glu: 40 }
+// Entries sit on the perimeter RING — EllerMaze's outermost cells are walls, so
+// the nearest passable border cell lands a few cells in. "Border entry" = a
+// peripheral cell far from the center (the routes converge to the center).
+const peripheral = (x: number, y: number) =>
+  Math.hypot(x - GRID_CENTER[0], y - GRID_CENTER[1]) > Math.max(GRID_W, GRID_H) * 0.35
 
-describe('maze graph (multi-branch)', () => {
-  it('covers all four NT branches in canonical order', () => {
-    expect(NT_BRANCHES).toEqual(['DA', '5HT', 'GABA', 'Glu'])
-    for (const b of NT_BRANCHES) expect(MAZE_GRAPHS[b].branch).toBe(b)
+describe('flat-grid maze graph', () => {
+  it('loads one square grid with 11 family routes', () => {
+    expect(GRID_W).toBe(99)
+    expect(GRID_H).toBe(99)
+    expect(GRID_CENTER).toHaveLength(2)
+    expect(Object.keys(FAMILY_GRAPHS).sort()).toEqual([...FAMILY_IDS].sort())
   })
 
-  it('FAMILIES_BY_BRANCH partitions the 11 families per FAMILY_NT_BRANCH', () => {
-    for (const [fam, branch] of Object.entries(FAMILY_NT_BRANCH)) {
-      expect(FAMILIES_BY_BRANCH[branch]).toContain(fam)
-      expect(branchOfFamily(fam)).toBe(branch)
-    }
-    expect(FAMILIES_BY_BRANCH.DA.sort()).toEqual(['公共衛生學', '藥理學'].sort())
-    expect(FAMILIES_BY_BRANCH['5HT'].sort()).toEqual(['寄生蟲學', '組織學'].sort())
-    expect(FAMILIES_BY_BRANCH.GABA.sort()).toEqual(['免疫學', '病理學', '生物化學'].sort())
-    expect(FAMILIES_BY_BRANCH.Glu.sort()).toEqual(['微生物學', '生理學', '胚胎學', '解剖學'].sort())
-  })
-
-  it('each branch node count = its slot count (DA20 / 5HT20 / GABA30 / Glu40)', () => {
-    for (const b of NT_BRANCHES) {
-      expect(MAZE_GRAPHS[b].slotCount).toBe(EXPECTED[b])
-      expect(MAZE_GRAPHS[b].nodes).toHaveLength(EXPECTED[b])
+  it('has a dense structural weave + many crossing-synapses (≥ 110)', () => {
+    expect(WEAVE_BRIDGES.length).toBeGreaterThan(500) // hundreds of over/under bridges
+    expect(GRID_SYNAPSES.length).toBeGreaterThanOrEqual(110)
+    for (const s of GRID_SYNAPSES) {
+      expect(s.families[0]).not.toBe(s.families[1])
+      expect(s.cell[0]).toBeGreaterThanOrEqual(0)
+      expect(s.cell[0]).toBeLessThan(GRID_W)
     }
   })
 
-  it('1 node = 1 slot, distinct within branch, no cross-branch (family,slot) collision', () => {
+  it('each family has 10 nodes = its variant-slot count; 110 distinct (family,slot) keys', () => {
     const allKeys = new Set<string>()
-    for (const b of NT_BRANCHES) {
-      const fams = FAMILIES_BY_BRANCH[b]
-      const branchKeys = new Set<string>()
-      for (const n of MAZE_GRAPHS[b].nodes) {
-        expect(fams).toContain(n.familyId)
-        expect(n.slotIndex).toBeGreaterThanOrEqual(0)
-        expect(n.slotIndex).toBeLessThan(10)
+    for (const fam of FAMILY_IDS) {
+      const g = FAMILY_GRAPHS[fam]
+      expect(g.nodes).toHaveLength(10)
+      expect(familyNodeCount(fam)).toBe(VARIANT_COUNT_BY_FAMILY[fam]) // node count = slot count
+      const famKeys = new Set<string>()
+      g.nodes.forEach((n, i) => {
+        expect(n.familyId).toBe(fam)
+        expect(n.slotIndex).toBe(i) // route order = slot order, 0..9
         const k = nodeKey(n.familyId, n.slotIndex)
-        branchKeys.add(k)
+        famKeys.add(k)
         allKeys.add(k)
+      })
+      expect(famKeys.size).toBe(10)
+    }
+    expect(allKeys.size).toBe(110) // no cross-family collision
+  })
+
+  it('every family enters from the border ring and winds toward the center', () => {
+    const entries = new Set<string>()
+    for (const fam of FAMILY_IDS) {
+      const g = FAMILY_GRAPHS[fam]
+      expect(g.path.length).toBeGreaterThan(2)
+      expect(peripheral(g.entryCell[0], g.entryCell[1])).toBe(true)
+      entries.add(`${g.entryCell[0]},${g.entryCell[1]}`)
+      // path[0] is the border entry; the route ends near the shared center.
+      expect(g.path[0]).toEqual(g.entryCell)
+      const last = g.path[g.path.length - 1]
+      const dist = Math.hypot(last[0] - GRID_CENTER[0], last[1] - GRID_CENTER[1])
+      expect(dist).toBeLessThanOrEqual(3)
+    }
+    expect(entries.size).toBe(FAMILY_IDS.length) // distinct entries
+  })
+
+  it('frontier order is route order (entry-first); litNodes is the prefix', () => {
+    const fam = FAMILY_IDS[0]
+    expect(litNodes(fam, 0)).toEqual([])
+    expect(litNodes(fam, 3).map((n) => n.slotIndex)).toEqual([0, 1, 2])
+    expect(frontierNode(fam, 0)?.slotIndex).toBe(0)
+    expect(frontierNode(fam, 3)?.slotIndex).toBe(3)
+    expect(frontierNode(fam, 10)).toBeNull() // all lit → 二週目
+    expect(representativeNode(fam)?.slotIndex).toBe(0)
+  })
+
+  it('most variant nodes sit at route crossings (synapse-flagged)', () => {
+    let synapseNodes = 0
+    let total = 0
+    for (const fam of FAMILY_IDS) {
+      for (const n of FAMILY_GRAPHS[fam].nodes) {
+        total += 1
+        if (n.synapse) synapseNodes += 1
       }
-      expect(branchKeys.size).toBe(EXPECTED[b])
-      for (const fam of fams) {
-        expect(MAZE_GRAPHS[b].nodes.filter((n) => n.familyId === fam)).toHaveLength(10)
-      }
     }
-    expect(allKeys.size).toBe(20 + 20 + 30 + 40) // 110, no cross-branch dupes
+    expect(total).toBe(110)
+    expect(synapseNodes).toBeGreaterThan(total / 2) // majority are interwoven crossings
   })
 
-  it('each branch has a hub root and on-fiber walk paths anchored at topology', () => {
-    for (const b of NT_BRANCHES) {
-      const g = MAZE_GRAPHS[b]
-      expect(g.root).toHaveLength(2)
-      for (const n of g.nodes) {
-        expect(n.path.length).toBeGreaterThanOrEqual(2)
-        expect(n.arc.length).toBe(n.path.length)
-        expect(n.pathLen).toBeGreaterThan(0)
-        expect(['endpoint', 'branch', 'mid']).toContain(n.kind)
-      }
-    }
-  })
-
-  it('lit/fog derivation + nextTarget, per branch', () => {
-    for (const b of NT_BRANCHES) {
-      const sample = MAZE_GRAPHS[b].nodes[0]
-      const collected = new Set([nodeKey(sample.familyId, sample.slotIndex)])
-      expect(isNodeLit(sample, collected)).toBe(true)
-      expect(foggedNodes(b, collected)).toHaveLength(EXPECTED[b] - 1)
-      const t = nextTarget(b, collected)
-      expect(t).not.toBeNull()
-      expect(nodeKey(t!.familyId, t!.slotIndex)).not.toBe(nodeKey(sample.familyId, sample.slotIndex))
-    }
-  })
-
-  it('nextTarget is null when a branch is fully collected', () => {
-    const b: NtBranchId = '5HT'
-    const all = new Set(MAZE_GRAPHS[b].nodes.map((n) => nodeKey(n.familyId, n.slotIndex)))
-    expect(nextTarget(b, all)).toBeNull()
-    expect(foggedNodes(b, all)).toHaveLength(0)
-  })
-
-  it('pointAtFraction walks hub root → node, per branch', () => {
-    for (const b of NT_BRANCHES) {
-      const g = MAZE_GRAPHS[b]
-      const n = g.nodes[5] ?? g.nodes[0]
-      const start = pointAtFraction(n, 0)
-      const end = pointAtFraction(n, 1)
-      expect(start[0]).toBeCloseTo(g.root[0], 3)
-      expect(start[1]).toBeCloseTo(g.root[1], 3)
-      expect(end[0]).toBeCloseTo(n.x, 3)
-      expect(end[1]).toBeCloseTo(n.y, 3)
-    }
+  it('pointAtArc walks the corridor entry → center; synapseCell resolves a pair', () => {
+    const fam = FAMILY_IDS[0]
+    const g = FAMILY_GRAPHS[fam]
+    const start = pointAtArc(fam, 0)
+    expect(start[0]).toBeCloseTo(g.entryCell[0], 3)
+    expect(start[1]).toBeCloseTo(g.entryCell[1], 3)
+    const end = pointAtArc(fam, g.pathLen)
+    const lastCell = g.path[g.path.length - 1]
+    expect(end[0]).toBeCloseTo(lastCell[0], 3)
+    expect(end[1]).toBeCloseTo(lastCell[1], 3)
+    // a committed crossing pair resolves to a cell
+    const s = GRID_SYNAPSES[0]
+    const cell = synapseCell(s.families[0], s.families[1])
+    expect(cell).not.toBeNull()
   })
 })

@@ -670,6 +670,45 @@ export class NeuronsDB extends Dexie {
       inventory: 'kind, updatedAt',
       equipment: 'equipmentId, rarity, obtainedAt, updatedAt',
     })
+    // Per redesign-neurons-maze-rotjs-grid. Schema indices IDENTICAL to v16 (no
+    // store/PK change — the flat-grid maze keeps its state in the `meta` kv table).
+    // The v17 work is the upgrade callback: a deliberate ECONOMY RESET of the
+    // retired four-branch maze pools (`maze:{da,5ht,gaba,glu}:{earned,settles}`)
+    // — the maze is now 11 per-family pools. PRESERVE everything else, in
+    // particular the first-pull `maze:{da,5ht,gaba,glu}:starterFamily` keys (the
+    // new maze still reads them to light starter nodes) and all collected
+    // variants. No backfill of the new per-family keys (they start absent →
+    // fresh per-family frontier), no migration banner.
+    this.version(17)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt, nextDueAt',
+        neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+        instanceNicknames: 'instanceId, updatedAt',
+        inventory: 'kind, updatedAt',
+        equipment: 'equipmentId, rarity, obtainedAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // Economy reset only: clear the 8 retired four-branch maze pool keys.
+        // PRESERVE the 4 starterFamily keys (first-pull) + all collected variants.
+        const retired = ['da', '5ht', 'gaba', 'glu'].flatMap((b) => [
+          `maze:${b}:earned`,
+          `maze:${b}:settles`,
+        ])
+        await tx.table('meta').bulkDelete(retired)
+      })
   }
 }
 

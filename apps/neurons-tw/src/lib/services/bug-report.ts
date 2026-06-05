@@ -13,6 +13,7 @@ import type {
   BugReportSeverity,
   SyncDiagnosticSnapshot,
 } from '@study-rpg/core'
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import { getSupabase } from '../auth/client'
 import { db } from '../db'
 import { getRecentConsoleErrors } from './console-error-buffer'
@@ -102,10 +103,8 @@ async function buildGameStateSnapshot(): Promise<Record<string, unknown>> {
     'dmnDrawsAvailable',
     'neuralEnergyEarned',
     'neuralEnergySpent',
-    'maze:da:settles',
-    'maze:5ht:settles',
-    'maze:gaba:settles',
-    'maze:glu:settles',
+    // Per-family maze settle counts (redesign-neurons-maze-rotjs-grid).
+    ...FAMILY_IDS.map((f) => `maze:${f}:settles`),
   ]
   const metaRows = await Promise.all(metaKeys.map((k) => db.meta.get(k)))
   const meta: Record<string, unknown> = {}

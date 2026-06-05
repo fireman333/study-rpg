@@ -6,7 +6,6 @@ import { db, type QuestionHistoryRow } from '../lib/db'
 import { recordCorrectAnswer } from '../lib/services/connectome'
 import { buildQuickReviewPool } from '../lib/services/expedition'
 import { readMazeEnergyState } from '../lib/maze/economy'
-import { branchOfFamily } from '../lib/maze/graph'
 
 /**
  * realign-dmn-event-rewards-to-maze:
@@ -41,7 +40,7 @@ async function seedAndAnswer(buffFamilyId: string | null): Promise<number> {
     })
   }
   await recordCorrectAnswer(FAMILY)
-  return (await readMazeEnergyState(branchOfFamily(FAMILY)!)).earned
+  return (await readMazeEnergyState(FAMILY)).earned
 }
 
 // NOTE: family-buff's active-buff → energy multiplier is now folded into the

@@ -1,67 +1,66 @@
 import { describe, it, expect } from 'vitest'
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import {
-  FAMILIES_BY_BRANCH,
-  MAZE_GRAPHS,
+  FAMILY_GRAPHS,
   litNodes,
   litNodesWithStarter,
   nodeKey,
   representativeNode,
 } from '../lib/maze/graph'
 
-const key = (n: { familyId: string; slotIndex: number }) => nodeKey(n.familyId, n.slotIndex)
+/**
+ * first-pull starter-lit behavior against the flat-grid per-family graph
+ * (redesign-neurons-maze-rotjs-grid). first-pull itself is UNCHANGED — the maze
+ * reads the legacy starter-family key VALUES (familyIds) to light each named
+ * family's representative (route-first) node.
+ */
 
-describe('representativeNode', () => {
-  it('returns the hub-nearest (min pathLen) node of a family', () => {
-    const fam = FAMILIES_BY_BRANCH.DA[0]
-    const rep = representativeNode('DA', fam)
+const key = (n: { familyId: string; slotIndex: number }) => nodeKey(n.familyId, n.slotIndex)
+const FAM = FAMILY_IDS[0]
+const OTHER = FAMILY_IDS[1]
+
+describe('representativeNode (flat-grid)', () => {
+  it('returns the route-first (slot 0, border-nearest) node of a family', () => {
+    const rep = representativeNode(FAM)
     expect(rep).not.toBeNull()
-    expect(rep!.familyId).toBe(fam)
-    const famNodes = MAZE_GRAPHS.DA.nodes.filter((n) => n.familyId === fam)
-    const minLen = Math.min(...famNodes.map((n) => n.pathLen))
-    expect(rep!.pathLen).toBe(minLen)
+    expect(rep!.familyId).toBe(FAM)
+    expect(rep!.slotIndex).toBe(0)
   })
 
   it('is deterministic on repeated calls', () => {
-    const fam = FAMILIES_BY_BRANCH.GABA[0]
-    expect(key(representativeNode('GABA', fam)!)).toBe(key(representativeNode('GABA', fam)!))
+    expect(key(representativeNode(FAM)!)).toBe(key(representativeNode(FAM)!))
   })
 
-  it('returns null for a family not present in the branch', () => {
-    expect(representativeNode('DA', '__no_such_family__')).toBeNull()
+  it('returns null for an unknown family', () => {
+    expect(representativeNode('__no_such_family__')).toBeNull()
   })
 })
 
-describe('litNodesWithStarter', () => {
-  it('degrades to pure frontier when starterFamily is null', () => {
-    expect(litNodesWithStarter('DA', 0, null)).toEqual(litNodes('DA', 0))
-    expect(litNodesWithStarter('DA', 3, null).map(key)).toEqual(litNodes('DA', 3).map(key))
+describe('litNodesWithStarter (flat-grid)', () => {
+  const EMPTY = new Set<string>()
+
+  it('degrades to pure frontier when the family is not a starter', () => {
+    expect(litNodesWithStarter(FAM, 0, EMPTY)).toEqual(litNodes(FAM, 0))
+    expect(litNodesWithStarter(FAM, 3, EMPTY).map(key)).toEqual(litNodes(FAM, 3).map(key))
   })
 
   it('lights exactly the starter representative node at settles = 0', () => {
-    const fam = FAMILIES_BY_BRANCH.DA[0]
-    const lit = litNodesWithStarter('DA', 0, fam)
-    const rep = representativeNode('DA', fam)!
+    const lit = litNodesWithStarter(FAM, 0, new Set([FAM]))
+    const rep = representativeNode(FAM)!
     expect(lit).toHaveLength(1)
     expect(key(lit[0])).toBe(key(rep))
   })
 
   it('does not double-light when the frontier already covers the starter node', () => {
-    const fam = FAMILIES_BY_BRANCH.DA[0]
-    const total = MAZE_GRAPHS.DA.nodes.length
-    const lit = litNodesWithStarter('DA', total, fam) // frontier = all nodes
+    const total = FAMILY_GRAPHS[FAM].nodes.length
+    const lit = litNodesWithStarter(FAM, total, new Set([FAM])) // frontier = all nodes
     expect(lit).toHaveLength(total)
     const keys = lit.map(key)
     expect(new Set(keys).size).toBe(keys.length) // no duplicate node identities
   })
 
-  it('adds exactly one node when the starter is outside the current frontier', () => {
-    // Pick a family whose representative is NOT node 0 of the branch (so settles=0
-    // frontier=[] and the starter adds one), verified via length math.
-    const fam = FAMILIES_BY_BRANCH.Glu[FAMILIES_BY_BRANCH.Glu.length - 1]
-    const rep = representativeNode('Glu', fam)
-    if (!rep) return
-    const lit = litNodesWithStarter('Glu', 0, fam)
-    expect(lit).toHaveLength(1)
-    expect(lit[0].familyId).toBe(fam)
+  it('only lights the starter rep for families in the starter set', () => {
+    // OTHER is not a starter → its lit set at settles=0 is empty (pure frontier).
+    expect(litNodesWithStarter(OTHER, 0, new Set([FAM]))).toHaveLength(0)
   })
 })

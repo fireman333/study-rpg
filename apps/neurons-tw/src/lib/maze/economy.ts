@@ -1,43 +1,43 @@
 /**
- * Brain-maze per-branch energy economy (promote-maze-to-home / Model A).
+ * Flat-grid maze per-FAMILY energy economy (redesign-neurons-maze-rotjs-grid).
  *
- * ONE currency: per-branch NEURAL ENERGY (monotonic, synced). A correct answer
- * accrues energy into the answered subject's NT branch; reading splits evenly
- * across the four branches. Energy is BOTH the exploration fuel AND the pull
- * cost: each cumulative settle index N consumes `cost(N)` energy (front-loaded
- * ramp) and triggers exactly ONE `pullVariant` (random) — the maze is the ONLY
- * pull path (no manual pull). Pre-completion the pull targets the lit node's
- * family; post-completion (二週目) the branch's least-collected family. Lit nodes
- * derive from the frontier (cumulative settles), NOT from collected variants.
+ * ONE currency per family: NEURAL ENERGY (monotonic, synced). A correct answer in
+ * subject S accrues energy into family S's OWN pool directly (S is the family — no
+ * NT-branch indirection); reading splits evenly across the families the player has
+ * begun collecting. Energy is BOTH the exploration fuel AND the pull cost: each
+ * cumulative settle index N consumes `cost(N)` energy (front-loaded ramp) and
+ * triggers exactly ONE `pullVariant` for that family — the maze is the ONLY pull
+ * path (no manual pull). Lit nodes derive from the frontier (cumulative settles),
+ * NOT from collected variants.
  *
- * Persistence: per-branch synced `meta` keys `maze:<branch>:earned` (monotonic
- * faucet) + `maze:<branch>:settles` (monotonic pull count), both in
- * SYNCED_META_KEYS + the MAX-merge counter post-pass. No Dexie schema bump.
+ * Accrual multipliers (all capped — design D5 runaway guard): streak × mastery ×
+ * energyAccel (passed in by the caller) × collection speed-buff × speedAccel ×
+ * synapse cross-family LTP bonus (derived here, family-scoped).
+ *
+ * Persistence: per-family synced `meta` keys `maze:<familyId>:earned` (monotonic
+ * faucet) + `maze:<familyId>:settles` (monotonic pull count), both in
+ * SYNCED_META_KEYS + the MAX-merge counter post-pass.
  */
-import type { NtBranchId } from '@study-rpg/content-neurons-tw'
+import {
+  FAMILY_IDS,
+  PACING_BASE,
+  PACING_K,
+  SPEED_BUFF_PER_VARIANT,
+  SPEED_BUFF_CAP,
+  SYNAPSE_BONUS_PER,
+  SYNAPSE_BONUS_CAP,
+  CORRECT_ANSWER_ENERGY,
+  READING_MINUTE_ENERGY,
+} from '@study-rpg/content-neurons-tw'
 import { db } from '../db'
-import { FAMILIES_BY_BRANCH, NT_BRANCHES, frontierNode, type MazeNode } from './graph'
-import { pullVariant, slotsForFamily } from '../services/variant-gacha'
+import { frontierNode, litNodes, type MazeNode } from './graph'
+import { pullVariant } from '../services/variant-gacha'
 import { speedAccel } from '../services/acceleration'
 
-// --- tunable constants (front-loaded ramp; dogfood telemetry will calibrate) ---
-/** Energy per correct answer (before streak + speed multipliers). */
-export const CORRECT_ENERGY = 3
-/** Energy per reading minute (before speed multiplier; split across branches). */
-export const READING_ENERGY = 2
-/**
- * Front-loaded linear pacing: cost of the N-th cumulative settle.
- * `cost(N) = round(PACING_BASE × (1 + PACING_K·N))` — low base + steep K so the
- * first nodes are cheap (fast onboarding) and late nodes / 二週目 are expensive
- * (long tail). First-cut values; total Σ(0..109) ≈ 17,000 ≈ 3-month light-all arc.
- */
-export const PACING_BASE = 24
-export const PACING_K = 0.1
-/** Per-collected-variant speed buff; capped so an over-collected team can't trivialize. */
-export const SPEED_BUFF_PER_VARIANT = 0.04
-export const SPEED_BUFF_CAP = 1.0 // max +100% → 2× base
+// Re-export the faucet constants under their canonical names for app consumers.
+export { CORRECT_ANSWER_ENERGY, READING_MINUTE_ENERGY }
 
-/** Energy cost of the N-th cumulative settle (0-indexed, uncapped — ramp continues into 二週目). */
+/** Energy cost of the N-th cumulative settle (0-indexed, uncapped — ramp into 二週目). */
 export function nodeCost(n: number): number {
   return Math.round(PACING_BASE * (1 + PACING_K * Math.max(0, n)))
 }
@@ -62,82 +62,90 @@ export function affordableSettles(earned: number): number {
   return s
 }
 
-/** Per-branch `meta` keys (synced, monotonic). */
-const earnedKey = (branch: NtBranchId): string => `maze:${branch.toLowerCase()}:earned`
-const settlesKey = (branch: NtBranchId): string => `maze:${branch.toLowerCase()}:settles`
+/** Per-family `meta` keys (synced, monotonic). Family ids are CJK; used verbatim. */
+export const earnedKey = (familyId: string): string => `maze:${familyId}:earned`
+export const settlesKey = (familyId: string): string => `maze:${familyId}:settles`
 
 /** Streak multiplier mirrors the app's existing 1 + 0.05·min(s,10) feel. */
 export const streakMultiplier = (streak: number): number =>
   1 + 0.05 * Math.min(Math.max(streak, 0), 10)
 
-/** Branch team exploration-speed multiplier: fixed base 1.0 + monotonic collection buff (capped). */
+/** Family team exploration-speed multiplier: fixed base 1.0 + monotonic collection buff (capped). */
 export function mazeSpeedMultiplier(collectedCount: number): number {
   return 1 + Math.min(collectedCount * SPEED_BUFF_PER_VARIANT, SPEED_BUFF_CAP)
 }
 
 export interface MazeEnergyState {
-  /** Monotonic accrued energy for this branch. */
+  /** Monotonic accrued energy for this family. */
   earned: number
-  /** Monotonic count of settles (= pulls) performed for this branch. */
+  /** Monotonic count of settles (= pulls) performed for this family. */
   settles: number
 }
 
-export async function readMazeEnergyState(branch: NtBranchId): Promise<MazeEnergyState> {
-  const [e, s] = await Promise.all([db.meta.get(earnedKey(branch)), db.meta.get(settlesKey(branch))])
+export async function readMazeEnergyState(familyId: string): Promise<MazeEnergyState> {
+  const [e, s] = await Promise.all([db.meta.get(earnedKey(familyId)), db.meta.get(settlesKey(familyId))])
   return { earned: Number(e?.value ?? '0') || 0, settles: Number(s?.value ?? '0') || 0 }
 }
 
-/** Set of collected `family:slot` keys for a branch (for speed + least-collected derivation). */
-export async function collectedKeys(branch: NtBranchId): Promise<Set<string>> {
-  const fams = FAMILIES_BY_BRANCH[branch]
-  const all = await db.neuronVariants.toArray()
-  const set = new Set<string>()
-  for (const v of all) if (fams.includes(v.familyId)) set.add(`${v.familyId}:${v.slotIndex}`)
-  return set
+/** Count of collected variant rows in a family (drives the speed buff). */
+async function collectedCountForFamily(familyId: string): Promise<number> {
+  return db.neuronVariants.where('familyId').equals(familyId).count()
 }
 
 /**
- * Accrue energy into one branch's pool from one gameplay event. `base` already
- * includes the streak multiplier (callers fold it in); this applies the branch's
- * team-speed multiplier and persists. Monotonic — never decremented.
+ * Synapse cross-family LTP bonus for a family (design D6): each STRONG synapse the
+ * family participates in (per `connectome-collection`, read-only) adds
+ * `SYNAPSE_BONUS_PER`, summed and clamped to `1 + SYNAPSE_BONUS_CAP`. Returns 1.0
+ * with no strong synapse. No LTD/decay penalty — the maze only reads current state.
  */
-export async function accrueMazeEnergy(branch: NtBranchId, base: number): Promise<void> {
-  if (base <= 0) return
-  const count = (await collectedKeys(branch)).size
-  // Exploration-speed lane (add-neurons-acceleration-system): the maze team-speed
-  // multiplier composes the collection-count buff with the acceleration speed pool
-  // (surge consumable + owned speed-lane equipment, hard-capped). speedAccel() = 1
-  // when nothing is active, so this is a no-op for un-accelerated saves.
-  const accel = await speedAccel()
-  const amount = base * mazeSpeedMultiplier(count) * accel
-  const cur = Number((await db.meta.get(earnedKey(branch)))?.value ?? '0') || 0
-  await db.meta.put({ key: earnedKey(branch), value: String(cur + amount) })
-}
-
-/** Reading has no subject/NT context → split the per-minute energy evenly across all branches. */
-export async function accrueReadingEnergyAllBranches(base: number): Promise<void> {
-  if (base <= 0) return
-  const per = base / NT_BRANCHES.length
-  for (const branch of NT_BRANCHES) await accrueMazeEnergy(branch, per)
-}
-
-/** Least-collected family in a branch (lowest owned/total ratio) — the 二週目 pull target. */
-async function leastCollectedFamily(branch: NtBranchId): Promise<string | null> {
-  const fams = FAMILIES_BY_BRANCH[branch]
-  if (fams.length === 0) return null
-  const all = await db.neuronVariants.toArray()
-  let best = fams[0]
-  let bestRatio = Infinity
-  for (const fam of fams) {
-    const owned = all.filter((v) => v.familyId === fam).length
-    const total = slotsForFamily(fam) || 1
-    const ratio = owned / total
-    if (ratio < bestRatio) {
-      bestRatio = ratio
-      best = fam
-    }
+export async function synapseBonus(familyId: string): Promise<number> {
+  const strong = await db.synapses.where('state').equals('strong').toArray()
+  let count = 0
+  for (const s of strong) {
+    // pairKey encodes the two familyIds; a strong synapse counts if it involves us.
+    const parts = s.pairKey.split('|')
+    if (parts.includes(familyId)) count += 1
   }
-  return best
+  return 1 + Math.min(count * SYNAPSE_BONUS_PER, SYNAPSE_BONUS_CAP)
+}
+
+/**
+ * Accrue energy into one family's pool from one gameplay event. `base` already
+ * includes the event-scoped multipliers (streak × mastery × energyAccel folded in
+ * by the caller); this applies the family-scoped multipliers — team speed-buff ×
+ * speedAccel × synapse LTP bonus — and persists. Monotonic — never decremented.
+ */
+export async function accrueMazeEnergy(familyId: string, base: number): Promise<void> {
+  if (base <= 0) return
+  const [count, speed, syn] = await Promise.all([
+    collectedCountForFamily(familyId),
+    speedAccel(),
+    synapseBonus(familyId),
+  ])
+  const amount = base * mazeSpeedMultiplier(count) * speed * syn
+  const cur = Number((await db.meta.get(earnedKey(familyId)))?.value ?? '0') || 0
+  await db.meta.put({ key: earnedKey(familyId), value: String(cur + amount) })
+}
+
+/** Families the player has begun collecting (≥1 variant); fallback all 11. */
+async function activeFamilies(): Promise<string[]> {
+  const all = await db.neuronVariants.toArray()
+  const set = new Set<string>()
+  for (const v of all) set.add(v.familyId)
+  const active = FAMILY_IDS.filter((f) => set.has(f))
+  return active.length > 0 ? active : [...FAMILY_IDS]
+}
+
+/**
+ * Reading has no subject context → split the per-minute energy evenly across the
+ * families the player has begun collecting (fallback all 11). Replaces the prior
+ * per-branch `accrueReadingEnergyAllBranches`.
+ */
+export async function accrueReadingEnergyActiveFamilies(base: number): Promise<void> {
+  if (base <= 0) return
+  const fams = await activeFamilies()
+  const per = base / fams.length
+  for (const fam of fams) await accrueMazeEnergy(fam, per)
 }
 
 export interface SettleOutcome {
@@ -146,31 +154,29 @@ export interface SettleOutcome {
 }
 
 /**
- * Reconcile one branch's settles to its accrued energy: while the next settle is
- * affordable (`cumulativeCost(settles+1) ≤ earned`), advance the settle index and
- * trigger exactly one `pullVariant`. Target family = the lit node's family
- * (pre-completion) else the branch's least-collected family (二週目). Idempotent;
- * stops on the first pull error so the settle budget isn't burned on failures.
+ * Reconcile one family's settles to its accrued energy: while the next settle is
+ * affordable, advance the settle index and trigger exactly one `pullVariant` for
+ * THIS family (pre-completion the pull lights the frontier node; 二週目 it keeps
+ * pulling toward the family's least-collected slots — the gacha picks within-tier).
+ * Idempotent; stops on the first pull error so the settle budget isn't burned.
  */
 export async function reconcileSettles(
-  branch: NtBranchId,
+  familyId: string,
   resolveFamilyDisplayName: (familyId: string) => string,
 ): Promise<SettleOutcome> {
-  const { earned } = await readMazeEnergyState(branch)
-  let settles = Number((await db.meta.get(settlesKey(branch)))?.value ?? '0') || 0
+  const { earned } = await readMazeEnergyState(familyId)
+  let settles = Number((await db.meta.get(settlesKey(familyId)))?.value ?? '0') || 0
   const target = affordableSettles(earned)
   const newlyLit: MazeNode[] = []
 
   let guard = 0
   while (settles < target && guard++ < 5000) {
-    const node = frontierNode(branch, settles) // node lit at this index, or null in 二週目
-    const familyId = node ? node.familyId : await leastCollectedFamily(branch)
-    if (!familyId) break
+    const node = frontierNode(familyId, settles) // node lit at this index, or null in 二週目
     const res = await pullVariant(familyId, resolveFamilyDisplayName)
     if (!res.ok) break // stop on error — don't advance settles on a failed pull
     if (node) newlyLit.push(node)
     settles += 1
-    await db.meta.put({ key: settlesKey(branch), value: String(settles) })
+    await db.meta.put({ key: settlesKey(familyId), value: String(settles) })
   }
   return { newlyLit }
 }
@@ -186,15 +192,17 @@ export function walkerFraction(state: MazeEnergyState): number {
 /* DEV-only debug handle for manual dogfood smoke (mirrors __sync / __variantGacha). */
 if (import.meta.env.DEV) {
   ;(globalThis as unknown as { __maze?: unknown }).__maze = {
-    state: (branch: NtBranchId = 'DA') => readMazeEnergyState(branch),
-    addEnergy: (branch: NtBranchId, base: number) => accrueMazeEnergy(branch, base),
-    reset: async (branch?: NtBranchId) => {
-      const branches = branch ? [branch] : NT_BRANCHES
-      for (const b of branches) {
-        await db.meta.put({ key: earnedKey(b), value: '0' })
-        await db.meta.put({ key: settlesKey(b), value: '0' })
+    state: (familyId: string = FAMILY_IDS[0]) => readMazeEnergyState(familyId),
+    addEnergy: (familyId: string, base: number) => accrueMazeEnergy(familyId, base),
+    litCount: async (familyId: string = FAMILY_IDS[0]) =>
+      litNodes(familyId, (await readMazeEnergyState(familyId)).settles).length,
+    reset: async (familyId?: string) => {
+      const fams = familyId ? [familyId] : FAMILY_IDS
+      for (const f of fams) {
+        await db.meta.put({ key: earnedKey(f), value: '0' })
+        await db.meta.put({ key: settlesKey(f), value: '0' })
       }
-      console.warn('[maze] DEV: reset earned + settles to 0 for', branch ?? 'all branches')
+      console.warn('[maze] DEV: reset earned + settles to 0 for', familyId ?? 'all families')
     },
   }
 }

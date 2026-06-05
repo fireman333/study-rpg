@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import { db } from '../lib/db'
-import { FAMILIES_BY_BRANCH, NT_BRANCHES } from '../lib/maze/graph'
+import { FAMILIES_BY_BRANCH, NT_BRANCHES } from '@study-rpg/content-neurons-tw'
 import { buildBundleSnapshot, applyBundleSnapshot } from '../lib/sync/r2/bundles'
 import {
   FIRST_PULL_DONE_KEY,
@@ -77,7 +77,7 @@ describe('runFirstPull', () => {
     await runFirstPull(resolve)
 
     const bundle = await buildBundleSnapshot(db)
-    expect(bundle.meta.schema_version).toBe(16)
+    expect(bundle.meta.schema_version).toBe(17)
     const metaRows = (bundle.data.meta as Array<{ key: string; value: string }>) ?? []
     const byKey = new Map(metaRows.map((r) => [r.key, r.value]))
     expect(byKey.get(FIRST_PULL_DONE_KEY)).toBe('true')

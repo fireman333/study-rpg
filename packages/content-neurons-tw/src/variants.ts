@@ -61,8 +61,10 @@ export const P0_PITY_START = 40
 export const P0_PITY_RAMP = 0.05
 
 // ─── Pull currency (neural energy) — dogfood-tuned game-loop numbers ─────────
-export const CORRECT_ANSWER_ENERGY = 3
-export const READING_MINUTE_ENERGY = 2
+// The faucet constants CORRECT_ANSWER_ENERGY / READING_MINUTE_ENERGY moved to
+// ./maze-constants.ts (single source of truth for the flat-grid maze faucet,
+// redesign-neurons-maze-rotjs-grid; READING recalibrated 2 → 3). PULL_COST is the
+// retired manual-pull cost (kept present-but-unused for rollback reader-tolerance).
 export const PULL_COST = 20
 
 /**

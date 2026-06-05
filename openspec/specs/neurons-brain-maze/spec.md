@@ -6,56 +6,56 @@ A fog-of-war exploration view over a four-region brain map that is the `apps/neu
 ## Requirements
 ### Requirement: Maze is the homepage route
 
-The system SHALL render the brain-maze exploration view as the neurons-tw homepage at route `/` in `apps/neurons-tw`, covering all four neurotransmitter regions (DA = 藥理學 + 公共衛生學; 5HT = 寄生蟲學 + 組織學; GABA = 生物化學 + 病理學 + 免疫學; Glu = 解剖學 + 生理學 + 胚胎學 + 微生物學), derived from `FAMILY_NT_BRANCH` and the variant catalog. The prior beta route `/maze-beta` SHALL redirect to `/`. The maze SHALL host the homepage's existing companion surfaces (CTA toolbar, family grid, DMN progress ring, onboarding) per the `neurons-homepage` capability.
+The system SHALL render the unified square grid maze as the neurons-tw homepage at route `/` in `apps/neurons-tw`, covering all 11 subject families on one shared grid (no neurotransmitter regions). The prior beta route `/maze-beta` SHALL redirect to `/`. The maze SHALL host the homepage's existing companion surfaces (CTA toolbar, family grid, DMN progress ring, onboarding) per the `neurons-homepage` capability.
 
-#### Scenario: Maze renders as the homepage
+#### Scenario: Grid maze renders as the homepage
 
 - **WHEN** the user navigates to `/`
-- **THEN** the four-region brain map renders as the homepage centerpiece with its exploration UI
-- **AND** the connectome tree is no longer the homepage centerpiece
+- **THEN** the unified square grid maze renders as the homepage centerpiece with its exploration UI
+- **AND** no four-region brain map and no connectome tree is the centerpiece
 
 #### Scenario: Legacy maze-beta route redirects home
 
 - **WHEN** the user navigates to `/maze-beta`
 - **THEN** the app redirects to `/`
 
-#### Scenario: All four NT regions present
+#### Scenario: All 11 families present on the grid
 
 - **WHEN** the maze loads its node set
-- **THEN** it contains the nodes for all four NT branches, each derived from `FAMILY_NT_BRANCH` and the variant catalog
-- **AND** each branch's node count equals that branch's variant-slot count
+- **THEN** the grid contains the border entry, corridor, and nodes for all 11 families
+- **AND** each family's node count equals that family's variant-slot count
 
 ### Requirement: Node-to-variant-slot binding
 
-Each maze node SHALL correspond to exactly one neuron variant slot (1 node = 1 variant slot), across all four NT branches. The node identity SHALL be bound to a skeleton topology feature (endpoint or branch point) of its branch's base-map graph, not to a hand-placed coordinate.
+Each maze node SHALL correspond to exactly one neuron variant slot (1 node = 1 variant slot), across all 11 families. The node identity SHALL be bound to a cell on its family's corridor in the committed grid graph (a grid-topology feature), not to a hand-placed free coordinate.
 
-#### Scenario: One node per variant slot per branch
+#### Scenario: One node per variant slot per family
 
-- **WHEN** the maze graph set is loaded
-- **THEN** for each NT branch the count of that branch's nodes equals the count of that branch's variant slots (DA 20 / 5HT 20 / GABA 30 / Glu 40)
-- **AND** each node maps to a distinct `{familyId, slotIndex}` pair with no cross-branch collisions
+- **WHEN** the grid graph is loaded
+- **THEN** for each family the count of that family's nodes equals the count of that family's variant slots
+- **AND** each node maps to a distinct `{familyId, slotIndex}` pair with no cross-family collisions
 
 ### Requirement: Growth-signal exploration economy
 
-The system SHALL maintain a per-NT-branch **neural-energy** pool that is BOTH the exploration fuel and the pull cost (one currency, no separate manual-pull balance). A correct quiz answer SHALL accrue energy into the pool of the branch that the answered subject belongs to, resolved via `FAMILY_NT_BRANCH`; reading time SHALL accrue across all four branch pools (even split). Accrual SHALL be scaled by the active answer streak, by that branch's mastery tier, and by the **acceleration energy multiplier** `energyAccel` (the additive, hard-capped pool from `neurons-acceleration-system` — composing active consumables such as the reframed `family-buff`/`bolus` and owned energy-lane permanents). A branch's frontier position SHALL be determined by its accumulated earned energy against the cumulative pacing cost of the nodes already settled — i.e. the frontier advances while `earned − Σcost(settled) ≥ cost(nextNode)`. The system MUST NOT introduce any monetary, IAP, ad-reward, or non-gameplay path to advance exploration or settle nodes.
+The system SHALL maintain a per-FAMILY **neural-energy** pool (11 pools) that is BOTH the exploration fuel and the pull cost (one currency per family, no separate manual-pull balance). A correct quiz answer in subject S SHALL accrue energy into family S's own pool directly (S is the family — no neurotransmitter-branch indirection). Reading time SHALL accrue across the families the player has begun collecting (even split among families with ≥1 collected variant; if none collected, even split across all 11). Accrual SHALL be scaled by the active answer streak, by that family's mastery tier, by the capped acceleration energy multiplier `energyAccel`, and by the capped synapse cross-family bonus. The settle cost SHALL follow the front-loaded pacing schedule `cost(N) = round(PACING_BASE × (1 + PACING_K · N))` for the N-th cumulative settle within a family (0-indexed, uncapped into 二週目), recalibrated for per-family fragmentation (first-cut `PACING_BASE = 14`, `PACING_K = 0.10`, `CORRECT_ENERGY = 3`, `READING_ENERGY = 3`; dogfood-telemetry-tunable). A family's frontier advances inward from its border entry while `earned − Σcost(settled) ≥ cost(nextNode)`. The system MUST NOT introduce any monetary, IAP, ad-reward, or non-gameplay path to advance exploration or settle nodes.
 
-#### Scenario: A correct answer accrues to the subject's branch pool
+#### Scenario: A correct answer accrues to its family's pool
 
 - **WHEN** the user answers a question correctly in subject S
-- **THEN** earned energy is added to the per-branch pool of `FAMILY_NT_BRANCH[S]` (scaled by streak, mastery, and the capped `energyAccel`)
-- **AND** no other branch's pool is changed by that event
-- **AND** when that branch's region is visible the growth cone advances toward its next fogged node
+- **THEN** earned energy is added to family S's pool (scaled by streak, S's mastery, capped `energyAccel`, and S's capped synapse bonus)
+- **AND** no other family's pool is changed by that event
 
-#### Scenario: Reading time feeds branch pools
+#### Scenario: Reading time feeds the player's active families
 
-- **WHEN** the user accrues reading time
-- **THEN** earned energy is added across the four branch pools (even split) at the reading rate
+- **WHEN** the user accrues reading time and has ≥1 collected variant
+- **THEN** earned energy is split evenly across the families in which the player has collected variants
+- **AND** when the player has no collected variants the split is even across all 11 families
 
-#### Scenario: Acceleration energy multiplier composes under its cap
+#### Scenario: Recalibrated front-loaded pacing applies per family
 
-- **WHEN** active energy-lane consumables and owned permanents raise `energyAccel` toward its cap
-- **THEN** the per-event accrual is multiplied by the clamped `energyAccel` (never exceeding `ENERGY_ACCEL_CAP`)
-- **AND** with no active consumable and no owned permanent `energyAccel` SHALL be `1.0` (no change to prior behavior)
+- **WHEN** energy accrues and settles in any family
+- **THEN** the `cost(N) = round(PACING_BASE × (1 + PACING_K · N))` schedule applies with the recalibrated shared constants
+- **AND** the first settle (N=0) costs `PACING_BASE` (cheap onboarding) and later settles cost strictly more (K > 0)
 
 #### Scenario: No monetary path
 
@@ -65,69 +65,61 @@ The system SHALL maintain a per-NT-branch **neural-energy** pool that is BOTH th
 
 ### Requirement: Exploration teams from collected variants
 
-Collected variants SHALL act as exploration units ("Pikmin"), partitioned by NT branch; each branch's team explores its own region. Per branch, base exploration speed SHALL be a fixed positive value so that a player with an empty team for that branch can still make progress. A larger or rarer set of collected variants in a branch SHALL increase that branch's team exploration speed (a buff that never hard-blocks progress). The effective exploration speed SHALL additionally be scaled by the **acceleration speed multiplier** `speedAccel` (the additive, hard-capped pool from `neurons-acceleration-system` — composing active speed-lane consumables such as `surge` and owned speed-lane permanents), clamped to `SPEED_ACCEL_CAP`.
+Collected variants SHALL act as exploration units partitioned by FAMILY; each family's team explores its own corridor from the border inward. Per family, base exploration speed SHALL be a fixed positive value so a player with an empty team for that family can still make progress. A larger or rarer set of collected variants in a family SHALL increase that family's team exploration speed (a capped buff that never hard-blocks progress, `SPEED_BUFF_PER_VARIANT` / `SPEED_BUFF_CAP`). The effective exploration speed SHALL additionally be scaled by the capped acceleration speed multiplier `speedAccel`, clamped to `SPEED_ACCEL_CAP`.
 
-#### Scenario: Empty branch team still progresses
+#### Scenario: Empty family team still progresses
 
-- **WHEN** a player with zero collected variants in branch B accrues growth signal in B
-- **THEN** exploration in B still advances at the fixed base speed (never zero / blocked)
+- **WHEN** a player with zero collected variants in family F accrues growth signal in F
+- **THEN** exploration in F still advances at the fixed base speed (never zero / blocked)
 
-#### Scenario: Collected variants buff the owning branch's speed
+#### Scenario: Collected variants buff the owning family's speed
 
-- **WHEN** a player has collected more (or rarer) variants in branch B
-- **THEN** branch B's team exploration speed is higher than its base speed
-- **AND** the speed increases monotonically with B's collection strength
-- **AND** collecting variants in branch B does not change another branch's team speed
+- **WHEN** a player has collected more (or rarer) variants in family F
+- **THEN** family F's team exploration speed is higher than its base, increasing monotonically with F's collection strength up to `1 + SPEED_BUFF_CAP`
+- **AND** collecting variants in F does not change another family's team speed
 
 #### Scenario: Acceleration speed multiplier composes under its cap
 
 - **WHEN** active `surge` consumables and/or owned speed-lane permanents raise `speedAccel`
-- **THEN** the branch's effective exploration speed SHALL be multiplied by the clamped `speedAccel` (never exceeding `SPEED_ACCEL_CAP`)
+- **THEN** the family's effective exploration speed is multiplied by the clamped `speedAccel` (never exceeding `SPEED_ACCEL_CAP`)
 - **AND** with no speed boost active `speedAccel` SHALL be `1.0`
 
 ### Requirement: Node settle is a continuous pull-cadence gate (not a finite per-node budget)
 
-The maze SHALL be a continuous pull-cadence gate, NOT a one-pull-per-node finite budget. Each settle SHALL be indexed by the branch's cumulative settle count `N` (0-indexed, NOT capped at the branch's node count). On each settle the system SHALL consume that settle's pacing cost `cost(N)` from the branch's energy pool, then trigger exactly one `pullVariant` (per `neuron-variant-gacha`), emitting the same reveal / provenance / achievement / leaderboard side-effects as any pull, including random rarity roll and P0 soft-pity. The pull MAY yield a new variant or a dupe (dupes feed `add-neurons-dupe-fusion`). The pull's target family SHALL be: while the branch still has fogged nodes, the family of the node being lit (`MazeNode.familyId`); once all of the branch's nodes are lit (second-lap / 二週目), the branch's least-collected family (weighted toward unowned slots so the random long tail converges toward completion). Node "lighting" SHALL cap at the branch's node count as a visual exploration-progress indicator, but pulls SHALL continue past it. A settle SHALL play a reveal chime. The maze node settle SHALL be the ONLY mechanism producing variants — there SHALL be no always-available manual pull.
+The maze SHALL be a continuous pull-cadence gate, NOT a one-pull-per-node finite budget. Each settle SHALL be indexed by the family's cumulative settle count `N` (0-indexed, NOT capped at the family's node count). On each settle the system SHALL consume `cost(N)` from the family's pool, then trigger exactly one `pullVariant` (per `neuron-variant-gacha`), emitting the same reveal / provenance / achievement / leaderboard side-effects as any pull. The pull MAY yield a new variant or a dupe (dupes feed `add-neurons-dupe-fusion`). The pull's target family SHALL be: while the family still has fogged nodes, that family itself; once all of the family's nodes are lit (二週目), the family continues pulling toward its own least-collected slots. Node "lighting" SHALL cap at the family's node count as a visual indicator, but pulls SHALL continue past it. A settle SHALL play a reveal chime. The maze node settle SHALL be the ONLY mechanism producing variants — there SHALL be no always-available manual pull.
 
 #### Scenario: Each settle consumes its ramped cost and triggers one pull
 
-- **WHEN** the branch's accumulated energy reaches the next settle threshold at cumulative settle index N in branch B
-- **THEN** `cost(N)` energy is consumed from branch B's pool
-- **AND** exactly one `pullVariant` is triggered (random rarity + P0 pity)
+- **WHEN** family F's accumulated energy reaches the next settle threshold at cumulative settle index N
+- **THEN** `cost(N)` energy is consumed from F's pool
+- **AND** exactly one `pullVariant` for F is triggered (random rarity + P0 pity)
 - **AND** a reveal chime plays
-
-#### Scenario: Pre-completion pull targets the lit node's family
-
-- **WHEN** a settle resolves while branch B still has fogged nodes and the node being lit has `familyId` F
-- **THEN** the pull's target family is F
-- **AND** the result is a variant within F determined by the gacha roll (new variant or dupe)
 
 #### Scenario: Pulls continue past all-nodes-lit (二週目)
 
-- **WHEN** all of branch B's nodes are already lit and the player accrues another `cost(N)` of energy
-- **THEN** a pull still triggers (the maze does not dead-end), targeting B's least-collected family
-- **AND** the 🧠 lit-node count remains capped at B's node count (visual), while pull/settle count continues to grow
+- **WHEN** all of family F's nodes are lit and the player accrues another `cost(N)` of energy
+- **THEN** a pull still triggers (the maze does not dead-end), targeting F's least-collected slots
+- **AND** the 🧠 lit-node count remains capped at F's node count while the pull/settle count keeps growing
 
 #### Scenario: No manual pull path coexists
 
 - **WHEN** the player wants to collect a variant
-- **THEN** the only path is the maze settle cadence (there is no always-available manual pull button)
+- **THEN** the only path is the maze settle cadence (no always-available manual pull button)
 
 ### Requirement: Fog-of-war display
 
-Unexplored nodes SHALL be rendered as fog: no silhouette, no pre-revealed shape, no pre-revealed rarity. The NT region outline SHALL be visible (the player knows a DA region exists), but the individual nodes within the region SHALL remain fogged until explored. Fog SHALL clear progressively as nodes are lit.
+Unexplored nodes SHALL be rendered as fog: no silhouette, no pre-revealed shape, no pre-revealed rarity. The grid frame and a family's corridor existence MAY be visible (the player knows a family's path exists, drawn faintly), but the individual nodes SHALL remain fogged until explored. Fog SHALL be computed from the **explored corridor frontier** (each family's lit route prefix up to its walker) and SHALL clear progressively as nodes are lit inward from the border. (The committed grid graph omits the full wall map, so runtime fog is corridor-frontier-based, not a wall-occlusion `ROT.FOV` pass — rot.js is build-time only.)
 
 #### Scenario: Unexplored node shows no pre-revealed information
 
 - **WHEN** a node has not yet been explored
 - **THEN** it renders as fog with no silhouette, shape, or rarity hint
-- **AND** the surrounding DA region outline is still visible
 
 #### Scenario: Fog clears on lighting
 
-- **WHEN** a node is lit (explored or migrated)
-- **THEN** the fog around that node clears and the node renders as a lit connected-region marker (a two-layer dot — branch-colour fill, white edge), with its grown-axon path drawn
-- **AND** the variant joins the collection (revealed via the settle modal on exploration; visible in the collection view)
+- **WHEN** a node is lit
+- **THEN** the fog around that node clears and the node renders as a lit marker with its grown-corridor path drawn
+- **AND** the variant joins the collection (revealed via the settle modal; visible in the collection view)
 
 ### Requirement: Pure-count progress chip
 
@@ -152,186 +144,212 @@ The maze SHALL display exploration progress as a pure count chip 「🧠 已連�
 
 ### Requirement: Collected-variant to lit-node migration
 
-Lit-node state SHALL be derived from the per-branch frontier progress (cumulative settle count) UNIONed with the first-pull starter-lit node(s), NOT from collected variants in general — because under random settle pulls the variant collected at a settle is not necessarily the lit node's own slot. The frontier-lit nodes of a branch SHALL be the first `min(settles, nodeCount)` nodes in hub-distance (`pathLen`) order. The starter-lit node of a branch SHALL be the representative node (hub-nearest, deterministic tie-break) of the family chosen by the one-time first-pull for that branch, persisted in `meta['maze:<branch>:starterFamily']`; it lights even when `settles = 0`. The branch's lit set SHALL be the set union of its frontier-lit nodes and its starter-lit node, deduplicated by node identity (a node reached by both first-pull and the frontier is lit exactly once). Collection progress is tracked separately (the 🧬 count + the collection dex). The system SHALL NOT run a backfill, duplicate-store frontier lit state, or show a migration banner. Existing players' per-branch `settles` (preserved from the pre-change maze) keep their frontier; their existing collected variants remain in the collection unchanged. A player who collected variants via the (removed) manual pull but never explored the maze simply starts the frontier at their stored `settles` (no regression — exploring yields additional random pulls).
+Lit-node state SHALL be derived from the per-FAMILY frontier progress (cumulative settle count) UNIONed with the first-pull starter-lit nodes, NOT from collected variants in general. A family's frontier-lit nodes SHALL be the first `min(settles, nodeCount)` nodes in **route order (along the winding corridor, entry-first)** along that family's corridor (nearest the border first, advancing inward). The starter-lit nodes SHALL be the representative (border-nearest) nodes of the ≤4 families named in the **legacy first-pull keys** `meta['maze:<branch>:starterFamily']` (first-pull is unchanged by this redesign; the maze reads those key VALUES, which are familyIds, and lights each named family's representative node). The lit set SHALL be the deduplicated union of frontier-lit and starter-lit nodes. The system SHALL NOT run a backfill, duplicate-store frontier lit state, or show a migration banner. On the Dexie v17 upgrade the per-branch maze **economy** (`maze:<branch>:{earned,settles}`) is reset while the first-pull `starterFamily` keys and collected variants are preserved; the new per-family frontier starts fresh.
 
-#### Scenario: Lit nodes derive from frontier unioned with starter-lit, not general collection
+#### Scenario: Lit nodes derive from per-family border frontier unioned with first-pull starter nodes
 
-- **WHEN** a branch has `settles = K` and a first-pull starter family is recorded
-- **THEN** the lit set is the union of the first `min(K, nodeCount)` nodes in `pathLen` order and the starter family's representative node
+- **WHEN** a family has `settles = K` and the legacy first-pull keys name some families as starters
+- **THEN** the lit set is the union of the first `min(K, nodeCount)` corridor nodes in route order (along the winding corridor, entry-first) and the representative nodes of the first-pull-named starter families
 - **AND** the lit set does NOT otherwise depend on which specific variants were collected
 
-#### Scenario: Starter node lit at zero settles
+#### Scenario: Frontier reaching a starter node does not double-light
 
-- **WHEN** a branch has `settles = 0` and `meta['maze:<branch>:starterFamily']` is set to family F
-- **THEN** F's representative node is lit
-- **AND** no frontier nodes are lit (since `settles = 0`)
+- **WHEN** a family's frontier advances to include its representative node already lit by first-pull
+- **THEN** that node is lit exactly once (set-union dedup)
 
-#### Scenario: Frontier reaching the starter node does not double-light
+#### Scenario: v17 resets economy but preserves first-pull and collection
 
-- **WHEN** the frontier later advances to include the node already lit by first-pull
-- **THEN** that node is lit exactly once (set union dedup), with no visual conflict
-
-#### Scenario: No backfill or migration banner
-
-- **WHEN** an existing player first opens the maze homepage
-- **THEN** their stored per-branch `settles` and their collected variants are both preserved
+- **WHEN** an existing player upgrades to v17 and first opens the redesigned maze
+- **THEN** the per-branch `earned`/`settles` are reset (fresh per-family frontier) while `maze:<branch>:starterFamily` and collected variants are preserved
 - **AND** no backfill write or migration banner occurs
 
-### Requirement: Build-time image-to-graph pipeline
+### Requirement: Runtime sprite walks the corridor center
 
-The base-map fiber graph SHALL be produced by a build-time pipeline (run once, output committed as a static JSON asset, zero runtime recomputation): load a flat-saturated single-color (per-branch) base image → per-pixel HSV-threshold color mask → optional morphological close (repair 1–3px gaps; off by default for clean source images) → Zhang-Suen skeletonize → convert skeleton to a graph (degree-1 = endpoint, degree-2 = continuation, degree-≥3 = branch) → trace edges into ordered polylines → route hub-rooted walk paths to each node (Dijkstra) → simplify polylines (RDP) → arc-length parameterize → write graph JSON. Analysis resolution SHALL be at least 384×256. The runtime SHALL consume the JSON only and SHALL NOT recompute skeletonization.
+At runtime the exploration sprite SHALL move by arc-length tween along its family's corridor polyline (committed in the grid graph), travelling along the visual center of the corridor (axon centerline) from the border inward — this smooth continuous movement IS the default and represents action-potential propagation. It SHALL NOT step by pixel grid. Any pathfinding SHALL be used only for route selection between nodes, never for the visual movement itself. (Discrete saltatory cell-to-cell jumping is NOT the default movement in this change; it is reserved as a possible future item effect.)
 
-#### Scenario: Pipeline emits a static graph JSON
+#### Scenario: Sprite travels the corridor centerline smoothly
 
-- **WHEN** the build-time pipeline runs on the DA base image
-- **THEN** it writes a graph JSON containing nodes (with topology kind: endpoint / branch) and per-node hub-rooted walk polylines
-- **AND** the analysis was performed at ≥ 384×256 resolution
-
-#### Scenario: Runtime does not recompute
-
-- **WHEN** the maze loads at runtime
-- **THEN** it reads the committed graph JSON
-- **AND** it does not run skeletonization or image analysis at runtime
-
-### Requirement: Runtime sprite walks the fiber center
-
-At runtime the exploration sprite SHALL move by arc-length tween along an edge polyline, so it travels along the visual center of the base-map fiber (not a pixel grid, not a fiber edge). Any pathfinding (BFS / Dijkstra) SHALL be used only for route selection between nodes, never for the visual movement itself.
-
-#### Scenario: Sprite travels the fiber centerline smoothly
-
-- **WHEN** the sprite advances along an edge
-- **THEN** it follows the polyline by arc-length, staying on the fiber centerline
-- **AND** the motion is smooth (continuous arc-length interpolation), not pixel-grid stepping
+- **WHEN** the sprite advances along a corridor segment
+- **THEN** it follows the polyline by arc-length on the corridor centerline (smooth continuous interpolation)
+- **AND** it does not step by pixel grid
 
 ### Requirement: Exploration walker sprite
 
-Per NT branch, the leading exploration sprite (the growth cone) that walks that branch's fiber SHALL be rendered as the player's representative collected variant for that branch — selected as the rarest collected variant in that branch, tie-broken by most-recently collected. When the player has zero collected variants in a branch, the system SHALL render a generic growth-cone fallback sprite for that branch instead. Each branch's walker selection SHALL be recomputed when the player's collection changes.
+Per family, the leading exploration sprite (the growth cone) that walks that family's corridor SHALL be rendered as the player's representative collected variant for that family — the rarest collected variant in that family, tie-broken by most-recently collected. When the player has zero collected variants in a family, the system SHALL render a generic growth-cone fallback sprite. Each family's walker selection SHALL be recomputed when the collection changes.
 
-#### Scenario: Walker is the branch's representative collected variant
+#### Scenario: Walker is the family's representative collected variant
 
-- **WHEN** the player has at least one collected variant in branch B
-- **THEN** branch B's walking sprite renders as B's rarest collected variant's 立繪 (tie-broken by most-recently collected)
+- **WHEN** the player has at least one collected variant in family F
+- **THEN** F's walking sprite renders as F's rarest collected variant's 立繪 (tie-broken by most-recent)
 
-#### Scenario: Empty branch team uses fallback growth-cone sprite
+#### Scenario: Empty family team uses fallback growth-cone sprite
 
-- **WHEN** the player has zero collected variants in branch B
-- **THEN** branch B's walking sprite renders as a generic growth-cone fallback sprite
-- **AND** exploration in B still advances at the fixed base speed
-
-#### Scenario: Walker updates as collection changes
-
-- **WHEN** the player collects a rarer variant in branch B than B's current walker
-- **THEN** branch B's walking sprite updates to the new representative variant
+- **WHEN** the player has zero collected variants in family F
+- **THEN** F's walking sprite renders as a generic growth-cone fallback sprite
+- **AND** exploration in F still advances at the fixed base speed
 
 ### Requirement: Maze progress persistence
 
-The system SHALL persist per-branch earned-energy accrual and per-node settle progress. The change SHALL persist these in the existing `meta` key-value store using per-branch keys (`maze:<branch>:earned` for the monotonic synced accrual, `maze:<branch>:settles` for the settle/pull count) without a Dexie schema version bump. Both per-branch key families SHALL be added to `SYNCED_META_KEYS` and resolve via the existing MAX-merge counter post-pass (monotonic). If a dedicated Dexie object store is introduced instead, the change MUST include a v(N-1)→v(N) upgrade fixture per the project Dexie-upgrade-fixture rule.
+The system SHALL persist per-FAMILY earned-energy accrual and settle progress in the existing `meta` key-value store using per-family keys (`maze:<familyId>:earned` monotonic synced accrual, `maze:<familyId>:settles` settle/pull count). Both per-family key families SHALL be in `SYNCED_META_KEYS` and resolve via the MAX-merge counter post-pass. The legacy per-branch first-pull keys `maze:<branch>:starterFamily` SHALL remain in `SYNCED_META_KEYS` (first-pull is unchanged; the maze reads them for starter-lit). The change SHALL bump Dexie to `.version(17)`; the v16→v17 upgrade callback SHALL clear the retired per-branch economy keys (`maze:{da,5ht,gaba,glu}:{earned,settles}`) — a deliberate economy reset — while PRESERVING `maze:{da,5ht,gaba,glu}:starterFamily` and all collected variants. Because a new `.version()` is declared, the change MUST include a `db-v16-to-v17` upgrade fixture test per the project Dexie-upgrade-fixture rule. The R2 bundle `SCHEMA_VERSION` SHALL bump 16 → 17 (additive + reader-tolerance: v16 clients drop the unknown 11-family keys; v17 reading a v16 bundle finds no 11-family keys and starts fresh).
 
-#### Scenario: Per-branch progress survives reload
+#### Scenario: Per-family progress survives reload
 
-- **WHEN** the player advances exploration in any branch and reloads the app
-- **THEN** each branch's earned-energy accrual and settle count are restored independently
+- **WHEN** the player advances exploration in any family and reloads the app
+- **THEN** each family's earned-energy accrual and settle count are restored independently
 
-#### Scenario: Per-branch progress syncs cross-device
+#### Scenario: v17 upgrade resets per-branch economy, preserves starter + collection
 
-- **WHEN** the player accrues energy / settles in branch B on device 1 and studies on device 2
-- **THEN** `maze:B:earned` and `maze:B:settles` converge via MAX-merge across devices
-- **AND** lit-node state remains derived from collected variants (no separate lit-state sync)
+- **WHEN** a v16 client upgrades to v17
+- **THEN** the upgrade callback clears the `maze:{da,5ht,gaba,glu}:{earned,settles}` keys
+- **AND** the `maze:{da,5ht,gaba,glu}:starterFamily` keys and the player's collected variants are unchanged
+- **AND** a `db-v16-to-v17` upgrade fixture test accompanies the bump
 
-#### Scenario: Schema-bump path requires fixture
+#### Scenario: Per-family progress syncs cross-device
 
-- **WHEN** the implementation introduces a new Dexie object store for maze state (rather than using `meta`)
-- **THEN** a v(N-1)→v(N) upgrade fixture test accompanies the schema bump
+- **WHEN** the player accrues energy / settles in family F on device 1 and studies on device 2
+- **THEN** `maze:F:earned` and `maze:F:settles` converge via MAX-merge across devices
 
 ### Requirement: Color-blind-friendly team encoding
 
-The maze SHALL encode each NT branch's identity using three redundant channels — color, line style, and node shape — so that all four branches are distinguishable from each other without relying on color alone, including when multiple branches are rendered overlaid.
+The maze SHALL encode each family's identity using redundant channels — color, line style, and node shape — so families are distinguishable without relying on color alone. The family→color mapping SHALL be a neutral, arbitrary-but-distinguishable assignment that asserts no neurotransmitter taxonomy.
 
-#### Scenario: Four branches distinguishable without color
+#### Scenario: Families distinguishable without color
 
-- **WHEN** the four branches are rendered overlaid with color information removed (grayscale)
-- **THEN** every branch is still distinguishable from the other three by line style and node shape
+- **WHEN** the maze is rendered with color information removed (grayscale)
+- **THEN** families are still distinguishable by line style and node shape
+- **AND** no color is presented as a neurotransmitter claim
 
-### Requirement: Multi-branch overlay rendering with branch filter chips
+### Requirement: Synapse network overlay on the maze grid
 
-The maze SHALL render the four NT regions z-stacked on a single shared brain outline (interwoven view). The system SHALL provide a filter-chip control that toggles the visibility of each NT branch; by default all four branches SHALL be visible. Toggling a branch off SHALL hide that branch's tract layer, nodes, fog, and walker; the shared brain outline SHALL remain visible regardless of branch toggles. Hiding a branch SHALL NOT pause or alter that branch's growth-signal accrual or settles (visibility is display-only).
+The system SHALL render the synapse network as an overlay on the maze grid: each formed synapse (a co-firing family pair) SHALL be drawn at/through its synapse-intersection cell(s), with visual weight reflecting synapse state (dormant / weak / strong). The overlay SHALL be read-only with respect to synapse STATE — it SHALL NOT create, strengthen, or decay synapses (that mechanic is owned by `connectome-collection`, unchanged). The overlay SHALL update as synapse state changes and SHALL be toggleable consistent with the maze's display model. (The gameplay bonus that a strong synapse confers is specified separately under "Strong synapse SHALL confer a capped cross-family energy bonus"; the overlay itself remains render-only.)
 
-#### Scenario: Default shows all four branches overlaid
-
-- **WHEN** the user first opens `/maze-beta`
-- **THEN** all four NT regions render overlaid on the shared brain outline
-- **AND** all four branch filter chips are in the active (shown) state
-
-#### Scenario: Toggling a branch chip hides that branch only
-
-- **WHEN** the user toggles branch B's filter chip off
-- **THEN** B's tract, nodes, fog, and walker are hidden
-- **AND** the other branches and the shared brain outline remain visible
-
-#### Scenario: Hidden branch still accrues
-
-- **WHEN** branch B is toggled off and the user answers a B-subject question correctly
-- **THEN** B's growth-signal pool still accrues and B's settles still resolve
-- **AND** re-showing B reflects the advanced progress
-
-### Requirement: Branch graph co-registration
-
-All four branch graphs SHALL share a common normalized 0..1 coordinate space over a common canvas with the brain in the same position, so that the four tract layers and their nodes overlay in register on the shared outline. The DA branch graph (`da-graph.json`) SHALL remain byte-stable (node positions unchanged) through this change.
-
-#### Scenario: Graphs co-register on a common canvas
-
-- **WHEN** the four branch graphs are loaded
-- **THEN** all node and path coordinates are normalized 0..1 over the same canvas geometry
-- **AND** the four regions overlay in register on the shared brain outline
-
-#### Scenario: DA graph unchanged
-
-- **WHEN** the multi-branch change is applied
-- **THEN** `da-graph.json` node positions are identical to the pre-change values (byte-stable)
-
-### Requirement: DA-as-reference inheritance
-
-The four branches SHALL share one code path (rendering, economy logic, graph algorithm) and the same shared economy parameters by default. The settle cost SHALL follow a **front-loaded** linear-ramp pacing schedule `cost(N) = round(BASE × (1 + K·N))` for the N-th cumulative settle within a branch (0-indexed, NOT capped at the branch's node count — the ramp continues into the second lap / 二週目 so later pulls naturally cost more), replacing a single fixed `SIGNAL_PER_NODE` constant. The schedule SHALL be front-loaded (low `BASE`, steeper `K`) so the FIRST nodes are cheap (fast onboarding to the first collectible) and late nodes are expensive (long tail); `BASE` and `K` SHALL be shared across branches and documented as dogfood-telemetry-tunable first-cut values (first cut `BASE = 24`, `K = 0.10` → node 0 ≈ 24, node 109 ≈ 285). The collected-variant team-speed buff SHALL remain capped (`SPEED_BUFF_CAP`) so it cannot overrun the cost ramp. Per-branch variation SHALL be limited to the branch's asset (base image, color) and that branch's pipeline-generated graph.
-
-#### Scenario: First node is cheap for onboarding
-
-- **WHEN** a fresh player reaches their first node (cumulative settle index 0) in any branch
-- **THEN** the cost is `BASE` (the cheapest settle), so the first collectible is reachable quickly rather than after a multi-day grind
-
-#### Scenario: All branches use the same pacing schedule
-
-- **WHEN** earned energy accrues and settles in any branch
-- **THEN** the same `cost(N) = round(BASE × (1 + K·N))` schedule and shared `BASE`/`K` apply (no per-branch divergence in this change)
-
-#### Scenario: Later settles cost more than earlier settles (incl. 二週目)
-
-- **WHEN** comparing the energy cost of settle N+1 versus settle N within a branch (including N ≥ node count)
-- **THEN** the cost is strictly greater for the later settle (K > 0), so the second lap is slower than the first
-
-#### Scenario: Team-speed buff stays capped
-
-- **WHEN** a branch's collected-variant count grows large
-- **THEN** the team-speed multiplier does not exceed `1 + SPEED_BUFF_CAP`
-
-### Requirement: Synapse network overlay on the maze brain-map
-
-The system SHALL render the connectome synapse network as an overlay on the maze brain-map: each formed synapse (a pair of co-firing families) SHALL be drawn as an edge between the two families' node-cluster positions on the shared brain frame, with the edge's visual weight (e.g. opacity / thickness) reflecting the synapse state (dormant / weak / strong). The overlay SHALL be read-only with respect to synapse state — it SHALL NOT create, strengthen, or decay synapses (that mechanic is owned by `connectome-collection` and is unchanged). The overlay SHALL update as synapse state changes (formation / strengthening / decay) and SHALL be toggleable consistent with the maze's branch-filter display model.
-
-#### Scenario: Formed synapse renders as a brain-map edge
+#### Scenario: Formed synapse renders at its intersection
 
 - **WHEN** a synapse exists between families A and B
-- **THEN** an edge is drawn between A's and B's node-cluster positions on the maze brain frame
-- **AND** the edge's visual weight reflects the synapse's current state (dormant / weak / strong)
+- **THEN** an edge/marker is drawn at the A–B synapse-intersection cell on the grid
+- **AND** its visual weight reflects the synapse's current state
 
-#### Scenario: Overlay reflects state changes
+#### Scenario: Overlay reflects state changes without mutating state
 
 - **WHEN** a synapse strengthens or decays
-- **THEN** the overlay edge's visual weight updates to the new state
-- **AND** the synapse data/state itself is unchanged by the overlay (render-only)
+- **THEN** the overlay weight updates
+- **AND** the synapse data/state itself is unchanged by the overlay
 
-#### Scenario: Overlay is toggleable
+### Requirement: Maze SHALL be one large square zoomable structural-weave grid
 
-- **WHEN** the user toggles the synapse overlay off
-- **THEN** the synapse edges are hidden
-- **AND** the underlying synapse mechanic (formation / strengthening / decay) continues unaffected
+The maze SHALL be a single unified **square** grid map shared by all 11 subject families — NOT four neurotransmitter regions, NOT a brain-shaped silhouette, NOT 11 separate sub-mazes. The grid SHALL be large (e.g. 99×99) and densely **weave** — hundreds of **over/under bridge** cells where one corridor passes over another without joining — and SHALL support pan/zoom (the renderer zooms so detail stays legible). Each family SHALL enter from a distinct **border** cell and route **toward the shared center** along a **winding (non-shortest) corridor** that interweaves with the other families; the cells where two families' routes cross at a bridge are the maze's **synapses**. There SHALL be no central hub origin (the center is the routing target; walkers originate at the border). The system SHALL NOT present any neurotransmitter-taxonomy grouping of the 11 families.
+
+#### Scenario: Single square weave grid renders as the maze
+
+- **WHEN** the maze loads
+- **THEN** one unified large square grid map renders with dense over/under weave bridges (not four NT regions, not a brain silhouette), pan/zoom enabled
+- **AND** all 11 families' winding corridors share the one grid coordinate space
+- **AND** no neurotransmitter grouping label is shown to the player
+
+#### Scenario: Winding family routes interweave and cross
+
+- **WHEN** the maze graph is loaded
+- **THEN** each of the 11 families has a distinct border-cell entry and a winding corridor routed toward the center
+- **AND** the corridors cross one another at weave bridges (the crossing-synapses)
+
+### Requirement: Maze SHALL read as a brain (neural-fiber design language)
+
+The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural-tissue backdrop (cortical-fold / myelin texture on the dark signal palette), the weave corridors styled as axon fibers, the crossing-synapses as synaptic-bouton glyphs (brightening when potentiated), and the center as a dense synaptic core. The brain styling SHALL be realized through a **crafted 16×16 pixel-art tile atlas** (GBA-寶可夢 art direction) blitted at nearest-neighbor (no smoothing), NOT through procedural primitive shapes. Corridor fiber tiles SHALL be selected by **autotiling** — each corridor cell's structural tile (straight / curve / T-junction / 4-way cross / cap) is chosen from that cell's connectivity to its neighbours along the family routes, and the over/under weave at a crossing renders the over fiber unbroken and the under fiber gapped. Each family's corridor SHALL be rendered in that family's colour (so routes are traceable), tinted at render time from a single neutral fiber tile set rather than per-family atlas art. The brain styling SHALL NOT obscure the redundant family encoding (corridor colour + node colour + node-shape) and SHALL respect reduced-motion (no required animation to perceive structure).
+
+#### Scenario: Maze is visually brain-themed
+
+- **WHEN** the maze renders
+- **THEN** corridors read as neural fibers over a neural-tissue backdrop, with synaptic-bouton crossing glyphs and a dense central core
+- **AND** the family colour / node-shape encoding remains distinguishable over the brain styling
+
+#### Scenario: Corridor tiles follow their direction
+
+- **WHEN** a corridor turns, branches, or crosses another corridor
+- **THEN** the rendered fiber tile matches the cell's connectivity (a curve at a turn, a junction where routes meet, a straight along a run)
+- **AND** at a weave crossing the over fiber renders unbroken while the under fiber is gapped
+
+#### Scenario: Each family's corridor is colour-traceable
+
+- **WHEN** the maze renders multiple families' corridors
+- **THEN** each family's corridor is drawn in that family's colour (tinted from one neutral fiber tile set), so a route can be visually traced end to end
+- **AND** node colour + node-shape redundancy remains for color-blind users
+
+### Requirement: Maze SHALL render from a committed pixel-art tile atlas with graceful fallback
+
+The maze renderer SHALL draw cells by blitting from a single committed pixel-art atlas asset (`apps/neurons-tw/src/assets/maze/tiles/maze-atlas.png`) addressed through a tile-index map, using `imageSmoothingEnabled = false` for crisp pixel scaling. The atlas SHALL contain the seamless structural tiles (neural-tissue background, axon corridor straight / curve / T / cross / cap, over-under weave bridge, fog) and the standalone hero glyphs (variant node neuron, synaptic bouton, center soma core, border entry portal, walker). Atlas adoption SHALL NOT change the committed maze routes, economy, schema, or sync (no Dexie or R2 bundle version bump). If the atlas asset fails to load, the renderer SHALL fall back to the procedural draw so the maze never displays broken images.
+
+#### Scenario: Cells blit from the atlas
+
+- **WHEN** the maze renders with the atlas loaded
+- **THEN** each cell is drawn by blitting the indexed tile from the atlas at nearest-neighbor scaling
+
+#### Scenario: Missing atlas degrades gracefully
+
+- **WHEN** the atlas asset fails to load
+- **THEN** the renderer draws the maze with the procedural fallback (no broken-image placeholder, no crash)
+
+#### Scenario: Atlas adoption is presentation-only
+
+- **WHEN** this change ships
+- **THEN** the committed `grid-graph.json` routes, the per-family economy, the Dexie schema version, and the R2 bundle `SCHEMA_VERSION` are all unchanged
+
+### Requirement: Build-time weave pipeline SHALL emit a single committed grid graph
+
+The maze SHALL be produced by a build-time pipeline (`scripts/build-grid-maze.mjs`, run once, output committed as a single static `assets/maze/grid-graph.json`, zero runtime recomputation): generate a base maze (`ROT.Map.EllerMaze`, fixed seed, large grid e.g. 99×99) + braid → promote a fraction of 4-way junctions to **over/under weave bridges** (the N-S corridor passes over the E-W, no join) yielding a dense structural weave (~1300 bridges) → place 11 family entry anchors on distinct border cells → route each family border→center via a **WINDING (non-shortest) waypoint path** (weave-aware, respecting the bridge no-turn constraint) so corridors meander and interweave → detect cells where two families' routes cross at a weave bridge (one H/over, one V/under) as **crossing-synapses** (~135, ≥ 110) → place each family's 10 variant-slot **nodes AT crossings on its route** (sampled in route order; pad with route cells if < 10 crossings) → write `{ gridW, gridH, center, seed, weave:[{cell,over}], families:{<familyId>:{ entryCell, path, nodeCells:[{slotIndex,cell,t,synapse}] }}, synapses:[{ cell, families:[A,B], over, under }] }`. The committed JSON intentionally OMITS the full wall map (the player only ever sees explored corridors over a fogged field — the 11 winding routes + crossings are the visible structure). The runtime SHALL consume the JSON only (no generation / routing at runtime). rot.js SHALL be used **headless at build time for maze generation** (`ROT.Map.EllerMaze` + `ROT.RNG`); `ROT.Display` SHALL NOT be used; the weave promotion, winding routing, crossing detection and over/under rendering are the app's own (no external weave dependency). rot.js is a build-time-only dependency (it is NOT in the runtime bundle).
+
+#### Scenario: Pipeline emits one static weave grid graph
+
+- **WHEN** the build-time pipeline runs
+- **THEN** it writes a single `grid-graph.json` containing grid dimensions, center, the structural weave bridges, per-family border entry + winding path + node cells, and the crossing-synapses
+- **AND** the structural weave bridge count is large (hundreds) and the crossing-synapse count is ≥ 110
+
+#### Scenario: Every variant node sits at a route crossing
+
+- **WHEN** the pipeline assigns each family its 10 variant-slot nodes
+- **THEN** each node is placed at a cell where that family's winding route crosses another family's route (a weave bridge), except padded route cells when a route has fewer than 10 crossings
+
+#### Scenario: Runtime does not regenerate the grid
+
+- **WHEN** the maze loads at runtime
+- **THEN** it reads the committed `grid-graph.json`
+- **AND** it does not run maze generation or routing at runtime, and does not use `ROT.Display`
+
+### Requirement: Maze camera SHALL be activity-contextual
+
+The maze camera SHALL frame the view by the player's current activity. While the player is answering a quiz, the camera SHALL zoom in to the answered subject's family walker so the player watches that character move along its corridor as the answer resolves/settles. While the player is reading, the camera SHALL show the whole map with the ambient exploration animation across all families. Manual pan/zoom SHALL remain available; the contextual framing is the default per activity. Under reduced-motion the camera transition SHALL degrade to an instant cut (no animated zoom).
+
+#### Scenario: Quiz answering zooms to the answered family's walker
+
+- **WHEN** the player answers a question in subject S
+- **THEN** the camera zooms in to family S's walker and the player sees it move along its corridor (the resolving settle, if any, animates there)
+
+#### Scenario: Reading shows the whole map
+
+- **WHEN** the player is in the reading activity
+- **THEN** the camera shows the whole maze with the ambient exploration animation across families
+
+#### Scenario: Reduced-motion uses an instant camera cut
+
+- **WHEN** reduced-motion is enabled and the activity changes
+- **THEN** the camera changes framing with an instant cut, not an animated zoom
+
+### Requirement: Strong synapse SHALL confer a capped cross-family energy bonus
+
+A synapse in the **strong** state (per `connectome-collection`, formed and strengthened by same-day co-firing of its two families) SHALL grant a capped cross-family energy-accrual bonus to both of its families. The bonus SHALL be additive across a family's strong synapses and clamped to `SYNAPSE_BONUS_CAP` (first-cut +X% per strong synapse, total ≤ +30%, dogfood-tunable). The maze economy SHALL READ synapse state read-only — it SHALL NOT create, strengthen, or decay synapses (that mechanic remains owned by `connectome-collection`, unchanged). The maze SHALL NOT apply any LTD/decay penalty (the bonus simply keys off the current strong state). With no strong synapse for a family the bonus SHALL be `1.0`. The bonus SHALL compose multiplicatively with the other capped accrual multipliers (streak × mastery × `energyAccel` × synapse-bonus) such that no factor and no product is unbounded.
+
+#### Scenario: Strong synapse boosts both families' accrual under the cap
+
+- **WHEN** families A and B share a strong synapse and the player answers an A-subject question correctly
+- **THEN** A's energy accrual is multiplied by its synapse bonus (clamped to `SYNAPSE_BONUS_CAP`)
+- **AND** the synapse state itself is unchanged by the maze read
+
+#### Scenario: No strong synapse means no bonus, and no LTD penalty
+
+- **WHEN** family A has no strong synapse (or a synapse has decayed in connectome)
+- **THEN** A's synapse bonus is `1.0` (no bonus, and no maze-side decay penalty)
+
+#### Scenario: Bonus stays capped with many strong synapses
+
+- **WHEN** a family participates in many strong synapses
+- **THEN** the summed synapse bonus does not exceed `SYNAPSE_BONUS_CAP`
 

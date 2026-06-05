@@ -23,9 +23,8 @@
  */
 
 import type { ContentPack } from '@study-rpg/core'
-import type { NtBranchId } from '@study-rpg/content-neurons-tw'
+import { FAMILIES_BY_BRANCH, NT_BRANCHES, type NtBranchId } from '@study-rpg/content-neurons-tw'
 import { db } from '../db'
-import { FAMILIES_BY_BRANCH, NT_BRANCHES } from '../maze/graph'
 import { pullVariant, type PullResult } from './variant-gacha'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { FIRST_PULL_DONE_KEY, starterFamilyKey, STARTER_FAMILY_KEYS } from './first-pull-keys'

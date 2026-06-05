@@ -7,8 +7,7 @@
  * lib/sync/tables.ts mirrors these as literals, matching the existing
  * `maze:<branch>:*` convention in that file).
  */
-import { NT_BRANCHES } from '../maze/graph'
-import type { NtBranchId } from '@study-rpg/content-neurons-tw'
+import { NT_BRANCHES, type NtBranchId } from '@study-rpg/content-neurons-tw'
 
 /** Persisted once-only flag (synced, monotonic-OR — never written 'false'). */
 export const FIRST_PULL_DONE_KEY = 'firstPullDone'

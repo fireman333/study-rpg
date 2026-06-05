@@ -21,11 +21,11 @@ beforeEach(async () => {
 })
 
 describe('acceleration bundle adapters', () => {
-  it('SCHEMA_VERSION is 16', () => {
-    expect(SCHEMA_VERSION).toBe(16)
+  it('SCHEMA_VERSION is 17', () => {
+    expect(SCHEMA_VERSION).toBe(17)
   })
 
-  it('inventory + equipment round-trip through a v16 bundle', async () => {
+  it('inventory + equipment round-trip through the current bundle', async () => {
     await db.inventory.put({ kind: 'surge', count: 3, updatedAt: 2000 })
     await db.equipment.put({
       equipmentId: 'eq-fully-myelinated-axon-p1',
@@ -35,7 +35,7 @@ describe('acceleration bundle adapters', () => {
     })
 
     const bundle = await buildBundleSnapshot(db)
-    expect(bundle.meta.schema_version).toBe(16)
+    expect(bundle.meta.schema_version).toBe(17)
     expect((bundle.data.inventory as unknown[]).length).toBe(1)
     expect((bundle.data.equipment as unknown[]).length).toBe(1)
 

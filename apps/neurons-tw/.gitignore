@@ -1,3 +1,8 @@
 dist/
 node_modules/
 *.tsbuildinfo
+
+# maze debug renders (regenerate via build:maze-atlas / render-maze-preview)
+src/assets/maze/grid-preview.png
+src/assets/maze/tiles/atlas-preview.png
+src/assets/maze/tiles/real-maze-*.png

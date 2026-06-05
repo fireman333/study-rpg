@@ -56,7 +56,9 @@ describe('Dexie v15 → v16 migration (acceleration: inventory + equipment)', ()
       artworkId: 'dmn:card:x',
       displayName: '預設模式覺醒',
     })
-    await dbV15.table('meta').put({ key: 'maze:da:settles', value: '7' })
+    // Canary preserved across the chain — use a key the later v17 upgrade does NOT
+    // clear (v17 resets the per-branch maze economy keys like maze:da:settles).
+    await dbV15.table('meta').put({ key: 'totalStudyMinutes', value: '7' })
     await dbV15.table('neuronVariants').put({
       familyId: '藥理學',
       slotIndex: 1,
@@ -69,11 +71,11 @@ describe('Dexie v15 → v16 migration (acceleration: inventory + equipment)', ()
     //    the bump were an illegal pk change.
     const db = new NeuronsDB()
     await db.open()
-    expect(db.verno).toBe(16)
+    expect(db.verno).toBe(17) // NeuronsDB latest chain (v16 migration still ran)
 
     // 3. Existing rows retained
     expect(await db.dmnCards.get('dmn-default-mode-awakening-p1')).toBeTruthy()
-    expect((await db.meta.get('maze:da:settles'))?.value).toBe('7')
+    expect((await db.meta.get('totalStudyMinutes'))?.value).toBe('7')
     expect(await db.neuronVariants.count()).toBe(1)
 
     // 4. New tables exist + start empty

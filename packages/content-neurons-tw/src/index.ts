@@ -70,7 +70,27 @@ export async function getContentPack(baseUrl = '/content/neurons-tw'): Promise<C
   }
 }
 
-export { FAMILY_NT_BRANCH, type NtBranchId } from './families'
+export {
+  FAMILY_NT_BRANCH,
+  FAMILY_IDS,
+  NT_BRANCHES,
+  FAMILIES_BY_BRANCH,
+  branchOfFamily,
+  type NtBranchId,
+} from './families'
+
+// Flat-grid maze faucet + pacing + synapse-bonus constants (single source of
+// truth — redesign-neurons-maze-rotjs-grid).
+export {
+  CORRECT_ANSWER_ENERGY,
+  READING_MINUTE_ENERGY,
+  PACING_BASE,
+  PACING_K,
+  SPEED_BUFF_PER_VARIANT,
+  SPEED_BUFF_CAP,
+  SYNAPSE_BONUS_PER,
+  SYNAPSE_BONUS_CAP,
+} from './maze-constants'
 
 export {
   NEURON_VARIANT_CATALOG,
@@ -80,8 +100,6 @@ export {
   P0_BASE_RATE,
   P0_PITY_START,
   P0_PITY_RAMP,
-  CORRECT_ANSWER_ENERGY,
-  READING_MINUTE_ENERGY,
   PULL_COST,
   PROMOTE_COST_K,
   MILESTONE_STREAK_THRESHOLD,
@@ -168,3 +186,5 @@ export {
   MIN_ITEMS_PER_TIER,
   type EquipmentValidationFailure,
 } from './equipment-validator'
+
+export { CIRCUIT_LOCATIONS, type CircuitLocation } from './circuit-locations'
