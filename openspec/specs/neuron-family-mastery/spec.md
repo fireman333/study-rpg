@@ -176,7 +176,7 @@ NOT apply any mastery energy multiplier.
 - **GIVEN** family `藥理學` has a mastery tier of P1 (multiplier 1.30)
 - **WHEN** the player answers a `藥理學` question correctly via `recordCorrectAnswer('藥理學')`
 - **THEN** the neural-energy award SHALL be `round(CORRECT_ANSWER_ENERGY × 1.30)`
-- **AND** the maze-signal accrual base for `藥理學`'s NT branch SHALL be multiplied by `1.30`
+- **AND** the maze-signal accrual base for `藥理學`'s family energy pool SHALL be multiplied by `1.30`
 
 #### Scenario: Unmastered correct answer is unaffected
 

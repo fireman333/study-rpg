@@ -6,7 +6,7 @@
  * Wire-up:
  *   - Each game-minute (60 accumulated seconds) → fires Promise.all of:
  *     (a) increment meta['totalStudyMinutes'] (synced via SYNCED_META_KEYS)
- *     (b) accrue maze per-branch energy (the reading energy faucet)
+ *     (b) accrue maze per-family energy (the reading energy faucet)
  *   NOTE: reading no longer grants DMN draws (add-neurons-expedition-rewards
  *   moved the DMN first axis to expedition clears). Reading still fuels maze
  *   energy + 累積閱讀.
