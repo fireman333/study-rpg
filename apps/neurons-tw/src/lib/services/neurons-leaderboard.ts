@@ -16,6 +16,7 @@ import { db, type LeaderboardProfileRow } from '../db'
 import { readTotalStudyMinutes } from './reading-timer'
 import {
   NEURONS_ACHIEVEMENTS,
+  FAMILY_IDS,
   tierRank,
   type NeuronsAchievement,
 } from '@study-rpg/content-neurons-tw'
@@ -98,18 +99,14 @@ export async function buildLeaderboardPayload(
   // inside readTotalStudyMinutes for undefined meta key).
   const total_study_min = await readTotalStudyMinutes()
 
-  // total_settles = cumulative maze settles across the four NT branches. These
-  // four keys are the same per-branch settle counters written by
-  // lib/maze/economy.ts (settlesKey = `maze:${branch.toLowerCase()}:settles`)
-  // and are members of SYNCED_META_KEYS, so the sum is cross-device-correct.
-  // Keys inlined (not imported from economy.ts) to keep zero blast radius into
-  // the maze module; read defensively so a missing key contributes 0.
-  const settlesKeys = [
-    'maze:da:settles',
-    'maze:5ht:settles',
-    'maze:gaba:settles',
-    'maze:glu:settles',
-  ]
+  // total_settles = cumulative maze settles across the 11 per-FAMILY pools
+  // (redesign-neurons-maze-rotjs-grid). These keys are the per-family settle
+  // counters written by lib/maze/economy.ts (settlesKey = `maze:${familyId}:settles`)
+  // and are members of SYNCED_META_KEYS, so the sum is cross-device-correct. Derived
+  // from FAMILY_IDS (not the maze module) to keep zero blast radius; read
+  // defensively so a missing key contributes 0. (The 4 retired branch settles keys
+  // are cleared by the v17 upgrade — summing them would regress this axis to 0.)
+  const settlesKeys = FAMILY_IDS.map((f) => `maze:${f}:settles`)
   const settlesRows = await Promise.all(settlesKeys.map((k) => db.meta.get(k)))
   const total_settles = settlesRows.reduce(
     (sum, row) => sum + (Number(row?.value ?? '0') || 0),

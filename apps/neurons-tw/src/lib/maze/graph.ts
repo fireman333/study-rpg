@@ -1,236 +1,264 @@
 /**
- * Brain-maze graph loader (multi-branch — expand-neurons-brain-maze-all-branches,
- * generalizes the DA-only add-neurons-brain-maze-slice).
+ * Flat-grid maze graph loader (redesign-neurons-maze-rotjs-grid).
  *
- * Parses the committed, build-time-generated per-branch graph JSONs (see
- * scripts/build-maze-graph.mjs) into typed structures. Runtime does ZERO
- * skeletonization / image analysis — it only consumes these JSONs (design D2).
+ * Replaces the four-NT-branch image-pipeline maze with ONE unified square weave
+ * grid. Parses the committed, build-time-generated `assets/maze/grid-graph.json`
+ * (see `scripts/build-grid-maze.mjs`) into typed structures. Runtime does ZERO
+ * generation / routing / skeletonization — it only consumes the JSON (spec
+ * "Runtime does not regenerate the grid").
  *
- * Per-branch by design (D9/D10): one graph JSON per NT branch. The four are
- * co-registered (normalized 0..1 over a common canvas) so the tract layers
- * overlay in register on the shared brain outline. DA's `da-graph.json` is
- * byte-stable across this expansion (its node positions never move).
+ * The 11 subject families each enter from a distinct border cell and wind inward
+ * to a shared center; their route crossings (weave over/under bridges) are the
+ * gameplay synapses. Each family's 10 variant-slot nodes sit at crossings on its
+ * route, in route order (entry-first). NT-branch data lives in the content pack
+ * now (`@study-rpg/content-neurons-tw`); the maze no longer groups families.
  */
-import { FAMILY_NT_BRANCH, type NtBranchId } from '@study-rpg/content-neurons-tw'
-import daGraphRaw from '../../assets/maze/da-graph.json'
-import fiveHtGraphRaw from '../../assets/maze/5ht-graph.json'
-import gabaGraphRaw from '../../assets/maze/gaba-graph.json'
-import gluGraphRaw from '../../assets/maze/glu-graph.json'
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
+import gridGraphRaw from '../../assets/maze/grid-graph.json'
 
-export type MazeNodeKind = 'endpoint' | 'branch' | 'mid'
+export type Cell = [number, number]
 
+/** A committed weave bridge: the `over` axis passes over the gapped `under` axis. */
+export interface WeaveBridge {
+  cell: Cell
+  over: 'H' | 'V'
+}
+
+/** A committed crossing-synapse: where two families' routes cross at a bridge. */
+export interface GridSynapse {
+  cell: Cell
+  families: [string, string]
+  /** familyId whose route passes over (H) / under (V) at this cell. */
+  over: string
+  under: string
+}
+
+/** A variant-slot node on a family's winding route (1 node = 1 variant slot). */
 export interface MazeNode {
   familyId: string
   slotIndex: number
-  kind: MazeNodeKind
-  /** Node position, normalized 0..1 over the base image. */
-  x: number
-  y: number
-  /** Walk polyline from the hub root to this node (normalized 0..1 points). */
-  path: [number, number][]
-  /** Cumulative arc-length at each polyline point (path[i] ↔ arc[i]). */
-  arc: number[]
-  /** Total walk length to this node (= arc[arc.length-1]). */
-  pathLen: number
+  cell: Cell
+  /** True iff the node sits at a route crossing (a synapse cell). */
+  synapse: boolean
+  /** Index of this node's cell along its family's `path` (monotonic, entry-first). */
+  pathIndex: number
+  /** Cumulative arc-length (in cells) from the border entry to this node. */
+  arc: number
 }
 
-export interface MazeGraph {
-  branch: string
-  /** Hub origin (per branch, e.g. VTA/SN for DA), normalized 0..1. */
-  root: [number, number]
-  slotCount: number
+/** One family's winding corridor + its nodes, parsed + arc-parameterized. */
+export interface FamilyGraph {
+  familyId: string
+  entryCell: Cell
+  /** Corridor centerline cells, border entry → center (the walker polyline). */
+  path: Cell[]
+  /** Cumulative arc-length at each path cell (`path[i] ↔ arc[i]`). */
+  arc: number[]
+  /** Total corridor length (= arc[arc.length-1]). */
+  pathLen: number
+  /** The family's 10 variant-slot nodes, in route order (entry-first). */
   nodes: MazeNode[]
 }
 
-/** The four NT branches, in canonical render/iteration order. */
-export const NT_BRANCHES: NtBranchId[] = ['DA', '5HT', 'GABA', 'Glu']
-
-/** Raw per-branch graphs as committed (each normalized 0..1 over its OWN source image). */
-const RAW_GRAPHS: Record<NtBranchId, MazeGraph> = {
-  DA: daGraphRaw as unknown as MazeGraph,
-  '5HT': fiveHtGraphRaw as unknown as MazeGraph,
-  GABA: gabaGraphRaw as unknown as MazeGraph,
-  Glu: gluGraphRaw as unknown as MazeGraph,
+interface RawGrid {
+  gridW: number
+  gridH: number
+  center: Cell
+  seed: number
+  weave: WeaveBridge[]
+  families: Record<string, { entryCell: Cell; path: Cell[]; nodeCells: { slotIndex: number; cell: Cell; t: number; synapse: boolean }[] }>
+  synapses: GridSynapse[]
 }
 
-// --- Canonical brain-frame normalization (co-registration; per codex consult A+) ---
-// The 4 source images each placed the brain differently, so each graph lives in its
-// own frame. We DON'T render the source images; we fit each graph's own point extent
-// into one canonical brain box (the playable interior of the shared outline) so all
-// four tract systems sit in a single coherent brain. DA stays identity (byte-stable).
+const RAW = gridGraphRaw as unknown as RawGrid
 
-/** Playable brain interior in normalized 0..1 viewBox space (the shared outline's brain). */
-const CANONICAL_BRAIN_BOX = { x: 0.2, y: 0.16, w: 0.62, h: 0.66 }
+export const GRID_W = RAW.gridW
+export const GRID_H = RAW.gridH
+export const GRID_CENTER: Cell = RAW.center
+export const WEAVE_BRIDGES: WeaveBridge[] = RAW.weave
+export const GRID_SYNAPSES: GridSynapse[] = RAW.synapses
 
-/**
- * Per-branch fit: DA = identity (byte-stable render); others placed in their
- * anatomically-correct territory (OE-grounded, sagittal brain — rostral=left,
- * dorsal=top, ventral-brainstem hub=center-low). Refs: Camí NEJM 2003
- * (10.1056/NEJMra023160), Yetnikoff Neuroscience 2014 (VTA), Ren eLife 2019 (raphe).
- *  - DA (VTA/SNc, ventral midbrain → striatum + frontal): identity = hub center-low,
- *    fans rostral/dorsal (up-left). Already correct.
- *  - 5HT (raphe, midline brainstem → diffuse rostral forebrain): low-center hub,
- *    spreads up; vertically compressed so it stays in the brain mass.
- *  - GABA (basal ganglia central + cerebellar Purkinje lower-right): center → caudal-ventral.
- *  - Glu (cortex, dorsal + widespread + thalamus): fills the upper cerebrum.
- */
-const BRANCH_FIT: Record<NtBranchId, { fit: boolean; dx: number; dy: number; sx: number; sy: number }> = {
-  DA: { fit: false, dx: 0, dy: 0, sx: 1, sy: 1 },
-  '5HT': { fit: true, dx: 0.02, dy: -0.03, sx: 0.95, sy: 0.82 },
-  GABA: { fit: true, dx: 0.1, dy: 0.05, sx: 0.86, sy: 0.86 },
-  Glu: { fit: true, dx: -0.02, dy: -0.08, sx: 1, sy: 0.82 },
-}
+const cellEq = (a: Cell, b: Cell): boolean => a[0] === b[0] && a[1] === b[1]
 
-/** Robust extent of all graph geometry (nodes + path points), 2nd–98th percentile per axis. */
-function robustExtent(graph: MazeGraph): { minX: number; minY: number; maxX: number; maxY: number } {
-  const xs: number[] = []
-  const ys: number[] = []
-  for (const n of graph.nodes) {
-    xs.push(n.x)
-    ys.push(n.y)
-    for (const [px, py] of n.path) {
-      xs.push(px)
-      ys.push(py)
-    }
+/** Arc-length-parameterize a cell polyline (euclidean step between consecutive cells). */
+function arcLengths(path: Cell[]): { arc: number[]; pathLen: number } {
+  const arc = [0]
+  for (let i = 1; i < path.length; i++) {
+    arc.push(arc[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]))
   }
-  xs.sort((a, b) => a - b)
-  ys.sort((a, b) => a - b)
-  const pct = (arr: number[], p: number) => arr[Math.min(arr.length - 1, Math.max(0, Math.floor(p * (arr.length - 1))))]
-  return { minX: pct(xs, 0.02), maxX: pct(xs, 0.98), minY: pct(ys, 0.02), maxY: pct(ys, 0.98) }
+  return { arc, pathLen: arc[arc.length - 1] || 0 }
 }
 
-/** Affine-fit a graph's own extent into CANONICAL_BRAIN_BOX (uniform scale, centered, + nudge). */
-function normalizeGraph(graph: MazeGraph, branch: NtBranchId): MazeGraph {
-  const cfg = BRANCH_FIT[branch]
-  if (!cfg.fit) return graph // DA identity — byte-stable
-  const ext = robustExtent(graph)
-  const ew = Math.max(1e-6, ext.maxX - ext.minX)
-  const eh = Math.max(1e-6, ext.maxY - ext.minY)
-  const box = CANONICAL_BRAIN_BOX
-  const scale = Math.min(box.w / ew, box.h / eh)
-  const sX = scale * cfg.sx
-  const sY = scale * cfg.sy
-  const offX = box.x + (box.w - ew * sX) / 2 + cfg.dx
-  const offY = box.y + (box.h - eh * sY) / 2 + cfg.dy
-  const tx = (x: number) => offX + (x - ext.minX) * sX
-  const ty = (y: number) => offY + (y - ext.minY) * sY
-  const nodes: MazeNode[] = graph.nodes.map((n) => {
-    const path = n.path.map(([px, py]) => [tx(px), ty(py)] as [number, number])
-    const arc = [0]
-    for (let i = 1; i < path.length; i++) arc.push(arc[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]))
-    return { ...n, x: tx(n.x), y: ty(n.y), path, arc, pathLen: arc[arc.length - 1] }
-  })
-  return { ...graph, root: [tx(graph.root[0]), ty(graph.root[1])], nodes }
+/** Parse one raw family entry into a FamilyGraph (arc-parameterized + node path-indices). */
+function parseFamily(familyId: string, raw: RawGrid['families'][string]): FamilyGraph {
+  const path = raw.path as Cell[]
+  const { arc, pathLen } = arcLengths(path)
+  // Assign each node its first path index at/after the previous node's index
+  // (monotonic — a winding path can revisit a cell; we want entry-first order).
+  let cursor = 0
+  const nodes: MazeNode[] = raw.nodeCells
+    .slice()
+    .sort((a, b) => a.slotIndex - b.slotIndex)
+    .map((nc) => {
+      let idx = -1
+      for (let i = cursor; i < path.length; i++) {
+        if (cellEq(path[i], nc.cell as Cell)) {
+          idx = i
+          break
+        }
+      }
+      if (idx < 0) idx = path.findIndex((c) => cellEq(c, nc.cell as Cell))
+      if (idx < 0) idx = Math.min(path.length - 1, cursor) // defensive: keep monotonic
+      cursor = idx
+      return {
+        familyId,
+        slotIndex: nc.slotIndex,
+        cell: nc.cell as Cell,
+        synapse: nc.synapse,
+        pathIndex: idx,
+        arc: arc[Math.min(idx, arc.length - 1)] ?? 0,
+      }
+    })
+  return { familyId, entryCell: raw.entryCell as Cell, path, arc, pathLen, nodes }
 }
 
-/** Per-branch graph, co-registered into one canonical brain frame (DA identity). */
-export const MAZE_GRAPHS: Record<NtBranchId, MazeGraph> = Object.fromEntries(
-  NT_BRANCHES.map((b) => [b, normalizeGraph(RAW_GRAPHS[b], b)]),
-) as Record<NtBranchId, MazeGraph>
-
-/** Families belonging to each branch, derived from the single-source mapping. */
-export const FAMILIES_BY_BRANCH: Record<NtBranchId, string[]> = (() => {
-  const out = { DA: [], '5HT': [], GABA: [], Glu: [] } as Record<NtBranchId, string[]>
-  for (const [fam, branch] of Object.entries(FAMILY_NT_BRANCH)) out[branch].push(fam)
+/** All 11 family graphs, keyed by familyId. */
+export const FAMILY_GRAPHS: Record<string, FamilyGraph> = (() => {
+  const out: Record<string, FamilyGraph> = {}
+  for (const fam of FAMILY_IDS) {
+    const raw = RAW.families[fam]
+    if (raw) out[fam] = parseFamily(fam, raw)
+  }
   return out
 })()
-
-/** The NT branch a family belongs to (or undefined if unmapped). */
-export const branchOfFamily = (familyId: string): NtBranchId | undefined => FAMILY_NT_BRANCH[familyId]
 
 /** Stable key for a (family, slot) pair — matches the variant collection key. */
 export const nodeKey = (familyId: string, slotIndex: number): string => `${familyId}:${slotIndex}`
 
-/** A node is lit iff its variant slot is collected (derived; see design D5/migration). */
-export const isNodeLit = (node: MazeNode, collected: ReadonlySet<string>): boolean =>
-  collected.has(nodeKey(node.familyId, node.slotIndex))
+/** A family's node count (= its variant-slot count). */
+export const familyNodeCount = (familyId: string): number => FAMILY_GRAPHS[familyId]?.nodes.length ?? 0
 
-/** Fogged (uncollected) nodes of a branch, ordered closest-to-hub first so exploration radiates outward. */
-export function foggedNodes(branch: NtBranchId, collected: ReadonlySet<string>): MazeNode[] {
-  return MAZE_GRAPHS[branch].nodes
-    .filter((n) => !isNodeLit(n, collected))
-    .sort((a, b) => a.pathLen - b.pathLen)
+// --- Frontier-order helpers (route order, entry-first) ---
+// Lit state is FRONTIER-derived (cumulative settle count), NOT collected-derived:
+// settle pulls are random, so the variant collected at a settle is not necessarily
+// the lit node's own slot. Nodes light in route order (along the winding corridor).
+
+/** A family's nodes in route order (entry-first). */
+export function nodesInRouteOrder(familyId: string): MazeNode[] {
+  return FAMILY_GRAPHS[familyId]?.nodes ?? []
 }
 
-/** The next node a branch's walker heads toward (nearest fogged to the hub), or null when all lit. */
-export const nextTarget = (branch: NtBranchId, collected: ReadonlySet<string>): MazeNode | null =>
-  foggedNodes(branch, collected)[0] ?? null
-
-// --- Frontier-order helpers (promote-maze-to-home / Model A) ---
-// Lit state is FRONTIER-derived (cumulative settle count), NOT collected-derived,
-// because settle pulls are random (the variant collected at a settle is not
-// necessarily the lit node's own slot). Nodes light in hub-distance order.
-
-/** All of a branch's nodes ordered closest-to-hub first (stable frontier order). */
-export function nodesByPathLen(branch: NtBranchId): MazeNode[] {
-  return [...MAZE_GRAPHS[branch].nodes].sort((a, b) => a.pathLen - b.pathLen)
+/** The lit nodes of a family = the first `min(settles, nodeCount)` in route order. */
+export function litNodes(familyId: string, settles: number): MazeNode[] {
+  const nodes = nodesInRouteOrder(familyId)
+  const n = Math.min(Math.max(0, Math.floor(settles)), nodes.length)
+  return nodes.slice(0, n)
 }
 
-/** The lit nodes of a branch = the first `min(settles, nodeCount)` in frontier order. */
-export function litNodes(branch: NtBranchId, settles: number): MazeNode[] {
-  const n = Math.min(Math.max(0, Math.floor(settles)), MAZE_GRAPHS[branch].nodes.length)
-  return nodesByPathLen(branch).slice(0, n)
-}
-
-/** The node lit by settle index `settles` (the walker's current target), or null in 二週目 (all lit). */
-export function frontierNode(branch: NtBranchId, settles: number): MazeNode | null {
-  const nodes = nodesByPathLen(branch)
+/** The node lit by settle index `settles` (the walker's current target), or null in 二週目. */
+export function frontierNode(familyId: string, settles: number): MazeNode | null {
+  const nodes = nodesInRouteOrder(familyId)
   const i = Math.max(0, Math.floor(settles))
   return i < nodes.length ? nodes[i] : null
 }
 
-// --- First-pull starter-lit (add-neurons-first-pull) ---
-// The one-time first-pull lights the rolled family's REPRESENTATIVE node at
-// settles=0 (a 收藏→亮節點 exception to the pure-frontier model). The lit set
-// becomes frontier ∪ { starter rep }, deduped by node identity.
-
-/**
- * The representative node of a family within a branch = its hub-nearest node
- * (smallest `pathLen`), tie-broken by `slotIndex` then node key for determinism.
- * Returns null if the family has no node in the branch (defensive — shouldn't happen).
- */
-export function representativeNode(branch: NtBranchId, familyId: string): MazeNode | null {
-  const nodes = MAZE_GRAPHS[branch].nodes.filter((n) => n.familyId === familyId)
-  if (nodes.length === 0) return null
-  return [...nodes].sort(
-    (a, b) =>
-      a.pathLen - b.pathLen ||
-      a.slotIndex - b.slotIndex ||
-      nodeKey(a.familyId, a.slotIndex).localeCompare(nodeKey(b.familyId, b.slotIndex)),
-  )[0]
+/** A family's representative (border-nearest) node = its first route node (slot 0). */
+export function representativeNode(familyId: string): MazeNode | null {
+  return nodesInRouteOrder(familyId)[0] ?? null
 }
 
 /**
- * Lit nodes of a branch including the first-pull starter node:
- * `frontier(settles) ∪ { representativeNode(branch, starterFamily) }`, deduped by
- * node identity. With `starterFamily = null` this degrades to pure `litNodes`
- * (current behavior, byte-identical to the frontier-only model).
+ * Lit nodes of a family including the first-pull starter node. `frontier(settles)`
+ * UNIONed with this family's representative node when the family is named in the
+ * legacy first-pull starter keys (`starterFamilies` = the SET of familyIds those
+ * keys point to). Deduped by node identity. first-pull is unchanged by this
+ * redesign — the maze just reads the key VALUES to light starter reps.
  */
 export function litNodesWithStarter(
-  branch: NtBranchId,
+  familyId: string,
   settles: number,
-  starterFamily: string | null,
+  starterFamilies: ReadonlySet<string>,
 ): MazeNode[] {
-  const frontier = litNodes(branch, settles)
-  if (!starterFamily) return frontier
-  const rep = representativeNode(branch, starterFamily)
+  const frontier = litNodes(familyId, settles)
+  if (!starterFamilies.has(familyId)) return frontier
+  const rep = representativeNode(familyId)
   if (!rep) return frontier
-  const repKey = nodeKey(rep.familyId, rep.slotIndex)
-  if (frontier.some((n) => nodeKey(n.familyId, n.slotIndex) === repKey)) return frontier
+  if (frontier.some((n) => n.slotIndex === rep.slotIndex)) return frontier
   return [...frontier, rep]
 }
 
-/** Linear-interpolate a point at arc-length fraction `t` (0..1) along a node's walk path. */
-export function pointAtFraction(node: MazeNode, t: number): [number, number] {
-  const { path, arc, pathLen } = node
-  if (path.length === 1 || pathLen <= 0) return path[0]
-  const target = Math.max(0, Math.min(1, t)) * pathLen
-  for (let i = 1; i < path.length; i++) {
-    if (arc[i] >= target) {
-      const seg = arc[i] - arc[i - 1] || 1
-      const f = (target - arc[i - 1]) / seg
-      return [path[i - 1][0] + (path[i][0] - path[i - 1][0]) * f, path[i - 1][1] + (path[i][1] - path[i - 1][1]) * f]
+/** Linear-interpolate a point at arc-length `targetArc` along a family's corridor. */
+export function pointAtArc(familyId: string, targetArc: number): Cell {
+  const g = FAMILY_GRAPHS[familyId]
+  if (!g || g.path.length === 0) return GRID_CENTER
+  if (g.path.length === 1 || g.pathLen <= 0) return g.path[0]
+  const t = Math.max(0, Math.min(g.pathLen, targetArc))
+  for (let i = 1; i < g.path.length; i++) {
+    if (g.arc[i] >= t) {
+      const seg = g.arc[i] - g.arc[i - 1] || 1
+      const f = (t - g.arc[i - 1]) / seg
+      return [
+        g.path[i - 1][0] + (g.path[i][0] - g.path[i - 1][0]) * f,
+        g.path[i - 1][1] + (g.path[i][1] - g.path[i - 1][1]) * f,
+      ]
     }
   }
-  return path[path.length - 1]
+  return g.path[g.path.length - 1]
+}
+
+/**
+ * Walker position (a grid cell coord) for a family at `settles` with partial
+ * progress `frac` (0..1) toward the next node. Tweens along the corridor
+ * centerline by arc-length from the last lit node to the frontier target (= the
+ * action-potential propagating inward). In 二週目 (all nodes lit) it rests at center.
+ */
+export function walkerCell(familyId: string, settles: number, frac: number): Cell {
+  const g = FAMILY_GRAPHS[familyId]
+  if (!g) return GRID_CENTER
+  const target = frontierNode(familyId, settles)
+  if (!target) return pointAtArc(familyId, g.pathLen) // 二週目 → at center
+  const lastArc = settles > 0 ? nodesInRouteOrder(familyId)[settles - 1]?.arc ?? 0 : 0
+  const span = target.arc - lastArc
+  return pointAtArc(familyId, lastArc + span * Math.max(0, Math.min(1, frac)))
+}
+
+// --- Synapse crossing lookup (for the render overlay; design D6) ---
+
+const sortedPairKey = (a: string, b: string): string => (a < b ? `${a}|${b}` : `${b}|${a}`)
+
+/** Map a family pair (order-independent) → the committed crossing cell, if any. */
+const SYNAPSE_CELL_BY_PAIR: Map<string, Cell> = (() => {
+  const out = new Map<string, Cell>()
+  for (const s of GRID_SYNAPSES) {
+    const k = sortedPairKey(s.families[0], s.families[1])
+    if (!out.has(k)) out.set(k, s.cell)
+  }
+  return out
+})()
+
+/** Mean node cell of a family (fallback synapse-overlay anchor for crossing-less pairs). */
+const FAMILY_CENTROID: Map<string, Cell> = (() => {
+  const out = new Map<string, Cell>()
+  for (const fam of FAMILY_IDS) {
+    const nodes = nodesInRouteOrder(fam)
+    if (nodes.length === 0) continue
+    const sx = nodes.reduce((s, n) => s + n.cell[0], 0) / nodes.length
+    const sy = nodes.reduce((s, n) => s + n.cell[1], 0) / nodes.length
+    out.set(fam, [sx, sy])
+  }
+  return out
+})()
+
+/**
+ * The on-grid cell to draw a synapse between families A and B: the committed
+ * crossing cell when their routes cross, else the midpoint of their centroids
+ * (spec D6 fallback). Returns null only if a family has no nodes.
+ */
+export function synapseCell(famA: string, famB: string): Cell | null {
+  const committed = SYNAPSE_CELL_BY_PAIR.get(sortedPairKey(famA, famB))
+  if (committed) return committed
+  const a = FAMILY_CENTROID.get(famA)
+  const b = FAMILY_CENTROID.get(famB)
+  if (!a || !b) return null
+  return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
 }

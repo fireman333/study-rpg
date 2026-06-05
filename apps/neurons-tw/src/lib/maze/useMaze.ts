@@ -1,35 +1,29 @@
 /**
- * useMaze — reactive state for the maze exploration view, multi-branch
- * (promote-maze-to-home / Model A; generalizes the earlier signal model).
+ * useMaze — reactive state for the flat-grid maze (redesign-neurons-maze-rotjs-grid).
  *
- * Builds a per-branch view state for all four NT regions from live sources:
- *   - per-branch energy state (Dexie liveQuery on meta) → frontier progress + lit nodes
+ * Builds a per-FAMILY view state for all 11 subject families from live sources:
+ *   - per-family energy state (Dexie liveQuery on meta) → frontier progress + lit nodes
  *   - collected variants (Dexie liveQuery) → walker sprite + team-speed buff
- *   - reconcileSettles (per branch) → consumes energy + triggers a random pull
- *     when accrued energy crosses the next settle's cost threshold
+ *   - reconcileSettles (per family) → consumes energy + triggers a random pull when
+ *     accrued energy crosses the next settle's cost threshold
  *
- * Lit-node state is FRONTIER-derived (cumulative settle count), NOT collected-
- * derived — settle pulls are random so the variant collected at a settle is not
- * necessarily the lit node's own slot. Existing players keep their stored
- * `settles`; collection is preserved separately. Settles run here (UI hook) so
- * they use the content pack for display-name resolution and the existing
- * VariantUnlockModal animates each reveal. ALL branches reconcile regardless of
- * filter-chip visibility (visibility is display-only).
+ * Lit-node state is FRONTIER-derived (cumulative settle count) UNIONed with the
+ * first-pull starter-lit nodes — NOT collected-derived (settle pulls are random).
+ * The page owns the SINGLE useMaze(pack) subscription (calling it twice would
+ * double-fire reconcileSettles → double pulls; promote-maze-to-home lesson).
  */
 import { useEffect, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
-import type { NtBranchId } from '@study-rpg/content-neurons-tw'
+import { FAMILY_IDS, NT_BRANCHES } from '@study-rpg/content-neurons-tw'
 import { db, type NeuronVariantRow, type VariantRarity } from '../db'
 import {
-  FAMILIES_BY_BRANCH,
-  MAZE_GRAPHS,
-  NT_BRANCHES,
+  FAMILY_GRAPHS,
   frontierNode,
   litNodesWithStarter,
-  nodeKey,
-  pointAtFraction,
-  type MazeGraph,
+  walkerCell,
+  type Cell,
+  type FamilyGraph,
   type MazeNode,
 } from './graph'
 import {
@@ -53,40 +47,40 @@ export function pickWalkerVariant(rows: NeuronVariantRow[]): NeuronVariantRow | 
   )[0]
 }
 
-export interface BranchViewState {
-  branch: NtBranchId
-  graph: MazeGraph
-  /** Number of lit (frontier-reached) nodes in this branch (capped at node count). */
+export interface FamilyViewState {
+  familyId: string
+  graph: FamilyGraph
+  /** Number of lit (frontier ∪ starter) nodes in this family (capped at node count). */
   connectedCount: number
-  /** Collected `family:slot` keys (drives nothing visual now; kept for callers/tests). */
+  /** Collected `family:slot` keys (kept for callers/tests; not the lit source). */
   collectedKeys: Set<string>
   litNodes: MazeNode[]
   /** Current frontier target (node being lit next), or null in 二週目 (all lit). */
   target: MazeNode | null
-  /** Walker position (normalized 0..1), interpolated along the target's path. */
-  walkerPos: [number, number]
-  /** Walker sprite source: rarest collected variant in branch, or null → growth-cone fallback. */
+  /** Walker position in grid-cell coords, interpolated along the corridor centerline. */
+  walkerCell: Cell
+  /** Walker sprite source: rarest collected variant in family, or null → growth-cone fallback. */
   walkerVariant: NeuronVariantRow | null
   speedMultiplier: number
   energy: MazeEnergyState
 }
 
 export interface MazeViewState {
-  branches: BranchViewState[]
-  /** Total lit nodes across all branches — the chip count (no denominator). */
+  families: FamilyViewState[]
+  /** Total lit nodes across all families — the chip count (no denominator). */
   totalConnectedCount: number
 }
 
-function emptyBranchState(branch: NtBranchId): BranchViewState {
-  const graph = MAZE_GRAPHS[branch]
+function emptyFamilyState(familyId: string): FamilyViewState {
+  const graph = FAMILY_GRAPHS[familyId]
   return {
-    branch,
+    familyId,
     graph,
     connectedCount: 0,
     collectedKeys: new Set(),
     litNodes: [],
-    target: null,
-    walkerPos: graph.root,
+    target: graph ? graph.nodes[0] ?? null : null,
+    walkerCell: graph?.entryCell ?? [0, 0],
     walkerVariant: null,
     speedMultiplier: 1,
     energy: { earned: 0, settles: 0 },
@@ -94,41 +88,46 @@ function emptyBranchState(branch: NtBranchId): BranchViewState {
 }
 
 const INITIAL: MazeViewState = {
-  branches: NT_BRANCHES.map(emptyBranchState),
+  families: FAMILY_IDS.filter((f) => FAMILY_GRAPHS[f]).map(emptyFamilyState),
   totalConnectedCount: 0,
+}
+
+/** Read the ≤4 first-pull starter families (legacy per-branch key VALUES) as a set. */
+async function readStarterFamilies(): Promise<Set<string>> {
+  const vals = await Promise.all(NT_BRANCHES.map((b) => readStarterFamily(b)))
+  return new Set(vals.filter((v): v is string => !!v))
 }
 
 export function useMaze(pack: ContentPack): MazeViewState {
   const [view, setView] = useState<MazeViewState>(INITIAL)
   const reconciling = useRef(false)
+  const families = INITIAL.families.map((f) => f.familyId)
 
   useEffect(() => {
     const resolveName = (id: string) => pack.subjects.find((s) => s.id === id)?.displayName ?? id
 
     const recompute = async () => {
       const allRows = await db.neuronVariants.toArray()
-      const branchStates: BranchViewState[] = []
+      const starterFamilies = await readStarterFamilies()
+      const famStates: FamilyViewState[] = []
       let dueAny = false
-      for (const branch of NT_BRANCHES) {
-        const fams = FAMILIES_BY_BRANCH[branch]
-        const rows = allRows.filter((v) => fams.includes(v.familyId))
-        const collectedKeys = new Set(rows.map((v) => nodeKey(v.familyId, v.slotIndex)))
-        const energy = await readMazeEnergyState(branch)
-        const starterFamily = await readStarterFamily(branch)
-        const graph = MAZE_GRAPHS[branch]
-        // Lit = frontier(settles) ∪ first-pull starter node (add-neurons-first-pull).
-        const lit = litNodesWithStarter(branch, energy.settles, starterFamily)
-        const target = frontierNode(branch, energy.settles)
-        const frac = walkerFraction(energy)
-        const walkerPos: [number, number] = target ? pointAtFraction(target, frac) : graph.root
-        branchStates.push({
-          branch,
+      for (const familyId of families) {
+        const graph = FAMILY_GRAPHS[familyId]
+        if (!graph) continue
+        const rows = allRows.filter((v) => v.familyId === familyId)
+        const collectedKeys = new Set(rows.map((v) => `${v.familyId}:${v.slotIndex}`))
+        const energy = await readMazeEnergyState(familyId)
+        const lit = litNodesWithStarter(familyId, energy.settles, starterFamilies)
+        const target = frontierNode(familyId, energy.settles)
+        const wc = walkerCell(familyId, energy.settles, walkerFraction(energy))
+        famStates.push({
+          familyId,
           graph,
           connectedCount: lit.length,
           collectedKeys,
           litNodes: lit,
           target,
-          walkerPos,
+          walkerCell: wc,
           walkerVariant: pickWalkerVariant(rows),
           speedMultiplier: mazeSpeedMultiplier(rows.length),
           energy,
@@ -136,30 +135,28 @@ export function useMaze(pack: ContentPack): MazeViewState {
         if (affordableSettles(energy.earned) > energy.settles) dueAny = true
       }
       setView({
-        branches: branchStates,
-        totalConnectedCount: branchStates.reduce((s, b) => s + b.connectedCount, 0),
+        families: famStates,
+        totalConnectedCount: famStates.reduce((s, f) => s + f.connectedCount, 0),
       })
 
-      // Reconcile due settles for ALL branches (idempotent, guarded against
-      // re-entrancy). Hidden branches still settle — visibility is display-only.
-      // Each settle consumes energy + triggers a random pull → writes
-      // neuronVariants + a settles meta key → liveQuery re-fires → converges.
+      // Reconcile due settles for ALL families (idempotent, guarded against
+      // re-entrancy). Each settle consumes energy + triggers a random pull →
+      // writes neuronVariants + a settles meta key → liveQuery re-fires → converges.
       if (dueAny && !reconciling.current) {
         reconciling.current = true
         try {
-          for (const branch of NT_BRANCHES) await reconcileSettles(branch, resolveName)
+          for (const familyId of families) await reconcileSettles(familyId, resolveName)
         } finally {
           reconciling.current = false
         }
       }
     }
 
-    // Re-run whenever collected variants OR any branch's maze energy meta keys
-    // change. readMazeEnergyState issues the db.meta.get reads liveQuery tracks.
+    // Re-run whenever collected variants OR any family's maze energy meta keys OR
+    // the first-pull starter keys change.
     const sub = liveQuery(async () => {
       const rows = await db.neuronVariants.toArray()
-      const states = await Promise.all(NT_BRANCHES.map((b) => readMazeEnergyState(b)))
-      // Track starter-family keys too so the first-pull write re-fires recompute.
+      const states = await Promise.all(families.map((f) => readMazeEnergyState(f)))
       const starters = await Promise.all(NT_BRANCHES.map((b) => readStarterFamily(b)))
       return {
         n: rows.length,
@@ -172,6 +169,7 @@ export function useMaze(pack: ContentPack): MazeViewState {
     })
     void recompute()
     return () => sub.unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack])
 
   return view

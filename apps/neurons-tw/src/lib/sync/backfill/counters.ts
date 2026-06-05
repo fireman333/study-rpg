@@ -7,6 +7,7 @@
 // disk if `local` was missing — this pass enforces the max-merge invariant.
 
 import type { NeuronsDB } from '../../db'
+import { PER_FAMILY_MAZE_KEYS } from '../tables'
 
 /**
  * Meta keys treated as monotonic (max-merge) counters across devices.
@@ -20,17 +21,11 @@ const MAX_MERGE_KEYS: ReadonlyArray<string> = [
   // (manual pull removed); kept for reader tolerance / rollback safety.
   'neuralEnergyEarned',
   'neuralEnergySpent',
-  // Maze per-branch energy economy (promote-maze-to-home / Model A). Per-branch
-  // monotonic earned (faucet) + settles (pull count). MAX-merge converges
-  // cross-device (both only ever increase).
-  'maze:da:earned',
-  'maze:5ht:earned',
-  'maze:gaba:earned',
-  'maze:glu:earned',
-  'maze:da:settles',
-  'maze:5ht:settles',
-  'maze:gaba:settles',
-  'maze:glu:settles',
+  // Maze per-FAMILY energy economy (redesign-neurons-maze-rotjs-grid). 11 families
+  // × { earned faucet, settles pull-count } = 22 monotonic counters; MAX-merge
+  // converges cross-device (both only ever increase). Replaces the 8 retired
+  // four-branch keys. Single source = PER_FAMILY_MAZE_KEYS.
+  ...PER_FAMILY_MAZE_KEYS,
 ]
 
 /**

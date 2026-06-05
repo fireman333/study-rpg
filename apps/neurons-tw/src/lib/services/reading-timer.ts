@@ -21,7 +21,7 @@
  */
 
 import { db } from '../db'
-import { accrueReadingEnergyAllBranches, READING_ENERGY } from '../maze/economy'
+import { accrueReadingEnergyActiveFamilies, READING_MINUTE_ENERGY } from '../maze/economy'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
 export type ReadingTimerPauseReason = 'manual' | 'visibility' | 'idle' | null
@@ -79,11 +79,12 @@ async function fireMinuteSideEffects(): Promise<void> {
   try {
     await Promise.all([
       incrementTotalStudyMinutes(),
-      // Maze per-branch energy faucet (promote-maze-to-home / Model A): reading
-      // has no subject/NT context → split the per-minute energy evenly across all
-      // 4 branch pools. This is the ONLY energy faucet for reading now (the former
-      // global pull-currency faucet is retired with the manual pull).
-      accrueReadingEnergyAllBranches(READING_ENERGY),
+      // Maze per-FAMILY energy faucet (redesign-neurons-maze-rotjs-grid): reading
+      // has no subject context → split the per-minute energy evenly across the
+      // families the player has begun collecting (fallback all 11). This is the
+      // ONLY energy faucet for reading (the former global pull-currency faucet is
+      // retired with the manual pull).
+      accrueReadingEnergyActiveFamilies(READING_MINUTE_ENERGY),
     ])
     console.info('[reading-timer] +1 minute accrued')
   } catch (err) {

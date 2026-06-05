@@ -6,7 +6,7 @@ import LeaderboardPromoBanner from '../components/LeaderboardPromoBanner'
 import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncementBanner'
 import { QuizModal } from '../components/QuizModal'
 import { FamilyPicker, type FamilyAccrual } from '../components/FamilyPicker'
-import MazeBrainMap from '../components/maze/MazeBrainMap'
+import MazeGrid from '../components/maze/MazeGrid'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
 import { FirstPullButton, FirstPullModal } from '../components/FirstPull'
@@ -55,7 +55,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const timer = useReadingTimer()
 
   // Single useMaze subscription for the homepage (it runs reconcileSettles →
-  // pulls; mounting it twice would double-fire). MazeBrainMap is presentational
+  // pulls; mounting it twice would double-fire). MazeGrid is presentational
   // and consumes this view.
   const mazeView = useMaze(pack)
 
@@ -281,9 +281,10 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         <YearFilterBar />
       </section>
 
-      {/* ── The maze brain-map IS the homepage centerpiece (promote-maze-to-home).
-            Fixed-height contained panel; the connectome tree no longer mounts here. ── */}
-      <MazeBrainMap view={mazeView} />
+      {/* ── The flat-grid maze IS the homepage centerpiece (redesign-neurons-maze-
+            rotjs-grid). One square weave grid, 11 per-family routes border→center;
+            zoomable brain-pixel tilemap; the connectome tree no longer mounts here. ── */}
+      <MazeGrid view={mazeView} />
 
       {/* ── Study squad: party + assembly editor (出征 itself now lives in the CTA
             toolbar above). Sits below the maze as a deploy-from-the-map surface. ── */}

@@ -109,11 +109,22 @@
 //        client reading a v16 bundle drops the new keys; a v16 client reading a
 //        v15 bundle (no inventory/equipment keys) preserves local (empty → stays
 //        empty; non-empty not wiped on omission).
+//   v17 — redesign-neurons-maze-rotjs-grid 2026-06-05: the maze economy goes from
+//        4 per-branch pools to 11 per-FAMILY pools. The 8 `maze:{da,5ht,gaba,glu}:
+//        {earned,settles}` keys are dropped from the allowlist; 22 per-family
+//        `maze:<familyId>:{earned,settles}` keys are added (all MONOTONIC, MAX-merge
+//        post-pass). The 4 `maze:<branch>:starterFamily` first-pull keys STAY. NO
+//        new adapter / Dexie store (maze rides `meta` kv); Dexie bumps v16 → v17
+//        (upgrade clears the retired branch economy keys, preserves starterFamily +
+//        collection). Additive + reader-tolerant: a v16 client reading a v17 bundle
+//        drops the unknown 11-family keys; a v17 client reading a v16 bundle finds
+//        no 11-family keys → fresh per-family frontier (the dropped branch keys are
+//        ignored — not in the allowlist). Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 16
+export const SCHEMA_VERSION = 17
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

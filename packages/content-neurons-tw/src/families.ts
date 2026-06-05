@@ -31,3 +31,46 @@ export const FAMILY_NT_BRANCH: Record<string, NtBranchId> = {
   胚胎學: 'Glu',
   微生物學: 'Glu',
 }
+
+/**
+ * The 11 neuron families (= 11 exam subjects), in canonical order. Single source
+ * of truth for the grid maze's per-family entries + per-family energy pools
+ * (redesign-neurons-maze-rotjs-grid). Order matches `scripts/build-grid-maze.mjs`
+ * FAMILIES (the border-entry angle order) + the committed `grid-graph.json`.
+ *
+ * The maze is now flat — the player sees no neurotransmitter grouping. The
+ * NT-branch data below survives ONLY as internal data for `neurons-character-card`
+ * + `neurons-variant-context-art` (NOT the maze).
+ */
+export const FAMILY_IDS: string[] = [
+  '藥理學',
+  '公共衛生學',
+  '寄生蟲學',
+  '組織學',
+  '生物化學',
+  '病理學',
+  '免疫學',
+  '解剖學',
+  '生理學',
+  '胚胎學',
+  '微生物學',
+]
+
+/**
+ * The four NT branches in canonical iteration order. Relocated here from
+ * `apps/neurons-tw/src/lib/maze/graph.ts` (redesign-neurons-maze-rotjs-grid)
+ * so the rewritten flat-grid maze module no longer owns NT-branch data; the
+ * only remaining app consumer is first-pull (its legacy per-branch starter keys).
+ */
+export const NT_BRANCHES: NtBranchId[] = ['DA', '5HT', 'GABA', 'Glu']
+
+/** Families belonging to each branch, derived from the single-source mapping. */
+export const FAMILIES_BY_BRANCH: Record<NtBranchId, string[]> = (() => {
+  const out = { DA: [], '5HT': [], GABA: [], Glu: [] } as Record<NtBranchId, string[]>
+  for (const [fam, branch] of Object.entries(FAMILY_NT_BRANCH)) out[branch].push(fam)
+  return out
+})()
+
+/** The NT branch a family belongs to (or undefined if unmapped). */
+export const branchOfFamily = (familyId: string): NtBranchId | undefined =>
+  FAMILY_NT_BRANCH[familyId]

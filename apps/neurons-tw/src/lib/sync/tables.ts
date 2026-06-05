@@ -7,7 +7,20 @@
 // mirrors Supabase upsert_lww shape), neurons-tw uses direct Dexie row shapes
 // in the bundle. Simpler — neurons-tw never had a Supabase data path.
 
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import type { NeuronsDB, QuestionHistoryRow } from '../db'
+
+/**
+ * Per-family maze economy keys (redesign-neurons-maze-rotjs-grid) — 11 families ×
+ * { earned, settles } = 22 MONOTONIC counters (MAX-merge post-pass in
+ * backfill/counters.ts converges them cross-device). Replaces the 8 retired
+ * four-branch keys. Derived from FAMILY_IDS so the maze module + sync allowlist +
+ * counter post-pass never drift.
+ */
+export const PER_FAMILY_MAZE_KEYS: string[] = FAMILY_IDS.flatMap((f) => [
+  `maze:${f}:earned`,
+  `maze:${f}:settles`,
+])
 
 /** Result of applying a single incoming row. */
 export type ApplyOutcome = 'wrote' | 'skipped' | 'merged'
@@ -363,18 +376,13 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   // kept here present-but-unused for reader tolerance / rollback safety.
   'neuralEnergyEarned',
   'neuralEnergySpent',
-  // Maze per-branch energy economy (promote-maze-to-home / Model A). Per-branch
-  // MONOTONIC counters (earned faucet + settle/pull count); MAX-merge post-pass
-  // in backfill/counters.ts converges them cross-device. Listed here so they
-  // ride the bundle meta snapshot/apply.
-  'maze:da:earned',
-  'maze:5ht:earned',
-  'maze:gaba:earned',
-  'maze:glu:earned',
-  'maze:da:settles',
-  'maze:5ht:settles',
-  'maze:gaba:settles',
-  'maze:glu:settles',
+  // Maze per-FAMILY energy economy (redesign-neurons-maze-rotjs-grid). 11 families
+  // × { earned faucet, settle/pull count } = 22 MONOTONIC counters; MAX-merge
+  // post-pass in backfill/counters.ts converges them cross-device. Spread from
+  // PER_FAMILY_MAZE_KEYS (single source). The 8 retired four-branch keys
+  // (`maze:{da,5ht,gaba,glu}:{earned,settles}`) are dropped here — the v17 upgrade
+  // clears them locally; a stray incoming key is simply not in this allowlist.
+  ...PER_FAMILY_MAZE_KEYS,
   // First-pull (add-neurons-first-pull). `firstPullDone` is a once-only flag —
   // MONOTONIC-OR: the metaAdapter is write-if-missing and we NEVER write 'false',
   // so it converges to true everywhere (mirrors everWrong / dmnEventLog

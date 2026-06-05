@@ -1,9 +1,98 @@
-# neurons-brain-maze Specification
+# neurons-brain-maze (delta — redesign-neurons-maze-rotjs-grid)
 
-## Purpose
+Redesigns the maze from a four-NT-branch, brain-shaped, image-pipeline model into ONE unified **square, zoomable, complex** grid maze (rot.js headless, or a forked open-source layout) where the 11 subject families enter from the **border** and explore inward to a shared **center** (mandatory convergence), crossing at intersection cells = synapses. 11 per-family energy pools replace the 4 per-branch pools. The synapse network becomes load-bearing (capped LTP cross-family bonus; no LTD). The camera is activity-contextual (quiz → zoom to the answered family's walker; reading → whole-map ambient). Movement is smooth corridor walk (action-potential); saltatory cell-jump is parked as a future item. first-pull is untouched (the maze reads its legacy per-branch starter keys to light starter nodes). Neuro metaphors are OpenEvidence-grounded.
 
-A fog-of-war exploration view over a four-region brain map that is the `apps/neurons-tw` homepage (`/`; the prior `/maze-beta` route redirects here). Studying a subject and reading accrue per-NT-branch **neural energy** that is BOTH the exploration fuel AND the pull cost: as a branch's accrued energy crosses each settle's front-loaded ramped cost `cost(N)`, the growth cone advances along its white-matter tracts and the settle consumes `cost(N)` energy + triggers exactly one random `pullVariant` for the reached node's family (二週目: the branch's least-collected family) — the maze node settle is the ONLY pull path (no manual pull). The base-map fiber graph is produced by a build-time pipeline (image → HSV mask → Zhang-Suen skeleton → hub-rooted Dijkstra walk paths → RDP → committed graph JSON; zero runtime recomputation). Display obeys the open-collection paradigm: fog of war (no pre-revealed shape / rarity), pure-count chip 「🧠 已連線 X 個腦區」 (no denominator), no completion milestone. Lit-node state is derived from the per-branch frontier (cumulative settle count), NOT from collected variants (settle pulls are random). The connectome synapse network is rendered as a read-only overlay on the brain map. Designed per-branch (DA / 5HT / GABA / Glu).
-## Requirements
+## ADDED Requirements
+
+### Requirement: Maze SHALL be one large square zoomable structural-weave grid
+
+The maze SHALL be a single unified **square** grid map shared by all 11 subject families — NOT four neurotransmitter regions, NOT a brain-shaped silhouette, NOT 11 separate sub-mazes. The grid SHALL be large (e.g. 99×99) and densely **weave** — hundreds of **over/under bridge** cells where one corridor passes over another without joining — and SHALL support pan/zoom (the renderer zooms so detail stays legible). Each family SHALL enter from a distinct **border** cell and route **toward the shared center** along a **winding (non-shortest) corridor** that interweaves with the other families; the cells where two families' routes cross at a bridge are the maze's **synapses**. There SHALL be no central hub origin (the center is the routing target; walkers originate at the border). The system SHALL NOT present any neurotransmitter-taxonomy grouping of the 11 families.
+
+#### Scenario: Single square weave grid renders as the maze
+
+- **WHEN** the maze loads
+- **THEN** one unified large square grid map renders with dense over/under weave bridges (not four NT regions, not a brain silhouette), pan/zoom enabled
+- **AND** all 11 families' winding corridors share the one grid coordinate space
+- **AND** no neurotransmitter grouping label is shown to the player
+
+#### Scenario: Winding family routes interweave and cross
+
+- **WHEN** the maze graph is loaded
+- **THEN** each of the 11 families has a distinct border-cell entry and a winding corridor routed toward the center
+- **AND** the corridors cross one another at weave bridges (the crossing-synapses)
+
+### Requirement: Maze SHALL read as a brain (neural-fiber design language)
+
+The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural-tissue backdrop (cortical-fold / myelin texture on the dark signal palette), the weave corridors styled as axon fibers, the crossing-synapses as synaptic-bouton glyphs (brightening when potentiated), and the center as a dense synaptic core. The brain styling SHALL NOT obscure the redundant family encoding (colour + line-style + node-shape) and SHALL respect reduced-motion (no required animation to perceive structure).
+
+#### Scenario: Maze is visually brain-themed
+
+- **WHEN** the maze renders
+- **THEN** corridors read as neural fibers over a neural-tissue backdrop, with synaptic-bouton crossing glyphs and a dense central core
+- **AND** the family colour / line-style / node-shape encoding remains distinguishable over the brain styling
+
+### Requirement: Build-time weave pipeline SHALL emit a single committed grid graph
+
+The maze SHALL be produced by a build-time pipeline (`scripts/build-grid-maze.mjs`, run once, output committed as a single static `assets/maze/grid-graph.json`, zero runtime recomputation): generate a base maze (`ROT.Map.EllerMaze`, fixed seed, large grid e.g. 99×99) + braid → promote a fraction of 4-way junctions to **over/under weave bridges** (the N-S corridor passes over the E-W, no join) yielding a dense structural weave (~1300 bridges) → place 11 family entry anchors on distinct border cells → route each family border→center via a **WINDING (non-shortest) waypoint path** (weave-aware, respecting the bridge no-turn constraint) so corridors meander and interweave → detect cells where two families' routes cross at a weave bridge (one H/over, one V/under) as **crossing-synapses** (~135, ≥ 110) → place each family's 10 variant-slot **nodes AT crossings on its route** (sampled in route order; pad with route cells if < 10 crossings) → write `{ gridW, gridH, center, seed, weave:[{cell,over}], families:{<familyId>:{ entryCell, path, nodeCells:[{slotIndex,cell,t,synapse}] }}, synapses:[{ cell, families:[A,B], over, under }] }`. The committed JSON intentionally OMITS the full wall map (the player only ever sees explored corridors over a fogged field — the 11 winding routes + crossings are the visible structure). The runtime SHALL consume the JSON only (no generation / routing at runtime). rot.js SHALL be used **headless at build time for maze generation** (`ROT.Map.EllerMaze` + `ROT.RNG`); `ROT.Display` SHALL NOT be used; the weave promotion, winding routing, crossing detection and over/under rendering are the app's own (no external weave dependency). rot.js is a build-time-only dependency (it is NOT in the runtime bundle).
+
+#### Scenario: Pipeline emits one static weave grid graph
+
+- **WHEN** the build-time pipeline runs
+- **THEN** it writes a single `grid-graph.json` containing grid dimensions, center, the structural weave bridges, per-family border entry + winding path + node cells, and the crossing-synapses
+- **AND** the structural weave bridge count is large (hundreds) and the crossing-synapse count is ≥ 110
+
+#### Scenario: Every variant node sits at a route crossing
+
+- **WHEN** the pipeline assigns each family its 10 variant-slot nodes
+- **THEN** each node is placed at a cell where that family's winding route crosses another family's route (a weave bridge), except padded route cells when a route has fewer than 10 crossings
+
+#### Scenario: Runtime does not regenerate the grid
+
+- **WHEN** the maze loads at runtime
+- **THEN** it reads the committed `grid-graph.json`
+- **AND** it does not run maze generation or routing at runtime, and does not use `ROT.Display`
+
+### Requirement: Maze camera SHALL be activity-contextual
+
+The maze camera SHALL frame the view by the player's current activity. While the player is answering a quiz, the camera SHALL zoom in to the answered subject's family walker so the player watches that character move along its corridor as the answer resolves/settles. While the player is reading, the camera SHALL show the whole map with the ambient exploration animation across all families. Manual pan/zoom SHALL remain available; the contextual framing is the default per activity. Under reduced-motion the camera transition SHALL degrade to an instant cut (no animated zoom).
+
+#### Scenario: Quiz answering zooms to the answered family's walker
+
+- **WHEN** the player answers a question in subject S
+- **THEN** the camera zooms in to family S's walker and the player sees it move along its corridor (the resolving settle, if any, animates there)
+
+#### Scenario: Reading shows the whole map
+
+- **WHEN** the player is in the reading activity
+- **THEN** the camera shows the whole maze with the ambient exploration animation across families
+
+#### Scenario: Reduced-motion uses an instant camera cut
+
+- **WHEN** reduced-motion is enabled and the activity changes
+- **THEN** the camera changes framing with an instant cut, not an animated zoom
+
+### Requirement: Strong synapse SHALL confer a capped cross-family energy bonus
+
+A synapse in the **strong** state (per `connectome-collection`, formed and strengthened by same-day co-firing of its two families) SHALL grant a capped cross-family energy-accrual bonus to both of its families. The bonus SHALL be additive across a family's strong synapses and clamped to `SYNAPSE_BONUS_CAP` (first-cut +X% per strong synapse, total ≤ +30%, dogfood-tunable). The maze economy SHALL READ synapse state read-only — it SHALL NOT create, strengthen, or decay synapses (that mechanic remains owned by `connectome-collection`, unchanged). The maze SHALL NOT apply any LTD/decay penalty (the bonus simply keys off the current strong state). With no strong synapse for a family the bonus SHALL be `1.0`. The bonus SHALL compose multiplicatively with the other capped accrual multipliers (streak × mastery × `energyAccel` × synapse-bonus) such that no factor and no product is unbounded.
+
+#### Scenario: Strong synapse boosts both families' accrual under the cap
+
+- **WHEN** families A and B share a strong synapse and the player answers an A-subject question correctly
+- **THEN** A's energy accrual is multiplied by its synapse bonus (clamped to `SYNAPSE_BONUS_CAP`)
+- **AND** the synapse state itself is unchanged by the maze read
+
+#### Scenario: No strong synapse means no bonus, and no LTD penalty
+
+- **WHEN** family A has no strong synapse (or a synapse has decayed in connectome)
+- **THEN** A's synapse bonus is `1.0` (no bonus, and no maze-side decay penalty)
+
+#### Scenario: Bonus stays capped with many strong synapses
+
+- **WHEN** a family participates in many strong synapses
+- **THEN** the summed synapse bonus does not exceed `SYNAPSE_BONUS_CAP`
+
+## MODIFIED Requirements
+
 ### Requirement: Maze is the homepage route
 
 The system SHALL render the unified square grid maze as the neurons-tw homepage at route `/` in `apps/neurons-tw`, covering all 11 subject families on one shared grid (no neurotransmitter regions). The prior beta route `/maze-beta` SHALL redirect to `/`. The maze SHALL host the homepage's existing companion surfaces (CTA toolbar, family grid, DMN progress ring, onboarding) per the `neurons-homepage` capability.
@@ -121,27 +210,6 @@ Unexplored nodes SHALL be rendered as fog: no silhouette, no pre-revealed shape,
 - **THEN** the fog around that node clears and the node renders as a lit marker with its grown-corridor path drawn
 - **AND** the variant joins the collection (revealed via the settle modal; visible in the collection view)
 
-### Requirement: Pure-count progress chip
-
-The maze SHALL display exploration progress as a pure count chip 「🧠 已連線 X 個腦區」 with no denominator, where X = the number of reached (lit) nodes (capped at the total node count once fully explored). Collection progress SHALL be shown separately as a pure-count 「🧬 X 隻」 chip. The system SHALL NOT display a completion percentage, family-complete state, or any closed-cap / completion milestone on either chip. Pull/settle cadence MAY continue after all nodes are lit (二週目) without changing the 🧠 lit-node count.
-
-#### Scenario: Node chip shows reached-node count without denominator
-
-- **WHEN** the player has lit X nodes
-- **THEN** the chip reads 「🧠 已連線 X 個腦區」 with no total / denominator / percentage
-
-#### Scenario: Lit-node count caps while pulls continue
-
-- **WHEN** all nodes are lit and the player keeps accruing energy (二週目)
-- **THEN** the 🧠 count stays at the total node count (it does not exceed it)
-- **AND** pulls continue (the 🧬 collection count may keep rising)
-
-#### Scenario: Collection count shown separately
-
-- **WHEN** the player has collected Y individual variants
-- **THEN** a separate 「🧬 Y 隻」 chip is shown
-- **AND** neither chip shows a denominator or completion milestone
-
 ### Requirement: Collected-variant to lit-node migration
 
 Lit-node state SHALL be derived from the per-FAMILY frontier progress (cumulative settle count) UNIONed with the first-pull starter-lit nodes, NOT from collected variants in general. A family's frontier-lit nodes SHALL be the first `min(settles, nodeCount)` nodes in **route order (along the winding corridor, entry-first)** along that family's corridor (nearest the border first, advancing inward). The starter-lit nodes SHALL be the representative (border-nearest) nodes of the ≤4 families named in the **legacy first-pull keys** `meta['maze:<branch>:starterFamily']` (first-pull is unchanged by this redesign; the maze reads those key VALUES, which are familyIds, and lights each named family's representative node). The lit set SHALL be the deduplicated union of frontier-lit and starter-lit nodes. The system SHALL NOT run a backfill, duplicate-store frontier lit state, or show a migration banner. On the Dexie v17 upgrade the per-branch maze **economy** (`maze:<branch>:{earned,settles}`) is reset while the first-pull `starterFamily` keys and collected variants are preserved; the new per-family frontier starts fresh.
@@ -235,90 +303,24 @@ The system SHALL render the synapse network as an overlay on the maze grid: each
 - **THEN** the overlay weight updates
 - **AND** the synapse data/state itself is unchanged by the overlay
 
-### Requirement: Maze SHALL be one large square zoomable structural-weave grid
+## REMOVED Requirements
 
-The maze SHALL be a single unified **square** grid map shared by all 11 subject families — NOT four neurotransmitter regions, NOT a brain-shaped silhouette, NOT 11 separate sub-mazes. The grid SHALL be large (e.g. 99×99) and densely **weave** — hundreds of **over/under bridge** cells where one corridor passes over another without joining — and SHALL support pan/zoom (the renderer zooms so detail stays legible). Each family SHALL enter from a distinct **border** cell and route **toward the shared center** along a **winding (non-shortest) corridor** that interweaves with the other families; the cells where two families' routes cross at a bridge are the maze's **synapses**. There SHALL be no central hub origin (the center is the routing target; walkers originate at the border). The system SHALL NOT present any neurotransmitter-taxonomy grouping of the 11 families.
+### Requirement: Build-time image-to-graph pipeline
 
-#### Scenario: Single square weave grid renders as the maze
+**Reason**: Replaced by the grid pipeline (see ADDED "Build-time grid pipeline SHALL emit a single committed grid graph"). The maze is no longer derived from brain-shaped basemap images via HSV-mask + Zhang-Suen skeletonization.
+**Migration**: The 4 graph JSONs + basemap PNGs (`assets/maze/{da,5ht,gaba,glu}-graph.json`, `*-basemap.png`, `brain-outline.png`, `brain-mask.png`) are retired; the single `grid-graph.json` from the new pipeline replaces them.
 
-- **WHEN** the maze loads
-- **THEN** one unified large square grid map renders with dense over/under weave bridges (not four NT regions, not a brain silhouette), pan/zoom enabled
-- **AND** all 11 families' winding corridors share the one grid coordinate space
-- **AND** no neurotransmitter grouping label is shown to the player
+### Requirement: Multi-branch overlay rendering with branch filter chips
 
-#### Scenario: Winding family routes interweave and cross
+**Reason**: There are no four NT branches to overlay or filter — the maze is one unified square grid.
+**Migration**: Branch filter chips are removed. The single grid + synapse-overlay toggle + pan/zoom + contextual camera replace the per-branch visibility model.
 
-- **WHEN** the maze graph is loaded
-- **THEN** each of the 11 families has a distinct border-cell entry and a winding corridor routed toward the center
-- **AND** the corridors cross one another at weave bridges (the crossing-synapses)
+### Requirement: Branch graph co-registration
 
-### Requirement: Maze SHALL read as a brain (neural-fiber design language)
+**Reason**: There are no four separate branch graphs to co-register; there is one grid graph in one coordinate space.
+**Migration**: The single `grid-graph.json` is inherently one coordinate space; the DA-byte-stable constraint no longer applies (DA graph retired).
 
-The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural-tissue backdrop (cortical-fold / myelin texture on the dark signal palette), the weave corridors styled as axon fibers, the crossing-synapses as synaptic-bouton glyphs (brightening when potentiated), and the center as a dense synaptic core. The brain styling SHALL NOT obscure the redundant family encoding (colour + line-style + node-shape) and SHALL respect reduced-motion (no required animation to perceive structure).
+### Requirement: DA-as-reference inheritance
 
-#### Scenario: Maze is visually brain-themed
-
-- **WHEN** the maze renders
-- **THEN** corridors read as neural fibers over a neural-tissue backdrop, with synaptic-bouton crossing glyphs and a dense central core
-- **AND** the family colour / line-style / node-shape encoding remains distinguishable over the brain styling
-
-### Requirement: Build-time weave pipeline SHALL emit a single committed grid graph
-
-The maze SHALL be produced by a build-time pipeline (`scripts/build-grid-maze.mjs`, run once, output committed as a single static `assets/maze/grid-graph.json`, zero runtime recomputation): generate a base maze (`ROT.Map.EllerMaze`, fixed seed, large grid e.g. 99×99) + braid → promote a fraction of 4-way junctions to **over/under weave bridges** (the N-S corridor passes over the E-W, no join) yielding a dense structural weave (~1300 bridges) → place 11 family entry anchors on distinct border cells → route each family border→center via a **WINDING (non-shortest) waypoint path** (weave-aware, respecting the bridge no-turn constraint) so corridors meander and interweave → detect cells where two families' routes cross at a weave bridge (one H/over, one V/under) as **crossing-synapses** (~135, ≥ 110) → place each family's 10 variant-slot **nodes AT crossings on its route** (sampled in route order; pad with route cells if < 10 crossings) → write `{ gridW, gridH, center, seed, weave:[{cell,over}], families:{<familyId>:{ entryCell, path, nodeCells:[{slotIndex,cell,t,synapse}] }}, synapses:[{ cell, families:[A,B], over, under }] }`. The committed JSON intentionally OMITS the full wall map (the player only ever sees explored corridors over a fogged field — the 11 winding routes + crossings are the visible structure). The runtime SHALL consume the JSON only (no generation / routing at runtime). rot.js SHALL be used **headless at build time for maze generation** (`ROT.Map.EllerMaze` + `ROT.RNG`); `ROT.Display` SHALL NOT be used; the weave promotion, winding routing, crossing detection and over/under rendering are the app's own (no external weave dependency). rot.js is a build-time-only dependency (it is NOT in the runtime bundle).
-
-#### Scenario: Pipeline emits one static weave grid graph
-
-- **WHEN** the build-time pipeline runs
-- **THEN** it writes a single `grid-graph.json` containing grid dimensions, center, the structural weave bridges, per-family border entry + winding path + node cells, and the crossing-synapses
-- **AND** the structural weave bridge count is large (hundreds) and the crossing-synapse count is ≥ 110
-
-#### Scenario: Every variant node sits at a route crossing
-
-- **WHEN** the pipeline assigns each family its 10 variant-slot nodes
-- **THEN** each node is placed at a cell where that family's winding route crosses another family's route (a weave bridge), except padded route cells when a route has fewer than 10 crossings
-
-#### Scenario: Runtime does not regenerate the grid
-
-- **WHEN** the maze loads at runtime
-- **THEN** it reads the committed `grid-graph.json`
-- **AND** it does not run maze generation or routing at runtime, and does not use `ROT.Display`
-
-### Requirement: Maze camera SHALL be activity-contextual
-
-The maze camera SHALL frame the view by the player's current activity. While the player is answering a quiz, the camera SHALL zoom in to the answered subject's family walker so the player watches that character move along its corridor as the answer resolves/settles. While the player is reading, the camera SHALL show the whole map with the ambient exploration animation across all families. Manual pan/zoom SHALL remain available; the contextual framing is the default per activity. Under reduced-motion the camera transition SHALL degrade to an instant cut (no animated zoom).
-
-#### Scenario: Quiz answering zooms to the answered family's walker
-
-- **WHEN** the player answers a question in subject S
-- **THEN** the camera zooms in to family S's walker and the player sees it move along its corridor (the resolving settle, if any, animates there)
-
-#### Scenario: Reading shows the whole map
-
-- **WHEN** the player is in the reading activity
-- **THEN** the camera shows the whole maze with the ambient exploration animation across families
-
-#### Scenario: Reduced-motion uses an instant camera cut
-
-- **WHEN** reduced-motion is enabled and the activity changes
-- **THEN** the camera changes framing with an instant cut, not an animated zoom
-
-### Requirement: Strong synapse SHALL confer a capped cross-family energy bonus
-
-A synapse in the **strong** state (per `connectome-collection`, formed and strengthened by same-day co-firing of its two families) SHALL grant a capped cross-family energy-accrual bonus to both of its families. The bonus SHALL be additive across a family's strong synapses and clamped to `SYNAPSE_BONUS_CAP` (first-cut +X% per strong synapse, total ≤ +30%, dogfood-tunable). The maze economy SHALL READ synapse state read-only — it SHALL NOT create, strengthen, or decay synapses (that mechanic remains owned by `connectome-collection`, unchanged). The maze SHALL NOT apply any LTD/decay penalty (the bonus simply keys off the current strong state). With no strong synapse for a family the bonus SHALL be `1.0`. The bonus SHALL compose multiplicatively with the other capped accrual multipliers (streak × mastery × `energyAccel` × synapse-bonus) such that no factor and no product is unbounded.
-
-#### Scenario: Strong synapse boosts both families' accrual under the cap
-
-- **WHEN** families A and B share a strong synapse and the player answers an A-subject question correctly
-- **THEN** A's energy accrual is multiplied by its synapse bonus (clamped to `SYNAPSE_BONUS_CAP`)
-- **AND** the synapse state itself is unchanged by the maze read
-
-#### Scenario: No strong synapse means no bonus, and no LTD penalty
-
-- **WHEN** family A has no strong synapse (or a synapse has decayed in connectome)
-- **THEN** A's synapse bonus is `1.0` (no bonus, and no maze-side decay penalty)
-
-#### Scenario: Bonus stays capped with many strong synapses
-
-- **WHEN** a family participates in many strong synapses
-- **THEN** the summed synapse bonus does not exceed `SYNAPSE_BONUS_CAP`
-
+**Reason**: There are no four branches sharing one code path via a DA reference; there is one grid and one code path. The front-loaded pacing schedule it described now lives in the MODIFIED "Growth-signal exploration economy" requirement (recalibrated per-family constants).
+**Migration**: Pacing schedule `cost(N) = round(PACING_BASE × (1 + PACING_K · N))` is preserved under the economy requirement with recalibrated constants; per-branch asset variation no longer applies.

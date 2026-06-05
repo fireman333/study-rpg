@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:maze-graph": "node ./scripts/build-maze-graph.mjs"
+    "build:grid-maze": "node ./scripts/build-grid-maze.mjs"
   },
   "dependencies": {
     "@study-rpg/content-neurons-tw": "workspace:*",
@@ -26,7 +26,8 @@
     "framer-motion": "^11.11.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "rot-js": "^2.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
