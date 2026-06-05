@@ -33,6 +33,7 @@ import { getExpeditionHidden, setExpeditionHiddenPref } from '../../lib/expediti
 import { GRID_W, GRID_H, GRID_CENTER, GRID_SYNAPSES, synapseCell, type Cell } from '../../lib/maze/graph'
 import { onMazeFocus } from '../../lib/maze/maze-focus'
 import type { FamilyViewState, MazeViewState } from '../../lib/maze/useMaze'
+import { ATLAS_URL, TILE_PX, TILES, type TileKey } from '../../assets/maze/tiles/tile-index'
 
 // --- neutral per-family encoding (color + node-shape redundancy; no NT claim) ---
 type NodeShape = 'circle' | 'diamond' | 'square' | 'triangle' | 'hex'
@@ -121,6 +122,15 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const stageRef = useRef<HTMLDivElement | null>(null)
   const walkerRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  const atlasRef = useRef<AtlasData | null>(null)
+
+  // Load the crafted tile atlas once; until ready (or on error) the rAF loop
+  // falls back to the procedural draw so the maze never shows broken images.
+  useEffect(() => {
+    loadAtlas(FAMILY_COLORS, (a) => {
+      atlasRef.current = a
+    })
+  }, [])
 
   // Camera state lives in refs (mutated per-frame in the rAF loop; no React churn).
   const camRef = useRef<Cam>({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], zoom: 0.5 })
@@ -210,14 +220,23 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       const toX = (wx: number) => (wx - cam.cx) * tile + w / 2
       const toY = (wy: number) => (wy - cam.cy) * tile + h / 2
 
-      // Background neural tissue (checker-dither for a chunky pixel field).
+      const atlas = atlasRef.current
+      // Background neural tissue — atlas tile pattern when ready, else checker-dither.
       ctx.fillStyle = BG
       ctx.fillRect(0, 0, w, h)
-      const step = Math.max(2, Math.round(tile))
-      for (let py = 0; py < h; py += step) {
-        for (let px = 0; px < w; px += step) {
-          ctx.fillStyle = ((px / step + py / step) & 1) === 0 ? TISSUE_A : TISSUE_B
-          ctx.fillRect(px, py, step, step)
+      if (atlas?.ready) {
+        const pat = ctx.createPattern(atlas.bg, 'repeat')
+        if (pat) {
+          ctx.fillStyle = pat
+          ctx.fillRect(0, 0, w, h)
+        }
+      } else {
+        const step = Math.max(2, Math.round(tile))
+        for (let py = 0; py < h; py += step) {
+          for (let px = 0; px < w; px += step) {
+            ctx.fillStyle = ((px / step + py / step) & 1) === 0 ? TISSUE_A : TISSUE_B
+            ctx.fillRect(px, py, step, step)
+          }
         }
       }
 
@@ -226,17 +245,25 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       const underAt = SYNAPSE_UNDER_BY_CELL
 
       // 1) Corridors — full path faint (fog: route visible), explored prefix bright.
+      //    Atlas: autotiled fiber blit, multiply-tinted per family; weave-under
+      //    cell uses the gapped tile. Fallback: procedural square (under = skip).
       for (const fam of fams) {
         const enc = FAMILY_ENC[fam.familyId]
         const path = fam.graph?.path ?? []
         if (path.length < 2) continue
         const exploredIdx = exploredPathIndex(fam)
-        for (let i = 1; i < path.length; i++) {
+        const tintCanvas = atlas?.ready ? atlas.tint.get(enc.color) : undefined
+        for (let i = 0; i < path.length; i++) {
           const [x, y] = path[i]
-          // gap the segment if this family is the UNDER party at a crossing cell.
-          if (underAt.get(cellKey(x, y)) === fam.familyId) continue
+          const isUnder = underAt.get(cellKey(x, y)) === fam.familyId
           const lit = i <= exploredIdx
-          drawFiberCell(ctx, toX(x), toY(y), tile, enc.color, lit ? 0.92 : FIBER_DIM)
+          if (tintCanvas) {
+            const { key, rot } = fiberTileFor(path[i - 1], path[i], path[i + 1], isUnder)
+            blitTile(ctx, tintCanvas, key, toX(x), toY(y), tile, rot, lit ? 1 : FIBER_DIM)
+          } else {
+            if (isUnder) continue
+            drawFiberCell(ctx, toX(x), toY(y), tile, enc.color, lit ? 0.92 : FIBER_DIM)
+          }
         }
       }
 
@@ -252,12 +279,17 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       if (synapseOnRef.current) {
         for (const s of synapseRef.current) {
           const wgt = SYNAPSE_WEIGHT[s.state]
-          drawBouton(ctx, toX(s.cell[0]), toY(s.cell[1]), tile, wgt.op, wgt.r)
+          if (atlas?.ready) {
+            blitTile(ctx, atlas.img, 'bouton', toX(s.cell[0]), toY(s.cell[1]), tile * (0.7 + wgt.r), 0, wgt.op)
+          } else {
+            drawBouton(ctx, toX(s.cell[0]), toY(s.cell[1]), tile, wgt.op, wgt.r)
+          }
         }
       }
 
       // 4) Center synaptic core.
-      drawCore(ctx, toX(GRID_CENTER[0]), toY(GRID_CENTER[1]), tile)
+      if (atlas?.ready) blitTile(ctx, atlas.img, 'core', toX(GRID_CENTER[0]), toY(GRID_CENTER[1]), tile * 2, 0, 1)
+      else drawCore(ctx, toX(GRID_CENTER[0]), toY(GRID_CENTER[1]), tile)
 
       // 5) Position the HTML walker overlays from the same camera.
       for (const fam of fams) {
@@ -407,7 +439,101 @@ const SYNAPSE_UNDER_BY_CELL: Map<string, string> = (() => {
   return out
 })()
 
-// --- procedural pixel-tile drawing (swap for an atlas later behind these calls) ---
+// --- atlas tile rendering (crafted GBA pixel art; falls back to procedural below) ---
+interface AtlasData {
+  img: HTMLImageElement
+  bg: HTMLCanvasElement
+  tint: Map<string, HTMLCanvasElement>
+  ready: boolean
+}
+
+/** Load the atlas once + build a per-family-colour multiply-tinted copy of it. */
+function loadAtlas(colors: string[], onReady: (a: AtlasData) => void): void {
+  const img = new Image()
+  img.onload = () => {
+    const tint = new Map<string, HTMLCanvasElement>()
+    for (const color of new Set(colors)) {
+      const c = document.createElement('canvas')
+      c.width = img.width
+      c.height = img.height
+      const tc = c.getContext('2d')
+      if (!tc) continue
+      tc.imageSmoothingEnabled = false
+      tc.drawImage(img, 0, 0)
+      tc.globalCompositeOperation = 'multiply'
+      tc.fillStyle = color
+      tc.fillRect(0, 0, img.width, img.height)
+      tc.globalCompositeOperation = 'destination-in' // restore the atlas alpha mask
+      tc.drawImage(img, 0, 0)
+      tc.globalCompositeOperation = 'source-over'
+      tint.set(color, c)
+    }
+    // standalone 16×16 bg-tissue canvas for a repeating pattern fill
+    const bg = document.createElement('canvas')
+    bg.width = TILE_PX
+    bg.height = TILE_PX
+    const bc = bg.getContext('2d')
+    if (bc) {
+      bc.imageSmoothingEnabled = false
+      const [col, row] = TILES.bgTissue
+      bc.drawImage(img, col * TILE_PX, row * TILE_PX, TILE_PX, TILE_PX, 0, 0, TILE_PX, TILE_PX)
+    }
+    onReady({ img, bg, tint, ready: true })
+  }
+  img.onerror = () => {
+    /* missing atlas → renderer keeps the procedural fallback */
+  }
+  img.src = ATLAS_URL
+}
+
+/** Blit a 16×16 atlas tile centered at (cx,cy), scaled to `size`, rotated by rotQuarter×90°. */
+function blitTile(
+  ctx: CanvasRenderingContext2D,
+  src: CanvasImageSource,
+  key: TileKey,
+  cx: number,
+  cy: number,
+  size: number,
+  rotQuarter = 0,
+  alpha = 1,
+): void {
+  const [col, row] = TILES[key]
+  ctx.save()
+  ctx.globalAlpha = alpha
+  ctx.translate(cx, cy)
+  if (rotQuarter) ctx.rotate((rotQuarter * Math.PI) / 2)
+  ctx.drawImage(src, col * TILE_PX, row * TILE_PX, TILE_PX, TILE_PX, -size / 2, -size / 2, size, size)
+  ctx.restore()
+}
+
+/** Direction (N/S/E/W) from cell a toward adjacent cell b. */
+function dirOf(a: Cell, b: Cell): 'N' | 'S' | 'E' | 'W' {
+  const dx = b[0] - a[0]
+  const dy = b[1] - a[1]
+  if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? 'E' : 'W'
+  return dy >= 0 ? 'S' : 'N'
+}
+
+/** Pick the fiber tile + rotation for a corridor cell from its path neighbours. */
+function fiberTileFor(prev: Cell | undefined, cur: Cell, next: Cell | undefined, isUnder: boolean): { key: TileKey; rot: number } {
+  const set = new Set<string>()
+  if (prev) set.add(dirOf(cur, prev))
+  if (next) set.add(dirOf(cur, next))
+  const has = (d: string) => set.has(d)
+  if (has('E') && has('W')) return { key: isUnder ? 'weaveUnderH' : 'straightH', rot: 0 }
+  if (has('N') && has('S')) return { key: isUnder ? 'weaveUnderV' : 'straightV', rot: 0 }
+  if (has('E') && has('S')) return { key: 'curve', rot: 0 }
+  if (has('S') && has('W')) return { key: 'curve', rot: 1 }
+  if (has('W') && has('N')) return { key: 'curve', rot: 2 }
+  if (has('N') && has('E')) return { key: 'curve', rot: 3 }
+  if (set.size === 1) {
+    const d = [...set][0]
+    return { key: 'cap', rot: d === 'S' ? 0 : d === 'W' ? 1 : d === 'N' ? 2 : 3 }
+  }
+  return { key: 'straightH', rot: 0 }
+}
+
+// --- procedural pixel-tile drawing (fallback when the atlas is unavailable) ---
 function drawFiberCell(ctx: CanvasRenderingContext2D, cx: number, cy: number, tile: number, color: string, op: number): void {
   const r = Math.max(1, Math.round(tile * 0.34))
   ctx.globalAlpha = op

@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:grid-maze": "node ./scripts/build-grid-maze.mjs"
+    "build:grid-maze": "node ./scripts/build-grid-maze.mjs",
+    "build:maze-atlas": "node ./scripts/build-maze-atlas.mjs"
   },
   "dependencies": {
     "@study-rpg/content-neurons-tw": "workspace:*",
