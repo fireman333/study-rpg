@@ -149,7 +149,7 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     const prevFiredToday = accrual.firedToday
     const newSameDayCorrect = accrual.sameDayCorrect + 1
 
-    // AP no longer unlocks variant slots; energy is the per-branch maze fuel
+    // AP no longer unlocks variant slots; energy is the per-family maze fuel
     // accrued post-commit below (promote-maze-to-home / Model A). No in-tx global
     // energy faucet and no variantSlotUnlocked emission here.
 

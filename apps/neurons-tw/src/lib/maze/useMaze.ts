@@ -92,7 +92,7 @@ const INITIAL: MazeViewState = {
   totalConnectedCount: 0,
 }
 
-/** Read the ≤4 first-pull starter families (legacy per-branch key VALUES) as a set. */
+/** Read the ≤4 first-pull starter families (one per NT branch — first-pull's by-design starter-key VALUES) as a set. */
 async function readStarterFamilies(): Promise<Set<string>> {
   const vals = await Promise.all(NT_BRANCHES.map((b) => readStarterFamily(b)))
   return new Set(vals.filter((v): v is string => !!v))

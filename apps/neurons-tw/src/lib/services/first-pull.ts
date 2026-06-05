@@ -4,7 +4,7 @@
  * A new player taps an explicit 首抽 CTA once; this runs FOUR pulls (one per NT
  * branch DA/5HT/GABA/Glu), each targeting a uniformly-random family within the
  * branch via the existing `pullVariant` path (real P0–P5 rarity, real provenance).
- * Pure GIFT: it does NOT touch the settle economy (`maze:<branch>:settles` /
+ * Pure GIFT: it does NOT touch the per-family settle economy (`maze:<familyId>:settles` /
  * `earned`) and does NOT route through `reconcileSettles`. Each rolled family's
  * representative maze node lights via the persisted starter-family meta keys
  * (see lib/maze/graph `litNodesWithStarter`).

@@ -6,7 +6,7 @@
  *
  * Capability spec: openspec/specs/neuron-variant-gacha/spec.md
  *
- * A pull is FREE at this layer (the per-branch maze energy consumed reaching the
+ * A pull is FREE at this layer (the per-family maze energy consumed reaching the
  * node is the cost — see economy.ts): in one tx bump familyAccrual.pullCount (the
  * P0 soft-pity clock), roll a rarity (P0 soft-pity applied; P0 excluded once
  * owned), resolve the (family, rarity) catalog variant, then persist a new row
