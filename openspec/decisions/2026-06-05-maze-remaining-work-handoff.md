@@ -1,3 +1,5 @@
+> ✅ **COMPLETE (2026-06-05).** All 3 items below are DONE + DEPLOYED. Item 1 = merge `track-neurons` → `main` (`--no-ff` `9995e81`) → CF Pages ✓ → prod `med-study-rpg.com/neurons/` bundle-verified. Item 2 = `polish-neurons-maze-tileset` (`ef68c2f`, archived). Item 3 = `name-neurons-maze-circuit-locations` (`24eb242`, archived). Kept for history only — no remaining maze work.
+
 # Handoff — neurons maze remaining work → next `/spec resume`
 
 > Written at a clean stopping point (the flat-grid redesign is shipped to `track-neurons`; context was full → handoff + `/clear`). `/spec resume` auto-reads this. Goal of the next session(s): **finish all remaining maze-related work** (3 items below).
