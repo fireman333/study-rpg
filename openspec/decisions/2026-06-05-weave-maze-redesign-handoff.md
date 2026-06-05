@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED (2026-06-05).** This change was COMPLETED, archived (`openspec/changes/archive/2026-06-05-redesign-neurons-maze-rotjs-grid/`) + committed (`66ad96e`) + pushed to `track-neurons`. The runtime work described below as "NOT started" is DONE. For the REMAINING maze work, read **`2026-06-05-maze-remaining-work-handoff.md`** instead. Kept for history only.
+
 # Handoff — `redesign-neurons-maze-rotjs-grid` (Phase 2 maze) → next `/spec resume`
 
 > Written at a clean stopping point (design + maze-gen locked; runtime NOT started). Context was full → handoff + clear. `/spec resume` reads this.
