@@ -15,14 +15,20 @@
 
 import { MILESTONE_STREAK_THRESHOLD } from '@study-rpg/content-neurons-tw'
 import type { NeuronVariantRow } from './db'
+import { synapseLocationFor } from './maze/graph'
 
 export function variantBirthCaption(row: NeuronVariantRow): string {
+  // Provenance location (name-neurons-maze-circuit-locations): the named crossing
+  // where this slot's node sits — pure-derived from (familyId, slotIndex); null
+  // for padded non-synapse nodes. Independent of birth provenance (元老 rows too).
+  const loc = synapseLocationFor(row.familyId, row.slotIndex)
+  const where = loc ? ` · 在${loc}尋獲` : ''
   const p = row.provenance
   // 元老 / 傳承: pre-upgrade row with no provenance. Derive the date from the
   // existing rolledAt epoch + subject from familyId; no special tags.
   if (!p) {
     const date = new Date(row.rolledAt).toLocaleDateString('en-CA')
-    return `${date} · ${row.familyId} · 傳承個體`
+    return `${date} · ${row.familyId} · 傳承個體${where}`
   }
   // Body: 救贖 phrasing when the triggering question had been wrong before;
   // else the standard "答對 N 題該科" form (N = slot threshold = apAtUnlock).
@@ -33,5 +39,5 @@ export function variantBirthCaption(row: NeuronVariantRow): string {
   // (composes with 救贖).
   const streakPrefix =
     p.streakAtMint >= MILESTONE_STREAK_THRESHOLD ? `連續 ${p.streakAtMint} 天 · ` : ''
-  return `${p.bornAtISO} · ${streakPrefix}${body}`
+  return `${p.bornAtISO} · ${streakPrefix}${body}${where}`
 }

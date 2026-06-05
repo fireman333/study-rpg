@@ -186,3 +186,5 @@ export {
   MIN_ITEMS_PER_TIER,
   type EquipmentValidationFailure,
 } from './equipment-validator'
+
+export { CIRCUIT_LOCATIONS, type CircuitLocation } from './circuit-locations'

@@ -31,6 +31,8 @@ export interface GridSynapse {
   /** familyId whose route passes over (H) / under (V) at this cell. */
   over: string
   under: string
+  /** Neuroanatomical location name (name-neurons-maze-circuit-locations); 中文. */
+  location?: string
 }
 
 /** A variant-slot node on a family's winding route (1 node = 1 variant slot). */
@@ -165,6 +167,24 @@ export function frontierNode(familyId: string, settles: number): MazeNode | null
 /** A family's representative (border-nearest) node = its first route node (slot 0). */
 export function representativeNode(familyId: string): MazeNode | null {
   return nodesInRouteOrder(familyId)[0] ?? null
+}
+
+const SYNAPSE_BY_CELL: Map<string, GridSynapse> = (() => {
+  const m = new Map<string, GridSynapse>()
+  for (const s of GRID_SYNAPSES) m.set(`${s.cell[0]},${s.cell[1]}`, s)
+  return m
+})()
+
+/**
+ * The neuroanatomical location name of the crossing where (familyId, slotIndex)'s
+ * variant-slot node sits, or null when that node is a padded non-synapse route
+ * cell. Pure-derived (name-neurons-maze-circuit-locations) — no variant state;
+ * a second device computes the identical name from the committed grid graph.
+ */
+export function synapseLocationFor(familyId: string, slotIndex: number): string | null {
+  const node = nodesInRouteOrder(familyId).find((n) => n.slotIndex === slotIndex)
+  if (!node || !node.synapse) return null
+  return SYNAPSE_BY_CELL.get(`${node.cell[0]},${node.cell[1]}`)?.location ?? null
 }
 
 /**
