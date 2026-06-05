@@ -18,6 +18,7 @@ import DmnCollectionPage from './routes/DmnCollectionPage'
 import DmnDrawButton from './components/DmnDrawButton'
 import BookmarksPage from './routes/BookmarksPage'
 import CollectionPage from './routes/CollectionPage'
+import { QuestionBankPage } from './routes/QuestionBankPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import HelpMenu from './components/HelpMenu'
 import { AuthProvider } from './lib/auth/AuthContext'
@@ -100,6 +101,11 @@ export default function App(): JSX.Element {
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>收藏 →</span>
                 )}
               </NavLink>
+              <NavLink to="/bank" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>題庫 →</span>
+                )}
+              </NavLink>
               <NavLink to="/achievements" style={navLinkStyle}>
                 {({ isActive }) => (
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>成就 →</span>
@@ -127,6 +133,7 @@ export default function App(): JSX.Element {
             {/* /maze-beta is fused into the homepage — redirect old bookmarks. */}
             <Route path="/maze-beta" element={<Navigate to="/" replace />} />
             <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
+            <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
             <Route path="/motion-demo" element={<MotionDemoPage />} />
           </Routes>
         </main>
