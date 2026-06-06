@@ -12,6 +12,7 @@
  */
 
 import type { ContentPack, Subject } from '@study-rpg/core'
+import { EXAM_PAPER_ORDER, FAMILY_EXAM_PAPER, type ExamPaper } from '@study-rpg/content-neurons-tw'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
 import type { FamilyModeCounts, QuizMode } from '../lib/services/srs-scheduler'
 import MasteryChip from './MasteryChip'
@@ -45,19 +46,60 @@ export function FamilyPicker({ pack, onStartQuiz, accrualByFamily, modeCountsByF
         </span>
       </header>
 
-      <div style={branchRowStyle} className="neurons-family-grid">
-        {pack.subjects.map((s) => (
-          <FamilyCard
-            key={s.id}
-            family={s}
-            accrual={accrualByFamily?.get(s.id)}
-            counts={modeCountsByFamily?.get(s.id)}
-            onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
-          />
-        ))}
-      </div>
+      {groupSubjectsByPaper(pack.subjects).map((group) => (
+        <div key={group.id} style={paperGroupStyle}>
+          <div style={paperHeaderStyle}>
+            <span>{group.label}</span>
+            <span style={paperCountStyle}>{group.subjects.length} 科</span>
+          </div>
+          <div style={branchRowStyle} className="neurons-family-grid">
+            {group.subjects.map((s) => (
+              <FamilyCard
+                key={s.id}
+                family={s}
+                accrual={accrualByFamily?.get(s.id)}
+                counts={modeCountsByFamily?.get(s.id)}
+                onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </section>
   )
+}
+
+/**
+ * Exam-paper sections for the picker (decouple-neurons-subjects-from-nt-branches):
+ * cards group by the two 國考第一階 papers (醫學一 / 醫學二) in 試題順序 instead of by
+ * NT branch. Any subject a fork ships that isn't mapped to a paper falls into a
+ * defensive 「其他」 group so it is never silently dropped.
+ */
+const PAPER_META: { id: ExamPaper; label: string }[] = [
+  { id: '醫學一', label: '🧠 醫學一' },
+  { id: '醫學二', label: '🔬 醫學二' },
+]
+
+interface PaperGroup {
+  id: string
+  label: string
+  subjects: Subject[]
+}
+
+function groupSubjectsByPaper(subjects: Subject[]): PaperGroup[] {
+  const byId = new Map(subjects.map((s) => [s.id, s]))
+  const groups: PaperGroup[] = PAPER_META.map(({ id, label }) => {
+    const ordered = (EXAM_PAPER_ORDER[id] ?? [])
+      .map((sid) => byId.get(sid))
+      .filter((s): s is Subject => Boolean(s))
+    const seen = new Set(ordered.map((s) => s.id))
+    const extras = subjects.filter((s) => FAMILY_EXAM_PAPER[s.id] === id && !seen.has(s.id))
+    return { id, label, subjects: [...ordered, ...extras] }
+  })
+  const placed = new Set(groups.flatMap((g) => g.subjects.map((s) => s.id)))
+  const unplaced = subjects.filter((s) => !placed.has(s.id))
+  if (unplaced.length > 0) groups.push({ id: '其他', label: '🧬 其他', subjects: unplaced })
+  return groups.filter((g) => g.subjects.length > 0)
 }
 
 function FamilyCard({
@@ -179,6 +221,26 @@ const branchRowStyle: React.CSSProperties = {
   // @media rule can collapse to a single column < 768px (Decision 1: inline
   // would otherwise beat the CSS @media).
   gap: '0.55rem',
+}
+
+const paperGroupStyle: React.CSSProperties = {
+  marginBottom: '0.85rem',
+}
+
+const paperHeaderStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'baseline',
+  gap: '0.5rem',
+  margin: '0 0 0.45rem',
+  fontSize: '0.9rem',
+  fontWeight: 700,
+  color: '#3a2a1a',
+}
+
+const paperCountStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  fontWeight: 400,
+  color: '#8c6d4a',
 }
 
 function familyCardStyle(accent: string): React.CSSProperties {
