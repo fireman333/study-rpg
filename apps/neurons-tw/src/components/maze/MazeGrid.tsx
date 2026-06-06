@@ -18,7 +18,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { liveQuery } from 'dexie'
-import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
+import { FAMILY_IDS, FAMILY_COLOR } from '@study-rpg/content-neurons-tw'
 import VariantSprite from '../VariantSprite'
 import MazeExpedition from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
@@ -53,6 +53,9 @@ const bgBrainHeroImg = new Image()
 bgBrainHeroImg.src = bgBrainHeroUrl
 
 // --- neutral per-family encoding (color + node-shape redundancy; no NT claim) ---
+// Color = the canonical per-subject accent (FAMILY_COLOR, single source from the content pack via
+// decouple-neurons-subjects-from-nt-branches) so the 11 tracts/nodes match the FamilyPicker accents.
+// FAMILY_COLORS below is only a positional fallback for a family id missing from FAMILY_COLOR.
 type NodeShape = 'circle' | 'diamond' | 'square' | 'triangle' | 'hex'
 const FAMILY_COLORS = [
   '#e0524d', '#e08a3c', '#d8c23a', '#7fb84e', '#43b59a',
@@ -63,7 +66,7 @@ interface FamEnc { color: string; shape: NodeShape }
 const FAMILY_ENC: Record<string, FamEnc> = (() => {
   const out: Record<string, FamEnc> = {}
   FAMILY_IDS.forEach((f, i) => {
-    out[f] = { color: FAMILY_COLORS[i % FAMILY_COLORS.length], shape: NODE_SHAPES[i % NODE_SHAPES.length] }
+    out[f] = { color: FAMILY_COLOR[f] ?? FAMILY_COLORS[i % FAMILY_COLORS.length], shape: NODE_SHAPES[i % NODE_SHAPES.length] }
   })
   return out
 })()
