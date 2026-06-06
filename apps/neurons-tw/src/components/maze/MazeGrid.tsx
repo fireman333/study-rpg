@@ -549,10 +549,15 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
         ctx.restore()
       }
 
+      // Walker sprites are fixed-px HTML overlays; scale them with zoom so they grow WITH the maze
+      // instead of staying 26px (which reads as shrinking on zoom-in). Self-calibrated to the
+      // whole-maze fit tile → scale = 1.0 at the default zoom (look unchanged), grows past it.
+      const fitTile = (Math.min(w, h) / Math.max(GRID_W, GRID_H)) * 0.98
+      const walkerScale = fitTile > 0 ? tile / fitTile : 1
       for (const fam of fams) {
         const el = walkerRefs.current.get(fam.familyId)
         if (!el) continue
-        el.style.transform = `translate(${toX(fam.walkerCell[0])}px, ${toY(fam.walkerCell[1])}px) translate(-50%, -50%)`
+        el.style.transform = `translate(${toX(fam.walkerCell[0])}px, ${toY(fam.walkerCell[1])}px) translate(-50%, -50%) scale(${walkerScale})`
       }
 
       raf = requestAnimationFrame(draw)
