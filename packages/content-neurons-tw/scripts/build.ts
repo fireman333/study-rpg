@@ -12,7 +12,7 @@ import { resolve } from 'node:path'
 
 import { NEURONS_ACHIEVEMENTS, NEURONS_ACHIEVEMENTS_STATS } from '../src/achievements'
 import { validateNeuronsAchievementCatalog } from '../src/achievement-validator'
-import { FAMILY_NT_BRANCH, type NtBranchId } from '../src/families'
+import { FAMILY_NT_BRANCH, FAMILY_COLOR, type NtBranchId } from '../src/families'
 
 // 一階 corpus source = 考選部-authoritative reconciled artifacts committed under
 // packages/content-neurons-tw/data/medexam-reconciled (see reconcile/README.md).
@@ -33,13 +33,6 @@ const FIGURES_DIR = resolve(import.meta.dirname, '..', 'figures')
 // unreliable `**有附圖**：是` source marker, but the stem references no figure).
 // Forced to hasImage:false so they show neither a figure nor a [圖] placeholder.
 const FALSE_POSITIVE_HASIMAGE = new Set<string>(['111-2-醫學一-生理學-Q57'])
-
-const NT_COLOR: Record<NtBranchId, string> = {
-  DA: '#d4a04d',
-  '5HT': '#c44d4d',
-  GABA: '#6a9bc4',
-  Glu: '#6a8c3f',
-}
 
 interface FamilyMap {
   family: string
@@ -248,11 +241,16 @@ function main(): void {
   const outputSubjects = Object.entries(FAMILY_BY_SUBJECT).map(([id, m]) => {
     const ntBranch = FAMILY_NT_BRANCH[id]
     if (!ntBranch) throw new Error(`No NT branch for subject "${id}" in FAMILY_NT_BRANCH`)
+    const color = FAMILY_COLOR[id]
+    if (!color) throw new Error(`No per-subject color for subject "${id}" in FAMILY_COLOR`)
     return {
       id,
       displayName: m.family,
+      // `group` (NT branch) stays internal data for context-art / decor; it no
+      // longer drives the player-facing accent color (decouple-neurons-subjects-
+      // from-nt-branches) — each subject now carries its own distinct color.
       group: ntBranch,
-      color: NT_COLOR[ntBranch],
+      color,
       iconKey: `subject:${id}`,
       totalQuestions: subjectTotals[id] ?? 0,
     }

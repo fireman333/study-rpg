@@ -11,7 +11,7 @@
     "id": "公共衛生學",
     "displayName": "SNc Dopaminergic — Aging Guardian",
     "group": "DA",
-    "color": "#d4a04d",
+    "color": "#c639ba",
     "iconKey": "subject:公共衛生學",
     "totalQuestions": 357
   },
@@ -19,7 +19,7 @@
     "id": "寄生蟲學",
     "displayName": "Enteric Serotonergic — Puppeteer's Puppet",
     "group": "5HT",
-    "color": "#c44d4d",
+    "color": "#ca4970",
     "iconKey": "subject:寄生蟲學",
     "totalQuestions": 157
   },
@@ -43,7 +43,7 @@
     "id": "病理學",
     "displayName": "Striatal MSN — Judge",
     "group": "GABA",
-    "color": "#6a9bc4",
+    "color": "#9859cf",
     "iconKey": "subject:病理學",
     "totalQuestions": 586
   },
@@ -51,7 +51,7 @@
     "id": "免疫學",
     "displayName": "PV+ Cortical Interneuron — Sentry Under Siege",
     "group": "GABA",
-    "color": "#6a9bc4",
+    "color": "#696cd3",
     "iconKey": "subject:免疫學",
     "totalQuestions": 307
   },
@@ -67,7 +67,7 @@
     "id": "生理學",
     "displayName": "Cortical Pyramidal L5 — CEO",
     "group": "Glu",
-    "color": "#6a8c3f",
+    "color": "#27866f",
     "iconKey": "subject:生理學",
     "totalQuestions": 608
   },
@@ -75,7 +75,7 @@
     "id": "胚胎學",
     "displayName": "Cajal-Retzius — Pioneer Architect",
     "group": "Glu",
-    "color": "#6a8c3f",
+    "color": "#7e7b25",
     "iconKey": "subject:胚胎學",
     "totalQuestions": 111
   },
@@ -83,7 +83,7 @@
     "id": "微生物學",
     "displayName": "Olfactory Sensory — Sentinel",
     "group": "Glu",
-    "color": "#6a8c3f",
+    "color": "#278634",
     "iconKey": "subject:微生物學",
     "totalQuestions": 369
   }

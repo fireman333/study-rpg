@@ -76,7 +76,11 @@ export {
   NT_BRANCHES,
   FAMILIES_BY_BRANCH,
   branchOfFamily,
+  FAMILY_COLOR,
+  FAMILY_EXAM_PAPER,
+  EXAM_PAPER_ORDER,
   type NtBranchId,
+  type ExamPaper,
 } from './families'
 
 // Flat-grid maze faucet + pacing + synapse-bonus constants (single source of

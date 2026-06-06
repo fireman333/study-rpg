@@ -250,7 +250,7 @@ The neurons-mode umbrella SHALL ensure that every neuron family (the 11 entries 
 Each sprite SHALL visually communicate at least three identity dimensions:
 
 1. **Real neuron morphology hint** matching the family's source neuron type (e.g., Cerebellar Purkinje cell → elaborate dendritic-tree silhouette; Cortical Pyramidal L5 → triangular soma)
-2. **NT branch color tint** drawn from the four-color CSS variable palette (DA gold `#d4a04d` / 5HT red `#c44d4d` / GABA blue `#6a9bc4` / Glu green `#6a8c3f`)
+2. **Per-subject accent color tint** matching the family's card accent color (`FAMILY_COLOR` in `content-neurons-tw`, per `decouple-neurons-subjects-from-nt-branches`). Each of the 11 families uses its own distinct accent — 4 families (解剖學 Glu green / 組織學 5-HT red / 生物化學 GABA blue / 藥理學 DA gold) retain their original NT-branch color, the other 7 use distinct per-subject colors. The sprite tint SHALL NOT be presented as an NT-branch grouping signal.
 3. **Persona accessory** matching the family's narrative role label (e.g., "Mathematician" → small abacus motif; "Judge" → tiny gavel; "Scout" → compass)
 
 Sprites SHALL be 384×384 PNG with transparent background and 16-color quantization (GBA-era pixel-art aesthetic), consistent with the documented `image_gen_routing.md` recipe for Gemini-generated pixel-art assets.
@@ -274,9 +274,9 @@ This requirement supersedes the scaffold-phase placeholder mapping for subject k
 #### Scenario: Sprite visual identity reflects family persona
 
 - **GIVEN** the human reviewer opens `packages/theme-pixel-neurons/sprites/subjects/胚胎學.png` (Cajal-Retzius — Pioneer Architect)
-- **THEN** the sprite SHALL display a Cajal-Retzius-style morphology cue (horizontal-bipolar dendrite signature) and a Glu-branch green color tint
+- **THEN** the sprite SHALL display a Cajal-Retzius-style morphology cue (horizontal-bipolar dendrite signature) and its per-subject olive-yellow accent tint (`#7e7b25`)
 - **AND** the sprite SHALL display an architect-related accessory (blueprint roll, hardhat, or similar)
-- **AND** the same reviewer opening `生物化學.png` (Cerebellar Purkinje — Mathematician) SHALL see Purkinje-style elaborate dendritic-tree morphology, GABA blue tint, and abacus / equation / chalkboard accessory
+- **AND** the same reviewer opening `生物化學.png` (Cerebellar Purkinje — Mathematician) SHALL see Purkinje-style elaborate dendritic-tree morphology, its GABA-blue accent tint (`#6a9bc4`, an unchanged anchor), and abacus / equation / chalkboard accessory
 
 #### Scenario: Other sprite categories may remain placeholder until consumer ships
 
@@ -475,7 +475,7 @@ The picker SHALL behave as a **direct-entry grid**, not a selection filter:
 - The QuizModal close handler SHALL fully unmount the modal; there SHALL NOT be a「last-played family」 indicator preserved on Overview between sessions.
 - Cross-family random entry (the prior「全部」 chip semantic) SHALL be hosted by a separate hero-level CTA per the「Overview SHALL surface a hero CTA for cross-family random quiz entry」 requirement; the picker itself contains only per-family direct-entry cards.
 
-Each family card SHALL source identity from the `content-neurons-tw` family roster (canonical `subject.id` = 國考 subject name, `subject.displayName` = family persona, family sprite key from `theme-pixel-neurons`, NT-branch-derived accent color). Cards SHALL NOT hardcode any subject name, family name, or color.
+Each family card SHALL source identity from the `content-neurons-tw` family roster (canonical `subject.id` = 國考 subject name, `subject.displayName` = family persona, family sprite key from `theme-pixel-neurons`, **per-subject distinct accent color** sourced from `subject.color`). The accent color SHALL be distinct per family — families that happen to share an NT branch SHALL NOT share an accent color, and the accent color SHALL NOT be presented as an NT-branch grouping signal. Cards SHALL NOT hardcode any subject name, family name, or color.
 
 **Card label hierarchy (primary / secondary):**
 
@@ -488,9 +488,9 @@ Each family card SHALL source identity from the `content-neurons-tw` family rost
 - Each card SHALL render an inline `MasteryChip` for that family (tier badge + correct/total count + accuracy %), so progression is visible alongside the entry point without requiring a separate「家族熟練度」 list section on Overview.
 - Each card SHALL render a 題數 chip showing `{subject.totalQuestions} 題`.
 
-**NT-branch grouping** SHALL be preserved: cards are visually grouped by their `subject.group` field (one of `DA` / `5HT` / `GABA` / `Glu`) under a small branch header (dot + label + count) per group. The branch grouping is the neuroanatomy teaching anchor and SHALL persist regardless of viewport.
+**Exam-paper grouping** SHALL be the organizing grouping: cards are visually grouped into the two 國考第一階 papers — 醫學一 and 醫學二 — under a small paper header (label + family-count) per group, with each group's cards in 試題順序 (the canonical within-paper order from `content-neurons-tw`). The picker SHALL NOT group, label, or color-code cards by NT branch. The exam-paper grouping is the teaching/orientation anchor and SHALL persist regardless of viewport.
 
-The card grid SHALL be responsive: per-branch row uses `grid-template-columns: repeat(auto-fill, minmax(170px, 1fr))` so cards reflow to 4 columns on wide desktop, 2 columns on mid-width (≈ 414px viewport), 1 column on narrow phone (≈ 360px viewport). NT-branch headers remain visible at all widths.
+Each exam-paper group SHALL render its cards in a responsive card grid (`grid-template-columns: repeat(auto-fill, minmax(170px, 1fr))` or equivalent) so cards reflow from multiple columns on wide desktop down to a single column on narrow phone. Exam-paper headers remain visible at all widths.
 
 **Empty-pool defensive state**: if `family.totalQuestions === 0` (shouldn't happen with shipping content but defensive for fork developers / build issues), the card's 答題 button SHALL render in disabled visual state with `disabled={true}` and a `title` attribute of `本 family 目前無題目`. The card SHALL still render the sprite / labels / mastery chip.
 
@@ -525,13 +525,22 @@ The card grid SHALL be responsive: per-branch row uses `grid-template-columns: r
 - **AND** the family persona name (e.g. `VTA Dopaminergic — Thrill-Seeker`) SHALL appear as SECONDARY supporting text beside the primary on the same card
 - **AND** hovering the card's 答題 button SHALL surface a tooltip referencing the subject id
 
-#### Scenario: Cards group by NT branch with branch headers
+#### Scenario: Each family card has a distinct accent color
+
+- **GIVEN** the Overview page renders the 11 family cards
+- **WHEN** the player visually scans the card wall
+- **THEN** each of the 11 cards SHALL render a distinct accent color sourced from its `subject.color`
+- **AND** two families that share an NT branch (e.g. `解剖學` and `生理學`, both Glu) SHALL NOT render the same accent color
+- **AND** no card grouping, header, or accent color SHALL present the 11 families under an NT-branch (DA / 5-HT / GABA / Glu) taxonomy
+
+#### Scenario: Cards group by exam paper with paper headers
 
 - **GIVEN** the Overview page renders the family card grid
 - **WHEN** the player scrolls through the picker section
-- **THEN** the cards SHALL appear in NT-branch-grouped rows in this order: `DA · 多巴胺`, `5-HT · 血清素`, `GABA · γ-胺基丁酸`, `Glu · 麩胺酸`
-- **AND** each branch header SHALL render with a colored dot matching the branch accent + branch label + family-count text
-- **AND** branches with zero families in the roster SHALL not render a header (no empty rows)
+- **THEN** the cards SHALL appear in two exam-paper-grouped sections in this order: `醫學一`, then `醫學二`
+- **AND** each section header SHALL render with a paper label + family-count text (no NT-branch label, no NT-branch colored dot)
+- **AND** within each section the cards SHALL appear in the canonical 試題順序 from `content-neurons-tw`
+- **AND** there SHALL NOT be any NT-branch (DA / 5-HT / GABA / Glu) grouping, header, or row
 
 #### Scenario: Mastery chip is inline on each card
 
@@ -552,20 +561,12 @@ The card grid SHALL be responsive: per-branch row uses `grid-template-columns: r
 
 - **GIVEN** the Overview page renders the family card grid
 - **WHEN** the viewport is approximately 768px (tablet)
-- **THEN** each NT-branch row SHALL render cards in ~4 columns via `auto-fill, minmax(170px, 1fr)`
+- **THEN** each exam-paper section SHALL render its cards in ~4 columns via `auto-fill, minmax(170px, 1fr)`
 - **WHEN** the viewport is approximately 414px (iPhone Plus)
-- **THEN** each NT-branch row SHALL render cards in ~2 columns
+- **THEN** each exam-paper section SHALL render its cards in ~2 columns
 - **WHEN** the viewport is approximately 360px (iPhone SE)
-- **THEN** each NT-branch row SHALL render cards in 1 column
-- **AND** NT-branch headers SHALL remain visible at every width
-
-#### Scenario: Other neurons-tw surfaces preserve family persona as primary
-
-- **GIVEN** the player navigates to `/connectome` (connectome SVG tree page)
-- **WHEN** the connectome tree renders the 11 family nodes
-- **THEN** each family node SHALL continue to display the family persona name as primary (no change to connectome rendering)
-- **AND** the same persona-primary behavior SHALL apply on `/achievements`, the leaderboard, and family-mastery surfaces
-- **AND** the QuizModal interior framing SHALL continue to reference the family flavor as it does today (no change to quiz modal copy)
+- **THEN** each exam-paper section SHALL render its cards in 1 column
+- **AND** exam-paper headers SHALL remain visible at every width
 
 ### Requirement: Overview SHALL surface a hero CTA for cross-family random quiz entry
 
