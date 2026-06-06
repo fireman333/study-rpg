@@ -24,14 +24,14 @@ const peripheral = (x: number, y: number) =>
 
 describe('flat-grid maze graph', () => {
   it('loads one square grid with 11 family routes', () => {
-    expect(GRID_W).toBe(99)
-    expect(GRID_H).toBe(99)
+    expect(GRID_W).toBe(384) // redesign-neurons-maze-brain-tileset D10 rebuild (was 99×99)
+    expect(GRID_H).toBe(384)
     expect(GRID_CENTER).toHaveLength(2)
     expect(Object.keys(FAMILY_GRAPHS).sort()).toEqual([...FAMILY_IDS].sort())
   })
 
   it('has a dense structural weave + many crossing-synapses (≥ 110)', () => {
-    expect(WEAVE_BRIDGES.length).toBeGreaterThan(500) // hundreds of over/under bridges
+    expect(WEAVE_BRIDGES.length).toBeGreaterThan(400) // hundreds of over/under bridges (rebuild: 467)
     expect(GRID_SYNAPSES.length).toBeGreaterThanOrEqual(110)
     for (const s of GRID_SYNAPSES) {
       expect(s.families[0]).not.toBe(s.families[1])

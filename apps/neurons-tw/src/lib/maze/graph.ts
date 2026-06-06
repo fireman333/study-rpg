@@ -62,23 +62,61 @@ export interface FamilyGraph {
   nodes: MazeNode[]
 }
 
+/** Run-length-encoded 3-region tilemap (build-tilemap-maze D10): [kind,count,...]. */
+interface CellKindsRaw {
+  w: number
+  h: number
+  rle: number[]
+}
+
 interface RawGrid {
   gridW: number
   gridH: number
+  /** Logical→scaled factor of the tilemap generator (chunky corridors). */
+  scale?: number
   center: Cell
   seed: number
   weave: WeaveBridge[]
   families: Record<string, { entryCell: Cell; path: Cell[]; nodeCells: { slotIndex: number; cell: Cell; t: number; synapse: boolean }[] }>
   synapses: GridSynapse[]
+  cellKinds?: CellKindsRaw
 }
 
 const RAW = gridGraphRaw as unknown as RawGrid
 
 export const GRID_W = RAW.gridW
 export const GRID_H = RAW.gridH
+export const GRID_SCALE = RAW.scale ?? 1
 export const GRID_CENTER: Cell = RAW.center
 export const WEAVE_BRIDGES: WeaveBridge[] = RAW.weave
 export const GRID_SYNAPSES: GridSynapse[] = RAW.synapses
+
+/** Cell-kind codes for the 3-region tilemap. */
+export const CELL_BACKGROUND = 0
+export const CELL_WALL = 1
+export const CELL_PATH = 2
+
+/** Decoded 3-region tilemap (RLE → flat Uint8Array), or null for legacy graphs. */
+export const CELL_KINDS: { w: number; h: number; data: Uint8Array } | null = (() => {
+  const ck = RAW.cellKinds
+  if (!ck) return null
+  const data = new Uint8Array(ck.w * ck.h)
+  let i = 0
+  for (let r = 0; r + 1 < ck.rle.length; r += 2) {
+    const kind = ck.rle[r]
+    const count = ck.rle[r + 1]
+    data.fill(kind, i, i + count)
+    i += count
+  }
+  return { w: ck.w, h: ck.h, data }
+})()
+
+/** Cell kind at (x,y); BACKGROUND outside bounds / for legacy graphs. */
+export function cellKindAt(x: number, y: number): number {
+  const ck = CELL_KINDS
+  if (!ck || x < 0 || y < 0 || x >= ck.w || y >= ck.h) return CELL_BACKGROUND
+  return ck.data[y * ck.w + x]
+}
 
 const cellEq = (a: Cell, b: Cell): boolean => a[0] === b[0] && a[1] === b[1]
 
