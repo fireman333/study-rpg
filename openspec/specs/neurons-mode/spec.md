@@ -250,7 +250,7 @@ The neurons-mode umbrella SHALL ensure that every neuron family (the 11 entries 
 Each sprite SHALL visually communicate at least three identity dimensions:
 
 1. **Real neuron morphology hint** matching the family's source neuron type (e.g., Cerebellar Purkinje cell → elaborate dendritic-tree silhouette; Cortical Pyramidal L5 → triangular soma)
-2. **NT branch color tint** drawn from the four-color CSS variable palette (DA gold `#d4a04d` / 5HT red `#c44d4d` / GABA blue `#6a9bc4` / Glu green `#6a8c3f`)
+2. **Per-subject accent color tint** matching the family's card accent color (`FAMILY_COLOR` in `content-neurons-tw`, per `decouple-neurons-subjects-from-nt-branches`). Each of the 11 families uses its own distinct accent — 4 families (解剖學 Glu green / 組織學 5-HT red / 生物化學 GABA blue / 藥理學 DA gold) retain their original NT-branch color, the other 7 use distinct per-subject colors. The sprite tint SHALL NOT be presented as an NT-branch grouping signal.
 3. **Persona accessory** matching the family's narrative role label (e.g., "Mathematician" → small abacus motif; "Judge" → tiny gavel; "Scout" → compass)
 
 Sprites SHALL be 384×384 PNG with transparent background and 16-color quantization (GBA-era pixel-art aesthetic), consistent with the documented `image_gen_routing.md` recipe for Gemini-generated pixel-art assets.
@@ -274,9 +274,9 @@ This requirement supersedes the scaffold-phase placeholder mapping for subject k
 #### Scenario: Sprite visual identity reflects family persona
 
 - **GIVEN** the human reviewer opens `packages/theme-pixel-neurons/sprites/subjects/胚胎學.png` (Cajal-Retzius — Pioneer Architect)
-- **THEN** the sprite SHALL display a Cajal-Retzius-style morphology cue (horizontal-bipolar dendrite signature) and a Glu-branch green color tint
+- **THEN** the sprite SHALL display a Cajal-Retzius-style morphology cue (horizontal-bipolar dendrite signature) and its per-subject olive-yellow accent tint (`#7e7b25`)
 - **AND** the sprite SHALL display an architect-related accessory (blueprint roll, hardhat, or similar)
-- **AND** the same reviewer opening `生物化學.png` (Cerebellar Purkinje — Mathematician) SHALL see Purkinje-style elaborate dendritic-tree morphology, GABA blue tint, and abacus / equation / chalkboard accessory
+- **AND** the same reviewer opening `生物化學.png` (Cerebellar Purkinje — Mathematician) SHALL see Purkinje-style elaborate dendritic-tree morphology, its GABA-blue accent tint (`#6a9bc4`, an unchanged anchor), and abacus / equation / chalkboard accessory
 
 #### Scenario: Other sprite categories may remain placeholder until consumer ships
 
