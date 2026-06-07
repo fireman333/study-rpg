@@ -203,6 +203,38 @@ export async function pushNeuronsLeaderboardRow(
 }
 
 /**
+ * Auto-upsert the player's leaderboard row after a successful cloud-sync push.
+ * Wired into the sync engine's `onPushComplete` hook (see useSync.ts) so an
+ * opted-in player's rank tracks gameplay without manual 同步.
+ *
+ * Gating: only fires when the local profile has `opted_in === true`; payload
+ * carries the player's current `is_public` (an opted-out-but-still-opted-in
+ * player keeps is_public=0 while stats refresh). Returns a status enum for
+ * testability.
+ *
+ * LOOP-SAFETY (critical): this MUST NOT write `last_pushed_at` (or anything
+ * else) back to `leaderboardProfile` / `meta` / any synced Dexie table.
+ * Those tables are members of SYNCED_TABLES, so a write would re-trigger
+ * `engine.schedulePush()` → push → onPushComplete → here → write → … an
+ * unbounded ~debounceMs push loop even while idle. `last_pushed_at` only feeds
+ * the manual-push cooldown UI, which the auto path does not use. buildLeaderboard-
+ * Payload is read-only and pushNeuronsLeaderboardRow only does a fetch, so with
+ * no profile write this hook touches no synced table → no re-trigger.
+ */
+export async function autoPushLeaderboardOnSync(opts: {
+  userId: string
+  getAccessToken: () => Promise<string | null>
+}): Promise<'pushed' | 'skipped-not-opted-in' | 'skipped-no-token'> {
+  const profile = await getLeaderboardProfile(opts.userId)
+  if (!profile || !profile.opted_in) return 'skipped-not-opted-in'
+  const token = await opts.getAccessToken()
+  if (!token) return 'skipped-no-token'
+  const payload = await buildLeaderboardPayload(profile.nickname, profile.is_public)
+  await pushNeuronsLeaderboardRow(token, payload)
+  return 'pushed'
+}
+
+/**
  * GET /leaderboard/neurons/nickname-check?n=<candidate>
  * Returns availability without committing the nickname.
  */
