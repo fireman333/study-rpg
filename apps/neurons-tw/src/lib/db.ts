@@ -82,6 +82,8 @@ export interface NeuronVariantProvenance {
   wasRedemption: boolean
   /** Player's daily correct-streak value at mint (≥ MILESTONE_STREAK_THRESHOLD → 里程碑). */
   streakAtMint: number
+  /** Minted by a family's per-family first-pull (add-neurons-first-pull-path-rep). */
+  firstPull?: boolean
 }
 
 export interface NeuronVariantRow {

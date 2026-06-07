@@ -7,20 +7,23 @@
  *   - reconcileSettles (per family) → consumes energy + triggers a random pull when
  *     accrued energy crosses the next settle's cost threshold
  *
- * Lit-node state is FRONTIER-derived (cumulative settle count) UNIONed with the
- * first-pull starter-lit nodes — NOT collected-derived (settle pulls are random).
- * The page owns the SINGLE useMaze(pack) subscription (calling it twice would
- * double-fire reconcileSettles → double pulls; promote-maze-to-home lesson).
+ * Lit-node state is FRONTIER-derived (cumulative settle count) — NOT
+ * collected-derived (settle pulls are random). Each family's walker-head sprite
+ * is its PATH REPRESENTATIVE (the first-pull P5, re-selectable) when owned, else
+ * the rarest collected variant, else null → grayscale silhouette
+ * (add-neurons-first-pull-path-rep). The page owns the SINGLE useMaze(pack)
+ * subscription (calling it twice would double-fire reconcileSettles → double
+ * pulls; promote-maze-to-home lesson).
  */
 import { useEffect, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
-import { FAMILY_IDS, NT_BRANCHES } from '@study-rpg/content-neurons-tw'
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import { db, type NeuronVariantRow, type VariantRarity } from '../db'
 import {
   FAMILY_GRAPHS,
   frontierNode,
-  litNodesWithStarter,
+  litNodes,
   walkerCell,
   type Cell,
   type FamilyGraph,
@@ -34,14 +37,26 @@ import {
   walkerFraction,
   type MazeEnergyState,
 } from './economy'
-import { readStarterFamily } from '../services/first-pull'
+import { getRepresentativesRaw, readRepresentativeEnvelope } from '../services/representatives'
 
 /** P0 rarest → P5 commonest. Lower rank = rarer. */
 const RARITY_RANK: Record<VariantRarity, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4, P5: 5 }
 
-/** Rarest collected variant in a set, tie-broken by most-recently rolled (the walker sprite). */
-export function pickWalkerVariant(rows: NeuronVariantRow[]): NeuronVariantRow | null {
+/**
+ * The walker-head sprite source for a family (add-neurons-first-pull-path-rep):
+ * the family's PATH REPRESENTATIVE (`representativeSlot`) when the player owns it,
+ * else the rarest collected variant (tie-broken by most-recently rolled), else
+ * null when the family has zero collected variants (renderer shows a silhouette).
+ */
+export function pickWalkerVariant(
+  rows: NeuronVariantRow[],
+  representativeSlot?: number,
+): NeuronVariantRow | null {
   if (rows.length === 0) return null
+  if (representativeSlot !== undefined) {
+    const rep = rows.find((r) => r.slotIndex === representativeSlot)
+    if (rep) return rep
+  }
   return [...rows].sort(
     (a, b) => RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity] || b.rolledAt - a.rolledAt,
   )[0]
@@ -50,7 +65,7 @@ export function pickWalkerVariant(rows: NeuronVariantRow[]): NeuronVariantRow | 
 export interface FamilyViewState {
   familyId: string
   graph: FamilyGraph
-  /** Number of lit (frontier ∪ starter) nodes in this family (capped at node count). */
+  /** Number of lit (settle frontier) nodes in this family (capped at node count). */
   connectedCount: number
   /** Collected `family:slot` keys (kept for callers/tests; not the lit source). */
   collectedKeys: Set<string>
@@ -59,7 +74,7 @@ export interface FamilyViewState {
   target: MazeNode | null
   /** Walker position in grid-cell coords, interpolated along the corridor centerline. */
   walkerCell: Cell
-  /** Walker sprite source: rarest collected variant in family, or null → growth-cone fallback. */
+  /** Walker sprite source: family's path representative (else rarest), or null → silhouette. */
   walkerVariant: NeuronVariantRow | null
   speedMultiplier: number
   energy: MazeEnergyState
@@ -92,12 +107,6 @@ const INITIAL: MazeViewState = {
   totalConnectedCount: 0,
 }
 
-/** Read the ≤4 first-pull starter families (one per NT branch — first-pull's by-design starter-key VALUES) as a set. */
-async function readStarterFamilies(): Promise<Set<string>> {
-  const vals = await Promise.all(NT_BRANCHES.map((b) => readStarterFamily(b)))
-  return new Set(vals.filter((v): v is string => !!v))
-}
-
 export function useMaze(pack: ContentPack): MazeViewState {
   const [view, setView] = useState<MazeViewState>(INITIAL)
   const reconciling = useRef(false)
@@ -108,7 +117,8 @@ export function useMaze(pack: ContentPack): MazeViewState {
 
     const recompute = async () => {
       const allRows = await db.neuronVariants.toArray()
-      const starterFamilies = await readStarterFamilies()
+      // Path representatives (add-neurons-first-pull-path-rep): familyId → slotIndex.
+      const repMap = await getRepresentativesRaw()
       const famStates: FamilyViewState[] = []
       let dueAny = false
       for (const familyId of families) {
@@ -117,7 +127,7 @@ export function useMaze(pack: ContentPack): MazeViewState {
         const rows = allRows.filter((v) => v.familyId === familyId)
         const collectedKeys = new Set(rows.map((v) => `${v.familyId}:${v.slotIndex}`))
         const energy = await readMazeEnergyState(familyId)
-        const lit = litNodesWithStarter(familyId, energy.settles, starterFamilies)
+        const lit = litNodes(familyId, energy.settles)
         const target = frontierNode(familyId, energy.settles)
         const wc = walkerCell(familyId, energy.settles, walkerFraction(energy))
         famStates.push({
@@ -128,7 +138,7 @@ export function useMaze(pack: ContentPack): MazeViewState {
           litNodes: lit,
           target,
           walkerCell: wc,
-          walkerVariant: pickWalkerVariant(rows),
+          walkerVariant: pickWalkerVariant(rows, repMap[familyId]),
           speedMultiplier: mazeSpeedMultiplier(rows.length),
           energy,
         })
@@ -153,15 +163,15 @@ export function useMaze(pack: ContentPack): MazeViewState {
     }
 
     // Re-run whenever collected variants OR any family's maze energy meta keys OR
-    // the first-pull starter keys change.
+    // the path-representative selection change (re-select updates the walker live).
     const sub = liveQuery(async () => {
       const rows = await db.neuronVariants.toArray()
       const states = await Promise.all(families.map((f) => readMazeEnergyState(f)))
-      const starters = await Promise.all(NT_BRANCHES.map((b) => readStarterFamily(b)))
+      const reps = await readRepresentativeEnvelope()
       return {
         n: rows.length,
         e: states.map((s) => `${s.earned}:${s.settles}`).join('|'),
-        s: starters.join('|'),
+        r: reps.updatedAt,
       }
     }).subscribe({
       next: () => void recompute(),

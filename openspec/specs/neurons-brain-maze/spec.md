@@ -3,7 +3,6 @@
 ## Purpose
 
 A fog-of-war exploration view over a single unified **square grid** maze covering all 11 subject families on one shared grid — no neurotransmitter regions, no brain-shaped silhouette — that is the `apps/neurons-tw` homepage (`/`; the prior `/maze-beta` route redirects here). Studying a subject and reading accrue **per-family neural energy** (11 pools, one per subject family) that is BOTH the exploration fuel AND the pull cost: as a family's accrued energy crosses each settle's front-loaded ramped cost `cost(N)`, that family's growth cone advances along its winding corridor and the settle consumes `cost(N)` energy + triggers exactly one random `pullVariant` for the reached node's family (二週目: continued settles keep pulling within the family — dupes feed fusion) — the maze node settle is the ONLY pull path (no manual pull). The grid graph is committed (built by `scripts/build-grid-maze.mjs`; zero runtime recomputation). Display obeys the open-collection paradigm: fog of war (no pre-revealed shape / rarity), pure-count chip (no denominator), no completion milestone. Lit-node state is derived from the per-family frontier (cumulative settle count), NOT from collected variants (settle pulls are random). Each family enters from a distinct border cell and routes toward the shared center along a winding corridor; the cells where two families' routes cross at a bridge are the maze's synapses, and the connectome synapse network is rendered as a read-only overlay on the grid.
-
 ## Requirements
 ### Requirement: Maze is the homepage route
 
@@ -145,24 +144,19 @@ The maze SHALL display exploration progress as a pure count chip 「🧠 已連�
 
 ### Requirement: Collected-variant to lit-node migration
 
-Lit-node state SHALL be derived from the per-FAMILY frontier progress (cumulative settle count) UNIONed with the first-pull starter-lit nodes, NOT from collected variants in general. A family's frontier-lit nodes SHALL be the first `min(settles, nodeCount)` nodes in **route order (along the winding corridor, entry-first)** along that family's corridor (nearest the border first, advancing inward). The starter-lit nodes SHALL be the representative (border-nearest) nodes of the ≤4 families named in the **legacy first-pull keys** `meta['maze:<branch>:starterFamily']` (first-pull is unchanged by this redesign; the maze reads those key VALUES, which are familyIds, and lights each named family's representative node). The lit set SHALL be the deduplicated union of frontier-lit and starter-lit nodes. The system SHALL NOT run a backfill, duplicate-store frontier lit state, or show a migration banner. On the Dexie v17 upgrade the per-branch maze **economy** (`maze:<branch>:{earned,settles}`) is reset while the first-pull `starterFamily` keys and collected variants are preserved; the new per-family frontier starts fresh.
+Lit-node state SHALL be derived solely from the per-FAMILY frontier progress (cumulative settle count), NOT from collected variants in general and NOT from any first-pull starter overlay. A family's frontier-lit nodes SHALL be the first `min(settles, nodeCount)` nodes in **route order (along the winding corridor, entry-first)** along that family's corridor (nearest the border first, advancing inward). The lit set SHALL be exactly that frontier — the legacy first-pull starter-lit overlay is retired together with the 4-branch first-pull (the family's representative neuron is shown at the tract walker head per the walker-sprite requirement, not as a lit starter node). The system SHALL NOT run a backfill, duplicate-store frontier lit state, or show a migration banner.
 
-#### Scenario: Lit nodes derive from per-family border frontier unioned with first-pull starter nodes
+#### Scenario: Lit nodes derive from the per-family border frontier
 
-- **WHEN** a family has `settles = K` and the legacy first-pull keys name some families as starters
-- **THEN** the lit set is the union of the first `min(K, nodeCount)` corridor nodes in route order (along the winding corridor, entry-first) and the representative nodes of the first-pull-named starter families
-- **AND** the lit set does NOT otherwise depend on which specific variants were collected
+- **WHEN** a family has `settles = K`
+- **THEN** the lit set is the first `min(K, nodeCount)` corridor nodes in route order (along the winding corridor, entry-first)
+- **AND** the lit set does NOT depend on which specific variants were collected
 
-#### Scenario: Frontier reaching a starter node does not double-light
+#### Scenario: A fresh family has no lit nodes until its first settle
 
-- **WHEN** a family's frontier advances to include its representative node already lit by first-pull
-- **THEN** that node is lit exactly once (set-union dedup)
-
-#### Scenario: v17 resets economy but preserves first-pull and collection
-
-- **WHEN** an existing player upgrades to v17 and first opens the redesigned maze
-- **THEN** the per-branch `earned`/`settles` are reset (fresh per-family frontier) while `maze:<branch>:starterFamily` and collected variants are preserved
-- **AND** no backfill write or migration banner occurs
+- **WHEN** a family has `settles = 0`
+- **THEN** that family has zero lit nodes
+- **AND** the family's representative (if first-pulled) shows at the tract walker head, not as a lit node
 
 ### Requirement: Runtime sprite walks the corridor center
 
@@ -176,39 +170,37 @@ At runtime the exploration sprite SHALL move by arc-length tween along its famil
 
 ### Requirement: Exploration walker sprite
 
-Per family, the leading exploration sprite (the growth cone) that walks that family's corridor SHALL be rendered as the player's representative collected variant for that family — the rarest collected variant in that family, tie-broken by most-recently collected. When the player has zero collected variants in a family, the system SHALL render a generic growth-cone fallback sprite. Each family's walker selection SHALL be recomputed when the collection changes.
+Per family, the leading exploration sprite (the family's path representative) that walks that family's corridor SHALL be rendered as the family's **representative** collected variant when the player owns it; otherwise it SHALL fall back to the family's **rarest** collected variant (tie-broken by most-recently collected). When the player has zero collected variants in a family (no first-pull yet), the system SHALL render a **grayscale silhouette** placeholder rather than a collected neuron. Each family's walker selection SHALL be recomputed when the collection or the family's representative changes.
 
-#### Scenario: Walker is the family's representative collected variant
+#### Scenario: Walker is the family's representative when set
 
-- **WHEN** the player has at least one collected variant in family F
+- **WHEN** family F has a representative variant the player owns
+- **THEN** F's walking sprite renders as that representative variant's 立繪
+
+#### Scenario: Walker falls back to the rarest collected variant
+
+- **WHEN** family F has collected variants but no representative set
 - **THEN** F's walking sprite renders as F's rarest collected variant's 立繪 (tie-broken by most-recent)
 
-#### Scenario: Empty family team uses fallback growth-cone sprite
+#### Scenario: Empty family shows a grayscale silhouette
 
 - **WHEN** the player has zero collected variants in family F
-- **THEN** F's walking sprite renders as a generic growth-cone fallback sprite
+- **THEN** F's tract head renders a grayscale silhouette placeholder
 - **AND** exploration in F still advances at the fixed base speed
 
 ### Requirement: Maze progress persistence
 
-The system SHALL persist per-FAMILY earned-energy accrual and settle progress in the existing `meta` key-value store using per-family keys (`maze:<familyId>:earned` monotonic synced accrual, `maze:<familyId>:settles` settle/pull count). Both per-family key families SHALL be in `SYNCED_META_KEYS` and resolve via the MAX-merge counter post-pass. The legacy per-branch first-pull keys `maze:<branch>:starterFamily` SHALL remain in `SYNCED_META_KEYS` (first-pull is unchanged; the maze reads them for starter-lit). The change SHALL bump Dexie to `.version(17)`; the v16→v17 upgrade callback SHALL clear the retired per-branch economy keys (`maze:{da,5ht,gaba,glu}:{earned,settles}`) — a deliberate economy reset — while PRESERVING `maze:{da,5ht,gaba,glu}:starterFamily` and all collected variants. Because a new `.version()` is declared, the change MUST include a `db-v16-to-v17` upgrade fixture test per the project Dexie-upgrade-fixture rule. The R2 bundle `SCHEMA_VERSION` SHALL bump 16 → 17 (additive + reader-tolerance: v16 clients drop the unknown 11-family keys; v17 reading a v16 bundle finds no 11-family keys and starts fresh).
+The system SHALL persist per-FAMILY earned-energy accrual and settle progress in the existing `meta` key-value store using per-family keys (`maze:<familyId>:earned` monotonic synced accrual, `maze:<familyId>:settles` settle/pull count). Both per-family key families SHALL be in `SYNCED_META_KEYS` and resolve via the MAX-merge counter post-pass. The legacy per-branch first-pull keys `maze:<branch>:starterFamily` and the `firstPullDone` flag are **retired**: they SHALL NOT be in `SYNCED_META_KEYS` and SHALL NOT be read by the maze; any physically-present legacy key in an existing save is ignored (leave-and-ignore). The maze Dexie schema is `.version(17)` (established by the rotjs-grid redesign); the representative change SHALL NOT bump the Dexie version. The R2 bundle `SCHEMA_VERSION` SHALL be bumped additively (17 → 18, reader-tolerant) to carry the new `firstPullFamilies` synced meta key.
 
 #### Scenario: Per-family progress survives reload
 
 - **WHEN** the player advances exploration in any family and reloads the app
 - **THEN** each family's earned-energy accrual and settle count are restored independently
 
-#### Scenario: v17 upgrade resets per-branch economy, preserves starter + collection
+#### Scenario: Retired first-pull keys are ignored
 
-- **WHEN** a v16 client upgrades to v17
-- **THEN** the upgrade callback clears the `maze:{da,5ht,gaba,glu}:{earned,settles}` keys
-- **AND** the `maze:{da,5ht,gaba,glu}:starterFamily` keys and the player's collected variants are unchanged
-- **AND** a `db-v16-to-v17` upgrade fixture test accompanies the bump
-
-#### Scenario: Per-family progress syncs cross-device
-
-- **WHEN** the player accrues energy / settles in family F on device 1 and studies on device 2
-- **THEN** `maze:F:earned` and `maze:F:settles` converge via MAX-merge across devices
+- **WHEN** an existing save physically contains legacy `maze:<branch>:starterFamily` or `firstPullDone` keys
+- **THEN** the maze ignores them and does not sync them (they are not in `SYNCED_META_KEYS`)
 
 ### Requirement: Color-blind-friendly team encoding
 

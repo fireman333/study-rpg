@@ -6,9 +6,13 @@ import { NeuronsDB } from '../lib/db'
 /**
  * Verify the Dexie v16 → v17 upgrade (redesign-neurons-maze-rotjs-grid) is an
  * ECONOMY RESET ONLY: the upgrade callback clears the 8 retired four-branch maze
- * pool keys (`maze:{da,5ht,gaba,glu}:{earned,settles}`) while PRESERVING the 4
- * first-pull `maze:{da,5ht,gaba,glu}:starterFamily` keys + all collected variants.
- * No object-store / pk change; the new per-family keys start absent (fresh frontier).
+ * pool keys (`maze:{da,5ht,gaba,glu}:{earned,settles}`) while PRESERVING all
+ * collected variants. No object-store / pk change; the new per-family keys start
+ * absent (fresh frontier).
+ *
+ * (The 4-branch first-pull `starterFamily` keys are retired by
+ * add-neurons-first-pull-path-rep — no longer synced or read — so they are not
+ * asserted here.)
  *
  * Mirror discipline from ~/.claude/imports/dexie_pk_change_pitfall.md: seed v16
  * state explicitly via `.version(16).stores(`, then reopen at v17 via NeuronsDB.
@@ -46,8 +50,8 @@ afterEach(async () => {
 })
 
 describe('Dexie v16 → v17 migration (flat-grid maze: per-branch economy reset)', () => {
-  it('clears the 8 branch economy keys, preserves starterFamily + collection, no throw', async () => {
-    // 1. Seed a v16 save: per-branch maze economy + starter keys + a collected variant.
+  it('clears the 8 branch economy keys, preserves collection, no throw', async () => {
+    // 1. Seed a v16 save: per-branch maze economy + a collected variant.
     const dbV16 = new Dexie(DB_NAME)
     dbV16.version(16).stores(V16_STORES)
     await dbV16.open()
@@ -55,9 +59,6 @@ describe('Dexie v16 → v17 migration (flat-grid maze: per-branch economy reset)
       await dbV16.table('meta').put({ key: `maze:${b}:earned`, value: '120' })
       await dbV16.table('meta').put({ key: `maze:${b}:settles`, value: '5' })
     }
-    await dbV16.table('meta').put({ key: 'maze:da:starterFamily', value: '藥理學' })
-    await dbV16.table('meta').put({ key: 'maze:glu:starterFamily', value: '解剖學' })
-    await dbV16.table('meta').put({ key: 'firstPullDone', value: 'true' })
     await dbV16.table('neuronVariants').put({
       familyId: '藥理學',
       slotIndex: 1,
@@ -82,12 +83,7 @@ describe('Dexie v16 → v17 migration (flat-grid maze: per-branch economy reset)
       expect(await db.meta.get(`maze:${b}:settles`)).toBeUndefined()
     }
 
-    // 4. The first-pull starter keys + firstPullDone are PRESERVED.
-    expect((await db.meta.get('maze:da:starterFamily'))?.value).toBe('藥理學')
-    expect((await db.meta.get('maze:glu:starterFamily'))?.value).toBe('解剖學')
-    expect((await db.meta.get('firstPullDone'))?.value).toBe('true')
-
-    // 5. Collected variants are PRESERVED.
+    // 4. Collected variants are PRESERVED.
     expect(await db.neuronVariants.count()).toBe(1)
     const v = await db.neuronVariants.get(['藥理學', 1])
     expect(v?.copies).toBe(2)

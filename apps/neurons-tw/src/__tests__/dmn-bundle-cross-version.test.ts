@@ -23,8 +23,8 @@ beforeEach(async () => {
 })
 
 describe('Bundle schema_version validation', () => {
-  it('current SCHEMA_VERSION is 17', () => {
-    expect(SCHEMA_VERSION).toBe(17)
+  it('current SCHEMA_VERSION is 18', () => {
+    expect(SCHEMA_VERSION).toBe(18)
   })
 
   it('schema_version < 1 throws invalid_schema_version', () => {

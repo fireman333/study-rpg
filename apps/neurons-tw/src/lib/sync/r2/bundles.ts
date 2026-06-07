@@ -120,11 +120,20 @@
 //        drops the unknown 11-family keys; a v17 client reading a v16 bundle finds
 //        no 11-family keys → fresh per-family frontier (the dropped branch keys are
 //        ignored — not in the allowlist). Worker is bundle-opaque (no Worker change).
+//   v18 — add-neurons-first-pull-path-rep 2026-06-07: replaces the 4-branch first-pull
+//        with a per-family first-pull. Adds the `firstPullFamilies` meta key (JSON-array
+//        SET of first-pulled familyIds, MONOTONIC-UNION post-pass) to the allowlist and
+//        DROPS the retired `firstPullDone` + 4 `maze:<branch>:starterFamily` keys. The
+//        path representative reuses the existing `representativeVariants` key (LWW).
+//        NO Dexie bump (reuses `meta` kv). Additive + reader-tolerant: a v17 client
+//        reading a v18 bundle drops the unknown `firstPullFamilies` key; a v18 client
+//        reading a v17 bundle finds none → local first-pull set preserved (union with
+//        empty). Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 17
+export const SCHEMA_VERSION = 18
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

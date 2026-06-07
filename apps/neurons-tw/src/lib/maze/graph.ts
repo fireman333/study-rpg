@@ -225,26 +225,6 @@ export function synapseLocationFor(familyId: string, slotIndex: number): string 
   return SYNAPSE_BY_CELL.get(`${node.cell[0]},${node.cell[1]}`)?.location ?? null
 }
 
-/**
- * Lit nodes of a family including the first-pull starter node. `frontier(settles)`
- * UNIONed with this family's representative node when the family is named in the
- * legacy first-pull starter keys (`starterFamilies` = the SET of familyIds those
- * keys point to). Deduped by node identity. first-pull is unchanged by this
- * redesign — the maze just reads the key VALUES to light starter reps.
- */
-export function litNodesWithStarter(
-  familyId: string,
-  settles: number,
-  starterFamilies: ReadonlySet<string>,
-): MazeNode[] {
-  const frontier = litNodes(familyId, settles)
-  if (!starterFamilies.has(familyId)) return frontier
-  const rep = representativeNode(familyId)
-  if (!rep) return frontier
-  if (frontier.some((n) => n.slotIndex === rep.slotIndex)) return frontier
-  return [...frontier, rep]
-}
-
 /** Linear-interpolate a point at arc-length `targetArc` along a family's corridor. */
 export function pointAtArc(familyId: string, targetArc: number): Cell {
   const g = FAMILY_GRAPHS[familyId]

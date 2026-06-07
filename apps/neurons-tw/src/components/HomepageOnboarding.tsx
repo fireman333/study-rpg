@@ -11,7 +11,6 @@
 
 import { useEffect, useState } from 'react'
 import { db, HOMEPAGE_ONBOARDING_DISMISSED_KEY } from '../lib/db'
-import { FirstPullButton } from './FirstPull'
 
 type Visibility = 'loading' | 'shown' | 'hidden'
 
@@ -67,8 +66,6 @@ export function HomepageOnboarding(): JSX.Element | null {
         </li>
       </ol>
       <div style={ctaRowStyle}>
-        {/* One-time 首抽 CTA (add-neurons-first-pull) — shown while not yet done. */}
-        <FirstPullButton placement="onboarding" />
         <button type="button" onClick={dismiss} style={ctaStyle}>
           知道了，開始 →
         </button>

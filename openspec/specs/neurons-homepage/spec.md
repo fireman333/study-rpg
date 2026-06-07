@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines the composition and behavior of the neurons-tw homepage (`/`): a hook region (lightweight connectome-tree hero + cap-aware DMN-draw progress ring + first-visit onboarding) over a dashboard region (progress chips + read/quiz CTA + family picker), with homepage-scoped answer-feedback motion. Reduces friction by surfacing game mechanics as visuals rather than prose rules, while keeping the reading timer manual and the quiz entry paths intact.
-
 ## Requirements
-
 ### Requirement: Homepage SHALL render the interactive connectome tree as its centerpiece in a fixed-height contained-scroll panel
 
 The neurons-tw homepage (`/`) SHALL render the **maze brain-map** (the four-region fog-of-war exploration view, per `neurons-brain-maze`) as its interactive centerpiece, mounted inside a **fixed-height panel**. The maze's own interaction model SHALL apply: per-branch frontier exploration, branch-filter chips, walker sprites, fog-of-war reveal, and the synapse overlay (per the `neurons-brain-maze` "Synapse network overlay" requirement). A plain (unmodified) wheel over the panel SHALL scroll the page normally — the panel SHALL NOT trap page scroll, and `overscroll-behavior` containment SHALL prevent the maze from hijacking page scroll. The connectome tree (`ConnectomeTreeSvg`) SHALL NOT be the homepage centerpiece and SHALL NOT be mounted on `/`.
@@ -69,7 +67,7 @@ The homepage SHALL present, top to bottom: (1) a **CTA toolbar** containing the 
 
 ### Requirement: Homepage SHALL surface a one-tap-dismissable first-visit onboarding that never reappears once dismissed
 
-The homepage SHALL render a brief, skippable onboarding panel gated on a persisted `meta['homepageOnboardingDismissed']` flag. Dismissing it SHALL set the flag so it never reappears, including after F5 reload. The account-reset path SHALL clear the flag so a reset user sees the onboarding again. The existing `/connectome` first-visit callout SHALL be left in place (it serves users who land directly on `/connectome`). The onboarding panel SHALL host the one-time 首抽 (first-pull) CTA while `meta['firstPullDone']` is absent/false. The 首抽 availability SHALL be gated on `meta['firstPullDone']` independently of `meta['homepageOnboardingDismissed']`; if the player dismisses onboarding before first-pulling, a compact 首抽 entry SHALL remain available (e.g., in the CTA toolbar) until `firstPullDone` is true.
+The homepage SHALL render a brief, skippable onboarding panel gated on a persisted `meta['homepageOnboardingDismissed']` flag. Dismissing it SHALL set the flag so it never reappears, including after F5 reload. The account-reset path SHALL clear the flag so a reset user sees the onboarding again. The existing `/connectome` first-visit callout SHALL be left in place (it serves users who land directly on `/connectome`). The onboarding panel SHALL NOT host any 首抽 (first-pull) CTA — the explicit first-pull ritual is retired; first-pull is now granted automatically on each family's first answer (per `neuron-path-representative`), so no onboarding CTA or compact 首抽 entry is shown anywhere.
 
 #### Scenario: First-time user sees onboarding
 - **WHEN** the homepage loads and `meta['homepageOnboardingDismissed']` is absent or false
@@ -87,14 +85,9 @@ The homepage SHALL render a brief, skippable onboarding panel gated on a persist
 - **WHEN** a first-time user navigates directly to `/connectome` with no synapses
 - **THEN** the existing `/connectome` empty-state callout still renders (it is not removed by this change)
 
-#### Scenario: Onboarding hosts the first-pull CTA
-- **WHEN** the onboarding renders and `meta['firstPullDone']` is absent or false
-- **THEN** the onboarding panel presents the one-time 首抽 CTA
-
-#### Scenario: First-pull entry survives onboarding dismissal
-- **WHEN** the player dismisses onboarding while `meta['firstPullDone']` is still false
-- **THEN** a compact 首抽 entry remains available (CTA toolbar) until `firstPullDone` becomes true
-- **AND** once `firstPullDone` is true, no 首抽 entry is shown anywhere
+#### Scenario: No first-pull CTA in onboarding
+- **WHEN** the onboarding renders for a new player
+- **THEN** no 首抽 / first-pull CTA is present in the onboarding panel or the CTA toolbar
 
 ### Requirement: Homepage SHALL preserve manual reading-timer start and the non-collapsed quiz CTA
 
@@ -123,3 +116,4 @@ All new homepage motion (hero ambient firing, answer-resolution feedback flash) 
 #### Scenario: Direct URL and F5 render the homepage
 - **WHEN** the user navigates directly to `/` or presses F5 on `/`
 - **THEN** the homepage renders fully (hero + ring + dashboard), not a 404 or blank shell
+

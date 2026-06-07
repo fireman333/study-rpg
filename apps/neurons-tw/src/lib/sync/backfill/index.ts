@@ -11,6 +11,7 @@ import {
 } from './counters'
 import { backfillRepresentativesLWW } from './representatives'
 import { backfillActiveSquadLWW } from './active-squad'
+import { backfillFirstPullFamiliesUnion } from './first-pull'
 
 export async function runOnPullComplete(
   db: NeuronsDB,
@@ -48,6 +49,18 @@ export async function runOnPullComplete(
     await backfillActiveSquadLWW(db, incomingMeta)
   } catch (err) {
     console.warn('[sync.backfill] step 1c (active-squad) failed', err)
+  }
+
+  // Step 1d — Per-family first-pull UNION reconcile (monotonic set; the meta
+  // adapter is first-write-wins, this enforces union). Per
+  // add-neurons-first-pull-path-rep.
+  try {
+    const incomingMeta = pull.snapshot
+      ? extractBundleMetaMap(pull.snapshot.data)
+      : {}
+    await backfillFirstPullFamiliesUnion(db, incomingMeta)
+  } catch (err) {
+    console.warn('[sync.backfill] step 1d (first-pull) failed', err)
   }
 
   // Step 2 — Achievement backfill. Silent (no toast / no reward dispatch).

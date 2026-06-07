@@ -96,13 +96,13 @@ async function buildGameStateSnapshot(): Promise<Record<string, unknown>> {
   ])
 
   const metaKeys = [
-    'firstPullDone',
     'totalStudyMinutes',
     'currentQuizCorrectStreak',
     'maxQuizCorrectStreak',
     'dmnDrawsAvailable',
     'neuralEnergyEarned',
     'neuralEnergySpent',
+    'firstPullFamilies',
     // Per-family maze settle counts (redesign-neurons-maze-rotjs-grid).
     ...FAMILY_IDS.map((f) => `maze:${f}:settles`),
   ]
@@ -111,7 +111,7 @@ async function buildGameStateSnapshot(): Promise<Record<string, unknown>> {
   metaKeys.forEach((k, i) => {
     const raw = metaRows[i]?.value
     if (raw == null) return
-    meta[k] = k === 'firstPullDone' ? raw === 'true' : (num(raw) ?? raw)
+    meta[k] = num(raw) ?? raw
   })
 
   return {
