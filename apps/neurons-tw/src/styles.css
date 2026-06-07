@@ -14,6 +14,35 @@
  * desktop layout stays pixel-identical.
  */
 
+/* ── Pixel typography (polish-neurons-pixel-font) ────────────────────────────
+ * Cubic 11 (OFL-1.1, https://github.com/ACh-K/Cubic-11) self-hosted by this app.
+ * Bundled via a RELATIVE url() so Vite fingerprints + rewrites it base-correctly
+ * for both dev (base `/`) and prod (base `/neurons/`). The previous theme-package
+ * @font-face used an absolute `/fonts/...` that 404'd under the prod base and
+ * silently fell back to Noto Sans TC — this is the fix. */
+@font-face {
+  font-family: 'Cubic 11';
+  src:
+    url('./assets/fonts/Cubic_11.woff2') format('woff2'),
+    url('./assets/fonts/Cubic_11.woff') format('woff');
+  font-display: swap;
+}
+
+:root {
+  /* Pixel "RPG chrome" font stacks — single source of truth (mirror the sibling
+   * 二階 study-rpg-2nd token system). Components reference these, never a raw
+   * 'Cubic 11' / 'VT323' literal. The app default body font is pixel (set in
+   * theme global.css → var(--font-pixel-cjk)). */
+  --font-pixel-cjk: 'Cubic 11', 'Noto Sans TC', 'PingFang TC', sans-serif;
+  --font-pixel-num: 'Cubic 11', 'VT323', 'Courier New', monospace;
+  --font-pixel-en: 'Cubic 11', 'Press Start 2P', 'Courier New', monospace;
+  /* Legible stack for exam content + long-form prose — the explicit opt-out
+   * from the global pixel default. Applied per-surface via
+   * `fontFamily: 'var(--font-legible)'` (quiz / bank / bookmarks exam text,
+   * bug-report inputs) and the `.neurons-help-body` rule. */
+  --font-legible: 'Noto Sans TC', 'PingFang TC', sans-serif;
+}
+
 /* ── Body scroll lock while a modal backdrop is mounted ──────────────────── */
 
 /* Disable pull-to-refresh so a swipe-down that reaches a modal's scroll top

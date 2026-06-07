@@ -8,13 +8,13 @@
  * THEME_PIXEL_NEURONS.cssVars (src/index.ts) and injected at boot.
  */
 
-@font-face {
-  font-family: 'Cubic 11';
-  src:
-    url('/fonts/Cubic_11.woff2') format('woff2'),
-    url('/fonts/Cubic_11.woff') format('woff');
-  font-display: swap;
-}
+/*
+ * The Cubic 11 @font-face is declared by the HOST APP (apps/neurons-tw/src/styles.css)
+ * with a Vite-bundled relative url() so it resolves under any Vite `base`
+ * (dev `/`, prod `/neurons/`). A previous absolute `url('/fonts/...')` here
+ * 404'd under the prod base and silently fell back to Noto Sans TC.
+ * Font-family tokens (--font-pixel-* / --font-legible) live in the app's :root.
+ */
 
 :root {
   /* fallback base layout (overridden by THEME_PIXEL_NEURONS.cssVars injection at boot) */
@@ -29,7 +29,10 @@ body {
   padding: 0;
   background: var(--bg-cream);
   color: var(--ink);
-  font-family: 'Cubic 11', 'Noto Sans TC', 'PingFang TC', sans-serif;
+  /* Global default = pixel chrome (Cubic 11). Exam content + long-form prose
+   * opt OUT to var(--font-legible) per-surface (see app styles.css). Token is
+   * defined in the host app's :root and resolves here via the global cascade. */
+  font-family: var(--font-pixel-cjk);
   font-size: 14px;
   line-height: 1.6;
 }

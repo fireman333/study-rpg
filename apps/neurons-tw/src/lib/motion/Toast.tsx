@@ -64,7 +64,7 @@ export function Toast({ variant = 'info', onDismiss, children }: ToastProps): JS
         minWidth: 'min(260px, calc(100vw - 1.6rem))',
         maxWidth: 'min(480px, calc(100vw - 1.6rem))',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+        fontFamily: 'var(--font-pixel-cjk)',
         ...VARIANT_STYLES[variant],
       }}
     >

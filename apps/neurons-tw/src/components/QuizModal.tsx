@@ -868,7 +868,7 @@ const bugSheet: CSSProperties = {
   boxShadow: '0 8px 28px rgba(0,0,0,0.3)',
   width: '100%',
   maxWidth: 420,
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   color: '#3a2a1a',
 }
 
@@ -945,7 +945,7 @@ const modalStyle: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 
 const headerStyle: React.CSSProperties = {
@@ -981,6 +981,8 @@ const stemStyle: React.CSSProperties = {
   marginTop: 0,
   marginBottom: '1.25rem',
   whiteSpace: 'pre-wrap',
+  // Exam content — legible, never pixel (opt out of the global pixel default).
+  fontFamily: 'var(--font-legible)',
 }
 
 /**
@@ -1052,7 +1054,8 @@ const optionCardStyle: React.CSSProperties = {
   fontSize: '0.95rem',
   lineHeight: 1.5,
   color: '#3a2a1a',
-  fontFamily: 'inherit',
+  // Exam content (option text) — legible, never pixel.
+  fontFamily: 'var(--font-legible)',
   transition: 'background 0.15s, border-color 0.15s',
 }
 
@@ -1086,6 +1089,8 @@ const disputedBannerStyle: React.CSSProperties = {
   borderRadius: '4px',
   fontSize: '0.88rem',
   color: '#5a3f29',
+  // Disclaimer prose about the question — legible, never pixel.
+  fontFamily: 'var(--font-legible)',
 }
 
 const resultLineStyle: React.CSSProperties = {
@@ -1125,6 +1130,8 @@ const explanationBodyStyle: React.CSSProperties = {
   lineHeight: 1.6,
   color: '#3a2a1a',
   whiteSpace: 'pre-wrap',
+  // 詳解 explanation prose — legible, never pixel.
+  fontFamily: 'var(--font-legible)',
 }
 
 const aiNoteStyle: React.CSSProperties = {
@@ -1133,6 +1140,8 @@ const aiNoteStyle: React.CSSProperties = {
   lineHeight: 1.5,
   color: '#8a5a2a',
   fontStyle: 'italic',
+  // AI-generated disclaimer prose — legible, never pixel.
+  fontFamily: 'var(--font-legible)',
 }
 
 const questionIdStyle: React.CSSProperties = {

@@ -276,7 +276,7 @@ export default function HelpMenu(): JSX.Element {
           border-radius: 10px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
           z-index: 960;
-          font-family: 'Cubic 11', 'Noto Sans TC', sans-serif;
+          font-family: var(--font-pixel-cjk);
           color: #3a2a1a;
         }
 
@@ -353,6 +353,9 @@ export default function HelpMenu(): JSX.Element {
           font-size: 0.85rem;
           line-height: 1.6;
           color: #3a2a1a;
+          /* Teaching prose = legible (opt out of the global pixel default).
+           * kbd / code chips below keep pixel-mono via more-specific selectors. */
+          font-family: var(--font-legible);
         }
         .neurons-help-body p {
           margin: 0.4rem 0;
@@ -365,7 +368,7 @@ export default function HelpMenu(): JSX.Element {
           border: 1px solid #8c6d4a;
           border-bottom-width: 2px;
           border-radius: 3px;
-          font-family: 'VT323', 'Courier New', monospace;
+          font-family: var(--font-pixel-num);
           font-size: 0.92em;
           color: #3a2a1a;
           line-height: 1;
@@ -379,7 +382,7 @@ export default function HelpMenu(): JSX.Element {
           border: 1px solid #c4a878;
           border-radius: 3px;
           padding: 0 0.25rem;
-          font-family: 'VT323', 'Courier New', monospace;
+          font-family: var(--font-pixel-num);
           font-size: 0.92em;
         }
         .neurons-help-bugreport-btn {

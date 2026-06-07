@@ -146,7 +146,7 @@ const pageStyle: React.CSSProperties = {
   maxWidth: 960,
   margin: '1.5rem auto',
   padding: '0 1.25rem',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 
 const topBarStyle: React.CSSProperties = {

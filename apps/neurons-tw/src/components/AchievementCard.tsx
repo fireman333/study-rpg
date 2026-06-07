@@ -41,7 +41,7 @@ export function AchievementCard({
         gap: '0.85rem',
         alignItems: 'flex-start',
         opacity: unlocked ? 1 : 0.7,
-        fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+        fontFamily: 'var(--font-pixel-cjk)',
         color: '#5a3f29',
       }}
     >

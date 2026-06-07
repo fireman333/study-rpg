@@ -348,7 +348,7 @@ const KEYFRAMES = `
   font-size: 0.72rem; color: #efeaff;
   background: rgba(10,8,30,0.5); border: 1px solid #2a2750;
   border-radius: 999px; padding: 2px 9px;
-  font-family: 'Cubic 11', 'Noto Sans TC', sans-serif;
+  font-family: var(--font-pixel-cjk);
 }
 
 .exp-hide {
@@ -358,7 +358,7 @@ const KEYFRAMES = `
   border: 1px solid #2a2750; border-radius: 999px;
   background: rgba(10,8,30,0.55); color: #cfc8ff;
   font-size: 1rem; font-weight: 700; cursor: pointer;
-  font-family: 'Cubic 11', 'Noto Sans TC', sans-serif;
+  font-family: var(--font-pixel-cjk);
 }
 .exp-hide:hover { background: rgba(40,30,70,0.85); color: #fff; }
 

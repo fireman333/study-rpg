@@ -75,7 +75,7 @@ export function AchievementUnlockModal({
         justifyContent: 'center',
         zIndex: 1000,
         padding: '1rem',
-        fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+        fontFamily: 'var(--font-pixel-cjk)',
       }}
     >
       <motion.div

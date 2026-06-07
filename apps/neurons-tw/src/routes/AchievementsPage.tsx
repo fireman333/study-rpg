@@ -159,7 +159,7 @@ const filterLabelStyle: React.CSSProperties = {
 }
 
 const selectStyle: React.CSSProperties = {
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   fontSize: 13,
   padding: '0.2rem 0.4rem',
   background: '#f4ecd8',
@@ -181,7 +181,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       style={{
-        fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+        fontFamily: 'var(--font-pixel-cjk)',
         fontSize: 14,
         padding: '0.35rem 0.85rem',
         background: active ? '#b58900' : '#f4ecd8',

@@ -106,7 +106,7 @@ export function DmnDrawProgressRing(): JSX.Element {
           dominantBaseline="central"
           style={{
             fill: 'var(--signal-ink, #cfe8e2)',
-            fontFamily: "'VT323', monospace",
+            fontFamily: 'var(--font-pixel-num)',
             fontSize: state?.capped ? 16 : 20,
           }}
         >

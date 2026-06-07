@@ -54,7 +54,7 @@ const buttonStyle: React.CSSProperties = {
   border: '2px solid #2d2055',
   borderRadius: '6px',
   color: '#fff',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   fontSize: '0.8rem',
   fontWeight: 700,
   letterSpacing: '0.05em',

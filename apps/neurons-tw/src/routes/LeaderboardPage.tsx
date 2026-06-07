@@ -386,7 +386,7 @@ const myRankChipStyle: React.CSSProperties = {
   color: '#5a3f29',
   fontSize: '0.85rem',
   marginBottom: '0.6rem',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 
 const gridStyle: React.CSSProperties = {
@@ -396,7 +396,7 @@ const gridStyle: React.CSSProperties = {
   borderRadius: '4px',
   background: '#fdf6e3',
   overflow: 'hidden',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 
 const headerRowStyle: React.CSSProperties = {
@@ -471,5 +471,5 @@ const footerStyle: React.CSSProperties = {
   borderTop: '1px solid #d4c4a0',
   fontSize: '0.7rem',
   color: '#8c6d4a',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }

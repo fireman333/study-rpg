@@ -306,7 +306,7 @@ const btnStyle: React.CSSProperties = {
   padding: '0.5rem 0.85rem',
   color: '#5a3f29',
   cursor: 'pointer',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   marginRight: '0.5rem',
   marginBottom: '0.5rem',
 }
