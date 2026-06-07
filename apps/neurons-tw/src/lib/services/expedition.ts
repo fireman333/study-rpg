@@ -75,3 +75,117 @@ export function onExpeditionComplete(session: ExpeditionSession): void {
     console.error('[expedition-reward] DMN draw credit failed:', err)
   })
 }
+
+// ---------------------------------------------------------------------------
+// 年份回數遠征 — year + 次別 full-question-set expedition
+// (add-neurons-exam-set-expedition). A "paper" = a whole (year, session) sitting
+// (醫學一 + 醫學二, ~200 Q). Progress derives entirely from questionHistory (a
+// question is "covered" once it has any history row, any mode) — NO new Dexie
+// table / version bump / sync change. Reward reuses onExpeditionComplete above.
+// Capability spec: openspec/specs/neurons-exam-set-expedition/spec.md
+// ---------------------------------------------------------------------------
+
+interface ExamMeta {
+  year?: number
+  session?: number
+  qNumber?: number
+  paper?: string
+}
+
+/** Defensive read of the exam-specific meta fields (meta is Record<string,unknown>). */
+function examMeta(q: Question): ExamMeta {
+  const m = (q.meta ?? {}) as Record<string, unknown>
+  return {
+    year: typeof m.year === 'number' ? m.year : undefined,
+    session: typeof m.session === 'number' ? m.session : undefined,
+    qNumber: typeof m.qNumber === 'number' ? m.qNumber : undefined,
+    paper: typeof m.paper === 'string' ? m.paper : undefined,
+  }
+}
+
+/** Question order within a sitting: by paper (醫學一 `medexam-1` < 醫學二 `medexam-2`),
+ *  then qNumber, then id as a stable fallback. */
+function examOrderCompare(a: Question, b: Question): number {
+  const ma = examMeta(a)
+  const mb = examMeta(b)
+  const pa = ma.paper ?? ''
+  const pb = mb.paper ?? ''
+  if (pa !== pb) return pa < pb ? -1 : 1
+  const qa = ma.qNumber ?? Number.MAX_SAFE_INTEGER
+  const qb = mb.qNumber ?? Number.MAX_SAFE_INTEGER
+  if (qa !== qb) return qa - qb
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+}
+
+/**
+ * Per-session pool for a (year, 次別) paper: every question in that sitting NOT
+ * yet answered (no `questionHistory` row), in question order. Empty ⇒ the paper
+ * is fully covered. Pure + testable.
+ */
+export function buildExamSetExpeditionPool(
+  pool: readonly Question[],
+  history: readonly QuestionHistoryRow[],
+  year: number,
+  session: number,
+): Question[] {
+  const answered = new Set(history.map((h) => h.questionId))
+  return pool
+    .filter((q) => {
+      const m = examMeta(q)
+      return m.year === year && m.session === session && !answered.has(q.id)
+    })
+    .sort(examOrderCompare)
+}
+
+/** Answered / total coverage for one (year, 次別) paper, derived from history. */
+export function examSetCoverage(
+  pool: readonly Question[],
+  history: readonly QuestionHistoryRow[],
+  year: number,
+  session: number,
+): { answered: number; total: number } {
+  const answeredIds = new Set(history.map((h) => h.questionId))
+  let answered = 0
+  let total = 0
+  for (const q of pool) {
+    const m = examMeta(q)
+    if (m.year === year && m.session === session) {
+      total += 1
+      if (answeredIds.has(q.id)) answered += 1
+    }
+  }
+  return { answered, total }
+}
+
+/** One row per (year, 次別) paper with coverage, for the picker. Years descending,
+ *  次別 ascending. `complete` ⇔ answered === total (and total > 0). */
+export interface ExamPaperCoverage {
+  year: number
+  session: number
+  total: number
+  answered: number
+  complete: boolean
+}
+
+export function listExamPapersWithCoverage(
+  pool: readonly Question[],
+  history: readonly QuestionHistoryRow[],
+): ExamPaperCoverage[] {
+  const answeredIds = new Set(history.map((h) => h.questionId))
+  const byKey = new Map<string, { year: number; session: number; total: number; answered: number }>()
+  for (const q of pool) {
+    const m = examMeta(q)
+    if (m.year === undefined || m.session === undefined) continue
+    const key = `${m.year}:${m.session}`
+    let row = byKey.get(key)
+    if (!row) {
+      row = { year: m.year, session: m.session, total: 0, answered: 0 }
+      byKey.set(key, row)
+    }
+    row.total += 1
+    if (answeredIds.has(q.id)) row.answered += 1
+  }
+  return [...byKey.values()]
+    .map((r) => ({ ...r, complete: r.total > 0 && r.answered === r.total }))
+    .sort((a, b) => b.year - a.year || a.session - b.session)
+}

@@ -20,7 +20,13 @@ import {
   computeFamilyModeCounts,
   type QuizMode,
 } from '../lib/services/srs-scheduler'
-import { buildWrongQuestionPool, buildQuickReviewPool, onExpeditionComplete } from '../lib/services/expedition'
+import {
+  buildWrongQuestionPool,
+  buildQuickReviewPool,
+  onExpeditionComplete,
+  buildExamSetExpeditionPool,
+  listExamPapersWithCoverage,
+} from '../lib/services/expedition'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { YearFilterBar } from '../components/YearFilterBar'
@@ -50,6 +56,11 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // Quick-review mini-batch: when true, the open expedition is capped to ≤5
   // wrong questions (DMN quick-review-batch event, realign-dmn-event-rewards-to-maze).
   const [quickReviewActive, setQuickReviewActive] = useState(false)
+  // 遠征選單 (add-neurons-exam-set-expedition): 出征 opens a chooser →
+  // 'choose' (錯題 / 年份回數) → 'exam' (year+次別 paper picker). 'closed' = hidden.
+  const [expeditionMenu, setExpeditionMenu] = useState<'closed' | 'choose' | 'exam'>('closed')
+  // Active year+次別 paper drill (null = not open). Mutually exclusive with quizEntry / expeditionOpen.
+  const [examSelection, setExamSelection] = useState<{ year: number; session: number } | null>(null)
   const [totalStudyMin, setTotalStudyMin] = useState(0)
   const [stats, setStats] = useState<ProgressStats>({ variants: 0, dmnOwned: 0 })
   const [accrualByFamily, setAccrualByFamily] = useState<Map<string, FamilyAccrual>>(new Map())
@@ -115,6 +126,28 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       ? buildQuickReviewPool(pack.questions, questionHistory, 5)
       : buildWrongQuestionPool(pack.questions, questionHistory)
   }, [expeditionOpen, quickReviewActive, pack.questions, questionHistory])
+
+  // 年份回數遠征: paper list (with coverage) for the picker; only materialized
+  // while the picker is open. (add-neurons-exam-set-expedition)
+  const examPapers = useMemo(
+    () =>
+      expeditionMenu === 'exam' ? listExamPapersWithCoverage(pack.questions, questionHistory) : [],
+    [expeditionMenu, pack.questions, questionHistory],
+  )
+  // Unanswered pool for the selected paper, in question order; built at open time
+  // (QuizModal snapshots it, so it won't shrink mid-session). Empty ⇒ paper complete.
+  const examSetPool = useMemo(
+    () =>
+      examSelection
+        ? buildExamSetExpeditionPool(
+            pack.questions,
+            questionHistory,
+            examSelection.year,
+            examSelection.session,
+          )
+        : [],
+    [examSelection, pack.questions, questionHistory],
+  )
 
   useEffect(() => {
     initMasteryForPack(pack).catch(() => {
@@ -183,6 +216,27 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     setQuizEntry(undefined)
     setQuickReviewActive(false) // full expedition, not a quick-review mini-batch
     setExpeditionOpen(true)
+  }
+
+  // 遠征選單 (add-neurons-exam-set-expedition): the 出征 button opens a chooser so
+  // 錯題遠征 and 年份回數遠征 are co-equal; the menu is reachable regardless of pools.
+  const openExpeditionMenu = (): void => {
+    setQuizEntry(undefined)
+    setExpeditionOpen(false)
+    setQuickReviewActive(false)
+    setExamSelection(null)
+    setExpeditionMenu('choose')
+  }
+  const chooseWrongExpedition = (): void => {
+    if (wrongCount === 0) return
+    setExpeditionMenu('closed')
+    openExpedition()
+  }
+  const chooseExamPaper = (year: number, session: number): void => {
+    setExpeditionMenu('closed')
+    setQuizEntry(undefined)
+    setExpeditionOpen(false)
+    setExamSelection({ year, session }) // drill opens when examSetPool is non-empty
   }
 
   // DMN quick-review-batch: the toast CTA emits `dmn.quickReviewStart`; open the
@@ -263,18 +317,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           </button>
           <button
             type="button"
-            style={wrongCount > 0 ? expeditionButtonStyle : expeditionButtonDisabledStyle}
-            onClick={openExpedition}
-            disabled={wrongCount === 0}
-            aria-label="出征：全科錯題練習"
-            title={
-              wrongCount > 0
-                ? `對你目前未答對的 ${wrongCount} 題出征`
-                : '目前沒有未答對的題目 — 先去答題吧'
-            }
+            style={expeditionButtonStyle}
+            onClick={openExpeditionMenu}
+            aria-label="出征：選擇遠征"
+            title="選擇遠征：全科錯題，或特定年份+次別的全題依序"
           >
-            <EmojiIcon char="⚔️" size={18} /> 出征 · 全科錯題
-            <span style={ctaCountBadgeStyle}>{wrongCount} 題</span>
+            <EmojiIcon char="⚔️" size={18} /> 出征
           </button>
         </div>
         <p style={quizCtaHintStyle}>
@@ -350,6 +398,78 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         />
       )}
 
+      {/* 遠征選單 (add-neurons-exam-set-expedition): 出征 → choose 錯題 / 年份回數;
+          年份回數 → year+次別 paper picker with coverage. */}
+      {expeditionMenu !== 'closed' && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="遠征選單"
+          style={examMenuBackdropStyle}
+          onClick={() => setExpeditionMenu('closed')}
+        >
+          <div style={examMenuPanelStyle} onClick={(e) => e.stopPropagation()}>
+            {expeditionMenu === 'choose' ? (
+              <>
+                <h2 style={examMenuTitleStyle}>選擇遠征</h2>
+                <button
+                  type="button"
+                  onClick={chooseWrongExpedition}
+                  disabled={wrongCount === 0}
+                  style={wrongCount > 0 ? examMenuOptionStyle : examMenuOptionDisabledStyle}
+                >
+                  <span><EmojiIcon char="⚔️" size={16} /> 錯題遠征</span>
+                  <span style={ctaCountBadgeStyle}>{wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}</span>
+                </button>
+                <button type="button" onClick={() => setExpeditionMenu('exam')} style={examMenuOptionStyle}>
+                  <span><EmojiIcon char="📅" size={16} /> 年份回數遠征</span>
+                  <span style={ctaCountBadgeStyle}>全題依序</span>
+                </button>
+                <p style={examMenuHintStyle}>兩種遠征共用每日 DMN 抽卡上限（同一條出征軸）。</p>
+              </>
+            ) : (
+              <>
+                <button type="button" onClick={() => setExpeditionMenu('choose')} style={examMenuBackStyle}>
+                  ← 返回
+                </button>
+                <h2 style={examMenuTitleStyle}>年份回數遠征 · 選試卷</h2>
+                <div style={examPaperListStyle}>
+                  {examPapers.map((p) => (
+                    <button
+                      key={`${p.year}-${p.session}`}
+                      type="button"
+                      onClick={() => chooseExamPaper(p.year, p.session)}
+                      disabled={p.complete}
+                      style={p.complete ? examPaperRowDoneStyle : examPaperRowStyle}
+                      title={p.complete ? '已完成全部題目' : `剩 ${p.total - p.answered} 題未答`}
+                    >
+                      <span>{p.year} 第{p.session}次</span>
+                      <span style={ctaCountBadgeStyle}>
+                        {p.complete ? '✓ 完成' : `已答 ${p.answered}/${p.total}`}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <p style={examMenuHintStyle}>
+                  每份＝該年該次 醫學一＋醫學二 全題，依題號順序；已答過的題（任何模式）會跳過、累積到答完整份。
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 年份回數遠征 drill — unanswered questions of the chosen paper, in order.
+          onComplete credits the shared expedition DMN draw axis. */}
+      {examSelection && examSetPool.length > 0 && (
+        <QuizModal
+          pool={examSetPool}
+          preserveOrder
+          onClose={() => setExamSelection(null)}
+          onComplete={onExpeditionComplete}
+        />
+      )}
+
       <footer style={{ marginTop: '2rem', fontSize: '0.8em', color: '#5a3f29' }}>
         <p style={{ margin: '0.25rem 0' }}>
           來源：
@@ -375,6 +495,108 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       </footer>
     </>
   )
+}
+
+// 遠征選單 + 年份回數 paper picker (add-neurons-exam-set-expedition).
+const examMenuBackdropStyle: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(40, 28, 16, 0.55)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000,
+  padding: '1rem',
+}
+
+const examMenuPanelStyle: React.CSSProperties = {
+  background: '#fdf6e3',
+  border: '3px solid #8c6d4a',
+  borderRadius: '8px',
+  padding: '1.1rem 1.25rem',
+  width: 'min(420px, 92vw)',
+  maxHeight: '82vh',
+  overflowY: 'auto',
+  boxShadow: '0 8px 28px rgba(60, 42, 26, 0.35)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.6rem',
+}
+
+const examMenuTitleStyle: React.CSSProperties = {
+  margin: '0 0 0.25rem',
+  fontSize: '1.05rem',
+  fontWeight: 700,
+  color: '#3a2a1a',
+}
+
+const examMenuOptionStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.5rem',
+  padding: '0.7rem 0.9rem',
+  border: '2px solid #b8893a',
+  borderRadius: '6px',
+  background: '#fff',
+  color: '#5a3f29',
+  fontWeight: 600,
+  fontSize: '0.95rem',
+  cursor: 'pointer',
+}
+
+const examMenuOptionDisabledStyle: React.CSSProperties = {
+  ...examMenuOptionStyle,
+  opacity: 0.5,
+  cursor: 'not-allowed',
+  borderColor: '#c9b48f',
+}
+
+const examMenuHintStyle: React.CSSProperties = {
+  margin: '0.35rem 0 0',
+  fontSize: '0.78rem',
+  color: '#7a5c3a',
+  lineHeight: 1.5,
+}
+
+const examMenuBackStyle: React.CSSProperties = {
+  alignSelf: 'flex-start',
+  background: 'none',
+  border: 'none',
+  color: '#8c6d4a',
+  fontWeight: 600,
+  cursor: 'pointer',
+  padding: 0,
+  fontSize: '0.85rem',
+}
+
+const examPaperListStyle: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '0.5rem',
+}
+
+const examPaperRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.4rem',
+  padding: '0.5rem 0.6rem',
+  border: '2px solid #b8893a',
+  borderRadius: '6px',
+  background: '#fff',
+  color: '#5a3f29',
+  fontWeight: 600,
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+}
+
+const examPaperRowDoneStyle: React.CSSProperties = {
+  ...examPaperRowStyle,
+  opacity: 0.6,
+  cursor: 'default',
+  background: '#eef3e6',
+  borderColor: '#9bbf6f',
 }
 
 // EEG-monitor status readout — dark signal surface + grid/scanline backdrop +
@@ -495,14 +717,6 @@ const expeditionButtonStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   gap: '0.5rem',
-}
-
-const expeditionButtonDisabledStyle: React.CSSProperties = {
-  ...expeditionButtonStyle,
-  background: '#cdbfa6',
-  border: '1px solid #b8a98c',
-  cursor: 'not-allowed',
-  boxShadow: 'none',
 }
 
 const ctaCountBadgeStyle: React.CSSProperties = {
