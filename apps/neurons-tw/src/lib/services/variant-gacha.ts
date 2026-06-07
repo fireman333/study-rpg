@@ -253,6 +253,10 @@ export async function pullVariant(
 
         const ownedRows = await db.neuronVariants.where('familyId').equals(familyId).toArray()
         const p0Owned = ownedRows.some((r) => r.slotIndex === 0)
+        // Silent P1 soft-pity (rebalance-neurons-maze-economy): converge the lone
+        // P1 once the family lacks it. No pity-floor flag is set for P1 (wasPityFloor
+        // below is P0-only), so the player perceives it as luck.
+        const p1Owned = ownedRows.some((r) => r.rarity === 'P1')
 
         // 二回目 deterministic position-bound unlock (add-neurons-maze-second-lap-variants):
         // a settle on a second-route node unlocks THAT position's location variant —
@@ -267,22 +271,28 @@ export async function pullVariant(
           target = t
           rarity = t.rarity
         } else {
-          rarity = rollRarityWithP0Pity(newPullCount, p0Owned)
+          rarity = rollRarityWithP0Pity(newPullCount, p0Owned, p1Owned)
           if (variantRateUp) {
-            const second = rollRarityWithP0Pity(newPullCount, p0Owned)
+            const second = rollRarityWithP0Pity(newPullCount, p0Owned, p1Owned)
             if (RARITY_RANK[second] < RARITY_RANK[rarity]) rarity = second
           }
           // First-pull guarantee (add-neurons-first-pull-path-rep): pin the rarity
           // (the common P5 starter). The pullCount/P0-pity clock still advanced above.
           if (opts?.forceRarity) rarity = opts.forceRarity
 
-          // Within-tier uniform pick — a tier may hold several variants (pyramid),
-          // so the result can be a new variant or a dupe in any non-P0 tier (P0 has
-          // exactly one). Excludes 二回目 location variants (isLocation) — those are
-          // only ever unlocked deterministically via forceSlotIndex above.
+          // Within-tier FILL-MISSING-FIRST pick (rebalance-neurons-maze-economy): a
+          // tier may hold several variants (pyramid). Prefer an UNOWNED slot in the
+          // rolled tier so a pull never wastes on a within-tier dupe while that tier
+          // still has missing slots; fall back to a uniform-random pick (dupe) only
+          // when every slot in the tier is already owned (open-collection). The
+          // cross-tier rarity RNG above is unchanged — only the slot choice within
+          // the rolled tier changed. Excludes 二回目 location variants (isLocation).
           const tierDefs = defs.filter((d) => d.rarity === rarity && !d.isLocation)
           if (tierDefs.length === 0) throw new Error(`no catalog variant for ${familyId} ${rarity}`)
-          target = tierDefs[Math.floor(Math.random() * tierDefs.length)]
+          const ownedSlots = new Set(ownedRows.map((r) => r.slotIndex))
+          const unownedInTier = tierDefs.filter((d) => !ownedSlots.has(d.slotIndex))
+          const pickPool = unownedInTier.length > 0 ? unownedInTier : tierDefs
+          target = pickPool[Math.floor(Math.random() * pickPool.length)]
         }
 
         // Each pull mints an INDIVIDUAL (add-neurons-dupe-fusion) with its own

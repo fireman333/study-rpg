@@ -68,6 +68,18 @@ export const P0_PITY_START = 40
 /** Additional P0 probability per pull beyond the start (≈ +5pp/pull). */
 export const P0_PITY_RAMP = 0.05
 
+// ─── P1 silent soft-pity (rebalance-neurons-maze-economy) ───────────────────
+// Each family has exactly ONE P1 route-1 slot at a 1.3% roll weight; without a
+// floor a completionist can be blocked indefinitely on that single roll. This
+// soft-pity guarantees the lone P1 converges — but it is SILENT: a P1 obtained
+// under pity sets NO `wasPityFloor`-style flag and surfaces NO "保底" UI, so the
+// player experiences obtaining P1 as luck. Only active while the family's P1 is
+// not yet owned; checked AFTER the P0-pity, BEFORE the weighted tier roll.
+/** Pull count after which the P1 soft-pity begins ramping (no base rate — 0 before). */
+export const P1_PITY_START = 30
+/** Additional P1 probability per pull beyond the start (≈ +6pp/pull → converges fast). */
+export const P1_PITY_RAMP = 0.06
+
 // ─── Pull currency (neural energy) — dogfood-tuned game-loop numbers ─────────
 // The faucet constants CORRECT_ANSWER_ENERGY / READING_MINUTE_ENERGY moved to
 // ./maze-constants.ts (single source of truth for the flat-grid maze faucet,
@@ -854,17 +866,33 @@ export function effectiveP0Rate(pullCount: number): number {
 }
 
 /**
+ * Effective per-pull P1 SILENT soft-pity probability given the family's pull
+ * count. No base rate (0 before `P1_PITY_START`), then ramps `P1_PITY_RAMP` per
+ * pull, clamped to [0, 1]. Mirrors `effectiveP0Rate` but exists only to guarantee
+ * the lone P1 converges; applied silently (no surfaced floor flag). Pure.
+ */
+export function effectiveP1Rate(pullCount: number): number {
+  const ramped = Math.max(0, pullCount - P1_PITY_START) * P1_PITY_RAMP
+  return Math.min(1, Math.max(0, ramped))
+}
+
+/**
  * Roll a rarity for a pull (Collection 2.0). P0 is offered first with its
  * soft-pity rate UNLESS the family already owns its P0 (then P0 is excluded and
- * its mass falls to the P1–P5 proportional roll). Remaining tiers are weight-
- * rolled from `VARIANT_RARITY_WEIGHTS` (excluding P0). Pure; inject `rng` for tests.
+ * its mass falls to the P1–P5 proportional roll). Next, while the family does NOT
+ * own its P1, a SILENT P1 soft-pity is applied (`effectiveP1Rate`) to converge the
+ * lone 1.3%-weight P1 — this is invisible to the player (the caller sets no
+ * pity-floor flag for it). Remaining tiers are weight-rolled from
+ * `VARIANT_RARITY_WEIGHTS` (excluding P0). Pure; inject `rng` for tests.
  */
 export function rollRarityWithP0Pity(
   pullCount: number,
   p0Owned: boolean,
+  p1Owned: boolean = false,
   rng: () => number = Math.random,
 ): Rarity {
   if (!p0Owned && rng() < effectiveP0Rate(pullCount)) return 'P0'
+  if (!p1Owned && rng() < effectiveP1Rate(pullCount)) return 'P1'
   const tiers = VARIANT_RARITY_WEIGHTS.filter((t) => t.id !== 'P0')
   const total = tiers.reduce((sum, t) => sum + t.weight, 0)
   let r = rng() * total

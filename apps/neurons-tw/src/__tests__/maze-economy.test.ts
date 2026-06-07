@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'
-import { FAMILY_IDS, PACING_BASE } from '@study-rpg/content-neurons-tw'
+import { FAMILY_IDS, PACING_BASE, PACING_K, RAMP_CAP_N } from '@study-rpg/content-neurons-tw'
 import { db } from '../lib/db'
 import {
   mazeSpeedMultiplier,
@@ -65,15 +65,28 @@ describe('team speed + streak multipliers', () => {
   })
 })
 
-describe('pacing curve — front-loaded cost(N), recalibrated PACING_BASE=14', () => {
+describe('pacing curve — front-loaded capped cost(N), recalibrated PACING_BASE=11', () => {
   it('the first settle is the cheapest (= PACING_BASE)', () => {
     expect(nodeCost(0)).toBe(PACING_BASE)
-    expect(PACING_BASE).toBe(14)
+    expect(PACING_BASE).toBe(11)
   })
-  it('cost is strictly increasing, including past the node count (二週目 ramps too)', () => {
+  it('cost is strictly increasing up to the ramp cap', () => {
     expect(nodeCost(1)).toBeGreaterThan(nodeCost(0))
-    expect(nodeCost(50)).toBeGreaterThan(nodeCost(10))
-    expect(nodeCost(150)).toBeGreaterThan(nodeCost(110))
+    expect(nodeCost(RAMP_CAP_N)).toBeGreaterThan(nodeCost(RAMP_CAP_N - 1))
+  })
+  it('cost FLATTENS past RAMP_CAP_N (rebalance-neurons-maze-economy) — completionist tail does not escalate', () => {
+    const capped = Math.round(PACING_BASE * (1 + PACING_K * RAMP_CAP_N))
+    expect(nodeCost(RAMP_CAP_N)).toBe(capped)
+    expect(nodeCost(RAMP_CAP_N + 1)).toBe(capped)
+    expect(nodeCost(50)).toBe(capped)
+    expect(nodeCost(150)).toBe(capped)
+    // with the defaults (base 11, k 0.1, cap 20) the flat tail cost is 33
+    expect(capped).toBe(33)
+  })
+  it('cumulativeCost grows linearly (constant increment) past the cap', () => {
+    const capped = nodeCost(RAMP_CAP_N)
+    const step = cumulativeCost(RAMP_CAP_N + 5) - cumulativeCost(RAMP_CAP_N + 4)
+    expect(step).toBe(capped)
   })
   it('affordableSettles is the max S with cumulativeCost(S) ≤ earned', () => {
     expect(affordableSettles(0)).toBe(0)
