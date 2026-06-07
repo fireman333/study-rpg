@@ -3,6 +3,7 @@ import { liveQuery } from 'dexie'
 import type { DmnEventKind, DmnActiveBuffRow } from '@study-rpg/content-neurons-tw'
 import { db, type InventoryRow } from '../lib/db'
 import { activateConsumable, pruneExpiredBuffs } from '../lib/services/inventory'
+import { ParticleBurst } from '../lib/motion'
 
 /**
  * Consumable backpack (add-neurons-acceleration-system §6.1). Lists unspent DMN
@@ -31,6 +32,10 @@ function relTime(expiresAt: number, now: number): string {
 export default function BackpackPanel(): JSX.Element {
   const [stock, setStock] = useState<InventoryRow[]>([])
   const [buffs, setBuffs] = useState<DmnActiveBuffRow[]>([])
+  // One-shot activation burst (neurons-juice-animations). Nonce keys a fresh
+  // ParticleBurst so each successful activation replays; ParticleBurst self-nulls
+  // under reduced-motion. Never persisted.
+  const [burstNonce, setBurstNonce] = useState(0)
   const now = Date.now()
 
   useEffect(() => {
@@ -54,11 +59,23 @@ export default function BackpackPanel(): JSX.Element {
 
   const onActivate = async (kind: DmnEventKind): Promise<void> => {
     const res = await activateConsumable(kind)
-    if (!res.ok) console.info(`[backpack] activate ${kind} → ${res.reason}`)
+    if (!res.ok) {
+      console.info(`[backpack] activate ${kind} → ${res.reason}`)
+      return
+    }
+    setBurstNonce((n) => n + 1)
   }
 
   return (
-    <section style={panelStyle}>
+    <section style={{ ...panelStyle, position: 'relative' }}>
+      {burstNonce > 0 && (
+        <div
+          aria-hidden
+          style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1 }}
+        >
+          <ParticleBurst key={burstNonce} color="#7fd4ff" />
+        </div>
+      )}
       <h2 style={headingStyle}>🎒 背包 · 補給品</h2>
       {stock.length === 0 ? (
         <p style={emptyStyle}>背包是空的 — 抽 DMN 卡會把補給品放進來，由你決定何時啟用。</p>

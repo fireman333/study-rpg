@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, NavLink, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import type { ContentPack } from '@study-rpg/core'
 import { getContentPack } from '@study-rpg/content-neurons-tw'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
@@ -122,23 +123,48 @@ export default function App(): JSX.Element {
               <AuthGate />
             </span>
           </header>
-          <Routes>
-            <Route path="/" element={<OverviewPage pack={pack} />} />
-            {/* /connectome is fused into the homepage — redirect old bookmarks. */}
-            <Route path="/connectome" element={<Navigate to="/" replace />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
-            <Route path="/achievements" element={<AchievementsPage />} />
-            <Route path="/dmn" element={<DmnCollectionPage />} />
-            <Route path="/collection" element={<CollectionPage pack={pack} />} />
-            {/* /maze-beta is fused into the homepage — redirect old bookmarks. */}
-            <Route path="/maze-beta" element={<Navigate to="/" replace />} />
-            <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
-            <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
-            <Route path="/motion-demo" element={<MotionDemoPage />} />
-          </Routes>
+          <AnimatedRoutes pack={pack} />
         </main>
       </BrowserRouter>
     </AuthProvider>
+  )
+}
+
+/**
+ * Route transitions (neurons-juice-animations): a short「神經訊號 wipe」— opacity +
+ * slight horizontal slide, keyed by pathname so AnimatePresence cross-fades route
+ * changes. Reduced-motion → opacity-only. Lives inside BrowserRouter so it can call
+ * useLocation; does NOT change route resolution (F5 / direct-URL still resolve via
+ * BrowserRouter — SPA three-piece unaffected).
+ */
+function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
+  const location = useLocation()
+  const reduced = useReducedMotion()
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={reduced ? { opacity: 0 } : { opacity: 0, x: 12 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={reduced ? { opacity: 0 } : { opacity: 0, x: -12 }}
+        transition={{ duration: reduced ? 0.12 : 0.2, ease: 'easeOut' }}
+      >
+        <Routes location={location}>
+          <Route path="/" element={<OverviewPage pack={pack} />} />
+          {/* /connectome is fused into the homepage — redirect old bookmarks. */}
+          <Route path="/connectome" element={<Navigate to="/" replace />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/achievements" element={<AchievementsPage />} />
+          <Route path="/dmn" element={<DmnCollectionPage />} />
+          <Route path="/collection" element={<CollectionPage pack={pack} />} />
+          {/* /maze-beta is fused into the homepage — redirect old bookmarks. */}
+          <Route path="/maze-beta" element={<Navigate to="/" replace />} />
+          <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
+          <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
+          <Route path="/motion-demo" element={<MotionDemoPage />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   )
 }
 

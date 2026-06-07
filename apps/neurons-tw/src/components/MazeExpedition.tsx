@@ -30,6 +30,8 @@ import { useActiveSquad } from '../lib/services/study-squad'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { livingCompanions, type EquipmentDef } from '@study-rpg/content-neurons-tw'
 import { EmojiIcon } from './EmojiIcon'
+import { useRespectsReducedMotion, SYNAPSE_TIMINGS } from '../lib/motion'
+import { onAnswerCorrect, onAnswerWrong } from '../lib/maze/answer-feedback'
 
 const skyUrl = new URL('../assets/maze/expedition-sky.png', import.meta.url).href
 const groundUrl = new URL('../assets/maze/expedition-bg.png', import.meta.url).href
@@ -163,6 +165,21 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
   const companions = useOwnedCompanions()
   const d = compact ? COMPACT_DIMS : FULL_DIMS
 
+  // Answer-feedback (neurons-juice-animations): correct → companion pulse glow;
+  // wrong → one-shot band synapse-decay dim. Both nonces key a one-shot element
+  // so each answer replays. Reduced-motion skips both (gated at render).
+  const reduced = useRespectsReducedMotion()
+  const [correctNonce, setCorrectNonce] = useState(0)
+  const [decayNonce, setDecayNonce] = useState(0)
+  useEffect(() => {
+    const offCorrect = onAnswerCorrect(() => setCorrectNonce((n) => n + 1))
+    const offWrong = onAnswerWrong(() => setDecayNonce((n) => n + 1))
+    return () => {
+      offCorrect()
+      offWrong()
+    }
+  }, [])
+
   // depth-stagger: alternate near (bigger, lower, opaque) / far (smaller, higher, faded)
   const squadMembers =
     squad.length > 0
@@ -218,6 +235,17 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
       {/* vignette — soft edge depth */}
       <div className="exp-vignette" />
 
+      {/* one-shot synapse-decay dim on a wrong answer (neurons-juice-animations);
+          duration reuses SYNAPSE_TIMINGS.decay. Skipped under reduced-motion. */}
+      {decayNonce > 0 && !reduced && (
+        <div
+          key={`decay-${decayNonce}`}
+          className="exp-decay"
+          aria-hidden
+          style={{ animationDuration: `${SYNAPSE_TIMINGS.decay}ms` }}
+        />
+      )}
+
       {/* squad — bobbing marchers, spread + front-to-back staggered */}
       <div className="exp-squad">
         {members.map((m) => {
@@ -247,20 +275,26 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
                   }}
                 />
               ) : 'companion' in m ? (
-                <img
-                  src={companionSpriteUrl(m.companion)}
-                  width={Math.round(size * COMPANION_MARCHER_SCALE)}
-                  height={Math.round(size * COMPANION_MARCHER_SCALE)}
-                  alt={m.companion.displayName}
-                  draggable={false}
-                  style={{
-                    imageRendering: 'pixelated',
-                    // cyan-tinted glia glow — reads as a glial companion, distinct
-                    // from the variant marchers' white aura.
-                    filter:
-                      'drop-shadow(0 2px 3px rgba(0,0,0,0.55)) drop-shadow(0 0 7px rgba(150,235,255,0.5))',
-                  }}
-                />
+                <>
+                  <img
+                    src={companionSpriteUrl(m.companion)}
+                    width={Math.round(size * COMPANION_MARCHER_SCALE)}
+                    height={Math.round(size * COMPANION_MARCHER_SCALE)}
+                    alt={m.companion.displayName}
+                    draggable={false}
+                    style={{
+                      imageRendering: 'pixelated',
+                      // cyan-tinted glia glow — reads as a glial companion, distinct
+                      // from the variant marchers' white aura.
+                      filter:
+                        'drop-shadow(0 2px 3px rgba(0,0,0,0.55)) drop-shadow(0 0 7px rgba(150,235,255,0.5))',
+                    }}
+                  />
+                  {/* one-shot pulse glow on correct answer (companion reaction) */}
+                  {correctNonce > 0 && !reduced && (
+                    <span key={`cpulse-${correctNonce}`} className="exp-comp-pulse" aria-hidden />
+                  )}
+                </>
               ) : (
                 <ConeMarcher size={size - 12} color={m.color} />
               )}
@@ -374,9 +408,40 @@ const KEYFRAMES = `
 .exp-paused .exp-particles,
 .exp-paused .exp-marcher { animation-play-state: paused !important; }
 
-/* Respect OS reduced-motion: freeze every layer + the bob (static scene, no churn). */
+/* one-shot synapse-decay dim overlay (wrong answer). Duration set inline from
+   SYNAPSE_TIMINGS.decay; longhands here so the shorthand doesn't reset it. */
+.exp-decay {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at 50% 55%, rgba(150,46,46,0.42), rgba(10,8,32,0.5) 75%);
+  animation-name: exp-decay-dim;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+@keyframes exp-decay-dim {
+  0% { opacity: 0; }
+  28% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* one-shot companion pulse glow (correct answer). */
+.exp-comp-pulse {
+  position: absolute; left: 50%; top: 45%; width: 0; height: 0; z-index: 4;
+  pointer-events: none; border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(150,235,255,0.85), 0 0 16px 6px rgba(150,235,255,0.5);
+  animation: exp-comp-pulse-anim 0.6s ease-out forwards;
+}
+@keyframes exp-comp-pulse-anim {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+  35%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+}
+
+/* Respect OS reduced-motion: freeze every layer + the bob (static scene, no churn).
+   The decay / pulse one-shots are already render-gated by useRespectsReducedMotion,
+   but disable them here too as belt-and-suspenders. */
 @media (prefers-reduced-motion: reduce) {
   .exp-sky, .exp-ground, .exp-particles, .exp-marcher { animation: none !important; }
+  .exp-decay, .exp-comp-pulse { animation: none !important; opacity: 0 !important; }
 }
 
 @keyframes exp-scroll-sky { to { background-position-x: calc(-1 * var(--exp-sky-tile)); } }
