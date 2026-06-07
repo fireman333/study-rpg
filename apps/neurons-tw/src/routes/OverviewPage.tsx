@@ -10,6 +10,7 @@ import MazeGrid from '../components/maze/MazeGrid'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
 import StudySquadPanel from '../components/StudySquadPanel'
+import { EmojiIcon } from '../components/EmojiIcon'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
 import { filterPoolByFamily, filterPoolByYear, filterPoolByNewOnly } from '../lib/services/quiz-pool'
@@ -257,7 +258,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             aria-label="跨 family 隨機答題"
             title={`從全部 ${totalPoolSize} 題隨機抽題`}
           >
-            🎲 隨機跨 family 答題
+            <EmojiIcon char="🎲" size={18} /> 隨機跨 family 答題
             <span style={ctaCountBadgeStyle}>{totalPoolSize} 題</span>
           </button>
           <button
@@ -272,7 +273,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
                 : '目前沒有未答對的題目 — 先去答題吧'
             }
           >
-            ⚔️ 出征 · 全科錯題
+            <EmojiIcon char="⚔️" size={18} /> 出征 · 全科錯題
             <span style={ctaCountBadgeStyle}>{wrongCount} 題</span>
           </button>
         </div>
@@ -295,7 +296,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
       <section style={statusChipStyle} aria-label="進度狀態">
         <div style={statusItemStyle}>
-          <span style={statusEmojiStyle}>🧬</span>
+          <span style={statusEmojiStyle}><EmojiIcon char="🧬" size={15} /></span>
           <span style={statusLabelStyle}>變體</span>
           <span style={statusValueStyle}>{stats.variants}</span>
           <span style={statusMaxStyle}>隻</span>
@@ -309,7 +310,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         </div>
         <span style={statusSepStyle}>·</span>
         <div style={statusItemStyle}>
-          <span style={statusEmojiStyle}>📖</span>
+          <span style={statusEmojiStyle}><EmojiIcon char="📖" size={15} /></span>
           <span style={statusLabelStyle}>累積閱讀</span>
           <span style={statusValueStyle}>{totalStudyMin}</span>
           <span style={statusMaxStyle}>min</span>

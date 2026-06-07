@@ -9,6 +9,8 @@
  * Capability spec: openspec/specs/neurons-variant-collection-view/spec.md
  */
 
+import { EmojiIcon } from './EmojiIcon'
+
 export interface FamilyChipOption {
   id: string
   label: string
@@ -29,7 +31,7 @@ export function FamilyFilterChips({
 
   return (
     <section style={barStyle} aria-label="科別篩選">
-      <span style={labelStyle}>🧬 科別</span>
+      <span style={labelStyle}><EmojiIcon char="🧬" size={14} /> 科別</span>
       <div style={chipRowStyle} role="group" aria-label="神經元科別多選">
         <button
           type="button"

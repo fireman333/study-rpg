@@ -11,6 +11,7 @@
 import { useEffect, useState } from 'react'
 import { db } from '../lib/db'
 import { subscribeVariantGachaEvents } from '../lib/services/variant-gacha'
+import { EmojiIcon } from './EmojiIcon'
 
 interface Props {
   familyId: string
@@ -39,7 +40,7 @@ export default function VariantCollectionChip({ familyId }: Props): JSX.Element 
 
   return (
     <span style={baseChipStyle} title={`已收集 ${count} 隻變體`}>
-      🧬 {count} 隻
+      <EmojiIcon char="🧬" size={14} /> {count} 隻
     </span>
   )
 }

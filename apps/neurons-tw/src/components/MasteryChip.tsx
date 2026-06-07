@@ -16,6 +16,7 @@ import {
   type MasteryTier,
 } from '../lib/mastery'
 import { getMastery, masteryEvents } from '../lib/services/mastery'
+import { EmojiIcon } from './EmojiIcon'
 
 interface Props {
   familyId: string
@@ -84,7 +85,7 @@ export default function MasteryChip({ familyId, displayName }: Props): JSX.Eleme
           style={{ color: TIER_COLORS[tier], fontWeight: 600 }}
           title="熟練度加速能量獲取"
         >
-          ⚡+{energyBoostPct}%
+          <EmojiIcon char="⚡" size={13} />+{energyBoostPct}%
         </span>
       )}
     </span>

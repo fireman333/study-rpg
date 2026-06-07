@@ -19,6 +19,7 @@ import { toggleBookmark, useIsBookmarked } from '../lib/services/bookmarks'
 import { toggleEasy, toggleGuessed, useFlag } from '../lib/services/question-flags'
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
+import { EmojiIcon } from './EmojiIcon'
 import SquadCelebration from './SquadCelebration'
 import MazeExpedition from './MazeExpedition'
 import { getExpeditionHidden } from '../lib/expedition-visibility'
@@ -90,13 +91,13 @@ function EnergyFeedbackStrip({
             style={animate ? { ...energyStripSpriteStyle, animation: 'energy-advance 1.8s ease-out 1' } : energyStripSpriteStyle}
           />
         ) : (
-          <span style={{ fontSize: '1.3rem' }}>🧬</span>
+          <EmojiIcon char="🧬" size={21} />
         )}
       </div>
       <div style={energyStripTextWrapStyle}>
-        <div style={energyStripGainStyle}>⚡ +{energyGain.toFixed(1)} 能量 · {familyId}</div>
+        <div style={energyStripGainStyle}><EmojiIcon char="⚡" size={13} /> +{energyGain.toFixed(1)} 能量 · {familyId}</div>
         {advanced ? (
-          <div style={energyStripAdvanceLabelStyle}>🧠 推進一格！抽出一隻神經元</div>
+          <div style={energyStripAdvanceLabelStyle}><EmojiIcon char="🧠" size={13} /> 推進一格！抽出一隻神經元</div>
         ) : (
           <div style={energyStripBarTrackStyle}>
             <div style={{ ...energyStripBarFillStyle, width: `${pct}%` }} />
@@ -481,7 +482,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
               aria-label="回報這題的問題"
               title="回報這題的問題"
             >
-              🐞
+              <EmojiIcon char="🐞" size={16} />
             </button>
             <button style={closeBtnStyle} onClick={handleClose} aria-label="關閉">
               ✕
@@ -603,7 +604,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
               )}
               {q.explanation && (
                 <details style={explanationStyle} open>
-                  <summary style={explanationSummaryStyle}>📖 詳解</summary>
+                  <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 詳解</summary>
                   <div style={explanationBodyStyle}>{q.explanation}</div>
                   {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
                     <p style={aiNoteStyle}>🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
@@ -672,7 +673,7 @@ function FlagButtons({
         aria-label={easyMarked ? '取消 ✨ 標記 (2)' : '標記 ✨ 太簡單 (2)'}
         title={easyMarked ? '取消 ✨ 標記（鍵盤 2）' : '標記 ✨ 太簡單（鍵盤 2）'}
       >
-        <span aria-hidden>✨</span>
+        <EmojiIcon char="✨" size={16} decorative />
         <span className="flag-btn-label">太簡單</span>
         <span className="quiz-hotkey-badge" aria-hidden>₂</span>
       </button>
@@ -684,7 +685,7 @@ function FlagButtons({
         aria-label={guessedMarked ? '取消 🤔 標記 (3)' : '標記 🤔 我亂猜的 (3)'}
         title={guessedMarked ? '取消 🤔 標記（鍵盤 3）' : '標記 🤔 我亂猜的（鍵盤 3）'}
       >
-        <span aria-hidden>🤔</span>
+        <EmojiIcon char="🤔" size={16} decorative />
         <span className="flag-btn-label">我亂猜的</span>
         <span className="quiz-hotkey-badge" aria-hidden>₃</span>
       </button>
@@ -771,7 +772,7 @@ function QuizBugReportSheet({
     <div style={bugSheetBackdrop} onClick={onClose} role="dialog" aria-modal="true" aria-label="回報題目問題">
       <div style={bugSheet} onClick={(e) => e.stopPropagation()}>
         <header style={bugSheetHeader}>
-          <span>🐞 回報這題</span>
+          <span><EmojiIcon char="🐞" size={16} /> 回報這題</span>
           <button style={closeBtnStyle} onClick={onClose} aria-label="關閉">
             ✕
           </button>

@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from 'react'
 import { db, HOMEPAGE_ONBOARDING_DISMISSED_KEY } from '../lib/db'
+import { EmojiIcon } from './EmojiIcon'
 
 type Visibility = 'loading' | 'shown' | 'hidden'
 
@@ -48,20 +49,20 @@ export function HomepageOnboarding(): JSX.Element | null {
       <button type="button" onClick={dismiss} aria-label="關閉新手指引" style={closeBtnStyle}>
         ×
       </button>
-      <strong style={openerStyle}>👋 歡迎！這裡只要像考生一樣唸書 + 做題</strong>
+      <strong style={openerStyle}><EmojiIcon char="👋" size={16} /> 歡迎！這裡只要像考生一樣唸書 + 做題</strong>
       <ol style={stepsStyle}>
         <li>
-          <strong>📖 開始閱讀</strong>：按計時器累積閱讀時間 → 賺神經能量推進腦圖收集。
+          <strong><EmojiIcon char="📖" size={15} /> 開始閱讀</strong>：按計時器累積閱讀時間 → 賺神經能量推進腦圖收集。
         </li>
         <li>
-          <strong>🎲 答題</strong>：跨 family 隨機練，或點下方科目卡指定範圍。答對讓該科所屬的探索路徑賺能量。
+          <strong><EmojiIcon char="🎲" size={15} /> 答題</strong>：跨 family 隨機練，或點下方科目卡指定範圍。答對讓該科所屬的探索路徑賺能量。
         </li>
         <li>
-          <strong>🧠 走腦圖收集</strong>：能量推著 growth cone 沿白質束前進，抵達腦區節點就抽出一隻神經元 —
+          <strong><EmojiIcon char="🧠" size={15} /> 走腦圖收集</strong>：能量推著 growth cone 沿白質束前進，抵達腦區節點就抽出一隻神經元 —
           收集的唯一方式就是探索腦圖。
         </li>
         <li>
-          <strong>🔗 自動長出連線</strong>：同一天兩個 family 各答對 5 題就 wire 出一條 synapse，
+          <strong><EmojiIcon char="🔗" size={15} /> 自動長出連線</strong>：同一天兩個 family 各答對 5 題就 wire 出一條 synapse，
           畫在腦圖上的功能連結覆蓋層 — 規則不用背，畫面會替你呈現。
         </li>
       </ol>

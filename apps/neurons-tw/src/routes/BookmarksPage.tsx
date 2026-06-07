@@ -14,6 +14,7 @@
 import { useMemo, useState } from 'react'
 import type { ContentPack, Question } from '@study-rpg/core'
 import { QuizModal } from '../components/QuizModal'
+import { EmojiIcon } from '../components/EmojiIcon'
 import { useAllBookmarks, removeBookmark } from '../lib/services/bookmarks'
 import { useAllFlags } from '../lib/services/question-flags'
 import { useQuestionHistory } from '../lib/services/question-history'
@@ -140,12 +141,12 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
       <>
         {f?.easyMarked && (
           <span style={flagChipDisplayStyle('#d4a04d')} title="✨ 太簡單" aria-label="標記為太簡單">
-            ✨
+            <EmojiIcon char="✨" size={13} />
           </span>
         )}
         {f?.guessedMarked && (
           <span style={flagChipDisplayStyle('#6a9bc4')} title="🤔 我亂猜的" aria-label="標記為我亂猜的">
-            🤔
+            <EmojiIcon char="🤔" size={13} />
           </span>
         )}
       </>
@@ -202,7 +203,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
   return (
     <>
       <header style={headerStyle}>
-        <h1 style={titleStyle}>📚 收藏與錯題</h1>
+        <h1 style={titleStyle}><EmojiIcon char="📚" size={18} /> 收藏與錯題</h1>
         <p style={subtitleStyle}>
           手動收藏的題目，加上自動累積的錯題複習清單。錯題庫從這個功能上線後開始累積。
         </p>
@@ -211,7 +212,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
       {/* Shared filter bar — applies to all three tabs. */}
       <section style={filterBarStyle} aria-label="標記篩選">
         <div style={filterHeaderStyle}>
-          <span style={filterLabelStyle}>🏷️ 依標記篩選</span>
+          <span style={filterLabelStyle}><EmojiIcon char="🏷️" size={14} /> 依標記篩選</span>
           {(filterEasyOnly || filterGuessedOnly) && (
             <button
               type="button"
@@ -232,7 +233,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
             style={filterEasyOnly ? flagFilterChipActiveStyle('#d4a04d') : flagFilterChipStyle('#d4a04d')}
             aria-pressed={filterEasyOnly}
           >
-            ✨ 只看太簡單
+            <EmojiIcon char="✨" size={14} /> 只看太簡單
           </button>
           <button
             type="button"
@@ -240,7 +241,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
             style={filterGuessedOnly ? flagFilterChipActiveStyle('#6a9bc4') : flagFilterChipStyle('#6a9bc4')}
             aria-pressed={filterGuessedOnly}
           >
-            🤔 只看我亂猜的
+            <EmojiIcon char="🤔" size={14} /> 只看我亂猜的
           </button>
         </div>
       </section>
@@ -248,7 +249,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
       {/* Family filter — flat chip row, click toggles exclusion. */}
       <section style={filterBarStyle} aria-label="科目篩選">
         <div style={filterHeaderStyle}>
-          <span style={filterLabelStyle}>📚 依科目篩選</span>
+          <span style={filterLabelStyle}><EmojiIcon char="📚" size={14} /> 依科目篩選</span>
           {excludedFamilies.size > 0 && (
             <button type="button" style={resetBtnStyle} onClick={() => setExcludedFamilies(new Set())}>
               重置（顯示全部）
@@ -316,7 +317,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
           style={tab === 'manual' ? tabActiveStyle : tabStyle}
           onClick={() => setTab('manual')}
         >
-          ⭐ 手動收藏 ({filteredBookmarks.length})
+          <EmojiIcon char="⭐" size={14} /> 手動收藏 ({filteredBookmarks.length})
         </button>
         <button
           type="button"
@@ -359,7 +360,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
                       disabled={!inPack}
                       title={inPack ? '重新作答這一題' : '題目不在當前 content pack'}
                     >
-                      🎯 重新作答
+                      <EmojiIcon char="🎯" size={14} /> 重新作答
                     </button>
                     <button type="button" style={unbookmarkBtnStyle} onClick={() => handleRemove(b.questionId)} aria-label="取消收藏">
                       ★ 取消
