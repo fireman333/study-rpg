@@ -9,7 +9,6 @@ import { FamilyPicker, type FamilyAccrual } from '../components/FamilyPicker'
 import MazeGrid from '../components/maze/MazeGrid'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
-import { FirstPullButton, FirstPullModal } from '../components/FirstPull'
 import StudySquadPanel from '../components/StudySquadPanel'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
@@ -223,8 +222,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       <QuizHotkeysAnnouncementBanner />
       <LeaderboardPromoBanner />
       <HomepageOnboarding />
-      {/* One-time first-pull reveal (add-neurons-first-pull) — runs on CTA request. */}
-      <FirstPullModal pack={pack} />
 
       <header style={heroStyle}>
         <div>
@@ -239,8 +236,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             + 全科錯題 出征 (persistent expedition CTA, per neurons-homepage). ── */}
       <section style={quizCtaSectionStyle} aria-label="核心循環入口">
         <div style={ctaButtonRowStyle}>
-          {/* First-pull fallback CTA — only after onboarding dismissed + not yet done. */}
-          <FirstPullButton placement="toolbar" />
           <button
             type="button"
             style={timer.status === 'reading' ? readingActiveButtonStyle : readingCtaButtonStyle}

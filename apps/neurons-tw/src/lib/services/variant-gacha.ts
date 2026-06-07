@@ -199,16 +199,18 @@ export interface PullResult {
  * Perform one per-family pull. Returns a structured result; never throws to the
  * caller (errors are logged + returned as `{ ok:false, reason:'error' }`).
  *
- * `opts.silent` (add-neurons-first-pull): batch mode for the one-time first-pull.
- * When true, suppress the per-pull `variantRolled` reveal AND skip the inline
- * `triggerAchievementCheck` — the first-pull orchestrator shows ONE combined
- * reveal and runs a single achievement check after it. `emitVariantCollected`
- * (connectome refresh) still fires; the variant is persisted identically.
+ * `opts.silent`: suppress the per-pull `variantRolled` reveal AND skip the inline
+ * `triggerAchievementCheck` (achievements still persist via the boot/sync backfill).
+ * `emitVariantCollected` (connectome refresh) still fires; the variant is persisted
+ * identically. Used by the per-family first-pull (add-neurons-first-pull-path-rep).
+ * `opts.forceRarity` pins the rolled rarity (the first-pull's guaranteed P5) — the
+ * pullCount/P0-pity clock still advances. `opts.firstPull` stamps the minted
+ * individual's provenance so the caption / future reveal can distinguish it.
  */
 export async function pullVariant(
   familyId: string,
   resolveFamilyDisplayName: ResolveFamilyDisplayName,
-  opts?: { silent?: boolean },
+  opts?: { silent?: boolean; forceRarity?: Rarity; firstPull?: boolean },
 ): Promise<PullResult> {
   const defs = CATALOG_BY_FAMILY.get(familyId)
   if (!defs || defs.length === 0) {
@@ -254,6 +256,9 @@ export async function pullVariant(
           const second = rollRarityWithP0Pity(newPullCount, p0Owned)
           if (RARITY_RANK[second] < RARITY_RANK[rarity]) rarity = second
         }
+        // First-pull guarantee (add-neurons-first-pull-path-rep): pin the rarity
+        // (the common P5 starter). The pullCount/P0-pity clock still advanced above.
+        if (opts?.forceRarity) rarity = opts.forceRarity
 
         // Within-tier uniform pick — a tier may hold several variants (pyramid),
         // so the result can be a new variant or a dupe in any non-P0 tier (P0 has
@@ -270,6 +275,7 @@ export async function pullVariant(
           apAtUnlock: accrual.ap,
           wasRedemption: false, // pulls are not question-tied (no 救贖 for pulls)
           streakAtMint,
+          ...(opts?.firstPull ? { firstPull: true } : {}),
         }
 
         const existing = await db.neuronVariants.get([familyId, target.slotIndex])

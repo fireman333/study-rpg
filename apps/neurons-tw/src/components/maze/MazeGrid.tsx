@@ -20,6 +20,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { liveQuery } from 'dexie'
 import { FAMILY_IDS, FAMILY_COLOR } from '@study-rpg/content-neurons-tw'
 import VariantSprite from '../VariantSprite'
+import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import MazeExpedition from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
 import { decodePairKey } from '../../lib/services/connectome'
@@ -688,9 +689,9 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
             style={{ position: 'absolute', left: 0, top: 0, width: 26, height: 26, pointerEvents: 'none', zIndex: 5, willChange: 'transform' }}
           >
             {fam.walkerVariant ? (
-              <VariantSprite row={fam.walkerVariant} size={26} alt={`${fam.familyId} 探索領頭變體`} />
+              <VariantSprite row={fam.walkerVariant} size={26} alt={`${fam.familyId} 路徑代表神經元`} />
             ) : (
-              <GrowthConeGlyph size={22} color={FAMILY_ENC[fam.familyId]?.color ?? '#fff'} />
+              <NeuronSilhouette size={24} alt={`${fam.familyId} 尚未解鎖代表（答題後出現）`} />
             )}
           </div>
         ))}
@@ -764,17 +765,24 @@ function drawCore(ctx: CanvasRenderingContext2D, cx: number, cy: number, tile: n
   ctx.fill()
 }
 
-function GrowthConeGlyph({ size, color }: { size: number; color: string }): JSX.Element {
+/**
+ * Grayscale-silhouette placeholder shown at a family's tract head before its
+ * first-pull (add-neurons-first-pull-path-rep): a desaturated, faint default
+ * neuron sprite reading as "this subject's representative is not unlocked yet".
+ */
+function NeuronSilhouette({ size, alt }: { size: number; alt: string }): JSX.Element {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-label="生長錐">
-      <g stroke="#ffffff" strokeWidth={1.4} strokeLinecap="round" fill="none" opacity={0.85}>
-        <line x1="12" y1="13" x2="6" y2="5" />
-        <line x1="12" y1="13" x2="12" y2="3" />
-        <line x1="12" y1="13" x2="18" y2="5" />
-        <line x1="12" y1="13" x2="20" y2="11" />
-      </g>
-      <circle cx="12" cy="15" r="4" fill={color} stroke="#fff2cf" strokeWidth={1} />
-    </svg>
+    <img
+      src={SPRITE_MAP['variant:default'] ?? ''}
+      alt={alt}
+      style={{
+        width: size,
+        height: size,
+        imageRendering: 'pixelated',
+        filter: 'grayscale(1) opacity(0.4)',
+        pointerEvents: 'none',
+      }}
+    />
   )
 }
 

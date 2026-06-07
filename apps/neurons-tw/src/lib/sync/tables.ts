@@ -383,18 +383,14 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   // (`maze:{da,5ht,gaba,glu}:{earned,settles}`) are dropped here — the v17 upgrade
   // clears them locally; a stray incoming key is simply not in this allowlist.
   ...PER_FAMILY_MAZE_KEYS,
-  // First-pull (add-neurons-first-pull). `firstPullDone` is a once-only flag —
-  // MONOTONIC-OR: the metaAdapter is write-if-missing and we NEVER write 'false',
-  // so it converges to true everywhere (mirrors everWrong / dmnEventLog
-  // discipline; needs no special post-pass). The 4 starterFamily keys are
-  // one-time immutable writes → first-write-wins (the metaAdapter default) is
-  // safe (both devices roll independently before sync, but firstPullDone gates
-  // a second roll). Drive the starter-lit maze node (lib/maze/graph).
-  'firstPullDone',
-  'maze:da:starterFamily',
-  'maze:5ht:starterFamily',
-  'maze:gaba:starterFamily',
-  'maze:glu:starterFamily',
+  // Per-family first-pull (add-neurons-first-pull-path-rep). `firstPullFamilies`
+  // is a JSON-array SET of familyIds already first-pulled; merged by MONOTONIC
+  // UNION via the backfill/first-pull.ts post-pass (the metaAdapter below is
+  // first-write-wins, insufficient for a growing set) so the first-pull stays
+  // one-time across all devices. The retired 4-branch `firstPullDone` +
+  // `maze:<branch>:starterFamily` keys are DROPPED (leave-and-ignore — a stray
+  // incoming legacy key is simply not in this allowlist).
+  'firstPullFamilies',
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {

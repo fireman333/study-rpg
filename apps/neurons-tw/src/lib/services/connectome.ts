@@ -28,8 +28,6 @@ import { deriveMasteryTier, masteryEnergyMultiplier } from '../mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { energyAccel } from './acceleration'
-// Cycle-free keys module (NOT ./first-pull — that would cycle via variant-gacha).
-import { FIRST_PULL_DONE_KEY, STARTER_FAMILY_KEYS } from './first-pull-keys'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
@@ -106,6 +104,21 @@ export async function runDailyResetIfNeeded(): Promise<void> {
     pending = await runDailyResetIfNeededInTx(today)
   })
   emitAll(pending)
+}
+
+/**
+ * Post-commit per-family first-pull grant (add-neurons-first-pull-path-rep). The
+ * first answer (correct OR incorrect) for a family mints one guaranteed-P5 → its
+ * path representative. Dynamic import avoids a static cycle (first-pull →
+ * variant-gacha → connectome); best-effort so it never breaks the answer flow.
+ */
+async function maybeGrantFirstPull(familyId: string): Promise<void> {
+  try {
+    const { grantFirstPullIfNeeded } = await import('./first-pull')
+    await grantFirstPullIfNeeded(familyId, (id) => id)
+  } catch (err) {
+    console.error('[first-pull] grant failed:', err)
+  }
 }
 
 export async function recordCorrectAnswer(familyId: string): Promise<void> {
@@ -237,6 +250,9 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   } catch (err) {
     console.error('[maze] correct-answer energy accrual failed:', err)
   }
+
+  // Post-commit: per-family first-pull grant (best-effort, channel [first-pull]).
+  await maybeGrantFirstPull(familyId)
 }
 
 export async function recordIncorrectAnswer(familyId: string): Promise<void> {
@@ -253,6 +269,10 @@ export async function recordIncorrectAnswer(familyId: string): Promise<void> {
   // Post-commit: achievement diff (mainly for streak-reset edge case where a
   // related predicate flips — uncommon but cheap to check).
   await triggerAchievementCheck(prevStats)
+
+  // Post-commit: per-family first-pull grant (the first answer for a family —
+  // correct OR incorrect — grants its P5 representative; best-effort).
+  await maybeGrantFirstPull(familyId)
 }
 
 export async function initMasteryForPack(pack: ContentPack): Promise<void> {
@@ -348,10 +368,9 @@ export async function resetConnectomeForDebug(): Promise<void> {
     await db.meta.put({ key: 'lastResetDate', value: todayISO() })
     // Re-surface the homepage onboarding for a reset (fresh-start) user.
     await db.meta.delete(HOMEPAGE_ONBOARDING_DISMISSED_KEY)
-    // Re-enable the one-time first-pull + drop stale starter-lit nodes
-    // (add-neurons-first-pull) so a reset player starts genuinely fresh.
-    await db.meta.delete(FIRST_PULL_DONE_KEY)
-    for (const k of STARTER_FAMILY_KEYS) await db.meta.delete(k)
+    // Re-arm the per-family first-pull (add-neurons-first-pull-path-rep) so a
+    // reset player's next answer per family grants a fresh P5 representative.
+    await db.meta.delete('firstPullFamilies')
   })
 }
 
