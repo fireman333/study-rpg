@@ -7,7 +7,6 @@ import {
   streakMultiplier,
   walkerFraction,
   accrueMazeEnergy,
-  accrueReadingEnergyActiveFamilies,
   reconcileSettles,
   readMazeEnergyState,
   nodeCost,
@@ -82,6 +81,14 @@ describe('pacing curve — front-loaded cost(N), recalibrated PACING_BASE=14', (
     expect(affordableSettles(cumulativeCost(5))).toBe(5)
     expect(affordableSettles(cumulativeCost(5) - 1)).toBe(4)
   })
+  it('crossing a settle threshold raises affordableSettles (drives the quiz feedback escalation)', () => {
+    // The QuizModal strip escalates when affordableSettles(after) > affordableSettles(before).
+    const justBelow = cumulativeCost(3) - 1
+    const justAbove = cumulativeCost(3)
+    expect(affordableSettles(justBelow)).toBe(2)
+    expect(affordableSettles(justAbove)).toBe(3)
+    expect(affordableSettles(justAbove) > affordableSettles(justBelow)).toBe(true)
+  })
 })
 
 describe('walkerFraction', () => {
@@ -114,26 +121,17 @@ describe('accrueMazeEnergy (per-family pools)', () => {
   })
 })
 
-describe('accrueReadingEnergyActiveFamilies', () => {
-  it('with no collection, splits reading energy evenly across all 11 families', async () => {
-    await accrueReadingEnergyActiveFamilies(READING_MINUTE_ENERGY)
-    const per = READING_MINUTE_ENERGY / FAMILY_IDS.length
+describe('per-subject reading (add-neurons-maze-zoom-and-focus)', () => {
+  // The reading-timer now accrues each study-minute entirely into the chosen
+  // family's pool via accrueMazeEnergy (the old even-split helper is retired).
+  it('reading energy accrues entirely to the chosen family, not split across families', async () => {
+    await accrueMazeEnergy(FAM, READING_MINUTE_ENERGY) // empty team → ×1
+    expect((await readMazeEnergyState(FAM)).earned).toBeCloseTo(READING_MINUTE_ENERGY, 6)
+    // No other family receives any reading energy (proves there is no split).
     for (const f of FAMILY_IDS) {
-      expect((await readMazeEnergyState(f)).earned).toBeCloseTo(per, 6) // empty teams → ×1
+      if (f === FAM) continue
+      expect((await readMazeEnergyState(f)).earned).toBe(0)
     }
-  })
-
-  it('with a partial collection, splits only across families with ≥1 variant', async () => {
-    await db.neuronVariants.put(row(FAM, 0, 'P5'))
-    await db.neuronVariants.put(row(OTHER, 0, 'P5'))
-    await accrueReadingEnergyActiveFamilies(READING_MINUTE_ENERGY)
-    // 2 active families; each got READING/2 × speed-buff (1 variant → ×1.04).
-    const famE = (await readMazeEnergyState(FAM)).earned
-    const otherE = (await readMazeEnergyState(OTHER)).earned
-    expect(famE).toBeCloseTo((READING_MINUTE_ENERGY / 2) * mazeSpeedMultiplier(1), 6)
-    expect(otherE).toBeGreaterThan(0)
-    // A non-collected family receives nothing.
-    expect((await readMazeEnergyState(FAMILY_IDS[2])).earned).toBe(0)
   })
 })
 

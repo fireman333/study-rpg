@@ -11,7 +11,8 @@ import {
 export interface UseReadingTimerResult extends ReadingTimerState {
   /** Whole minutes accumulated in current session (floor of accumulatedSeconds / 60). */
   currentMinute: number
-  start: () => void
+  /** Start (or switch to) a per-subject reading session for the given family. */
+  start: (familyId: string) => void
   stop: () => void
   resume: () => void
 }

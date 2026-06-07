@@ -34,9 +34,26 @@ interface Props {
   accrualByFamily?: Map<string, FamilyAccrual>
   /** Per-family 新題 (unseen) + 錯題 (due) counts for the two mode-chip badges. */
   modeCountsByFamily?: Map<string, FamilyModeCounts>
+  /** Tapping a family card focuses the maze camera on that family (add-neurons-maze-zoom-and-focus). */
+  onFocusFamily?: (familyId: string) => void
+  /** The per-family 📖 閱讀 entry toggles that subject's reading session. */
+  onToggleReading?: (familyId: string) => void
+  /** The family currently in a reading session (drives the 📖 button's active state). */
+  readingFamilyId?: string | null
+  /** Dynamic label for the actively-reading card (status / pause-reason feedback). */
+  readingActiveLabel?: string
 }
 
-export function FamilyPicker({ pack, onStartQuiz, accrualByFamily, modeCountsByFamily }: Props): JSX.Element {
+export function FamilyPicker({
+  pack,
+  onStartQuiz,
+  accrualByFamily,
+  modeCountsByFamily,
+  onFocusFamily,
+  onToggleReading,
+  readingFamilyId,
+  readingActiveLabel,
+}: Props): JSX.Element {
   return (
     <section style={pickerSectionStyle} aria-label="選 family 直接答題">
       <header style={headerRowStyle}>
@@ -60,6 +77,10 @@ export function FamilyPicker({ pack, onStartQuiz, accrualByFamily, modeCountsByF
                 accrual={accrualByFamily?.get(s.id)}
                 counts={modeCountsByFamily?.get(s.id)}
                 onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
+                onFocus={onFocusFamily ? () => onFocusFamily(s.id) : undefined}
+                onToggleReading={onToggleReading ? () => onToggleReading(s.id) : undefined}
+                isReading={readingFamilyId === s.id}
+                readingActiveLabel={readingFamilyId === s.id ? readingActiveLabel : undefined}
               />
             ))}
           </div>
@@ -107,11 +128,19 @@ function FamilyCard({
   accrual,
   counts,
   onStartQuiz,
+  onFocus,
+  onToggleReading,
+  isReading,
+  readingActiveLabel,
 }: {
   family: Subject
   accrual?: FamilyAccrual
   counts?: FamilyModeCounts
   onStartQuiz: (mode: QuizMode) => void
+  onFocus?: () => void
+  onToggleReading?: () => void
+  isReading?: boolean
+  readingActiveLabel?: string
 }): JSX.Element {
   const accent = family.color ?? '#8c6d4a'
   const spriteUrl = SPRITE_MAP[`subject:${family.id}`] ?? ''
@@ -123,7 +152,23 @@ function FamilyCard({
   const reviewDisabled = dueCount === 0
   return (
     <article style={familyCardStyle(accent)} aria-label={`${family.id} · ${family.displayName}`}>
-      <header style={cardHeaderStyle}>
+      <header
+        style={onFocus ? { ...cardHeaderStyle, cursor: 'pointer' } : cardHeaderStyle}
+        onClick={onFocus}
+        onKeyDown={
+          onFocus
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onFocus()
+                }
+              }
+            : undefined
+        }
+        role={onFocus ? 'button' : undefined}
+        tabIndex={onFocus ? 0 : undefined}
+        title={onFocus ? `在腦圖上聚焦 ${family.id}` : undefined}
+      >
         <div style={spriteFrameStyle(accent)}>
           {spriteUrl ? (
             <img src={spriteUrl} alt="" width={48} height={48} className="neuron-sprite--alive" style={spriteStyle} />
@@ -178,6 +223,18 @@ function FamilyCard({
           <span style={modeChipBadgeStyle}>{reviewDisabled ? '今日無到期' : dueCount}</span>
         </button>
       </div>
+
+      {onToggleReading && (
+        <button
+          type="button"
+          onClick={onToggleReading}
+          aria-pressed={!!isReading}
+          style={isReading ? readingChipActiveStyle(accent) : readingChipStyle(accent)}
+          title={isReading ? `結束 ${family.id} 的閱讀` : `開始閱讀 ${family.id}（能量全進此科）`}
+        >
+          {isReading ? (readingActiveLabel ?? '🟢 閱讀中 · 點擊結束') : '📖 閱讀此科'}
+        </button>
+      )}
     </article>
   )
 }
@@ -383,4 +440,29 @@ const modeChipBadgeStyle: React.CSSProperties = {
   fontSize: '0.7rem',
   fontWeight: 600,
   opacity: 0.92,
+}
+
+function readingChipStyle(accent: string): React.CSSProperties {
+  return {
+    display: 'block',
+    width: '100%',
+    padding: '0.38rem',
+    borderRadius: '4px',
+    fontSize: '0.78rem',
+    fontWeight: 700,
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    background: '#fdf6e3',
+    color: accent,
+    border: `1.5px dashed ${accent}`,
+  }
+}
+
+function readingChipActiveStyle(accent: string): React.CSSProperties {
+  return {
+    ...readingChipStyle(accent),
+    background: '#1f7a3d',
+    color: '#fff',
+    border: '1.5px solid #1f7a3d',
+  }
 }

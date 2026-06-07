@@ -24,6 +24,7 @@ import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { YearFilterBar } from '../components/YearFilterBar'
 import { useMaze } from '../lib/maze/useMaze'
+import { emitMazeFocus } from '../lib/maze/maze-focus'
 import { db } from '../lib/db'
 
 interface Props {
@@ -197,24 +198,36 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     return () => dmnUiEvents.off('dmn.quickReviewStart', handler)
   }, [wrongCount])
 
-  const onTimerToggle = (): void => {
-    if (timer.status === 'idle') {
-      timer.start()
-    } else if (timer.status === 'paused') {
-      timer.resume()
-    } else {
+  // Per-subject reading (add-neurons-maze-zoom-and-focus): each family card's 📖 entry
+  // toggles that subject's reading session; starting/resuming also focuses the maze
+  // camera on that subject (sticky). One subject at a time — `timer.start(familyId)`
+  // switches if a different subject was active.
+  const onToggleReading = (familyId: string): void => {
+    // Same subject + actively reading → toggle off (no focus needed when stopping).
+    if (timer.readingFamilyId === familyId && timer.status === 'reading') {
       timer.stop()
+      return
     }
+    // Same subject + paused → resume; otherwise (idle / different subject) → start.
+    if (timer.readingFamilyId === familyId && timer.status === 'paused') timer.resume()
+    else timer.start(familyId)
+    emitMazeFocus(familyId, { manual: true })
   }
 
-  const timerButtonLabel = (() => {
-    if (timer.status === 'idle') return '📖 開始閱讀'
-    if (timer.status === 'reading') {
-      return `🟢 閱讀中 · ${timer.currentMinute} min · 點擊結束`
+  const onFocusFamily = (familyId: string): void => {
+    emitMazeFocus(familyId, { manual: true })
+  }
+
+  // Dynamic label for the actively-reading card (preserves the pause-reason feedback
+  // the old global toolbar toggle showed).
+  const readingActiveLabel = (() => {
+    if (timer.status === 'reading') return `🟢 閱讀中 · ${timer.currentMinute} min · 點擊結束`
+    if (timer.status === 'paused') {
+      if (timer.pauseReason === 'visibility') return '⏸ 切到別的分頁 · 點擊繼續'
+      if (timer.pauseReason === 'idle') return '⏸ 90s 無動作 · 點擊繼續'
+      return '⏸ 已暫停 · 點擊繼續'
     }
-    if (timer.pauseReason === 'visibility') return '⏸ 切到別的分頁 · 點擊繼續'
-    if (timer.pauseReason === 'idle') return '⏸ 90s 無動作 · 點擊繼續'
-    return '⏸ 已暫停 · 點擊繼續'
+    return undefined
   })()
 
   return (
@@ -232,18 +245,11 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         </div>
       </header>
 
-      {/* ── CTA toolbar (above the maze): reading toggle + cross-family random quiz
-            + 全科錯題 出征 (persistent expedition CTA, per neurons-homepage). ── */}
+      {/* ── CTA toolbar (above the maze): cross-family random quiz + 全科錯題 出征
+            (persistent expedition CTA, per neurons-homepage). Reading is now
+            per-subject — each family card carries its own 📖 entry below. ── */}
       <section style={quizCtaSectionStyle} aria-label="核心循環入口">
         <div style={ctaButtonRowStyle}>
-          <button
-            type="button"
-            style={timer.status === 'reading' ? readingActiveButtonStyle : readingCtaButtonStyle}
-            onClick={onTimerToggle}
-            aria-label="閱讀計時器"
-          >
-            {timerButtonLabel}
-          </button>
           <button
             type="button"
             style={randomQuizButtonStyle}
@@ -271,7 +277,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           </button>
         </div>
         <p style={quizCtaHintStyle}>
-          開始閱讀累積能量，或直接答題。下方點任何 family 卡片即可指定範圍練習；走腦圖到節點即可抽出神經元。
+          直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
         </p>
         <YearFilterBar />
       </section>
@@ -315,6 +321,10 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         accrualByFamily={accrualByFamily}
         modeCountsByFamily={modeCountsByFamily}
         onStartQuiz={openFamilyQuiz}
+        onFocusFamily={onFocusFamily}
+        onToggleReading={onToggleReading}
+        readingFamilyId={timer.readingFamilyId}
+        readingActiveLabel={readingActiveLabel}
       />
 
       {quizEntry !== undefined && expeditionOpen === false && (
@@ -448,27 +458,6 @@ const ctaButtonRowStyle: React.CSSProperties = {
   flexWrap: 'wrap',
   gap: '0.5rem',
   width: '100%',
-}
-
-const readingCtaButtonStyle: React.CSSProperties = {
-  flex: '1 1 200px',
-  padding: '0.65rem 1.2rem',
-  borderRadius: '6px',
-  border: '1px solid #6a8c3f',
-  background: '#7fa84a',
-  color: '#fff',
-  fontSize: '1.02rem',
-  fontWeight: 700,
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-}
-
-const readingActiveButtonStyle: React.CSSProperties = {
-  ...readingCtaButtonStyle,
-  background: '#4d8c4d',
-  border: '1px solid #3a6a3a',
-  animation: 'pulse 2s ease-in-out infinite',
 }
 
 const randomQuizButtonStyle: React.CSSProperties = {
