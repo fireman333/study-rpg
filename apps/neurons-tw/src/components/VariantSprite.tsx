@@ -16,7 +16,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { SPRITE_MAP, decorSpriteUrl } from '@study-rpg/theme-pixel-neurons'
 import type { NeuronVariantRow } from '../lib/db'
-import { variantContextArt, BAND_META } from '../lib/variant-decor'
+import { variantContextArt, locationVariantArt, BAND_META } from '../lib/variant-decor'
 
 interface VariantSpriteProps {
   row: NeuronVariantRow
@@ -28,7 +28,11 @@ interface VariantSpriteProps {
 
 export default function VariantSprite({ row, size, alt, children }: VariantSpriteProps): JSX.Element {
   const { decor, band, branch } = variantContextArt(row)
-  const baseUrl = SPRITE_MAP[row.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
+  // 二回目 location variant: render the family's base sprite + a position-keyed
+  // hue/filter (zero new asset). First-route variants render their own slot sprite.
+  const locArt = locationVariantArt(row.familyId, row.slotIndex)
+  const baseUrl =
+    SPRITE_MAP[locArt?.baseSpriteKey ?? row.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
   const m = BAND_META[band]
   const stacked = decor.length > 1
 
@@ -75,8 +79,10 @@ export default function VariantSprite({ row, size, alt, children }: VariantSprit
       >
         {m.greek}
       </span>
-      {/* 4. base sprite on top */}
-      <div style={{ position: 'absolute', inset: 0 }}>
+      {/* 4. base sprite on top. 二回目 location variants apply a deterministic
+            position-keyed hue/filter over the family base sprite (distinct from the
+            rarity channel; coexists with decor / band). */}
+      <div style={{ position: 'absolute', inset: 0, filter: locArt?.filter }}>
         {children ?? (
           <img
             src={baseUrl}

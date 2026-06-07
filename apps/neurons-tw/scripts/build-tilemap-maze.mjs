@@ -39,6 +39,13 @@ const BRAID = process.env.BRAID != null ? Number(process.env.BRAID) : 0.4 // loo
 const WEAVE = process.env.WEAVE != null ? Number(process.env.WEAVE) : 0.7 // junctions → over/under bridges
 const WIND = Number(process.env.WIND) || 30 // waypoints/route → MAX interweave (NOT shortest path; >110 crossings)
 const NODES_PER_FAMILY = 10
+// 二回目 (second-lap, add-neurons-maze-second-lap-variants): each family gets a SECOND
+// longer route from center back out, reaching NEW weave crossings; up to SECOND_NODES_CAP
+// of them become second-route nodes (slotIndex >= NODES_PER_FAMILY). RNG for these is
+// consumed strictly AFTER all first-route generation, so the first route stays
+// byte-for-byte reproducible (saves / tileset / circuit names unaffected).
+const SECOND_NODES_CAP = Number(process.env.SECOND_CAP) || 10 // 二回目 second-route nodes/family
+const WIND2 = Number(process.env.WIND2) || (WIND + 12) // second-route waypoints — longer than first route
 const SEED = Number(process.env.SEED) || 20260605
 
 const FAMILIES = [
@@ -226,6 +233,59 @@ function build() {
     }
   })
 
+  // === SECOND ROUTE (二回目 — add-neurons-maze-second-lap-variants) ===
+  // RNG consumed HERE, strictly AFTER all first-route generation above, so the first
+  // route (paths / nodeCells / synapses / weave / cellKinds) stays byte-for-byte
+  // reproducible. Each family winds a SECOND, longer route from the shared center back
+  // out toward the opposite-ring border, threading fresh weave crossings the first
+  // route's nodes never marked; up to SECOND_NODES_CAP of those become second-route
+  // nodes (slotIndex >= NODES_PER_FAMILY). Runtime does ZERO generation — it parses
+  // path2 / nodeCells2 the same way it parses path / nodeCells.
+  const half = Math.floor(FAMILIES.length / 2)
+  FAMILIES.forEach((fam, i) => {
+    const f = families[fam]
+    const exit = entries[(i + half) % FAMILIES.length] // opposite-ring border → crosses new regions
+    let p2 = windingPath(wall, weave, center, exit, WIND2)
+    // Guarantee the second route is LONGER than the first (spec): append fresh winding
+    // segments until its cell count exceeds path1's (path is scaled 1:1 with logical → same length).
+    let extendGuard = 0
+    while (p2.length <= f.path.length && extendGuard++ < 30) {
+      const more = weavePath(wall, weave, p2[p2.length - 1], randPassable(wall))
+      if (more.length > 1) p2 = p2.concat(more.slice(1))
+    }
+    f.path2 = scPath(p2)
+    // candidate second-route nodes = weave crossings on path2, route order, excluding
+    // this family's first-route node cells (positions the first route never marked).
+    const firstNodeKeys = new Set(f.nodeCells.map((n) => `${n.cell[0]},${n.cell[1]}`))
+    const seen = new Set()
+    const cand = []
+    for (let idx = 1; idx < p2.length - 1; idx++) {
+      const [lx, ly] = p2[idx]
+      if (!weave.has(key(lx, ly))) continue
+      const [sx, sy] = sc(lx, ly)
+      const ck = `${sx},${sy}`
+      if (firstNodeKeys.has(ck) || seen.has(ck)) continue
+      seen.add(ck)
+      cand.push([sx, sy])
+    }
+    f.nodeCells2 = []
+    if (cand.length > 0) {
+      const k2 = Math.min(SECOND_NODES_CAP, cand.length)
+      for (let s = 0; s < k2; s++) {
+        const pick = k2 === 1 ? cand[0] : cand[Math.round((s / (k2 - 1)) * (cand.length - 1))]
+        f.nodeCells2.push({ slotIndex: NODES_PER_FAMILY + s, cell: pick, synapse: true })
+      }
+    } else {
+      // defensive fallback (rare): evenly-spaced path2 cells if no fresh weave crossing.
+      const usable = f.path2.length > 1 ? f.path2 : [f.path2[0] ?? f.nodeCells[0].cell]
+      const kf = Math.min(SECOND_NODES_CAP, usable.length)
+      for (let s = 0; s < kf; s++) {
+        const ix = kf === 1 ? 0 : Math.round((s / (kf - 1)) * (usable.length - 1))
+        f.nodeCells2.push({ slotIndex: NODES_PER_FAMILY + s, cell: usable[ix], synapse: false })
+      }
+    }
+  })
+
   // scaled cellKinds: PATH(2) passages, WALL(1) rim, BACKGROUND(0) deep interior + margin
   const kinds = new Uint8Array(GRID * GRID)
   const isPassage = (lx, ly) => lx >= 0 && ly >= 0 && lx < L && ly < L && wall[ly][lx] === 0
@@ -279,6 +339,8 @@ async function writePreview(graph) {
   FAMILIES.forEach((fam, i) => {
     const hx = PREVIEW_COLORS[i].replace('#', '')
     const col = [parseInt(hx.slice(0, 2), 16), parseInt(hx.slice(2, 4), 16), parseInt(hx.slice(4, 6), 16)]
+    const dim = col.map((c) => Math.round(c * 0.5)) // second route drawn dimmer
+    for (const [x, y] of graph.families[fam].path2 ?? []) plot(x, y, dim)
     for (const [x, y] of graph.families[fam].path) plot(x, y, col)
   })
   const out = resolve(ASSET_DIR, 'tiles/tilemap-preview.png')
@@ -291,9 +353,13 @@ const { _kinds, _counts, ...committed } = graph
 await writeFile(resolve(ASSET_DIR, 'grid-graph.json'), JSON.stringify(committed) + '\n')
 const preview = await writePreview(graph)
 const totalNodes = FAMILIES.reduce((a, f) => a + graph.families[f].nodeCells.length, 0)
+const totalNodes2 = FAMILIES.reduce((a, f) => a + (graph.families[f].nodeCells2?.length ?? 0), 0)
+const k2s = FAMILIES.map((f) => graph.families[f].nodeCells2?.length ?? 0)
+const longer = FAMILIES.filter((f) => (graph.families[f].path2?.length ?? 0) > graph.families[f].path.length).length
 const reachable = FAMILIES.filter((f) => graph.families[f].path.length > 0).length
 const bytes = JSON.stringify(committed).length
-console.log(`[tilemap-maze] logical ${L}² ×${SCALE} → ${GRID}² · braid=${BRAID} weave=${WEAVE} wind=${WIND} seed=${SEED}`)
-console.log(`[tilemap-maze] ${graph.weave.length} bridges · ${graph.synapses.length} synapses · ${totalNodes} nodes · reachable=${reachable}/11`)
+console.log(`[tilemap-maze] logical ${L}² ×${SCALE} → ${GRID}² · braid=${BRAID} weave=${WEAVE} wind=${WIND}/${WIND2} seed=${SEED}`)
+console.log(`[tilemap-maze] ${graph.weave.length} bridges · ${graph.synapses.length} synapses · ${totalNodes} first-route nodes · reachable=${reachable}/11`)
+console.log(`[tilemap-maze] 二回目: ${totalNodes2} second-route nodes (per-family ${Math.min(...k2s)}–${Math.max(...k2s)}, cap ${SECOND_NODES_CAP}) · ${longer}/11 routes longer than first · total catalog target ${totalNodes + totalNodes2}`)
 console.log(`[tilemap-maze] cellKinds: path=${_counts.path} wall=${_counts.wall} bg=${_counts.bg} · grid-graph.json=${(bytes / 1024).toFixed(0)}KB`)
 console.log(`[tilemap-maze] preview → ${preview}`)

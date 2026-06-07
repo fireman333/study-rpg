@@ -1,13 +1,25 @@
 /**
  * Circuit-location name pool (name-neurons-maze-circuit-locations).
  *
- * Real neuroanatomical structures used as Pikmin-Bloom provenance labels
- * 「在 <zh> 尋獲的神經元」 for variants collected at maze crossing-synapses.
- * Sourced from OpenEvidence (oe_ask, 2026-06-05) — see
- * ~/.claude/scratch/neurons-circuit-location-candidates-2026-06-05.md for the
- * per-name PMIDs / grounding notes. 116 entries (27 tracts / nuclei /
- * circuits / named synapses); the invertebrate squid giant synapse is excluded.
- * Build-time only — assigned into grid-graph.json synapses[].location by
+ * Real LEARNING / long-term-potentiation (LTP) / memory-circuit neuroanatomical
+ * & neurophysiological structures, used as Pikmin-Bloom provenance labels —
+ * 「在 <zh> 尋獲的神經元」 for first-route crossing-synapses and
+ * 「在 <zh> 解鎖的神經元」 for second-route (二回目) location variants.
+ *
+ * REPLACES the prior broad-anatomy pool (motor/sensory/visual/language/basal-
+ * ganglia structures) per add-neurons-maze-second-lap-variants U1: the neurons app
+ * is LTP/Hebbian-themed ("neurons that fire together, wire together"), so the pool
+ * is now scoped to the hippocampal memory system + medial temporal lobe memory
+ * network + the synaptic machinery of plasticity — every place here is one where
+ * memory is encoded, replayed, or consolidated. As a consequence, first-route
+ * synapse locations re-stamp to learning-circuit names on update (pure-derived
+ * captions recompute; no stored-field migration).
+ *
+ * Grounded via OpenEvidence (oe_ask, 7 focused neuroscience queries) + canonical
+ * PubMed review PMIDs, 2026-06-07. Per-name PMIDs / grounding notes:
+ * ~/.claude/scratch/neurons-ltp-circuit-location-candidates-2026-06-07.md
+ * 67 entries (round-robin repeats across ~226 maze positions are acceptable, as
+ * the prior pool did). Build-time only — assigned into grid-graph.json by
  * apps/neurons-tw/scripts/assign-circuit-locations.mjs.
  */
 export interface CircuitLocation {
@@ -15,125 +27,87 @@ export interface CircuitLocation {
   zh: string
   /** English name. */
   en: string
-  /** Structure category (tract / nucleus / circuit / synapse …). */
+  /** Structure category (subfield / pathway / synapse / nucleus / phenomenon …). */
   type: string
 }
 
 export const CIRCUIT_LOCATIONS: CircuitLocation[] = [
-  { zh: "弓狀束", en: "Arcuate fasciculus", type: "tract (association)" },
-  { zh: "上縱束", en: "Superior longitudinal fasciculus", type: "tract (association)" },
-  { zh: "下縱束", en: "Inferior longitudinal fasciculus", type: "tract (association)" },
-  { zh: "下額枕束", en: "Inferior fronto-occipital fasciculus", type: "tract (association)" },
-  { zh: "鉤束", en: "Uncinate fasciculus", type: "tract (association)" },
-  { zh: "扣帶束", en: "Cingulum", type: "tract (association)" },
-  { zh: "穹窿", en: "Fornix", type: "tract (limbic)" },
-  { zh: "胼胝體", en: "Corpus callosum", type: "tract (commissural)" },
-  { zh: "前連合", en: "Anterior commissure", type: "tract (commissural)" },
-  { zh: "外囊", en: "External capsule", type: "tract (projection)" },
-  { zh: "最外囊", en: "Extreme capsule", type: "tract (association)" },
-  { zh: "內囊", en: "Internal capsule", type: "tract (projection)" },
-  { zh: "皮質脊髓束", en: "Corticospinal tract", type: "tract (projection)" },
-  { zh: "皮質延髓束", en: "Corticobulbar tract", type: "tract (projection)" },
-  { zh: "內側丘系", en: "Medial lemniscus", type: "tract (sensory)" },
-  { zh: "外側丘系", en: "Lateral lemniscus", type: "tract (sensory)" },
-  { zh: "脊髓丘腦束", en: "Spinothalamic tract", type: "tract (sensory)" },
-  { zh: "背柱-內側丘系", en: "Dorsal column–medial lemniscus pathway", type: "tract (sensory)" },
-  { zh: "內側縱束", en: "Medial longitudinal fasciculus", type: "tract (brainstem)" },
-  { zh: "視放射", en: "Optic radiation", type: "tract (projection)" },
-  { zh: "前丘腦放射", en: "Anterior thalamic radiation", type: "tract (projection)" },
-  { zh: "終紋", en: "Stria terminalis", type: "tract (limbic)" },
-  { zh: "內側前腦束", en: "Medial forebrain bundle", type: "tract (limbic)" },
-  { zh: "上小腦腳", en: "Superior cerebellar peduncle", type: "tract (cerebellar)" },
-  { zh: "中小腦腳", en: "Middle cerebellar peduncle", type: "tract (cerebellar)" },
-  { zh: "下小腦腳", en: "Inferior cerebellar peduncle", type: "tract (cerebellar)" },
-  { zh: "齒狀紅核丘腦束", en: "Dentatorubrothalamic tract", type: "tract (cerebellar)" },
-  { zh: "丘腦前核", en: "Anterior nucleus of thalamus", type: "nucleus (thalamic)" },
-  { zh: "背內側核", en: "Mediodorsal nucleus", type: "nucleus (thalamic)" },
-  { zh: "腹前核", en: "Ventral anterior nucleus", type: "nucleus (thalamic)" },
-  { zh: "腹外側核", en: "Ventral lateral nucleus", type: "nucleus (thalamic)" },
-  { zh: "腹後外側核", en: "Ventral posterolateral nucleus (VPL)", type: "nucleus (thalamic)" },
-  { zh: "腹後內側核", en: "Ventral posteromedial nucleus (VPM)", type: "nucleus (thalamic)" },
-  { zh: "外側膝狀體", en: "Lateral geniculate nucleus", type: "nucleus (thalamic)" },
-  { zh: "內側膝狀體", en: "Medial geniculate nucleus", type: "nucleus (thalamic)" },
-  { zh: "枕核", en: "Pulvinar", type: "nucleus (thalamic)" },
-  { zh: "中央正中核", en: "Centromedian nucleus", type: "nucleus (thalamic)" },
-  { zh: "丘腦網狀核", en: "Thalamic reticular nucleus", type: "nucleus (thalamic)" },
-  { zh: "尾狀核", en: "Caudate nucleus", type: "nucleus (basal ganglia)" },
-  { zh: "殼核", en: "Putamen", type: "nucleus (basal ganglia)" },
-  { zh: "蒼白球內節", en: "Globus pallidus interna (GPi)", type: "nucleus (basal ganglia)" },
-  { zh: "蒼白球外節", en: "Globus pallidus externa (GPe)", type: "nucleus (basal ganglia)" },
-  { zh: "視丘下核", en: "Subthalamic nucleus", type: "nucleus (basal ganglia)" },
-  { zh: "黑質緻密部", en: "Substantia nigra pars compacta", type: "nucleus (basal ganglia)" },
-  { zh: "黑質網狀部", en: "Substantia nigra pars reticulata", type: "nucleus (basal ganglia)" },
-  { zh: "伏隔核", en: "Nucleus accumbens", type: "nucleus (ventral striatum)" },
-  { zh: "腹側蒼白球", en: "Ventral pallidum", type: "nucleus (basal ganglia)" },
-  { zh: "屏狀核", en: "Claustrum", type: "nucleus (subcortical)" },
-  { zh: "藍斑核", en: "Locus coeruleus", type: "nucleus (brainstem)" },
-  { zh: "中縫核", en: "Raphe nuclei", type: "nucleus (brainstem)" },
-  { zh: "中腦導水管周圍灰質", en: "Periaqueductal gray", type: "nucleus (brainstem)" },
-  { zh: "紅核", en: "Red nucleus", type: "nucleus (brainstem)" },
-  { zh: "腹側被蓋區", en: "Ventral tegmental area (VTA)", type: "nucleus (brainstem)" },
-  { zh: "腳橋核", en: "Pedunculopontine nucleus", type: "nucleus (brainstem)" },
-  { zh: "下橄欖核", en: "Inferior olivary nucleus", type: "nucleus (brainstem)" },
-  { zh: "孤束核", en: "Nucleus of the solitary tract", type: "nucleus (brainstem)" },
-  { zh: "迷走神經背運動核", en: "Dorsal motor nucleus of vagus", type: "nucleus (brainstem)" },
-  { zh: "動眼神經副核", en: "Edinger-Westphal nucleus", type: "nucleus (brainstem)" },
-  { zh: "上丘", en: "Superior colliculus", type: "nucleus (midbrain)" },
-  { zh: "下丘", en: "Inferior colliculus", type: "nucleus (midbrain)" },
-  { zh: "視交叉上核", en: "Suprachiasmatic nucleus", type: "nucleus (hypothalamic)" },
-  { zh: "室旁核", en: "Paraventricular nucleus", type: "nucleus (hypothalamic)" },
-  { zh: "視上核", en: "Supraoptic nucleus", type: "nucleus (hypothalamic)" },
-  { zh: "弓狀核", en: "Arcuate nucleus", type: "nucleus (hypothalamic)" },
-  { zh: "腹內側核", en: "Ventromedial nucleus", type: "nucleus (hypothalamic)" },
-  { zh: "外側下視丘區", en: "Lateral hypothalamic area", type: "nucleus (hypothalamic)" },
-  { zh: "乳頭體", en: "Mammillary bodies", type: "nucleus (hypothalamic)" },
-  { zh: "基底外側杏仁核", en: "Basolateral amygdala", type: "nucleus (amygdala)" },
-  { zh: "中央杏仁核", en: "Central amygdala", type: "nucleus (amygdala)" },
-  { zh: "內側杏仁核", en: "Medial amygdala", type: "nucleus (amygdala)" },
-  { zh: "終紋床核", en: "Bed nucleus of the stria terminalis (BNST)", type: "nucleus (extended amygdala)" },
-  { zh: "Papez 環路", en: "Papez circuit", type: "circuit (limbic)" },
+  // --- Group 1: Hippocampal formation subfields (the memory engine) ---
+  { zh: "齒狀回", en: "Dentate gyrus", type: "hippocampal subfield" },
+  { zh: "海馬 CA3 區", en: "Hippocampal CA3", type: "hippocampal subfield" },
+  { zh: "海馬 CA2 區", en: "Hippocampal CA2", type: "hippocampal subfield" },
+  { zh: "海馬 CA1 區", en: "Hippocampal CA1", type: "hippocampal subfield" },
+  { zh: "下托", en: "Subiculum", type: "hippocampal subfield (output)" },
+  { zh: "前下托", en: "Presubiculum", type: "hippocampal subfield" },
+  { zh: "旁下托", en: "Parasubiculum", type: "hippocampal subfield" },
+  { zh: "阿蒙角", en: "Cornu Ammonis", type: "hippocampal subfield (collective)" },
+  { zh: "海馬門（CA4）", en: "Hilus (CA4)", type: "hippocampal subfield" },
+
+  // --- Group 2: Entorhinal interface & spatial-coding cells ---
+  { zh: "外側內嗅皮質", en: "Lateral entorhinal cortex", type: "cortex (memory interface)" },
+  { zh: "內側內嗅皮質", en: "Medial entorhinal cortex", type: "cortex (memory interface)" },
+  { zh: "內嗅皮質第二層", en: "Entorhinal cortex layer II", type: "cortex (memory interface)" },
+  { zh: "內嗅皮質第三層", en: "Entorhinal cortex layer III", type: "cortex (memory interface)" },
+  { zh: "網格細胞模組", en: "Grid-cell module", type: "phenomenon (spatial code)" },
+  { zh: "位置細胞場", en: "Place-cell field", type: "phenomenon (spatial code)" },
+  { zh: "頭向細胞環路", en: "Head-direction cell circuit", type: "circuit (spatial code)" },
+
+  // --- Group 3: Intrahippocampal pathways & memory white matter ---
+  { zh: "穿通通路", en: "Perforant path", type: "pathway (entorhinal→DG)" },
+  { zh: "內側穿通通路", en: "Medial perforant path", type: "pathway (entorhinal→DG)" },
+  { zh: "外側穿通通路", en: "Lateral perforant path", type: "pathway (entorhinal→DG)" },
+  { zh: "海馬苔狀纖維", en: "Hippocampal mossy fibers", type: "pathway/synapse (DG→CA3)" },
+  { zh: "Schaffer 側支", en: "Schaffer collaterals", type: "pathway/synapse (CA3→CA1)" },
+  { zh: "顳-阿蒙通路", en: "Temporoammonic pathway", type: "pathway (EC III→CA1)" },
+  { zh: "穹窿", en: "Fornix", type: "tract (limbic output)" },
+  { zh: "海馬傘", en: "Fimbria", type: "tract (limbic output)" },
+  { zh: "海馬槽", en: "Alveus", type: "tract (limbic output)" },
+  { zh: "角束", en: "Angular bundle", type: "tract (entorhinal)" },
+  { zh: "海馬連合", en: "Hippocampal commissure", type: "tract (commissural)" },
+  { zh: "齒狀苔狀細胞聯絡通路", en: "Dentate mossy-cell associational pathway", type: "pathway (intra-DG)" },
+
+  // --- Group 4: Synapse & plasticity machinery (the molecular LTP scene) ---
+  { zh: "Schaffer-CA1 長期增益突觸", en: "Schaffer collateral–CA1 LTP synapse", type: "synapse (plasticity)" },
+  { zh: "NMDA 受體突觸", en: "NMDA-receptor synapse", type: "synapse (plasticity)" },
+  { zh: "沉默突觸", en: "Silent synapse", type: "synapse (plasticity)" },
+  { zh: "樹突棘", en: "Dendritic spine", type: "structure (plasticity)" },
+  { zh: "蕈狀樹突棘", en: "Mushroom spine", type: "structure (plasticity)" },
+  { zh: "突觸後緻密區", en: "Postsynaptic density", type: "structure (plasticity)" },
+  { zh: "長期抑制突觸", en: "Long-term depression synapse (LTD)", type: "synapse (plasticity)" },
+  { zh: "θ 叢發長期增益位點", en: "Theta-burst LTP induction site", type: "phenomenon (plasticity)" },
+  { zh: "記憶印痕細胞群", en: "Memory engram ensemble", type: "phenomenon (plasticity)" },
+  { zh: "印痕分配熱點", en: "Engram allocation hotspot", type: "phenomenon (plasticity)" },
+  { zh: "突觸標記捕獲位點", en: "Synaptic tagging-and-capture site", type: "phenomenon (plasticity)" },
+  { zh: "籃狀細胞胞周突觸", en: "Perisomatic basket-cell synapse", type: "synapse (inhibitory)" },
+  { zh: "軸-軸（燭台細胞）突觸", en: "Axo-axonic (chandelier) synapse", type: "synapse (inhibitory)" },
+  { zh: "三方突觸", en: "Tripartite synapse", type: "synapse (glial)" },
+
+  // --- Group 5: Papez circuit & extended limbic memory system ---
+  { zh: "Papez 環路", en: "Papez circuit", type: "circuit (limbic memory)" },
   { zh: "海馬三突觸環路", en: "Hippocampal trisynaptic circuit", type: "circuit (memory)" },
-  { zh: "邊緣系統", en: "Limbic system", type: "circuit (limbic)" },
-  { zh: "皮質-紋狀體-丘腦-皮質環路", en: "Cortico-striato-thalamo-cortical loop", type: "circuit (basal ganglia)" },
-  { zh: "直接路徑", en: "Direct pathway", type: "circuit (basal ganglia)" },
-  { zh: "間接路徑", en: "Indirect pathway", type: "circuit (basal ganglia)" },
-  { zh: "超直接路徑", en: "Hyperdirect pathway", type: "circuit (basal ganglia)" },
-  { zh: "皮質-橋腦-小腦環路", en: "Cortico-ponto-cerebellar loop", type: "circuit (cerebellar)" },
-  { zh: "齒狀-紅核-丘腦-皮質路徑", en: "Dentato-rubro-thalamo-cortical pathway", type: "circuit (cerebellar)" },
-  { zh: "中腦邊緣多巴胺路徑", en: "Mesolimbic dopamine pathway", type: "pathway (dopamine)" },
-  { zh: "中腦皮質多巴胺路徑", en: "Mesocortical dopamine pathway", type: "pathway (dopamine)" },
-  { zh: "黑質紋狀體路徑", en: "Nigrostriatal pathway", type: "pathway (dopamine)" },
-  { zh: "結節漏斗路徑", en: "Tuberoinfundibular pathway", type: "pathway (dopamine)" },
-  { zh: "預設模式網絡", en: "Default mode network", type: "network (large-scale)" },
-  { zh: "顯著性網絡", en: "Salience network", type: "network (large-scale)" },
-  { zh: "中央執行網絡", en: "Central executive (frontoparietal) network", type: "network (large-scale)" },
-  { zh: "背側視覺流", en: "Dorsal visual stream", type: "pathway (visual)" },
-  { zh: "腹側視覺流", en: "Ventral visual stream", type: "pathway (visual)" },
-  { zh: "膝狀紋狀體路徑", en: "Geniculostriate pathway", type: "pathway (visual)" },
-  { zh: "背側語言流", en: "Dorsal language stream", type: "pathway (language)" },
-  { zh: "腹側語言流", en: "Ventral language stream", type: "pathway (language)" },
-  { zh: "網狀活化系統", en: "Reticular activating system", type: "system (arousal)" },
-  { zh: "下視丘-腦垂體-腎上腺軸", en: "Hypothalamic-pituitary-adrenal axis", type: "system (neuroendocrine)" },
-  { zh: "視網膜下視丘束", en: "Retinohypothalamic tract", type: "pathway (circadian)" },
-  { zh: "Held 萼狀突觸", en: "Calyx of Held", type: "synapse" },
-  { zh: "小腦苔狀纖維", en: "Cerebellar mossy fibers", type: "fiber/synapse" },
-  { zh: "海馬苔狀纖維", en: "Hippocampal mossy fibers", type: "fiber/synapse" },
-  { zh: "攀緣纖維", en: "Climbing fibers", type: "fiber/synapse" },
-  { zh: "平行纖維", en: "Parallel fibers", type: "fiber/synapse" },
-  { zh: "Schaffer 側支", en: "Schaffer collaterals", type: "synapse" },
-  { zh: "穿通通路", en: "Perforant path", type: "pathway/synapse" },
-  { zh: "帶狀突觸", en: "Ribbon synapse", type: "synapse" },
-  { zh: "神經肌肉接合處", en: "Neuromuscular junction", type: "junction" },
-  { zh: "三方突觸", en: "Tripartite synapse", type: "synapse" },
-  { zh: "軸突起始段", en: "Axon initial segment", type: "structure" },
-  { zh: "蘭氏結", en: "Node of Ranvier", type: "structure" },
-  { zh: "電突觸（間隙連接）", en: "Electrical synapse (gap junction)", type: "synapse" },
-  { zh: "燭台細胞突觸", en: "Chandelier (axo-axonic) synapse", type: "synapse" },
-  { zh: "籃狀細胞突觸", en: "Basket cell synapse", type: "synapse" },
-  { zh: "浦肯野細胞筆刷", en: "Pinceau of Purkinje cells", type: "synapse" },
-  { zh: "Renshaw 細胞環路", en: "Renshaw cell circuit", type: "circuit" },
-  { zh: "小腦小球", en: "Cerebellar glomerulus", type: "synaptic complex" },
-  { zh: "嗅小球", en: "Olfactory glomerulus", type: "synaptic complex" },
-  { zh: "樹突棘", en: "Dendritic spine", type: "structure" },
-  { zh: "過路型突觸扣結", en: "En passant bouton", type: "structure" },
+  { zh: "乳頭體", en: "Mammillary bodies", type: "nucleus (diencephalic memory)" },
+  { zh: "乳頭丘腦束", en: "Mammillothalamic tract", type: "tract (diencephalic memory)" },
+  { zh: "丘腦前核", en: "Anterior thalamic nucleus", type: "nucleus (diencephalic memory)" },
+  { zh: "扣帶束", en: "Cingulum", type: "tract (limbic)" },
+  { zh: "扣帶回", en: "Cingulate gyrus", type: "cortex (limbic memory)" },
+  { zh: "海馬旁回", en: "Parahippocampal gyrus", type: "cortex (memory interface)" },
+  { zh: "壓後皮質", en: "Retrosplenial cortex", type: "cortex (consolidation)" },
+  { zh: "基底外側杏仁核", en: "Basolateral amygdala", type: "nucleus (emotional memory)" },
+  { zh: "杏仁核記憶印痕", en: "Amygdala memory engram", type: "phenomenon (emotional memory)" },
+  { zh: "海馬-前額葉通路", en: "Hippocampal–prefrontal pathway", type: "pathway (consolidation)" },
+  { zh: "內側前額葉記憶印痕", en: "Medial prefrontal cortex memory engram", type: "cortex (consolidation)" },
+
+  // --- Group 6: Neuromodulatory inputs & oscillatory consolidation ---
+  { zh: "內側中隔", en: "Medial septum", type: "nucleus (theta pacemaker)" },
+  { zh: "Broca 斜角帶", en: "Diagonal band of Broca", type: "nucleus (cholinergic)" },
+  { zh: "中隔海馬通路", en: "Septohippocampal pathway", type: "pathway (theta)" },
+  { zh: "Meynert 基底核", en: "Nucleus basalis of Meynert", type: "nucleus (cholinergic)" },
+  { zh: "藍斑核", en: "Locus coeruleus", type: "nucleus (noradrenergic)" },
+  { zh: "藍斑-海馬正腎上腺素投射", en: "LC–hippocampus noradrenergic projection", type: "pathway (consolidation)" },
+  { zh: "腹側被蓋-海馬迴路", en: "Ventral tegmental area–hippocampus loop", type: "circuit (dopaminergic)" },
+  { zh: "海馬 θ 節律", en: "Hippocampal theta rhythm", type: "phenomenon (oscillation)" },
+  { zh: "θ-γ 相位耦合", en: "Theta-gamma phase coupling", type: "phenomenon (oscillation)" },
+  { zh: "尖波漣漪", en: "Sharp-wave ripple", type: "phenomenon (oscillation)" },
+  { zh: "海馬重播序列", en: "Hippocampal replay sequence", type: "phenomenon (consolidation)" },
+  { zh: "皮質-海馬對話", en: "Cortico-hippocampal dialogue", type: "circuit (consolidation)" },
 ]

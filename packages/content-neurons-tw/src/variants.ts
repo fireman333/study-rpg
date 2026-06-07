@@ -27,6 +27,14 @@ export interface NeuronVariantDef {
   spriteKey: string
   /** Player-facing 1-2 sentence flavour blurb. */
   description: string
+  /**
+   * 二回目 location variant (add-neurons-maze-second-lap-variants): a deterministic
+   * position-bound unlock from the family's SECOND maze route (slotIndex >=
+   * firstRouteNodeCount), rendered as the family's base sprite + a position-keyed
+   * hue/filter. Excluded from the rarity pyramid invariant AND from the first-route
+   * random within-tier roll (only unlocked by walking to its second-route node).
+   */
+  isLocation?: boolean
 }
 
 /** Catalog literal shape — `rarity` is now authored per entry (not derived). */
@@ -112,6 +120,51 @@ const FAMILY_IDS = [
 
 const variantKey = (familyId: string, slotIndex: SlotIndex): string =>
   `variant:${familyId}:${slotIndex}`
+
+// ─── 二回目 location variants (add-neurons-maze-second-lap-variants) ───────────
+// Each family's SECOND maze route (`grid-graph.json` nodeCells2) unlocks
+// SECOND_LAP_SLOTS_PER_FAMILY deterministic position-bound variants at slotIndex
+// SECOND_LAP_SLOT_START.. — the family's "memory engram" along the learning circuit.
+// They render as the family's base sprite + a per-location hue/filter (zero new
+// sprite asset). All carry rarity P3 + isLocation:true → excluded from the pyramid
+// invariant and the random within-tier roll; unlocked only by walking the second
+// route to that node. The per-family count MUST match the committed graph's
+// nodeCells2 count (cross-checked by a test). The location identity surfaces via
+// the pure-derived 「在<location>解鎖」 caption, not the displayName.
+export const SECOND_LAP_SLOT_START = 10
+export const SECOND_LAP_SLOTS_PER_FAMILY = 10
+const LOCATION_VARIANT_RARITY: Rarity = 'P3'
+
+/** Per-family engram persona (name + flavour) reused across the family's location variants. */
+const LOCATION_VARIANT_PERSONA: Record<string, { name: string; description: string }> = {
+  藥理學: { name: '獎賞印痕', description: '沿學習迴路點亮的多巴胺印痕，把每一次獎賞的位置長成長存突觸。' },
+  公共衛生學: { name: '黑質印痕', description: '黑質多巴胺元在記憶網絡留下的長存印痕，標記抗退化的每個節點。' },
+  寄生蟲學: { name: '腸腦印痕', description: '腸-腦軸的 5-HT 訊號沿記憶迴路凝固成印痕，連寄生蟲的足跡都被記下。' },
+  組織學: { name: '中縫印痕', description: '中縫核血清素在睡眠鞏固時刻下的情緒印痕，溫柔固定每段記憶。' },
+  生物化學: { name: '小腦印痕', description: '小腦 Purkinje 把運動時序寫進長期記憶的抑制印痕。' },
+  病理學: { name: '紋狀印痕', description: '基底節 MSN 將反覆動作鞏固成程序記憶的印痕。' },
+  免疫學: { name: '篩網印痕', description: 'PV+ 籃狀細胞在 gamma 同步中固定下來的圍城印痕。' },
+  解剖學: { name: '體感印痕', description: '背根節把體感地圖長期登錄進記憶迴路的印痕。' },
+  生理學: { name: '皮層印痕', description: 'L5 錐體元在皮質-海馬對話中鞏固決策的記憶印痕。' },
+  胚胎學: { name: '發育印痕', description: 'Cajal-Retzius 鋪下的早期軌跡，化為記憶迴路最初的印痕。' },
+  微生物學: { name: '嗅覺印痕', description: '嗅覺神經元把氣味與危險長期綁定的記憶印痕。' },
+}
+
+const LOCATION_VARIANTS: RawVariantDef[] = FAMILY_IDS.flatMap((familyId) => {
+  const persona = LOCATION_VARIANT_PERSONA[familyId]
+  return Array.from({ length: SECOND_LAP_SLOTS_PER_FAMILY }, (_unused, k) => {
+    const slotIndex = SECOND_LAP_SLOT_START + k
+    return {
+      familyId,
+      slotIndex,
+      rarity: LOCATION_VARIANT_RARITY,
+      displayName: persona.name,
+      spriteKey: variantKey(familyId, slotIndex),
+      description: persona.description,
+      isLocation: true,
+    }
+  })
+})
 
 const RAW_CATALOG: RawVariantDef[] = [
   // 藥理學 — VTA Dopaminergic — Thrill-Seeker (DA)
@@ -668,6 +721,9 @@ const RAW_CATALOG: RawVariantDef[] = [
   { familyId: '微生物學', slotIndex: 7, rarity: 'P4', displayName: '受體輪替工', spriteKey: variantKey('微生物學', 7), description: '在嗅上皮持續汰換更新 OSN,維持嗅覺受體庫的多樣。' },
   { familyId: '微生物學', slotIndex: 8, rarity: 'P3', displayName: '揮發物追蹤員', spriteKey: variantKey('微生物學', 8), description: '追蹤空氣中的揮發性代謝物,鎖定潛在病原的來源方向。' },
   { familyId: '微生物學', slotIndex: 9, rarity: 'P2', displayName: '黏膜防線大師', spriteKey: variantKey('微生物學', 9), description: '協調嗅黏膜免疫與菌相,把上呼吸道守成第一道氣味長城。' },
+
+  // ─── 二回目 location variants (slotIndex 10..19 per family, isLocation) ──────
+  ...LOCATION_VARIANTS,
 ]
 
 /** Public catalog — `rarity` is authored per entry (decoupled from slotIndex). */
@@ -757,8 +813,11 @@ function assertCatalogShape(catalog: NeuronVariantDef[]): void {
         )
       }
     }
-    // Pyramid invariant: rarer tier ≤ commoner tier count.
-    const countByTier = (r: Rarity): number => list.filter((e) => e.rarity === r).length
+    // Pyramid invariant: rarer tier ≤ commoner tier count. 二回目 location
+    // variants (isLocation) are deterministic position unlocks, NOT rarity-pyramid
+    // rolls — they are excluded from the tier counts (add-neurons-maze-second-lap-variants).
+    const countByTier = (r: Rarity): number =>
+      list.filter((e) => e.rarity === r && !e.isLocation).length
     for (let i = 1; i < RARITY_COMMON_TO_RARE.length; i++) {
       const commoner = countByTier(RARITY_COMMON_TO_RARE[i - 1])
       const rarer = countByTier(RARITY_COMMON_TO_RARE[i])

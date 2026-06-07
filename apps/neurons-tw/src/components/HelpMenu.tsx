@@ -92,8 +92,11 @@ const SECTIONS: Section[] = [
           抽到已擁有的會變重複（copies +1）。不用付費、純靠唸書。
         </p>
         <p>
-          11 個 family × 10 slot = 110 variants 為完整收集目標。
-          整體進度顯示在 Overview 頂部 status chip 的「🧬 變體 X / 110」。
+          11 個 family × 10 第一路線 slot = 110 隻；點亮一科的全部第一路線節點後，
+          該科進入<strong>二回目</strong>：walker 沿第二條更長路線走到全新節點位置，
+          每個位置<strong>解鎖</strong>一隻「在 XX 解鎖」的位置變體（同隻立繪、色調隨位置變化），
+          再 +110 隻。合計 220 variants 為完整收集目標。
+          整體進度顯示在 Overview 頂部 status chip 的「🧬 變體 X / 220」。
         </p>
       </>
     ),

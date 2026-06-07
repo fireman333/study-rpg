@@ -42,7 +42,24 @@ for (const s of graph.synapses) {
   assigned++
 }
 
+// Second-route (二回目) node positions also get a learning-circuit name
+// (add-neurons-maze-second-lap-variants): each becomes its location variant's
+// 「在 <zh> 解鎖」 caption. Deterministic order = by cell (y, then x) across all
+// families, round-robin over the SAME pool. Stamped into nodeCells2[].location.
+const secondNodes = []
+for (const fam of Object.keys(graph.families)) {
+  for (const nc of graph.families[fam].nodeCells2 ?? []) secondNodes.push(nc)
+}
+secondNodes.sort((a, b) => a.cell[1] - b.cell[1] || a.cell[0] - b.cell[0])
+let assigned2 = 0
+secondNodes.forEach((nc, j) => {
+  nc.location = POOL[j % POOL.length].zh
+  assigned2++
+})
+
 writeFileSync(GRAPH, JSON.stringify(graph, null, 0) + '\n')
 const unique = new Set(graph.synapses.map((s) => s.location)).size
-console.log(`assigned ${assigned} synapse locations (${unique} unique names from a pool of ${POOL.length}) → ${GRAPH}`)
-console.log('sample:', graph.synapses.slice(0, 3).map((s) => `${s.cell}→${s.location}`).join('  '))
+const unique2 = new Set(secondNodes.map((n) => n.location)).size
+console.log(`assigned ${assigned} synapse locations (${unique} unique) + ${assigned2} second-route node locations (${unique2} unique) from a pool of ${POOL.length} → ${GRAPH}`)
+console.log('sample synapse:', graph.synapses.slice(0, 2).map((s) => `${s.cell}→${s.location}`).join('  '))
+console.log('sample 2nd-route:', secondNodes.slice(0, 2).map((n) => `${n.cell}→${n.location}`).join('  '))

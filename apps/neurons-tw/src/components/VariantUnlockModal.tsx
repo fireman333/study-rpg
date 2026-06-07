@@ -5,6 +5,7 @@ import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { subscribeVariantGachaEvents, type VariantRolledPayload } from '../lib/services/variant-gacha'
 import type { VariantRarity } from '../lib/db'
 import { variantBirthCaption } from '../lib/variant-caption'
+import { locationVariantArt } from '../lib/variant-decor'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import VariantSprite from './VariantSprite'
 
@@ -54,7 +55,11 @@ export default function VariantUnlockModal(): JSX.Element {
   if (!current) return <></>
 
   const { variant, familyDisplayName, isDupe } = current.payload
-  const spriteUrl = SPRITE_MAP[variant.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
+  // 二回目 location variants render the family base sprite (VariantSprite adds the
+  // position-keyed hue/filter on top); first-route variants use their own slot sprite.
+  const locArt = locationVariantArt(variant.familyId, variant.slotIndex)
+  const spriteUrl =
+    SPRITE_MAP[locArt?.baseSpriteKey ?? variant.spriteKey] ?? SPRITE_MAP['variant:default'] ?? ''
   const color = RARITY_COLOR[variant.rarity]
   // P0 apex shares P1's grand spin spectacle (motion lib timing covers P1–P5).
   const timing = RARITY_TIMINGS[variant.rarity === 'P0' ? 'P1' : variant.rarity]
