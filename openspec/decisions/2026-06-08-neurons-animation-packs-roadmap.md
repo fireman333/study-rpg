@@ -29,14 +29,29 @@ Decided to add the parked game-animation work as **3 OpenSpec changes**, in orde
   spike stroke 1.5 @ i=1 + unit test). reduced-motion = code-verified (not OS-toggled).
   Live-quiz spike screenshot not deterministically caught (harness friction, not a defect).
 
-### Pack 2 — `polish-neurons-juice-animations` ⏳ NOT STARTED (do next)
-Pure code, zero asset, expected zero schema. Scope:
-NumberTickUp wiring (reputation/energy/score) · C DMN 消耗品啟用爆發 ·
-D leaderboard rank-up tween · E route transition (神經訊號 wipe — **must re-run SPA
-三件套 incl. F5**) · F 答錯 synapse decay cue (reuse `SYNAPSE_TIMINGS.decay`) ·
-G 夥伴 idle reaction (blink/pulse on correct) · walker easing tween (replace raw
-transform) · evolve sheet → DmnDrawModal.
-**Next action**: `/opsx:propose polish-neurons-juice-animations`.
+### Pack 2 — `polish-neurons-juice-animations` ✅ DONE (committed, archived; NOT deployed)
+Pure code, zero asset, zero schema. Shipped **6** animations (orphan audit cut 3 of the
+original grill list that hit deleted/absent mechanics — see below):
+- DMN 消耗品啟用爆發 (`BackpackPanel` `ParticleBurst`)
+- Leaderboard rank-up: rank number `NumberTickUp` tween + improve `CelebrationHalo` (per-filter ref, no false-fire on tab switch)
+- Route 轉場「神經訊號 wipe」(`App.tsx` `AnimatedRoutes` + framer `AnimatePresence`; **SPA 三件套 re-verified incl. F5**)
+- 答錯 **出征 band** synapse-decay dim (re-targeted from the deleted connectome tree → `MazeExpedition`; reuses `SYNAPSE_TIMINGS.decay`)
+- 夥伴答對 pulse glow (`MazeExpedition`)
+- Walker easing (`MazeGrid` maze-space exponential smoothing; camera transform untouched)
+- New in-memory `lib/maze/answer-feedback.ts` emitter (mirror `maze-focus.ts`); `connectome` emits on correct/wrong. All reduced-motion gated.
+
+**Orphan audit — 3 grill items CUT** (打到已刪/不存在機制):
+1. NumberTickUp ↔ reputation/score — neurons has neither (reputation = 二階 carry-over comment; `score` 0 hits). The one real use (rank count-up) folded into the leaderboard item.
+2. 答錯 connectome 樹 decay — `ConnectomeTreeSvg` 已刪 (maze promote-to-home 取代); re-targeted to the band.
+3. evolve sheet → `DmnDrawModal` — DMN draw yields consumable/equipment, never a neuron variant; evolve belongs in `VariantUnlockModal`.
+
+**Commits on `track-neurons`**: `5ae8f10` (feat, verify-passed) + `ecf59f6` (spec archive).
+Archived at `openspec/changes/archive/2026-06-08-polish-neurons-juice-animations/`. New capability spec
+`openspec/specs/neurons-juice-animations/` (7 reqs) synced.
+**Verified**: typecheck / 408 vitest (+3 answer-feedback) / dexie-fixture lint OK (0 schema) /
+`/simplify` 4-agent all clean / Chrome MCP (SPA 三件套 in-app+direct+F5, 答題流程, 答錯 band decay fires,
+console clean). Companion pulse / walker easing / rank tween = code + unit verified (companion rare,
+rAF bg-throttle, localhost R2 push fails → no rank data).
 
 ### Pack 3 — `generate-neurons-animation-sheets` ⏳ NOT STARTED (independent, deploy last)
 Image-gen (Gemini-first → codex fallback): companion march sheets ×2
@@ -45,11 +60,15 @@ Image-gen (Gemini-first → codex fallback): companion march sheets ×2
 
 ## Pending decision (resume here)
 
-**Pack 1 is on `track-neurons`, committed + archived, but NOT merged to main / NOT deployed.**
-merge→main = deploy to `med-study-rpg.com/neurons/` (CF Pages, outward-facing → confirm first).
-Options offered, user undecided at handoff:
-1. **Hold deploy, batch with pack 2** (my recommendation — one CF deploy covers 1+2).
-2. Deploy pack 1 solo now (merge + watch CF run + prod SPA three-piece + A/B spot-check = task 4.5).
-3. Hold entirely.
+**Pack 1 + Pack 2 are BOTH on `track-neurons`, committed + archived, but NOT merged to main / NOT
+deployed** (`track-neurons` 6 commits ahead of main as of 2026-06-08). User chose to batch-deploy
+1+2 together (one CF Pages deploy).
 
-Whichever: if deploying, also do **task 4.5** (prod SPA in-app nav + direct URL + F5 + A/B spot-check).
+**Next action when ready to ship**: merge `track-neurons` → `main` (= deploy to
+`med-study-rpg.com/neurons/`, CF Pages, outward-facing → confirm first). Then **prod verify**:
+- SPA 三件套 on prod (in-app nav + direct URL + F5) — Pack 2's route-transition change makes this mandatory.
+- A/B spot-check: Pack 1 二回目慶祝 + streak 升階; Pack 2 答錯 band decay + DMN 啟用爆發 + route wipe.
+- Watch both `deploy-cf-pages.yml` + (if touched) `deploy-worker.yml` go green (`gh run list`).
+
+**Pack 3** (`generate-neurons-animation-sheets`, image-gen) still NOT STARTED — independent, deploy
+last (prod-coherent only). Can run its gen batch anytime in parallel; merge after 1+2.
