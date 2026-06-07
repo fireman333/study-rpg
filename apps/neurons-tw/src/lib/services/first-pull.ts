@@ -17,6 +17,7 @@
 import { db } from '../db'
 import { pullVariant } from './variant-gacha'
 import { setRepresentative } from './representatives'
+import { enqueueFirstPullReveal } from './first-pull-reveal'
 
 /** Synced meta key: JSON array of familyIds already first-pulled (monotonic-union merge). */
 export const FIRST_PULL_FAMILIES_KEY = 'firstPullFamilies'
@@ -94,6 +95,15 @@ export async function grantFirstPullIfNeeded(
   // collected, which the mint above just satisfied.
   await setRepresentative(familyId, result.variant.slotIndex)
   await recordFirstPull(familyId)
+
+  // Mint was silent (no mid-quiz modal); queue a DEFERRED reveal that plays when
+  // the player returns to the maze/home (QuizModal unmount → flushFirstPullReveals).
+  // Reuses the standard variant-unlock reveal via the variantGachaEvents bus.
+  enqueueFirstPullReveal({
+    variant: result.variant,
+    isDupe: false,
+    familyDisplayName: resolveFamilyDisplayName(familyId),
+  })
   return true
 }
 
