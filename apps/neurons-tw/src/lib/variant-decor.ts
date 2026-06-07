@@ -28,6 +28,7 @@
 
 import { MILESTONE_STREAK_THRESHOLD, FAMILY_NT_BRANCH, type NtBranchId } from '@study-rpg/content-neurons-tw'
 import type { NeuronVariantRow } from './db'
+import { isSecondLapSlot, synapseLocationFor } from './maze/graph'
 
 export type DecorKey = 'decor:redemption' | 'decor:milestone' | 'decor:elder'
 export type BandKey = 'delta' | 'theta' | 'alpha' | 'beta'
@@ -79,6 +80,42 @@ export function brainwaveBand(rolledAt: number): BandKey {
   if (hour < 12) return 'beta'
   if (hour < 18) return 'alpha'
   return 'theta'
+}
+
+/**
+ * 二回目 location-variant art (add-neurons-maze-second-lap-variants /
+ * neurons-variant-context-art). A second-lap location variant renders the
+ * family's BASE sprite (slot 1) with a position-keyed hue/filter derived
+ * deterministically from its learning-circuit location, so a second device renders
+ * identically AND no new sprite asset ships. Returns null for first-route variants
+ * (they render their own slot sprite). Coexists with the decor / band channels and
+ * is distinct from the rarity channel.
+ */
+export interface LocationVariantArt {
+  /** Base sprite key to render (the family's slot-1 base sprite, not the empty slot key). */
+  baseSpriteKey: string
+  /** Deterministic CSS filter (hue-rotate + saturate) keyed by (familyId, location). */
+  filter: string
+  /** The learning-circuit location name (中文), or null for a padded node. */
+  location: string | null
+}
+
+/** Deterministic non-negative hash → hue degrees [0,360). Pure, device-stable. */
+function hueFromString(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) >>> 0
+  return h % 360
+}
+
+export function locationVariantArt(familyId: string, slotIndex: number): LocationVariantArt | null {
+  if (!isSecondLapSlot(familyId, slotIndex)) return null
+  const location = synapseLocationFor(familyId, slotIndex)
+  const hue = hueFromString(`${familyId}|${location ?? String(slotIndex)}`)
+  return {
+    baseSpriteKey: `variant:${familyId}:1`,
+    filter: `hue-rotate(${hue}deg) saturate(1.15)`,
+    location,
+  }
 }
 
 export function variantContextArt(row: NeuronVariantRow): VariantContextArt {

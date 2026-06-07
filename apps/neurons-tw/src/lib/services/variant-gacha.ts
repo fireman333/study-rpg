@@ -210,7 +210,7 @@ export interface PullResult {
 export async function pullVariant(
   familyId: string,
   resolveFamilyDisplayName: ResolveFamilyDisplayName,
-  opts?: { silent?: boolean; forceRarity?: Rarity; firstPull?: boolean },
+  opts?: { silent?: boolean; forceRarity?: Rarity; firstPull?: boolean; forceSlotIndex?: number },
 ): Promise<PullResult> {
   const defs = CATALOG_BY_FAMILY.get(familyId)
   if (!defs || defs.length === 0) {
@@ -226,7 +226,10 @@ export async function pullVariant(
     // DMN variant-rate-up: consume the buff (own tx on dmnActiveBuffs) BEFORE the
     // pull tx (different table scope). When active, the pull rolls twice and keeps
     // the rarer outcome — the spine's mapping of the legacy boosted-weights buff.
-    const variantRateUp = await consumeVariantRateUpBuff()
+    // A 二回目 forced (position-bound) unlock does NOT roll → it neither consumes
+    // nor benefits from the rate-up buff (add-neurons-maze-second-lap-variants).
+    const variantRateUp =
+      opts?.forceSlotIndex === undefined ? await consumeVariantRateUpBuff() : false
     if (variantRateUp) console.info('[variant-gacha] DMN variant-rate-up consumed (roll-twice-take-rarer)')
 
     const { current: streakAtMint } = await getStreaks()
@@ -251,21 +254,36 @@ export async function pullVariant(
         const ownedRows = await db.neuronVariants.where('familyId').equals(familyId).toArray()
         const p0Owned = ownedRows.some((r) => r.slotIndex === 0)
 
-        let rarity = rollRarityWithP0Pity(newPullCount, p0Owned)
-        if (variantRateUp) {
-          const second = rollRarityWithP0Pity(newPullCount, p0Owned)
-          if (RARITY_RANK[second] < RARITY_RANK[rarity]) rarity = second
-        }
-        // First-pull guarantee (add-neurons-first-pull-path-rep): pin the rarity
-        // (the common P5 starter). The pullCount/P0-pity clock still advanced above.
-        if (opts?.forceRarity) rarity = opts.forceRarity
+        // 二回目 deterministic position-bound unlock (add-neurons-maze-second-lap-variants):
+        // a settle on a second-route node unlocks THAT position's location variant —
+        // no rarity roll, no within-tier pick. First-route settles keep the random
+        // within-tier roll (P0 soft-pity), with 二回目 location variants excluded.
+        let rarity: Rarity
+        let target: NeuronVariantDef
+        const forcedSlot = opts?.forceSlotIndex
+        if (forcedSlot !== undefined) {
+          const t = defs.find((d) => d.slotIndex === forcedSlot)
+          if (!t) throw new Error(`no catalog variant for ${familyId} slot ${forcedSlot}`)
+          target = t
+          rarity = t.rarity
+        } else {
+          rarity = rollRarityWithP0Pity(newPullCount, p0Owned)
+          if (variantRateUp) {
+            const second = rollRarityWithP0Pity(newPullCount, p0Owned)
+            if (RARITY_RANK[second] < RARITY_RANK[rarity]) rarity = second
+          }
+          // First-pull guarantee (add-neurons-first-pull-path-rep): pin the rarity
+          // (the common P5 starter). The pullCount/P0-pity clock still advanced above.
+          if (opts?.forceRarity) rarity = opts.forceRarity
 
-        // Within-tier uniform pick — a tier may hold several variants (pyramid),
-        // so the result can be a new variant or a dupe in any non-P0 tier (P0 has
-        // exactly one). Reads the explicit `rarity` field (decoupled from slot).
-        const tierDefs = defs.filter((d) => d.rarity === rarity)
-        if (tierDefs.length === 0) throw new Error(`no catalog variant for ${familyId} ${rarity}`)
-        const target = tierDefs[Math.floor(Math.random() * tierDefs.length)]
+          // Within-tier uniform pick — a tier may hold several variants (pyramid),
+          // so the result can be a new variant or a dupe in any non-P0 tier (P0 has
+          // exactly one). Excludes 二回目 location variants (isLocation) — those are
+          // only ever unlocked deterministically via forceSlotIndex above.
+          const tierDefs = defs.filter((d) => d.rarity === rarity && !d.isLocation)
+          if (tierDefs.length === 0) throw new Error(`no catalog variant for ${familyId} ${rarity}`)
+          target = tierDefs[Math.floor(Math.random() * tierDefs.length)]
+        }
 
         // Each pull mints an INDIVIDUAL (add-neurons-dupe-fusion) with its own
         // birth context (provenance + rolledAt) so dupes render distinct context-art.

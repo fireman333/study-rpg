@@ -444,47 +444,57 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       }
       for (const fam of fams) {
         const enc = FAMILY_ENC[fam.familyId]
-        const path = fam.graph?.path
-        if (!enc || !path || path.length < 2) continue
-        const last = path.length - 1
-        const exploredIdx = Math.min(last, exploredPathIndex(fam))
+        if (!enc || !fam.graph) continue
+        // Route 1 (border entry → center, always) + Route 2 (center → far border,
+        // 二回目 — add-neurons-maze-second-lap-variants). Each draws a faint
+        // unexplored baseline + a bright explored prefix (per-route progress).
+        const routes = [
+          { path: fam.graph.path, explored: exploredOnRoute(fam, 1) },
+          { path: fam.graph.path2, explored: exploredOnRoute(fam, 2) },
+        ]
+        for (const route of routes) {
+          const path = route.path
+          if (!path || path.length < 2) continue
+          const last = path.length - 1
+          const exploredIdx = Math.min(last, route.explored)
 
-        // (a) unexplored baseline — faint gold myelinated axon over the whole route. Kept dim so the
-        // neuron landmarks (not the gold) are the hero (owner: gold no longer sacred).
-        ctx.lineCap = 'butt'
-        ctx.setLineDash([dashGold, dashGap])
-        ctx.globalAlpha = 0.2
-        ctx.strokeStyle = MYELIN_GOLD
-        ctx.lineWidth = sheathW
-        trace(path, last)
-        ctx.stroke()
-        ctx.setLineDash([])
-        ctx.lineCap = 'round'
-        ctx.globalAlpha = 0.4
-        ctx.strokeStyle = enc.color
-        ctx.lineWidth = coreW
-        trace(path, last)
-        ctx.stroke()
-
-        // (b) explored prefix — full bright myelin sheath + highlight + solid (continuous) axon core
-        if (exploredIdx >= 1) {
-          ctx.globalAlpha = 1
+          // (a) unexplored baseline — faint gold myelinated axon over the whole route. Kept dim so the
+          // neuron landmarks (not the gold) are the hero (owner: gold no longer sacred).
           ctx.lineCap = 'butt'
           ctx.setLineDash([dashGold, dashGap])
+          ctx.globalAlpha = 0.2
           ctx.strokeStyle = MYELIN_GOLD
           ctx.lineWidth = sheathW
-          trace(path, exploredIdx)
-          ctx.stroke()
-          ctx.strokeStyle = MYELIN_HI
-          ctx.lineWidth = hiW
-          trace(path, exploredIdx)
+          trace(path, last)
           ctx.stroke()
           ctx.setLineDash([])
           ctx.lineCap = 'round'
+          ctx.globalAlpha = 0.4
           ctx.strokeStyle = enc.color
           ctx.lineWidth = coreW
-          trace(path, exploredIdx)
+          trace(path, last)
           ctx.stroke()
+
+          // (b) explored prefix — full bright myelin sheath + highlight + solid (continuous) axon core
+          if (exploredIdx >= 1) {
+            ctx.globalAlpha = 1
+            ctx.lineCap = 'butt'
+            ctx.setLineDash([dashGold, dashGap])
+            ctx.strokeStyle = MYELIN_GOLD
+            ctx.lineWidth = sheathW
+            trace(path, exploredIdx)
+            ctx.stroke()
+            ctx.strokeStyle = MYELIN_HI
+            ctx.lineWidth = hiW
+            trace(path, exploredIdx)
+            ctx.stroke()
+            ctx.setLineDash([])
+            ctx.lineCap = 'round'
+            ctx.strokeStyle = enc.color
+            ctx.lineWidth = coreW
+            trace(path, exploredIdx)
+            ctx.stroke()
+          }
         }
       }
       ctx.setLineDash([])
@@ -717,10 +727,28 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   )
 }
 
-function exploredPathIndex(fam: FamilyViewState): number {
-  if (fam.target) return fam.target.pathIndex
-  const lit = fam.litNodes
-  return lit.length > 0 ? lit[lit.length - 1].pathIndex : 0
+/**
+ * Explored prefix index along a family's route `route` (1 = path, 2 = path2),
+ * for the bright "已走過" highlight. The frontier target's `pathIndex` is an index
+ * along ITS OWN route, so route 1 and route 2 must be resolved separately
+ * (add-neurons-maze-second-lap-variants):
+ *  - route 1: frontier on route 1 → its pathIndex; once 二回目 begins (target on
+ *    route 2) or both routes done → path1 fully explored (all route-1 nodes lit).
+ *  - route 2: frontier on route 2 → its pathIndex; both routes done → path2 full;
+ *    not yet in 二回目 → 0 (only the faint baseline shows).
+ */
+function exploredOnRoute(fam: FamilyViewState, route: 1 | 2): number {
+  const g = fam.graph
+  if (!g) return 0
+  if (route === 1) {
+    if (fam.target && fam.target.route === 1) return fam.target.pathIndex
+    const anyR1Lit = fam.litNodes.some((n) => n.route === 1)
+    return anyR1Lit ? Math.max(0, g.path.length - 1) : (fam.litNodes[0]?.pathIndex ?? 0)
+  }
+  if (fam.target && fam.target.route === 2) return fam.target.pathIndex
+  const anyR2Lit = fam.litNodes.some((n) => n.route === 2)
+  if (!fam.target && anyR2Lit) return Math.max(0, (g.path2?.length ?? 1) - 1)
+  return 0
 }
 
 /** Spark-in-circle synapse glyph: cyan halo + yellow rays + white core. */

@@ -15,14 +15,16 @@
 
 import { MILESTONE_STREAK_THRESHOLD } from '@study-rpg/content-neurons-tw'
 import type { NeuronVariantRow } from './db'
-import { synapseLocationFor } from './maze/graph'
+import { synapseLocationFor, isSecondLapSlot } from './maze/graph'
 
 export function variantBirthCaption(row: NeuronVariantRow): string {
   // Provenance location (name-neurons-maze-circuit-locations): the named crossing
   // where this slot's node sits — pure-derived from (familyId, slotIndex); null
   // for padded non-synapse nodes. Independent of birth provenance (元老 rows too).
   const loc = synapseLocationFor(row.familyId, row.slotIndex)
-  const where = loc ? ` · 在${loc}尋獲` : ''
+  // 二回目 location variants are 「解鎖」 (walked to the second-route position);
+  // first-route variants are 「尋獲」 (add-neurons-maze-second-lap-variants).
+  const where = loc ? ` · 在${loc}${isSecondLapSlot(row.familyId, row.slotIndex) ? '解鎖' : '尋獲'}` : ''
   const p = row.provenance
   // 元老 / 傳承: pre-upgrade row with no provenance. Derive the date from the
   // existing rolledAt epoch + subject from familyId; no special tags.

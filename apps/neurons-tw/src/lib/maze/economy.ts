@@ -156,8 +156,9 @@ export interface SettleOutcome {
 /**
  * Reconcile one family's settles to its accrued energy: while the next settle is
  * affordable, advance the settle index and trigger exactly one `pullVariant` for
- * THIS family (pre-completion the pull lights the frontier node; 二週目 it keeps
- * pulling toward the family's least-collected slots — the gacha picks within-tier).
+ * THIS family. First route → random within-tier pull lighting the frontier node;
+ * 二回目 (second-route frontier) → deterministic position-bound unlock of that
+ * node's location variant; past both routes → random pull yielding a dupe.
  * Idempotent; stops on the first pull error so the settle budget isn't burned.
  */
 export async function reconcileSettles(
@@ -171,8 +172,15 @@ export async function reconcileSettles(
 
   let guard = 0
   while (settles < target && guard++ < 5000) {
-    const node = frontierNode(familyId, settles) // node lit at this index, or null in 二週目
-    const res = await pullVariant(familyId, resolveFamilyDisplayName)
+    const node = frontierNode(familyId, settles) // node lit at this index, or null when both routes lit
+    // First route (node.route === 1): random within-tier pull (P0 soft-pity).
+    // 二回目 (node.route === 2): deterministic position-bound unlock of that
+    // second-route node's location variant (add-neurons-maze-second-lap-variants).
+    // Past both routes (node null): random pull → dupe (open-collection).
+    const res =
+      node?.route === 2
+        ? await pullVariant(familyId, resolveFamilyDisplayName, { forceSlotIndex: node.slotIndex })
+        : await pullVariant(familyId, resolveFamilyDisplayName)
     if (!res.ok) break // stop on error — don't advance settles on a failed pull
     if (node) newlyLit.push(node)
     settles += 1

@@ -40,23 +40,26 @@ describe('flat-grid maze graph', () => {
     }
   })
 
-  it('each family has 10 nodes = its variant-slot count; 110 distinct (family,slot) keys', () => {
+  it('each family has 20 nodes = its variant-slot count; 220 distinct (family,slot) keys', () => {
+    // 10 first-route nodes (slots 0..9) + 10 二回目 second-route nodes (slots 10..19)
+    // per family (add-neurons-maze-second-lap-variants).
     const allKeys = new Set<string>()
     for (const fam of FAMILY_IDS) {
       const g = FAMILY_GRAPHS[fam]
-      expect(g.nodes).toHaveLength(10)
-      expect(familyNodeCount(fam)).toBe(VARIANT_COUNT_BY_FAMILY[fam]) // node count = slot count
+      expect(g.nodes).toHaveLength(20)
+      expect(familyNodeCount(fam)).toBe(VARIANT_COUNT_BY_FAMILY[fam]) // node count = slot count (20)
       const famKeys = new Set<string>()
       g.nodes.forEach((n, i) => {
         expect(n.familyId).toBe(fam)
-        expect(n.slotIndex).toBe(i) // route order = slot order, 0..9
+        expect(n.slotIndex).toBe(i) // route order = slot order, 0..19 (first route then second)
+        expect(n.route).toBe(i < 10 ? 1 : 2) // first 10 on route 1, next 10 on route 2
         const k = nodeKey(n.familyId, n.slotIndex)
         famKeys.add(k)
         allKeys.add(k)
       })
-      expect(famKeys.size).toBe(10)
+      expect(famKeys.size).toBe(20)
     }
-    expect(allKeys.size).toBe(110) // no cross-family collision
+    expect(allKeys.size).toBe(220) // no cross-family collision
   })
 
   it('every family enters from the border ring and winds toward the center', () => {
@@ -75,13 +78,19 @@ describe('flat-grid maze graph', () => {
     expect(entries.size).toBe(FAMILY_IDS.length) // distinct entries
   })
 
-  it('frontier order is route order (entry-first); litNodes is the prefix', () => {
+  it('frontier order is route order (entry-first, first route then second); litNodes is the prefix', () => {
     const fam = FAMILY_IDS[0]
     expect(litNodes(fam, 0)).toEqual([])
     expect(litNodes(fam, 3).map((n) => n.slotIndex)).toEqual([0, 1, 2])
     expect(frontierNode(fam, 0)?.slotIndex).toBe(0)
     expect(frontierNode(fam, 3)?.slotIndex).toBe(3)
-    expect(frontierNode(fam, 10)).toBeNull() // all lit → 二週目
+    // 二回目: settle 10 lights the first SECOND-route node (slot 10), not null
+    // (add-neurons-maze-second-lap-variants); the family auto-enters second lap.
+    expect(frontierNode(fam, 10)?.slotIndex).toBe(10)
+    expect(frontierNode(fam, 10)?.route).toBe(2)
+    expect(frontierNode(fam, 19)?.slotIndex).toBe(19)
+    expect(frontierNode(fam, 20)).toBeNull() // BOTH routes lit → past-completion (dupes)
+    expect(litNodes(fam, 25)).toHaveLength(20) // lit caps at the combined node count
     expect(representativeNode(fam)?.slotIndex).toBe(0)
   })
 
@@ -94,7 +103,7 @@ describe('flat-grid maze graph', () => {
         if (n.synapse) synapseNodes += 1
       }
     }
-    expect(total).toBe(110)
+    expect(total).toBe(220) // 110 first-route + 110 二回目 second-route nodes
     expect(synapseNodes).toBeGreaterThan(total / 2) // majority are interwoven crossings
   })
 

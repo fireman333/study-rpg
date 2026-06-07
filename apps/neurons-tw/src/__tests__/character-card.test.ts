@@ -104,7 +104,19 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
       mkVariant('藥理學', 6, 'P5'),
       mkVariant('藥理學', 7, 'P4'),
       mkVariant('藥理學', 8, 'P3'),
-      mkVariant('藥理學', 9, 'P2'), // 藥理學 now complete (10/10 pyramid: P0 + slots 1–9)
+      mkVariant('藥理學', 9, 'P2'),
+      // 二回目 location variants (slots 10..19, P3) → 藥理學 complete at 20/20
+      // (add-neurons-maze-second-lap-variants).
+      mkVariant('藥理學', 10, 'P3'),
+      mkVariant('藥理學', 11, 'P3'),
+      mkVariant('藥理學', 12, 'P3'),
+      mkVariant('藥理學', 13, 'P3'),
+      mkVariant('藥理學', 14, 'P3'),
+      mkVariant('藥理學', 15, 'P3'),
+      mkVariant('藥理學', 16, 'P3'),
+      mkVariant('藥理學', 17, 'P3'),
+      mkVariant('藥理學', 18, 'P3'),
+      mkVariant('藥理學', 19, 'P3'), // 藥理學 now complete (20/20: 10 pyramid + 10 location)
       mkVariant('解剖學', 1, 'P1'),
     ])
     await db.synapses.bulkPut([
@@ -127,9 +139,9 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
 
     expect(payload.nickname).toBe('測試員')
     expect(payload.title).toBe('神經元大師')
-    expect(payload.variantCount).toBe(11)
-    expect(payload.variantTotal).toBe(110)
-    expect(payload.familiesComplete).toBe(1) // only 藥理學 has all 10 (pyramid)
+    expect(payload.variantCount).toBe(21) // 20 藥理學 (full) + 1 解剖學
+    expect(payload.variantTotal).toBe(220)
+    expect(payload.familiesComplete).toBe(1) // only 藥理學 has all 20 (10 pyramid + 10 location)
     expect(payload.familyTotal).toBe(11)
     expect(payload.totalAp).toBe(150)
     expect(payload.strongSynapseCount).toBe(2)
