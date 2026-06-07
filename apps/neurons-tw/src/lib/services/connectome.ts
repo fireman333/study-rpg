@@ -126,9 +126,11 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
   let pending: PendingEvent[] = []
   let masteryUpdate: MasteryUpdate | null = null
   // Mastery-axis energy acceleration (wire-mastery-energy-acceleration): the
-  // answered family's mastery tier multiplies BOTH correct-answer energy faucets.
-  // Derived once in-tx (post-increment), reused at the post-commit maze faucet so
-  // the two counters stay in lockstep ("one energy" until #3 unifies them).
+  // answered family's mastery tier multiplies the single live correct-answer
+  // energy faucet — the per-family maze-signal accrual. (The old global
+  // neuralEnergyEarned currency was retired by promote-maze-to-home; there is no
+  // second faucet now.) Derived once in-tx (post-increment), reused at the
+  // post-commit maze faucet.
   let masteryMult = 1
   // Capture stats BEFORE the write transaction so the achievement diff sees
   // the pre-mutation state. Read-only, no transaction needed.

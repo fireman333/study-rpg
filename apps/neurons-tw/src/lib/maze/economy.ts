@@ -23,6 +23,7 @@ import {
   FAMILY_IDS,
   PACING_BASE,
   PACING_K,
+  RAMP_CAP_N,
   SPEED_BUFF_PER_VARIANT,
   SPEED_BUFF_CAP,
   SYNAPSE_BONUS_PER,
@@ -38,9 +39,17 @@ import { speedAccel } from '../services/acceleration'
 // Re-export the faucet constants under their canonical names for app consumers.
 export { CORRECT_ANSWER_ENERGY, READING_MINUTE_ENERGY }
 
-/** Energy cost of the N-th cumulative settle (0-indexed, uncapped — ramp into 二週目). */
+/**
+ * Energy cost of the N-th cumulative settle (0-indexed). The front-loaded ramp
+ * climbs for the first `RAMP_CAP_N` settles then FLATTENS to a constant
+ * `round(PACING_BASE × (1 + PACING_K × RAMP_CAP_N))`, so the completionist tail
+ * (settles past the cap) costs a fixed amount instead of escalating without bound
+ * (rebalance-neurons-maze-economy). The settle INDEX stays uncapped — only this
+ * cost function is capped — so `cumulativeCost`/`affordableSettles`/`walkerFraction`
+ * inherit the cap automatically since they all derive from `nodeCost`.
+ */
 export function nodeCost(n: number): number {
-  return Math.round(PACING_BASE * (1 + PACING_K * Math.max(0, n)))
+  return Math.round(PACING_BASE * (1 + PACING_K * Math.min(Math.max(0, n), RAMP_CAP_N)))
 }
 
 /** Cumulative energy to perform the first `s` settles (Σ cost(0..s-1)). */
