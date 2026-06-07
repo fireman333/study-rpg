@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
 import { initMasteryForPack, runDailyResetIfNeeded } from '../lib/services/connectome'
@@ -7,6 +7,8 @@ import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncement
 import { QuizModal } from '../components/QuizModal'
 import { FamilyPicker, type FamilyAccrual } from '../components/FamilyPicker'
 import MazeGrid from '../components/maze/MazeGrid'
+import { MazeCompletionCelebration } from '../components/MazeCompletionCelebration'
+import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
 import StudySquadPanel from '../components/StudySquadPanel'
@@ -70,6 +72,43 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // pulls; mounting it twice would double-fire). MazeGrid is presentational
   // and consumes this view.
   const mazeView = useMaze(pack)
+
+  // 全腦點亮 completion celebration (add-neurons-loop-celebration-animations).
+  // Fire a one-shot payoff overlay when a family's maze (incl. second lap) goes
+  // fully lit — detected as a LIVE non-complete → complete (`target` non-null →
+  // null) transition this session, NOT merely observing `target === null` at
+  // mount (a family already complete on first observation must not celebrate).
+  // Synced one-shot marker (hasCelebrated / markCelebrated) prevents replay
+  // across sessions + devices.
+  const prevCompleteRef = useRef<Map<string, boolean>>(new Map())
+  const [celebration, setCelebration] = useState<{ label: string; nonce: number } | null>(null)
+
+  useEffect(() => {
+    const prev = prevCompleteRef.current
+    for (const fam of mazeView.families) {
+      const curComplete = fam.target === null
+      const wasComplete = prev.get(fam.familyId)
+      prev.set(fam.familyId, curComplete)
+      // Live completion edge only: `wasComplete === false` excludes both an
+      // unseen family (undefined) and one already complete at first observation.
+      if (wasComplete === false && curComplete) {
+        const familyId = fam.familyId
+        void (async () => {
+          if (await hasCelebrated(familyId)) return
+          await markCelebrated(familyId)
+          const label = pack.subjects.find((s) => s.id === familyId)?.displayName ?? familyId
+          setCelebration({ label, nonce: Date.now() })
+        })()
+      }
+    }
+  }, [mazeView, pack.subjects])
+
+  // Auto-dismiss the celebration overlay after the primitives' window.
+  useEffect(() => {
+    if (!celebration) return
+    const t = setTimeout(() => setCelebration(null), 2200)
+    return () => clearTimeout(t)
+  }, [celebration])
 
   const persistedYears = useYearFilter()
   const yearSet = useMemo(() => effectiveYearSet(persistedYears), [persistedYears])
@@ -334,7 +373,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       {/* ── The flat-grid maze IS the homepage centerpiece (redesign-neurons-maze-
             rotjs-grid). One square weave grid, 11 per-family routes border→center;
             zoomable brain-pixel tilemap; the connectome tree no longer mounts here. ── */}
-      <MazeGrid view={mazeView} />
+      <div style={{ position: 'relative' }}>
+        <MazeGrid view={mazeView} />
+        {celebration && (
+          <MazeCompletionCelebration key={celebration.nonce} label={celebration.label} />
+        )}
+      </div>
 
       {/* ── Study squad: party + assembly editor (出征 itself now lives in the CTA
             toolbar above). Sits below the maze as a deploy-from-the-map surface. ── */}

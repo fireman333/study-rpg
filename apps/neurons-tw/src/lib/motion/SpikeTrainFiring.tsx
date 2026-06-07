@@ -23,6 +23,13 @@ export interface SpikeTrainFiringProps {
   width?: number
   /** Override stroke color; defaults to the signal-cyan token. */
   color?: string
+  /**
+   * Visual-intensity multiplier (default 1 = baseline). Scales stroke width +
+   * glow ONLY — does NOT change any timing token. Driven by the current
+   * correct-answer streak so the burst escalates with sustained correct answers
+   * (neurons-motion-library: streak-scaled feedback intensity). Clamped 1–2.5.
+   */
+  intensity?: number
 }
 
 /**
@@ -50,12 +57,18 @@ function buildSpikeTrainPoints(spikes: number): string {
 export function SpikeTrainFiring({
   width = 160,
   color = 'var(--signal-cyan)',
+  intensity = 1,
 }: SpikeTrainFiringProps): JSX.Element | null {
   const reduced = useRespectsReducedMotion()
   if (reduced) return null
 
   const { burst, spikes, settle } = SPIKE_TRAIN_TIMING
   const points = buildSpikeTrainPoints(spikes)
+  // Scale visual magnitude only (stroke width + glow blur); timing tokens and
+  // layout width stay fixed so escalation never reflows the answer row.
+  const i = Math.max(1, Math.min(2.5, intensity))
+  const strokeWidth = 1.5 * i
+  const glowBlur = 2 * i
 
   return (
     <motion.svg
@@ -73,14 +86,14 @@ export function SpikeTrainFiring({
         points={points}
         fill="none"
         stroke={color}
-        strokeWidth={1.5}
+        strokeWidth={strokeWidth}
         strokeLinejoin="round"
         strokeLinecap="round"
         pathLength={1}
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: burst / 1000, ease: 'linear' }}
-        style={{ filter: `drop-shadow(0 0 2px ${color})` }}
+        style={{ filter: `drop-shadow(0 0 ${glowBlur.toFixed(1)}px ${color})` }}
       />
     </motion.svg>
   )

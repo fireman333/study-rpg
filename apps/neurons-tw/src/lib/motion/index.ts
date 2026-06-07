@@ -27,6 +27,12 @@ export type { ParticleBurstProps } from './ParticleBurst'
 export { SpikeTrainFiring } from './SpikeTrainFiring'
 export type { SpikeTrainFiringProps } from './SpikeTrainFiring'
 
+export {
+  streakFeedbackIntensity,
+  STREAK_INTENSITY_STEP,
+  STREAK_INTENSITY_MAX,
+} from './streakIntensity'
+
 export { SignalOscillation } from './SignalOscillation'
 export type { SignalOscillationProps } from './SignalOscillation'
 

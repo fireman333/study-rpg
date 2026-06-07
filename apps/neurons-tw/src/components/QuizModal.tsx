@@ -12,7 +12,8 @@ import {
   applyGuessedModifier,
   restoreDefaultSrs,
 } from '../lib/services/srs-scheduler'
-import { SpikeTrainFiring, AnswerFeedbackFlash } from '../lib/motion'
+import { SpikeTrainFiring, AnswerFeedbackFlash, streakFeedbackIntensity } from '../lib/motion'
+import { getStreaks } from '../lib/services/streak'
 import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
 import { readMazeEnergyState, affordableSettles, walkerFraction } from '../lib/maze/economy'
 import { useQuizHotkeys, type QuizPhase } from '../lib/hooks/useQuizHotkeys'
@@ -187,6 +188,10 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   const [feedbackStrip, setFeedbackStrip] = useState<
     { familyId: string; energyGain: number; progress: number; advanced: boolean } | null
   >(null)
+  // Streak-scaled correct-answer feedback intensity (neurons-motion-library):
+  // set on a correct answer from the post-answer streak; drives the spike-train
+  // burst magnitude. Continuous scale, capped. Reset to baseline on Next.
+  const [correctIntensity, setCorrectIntensity] = useState(1)
   const reducedMotion = useRespectsReducedMotion()
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
@@ -246,6 +251,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
             console.error('[maze-feedback] failed to read energy state (before)', err)
           }
           await recordCorrectAnswer(q.subject)
+          // Streak-scaled feedback: read the post-answer streak (recordCorrectAnswer
+          // bumped it) → continuous intensity for the spike-train burst. Best-effort;
+          // never break the answer flow.
+          try {
+            const { current } = await getStreaks()
+            setCorrectIntensity(streakFeedbackIntensity(current))
+          } catch (err) {
+            console.error('[streak-feedback] failed to read streak', err)
+          }
           if (before) {
             try {
               const after = await readMazeEnergyState(q.subject)
@@ -289,6 +303,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
     setPicked(null)
     setHighlighted(null)
     setFeedbackStrip(null)
+    setCorrectIntensity(1)
     // Drop the answered question's SRS snapshots — the next question captures
     // its own in handlePick.
     prevSrsRef.current = null
@@ -583,7 +598,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
                 {!q.disputed && ` · 正解：${acceptedKeys.join(' 或 ')}`}
                 {isCorrect && (
                   <span style={spikeFireStyle} aria-hidden>
-                    <SpikeTrainFiring key={`spike-${idx}`} width={120} />
+                    <SpikeTrainFiring key={`spike-${idx}`} width={120} intensity={correctIntensity} />
                   </span>
                 )}
               </p>

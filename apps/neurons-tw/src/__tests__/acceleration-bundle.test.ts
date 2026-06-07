@@ -22,7 +22,7 @@ beforeEach(async () => {
 
 describe('acceleration bundle adapters', () => {
   it('SCHEMA_VERSION is 18', () => {
-    expect(SCHEMA_VERSION).toBe(18)
+    expect(SCHEMA_VERSION).toBe(19)
   })
 
   it('inventory + equipment round-trip through the current bundle', async () => {
@@ -35,7 +35,7 @@ describe('acceleration bundle adapters', () => {
     })
 
     const bundle = await buildBundleSnapshot(db)
-    expect(bundle.meta.schema_version).toBe(18)
+    expect(bundle.meta.schema_version).toBe(19)
     expect((bundle.data.inventory as unknown[]).length).toBe(1)
     expect((bundle.data.equipment as unknown[]).length).toBe(1)
 
