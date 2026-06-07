@@ -29,6 +29,7 @@ if (typeof window === 'undefined') {
   ;(globalThis as unknown as { window: object }).window = stubEventTarget(windowListeners)
 }
 
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import { db, todayISO } from '../lib/db'
 import {
   start,
@@ -39,6 +40,9 @@ import {
   __resetForTests,
   readTotalStudyMinutes,
 } from '../lib/services/reading-timer'
+
+const FAM = FAMILY_IDS[0] // 藥理學
+const FAM2 = FAMILY_IDS[1] // 公共衛生學
 
 /**
  * Spec Req: reading-timer accrues minutes, fires both side-effects per minute
@@ -69,14 +73,14 @@ describe('reading-timer service', () => {
     expect(getReadingTimerState().accumulatedSeconds).toBe(0)
   })
 
-  it('start() transitions to reading', () => {
-    start()
+  it('start(FAM) transitions to reading', () => {
+    start(FAM)
     expect(getReadingTimerState().status).toBe('reading')
     expect(getReadingTimerState().pauseReason).toBe(null)
   })
 
   it('accrues seconds via tick interval (dev = 10s/tick)', () => {
-    start()
+    start(FAM)
     expect(getReadingTimerState().accumulatedSeconds).toBe(0)
     vi.advanceTimersByTime(10_000)
     expect(getReadingTimerState().accumulatedSeconds).toBe(10)
@@ -85,7 +89,7 @@ describe('reading-timer service', () => {
   })
 
   it('fires minute side-effect after 60s — totalStudyMinutes increments', async () => {
-    start()
+    start(FAM)
     expect(await readTotalStudyMinutes()).toBe(0)
     // Advance 60s of ticks
     vi.advanceTimersByTime(60_000)
@@ -96,7 +100,7 @@ describe('reading-timer service', () => {
   })
 
   it('fires two minute side-effects after 120s (with activity to defeat idle pause)', async () => {
-    start()
+    start(FAM)
     // Need to dispatch activity events to defeat the 90s idle auto-pause
     await vi.advanceTimersByTimeAsync(60_000)
     expect(await readTotalStudyMinutes()).toBe(1)
@@ -108,7 +112,7 @@ describe('reading-timer service', () => {
   })
 
   it('does NOT feed the DMN axis (reading decoupled from DMN draws per add-neurons-expedition-rewards)', async () => {
-    start()
+    start(FAM)
     await vi.advanceTimersByTimeAsync(60_000)
     // Reading still increments study minutes...
     expect(await readTotalStudyMinutes()).toBe(1)
@@ -119,7 +123,7 @@ describe('reading-timer service', () => {
   })
 
   it('pause stops tick accrual', async () => {
-    start()
+    start(FAM)
     vi.advanceTimersByTime(30_000)
     expect(getReadingTimerState().accumulatedSeconds).toBe(30)
     pause('manual')
@@ -131,7 +135,7 @@ describe('reading-timer service', () => {
   })
 
   it('resume() picks up where paused left off', async () => {
-    start()
+    start(FAM)
     vi.advanceTimersByTime(30_000)
     pause('manual')
     expect(getReadingTimerState().accumulatedSeconds).toBe(30)
@@ -146,7 +150,7 @@ describe('reading-timer service', () => {
   })
 
   it('stop() resets accumulated seconds but preserves persisted minutes', async () => {
-    start()
+    start(FAM)
     await vi.advanceTimersByTimeAsync(60_000)
     expect(await readTotalStudyMinutes()).toBe(1) // minute fired
     const persistedAfterFire = await readTotalStudyMinutes()
@@ -160,7 +164,7 @@ describe('reading-timer service', () => {
   })
 
   it('paused state does not fire side-effects on subsequent ticks', async () => {
-    start()
+    start(FAM)
     vi.advanceTimersByTime(30_000)
     pause('idle')
     expect(await readTotalStudyMinutes()).toBe(0)
@@ -170,7 +174,7 @@ describe('reading-timer service', () => {
   })
 
   it('visibilitychange auto-pauses when document.hidden becomes true', () => {
-    start()
+    start(FAM)
     expect(getReadingTimerState().status).toBe('reading')
     // Simulate tab-hidden
     Object.defineProperty(document, 'hidden', { value: true, configurable: true })
@@ -180,7 +184,7 @@ describe('reading-timer service', () => {
   })
 
   it('does NOT auto-resume when document.hidden becomes false', () => {
-    start()
+    start(FAM)
     Object.defineProperty(document, 'hidden', { value: true, configurable: true })
     document.dispatchEvent(new Event('visibilitychange'))
     expect(getReadingTimerState().status).toBe('paused')
@@ -190,5 +194,30 @@ describe('reading-timer service', () => {
     // Status should still be paused — explicit resume() required
     expect(getReadingTimerState().status).toBe('paused')
     expect(getReadingTimerState().pauseReason).toBe('visibility')
+  })
+
+  // add-neurons-maze-zoom-and-focus: reading is per-subject. Switching the subject
+  // ends the prior session (resets accumulated seconds + minutesFired) and rebinds the
+  // active family, without double-counting the global totalStudyMinutes counter. (The
+  // per-family energy routing itself is covered by maze-economy.test.ts.)
+  it('switching subject ends the prior session and does not double-count study minutes', async () => {
+    start(FAM)
+    expect(getReadingTimerState().readingFamilyId).toBe(FAM)
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(await readTotalStudyMinutes()).toBe(1)
+
+    // Switch subject — prior session ends, accumulated seconds + minutesFired reset.
+    start(FAM2)
+    expect(getReadingTimerState().readingFamilyId).toBe(FAM2)
+    expect(getReadingTimerState().accumulatedSeconds).toBe(0)
+    expect(getReadingTimerState().minutesFired).toBe(0)
+
+    await vi.advanceTimersByTimeAsync(60_000)
+    // Global counter increments once per minute regardless of subject (no double-count, no reset).
+    expect(await readTotalStudyMinutes()).toBe(2)
+
+    // stop clears the active subject.
+    stop()
+    expect(getReadingTimerState().readingFamilyId).toBe(null)
   })
 })

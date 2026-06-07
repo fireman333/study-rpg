@@ -293,3 +293,12 @@ body:has(.modal-backdrop) {
     opacity: 0.6;
   }
 }
+
+/* Quiz-time energy feedback strip — one-shot "advance one node" walker tween
+ * (add-neurons-maze-zoom-and-focus). Applied inline only when not reduced-motion
+ * (the component gates via useRespectsReducedMotion), and runs once (~1.8s). */
+@keyframes energy-advance {
+  0%   { transform: translateX(0) scale(1); }
+  55%  { transform: translateX(22px) scale(1.12); }
+  100% { transform: translateX(44px) scale(1); }
+}

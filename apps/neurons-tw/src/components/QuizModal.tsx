@@ -12,6 +12,8 @@ import {
   restoreDefaultSrs,
 } from '../lib/services/srs-scheduler'
 import { SpikeTrainFiring, AnswerFeedbackFlash } from '../lib/motion'
+import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
+import { readMazeEnergyState, affordableSettles, walkerFraction } from '../lib/maze/economy'
 import { useQuizHotkeys, type QuizPhase } from '../lib/hooks/useQuizHotkeys'
 import { toggleBookmark, useIsBookmarked } from '../lib/services/bookmarks'
 import { toggleEasy, toggleGuessed, useFlag } from '../lib/services/question-flags'
@@ -50,6 +52,115 @@ function shuffle<T>(arr: T[]): T[] {
   return copy
 }
 
+/**
+ * Quiz-time maze-energy feedback strip (add-neurons-maze-zoom-and-focus). A
+ * display-only DOM strip shown above the 詳解 after a correct answer: the answered
+ * family's sprite + the energy gained toward the next maze node. When `advanced`
+ * (this answer crossed a node-settle threshold) it escalates to a one-shot
+ * "walker advances one node" tween. `pointer-events: none` — never interactive; the
+ * real settle/pull happens in the homepage useMaze reconcile. Reduced-motion shows
+ * the static end-state (no tween).
+ */
+function EnergyFeedbackStrip({
+  familyId,
+  energyGain,
+  progress,
+  advanced,
+  reducedMotion,
+}: {
+  familyId: string
+  energyGain: number
+  progress: number
+  advanced: boolean
+  reducedMotion: boolean
+}): JSX.Element {
+  const spriteUrl = SPRITE_MAP[`subject:${familyId}`] ?? ''
+  const animate = advanced && !reducedMotion
+  const pct = Math.round(Math.min(1, Math.max(0, progress)) * 100)
+  return (
+    <div style={energyStripStyle} aria-hidden>
+      <div style={energyStripTrackStyle}>
+        {advanced && <span style={energyStripNodeStyle} />}
+        {spriteUrl ? (
+          <img
+            src={spriteUrl}
+            alt=""
+            width={36}
+            height={36}
+            style={animate ? { ...energyStripSpriteStyle, animation: 'energy-advance 1.8s ease-out 1' } : energyStripSpriteStyle}
+          />
+        ) : (
+          <span style={{ fontSize: '1.3rem' }}>🧬</span>
+        )}
+      </div>
+      <div style={energyStripTextWrapStyle}>
+        <div style={energyStripGainStyle}>⚡ +{energyGain.toFixed(1)} 能量 · {familyId}</div>
+        {advanced ? (
+          <div style={energyStripAdvanceLabelStyle}>🧠 推進一格！抽出一隻神經元</div>
+        ) : (
+          <div style={energyStripBarTrackStyle}>
+            <div style={{ ...energyStripBarFillStyle, width: `${pct}%` }} />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const energyStripStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  margin: '0.5rem 0',
+  padding: '0.4rem 0.6rem',
+  background: '#10122a',
+  border: '1px solid #2c2f55',
+  borderRadius: 8,
+  pointerEvents: 'none',
+  maxHeight: 72,
+  overflow: 'hidden',
+}
+const energyStripTrackStyle: CSSProperties = {
+  position: 'relative',
+  width: 56,
+  height: 40,
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+}
+const energyStripSpriteStyle: CSSProperties = { imageRendering: 'pixelated', width: 36, height: 36 }
+const energyStripNodeStyle: CSSProperties = {
+  position: 'absolute',
+  right: 2,
+  top: '50%',
+  width: 8,
+  height: 8,
+  marginTop: -4,
+  borderRadius: '50%',
+  background: '#ffd36a',
+  boxShadow: '0 0 6px #ffd36a',
+}
+const energyStripTextWrapStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  minWidth: 0,
+  flex: 1,
+}
+const energyStripGainStyle: CSSProperties = { fontSize: '0.78rem', fontWeight: 700, color: '#ffd36a' }
+const energyStripAdvanceLabelStyle: CSSProperties = { fontSize: '0.74rem', fontWeight: 700, color: '#8fe3a0' }
+const energyStripBarTrackStyle: CSSProperties = {
+  height: 6,
+  borderRadius: 999,
+  background: '#23264a',
+  overflow: 'hidden',
+}
+const energyStripBarFillStyle: CSSProperties = {
+  height: '100%',
+  background: 'linear-gradient(90deg, #6a9bc4, #ffd36a)',
+  transition: 'width 0.4s ease',
+}
+
 export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: Props): JSX.Element {
   // Build session pool once: exclude image-option questions, then shuffle unless
   // the caller preserves order (錯題 review mode serves oldest-due-first).
@@ -67,6 +178,14 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   // 神經元遠征隊 band visibility — shares the homepage opt-out preference (read once).
   const [bandHidden] = useState(getExpeditionHidden)
   const [flash, setFlash] = useState<{ outcome: 'correct' | 'incorrect'; nonce: number } | null>(null)
+  // Quiz-time maze-energy feedback (add-neurons-maze-zoom-and-focus): set on a correct
+  // answer; `advanced` means this answer crossed a node-settle threshold → the strip
+  // escalates to the one-node advance animation. Reset on Next. Display-only — the
+  // real settle/pull happens in the homepage useMaze reconcile.
+  const [feedbackStrip, setFeedbackStrip] = useState<
+    { familyId: string; energyGain: number; progress: number; advanced: boolean } | null
+  >(null)
+  const reducedMotion = useRespectsReducedMotion()
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
   const squad = useActiveSquad()
@@ -105,9 +224,30 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
         setFlash({ outcome: isCorrect ? 'correct' : 'incorrect', nonce: Date.now() })
         if (isCorrect) {
           correctCountRef.current += 1
-          // Collection 2.0: correct answers mint pull currency (no slot-unlock /
-          // per-question provenance forwarding — pulls aren't question-tied).
+          // Capture maze-energy state around the accrual so the feedback strip can show
+          // the gain + detect a settle-threshold crossing (the homepage useMaze performs
+          // the actual settle/pull). `recordCorrectAnswer` MUST run exactly once; the
+          // before/after reads are best-effort and never break the answer flow.
+          let before: { earned: number; settles: number } | null = null
+          try {
+            before = await readMazeEnergyState(q.subject)
+          } catch (err) {
+            console.error('[maze-feedback] failed to read energy state (before)', err)
+          }
           await recordCorrectAnswer(q.subject)
+          if (before) {
+            try {
+              const after = await readMazeEnergyState(q.subject)
+              setFeedbackStrip({
+                familyId: q.subject,
+                energyGain: Math.max(0, after.earned - before.earned),
+                progress: walkerFraction(after),
+                advanced: affordableSettles(after.earned) > affordableSettles(before.earned),
+              })
+            } catch (err) {
+              console.error('[maze-feedback] failed to read energy state (after)', err)
+            }
+          }
         } else {
           await recordIncorrectAnswer(q.subject)
         }
@@ -137,6 +277,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   const handleNext = useCallback(() => {
     setPicked(null)
     setHighlighted(null)
+    setFeedbackStrip(null)
     // Drop the answered question's SRS snapshots — the next question captures
     // its own in handlePick.
     prevSrsRef.current = null
@@ -448,6 +589,18 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
               {/* Active-squad celebration — bounces on every correct answer
                   (empty squad → no-op). Per add-neurons-study-squad. */}
               {isCorrect && <SquadCelebration key={`squad-${idx}`} squad={squad} />}
+              {/* Quiz-time maze-energy feedback strip (add-neurons-maze-zoom-and-focus) —
+                  above the 詳解, display-only; escalates on a settle-threshold crossing. */}
+              {isCorrect && feedbackStrip && (
+                <EnergyFeedbackStrip
+                  key={`energy-${idx}`}
+                  familyId={feedbackStrip.familyId}
+                  energyGain={feedbackStrip.energyGain}
+                  progress={feedbackStrip.progress}
+                  advanced={feedbackStrip.advanced}
+                  reducedMotion={reducedMotion}
+                />
+              )}
               {q.explanation && (
                 <details style={explanationStyle} open>
                   <summary style={explanationSummaryStyle}>📖 詳解</summary>

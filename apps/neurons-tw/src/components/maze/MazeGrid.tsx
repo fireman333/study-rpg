@@ -31,7 +31,7 @@ import {
   GRID_W, GRID_H, GRID_CENTER, CELL_KINDS, CELL_WALL, CELL_PATH,
   synapseCell, type Cell,
 } from '../../lib/maze/graph'
-import { onMazeFocus } from '../../lib/maze/maze-focus'
+import { onMazeFocus, onMazeRecenter, emitMazeRecenter } from '../../lib/maze/maze-focus'
 import type { FamilyViewState, MazeViewState } from '../../lib/maze/useMaze'
 // DEV design-language switcher (maze-themes): 6 switchable looks for WALL / PATH / BG / NODE; the
 // maze TOPOLOGY is untouched. Gold MYELIN routes are still drawn live per-route (never baked).
@@ -266,7 +266,14 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
 
   const camRef = useRef<Cam>({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], zoom: 0.5 })
   const targetRef = useRef<Cam>({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], zoom: 0.5 })
-  const focusRef = useRef<{ familyId: string | null; until: number }>({ familyId: null, until: 0 })
+  // Focus state: `sticky` = manual focus from the family picker / reading start (no
+  // time expiry, held until the next interaction); otherwise `until` time-boxes the
+  // answer-driven auto-focus (add-neurons-maze-zoom-and-focus).
+  const focusRef = useRef<{ familyId: string | null; until: number; sticky: boolean }>({
+    familyId: null,
+    until: 0,
+    sticky: false,
+  })
   const manualUntilRef = useRef(0)
   const viewRef = useRef(view)
   viewRef.current = view
@@ -282,9 +289,28 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   }, [view.totalConnectedCount])
 
   useEffect(() => {
-    return onMazeFocus((familyId) => {
-      focusRef.current = { familyId, until: performance.now() + 4500 }
+    const offFocus = onMazeFocus((familyId, manual) => {
+      if (manual) {
+        // Sticky manual focus (family picker tap / reading start): hold until the
+        // next interaction. Clear any manual-gesture freeze so the camera flies now.
+        focusRef.current = { familyId, until: Infinity, sticky: true }
+        manualUntilRef.current = 0
+      } else {
+        // Time-boxed auto-focus on a correct answer — but do NOT interrupt an active
+        // sticky manual focus.
+        if (focusRef.current.sticky) return
+        focusRef.current = { familyId, until: performance.now() + 4500, sticky: false }
+      }
     })
+    const offRecenter = onMazeRecenter(() => {
+      // Clear sticky/auto focus and let the contextual framing fall back to whole-map.
+      focusRef.current = { familyId: null, until: 0, sticky: false }
+      manualUntilRef.current = 0
+    })
+    return () => {
+      offFocus()
+      offRecenter()
+    }
   }, [])
 
   useEffect(() => {
@@ -315,7 +341,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       const h = stage.clientHeight || 1
       const now = performance.now()
       const focus = focusRef.current
-      if (focus.familyId && now < focus.until && now > manualUntilRef.current) {
+      if (focus.familyId && (focus.sticky || now < focus.until) && now > manualUntilRef.current) {
         const fam = viewRef.current.families.find((f) => f.familyId === focus.familyId)
         if (fam) {
           const zoom = Math.min(w, h) / (FOCUS_SPAN * BASE_TILE)
@@ -575,7 +601,17 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     }
     raf = requestAnimationFrame(draw)
 
-    const markManual = () => { manualUntilRef.current = performance.now() + 6000 }
+    const markManual = () => {
+      manualUntilRef.current = performance.now() + 6000
+      // A manual gesture ends any sticky/auto focus → revert to the contextual default.
+      if (focusRef.current.familyId) focusRef.current = { familyId: null, until: 0, sticky: false }
+    }
+    let dragging = false
+    let lastX = 0
+    let lastY = 0
+    let pinching = false
+    let pinchDist = 0
+    let lastTapAt = 0
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       markManual()
@@ -583,12 +619,9 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       const factor = Math.exp(-e.deltaY * 0.0015)
       t.zoom = Math.max(0.12, Math.min(6, t.zoom * factor))
     }
-    let dragging = false
-    let lastX = 0
-    let lastY = 0
     const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; markManual() }
     const onMove = (e: PointerEvent) => {
-      if (!dragging) return
+      if (!dragging || pinching) return
       markManual()
       const tile = BASE_TILE * camRef.current.zoom
       targetRef.current.cx -= (e.clientX - lastX) / tile
@@ -599,10 +632,70 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       lastY = e.clientY
     }
     const onUp = () => { dragging = false }
+
+    // Touch (add-neurons-maze-zoom-and-focus): two-finger pinch-zoom anchored on the
+    // midpoint + double-tap recenter. One-finger pan is already handled by the Pointer
+    // Events above; `touch-action: none` on the canvas keeps these gestures from
+    // hijacking page scroll.
+    const touchDist = (t: TouchList): number =>
+      Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+    const zoomAround = (factor: number, screenX: number, screenY: number) => {
+      const rect = canvas.getBoundingClientRect()
+      const cw = rect.width || 1
+      const ch = rect.height || 1
+      const t = targetRef.current
+      const newZoom = Math.max(0.12, Math.min(6, t.zoom * factor))
+      const oldTile = BASE_TILE * t.zoom
+      const newTile = BASE_TILE * newZoom
+      const sx = screenX - rect.left
+      const sy = screenY - rect.top
+      const wx = t.cx + (sx - cw / 2) / oldTile
+      const wy = t.cy + (sy - ch / 2) / oldTile
+      t.zoom = newZoom
+      t.cx = wx - (sx - cw / 2) / newTile
+      t.cy = wy - (sy - ch / 2) / newTile
+      camRef.current.cx = t.cx
+      camRef.current.cy = t.cy
+    }
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        pinching = true
+        pinchDist = touchDist(e.touches)
+        markManual()
+        e.preventDefault()
+      } else if (e.touches.length === 1) {
+        const now = performance.now()
+        if (now - lastTapAt < 300) {
+          emitMazeRecenter() // double-tap → whole-map
+          e.preventDefault()
+        }
+        lastTapAt = now
+      }
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      if (pinching && e.touches.length === 2) {
+        const d = touchDist(e.touches)
+        if (pinchDist > 0) {
+          const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2
+          const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2
+          zoomAround(d / pinchDist, midX, midY)
+        }
+        pinchDist = d
+        markManual()
+        e.preventDefault()
+      }
+    }
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) { pinching = false; pinchDist = 0 }
+    }
+
     canvas.addEventListener('wheel', onWheel, { passive: false })
     canvas.addEventListener('pointerdown', onDown)
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false })
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false })
+    canvas.addEventListener('touchend', onTouchEnd)
 
     return () => {
       cancelAnimationFrame(raf)
@@ -611,6 +704,9 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       canvas.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
+      canvas.removeEventListener('touchstart', onTouchStart)
+      canvas.removeEventListener('touchmove', onTouchMove)
+      canvas.removeEventListener('touchend', onTouchEnd)
     }
   }, [reducedMotion, tilemap])
 
@@ -683,7 +779,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       )}
 
       <p style={hintStyle}>
-        唸書與答對讓各科的 growth cone 沿軸突束（axon tract）由邊界向中心推進 — 抵達節點點亮並抽出一隻神經元。11 條路徑在同一張腦圖上交織，交叉處共同放電會長出 synapse（LTP）。滾輪縮放、拖曳平移；答對會自動聚焦該科。
+        唸書與答對讓各科的 growth cone 沿軸突束（axon tract）由邊界向中心推進 — 抵達節點點亮並抽出一隻神經元。11 條路徑在同一張腦圖上交織，交叉處共同放電會長出 synapse（LTP）。滾輪／雙指縮放、拖曳平移；點下方科目卡片聚焦該科、🔭 全覽 回到整體；答對會自動聚焦該科。
       </p>
 
       {!expeditionHidden && (
@@ -691,7 +787,19 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       )}
 
       <div ref={stageRef} style={stageStyle}>
-        <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, display: 'block' }} />
+        <canvas
+          ref={canvasRef}
+          style={{ position: 'absolute', inset: 0, display: 'block', touchAction: 'none' }}
+        />
+        <button
+          type="button"
+          onClick={() => emitMazeRecenter()}
+          style={recenterButtonStyle}
+          aria-label="回到全覽"
+          title="回到全覽（縮放/聚焦後重置視角）"
+        >
+          🔭 全覽
+        </button>
         {view.families.map((fam) => (
           <div
             key={`walker-${fam.familyId}`}
@@ -876,6 +984,20 @@ const stageStyle: CSSProperties = {
   boxShadow: '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
   touchAction: 'none',
   cursor: 'grab',
+}
+const recenterButtonStyle: CSSProperties = {
+  position: 'absolute',
+  right: 8,
+  bottom: 8,
+  zIndex: 6,
+  padding: '4px 10px',
+  borderRadius: 999,
+  border: '1px solid #2c2a52',
+  background: '#161430cc',
+  color: '#c7cdf2',
+  fontSize: '0.72rem',
+  cursor: 'pointer',
+  backdropFilter: 'blur(2px)',
 }
 const legendStyle: CSSProperties = {
   maxWidth: 760,

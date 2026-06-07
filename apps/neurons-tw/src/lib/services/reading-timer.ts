@@ -21,7 +21,7 @@
  */
 
 import { db } from '../db'
-import { accrueReadingEnergyActiveFamilies, READING_MINUTE_ENERGY } from '../maze/economy'
+import { accrueMazeEnergy, READING_MINUTE_ENERGY } from '../maze/economy'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
 export type ReadingTimerPauseReason = 'manual' | 'visibility' | 'idle' | null
@@ -33,6 +33,13 @@ export interface ReadingTimerState {
   accumulatedSeconds: number
   /** Number of full minutes the side-effect has fired for in current session. */
   minutesFired: number
+  /**
+   * The subject family this reading session is accruing energy into — per-subject
+   * reading (add-neurons-maze-zoom-and-focus). Set by `start`, preserved across
+   * pause/resume, cleared on stop; one-subject-at-a-time (switching ends the prior
+   * session). This is the single source of truth for the active reading subject.
+   */
+  readingFamilyId: string | null
 }
 
 const TICK_MS = import.meta.env.PROD ? 60_000 : 10_000
@@ -43,6 +50,7 @@ let state: ReadingTimerState = {
   pauseReason: null,
   accumulatedSeconds: 0,
   minutesFired: 0,
+  readingFamilyId: null,
 }
 
 const listeners = new Set<() => void>()
@@ -78,15 +86,17 @@ async function incrementTotalStudyMinutes(): Promise<void> {
 async function fireMinuteSideEffects(): Promise<void> {
   try {
     await Promise.all([
+      // (a) global study-minutes counter — UNCHANGED, drives achievements / leaderboard
+      // / character card (NOT subject-scoped).
       incrementTotalStudyMinutes(),
-      // Maze per-FAMILY energy faucet (redesign-neurons-maze-rotjs-grid): reading
-      // has no subject context → split the per-minute energy evenly across the
-      // families the player has begun collecting (fallback all 11). This is the
-      // ONLY energy faucet for reading (the former global pull-currency faucet is
-      // retired with the manual pull).
-      accrueReadingEnergyActiveFamilies(READING_MINUTE_ENERGY),
+      // (b) Maze per-FAMILY energy faucet — per-subject reading
+      // (add-neurons-maze-zoom-and-focus): the session is bound to one chosen family,
+      // so the per-minute energy accrues entirely into THAT family's pool (no split).
+      state.readingFamilyId
+        ? accrueMazeEnergy(state.readingFamilyId, READING_MINUTE_ENERGY)
+        : Promise.resolve(),
     ])
-    console.info('[reading-timer] +1 minute accrued')
+    console.info('[reading-timer] +1 minute accrued', state.readingFamilyId ?? '(no family)')
   } catch (err) {
     console.error('[reading-timer] minute side-effect failed:', err)
   }
@@ -173,13 +183,19 @@ function stopTickInterval(): void {
   }
 }
 
-export function start(): void {
-  if (state.status === 'reading') return
+export function start(familyId: string): void {
+  // Already reading this exact subject → no-op (idempotent).
+  if (state.status === 'reading' && state.readingFamilyId === familyId) return
+  // Switching subject (one-at-a-time): end any prior session cleanly so the prior
+  // family stops accruing, then begin a fresh session for the new subject.
+  stopTickInterval()
+  clearIdleTimer()
   state = {
     status: 'reading',
     pauseReason: null,
     accumulatedSeconds: 0,
     minutesFired: 0,
+    readingFamilyId: familyId,
   }
   attachActivityListeners()
   resetIdleTimer()
@@ -196,6 +212,7 @@ export function stop(): void {
     pauseReason: null,
     accumulatedSeconds: 0,
     minutesFired: 0,
+    readingFamilyId: null,
   }
   emit()
 }
@@ -249,6 +266,7 @@ export function __resetForTests(): void {
     pauseReason: null,
     accumulatedSeconds: 0,
     minutesFired: 0,
+    readingFamilyId: null,
   }
   listeners.clear()
 }

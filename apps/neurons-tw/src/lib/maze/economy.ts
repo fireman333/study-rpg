@@ -3,8 +3,9 @@
  *
  * ONE currency per family: NEURAL ENERGY (monotonic, synced). A correct answer in
  * subject S accrues energy into family S's OWN pool directly (S is the family — no
- * NT-branch indirection); reading splits evenly across the families the player has
- * begun collecting. Energy is BOTH the exploration fuel AND the pull cost: each
+ * NT-branch indirection); reading accrues entirely into the one chosen subject's
+ * pool (per-subject reading, add-neurons-maze-zoom-and-focus). Energy is BOTH the
+ * exploration fuel AND the pull cost: each
  * cumulative settle index N consumes `cost(N)` energy (front-loaded ramp) and
  * triggers exactly ONE `pullVariant` for that family — the maze is the ONLY pull
  * path (no manual pull). Lit nodes derive from the frontier (cumulative settles),
@@ -127,26 +128,10 @@ export async function accrueMazeEnergy(familyId: string, base: number): Promise<
   await db.meta.put({ key: earnedKey(familyId), value: String(cur + amount) })
 }
 
-/** Families the player has begun collecting (≥1 variant); fallback all 11. */
-async function activeFamilies(): Promise<string[]> {
-  const all = await db.neuronVariants.toArray()
-  const set = new Set<string>()
-  for (const v of all) set.add(v.familyId)
-  const active = FAMILY_IDS.filter((f) => set.has(f))
-  return active.length > 0 ? active : [...FAMILY_IDS]
-}
-
-/**
- * Reading has no subject context → split the per-minute energy evenly across the
- * families the player has begun collecting (fallback all 11). Replaces the prior
- * per-branch `accrueReadingEnergyAllBranches`.
- */
-export async function accrueReadingEnergyActiveFamilies(base: number): Promise<void> {
-  if (base <= 0) return
-  const fams = await activeFamilies()
-  const per = base / fams.length
-  for (const fam of fams) await accrueMazeEnergy(fam, per)
-}
+// Reading is now per-subject (add-neurons-maze-zoom-and-focus): a reading session
+// is bound to one chosen family and accrues its per-minute energy entirely into
+// that family's pool via `accrueMazeEnergy` directly — no even-split across active
+// families. The former `accrueReadingEnergyActiveFamilies` split helper is retired.
 
 export interface SettleOutcome {
   /** Nodes newly lit by this reconcile pass, in settle order (visual only). */
