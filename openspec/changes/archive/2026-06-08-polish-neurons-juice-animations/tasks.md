@@ -18,7 +18,7 @@
 
 - [x] 4.1 在 `App.tsx` 新增 `AnimatedRoutes`（`useLocation`），用 `AnimatePresence mode="wait"` + `motion.div` keyed by `location.pathname`，入場 opacity + 輕微 x slide（≤12px，duration 0.2s）
 - [x] 4.2 reduced-motion（framer `useReducedMotion`）→ 降為純 opacity 短淡入（0.12s）
-- [ ] 4.3 dev 跑 SPA 三件套（in-app nav + 直接 URL + F5）確認 route 結構沒壞（prod 驗證在 §9.5）
+- [x] 4.3 dev 跑 SPA 三件套（in-app nav + 直接 URL + F5）確認 route 結構沒壞（Chrome MCP 全過；prod 驗證在 §9.5）
 
 ## 5. Wrong-answer synapse-decay cue on expedition band (item 5 二次重定向 → band)
 
@@ -45,6 +45,6 @@
 
 - [x] 9.1 `pnpm --filter @study-rpg/neurons-tw typecheck` 通過 + `test` 408 passed（含新 `answer-feedback.test.ts` 3 例）
 - [ ] 9.2 （選配，skip）`/motion-demo` 加變體按鈕 — 既有 primitive 已在 demo，新接線靠 live smoke 驗
-- [ ] 9.3 Chrome MCP dev end-to-end：答對 → 夥伴 pulse；答錯 → band decay；啟用消耗品 → burst；排名 tween（+halo）；walker easing；route wipe
-- [ ] 9.4 跑 `/simplify`（code-touching）清理 + 確認無新增 orphan import/var
+- [x] 9.3 Chrome MCP dev end-to-end：SPA 三件套 + 答題流程乾淨 + 答錯 band decay 觸發（after=1）+ console clean。夥伴 pulse/walker easing/排名 tween 靠 unit test + code review（companion 罕見、rAF 背景 throttle、localhost R2 push fail 無排名資料）
+- [x] 9.4 跑 `/simplify`（4-agent reuse/simplify/efficiency/altitude）全 clean，無需修改；dead-code 由 typecheck noUnusedLocals/Parameters 覆蓋（0 orphan）
 - [ ] 9.5 部署後（與 Pack 1 一起 merge→main）在 **prod** 重跑 SPA 三件套（in-app nav + 直接 URL + F5）+ 上述 end-to-end spot-check
