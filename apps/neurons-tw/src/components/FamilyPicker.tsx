@@ -17,6 +17,7 @@ import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
 import type { FamilyModeCounts, QuizMode } from '../lib/services/srs-scheduler'
 import MasteryChip from './MasteryChip'
 import VariantCollectionChip from './VariantCollectionChip'
+import { EmojiIcon } from './EmojiIcon'
 
 const SPRITE_MAP = THEME_PIXEL_NEURONS.sprites
 
@@ -57,7 +58,7 @@ export function FamilyPicker({
   return (
     <section style={pickerSectionStyle} aria-label="選 family 直接答題">
       <header style={headerRowStyle}>
-        <h2 style={pickerHeaderStyle}>📚 選 family 直接練習</h2>
+        <h2 style={pickerHeaderStyle}><EmojiIcon char="📚" size={16} /> 選 family 直接練習</h2>
         <span style={headerHintStyle}>
           {pack.subjects.length} family · 同日跨 family 答對 5 題 → wire synapse
         </span>
@@ -173,7 +174,7 @@ function FamilyCard({
           {spriteUrl ? (
             <img src={spriteUrl} alt="" width={48} height={48} className="neuron-sprite--alive" style={spriteStyle} />
           ) : (
-            <span style={{ fontSize: '1.4rem', color: accent }} aria-hidden>🧬</span>
+            <EmojiIcon char="🧬" size={22} decorative />
           )}
         </div>
         <div style={cardHeadTextStyle}>

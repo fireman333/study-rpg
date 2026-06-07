@@ -9,6 +9,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { EmojiIcon } from './EmojiIcon'
 
 const DISMISS_KEY = 'neurons-leaderboard-promo-banner-dismissed-v1'
 
@@ -40,7 +41,7 @@ export default function LeaderboardPromoBanner(): JSX.Element | null {
   return (
     <div style={bannerStyle}>
       <div style={textBlockStyle}>
-        <div style={headlineStyle}>🏆 加入 neurons-tw 排行榜</div>
+        <div style={headlineStyle}><EmojiIcon char="🏆" size={18} /> 加入 neurons-tw 排行榜</div>
         <div style={subStyle}>
           看你的變體收集進度、AP 累積、探索進度在所有玩家中排第幾名
         </div>

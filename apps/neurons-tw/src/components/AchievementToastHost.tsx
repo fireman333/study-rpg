@@ -18,6 +18,7 @@ import {
   type QueuedAchievement,
 } from '../lib/achievement-toast-queue'
 import { BadgeSprite } from './BadgeSprite'
+import { EmojiIcon } from './EmojiIcon'
 import { TIER_LABEL } from '@study-rpg/content-neurons-tw'
 
 export default function AchievementToastHost(): JSX.Element | null {
@@ -37,7 +38,7 @@ export default function AchievementToastHost(): JSX.Element | null {
         <BadgeSprite category={achievement.category} tier={achievement.tier} size={48} />
         <div>
           <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 2 }}>
-            🏆 解鎖成就 · {TIER_LABEL[achievement.tier]}
+            <EmojiIcon char="🏆" size={12} /> 解鎖成就 · {TIER_LABEL[achievement.tier]}
           </div>
           <div style={{ fontWeight: 700, fontSize: 16 }}>{achievement.name}</div>
           <div style={{ fontSize: 13, marginTop: 2, opacity: 0.9 }}>

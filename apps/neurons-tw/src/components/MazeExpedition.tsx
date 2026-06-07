@@ -29,6 +29,7 @@ import { db, type NeuronVariantRow } from '../lib/db'
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { livingCompanions, type EquipmentDef } from '@study-rpg/content-neurons-tw'
+import { EmojiIcon } from './EmojiIcon'
 
 const skyUrl = new URL('../assets/maze/expedition-sky.png', import.meta.url).href
 const groundUrl = new URL('../assets/maze/expedition-bg.png', import.meta.url).href
@@ -270,7 +271,11 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
       </div>
 
       {/* caption — homepage only (the compact quiz band stays unobtrusive) */}
-      {!compact && <span className="exp-caption">🧠 神經元遠征隊行進中…</span>}
+      {!compact && (
+        <span className="exp-caption">
+          <EmojiIcon char="🧠" size={16} /> 神經元遠征隊行進中…
+        </span>
+      )}
 
       {/* quick-hide — kill the animation when it distracts from reading / answering */}
       {onHide && !compact && (

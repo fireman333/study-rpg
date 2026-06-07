@@ -34,6 +34,7 @@ import {
   NICKNAME_MAX_LEN,
 } from '../lib/services/instance-nickname'
 import ShareCardModal from '../components/ShareCardModal'
+import { EmojiIcon } from '../components/EmojiIcon'
 import { useAuth } from '../lib/auth/AuthContext'
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
@@ -209,7 +210,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           已收集 <strong>{collectedCount}</strong> 隻。唸書與答對累積神經能量、在腦圖探索，走到節點即解鎖一次抽卡。
         </p>
         <button type="button" style={shareBtnStyle} onClick={() => setShareOpen(true)}>
-          🔗 分享角色卡
+          <EmojiIcon char="🔗" size={16} /> 分享角色卡
         </button>
       </header>
 
@@ -253,7 +254,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                   {family.label}
                   {/* Chip stays distinct-slot (種類); total individuals is a faint
                       secondary, only when there are dupes (totalIndividuals > 種類). */}
-                  <span style={ownedCountStyle}>🧬 {familyRows.length} 隻</span>
+                  <span style={ownedCountStyle}><EmojiIcon char="🧬" size={14} /> {familyRows.length} 隻</span>
                   {totalIndividuals > familyRows.length && (
                     <span style={individualCountStyle}>· 共 {totalIndividuals} 個體</span>
                   )}
@@ -264,7 +265,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                   show; disabled below K. */}
               {promoteTiers.length > 0 && (
                 <div style={promoteRowStyle}>
-                  <span style={promoteLabelStyle}>🧬 融合</span>
+                  <span style={promoteLabelStyle}><EmojiIcon char="🧬" size={14} /> 融合</span>
                   {promoteTiers.map((t) => {
                     const target = NEXT_RARER[t]
                     if (!target) return null

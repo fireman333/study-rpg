@@ -20,6 +20,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { liveQuery } from 'dexie'
 import { FAMILY_IDS, FAMILY_COLOR } from '@study-rpg/content-neurons-tw'
 import VariantSprite from '../VariantSprite'
+import { EmojiIcon } from '../EmojiIcon'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import MazeExpedition from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
@@ -715,7 +716,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   return (
     <section style={panelStyle} aria-label="腦內迷宮（互動）">
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={countChipStyle}>🧠 已連線 {view.totalConnectedCount} 個腦區</span>
+        <span style={countChipStyle}><EmojiIcon char="🧠" size={15} /> 已連線 {view.totalConnectedCount} 個腦區</span>
         <button
           type="button"
           aria-pressed={synapseOverlayOn}
@@ -723,7 +724,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
           style={chipToggleStyle(synapseOverlayOn, SYNAPSE_COLOR)}
           title="顯示／隱藏 synapse 功能連結覆蓋層"
         >
-          🔗 {synapseOverlayOn ? '隱藏連結' : '顯示連結'}
+          <EmojiIcon char="🔗" size={15} /> {synapseOverlayOn ? '隱藏連結' : '顯示連結'}
         </button>
         <button
           type="button"
@@ -798,7 +799,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
           aria-label="回到全覽"
           title="回到全覽（縮放/聚焦後重置視角）"
         >
-          🔭 全覽
+          <EmojiIcon char="🔭" size={15} /> 全覽
         </button>
         {view.families.map((fam) => (
           <div
