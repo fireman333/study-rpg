@@ -241,6 +241,10 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const stageRef = useRef<HTMLDivElement | null>(null)
   const walkerRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  // Per-family eased render position in MAZE space (neurons-juice-animations item
+  // 7) — glides toward the target walkerCell so cell-advancement is not an instant
+  // snap. Persists across draw-effect re-runs. Camera transform stays per-frame.
+  const walkerRenderRef = useRef<Map<string, [number, number]>>(new Map())
   const tilemap = useMemo(() => bakeTilemap(), [])
   const tilesRef = useRef<TileAssets>({ tileBake: null })
   const selRef = useRef(sel)
@@ -592,10 +596,23 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       // whole-maze fit tile → scale = 1.0 at the default zoom (look unchanged), grows past it.
       const fitTile = (Math.min(w, h) / Math.max(GRID_W, GRID_H)) * 0.98
       const walkerScale = fitTile > 0 ? tile / fitTile : 1
+      // Ease the walker toward its target cell in MAZE space (not screen space):
+      // cell-advancement glides while the camera transform stays exact per-frame
+      // (easing the screen transform would lag the walker behind camera pan/zoom).
+      // Reduced-motion → snap (k=1). neurons-juice-animations item 7.
+      const walkerEaseK = reducedMotion ? 1 : 0.18
       for (const fam of fams) {
         const el = walkerRefs.current.get(fam.familyId)
         if (!el) continue
-        el.style.transform = `translate(${toX(fam.walkerCell[0])}px, ${toY(fam.walkerCell[1])}px) translate(-50%, -50%) scale(${walkerScale})`
+        const target = fam.walkerCell
+        let pos = walkerRenderRef.current.get(fam.familyId)
+        if (!pos) {
+          pos = [target[0], target[1]]
+          walkerRenderRef.current.set(fam.familyId, pos)
+        }
+        pos[0] += (target[0] - pos[0]) * walkerEaseK
+        pos[1] += (target[1] - pos[1]) * walkerEaseK
+        el.style.transform = `translate(${toX(pos[0])}px, ${toY(pos[1])}px) translate(-50%, -50%) scale(${walkerScale})`
       }
 
       raf = requestAnimationFrame(draw)

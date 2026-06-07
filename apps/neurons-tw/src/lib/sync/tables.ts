@@ -9,6 +9,7 @@
 
 import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import type { NeuronsDB, QuestionHistoryRow } from '../db'
+import { PER_FAMILY_CELEBRATION_KEYS } from '../services/maze-celebration'
 
 /**
  * Per-family maze economy keys (redesign-neurons-maze-rotjs-grid) — 11 families ×
@@ -391,6 +392,14 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   // `maze:<branch>:starterFamily` keys are DROPPED (leave-and-ignore — a stray
   // incoming legacy key is simply not in this allowlist).
   'firstPullFamilies',
+  // Per-family second-lap completion celebration markers
+  // (add-neurons-loop-celebration-animations). 11 `mazeSecondLapCelebrated:<familyId>`
+  // keys — synced one-shot guard so a family's 全腦點亮 completion celebration plays
+  // at most once across sessions + devices. SET-ONCE → the metaAdapter's
+  // first-write-wins below is sufficient (presence is all that matters; a
+  // divergent stamp from two offline completions is harmless). NO backfill
+  // post-pass needed. Derived from FAMILY_IDS (single source in the service).
+  ...PER_FAMILY_CELEBRATION_KEYS,
 ])
 
 const metaAdapter: TableAdapter<'meta'> = {

@@ -13,7 +13,8 @@
  * (fetchLeaderboardSnapshot only, no auth required).
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { NumberTickUp, CelebrationHalo } from '../lib/motion'
 import LeaderboardOptInModal from '../components/LeaderboardOptInModal'
 import LeaderboardSettingsControls from '../components/LeaderboardSettingsControls'
 import { BadgeSprite } from '../components/BadgeSprite'
@@ -135,6 +136,24 @@ export default function LeaderboardPage(): JSX.Element {
 
   const myRank = profile && snapshot ? findRank(snapshot.rows, profile.user_id) : null
 
+  // Rank-up feedback (neurons-juice-animations): tween the rank number on change,
+  // and celebrate when it improves (smaller = better). prevRank is tracked
+  // per-filter so switching tabs (a different ranking, not an improvement) does
+  // not falsely celebrate. Session-only refs/state → nothing persisted; first
+  // load shows no animation.
+  const prevRankRef = useRef<Record<string, number>>({})
+  const [rankTween, setRankTween] = useState<{ from: number; to: number } | null>(null)
+  const [rankCelebrateNonce, setRankCelebrateNonce] = useState(0)
+  useEffect(() => {
+    if (myRank === null) return
+    const prev = prevRankRef.current[activeFilter]
+    if (prev !== undefined && prev !== myRank) {
+      setRankTween({ from: prev, to: myRank })
+      if (myRank < prev) setRankCelebrateNonce((n) => n + 1)
+    }
+    prevRankRef.current[activeFilter] = myRank
+  }, [myRank, activeFilter])
+
   return (
     <>
       {showOptInModal && userId && accessToken && (
@@ -155,12 +174,23 @@ export default function LeaderboardPage(): JSX.Element {
       </header>
 
       {profile && profile.opted_in && (
-        <div style={myRankChipStyle}>
+        <div style={{ ...myRankChipStyle, position: 'relative' }}>
+          {rankCelebrateNonce > 0 && (
+            <CelebrationHalo key={`rankup-${rankCelebrateNonce}`} intensity={2} color="var(--signal-cyan)" />
+          )}
           {!profile.is_public ? (
             <span>未加入排行 — 至下方設定開啟以參與</span>
           ) : myRank !== null ? (
             <span>
-              你目前第 <strong>{myRank}</strong> 名 (共 {snapshot?.total_count ?? '?'} 人)
+              你目前第{' '}
+              <strong>
+                {rankTween && rankTween.to === myRank ? (
+                  <NumberTickUp from={rankTween.from} to={rankTween.to} durationMs={600} />
+                ) : (
+                  myRank
+                )}
+              </strong>{' '}
+              名 (共 {snapshot?.total_count ?? '?'} 人)
             </span>
           ) : (
             <span>已加入排行但未進入此分類前 100 名 (共 {snapshot?.total_count ?? '?'} 人)</span>

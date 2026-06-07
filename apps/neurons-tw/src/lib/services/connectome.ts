@@ -28,6 +28,7 @@ import { deriveMasteryTier, masteryEnergyMultiplier } from '../mastery'
 import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { energyAccel } from './acceleration'
+import { emitAnswerCorrect, emitAnswerWrong } from '../maze/answer-feedback'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
@@ -253,6 +254,10 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     console.error('[maze] correct-answer energy accrual failed:', err)
   }
 
+  // Presentational feedback signal → expedition band companion pulse
+  // (neurons-juice-animations). In-memory, best-effort; never persisted.
+  emitAnswerCorrect(familyId)
+
   // Post-commit: per-family first-pull grant (best-effort, channel [first-pull]).
   await maybeGrantFirstPull(familyId)
 }
@@ -271,6 +276,10 @@ export async function recordIncorrectAnswer(familyId: string): Promise<void> {
   // Post-commit: achievement diff (mainly for streak-reset edge case where a
   // related predicate flips — uncommon but cheap to check).
   await triggerAchievementCheck(prevStats)
+
+  // Presentational feedback signal → expedition band synapse-decay dim
+  // (neurons-juice-animations). In-memory, best-effort; never persisted.
+  emitAnswerWrong(familyId)
 
   // Post-commit: per-family first-pull grant (the first answer for a family —
   // correct OR incorrect — grants its P5 representative; best-effort).

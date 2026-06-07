@@ -129,11 +129,20 @@
 //        reading a v18 bundle drops the unknown `firstPullFamilies` key; a v18 client
 //        reading a v17 bundle finds none → local first-pull set preserved (union with
 //        empty). Worker is bundle-opaque (no Worker change).
+//   v19 — add-neurons-loop-celebration-animations 2026-06-08: adds 11
+//        `mazeSecondLapCelebrated:<familyId>` meta keys (per-family second-lap
+//        completion-celebration markers, synced one-shot guard) to the allowlist.
+//        SET-ONCE markers → the metaAdapter's first-write-wins is sufficient (no
+//        backfill post-pass; presence is all that matters). NO Dexie bump (rides
+//        `meta` kv). Additive + reader-tolerant: a v18 client reading a v19 bundle
+//        drops the unknown marker keys; a v19 client reading a v18 bundle finds
+//        none → families simply un-celebrated (celebrate on next live completion).
+//        Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 18
+export const SCHEMA_VERSION = 19
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'
