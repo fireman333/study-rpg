@@ -87,7 +87,7 @@ export default function QuizHotkeysAnnouncementBanner(): JSX.Element | null {
             border: 1px solid #8c6d4a;
             border-bottom-width: 2px;
             border-radius: 3px;
-            font-family: 'VT323', 'Courier New', monospace;
+            font-family: var(--font-pixel-num);
             font-size: 0.92em;
             color: #3a2a1a;
             line-height: 1;

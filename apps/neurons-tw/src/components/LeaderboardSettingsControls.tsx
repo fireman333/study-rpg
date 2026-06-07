@@ -277,7 +277,7 @@ function TitleSelector({
       value={profile.selectedTitle ?? ''}
       onChange={(e) => void onChange(e.target.value === '' ? null : e.target.value)}
       style={{
-        fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+        fontFamily: 'var(--font-pixel-cjk)',
         fontSize: '0.85rem',
         padding: '0.2rem 0.4rem',
         background: '#f4ecd8',
@@ -304,7 +304,7 @@ const containerStyle: React.CSSProperties = {
   flexDirection: 'column',
   gap: '0.5rem',
   color: '#5a3f29',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 
 const sectionTitleStyle: React.CSSProperties = {

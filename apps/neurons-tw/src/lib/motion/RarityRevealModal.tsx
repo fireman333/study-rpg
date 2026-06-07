@@ -129,7 +129,7 @@ export function RarityRevealModal({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+        fontFamily: 'var(--font-pixel-cjk)',
       }}
     >
       <div style={{ position: 'relative', perspective: '1200px' }}>

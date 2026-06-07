@@ -484,7 +484,7 @@ function VariantSlotCard({
 
 const pageStyle: React.CSSProperties = {
   padding: '1.2rem 1rem 3rem',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   color: '#3a2a1a',
   maxWidth: 1100,
   margin: '0 auto',

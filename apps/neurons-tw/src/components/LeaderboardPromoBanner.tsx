@@ -74,7 +74,7 @@ const bannerStyle: React.CSSProperties = {
   padding: '0.7rem 0.9rem',
   marginBottom: '1rem',
   boxShadow: '4px 4px 0 #5a3f29',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 
 const textBlockStyle: React.CSSProperties = {

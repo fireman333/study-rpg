@@ -176,7 +176,7 @@ const modalStyle: React.CSSProperties = {
   width: '100%',
   maxHeight: '92vh',
   overflowY: 'auto',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   color: '#3a2a1a',
   boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
 }

@@ -139,7 +139,7 @@ function CardTile({
 
 const pageStyle: React.CSSProperties = {
   padding: '1.5rem 1rem 3rem',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   color: '#e6e6fa',
   background: '#0f0c24',
   minHeight: '100vh',

@@ -453,7 +453,7 @@ const kbdStyle: React.CSSProperties = {
   border: '1px solid #8c6d4a',
   borderBottomWidth: '2px',
   borderRadius: '3px',
-  fontFamily: "'VT323', 'Courier New', monospace",
+  fontFamily: 'var(--font-pixel-num)',
   fontSize: '0.92em',
   color: '#3a2a1a',
   lineHeight: 1,
@@ -655,6 +655,8 @@ const stemStyle: React.CSSProperties = {
   lineHeight: 1.5,
   color: '#3a2a1a',
   whiteSpace: 'pre-wrap',
+  // Exam content (truncated question stem preview) — legible, never pixel.
+  fontFamily: 'var(--font-legible)',
 }
 
 const rowActionsStyle: React.CSSProperties = {

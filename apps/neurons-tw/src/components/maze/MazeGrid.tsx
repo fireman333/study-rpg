@@ -947,7 +947,7 @@ const panelStyle: CSSProperties = {
   padding: '0.85rem 1rem 1rem',
   marginBottom: '1rem',
   color: '#e6e6fa',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 const countChipStyle: CSSProperties = {
   background: '#15132e',

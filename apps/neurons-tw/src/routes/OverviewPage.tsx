@@ -410,7 +410,7 @@ const statusEmojiStyle: React.CSSProperties = { fontSize: '0.95rem' }
 const statusLabelStyle: React.CSSProperties = { color: 'var(--signal-ink)', opacity: 0.75, fontWeight: 500 }
 const statusValueStyle: React.CSSProperties = {
   color: 'var(--signal-cyan)',
-  fontFamily: "'VT323', monospace",
+  fontFamily: 'var(--font-pixel-num)',
   fontSize: '1.25rem',
   lineHeight: 1,
   fontWeight: 400,

@@ -298,7 +298,7 @@ const modal: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-  fontFamily: "'Cubic 11', 'Noto Sans TC', sans-serif",
+  fontFamily: 'var(--font-pixel-cjk)',
   color: '#3a2a1a',
 }
 const header: CSSProperties = {
@@ -353,7 +353,8 @@ const textarea: CSSProperties = {
   borderRadius: 6,
   border: '1px solid #c4a878',
   background: '#fff',
-  fontFamily: 'inherit',
+  // User-typed prose — legible, never pixel.
+  fontFamily: 'var(--font-legible)',
   fontSize: '0.9rem',
   color: '#3a2a1a',
   resize: 'vertical',
@@ -365,7 +366,8 @@ const input: CSSProperties = {
   borderRadius: 6,
   border: '1px solid #c4a878',
   background: '#fff',
-  fontFamily: 'inherit',
+  // User-typed text — legible, never pixel.
+  fontFamily: 'var(--font-legible)',
   fontSize: '0.9rem',
   color: '#3a2a1a',
 }
