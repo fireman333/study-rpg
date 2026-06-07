@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
+import { flushFirstPullReveals } from '../lib/services/first-pull-reveal'
 import {
   scheduleSrsForAnswer,
   applyEasyModifier,
@@ -199,6 +200,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   // post-answer schedule (so toggling a modifier OFF restores it). Reset on Next.
   const prevSrsRef = useRef<BinaryReviewPrev | null>(null)
   const defaultPostSrsRef = useRef<BinaryReviewResult | null>(null)
+
+  // On quiz close (unmount, any path) play any DEFERRED first-pull reveals that
+  // were minted silently mid-quiz — the player is now back on the maze/home.
+  // (add-neurons-first-pull-reveal) Universal across finish / ✕ / backdrop.
+  useEffect(() => {
+    return () => {
+      flushFirstPullReveals()
+    }
+  }, [])
 
   const handleClose = useCallback(() => {
     if (!completedRef.current) {

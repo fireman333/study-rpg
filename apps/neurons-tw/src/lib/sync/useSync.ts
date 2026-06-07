@@ -15,6 +15,7 @@ import { useAuth } from '../auth/AuthContext'
 import { getSupabase } from '../auth/client'
 import { createSyncEngine, type SyncEngine, type SyncStatus } from './engine'
 import { runOnPullComplete } from './backfill'
+import { autoPushLeaderboardOnSync } from '../services/neurons-leaderboard'
 
 const DEBOUNCE_MS = Number(import.meta.env.VITE_SYNC_DEBOUNCE_MS) || 3000
 const SYNCED_TABLES = new Set([
@@ -49,6 +50,24 @@ export function useSync(): { engine: SyncEngine | null; status: SyncStatus | nul
       debounceMs: DEBOUNCE_MS,
       onPullComplete: async (result) => {
         await runOnPullComplete(db, result)
+      },
+      // After every successful push, refresh the leaderboard row for opted-in
+      // players so rank tracks gameplay without manual 同步. Best-effort: a
+      // failure here never breaks the sync cycle. NOTE: the helper deliberately
+      // writes NO synced Dexie table (no last_pushed_at) — otherwise it would
+      // re-trigger schedulePush and loop forever. See autoPushLeaderboardOnSync.
+      onPushComplete: async () => {
+        try {
+          await autoPushLeaderboardOnSync({
+            userId: user.id,
+            getAccessToken: async () => {
+              const { data } = await supabase.auth.getSession()
+              return data.session?.access_token ?? null
+            },
+          })
+        } catch (err) {
+          console.warn('[leaderboard] auto-upsert on push failed', err)
+        }
       },
     })
     engineRef.current = engine
