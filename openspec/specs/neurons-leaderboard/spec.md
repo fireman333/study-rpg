@@ -232,7 +232,9 @@ The request MUST be authenticated (Supabase JWT in `Authorization: Bearer <token
 
 ### Requirement: Push leaderboard row SHALL be triggered on cloud sync when wired (deferred), with manual-push button as interim
 
-The system SHALL provide a client-side adapter `pushNeuronsLeaderboardRow(client)` that builds the upsert payload from local Dexie state (`ownedSlotCount(db)` → `variant_count`; `familyAccrual` → `total_AP`; `synapses` where `state='strong'` → `synapse_strong`; `meta['totalStudyMinutes']` → `total_study_min`; sum of `meta['maze:da:settles']` + `['maze:5ht:settles']` + `['maze:gaba:settles']` + `['maze:glu:settles']` → `total_settles`; `leaderboardProfile` → `nickname` + `is_public`) and POSTs to `/leaderboard/neurons/upsert`. The adapter SHALL NOT compute or send `family_complete`. The `variant_count` field SHALL be sourced from the canonical `ownedSlotCount` projection defined in `neuron-variant-fusion` (counting slots with at least one held individual), NOT from `db.neuronVariants.count()` directly — this excludes ghost slots produced by cross-device fusion races from the leaderboard ranking signal. The four `maze:<branch>:settles` keys are the same per-branch settle counters used by the maze economy (`lib/maze/economy.ts`) and are already members of `SYNCED_META_KEYS`, so `total_settles` is cross-device-correct; each SHALL be read defensively (`Number(value) || 0`) so a missing key (legacy save) contributes 0.
+The system SHALL provide a client-side adapter `pushNeuronsLeaderboardRow(client)` that builds the upsert payload from local Dexie state (`ownedSlotCount(db)` → `variant_count`; `familyAccrual` → `total_AP`; `synapses` where `state='strong'` → `synapse_strong`; `meta['totalStudyMinutes']` → `total_study_min`; sum of `meta['maze:<familyId>:settles']` across every `familyId` declared by the content pack (`FAMILY_IDS`, currently 11 families) → `total_settles`; `leaderboardProfile` → `nickname` + `is_public`) and POSTs to `/leaderboard/neurons/upsert`. The adapter SHALL NOT compute or send `family_complete`. The `variant_count` field SHALL be sourced from the canonical `ownedSlotCount` projection defined in `neuron-variant-fusion` (counting slots with at least one held individual), NOT from `db.neuronVariants.count()` directly — this excludes ghost slots produced by cross-device fusion races from the leaderboard ranking signal. Each per-family `maze:<familyId>:settles` key SHALL be read defensively (`Number(value) || 0`) so a missing key (legacy save) contributes 0; the same defensive pattern applies to `meta['totalStudyMinutes']` and any other monotonic counter. The per-family settles counters are written by `lib/maze/economy.ts` (`settlesKey(familyId)`) and are already members of `SYNCED_META_KEYS`, so `total_settles` is cross-device-correct.
+
+**Legacy 4-branch settles keys are retired.** Pre-`decouple-neurons-subjects-from-nt-branches` (archived 2026-06-06) saves may physically contain `meta['maze:da:settles']` / `meta['maze:5ht:settles']` / `meta['maze:gaba:settles']` / `meta['maze:glu:settles']` keys; these SHALL NOT be read by the adapter (leave-and-ignore). The current per-family schema fully supersedes them; the adapter SHALL aggregate only `maze:<familyId>:settles` keys for current `FAMILY_IDS`.
 
 The adapter SHALL be wired into the cloud-sync pipeline: after every **successful** sync push, the system SHALL automatically upsert the opted-in player's leaderboard row by invoking the adapter from the sync engine's `onPushComplete` hook, piggy-backing the existing R2 bundle push debounce window. The automatic upsert SHALL be gated on the local `leaderboardProfile.opted_in === true` and SHALL carry the player's current `is_public` flag. The automatic path SHALL NOT write any synced Dexie table (in particular it SHALL NOT write `last_pushed_at`), so it cannot re-trigger the push scheduler and create a self-perpetuating push loop. A failure of the automatic upsert (network / auth / Worker rejection) SHALL be logged and SHALL NOT fail or interrupt the sync push.
 
@@ -249,6 +251,7 @@ Players who have never opted in SHALL NOT have their data pushed, on any path (a
 - **WHEN** an opted-in player's gameplay (collecting a variant / answering / accruing reading minutes / lighting a maze node) drives a successful cloud-sync push
 - **THEN** the system SHALL invoke the adapter from `onPushComplete` and upsert the current row (including `variant_count` / `total_AP` / `total_study_min` / `total_settles` / `badges_csv`) with no manual action
 - **AND** `variant_count` SHALL equal `ownedSlotCount(db)` at the time of the push
+- **AND** `total_settles` SHALL equal the sum of `meta['maze:<familyId>:settles']` over every `familyId` in `FAMILY_IDS` (currently 11 families)
 
 #### Scenario: Automatic upsert does not loop the push engine
 
@@ -267,10 +270,13 @@ Players who have never opted in SHALL NOT have their data pushed, on any path (a
 - **THEN** the adapter SHALL build the current payload (including `total_settles`) and POST to `/leaderboard/neurons/upsert`
 - **AND** the button SHALL disable for 3 seconds after click to prevent rate-storm
 
-#### Scenario: total_settles computed from the four maze settles meta keys at push time
+#### Scenario: total_settles aggregates per-family settle keys only
 
-- **WHEN** the adapter builds the payload
-- **THEN** `total_settles` SHALL equal the sum of `meta['maze:da:settles']`, `meta['maze:5ht:settles']`, `meta['maze:gaba:settles']`, `meta['maze:glu:settles']`, each coerced via `Number(...) || 0`
+- **GIVEN** a player whose `meta` table contains `maze:藥理學:settles = 40`, `maze:解剖學:settles = 25`, `maze:組織學:settles = 18`, and 8 other family keys at 0, AND legacy keys `maze:da:settles = 99` and `maze:gaba:settles = 77` physically present from a pre-`decouple` save
+- **WHEN** the adapter builds the upsert payload
+- **THEN** `total_settles` SHALL be `83` (sum of the per-family keys for current `FAMILY_IDS`: 40 + 25 + 18 + 0×8)
+- **AND** the legacy 4-branch keys SHALL NOT contribute (the implementation SHALL NOT read them)
+- **AND** missing per-family keys SHALL contribute 0 via the defensive `Number(value) || 0` pattern
 - **AND** a player who has never settled any maze node SHALL push `total_settles = 0`
 
 #### Scenario: Opted-out player still upserts is_public=0
