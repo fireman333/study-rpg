@@ -77,11 +77,13 @@ export function onExpeditionComplete(session: ExpeditionSession): void {
 }
 
 // ---------------------------------------------------------------------------
-// 年份回數遠征 — year + 次別 full-question-set expedition
-// (add-neurons-exam-set-expedition). A "paper" = a whole (year, session) sitting
-// (醫學一 + 醫學二, ~200 Q). Progress derives entirely from questionHistory (a
-// question is "covered" once it has any history row, any mode) — NO new Dexie
-// table / version bump / sync change. Reward reuses onExpeditionComplete above.
+// 模考 — per-book exam-paper expedition
+// (add-neurons-exam-set-expedition; split per split-neurons-expedition-exam-modes).
+// A "paper" = a single 冊 of a (year, session) sitting — 醫學一 OR 醫學二 (~100 Q),
+// NOT both combined. Player-facing label is 模考; the mechanic id stays exam-set.
+// Progress derives entirely from questionHistory (a question is "covered" once it
+// has any history row, any mode) — NO new Dexie table / version bump / sync change.
+// Reward reuses onExpeditionComplete above (DMN axis only; no connectome credit).
 // Capability spec: openspec/specs/neurons-exam-set-expedition/spec.md
 // ---------------------------------------------------------------------------
 
@@ -90,6 +92,7 @@ interface ExamMeta {
   session?: number
   qNumber?: number
   paper?: string
+  book?: string
 }
 
 /** Defensive read of the exam-specific meta fields (meta is Record<string,unknown>). */
@@ -100,7 +103,17 @@ function examMeta(q: Question): ExamMeta {
     session: typeof m.session === 'number' ? m.session : undefined,
     qNumber: typeof m.qNumber === 'number' ? m.qNumber : undefined,
     paper: typeof m.paper === 'string' ? m.paper : undefined,
+    book: typeof m.book === 'string' ? m.book : undefined,
   }
+}
+
+/** Order 醫學一 before 醫學二 in the picker. Only two books exist in the corpus;
+ *  an explicit rank keeps ordering deterministic (codepoint compare is unsafe for
+ *  Chinese numerals ≥ 三, though those never appear here). */
+function bookRank(book: string): number {
+  if (book === '醫學一') return 1
+  if (book === '醫學二') return 2
+  return 99
 }
 
 /** Question order within a sitting: by paper (醫學一 `medexam-1` < 醫學二 `medexam-2`),
@@ -118,38 +131,41 @@ function examOrderCompare(a: Question, b: Question): number {
 }
 
 /**
- * Per-session pool for a (year, 次別) paper: every question in that sitting NOT
- * yet answered (no `questionHistory` row), in question order. Empty ⇒ the paper
- * is fully covered. Pure + testable.
+ * Per-session pool for a (year, 次別, 冊別) paper: every question in that 冊 NOT
+ * yet answered (no `questionHistory` row), in question order. Restricted to the
+ * chosen `book` (`meta.book`) — never the other book of the same sitting. Empty ⇒
+ * the paper is fully covered. Pure + testable.
  */
 export function buildExamSetExpeditionPool(
   pool: readonly Question[],
   history: readonly QuestionHistoryRow[],
   year: number,
   session: number,
+  book: string,
 ): Question[] {
   const answered = new Set(history.map((h) => h.questionId))
   return pool
     .filter((q) => {
       const m = examMeta(q)
-      return m.year === year && m.session === session && !answered.has(q.id)
+      return m.year === year && m.session === session && m.book === book && !answered.has(q.id)
     })
     .sort(examOrderCompare)
 }
 
-/** Answered / total coverage for one (year, 次別) paper, derived from history. */
+/** Answered / total coverage for one (year, 次別, 冊別) paper, derived from history. */
 export function examSetCoverage(
   pool: readonly Question[],
   history: readonly QuestionHistoryRow[],
   year: number,
   session: number,
+  book: string,
 ): { answered: number; total: number } {
   const answeredIds = new Set(history.map((h) => h.questionId))
   let answered = 0
   let total = 0
   for (const q of pool) {
     const m = examMeta(q)
-    if (m.year === year && m.session === session) {
+    if (m.year === year && m.session === session && m.book === book) {
       total += 1
       if (answeredIds.has(q.id)) answered += 1
     }
@@ -157,11 +173,13 @@ export function examSetCoverage(
   return { answered, total }
 }
 
-/** One row per (year, 次別) paper with coverage, for the picker. Years descending,
- *  次別 ascending. `complete` ⇔ answered === total (and total > 0). */
+/** One row per (year, 次別, 冊別) paper with coverage, for the picker. Years
+ *  descending, 次別 ascending, 冊別 (醫學一 before 醫學二). `complete` ⇔
+ *  answered === total (and total > 0). */
 export interface ExamPaperCoverage {
   year: number
   session: number
+  book: string
   total: number
   answered: number
   complete: boolean
@@ -172,14 +190,19 @@ export function listExamPapersWithCoverage(
   history: readonly QuestionHistoryRow[],
 ): ExamPaperCoverage[] {
   const answeredIds = new Set(history.map((h) => h.questionId))
-  const byKey = new Map<string, { year: number; session: number; total: number; answered: number }>()
+  const byKey = new Map<
+    string,
+    { year: number; session: number; book: string; total: number; answered: number }
+  >()
   for (const q of pool) {
     const m = examMeta(q)
-    if (m.year === undefined || m.session === undefined) continue
-    const key = `${m.year}:${m.session}`
+    // A 模考 paper is addressed per 冊; a question lacking any of year/session/book
+    // is excluded (the current corpus populates all three for every exam question).
+    if (m.year === undefined || m.session === undefined || m.book === undefined) continue
+    const key = `${m.year}:${m.session}:${m.book}`
     let row = byKey.get(key)
     if (!row) {
-      row = { year: m.year, session: m.session, total: 0, answered: 0 }
+      row = { year: m.year, session: m.session, book: m.book, total: 0, answered: 0 }
       byKey.set(key, row)
     }
     row.total += 1
@@ -187,5 +210,5 @@ export function listExamPapersWithCoverage(
   }
   return [...byKey.values()]
     .map((r) => ({ ...r, complete: r.total > 0 && r.answered === r.total }))
-    .sort((a, b) => b.year - a.year || a.session - b.session)
+    .sort((a, b) => b.year - a.year || a.session - b.session || bookRank(a.book) - bookRank(b.book))
 }
