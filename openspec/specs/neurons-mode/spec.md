@@ -400,15 +400,16 @@ This requirement supersedes the prior implicit state where `ConnectomeDebugPanel
 - **THEN** questions with `hasOptionImages === true` SHALL be excluded
 - **AND** this is acceptable until image-option rendering ships (separate future change)
 
-### Requirement: neurons-tw SHALL provide a reading-timer that accrues study minutes and publishes ticks to the DMN time-axis subscriber
+### Requirement: neurons-tw SHALL provide a reading-timer that accrues study minutes and fuels maze energy
 
 The `neurons-mode` umbrella SHALL ensure that the neurons-tw application provides a reading-timer service that:
 
 1. Lets the user start / stop a reading session via a button reachable from a main route (overview page at minimum)
 2. While reading is active, accrues elapsed time in-memory at a configurable tick interval
-3. Each time accrued time crosses a 60-second (1 game-minute) boundary, fires BOTH of the following minute side-effects:
+3. Each time accrued time crosses a 60-second (1 game-minute) boundary, fires the following minute side-effect:
    - Increment `meta['totalStudyMinutes']` (a synced LWW counter — already in `SYNCED_META_KEYS` per `add-neurons-dmn-fate-card`)
-   - Call `dmnReadingTimerSubscriber.onMinutesAccrued(1)` (the published interface at `dmn-trigger.ts:170` — activates DMN time-axis accrual per `neurons-dmn-fate-cards` Requirement)
+
+   The reading-timer SHALL NOT publish ticks to any DMN time-axis subscriber. DMN time-axis entitlement is owned entirely by `neurons-dmn-fate-cards` (expedition-completion path). Reading minutes still fuel the maze-energy faucet per `neurons-brain-maze` (separate code path, unaffected).
 4. Auto-pauses when the browser tab becomes hidden (via `visibilitychange` event)
 5. Auto-pauses when the user has been idle for ≥ 90 seconds (no mousemove / keydown / touchstart events)
 6. Does NOT auto-resume on tab focus return — explicit user action SHALL restart reading
@@ -416,15 +417,22 @@ The `neurons-mode` umbrella SHALL ensure that the neurons-tw application provide
 
 The achievement-stats builder (`apps/neurons-tw/src/lib/services/achievement.ts buildAchievementStats`) SHALL read the current value of `meta['totalStudyMinutes']` so the 4 `study-*` achievements (`study-warmup` / `study-hours-5` / `study-hours-20` / `study-marathon`) can unlock when the user accumulates sufficient reading time.
 
-This requirement supersedes the prior implicit state where `totalStudyMinutes` was hardcoded to 0 in achievement stats and the DMN time-axis was inactive.
+This requirement supersedes the prior implicit state where `totalStudyMinutes` was hardcoded to 0 in achievement stats and the DMN time-axis was inactive. It also supersedes the earlier wording (pre-`realign-dmn-event-rewards-to-maze`) where the minute boundary called `dmnReadingTimerSubscriber.onMinutesAccrued(1)` — that path is removed; reading minutes are no longer a DMN entitlement source.
 
-#### Scenario: User starts reading and 60 seconds of accrued time fires both minute side-effects
+#### Scenario: User starts reading and 60 seconds of accrued time increments totalStudyMinutes only
 
 - **GIVEN** the user clicks 「📖 開始閱讀」 on the overview page
 - **WHEN** 60 seconds of accrued reading time pass (with no idle pauses, no tab-hidden pauses)
 - **THEN** `meta['totalStudyMinutes']` SHALL be incremented by 1 (from N to N+1)
-- **AND** `accrueReadingMinutes(1)` SHALL be invoked, advancing the DMN time-axis accrual counter
-- **AND** if DMN time-axis accrual crosses a 30-minute threshold, a +1 DMN draw SHALL be granted (per `neurons-dmn-fate-cards` Requirement)
+- **AND** no DMN draw SHALL be granted from this minute boundary regardless of cumulative reading minutes
+- **AND** `dmnDrawsAvailable`, `dmnTimeAxisDrawsConsumedToday`, and `dmnTimeAxisMinutesAccrued` SHALL be unchanged by this minute boundary
+
+#### Scenario: Reading accumulation does not affect DMN entitlement across thresholds
+
+- **GIVEN** a user with `meta['totalStudyMinutes'] = 29` and `dmnDrawsAvailable = 0`
+- **WHEN** the user accrues one more reading minute (`totalStudyMinutes` becomes 30, crossing the legacy 30-minute boundary)
+- **THEN** `dmnDrawsAvailable` SHALL remain 0
+- **AND** no toast or modal indicating a DMN draw grant SHALL fire from the reading-timer path
 
 #### Scenario: Visibility change auto-pauses the timer
 

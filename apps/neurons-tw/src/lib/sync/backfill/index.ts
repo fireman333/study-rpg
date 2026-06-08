@@ -12,6 +12,7 @@ import {
 import { backfillRepresentativesLWW } from './representatives'
 import { backfillActiveSquadLWW } from './active-squad'
 import { backfillFirstPullFamiliesUnion } from './first-pull'
+import { backfillDmnDailyCounters } from './dmn-daily'
 
 export async function runOnPullComplete(
   db: NeuronsDB,
@@ -61,6 +62,18 @@ export async function runOnPullComplete(
     await backfillFirstPullFamiliesUnion(db, incomingMeta)
   } catch (err) {
     console.warn('[sync.backfill] step 1d (first-pull) failed', err)
+  }
+
+  // Step 1e — DMN daily-entitlement keys: date-gated MAX for the 3 per-day
+  // counters + lexicographic MAX for the reset-date + simple MAX for the
+  // entitlement pool. Per tighten-neurons-dmn-entitlement-semantics.
+  try {
+    const incomingMeta = pull.snapshot
+      ? extractBundleMetaMap(pull.snapshot.data)
+      : {}
+    await backfillDmnDailyCounters(db, incomingMeta)
+  } catch (err) {
+    console.warn('[sync.backfill] step 1e (dmn-daily) failed', err)
   }
 
   // Step 2 — Achievement backfill. Silent (no toast / no reward dispatch).
