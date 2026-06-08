@@ -1,8 +1,5 @@
-# neurons-exam-set-expedition Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change add-neurons-exam-set-expedition. Update Purpose after archive.
-## Requirements
 ### Requirement: Year + 次別 full-question-set expedition picker
 
 From the homepage, selecting the **模考** entry (the secondary exam-mode CTA, per `neurons-study-squad`) SHALL open a picker that lists the available **papers**, where a paper is addressed by **(year `q.meta.year`, 次別 `q.meta.session`; 1 → 第一次, 2 → 第二次, 冊別 `q.meta.book` ∈ {醫學一, 醫學二})** derived from the question pool. A paper is a **single 冊** of ~100 questions (醫學一 OR 醫學二 — NOT both books of a sitting combined into one 200-question paper). Each selectable paper SHALL display its coverage as `已答 X / Y` (answered / total for that 冊, with Y ≈ 100), and SHALL show a completed marker when `X === Y`. Years SHALL be listed descending; within a year, 次別 ascending, then 冊別 (醫學一 before 醫學二). A (year, 次別, 冊別) combination absent from the pool SHALL NOT appear. A question lacking any of `year` / `session` / `book` SHALL be excluded from 模考 papers (the current corpus populates all three for every exam question).
@@ -55,17 +52,3 @@ Paper coverage and completion SHALL be derived from the existing `questionHistor
 
 - **WHEN** this change ships
 - **THEN** no new Dexie table is added, no Dexie `.version()` is incremented, and the R2 bundle `SCHEMA_VERSION` is unchanged
-
-### Requirement: Reward via the shared expedition-axis chain
-
-On close, the 年份回數遠征 SHALL credit DMN draws through the same path as 錯題遠征: `onExpeditionComplete({ total, correct })` → `creditExpeditionDraws(total, correct)`, where `total` = the unanswered-set size the session opened on and `correct` = the session's correct-answer count. It SHALL use the same `DMN_EXPEDITION_MILESTONES` clamp and SHALL share the single expedition-axis daily cap with 錯題遠征 (one axis; spending the cap on one expedition leaves none for the other that day). The reward path SHALL be best-effort (failures caught + logged, never breaking the close).
-
-#### Scenario: Completing a paper session credits draws via the shared chain
-
-- **WHEN** the player closes a 年份回數遠征 session having answered some correctly
-- **THEN** `creditExpeditionDraws(total, correct)` SHALL be invoked with the session's opening pool size and correct count, granting draws per the milestone clamp under the shared daily cap
-
-#### Scenario: No re-answer farming
-
-- **WHEN** a player tries to re-run a paper to farm draws
-- **THEN** already-answered questions are excluded from the pool (it only shrinks), and the shared per-day cap bounds total draws regardless
