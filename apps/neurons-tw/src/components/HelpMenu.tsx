@@ -77,6 +77,54 @@ const SECTIONS: Section[] = [
     ),
   },
   {
+    id: 'question-bank',
+    icon: '📚',
+    title: '題庫總覽',
+    body: (
+      <>
+        <p>
+          <a href="/bank">/bank</a> 是歷年國考全題庫的瀏覽器，可按
+          <strong>科別 / 年份 / 次別 / 冊別</strong>篩選找特定主題，每題附 🐞 回報按鈕。
+        </p>
+        <p>想針對特定範圍練習、或翻找之前做過的題目時就來這。</p>
+      </>
+    ),
+  },
+  {
+    id: 'expedition',
+    icon: '⚔️',
+    title: '出征模式',
+    body: (
+      <>
+        <p>
+          <strong>出征</strong>是 neurons 的主玩法 — 把曾經答錯的題目重新答對叫一次「<strong>修復</strong>」。
+          修復同時做兩件事：給 walker 賺能量推進腦圖，以及驅動連線形成。
+        </p>
+        <p>
+          兩種出征：<strong>錯題出征</strong>（自動從你的歷史錯題抽 ~10 題，隨機跨科）、
+          <strong>模考</strong>（指定年份 + 次別 + 冊別，整冊 ~100 題重練）。
+          清完出征裡的錯題會發 DMN 抽卡 — 清越多、抽越多。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'wrong-review',
+    icon: '📋',
+    title: '錯題複習',
+    body: (
+      <>
+        <p>
+          <a href="/bookmarks">/bookmarks</a> 頁面三個 tab：
+          <strong>手動收藏</strong>（你按 ⭐ 的）、
+          <strong>目前未答對</strong>（最近一次答錯）、
+          <strong>歷史曾錯</strong>（曾經答錯過的全部、永久保留）。
+        </p>
+        <p>「歷史曾錯」永遠不會自動消失，方便長期追蹤弱點。共用同一條 filter（科目 / 年份 / ✨ 🤔 標記）。</p>
+      </>
+    ),
+  },
+  {
     id: 'variant-unlock',
     icon: '🧬',
     title: '變體收集（抽卡）',
@@ -92,11 +140,25 @@ const SECTIONS: Section[] = [
           抽到已擁有的會變重複（copies +1）。不用付費、純靠唸書。
         </p>
         <p>
-          11 個 family × 10 第一路線 slot = 110 隻；點亮一科的全部第一路線節點後，
-          該科進入<strong>二回目</strong>：walker 沿第二條更長路線走到全新節點位置，
-          每個位置<strong>解鎖</strong>一隻「在 XX 解鎖」的位置變體（同隻立繪、色調隨位置變化），
-          再 +110 隻。合計 220 variants 為完整收集目標。
-          整體進度顯示在 Overview 頂部 status chip 的「🧬 變體 X / 220」。
+          11 科 × 10 第一路線 slot = 110 隻，加上每科二回目位置變體再 +110，合計 <strong>220 隻</strong>為完整收集
+          （二回目機制詳見「🌟 首答 + 二回目」）。進度顯示在頂部 status chip 的「🧬 變體 X / 220」。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'first-pull-second-lap',
+    icon: '🌟',
+    title: '首答 + 二回目',
+    body: (
+      <>
+        <p>
+          <strong>每科首次答題</strong>（不管對錯）會送你該科一隻 P5 變體，自動成為該科<strong>代表</strong> —
+          下次走腦圖時，就是這隻代表在 walker head 前進。
+        </p>
+        <p>
+          集滿一科的第一路線 10 隻後，該科進入<strong>二回目</strong>：walker 沿更長的第二條路線走，
+          沿路解鎖位置變體（同一隻立繪在不同腦區會變色調）。整體收集目標 220 隻就是這樣分兩階段。
         </p>
       </>
     ),
@@ -128,6 +190,23 @@ const SECTIONS: Section[] = [
     ),
   },
   {
+    id: 'connector-neuron',
+    icon: '🔌',
+    title: '連結神經元',
+    body: (
+      <>
+        <p>
+          兩科之間的連線第一次達到 <strong>strong</strong> 時，會解鎖一隻「<strong>連結神經元</strong>」立繪
+          （橋接兩科的 hub neuron）。
+        </p>
+        <p>
+          11 科兩兩配對共 <strong>55 隻</strong>，純收集、不能抽 — 把該配對的連線拉到 strong 是唯一途徑。
+          在「<a href="/collection">變體圖鑑</a>」可看完整列表。
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'dmn-draws',
     icon: '💎',
     title: 'DMN 抽卡',
@@ -135,7 +214,7 @@ const SECTIONS: Section[] = [
       <>
         <p>
           <strong>Default Mode Network (DMN)</strong> 抽卡是 neurons 的彩蛋系統，
-          共 20 張卡（4 階稀有度：P1 鑽石 ×2 / P2 金 ×4 / P3 銀 ×6 / P4 銅 ×8），
+          共 22 張卡（4 階稀有度：P1 鑽石 ×2 / P2 金 ×5 / P3 銀 ×7 / P4 銅 ×8），
           抽到的卡同時觸發一次性事件 + 進入永久收集。
         </p>
         <p>
@@ -143,8 +222,7 @@ const SECTIONS: Section[] = [
           清越多錯題、抽得越多——把弱點變成抽卡機會。
         </p>
         <p>
-          <strong>行為軸觸發</strong>：變體解鎖 / synapse 形成 / synapse 強化各 +1 draw
-          （每日上限 3）。
+          <strong>行為軸觸發</strong>：變體解鎖各 +1 draw（每日上限 3）。
         </p>
         <p>
           抽到的消耗品進背包、自選時機啟用：family-buff（某 family 能量水龍頭 ×2、1 hr）、
@@ -154,6 +232,56 @@ const SECTIONS: Section[] = [
         </p>
         <p>
           全收集 + 永久陳列在「<a href="/dmn">DMN</a>」頁面。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'acceleration',
+    icon: '⚡',
+    title: '加速系統',
+    body: (
+      <>
+        <p>
+          DMN 抽到的東西分兩種：<strong>消耗品</strong>（進背包、自選時機啟用、有時限）+
+          <strong>永久裝備</strong>（P1–P5 稀有度，永遠生效）。
+        </p>
+        <p>
+          兩者都會疊加進兩個加速池：<strong>能量倍率</strong>（唸書 / 答對賺能量變快）+
+          <strong>速度倍率</strong>（walker 走腦圖變快）。
+          兩池都有硬上限（×2.5 / ×2.0），不會破壞節奏。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'companion',
+    icon: '🐛',
+    title: '活體夥伴',
+    body: (
+      <>
+        <p>
+          永久裝備裡有一類是<strong>活體膠細胞夥伴</strong>（少突膠細胞 / 星形膠細胞）—
+          它們不只給數值，還會在你出征時以小夥伴姿態跟著 walker 一起走。
+        </p>
+        <p>是純視覺加成，數值效果跟其他永久裝備一樣走加速池。</p>
+      </>
+    ),
+  },
+  {
+    id: 'achievements',
+    icon: '🏅',
+    title: '成就',
+    body: (
+      <>
+        <p>
+          <a href="/achievements">/achievements</a> 共 33 條 × 4 階
+          （<strong>P1 鑽石 / P2 金 / P3 銀 / P4 銅</strong>），分 7 大類
+          （學習 / 答題 / 變體 / 連線 / 精通 / 時運 / 隱藏）。
+        </p>
+        <p>
+          <strong>P1 鑽石</strong>只給「綜合條件」（多面向同時達成）才解，純磨單一數字解不到。
+          解鎖會自動掛在你的排行榜暱稱旁（最多 6 個徽章），部分送稱號可在 settings 切換。
         </p>
       </>
     ),

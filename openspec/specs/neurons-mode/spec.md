@@ -854,7 +854,7 @@ The neurons-tw app SHALL render a floating ❓ FAB at the top-right corner that 
 - `aria-label="開啟說明選單"`.
 - Hover state: subtle lift + accent fill.
 - Active state (panel open): `aria-expanded="true"` + accent fill visual.
-- The FAB SHALL persist on the new `/bookmarks` route added by `add-neurons-question-bookmarks` (same App-level mount applies).
+- The FAB SHALL persist on the `/bookmarks` route (same App-level mount applies).
 
 **Panel structure**:
 
@@ -864,15 +864,12 @@ The neurons-tw app SHALL render a floating ❓ FAB at the top-right corner that 
 - Panel header: title「📖 說明選單」+ ✕ close button (`aria-label="關閉說明選單"`).
 - Panel body: a `<ul role="list">` of accordion `<li>` sections, each containing a native `<details>` element (semantic HTML for keyboard-accessible accordion).
 
-**Accordion sections** (7 sections after `add-neurons-question-bookmarks`, identified by stable `id`):
+**Accordion sections** (identified by stable `id`):
 
-1. **id=`hotkeys`, icon=⌨️, title=「鍵盤快捷鍵」** — body covers full hotkey reference matching the `QuizModal SHALL accept keyboard hotkeys` requirement (asking-phase 1-4 highlight + Enter, answered-phase Enter/Space + 150ms cooldown, **answered-phase `1` bookmark toggle, `2` ✨ 太簡單, `3` 🤔 我亂猜的**, scroll keys, Esc, mouse-click bypass).
-2. **id=`bookmark`, icon=⭐, title=「收藏題目」** — body covers the bookmark feature: 「答題時按 ⭐ 按鈕或 <kbd>1</kbd> 鍵收藏題目，到 <a href="/bookmarks">收藏</a> 頁面隨時複習。卡片可顯示 ✨ / 🤔 標記，BookmarksPage 也可按 family + ✨ / 🤔 篩選。收藏會跨裝置同步（需登入）。」
-3. **id=`variant-unlock`, icon=🧬, title=「變體解鎖」** — body covers per-family AP threshold ladder + auto-pull on threshold + `/connectome` link.
-4. **id=`synapse-formation`, icon=🔗, title=「Synapse 形成」** — body covers cross-family 同日各答對 5 題 → wire + weak→strong tier + 7-day decay.
-5. **id=`dmn-draws`, icon=💎, title=「DMN 抽卡」** — body covers time-axis (30 min/draw, cap 2) + behavior-axis (variant slot unlock / synapse form / synapse strengthen, cap 3) + 20-card closed cap at `/dmn` + 5 event kinds.
-6. **id=`leaderboard`, icon=🏆, title=「排行榜」** — body covers opt-in flow + nickname NFKC + lowercase 撞名檢查 + 6 filter columns + opt-out flow.
-7. **id=`bug-report`, icon=🩺, title=「回報問題」** — body links out to GitHub Issues `https://github.com/fireman333/study-rpg/issues/new` (rendered as `<a target="_blank" rel="noopener">`); one-liner: 「目前 neurons 尚未接 in-app 回報，請開 GitHub Issue 並標 `neurons` label。也歡迎 PR。」. NOT a form modal (defer to future `add-neurons-bug-reporting` change if Supabase wiring lands).
+- The panel SHALL render a set of accordion sections covering the current neurons player loop plus a bug-reporting entry. Each section SHALL carry a stable `id`, an icon, a title, and explanatory body copy.
+- The section list tracks the shipped feature set and is **NOT a locked count** — sections MAY be added or clarified as mechanics ship, without requiring a `neurons-mode` spec change for each. (As of this writing the drawer documents, among others: keyboard hotkeys, bookmarks, the question bank, expedition / exam modes, wrong-answer review, variant unlock + 首答/二回目, synapse formation, the connector neuron, DMN draws, acceleration, living companions, achievements, the leaderboard, and bug reporting — illustrative, not exhaustive.)
+- At minimum the drawer SHALL include a keyboard-hotkeys reference section (matching the `QuizModal SHALL accept keyboard hotkeys` requirement) and a bug-reporting entry section.
+- Where a section's content is itself normatively specified by another capability — bug reporting by `neurons-bug-report`, DMN draws by `neurons-dmn-fate-cards`, the leaderboard by `neurons-leaderboard`, per-question bookmarks by `question-bookmarks`, etc. — the HelpMenu requirement defers to that capability and does NOT re-specify the section's behavior.
 
 **Single-expand accordion behavior**:
 
@@ -900,11 +897,11 @@ The neurons-tw app SHALL render a floating ❓ FAB at the top-right corner that 
 - **THEN** the ❓ FAB SHALL appear at the same top-right position (or bottom-right on mobile)
 - **AND** the FAB SHALL be clickable on every route (no per-route gating)
 
-#### Scenario: Click FAB opens panel with 7 sections
+#### Scenario: Click FAB opens panel with the mechanic sections
 
 - **GIVEN** the player is on any route with the panel closed
 - **WHEN** the player clicks the ❓ FAB
-- **THEN** the panel SHALL open with all 7 accordion sections rendered in collapsed state (hotkeys / bookmark / variant-unlock / synapse-formation / dmn-draws / leaderboard / bug-report)
+- **THEN** the panel SHALL open with its accordion sections rendered in collapsed state, including at least a keyboard-hotkeys reference section and a bug-reporting entry section
 - **AND** the panel SHALL have `role="dialog" aria-modal="true"` and the proper aria-label
 
 #### Scenario: bookmark section links to /bookmarks page
@@ -916,8 +913,8 @@ The neurons-tw app SHALL render a floating ❓ FAB at the top-right corner that 
 #### Scenario: Single-expand accordion behavior
 
 - **GIVEN** the panel is open with section `hotkeys` expanded and other sections collapsed
-- **WHEN** the player clicks the summary of section `dmn-draws`
-- **THEN** section `dmn-draws` SHALL expand
+- **WHEN** the player clicks the summary of another section
+- **THEN** that section SHALL expand
 - **AND** section `hotkeys` SHALL collapse (no two sections open simultaneously)
 
 #### Scenario: Clicking expanded section closes it (toggle)
@@ -941,13 +938,6 @@ The neurons-tw app SHALL render a floating ❓ FAB at the top-right corner that 
 - **THEN** the panel SHALL close
 - **AND** if a QuizModal is also open behind the HelpMenu, the QuizModal's Esc listener MAY also fire (both close — acceptable since both are dismissible modals)
 
-#### Scenario: Bug-report section links out to GitHub Issues
-
-- **GIVEN** the player expands the `bug-report` section
-- **WHEN** the player clicks the「開 GitHub Issue」 link
-- **THEN** the browser SHALL open `https://github.com/fireman333/study-rpg/issues/new` in a new tab
-- **AND** the link SHALL carry `target="_blank" rel="noopener"` attributes
-
 #### Scenario: Panel mounts at App level — does not interfere with QuizModal
 
 - **GIVEN** the player has a QuizModal open via family-card click
@@ -967,9 +957,9 @@ The neurons-tw app SHALL render a floating ❓ FAB at the top-right corner that 
 
 #### Scenario: HelpMenu state does not persist
 
-- **GIVEN** the player opens the panel, expands section `synapse-formation`, then closes the panel
+- **GIVEN** the player opens the panel, expands a section, then closes the panel
 - **WHEN** the player reopens the panel later
-- **THEN** the panel SHALL re-open with ALL sections collapsed (no memory of `synapse-formation` being last-opened)
+- **THEN** the panel SHALL re-open with ALL sections collapsed (no memory of the last-opened section)
 - **AND** no localStorage / Dexie / sync table SHALL retain `expandedId` state
 
 ### Requirement: Neurons-tw SHALL persist per-question bookmarks with cross-device sync
