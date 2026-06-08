@@ -18,7 +18,7 @@ import {
   type ConnectomeListener,
 } from '../connectome'
 import type { ConductionFlow } from '../maze/economy'
-import { CONNECTOME_CONDUCTION_EPOCH } from '@study-rpg/content-neurons-tw'
+import { CONNECTOME_CONDUCTION_EPOCH, FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import {
   recordAttemptInTx,
   emitMasteryUpdated,
@@ -522,6 +522,58 @@ export async function getConnectomeStatus(): Promise<ConnectomeStatus> {
     strongestPair: ranked[0]?.pairKey ?? null,
     todayConductionEnergy,
   }
+}
+
+/** Closest about-to-wire pair nudge for the settlement recap (polish-neurons-connectome-visual). */
+export interface AboutToWireHint {
+  /** A subject already repaired-today at the wiring threshold. */
+  subjectA: string
+  /** A not-yet-wired subject that is `remaining` repairs short of the threshold. */
+  subjectB: string
+  /** Additional repairs needed on subjectB to satisfy the per-subject gate (≥ 1). */
+  remaining: number
+}
+
+/**
+ * Read-only nudge: among pairs not currently wired (weak/strong), the candidate
+ * needing the fewest additional repairs to satisfy the per-subject REPAIR_K gate,
+ * where one side is already repaired-today (≥ K) and the partner is short. Pure
+ * projection of today's per-subject repair map + `db.synapses` — computes/grants
+ * nothing. Returns null when no subject is repaired-today or nothing is close.
+ */
+export async function getAboutToWireHint(): Promise<AboutToWireHint | null> {
+  const today = todayISO()
+  const [drRow, synapses] = await Promise.all([
+    db.meta.get(dailyRepairKey(today)),
+    db.synapses.toArray(),
+  ])
+  const dr: Record<string, number> = JSON.parse(drRow?.value ?? '{}')
+  const wired = new Set(
+    synapses.filter((s) => s.state === 'weak' || s.state === 'strong').map((s) => s.pairKey),
+  )
+  const repairedSubjects = FAMILY_IDS.filter((id) => (dr[id] ?? 0) >= REPAIR_K)
+  if (repairedSubjects.length === 0) return null
+
+  let best: AboutToWireHint | null = null
+  for (const a of repairedSubjects) {
+    for (const b of FAMILY_IDS) {
+      if (b === a) continue
+      const bRepairs = dr[b] ?? 0
+      if (bRepairs >= REPAIR_K) continue // both at threshold → should already wire (cap blocked); not a nudge
+      if (wired.has(pairKey(a, b))) continue
+      const remaining = REPAIR_K - bRepairs // ≥ 1
+      // Pick fewest remaining; tie-break: more progress on b, then deterministic id order.
+      if (
+        best === null ||
+        remaining < best.remaining ||
+        (remaining === best.remaining && bRepairs > (dr[best.subjectB] ?? 0)) ||
+        (remaining === best.remaining && bRepairs === (dr[best.subjectB] ?? 0) && b < best.subjectB)
+      ) {
+        best = { subjectA: a, subjectB: b, remaining }
+      }
+    }
+  }
+  return best
 }
 
 export interface ConnectomeSubscription {
