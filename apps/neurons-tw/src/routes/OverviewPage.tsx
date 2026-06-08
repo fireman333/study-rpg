@@ -6,8 +6,10 @@ import {
   runDailyResetIfNeeded,
   creditConnectomeFromExpedition,
   getConnectomeStatus,
+  getAboutToWireHint,
   type ExpeditionConnectomeResult,
   type ConnectomeStatus,
+  type AboutToWireHint,
 } from '../lib/services/connectome'
 import LeaderboardPromoBanner from '../components/LeaderboardPromoBanner'
 import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncementBanner'
@@ -15,6 +17,7 @@ import { QuizModal } from '../components/QuizModal'
 import { FamilyPicker, type FamilyAccrual } from '../components/FamilyPicker'
 import MazeGrid from '../components/maze/MazeGrid'
 import { MazeCompletionCelebration } from '../components/MazeCompletionCelebration'
+import { ExpeditionRitualCelebration } from '../components/ExpeditionRitualCelebration'
 import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
 import { HomepageOnboarding } from '../components/HomepageOnboarding'
@@ -41,7 +44,7 @@ import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year
 import { YearFilterBar } from '../components/YearFilterBar'
 import { useMaze } from '../lib/maze/useMaze'
 import { emitMazeFocus } from '../lib/maze/maze-focus'
-import { db } from '../lib/db'
+import { db, todayISO } from '../lib/db'
 
 interface Props {
   pack: ContentPack
@@ -80,6 +83,11 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // Settlement result of the last wrong-pool expedition → conduction ledger + ritual
   // (rework-neurons-connectome-expedition-driven).
   const [settlement, setSettlement] = useState<ExpeditionConnectomeResult | null>(null)
+  // About-to-wire nudge for the settlement recap (polish-neurons-connectome-visual):
+  // recomputed after each settlement.
+  const [aboutToWire, setAboutToWire] = useState<AboutToWireHint | null>(null)
+  // Once-per-day completion ritual overlay (polish-neurons-connectome-visual).
+  const [ritual, setRitual] = useState<{ streak: number; nonce: number } | null>(null)
   // Narrative connectome indicators (reloads on mount + after each settlement).
   const [connStatus, setConnStatus] = useState<ConnectomeStatus | null>(null)
   useEffect(() => {
@@ -93,6 +101,25 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       alive = false
     }
   }, [settlement])
+  // About-to-wire nudge: recompute after each settlement (polish-neurons-connectome-visual).
+  useEffect(() => {
+    if (!settlement) return
+    let alive = true
+    void getAboutToWireHint()
+      .then((h) => {
+        if (alive) setAboutToWire(h)
+      })
+      .catch((err) => console.error('[connectome] about-to-wire hint failed:', err))
+    return () => {
+      alive = false
+    }
+  }, [settlement])
+  // Auto-dismiss the daily-completion ritual overlay (mirrors the celebration window).
+  useEffect(() => {
+    if (!ritual) return
+    const t = setTimeout(() => setRitual(null), 2400)
+    return () => clearTimeout(t)
+  }, [ritual])
   const [totalStudyMin, setTotalStudyMin] = useState(0)
   const [stats, setStats] = useState<ProgressStats>({ variants: 0, dmnOwned: 0 })
   const [accrualByFamily, setAccrualByFamily] = useState<Map<string, FamilyAccrual>>(new Map())
@@ -355,8 +382,18 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       energyBySubject: s.energyBySubject,
       sessionPool: s.total,
     })
-      .then((result) => {
+      .then(async (result) => {
         if (result.todayRepairs > 0) setSettlement(result)
+        // Daily-completion ritual: fire once per day on the first effective completion
+        // (polish-neurons-connectome-visual). Date-keyed ephemeral flag, NOT synced.
+        if (result.effectiveCompletion) {
+          const key = `connectome:ritualFired:${todayISO()}`
+          const already = await db.meta.get(key)
+          if (!already) {
+            await db.meta.put({ key, value: '1' })
+            setRitual({ streak: result.streak, nonce: Date.now() })
+          }
+        }
       })
       .catch((err) => console.error('[connectome] expedition credit failed:', err))
   }
@@ -487,6 +524,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         {celebration && (
           <MazeCompletionCelebration key={celebration.nonce} label={celebration.label} />
         )}
+        {ritual && <ExpeditionRitualCelebration key={ritual.nonce} streak={ritual.streak} />}
       </div>
 
       {/* ── Study squad: party + assembly editor (出征 itself now lives in the CTA
@@ -649,6 +687,13 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
                   今日已修復，尚未形成跨科連線（需 ≥2 科各修復 ≥2 題）。
                 </p>
               )
+            )}
+            {/* About-to-wire ghost line (polish-neurons-connectome-visual): nudge toward
+                the closest pair. Honest empty state = render nothing when null. */}
+            {aboutToWire && (
+              <p style={{ margin: '0.4rem 0', color: '#1d6f6a', fontWeight: 600 }}>
+                💡 再修復 {aboutToWire.subjectB} {aboutToWire.remaining} 題，即可和 {aboutToWire.subjectA} 形成連線
+              </p>
             )}
             <button type="button" onClick={() => setSettlement(null)} style={examMenuOptionStyle}>
               關閉

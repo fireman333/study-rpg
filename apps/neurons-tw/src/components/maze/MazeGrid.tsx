@@ -25,6 +25,7 @@ import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import MazeExpedition from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
 import { decodePairKey, subscribeConnectomeEvents } from '../../lib/services/connectome'
+import { getWireConductionStatuses, type WireConductionStatus } from '../../lib/maze/economy'
 import { useRespectsReducedMotion } from '../../lib/motion'
 import { useReadingTimer } from '../../lib/hooks/useReadingTimer'
 import { getExpeditionHidden, setExpeditionHiddenPref } from '../../lib/expedition-visibility'
@@ -295,6 +296,27 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   const synapseOnRef = useRef(synapseOverlayOn)
   synapseOnRef.current = synapseOverlayOn
 
+  // Per-wire tooltip (polish-neurons-connectome-visual): the draw loop records each
+  // rendered spark's screen position (CSS px) so a pointer hit-test can map cursor →
+  // wire. `wireStatuses` is the read-only conduction projection shown in the tooltip;
+  // `hoveredWire` is the currently-shown wire (hover on desktop / tap on touch).
+  const synapseHitRef = useRef<Array<{ pairKey: string; x: number; y: number; r: number }>>([])
+  const [wireStatuses, setWireStatuses] = useState<Map<string, WireConductionStatus>>(new Map())
+  const [hoveredWire, setHoveredWire] = useState<{ pairKey: string; x: number; y: number } | null>(null)
+  const hoveredPairRef = useRef<string | null>(null)
+  hoveredPairRef.current = hoveredWire?.pairKey ?? null
+
+  // DEV-only: expose the per-frame synapse hit-map for smoke-testing the tooltip
+  // hit-test (consistent with __db / __sync). Stripped from prod by the DEV gate.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    ;(globalThis as unknown as { __synapseHits?: () => unknown }).__synapseHits = () =>
+      synapseHitRef.current.map((h) => ({ ...h }))
+    return () => {
+      delete (globalThis as unknown as { __synapseHits?: () => unknown }).__synapseHits
+    }
+  }, [])
+
   const prevCount = useRef(view.totalConnectedCount)
   useEffect(() => {
     if (view.totalConnectedCount > prevCount.current) playConnectChime()
@@ -309,10 +331,20 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     const sub = subscribeConnectomeEvents({
       'connectome.conductionPulse': (p) => {
         recentPulsesRef.current.set([p.fromFamily, p.toFamily].sort().join('|'), performance.now())
+        // Conduction changed today's per-wire usage → refresh the tooltip projection.
+        void getWireConductionStatuses().then(setWireStatuses)
       },
     })
     return () => sub.dispose()
   }, [])
+
+  // Per-wire tooltip data: refresh when the synapse set changes (form / strengthen /
+  // decay). Conduction-usage changes are handled by the pulse subscription above.
+  useEffect(() => {
+    let alive = true
+    void getWireConductionStatuses().then((m) => { if (alive) setWireStatuses(m) })
+    return () => { alive = false }
+  }, [synapseData])
 
   useEffect(() => {
     const offFocus = onMazeFocus((familyId, manual) => {
@@ -575,12 +607,20 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       // Layer ④ — read-only synapse sparks (+ legacy grey-blue + conduction-pulse glow).
       if (synapseOnRef.current) {
         const nowMs = performance.now()
+        const hits: Array<{ pairKey: string; x: number; y: number; r: number }> = []
         for (const s of synapseRef.current) {
           const wgt = SYNAPSE_WEIGHT[s.state]
           const pulsedAt = recentPulsesRef.current.get(s.pairKey)
           const boost = pulsedAt !== undefined ? Math.max(0, 1 - (nowMs - pulsedAt) / 1100) : 0
-          drawSpark(ctx, toX(s.cell[0]), toY(s.cell[1]), Math.max(3, tile), wgt.op, wgt.r, s.isLegacy, boost)
+          const sx = toX(s.cell[0])
+          const sy = toY(s.cell[1])
+          drawSpark(ctx, sx, sy, Math.max(3, tile), wgt.op, wgt.r, s.isLegacy, boost)
+          // Record this spark's screen position (CSS px) for the tooltip hit-test.
+          hits.push({ pairKey: s.pairKey, x: sx, y: sy, r: Math.max(16, tile) })
         }
+        synapseHitRef.current = hits
+      } else {
+        synapseHitRef.current = []
       }
 
       // Layer ⑤ — center core.
@@ -651,9 +691,24 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     let dragging = false
     let lastX = 0
     let lastY = 0
+    let downX = 0
+    let downY = 0
     let pinching = false
     let pinchDist = 0
     let lastTapAt = 0
+    // Per-wire tooltip hit-test: nearest recorded spark within its radius (CSS px).
+    const findWireAt = (clientX: number, clientY: number): { pairKey: string; x: number; y: number } | null => {
+      const rect = canvas.getBoundingClientRect()
+      const px = clientX - rect.left
+      const py = clientY - rect.top
+      let best: { pairKey: string; x: number; y: number } | null = null
+      let bestD = Infinity
+      for (const h of synapseHitRef.current) {
+        const d = Math.hypot(px - h.x, py - h.y)
+        if (d <= h.r && d < bestD) { bestD = d; best = { pairKey: h.pairKey, x: h.x, y: h.y } }
+      }
+      return best
+    }
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       markManual()
@@ -661,8 +716,15 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       const factor = Math.exp(-e.deltaY * 0.0015)
       t.zoom = Math.max(0.12, Math.min(6, t.zoom * factor))
     }
-    const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; markManual() }
+    const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; downX = e.clientX; downY = e.clientY; markManual() }
     const onMove = (e: PointerEvent) => {
+      // Desktop hover tooltip (mouse only — touch has no hover; it taps below).
+      if (!dragging && !pinching && e.pointerType !== 'touch') {
+        const hit = findWireAt(e.clientX, e.clientY)
+        if ((hit?.pairKey ?? null) !== hoveredPairRef.current) {
+          setHoveredWire(hit)
+        }
+      }
       if (!dragging || pinching) return
       markManual()
       const tile = BASE_TILE * camRef.current.zoom
@@ -673,7 +735,18 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       lastX = e.clientX
       lastY = e.clientY
     }
-    const onUp = () => { dragging = false }
+    const onUp = (e: PointerEvent) => {
+      dragging = false
+      // Touch tap (no drag) toggles the per-wire tooltip; tapping empty space dismisses.
+      if (e.pointerType === 'touch' && Math.hypot(e.clientX - downX, e.clientY - downY) <= 6) {
+        const hit = findWireAt(e.clientX, e.clientY)
+        setHoveredWire(hit && hit.pairKey === hoveredPairRef.current ? null : hit)
+      }
+    }
+    const onLeave = (e: PointerEvent) => {
+      // Mouse left the canvas → dismiss hover tooltip (touch tooltips persist until tap-away).
+      if (e.pointerType !== 'touch' && hoveredPairRef.current) setHoveredWire(null)
+    }
 
     // Touch (add-neurons-maze-zoom-and-focus): two-finger pinch-zoom anchored on the
     // midpoint + double-tap recenter. One-finger pan is already handled by the Pointer
@@ -735,6 +808,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     canvas.addEventListener('pointerdown', onDown)
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
+    canvas.addEventListener('pointerleave', onLeave)
     canvas.addEventListener('touchstart', onTouchStart, { passive: false })
     canvas.addEventListener('touchmove', onTouchMove, { passive: false })
     canvas.addEventListener('touchend', onTouchEnd)
@@ -746,6 +820,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       canvas.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
+      canvas.removeEventListener('pointerleave', onLeave)
       canvas.removeEventListener('touchstart', onTouchStart)
       canvas.removeEventListener('touchmove', onTouchMove)
       canvas.removeEventListener('touchend', onTouchEnd)
@@ -855,6 +930,30 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
             )}
           </div>
         ))}
+        {hoveredWire && (() => {
+          const st = wireStatuses.get(hoveredWire.pairKey)
+          if (!st) return null
+          // Flip below the spark when too near the top edge (stage is overflow:hidden).
+          const below = hoveredWire.y < 56
+          return (
+            <div
+              role="tooltip"
+              style={{
+                ...wireTooltipStyle,
+                left: hoveredWire.x,
+                top: hoveredWire.y,
+                transform: below ? 'translate(-50%, 14px)' : 'translate(-50%, calc(-100% - 12px))',
+              }}
+            >
+              <strong>{st.subjects[0]} ↔ {st.subjects[1]}</strong>
+              <span>
+                {st.isLegacy
+                  ? '早期連線 · 不傳導'
+                  : `${st.state === 'strong' ? '強' : '弱'}連線 +${st.ratePct}% · 今日傳導 ${st.todayUsed}/${st.cap}`}
+              </span>
+            </div>
+          )
+        })()}
       </div>
 
       <div style={legendStyle}>
@@ -1043,6 +1142,24 @@ const hintStyle: CSSProperties = {
   fontSize: '0.82rem',
   margin: '0.55rem 0 0',
   lineHeight: 1.5,
+}
+const wireTooltipStyle: CSSProperties = {
+  position: 'absolute',
+  zIndex: 7,
+  pointerEvents: 'none',
+  transform: 'translate(-50%, calc(-100% - 12px))',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 2,
+  padding: '6px 9px',
+  borderRadius: 7,
+  background: 'rgba(16, 12, 30, 0.94)',
+  border: `1px solid ${SYNAPSE_COLOR}`,
+  color: '#f3eede',
+  fontSize: '0.72rem',
+  lineHeight: 1.35,
+  whiteSpace: 'nowrap',
+  boxShadow: '0 4px 14px #000a',
 }
 const stageStyle: CSSProperties = {
   position: 'relative',

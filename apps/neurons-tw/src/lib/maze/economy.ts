@@ -227,6 +227,50 @@ export async function readTodayConductionTotal(): Promise<number> {
   return readMetaNum(`conduction:dailyTotal:${todayISO()}`)
 }
 
+/** Per-wire conduction status for the homepage maze tooltip (polish-neurons-connectome-visual). */
+export interface WireConductionStatus {
+  pairKey: string
+  /** The two family ids the wire bridges (pairKey order). */
+  subjects: [string, string]
+  state: SynapseState
+  /** True when the wire predates the conduction epoch → does NOT conduct until re-validated. */
+  isLegacy: boolean
+  /** Conduction rate as a whole-number percent (0 when legacy/dormant). */
+  ratePct: number
+  /** Energy already conducted over this wire today. */
+  todayUsed: number
+  /** Per-wire daily conduction cap (0 when legacy/dormant — non-conducting). */
+  cap: number
+}
+
+/**
+ * Read-only per-wire conduction status for every synapse (tooltip presentation).
+ * Pure projection of `db.synapses` + the per-wire daily-used accumulator + the
+ * CONDUCTION_* constants — grants/computes nothing. Keyed by pairKey.
+ */
+export async function getWireConductionStatuses(): Promise<Map<string, WireConductionStatus>> {
+  const today = todayISO()
+  const synapses = await db.synapses.toArray()
+  const out = new Map<string, WireConductionStatus>()
+  for (const s of synapses) {
+    const parts = s.pairKey.split('|')
+    const subjects: [string, string] = [parts[0], parts[1]]
+    const isLegacy = s.lastCoFireDate < CONNECTOME_CONDUCTION_EPOCH
+    const conducts = s.state !== 'dormant' && !isLegacy
+    const todayUsed = conducts ? await readMetaNum(conductionKey('wire', s.pairKey, today)) : 0
+    out.set(s.pairKey, {
+      pairKey: s.pairKey,
+      subjects,
+      state: s.state,
+      isLegacy,
+      ratePct: conducts ? Math.round(conductionRate(s.state) * 100) : 0,
+      todayUsed,
+      cap: conducts ? conductionWireCap(s.state) : 0,
+    })
+  }
+  return out
+}
+
 // Reading is now per-subject (add-neurons-maze-zoom-and-focus): a reading session
 // is bound to one chosen family and accrues its per-minute energy entirely into
 // that family's pool via `accrueMazeEnergy` directly — no even-split across active
