@@ -18,13 +18,13 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { liveQuery } from 'dexie'
-import { FAMILY_IDS, FAMILY_COLOR } from '@study-rpg/content-neurons-tw'
+import { FAMILY_IDS, FAMILY_COLOR, CONNECTOME_CONDUCTION_EPOCH } from '@study-rpg/content-neurons-tw'
 import VariantSprite from '../VariantSprite'
 import { EmojiIcon } from '../EmojiIcon'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import MazeExpedition from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
-import { decodePairKey } from '../../lib/services/connectome'
+import { decodePairKey, subscribeConnectomeEvents } from '../../lib/services/connectome'
 import { useRespectsReducedMotion } from '../../lib/motion'
 import { useReadingTimer } from '../../lib/hooks/useReadingTimer'
 import { getExpeditionHidden, setExpeditionHiddenPref } from '../../lib/expedition-visibility'
@@ -178,7 +178,10 @@ function bakeTilemap(): HTMLCanvasElement | null {
 }
 
 interface Cam { cx: number; cy: number; zoom: number }
-interface SynapseDatum { pairKey: string; state: SynapseState; cell: Cell }
+// `isLegacy` = a pre-epoch same-day-co-fire wire (early connection, not re-validated):
+// rendered quieter / grey-blue + excluded from the stable-link stat (rework-neurons-
+// connectome-expedition-driven D12).
+interface SynapseDatum { pairKey: string; state: SynapseState; cell: Cell; isLegacy: boolean }
 
 const SYNAPSE_WEIGHT: Record<SynapseState, { op: number; r: number }> = {
   dormant: { op: 0.3, r: 0.4 },
@@ -202,7 +205,12 @@ function useSynapseData(): SynapseDatum[] {
           }
           const cell = synapseCell(pair[0], pair[1])
           if (!cell) continue
-          out.push({ pairKey: s.pairKey, state: s.state, cell })
+          out.push({
+            pairKey: s.pairKey,
+            state: s.state,
+            cell,
+            isLegacy: s.lastCoFireDate < CONNECTOME_CONDUCTION_EPOCH,
+          })
         }
         setData(out)
       },
@@ -292,6 +300,19 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     if (view.totalConnectedCount > prevCount.current) playConnectChime()
     prevCount.current = view.totalConnectedCount
   }, [view.totalConnectedCount])
+
+  // Synaptic conduction pulse glow (rework-neurons-connectome-expedition-driven): when
+  // a `connectome.conductionPulse` fires, briefly brighten that wire's crossing glyph.
+  // pairKey = sorted(from,to)|-joined (matches the lexicographic synapse pairKey).
+  const recentPulsesRef = useRef<Map<string, number>>(new Map())
+  useEffect(() => {
+    const sub = subscribeConnectomeEvents({
+      'connectome.conductionPulse': (p) => {
+        recentPulsesRef.current.set([p.fromFamily, p.toFamily].sort().join('|'), performance.now())
+      },
+    })
+    return () => sub.dispose()
+  }, [])
 
   useEffect(() => {
     const offFocus = onMazeFocus((familyId, manual) => {
@@ -551,11 +572,14 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
         for (const node of fam.litNodes) nodeDraw(ctx, toX(node.cell[0]), toY(node.cell[1]), nodeSize)
       }
 
-      // Layer ④ — read-only synapse sparks.
+      // Layer ④ — read-only synapse sparks (+ legacy grey-blue + conduction-pulse glow).
       if (synapseOnRef.current) {
+        const nowMs = performance.now()
         for (const s of synapseRef.current) {
           const wgt = SYNAPSE_WEIGHT[s.state]
-          drawSpark(ctx, toX(s.cell[0]), toY(s.cell[1]), Math.max(3, tile), wgt.op, wgt.r)
+          const pulsedAt = recentPulsesRef.current.get(s.pairKey)
+          const boost = pulsedAt !== undefined ? Math.max(0, 1 - (nowMs - pulsedAt) / 1100) : 0
+          drawSpark(ctx, toX(s.cell[0]), toY(s.cell[1]), Math.max(3, tile), wgt.op, wgt.r, s.isLegacy, boost)
         }
       }
 
@@ -797,7 +821,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       )}
 
       <p style={hintStyle}>
-        唸書與答對讓各科的 growth cone 沿軸突束（axon tract）由邊界向中心推進 — 抵達節點點亮並抽出一隻神經元。11 條路徑在同一張腦圖上交織，交叉處共同放電會長出 synapse（LTP）。滾輪／雙指縮放、拖曳平移；點下方科目卡片聚焦該科、🔭 全覽 回到整體；答對會自動聚焦該科。
+        唸書與答對讓各科的 growth cone 沿軸突束（axon tract）由邊界向中心推進 — 抵達節點點亮並抽出一隻神經元。11 條路徑在同一張腦圖上交織，交叉處是跨科連線生長的位置 — 出征一起修復不同科的錯題會在這裡 wire 起來。滾輪／雙指縮放、拖曳平移；點下方科目卡片聚焦該科、🔭 全覽 回到整體；答對會自動聚焦該科。
       </p>
 
       {!expeditionHidden && (
@@ -846,7 +870,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
           })}
         </div>
         <p style={{ margin: '6px 0 0' }}>
-          霧中的節點尚未探索 — 不預顯形狀或稀有度。抵達後揭曉並點亮。🔗 連結是各科共同放電長出的 synapse。
+          霧中的節點尚未探索 — 不預顯形狀或稀有度。抵達後揭曉並點亮。🔗 連結由「出征一起修復不同科的錯題」長出。
         </p>
       </div>
     </section>
@@ -877,13 +901,43 @@ function exploredOnRoute(fam: FamilyViewState, route: 1 | 2): number {
   return 0
 }
 
-/** Spark-in-circle synapse glyph: cyan halo + yellow rays + white core. */
-function drawSpark(ctx: CanvasRenderingContext2D, cx: number, cy: number, tile: number, op: number, rFrac: number): void {
-  const r = Math.max(3, tile * (1 + rFrac))
+/**
+ * Spark-in-circle synapse glyph: cyan halo + yellow rays + white core.
+ * `legacy` → quiet grey-blue, no rays (early connection, not re-validated).
+ * `boost` (0..1) → a transient conduction-pulse glow (bigger + brighter halo) that
+ * the render loop decays after a `connectome.conductionPulse` fires on this wire.
+ */
+function drawSpark(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  tile: number,
+  op: number,
+  rFrac: number,
+  legacy = false,
+  boost = 0,
+): void {
+  const r = Math.max(3, tile * (1 + rFrac + boost * 0.6))
   ctx.save()
-  ctx.globalAlpha = op
+  ctx.globalAlpha = Math.min(1, op + boost * 0.4)
   const halo = ctx.createRadialGradient(cx, cy, r * 0.15, cx, cy, r)
-  halo.addColorStop(0, 'rgba(150,247,238,0.85)')
+  if (legacy) {
+    // Early connection: muted slate-blue, no spikes — reads as historical.
+    halo.addColorStop(0, 'rgba(150,170,205,0.55)')
+    halo.addColorStop(0.55, 'rgba(120,140,180,0.22)')
+    halo.addColorStop(1, 'rgba(120,140,180,0)')
+    ctx.fillStyle = halo
+    ctx.beginPath()
+    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = 'rgba(210,220,235,0.7)'
+    ctx.beginPath()
+    ctx.arc(cx, cy, Math.max(1.5, r * 0.22), 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+    return
+  }
+  halo.addColorStop(0, boost > 0 ? 'rgba(190,255,250,0.95)' : 'rgba(150,247,238,0.85)')
   halo.addColorStop(0.55, 'rgba(56,224,208,0.35)')
   halo.addColorStop(1, 'rgba(56,224,208,0)')
   ctx.fillStyle = halo

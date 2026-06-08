@@ -351,6 +351,13 @@ const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'maxQuizCorrectStreak',
   'totalStudyMinutes',
   'currentQuizCorrectStreak',
+  // Expedition completion streak (rework-neurons-connectome-expedition-driven).
+  // First-write-wins like currentQuizCorrectStreak; the lazy daily reset re-derives
+  // the streak from expeditionLastCompleteDate, so a brief stale sync self-heals.
+  // The per-day repair / wired-pair / conduction-cap accumulators are date-keyed
+  // ephemeral meta (roll at midnight) and are intentionally NOT synced.
+  'expeditionStreak',
+  'expeditionLastCompleteDate',
   // DMN fate-card trigger counters (per add-neurons-dmn-fate-card spec).
   // Counter-style (drawsAvailable / lifetime) → first-write-wins below; daily
   // axis counters reset at midnight so brief sync of stale values is OK.

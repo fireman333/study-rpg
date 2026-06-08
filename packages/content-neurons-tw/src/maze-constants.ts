@@ -45,10 +45,27 @@ export const SPEED_BUFF_PER_VARIANT = 0.04
 export const SPEED_BUFF_CAP = 1.0 // max +100% → 2× base
 
 /**
- * Synapse cross-family LTP bonus (design D6). Each STRONG synapse a family
- * participates in adds `SYNAPSE_BONUS_PER` to its energy-accrual multiplier,
- * summed across its strong synapses and clamped to `SYNAPSE_BONUS_CAP` (LTP only,
- * no LTD/decay penalty). First-cut +6%/synapse, total ≤ +30%.
+ * Synaptic Conduction (rework-neurons-connectome-expedition-driven). REPLACES the
+ * old invisible self-multiplying `synapseBonus`. A wired cross-subject pair, when
+ * one subject earns a BATCH of energy (at expedition settlement / reading-session
+ * end), sends a CAPPED, ADDITIVE, VISIBLE fraction of that batch to its wired
+ * neighbor as conduction energy (a pulse). The visual IS the bonus. One-hop only
+ * (no chaining), never strengthens wires, never counts as co-repair, additive-only
+ * (an unwired family is never worse than baseline). All dogfood-tunable; the caps
+ * are the runaway/mega-hub guard. Decisions: openspec/decisions/2026-06-08-connectome-conduction-roadmap.md
  */
-export const SYNAPSE_BONUS_PER = 0.06
-export const SYNAPSE_BONUS_CAP = 0.3 // max +30% over base
+/** Conduction rate by synapse state, applied to the source's post-multiplier batch energy. */
+export const CONDUCTION_RATE_WEAK = 0.06
+export const CONDUCTION_RATE_STRONG = 0.12
+/** Per-wire / per-source-family / per-target-family daily conduction caps (energy). */
+export const CONDUCTION_WIRE_CAP_WEAK = 8
+export const CONDUCTION_WIRE_CAP_STRONG = 15
+export const CONDUCTION_SOURCE_CAP_PER_DAY = 45
+export const CONDUCTION_TARGET_CAP_PER_DAY = 30
+/**
+ * Conduction-rework ship epoch (local ISO date). A synapse whose `lastCoFireDate`
+ * precedes this is a LEGACY same-day-co-fire wire: it renders as 早期連線, is excluded
+ * from the「穩定連線數」stat, and does NOT conduct — until a new expedition co-repair
+ * re-validates it (updates `lastCoFireDate` to ≥ this epoch). (design D12)
+ */
+export const CONNECTOME_CONDUCTION_EPOCH = '2026-06-08'

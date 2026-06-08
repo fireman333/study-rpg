@@ -38,7 +38,18 @@ interface Props {
    * the homepage wires this to the no-op `onExpeditionComplete` reward seam;
    * normal quiz entries omit it (no-op).
    */
-  onComplete?: (stats: { total: number; correct: number }) => void
+  onComplete?: (stats: {
+    total: number
+    correct: number
+    /**
+     * Per-subject correct count this session. In the wrong-only 出征 pool every
+     * correct IS a wrong→correct repair, so the wrong-pool expedition forwards this
+     * to `creditConnectomeFromExpedition` (rework-neurons-connectome-expedition-driven).
+     */
+    correctBySubject: Record<string, number>
+    /** Per-subject maze energy earned this session (post-multiplier) — the conduction batch. */
+    energyBySubject: Record<string, number>
+  }) => void
   /**
    * Preserve the incoming pool order instead of shuffling (per
    * add-neurons-quiz-mode-chips-and-srs). The 🔄 錯題 review mode passes a
@@ -223,6 +234,11 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   // Tally correct answers this session for the onComplete seam; guard so the
   // session-end callback fires at most once.
   const correctCountRef = useRef(0)
+  // Per-subject tallies for the connectome credit (rework-neurons-connectome-
+  // expedition-driven): correct count (= repairs in the wrong-only pool) + maze
+  // energy earned per subject (the conduction batch). Forwarded via onComplete.
+  const correctBySubjectRef = useRef<Record<string, number>>({})
+  const energyBySubjectRef = useRef<Record<string, number>>({})
   const completedRef = useRef(false)
   // SRS snapshots for the just-answered question, captured in handlePick: the
   // pre-answer prev (so ✨/🤔 recompute from the same baseline) and the default
@@ -242,7 +258,12 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   const handleClose = useCallback(() => {
     if (!completedRef.current) {
       completedRef.current = true
-      onComplete?.({ total: sessionPool.length, correct: correctCountRef.current })
+      onComplete?.({
+        total: sessionPool.length,
+        correct: correctCountRef.current,
+        correctBySubject: correctBySubjectRef.current,
+        energyBySubject: energyBySubjectRef.current,
+      })
     }
     onClose()
   }, [onClose, onComplete, sessionPool.length])
@@ -266,6 +287,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
         setFlash({ outcome: isCorrect ? 'correct' : 'incorrect', nonce: Date.now() })
         if (isCorrect) {
           correctCountRef.current += 1
+          correctBySubjectRef.current[q.subject] =
+            (correctBySubjectRef.current[q.subject] ?? 0) + 1
           // Capture maze-energy state around the accrual so the feedback strip can show
           // the gain + detect a settle-threshold crossing (the homepage useMaze performs
           // the actual settle/pull). `recordCorrectAnswer` MUST run exactly once; the
@@ -289,9 +312,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
           if (before) {
             try {
               const after = await readMazeEnergyState(q.subject)
+              const gain = Math.max(0, after.earned - before.earned)
+              // Accumulate the per-subject conduction batch (rework-neurons-connectome-
+              // expedition-driven): summed energy is conducted to wired neighbors at
+              // settlement by the wrong-pool expedition's onComplete handler.
+              energyBySubjectRef.current[q.subject] =
+                (energyBySubjectRef.current[q.subject] ?? 0) + gain
               setFeedbackStrip({
                 familyId: q.subject,
-                energyGain: Math.max(0, after.earned - before.earned),
+                energyGain: gain,
                 progress: walkerFraction(after),
                 advanced: affordableSettles(after.earned) > affordableSettles(before.earned),
               })

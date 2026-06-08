@@ -60,7 +60,7 @@ export function FamilyPicker({
       <header style={headerRowStyle}>
         <h2 style={pickerHeaderStyle}><EmojiIcon char="📚" size={16} /> 選 family 直接練習</h2>
         <span style={headerHintStyle}>
-          {pack.subjects.length} family · 同日跨 family 答對 5 題 → wire synapse
+          {pack.subjects.length} family · 出征一起修復跨科錯題 → wire 連線
         </span>
       </header>
 

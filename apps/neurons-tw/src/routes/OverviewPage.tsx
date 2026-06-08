@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
-import { initMasteryForPack, runDailyResetIfNeeded } from '../lib/services/connectome'
+import {
+  initMasteryForPack,
+  runDailyResetIfNeeded,
+  creditConnectomeFromExpedition,
+  getConnectomeStatus,
+  type ExpeditionConnectomeResult,
+  type ConnectomeStatus,
+} from '../lib/services/connectome'
 import LeaderboardPromoBanner from '../components/LeaderboardPromoBanner'
 import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncementBanner'
 import { QuizModal } from '../components/QuizModal'
@@ -63,6 +70,22 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const [expeditionMenu, setExpeditionMenu] = useState<'closed' | 'choose' | 'exam'>('closed')
   // Active year+次別 paper drill (null = not open). Mutually exclusive with quizEntry / expeditionOpen.
   const [examSelection, setExamSelection] = useState<{ year: number; session: number } | null>(null)
+  // Settlement result of the last wrong-pool expedition → conduction ledger + ritual
+  // (rework-neurons-connectome-expedition-driven).
+  const [settlement, setSettlement] = useState<ExpeditionConnectomeResult | null>(null)
+  // Narrative connectome indicators (reloads on mount + after each settlement).
+  const [connStatus, setConnStatus] = useState<ConnectomeStatus | null>(null)
+  useEffect(() => {
+    let alive = true
+    void getConnectomeStatus()
+      .then((s) => {
+        if (alive) setConnStatus(s)
+      })
+      .catch((err) => console.error('[connectome] status load failed:', err))
+    return () => {
+      alive = false
+    }
+  }, [settlement])
   const [totalStudyMin, setTotalStudyMin] = useState(0)
   const [stats, setStats] = useState<ProgressStats>({ variants: 0, dmnOwned: 0 })
   const [accrualByFamily, setAccrualByFamily] = useState<Map<string, FamilyAccrual>>(new Map())
@@ -312,6 +335,28 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     emitMazeFocus(familyId, { manual: true })
   }
 
+  // Wrong-pool 出征 settlement: credit the DMN expedition axis AND the connectome
+  // (expedition co-repair → wiring + synaptic conduction). The year-set 模考 path
+  // deliberately stays DMN-only (no connectome credit — D11). The wrong-only pool
+  // means every correct IS a wrong→correct repair.
+  const handleWrongExpeditionComplete = (s: {
+    total: number
+    correct: number
+    correctBySubject: Record<string, number>
+    energyBySubject: Record<string, number>
+  }): void => {
+    onExpeditionComplete(s)
+    void creditConnectomeFromExpedition({
+      repairsBySubject: s.correctBySubject,
+      energyBySubject: s.energyBySubject,
+      sessionPool: s.total,
+    })
+      .then((result) => {
+        if (result.todayRepairs > 0) setSettlement(result)
+      })
+      .catch((err) => console.error('[connectome] expedition credit failed:', err))
+  }
+
   // Dynamic label for the actively-reading card (preserves the pause-reason feedback
   // the old global toolbar toggle showed).
   const readingActiveLabel = (() => {
@@ -338,6 +383,47 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           </p>
         </div>
       </header>
+
+      {/* Connectome narrative indicators (neurons-homepage / D6): 今日出征 · 連續 N 天 ·
+          本週 X/7 · 穩定連線數（不含早期連線）· 最強 pair · 今日連線額外獲得 X 能量.
+          NOT a 116/116 collection bar. */}
+      {connStatus && (
+        <section
+          aria-label="connectome 狀態"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.4rem 0.9rem',
+            alignItems: 'center',
+            margin: '0 0 0.75rem',
+            padding: '0.5rem 0.75rem',
+            border: '1px solid #d8c4a8',
+            borderRadius: 8,
+            background: '#fbf5ea',
+            fontSize: '0.85em',
+            color: '#5a3f29',
+          }}
+        >
+          <span title="今日是否完成有效出征（修復 ≥5 題）">
+            今日出征 {connStatus.todayCompleted ? '✓' : '✗'}
+          </span>
+          <span title="連續完成有效出征的天數">🔥 連續 {connStatus.streak} 天</span>
+          <span title="本週（近 7 天）完成有效出征的天數">本週 {connStatus.weeklyCount}/7</span>
+          <span title="達 strong 的跨科連線數（不含尚未重新驗證的早期連線）">
+            穩定連線 {connStatus.stableLinks}
+          </span>
+          {connStatus.strongestPair && (
+            <span title="最近最強的跨科連線">
+              最強 {connStatus.strongestPair.replace('|', '–')}
+            </span>
+          )}
+          {connStatus.todayConductionEnergy > 0 && (
+            <span title="今日經由突觸傳導從連線額外獲得的能量">
+              ⚡ 今日連線 +{connStatus.todayConductionEnergy}
+            </span>
+          )}
+        </section>
+      )}
 
       {/* ── CTA toolbar (above the maze): cross-family random quiz + 全科錯題 出征
             (persistent expedition CTA, per neurons-homepage). Reading is now
@@ -438,7 +524,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             setExpeditionOpen(false)
             setQuickReviewActive(false)
           }}
-          onComplete={onExpeditionComplete}
+          onComplete={handleWrongExpeditionComplete}
         />
       )}
 
@@ -512,6 +598,60 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           onClose={() => setExamSelection(null)}
           onComplete={onExpeditionComplete}
         />
+      )}
+
+      {settlement && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="出征結算"
+          style={examMenuBackdropStyle}
+          onClick={() => setSettlement(null)}
+        >
+          <div style={examMenuPanelStyle} onClick={(e) => e.stopPropagation()}>
+            <h2 style={examMenuTitleStyle}>出征結算</h2>
+            <p style={{ margin: '0.25rem 0', fontWeight: 600 }}>
+              今日修復 {settlement.todayRepairs} 題
+              {settlement.effectiveCompletion
+                ? ` · ✓ 出征完成 · 連續 ${settlement.streak} 天`
+                : ' · 尚未達成有效完成（今日修復滿 5 題）'}
+            </p>
+            {settlement.newlyWired.length > 0 && (
+              <ul style={{ margin: '0.4rem 0', paddingLeft: '1.1rem' }}>
+                {settlement.newlyWired.map((w) => (
+                  <li key={w.pairKey}>
+                    {w.formed ? '🔗 新連線' : '⚡ 強化連線'}：{w.pairKey.replace('|', ' – ')}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {settlement.conductionFlows.length > 0 ? (
+              <>
+                <p style={{ margin: '0.4rem 0 0.2rem', fontWeight: 600 }}>突觸傳導</p>
+                <ul style={{ margin: '0 0 0.4rem', paddingLeft: '1.1rem' }}>
+                  {settlement.conductionFlows.map((f, i) => (
+                    <li key={`${f.fromFamily}-${f.toFamily}-${i}`}>
+                      {f.fromFamily} → {f.toFamily} +{f.amount} 能量
+                    </li>
+                  ))}
+                </ul>
+                <p style={{ margin: '0.2rem 0', fontWeight: 600 }}>
+                  今日連線額外獲得 +
+                  {settlement.conductionFlows.reduce((a, f) => a + f.amount, 0)} 能量
+                </p>
+              </>
+            ) : (
+              settlement.newlyWired.length === 0 && (
+                <p style={{ margin: '0.4rem 0', color: '#5a3f29' }}>
+                  今日已修復，尚未形成跨科連線（需 ≥2 科各修復 ≥2 題）。
+                </p>
+              )
+            )}
+            <button type="button" onClick={() => setSettlement(null)} style={examMenuOptionStyle}>
+              關閉
+            </button>
+          </div>
+        </div>
       )}
 
       <footer style={{ marginTop: '2rem', fontSize: '0.8em', color: '#5a3f29' }}>

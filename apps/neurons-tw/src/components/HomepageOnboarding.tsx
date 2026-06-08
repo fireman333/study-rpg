@@ -62,8 +62,8 @@ export function HomepageOnboarding(): JSX.Element | null {
           收集的唯一方式就是探索腦圖。
         </li>
         <li>
-          <strong><EmojiIcon char="🔗" size={15} /> 自動長出連線</strong>：同一天兩個 family 各答對 5 題就 wire 出一條 synapse，
-          畫在腦圖上的功能連結覆蓋層 — 規則不用背，畫面會替你呈現。
+          <strong><EmojiIcon char="🔗" size={15} /> 一起修復，一起連線</strong>：出征修復不同科的錯題，當天一起被修復的科目就 wire 出一條連線；
+          連起來後讀其中一科會把一點能量傳導給鄰科 — 規則不用背，畫面會替你呈現。
         </li>
       </ol>
       <div style={ctaRowStyle}>

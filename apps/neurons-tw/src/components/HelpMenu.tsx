@@ -104,26 +104,25 @@ const SECTIONS: Section[] = [
   {
     id: 'synapse-formation',
     icon: '🔗',
-    title: 'Synapse 形成',
+    title: '連線形成（一起修復，一起連起來）',
     body: (
       <>
         <p>
-          <strong>同一天內</strong>，跨兩個不同 family 各答對 5 題，就會在這兩個 family
-          之間長出一條 <strong>weak synapse</strong>（細虛線）。例如同一天答對 5 題 藥理學 +
-          5 題 病理學 → 這兩 family 之間 wire 起來。
+          連線由 <strong>出征（錯題修復）</strong> 驅動：在一次出征裡把<strong>原本答錯</strong>的題改答對叫一次「修復」。
+          同一天有 <strong>≥2 科</strong>、每科各修復 <strong>≥2 題</strong>，且當天達「有效出征完成」（今日修復滿 5 題），
+          這些科就兩兩長出一條 <strong>連線</strong>（每天最多 3 條）。一般隨機答題的對錯<strong>不會</strong>形成連線。
         </p>
         <p>
-          已存在的 synapse 持續被「兩端 family 同日 co-fire」喂養會升級成
-          <strong> strong synapse</strong>（線越粗代表累積越強）。
+          <strong>不同日</strong>再次一起修復，連線會升級（dormant → weak → strong，線越粗）。
+          連續 7 天沒一起修復會降一級（strong → weak → dormant），但<strong>永遠不會消失</strong>。
         </p>
         <p>
-          連續 7 天兩端都沒 co-fire，synapse 會 decay 一級（strong → weak → dormant）。
-          樹上的對應做法：連線越久沒共激發就越<strong>暗</strong>，重新 co-fire 立刻再<strong>亮</strong>起來。
-          但 synapse <strong>永遠不會消失</strong>（LTD 不 rupture），最弱也只是一條暗淡的細線。隔天歸零的「同日 5 題」 counter 在午夜重置。
+          <strong>突觸傳導</strong>：連起來的兩科，當你讀其中一科 / 修它的錯題、結算時會有一顆 pulse 沿線把
+          一小段能量（weak +6% / strong +12%、有每日上限）傳給鄰科 — 你看到的那道電流就是好處本身。
+          連線只加分、不扣分；沒連線就是原本的基準。
         </p>
         <p>
-          這就是 Hebb 那句「Neurons that fire together, wire together」。
-          連結組樹就是首頁本身 — 線的<strong>粗細＝累積強度</strong>、<strong>亮度＝近期共激發</strong>。
+          這就是 Hebb 那句「Neurons that fire together, wire together」，在這裡是「<strong>repair together, wire together</strong>」。
         </p>
       </>
     ),

@@ -21,7 +21,12 @@
  */
 
 import { db } from '../db'
-import { accrueMazeEnergy, READING_MINUTE_ENERGY } from '../maze/economy'
+import {
+  accrueMazeEnergy,
+  readMazeEnergyState,
+  synapticConduction,
+  READING_MINUTE_ENERGY,
+} from '../maze/economy'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
 export type ReadingTimerPauseReason = 'manual' | 'visibility' | 'idle' | null
@@ -56,6 +61,23 @@ let state: ReadingTimerState = {
 const listeners = new Set<() => void>()
 let tickInterval: ReturnType<typeof setInterval> | null = null
 let idleTimer: ReturnType<typeof setTimeout> | null = null
+// Post-multiplier reading energy accrued in the current session (the synaptic-
+// conduction batch, rework-neurons-connectome-expedition-driven). Conducted to wired
+// neighbors at session end (stop / subject-switch). Reset on start / stop.
+let sessionReadingEnergy = 0
+
+/** Conduct one reading session's batched energy to the family's wired neighbors. */
+async function conductReadingBatch(familyId: string, energy: number): Promise<void> {
+  if (energy <= 0) return
+  try {
+    const flows = await synapticConduction(familyId, energy)
+    if (flows.length === 0) return
+    const { events } = await import('./connectome')
+    for (const f of flows) events.emit('connectome.conductionPulse', f)
+  } catch (err) {
+    console.error('[conduction] reading-session conduction failed:', err)
+  }
+}
 
 function emit(): void {
   for (const l of listeners) {
@@ -84,19 +106,23 @@ async function incrementTotalStudyMinutes(): Promise<void> {
 }
 
 async function fireMinuteSideEffects(): Promise<void> {
+  const fam = state.readingFamilyId
   try {
-    await Promise.all([
-      // (a) global study-minutes counter — UNCHANGED, drives achievements / leaderboard
-      // / character card (NOT subject-scoped).
-      incrementTotalStudyMinutes(),
-      // (b) Maze per-FAMILY energy faucet — per-subject reading
-      // (add-neurons-maze-zoom-and-focus): the session is bound to one chosen family,
-      // so the per-minute energy accrues entirely into THAT family's pool (no split).
-      state.readingFamilyId
-        ? accrueMazeEnergy(state.readingFamilyId, READING_MINUTE_ENERGY)
-        : Promise.resolve(),
-    ])
-    console.info('[reading-timer] +1 minute accrued', state.readingFamilyId ?? '(no family)')
+    if (fam) {
+      // Capture the family's earned before/after so the post-multiplier reading
+      // delta (the conduction batch) is accumulated exactly, excluding any incoming
+      // conduction (which happens only at other batch points).
+      const before = (await readMazeEnergyState(fam)).earned
+      await Promise.all([
+        incrementTotalStudyMinutes(), // global counter — drives achievements / leaderboard / card
+        accrueMazeEnergy(fam, READING_MINUTE_ENERGY), // per-subject reading faucet
+      ])
+      const after = (await readMazeEnergyState(fam)).earned
+      sessionReadingEnergy += Math.max(0, after - before)
+    } else {
+      await incrementTotalStudyMinutes()
+    }
+    console.info('[reading-timer] +1 minute accrued', fam ?? '(no family)')
   } catch (err) {
     console.error('[reading-timer] minute side-effect failed:', err)
   }
@@ -187,7 +213,12 @@ export function start(familyId: string): void {
   // Already reading this exact subject → no-op (idempotent).
   if (state.status === 'reading' && state.readingFamilyId === familyId) return
   // Switching subject (one-at-a-time): end any prior session cleanly so the prior
-  // family stops accruing, then begin a fresh session for the new subject.
+  // family stops accruing, then begin a fresh session for the new subject. Conduct
+  // the prior session's reading batch on switch (a switch IS a session end).
+  const prevFam = state.readingFamilyId
+  const prevBatch = sessionReadingEnergy
+  sessionReadingEnergy = 0
+  if (prevFam && prevFam !== familyId && prevBatch > 0) void conductReadingBatch(prevFam, prevBatch)
   stopTickInterval()
   clearIdleTimer()
   state = {
@@ -207,6 +238,10 @@ export function stop(): void {
   stopTickInterval()
   clearIdleTimer()
   detachActivityListeners()
+  // Conduct this reading session's batched energy to wired neighbors (session end).
+  const fam = state.readingFamilyId
+  const batch = sessionReadingEnergy
+  sessionReadingEnergy = 0
   state = {
     status: 'idle',
     pauseReason: null,
@@ -215,6 +250,7 @@ export function stop(): void {
     readingFamilyId: null,
   }
   emit()
+  if (fam && batch > 0) void conductReadingBatch(fam, batch)
 }
 
 export function pause(reason: Exclude<ReadingTimerPauseReason, null>): void {
@@ -261,6 +297,7 @@ export function __resetForTests(): void {
   stopTickInterval()
   clearIdleTimer()
   detachActivityListeners()
+  sessionReadingEnergy = 0
   state = {
     status: 'idle',
     pauseReason: null,

@@ -205,17 +205,10 @@ export function initializeDmnTrigger(): void {
     })
   })
 
-  connectomeEvents.on('connectome.synapseFormed', () => {
-    void grantBehaviorAxisDraw('synapseFormed').catch((err) => {
-      console.error('[dmn] synapseFormed handler failed:', err)
-    })
-  })
-
-  connectomeEvents.on('connectome.synapseStrengthened', () => {
-    void grantBehaviorAxisDraw('synapseStrengthened').catch((err) => {
-      console.error('[dmn] synapseStrengthened handler failed:', err)
-    })
-  })
+  // synapseFormed / synapseStrengthened behavior-axis draws REMOVED
+  // (rework-neurons-connectome-expedition-driven): synapse forming/strengthening is
+  // now an expedition-repair side effect that already underlies the expedition-axis
+  // draw, so a behavior-axis draw on it would triple-reward the same activity.
 
   // Kick off a one-shot reset check at boot so the day rollover happens before
   // the first user interaction (defensive — covers app left open past midnight).
