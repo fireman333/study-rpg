@@ -32,7 +32,8 @@ export async function unlockConnector(pairKey: string): Promise<boolean> {
     if (existing) return
     const [familyA, familyB] = connectorFamilies(pairKey)
     const now = Date.now()
-    await db.connectorNeurons.add({ pairKey, familyA, familyB, unlockedAt: now, updatedAt: now })
+    // Forward unlock = a live weak→strong transition, always post-epoch → 'validated'.
+    await db.connectorNeurons.add({ pairKey, familyA, familyB, unlockedAt: now, updatedAt: now, unlockSource: 'validated' })
     unlocked = true
   })
   return unlocked
