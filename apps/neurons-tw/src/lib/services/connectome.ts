@@ -276,6 +276,10 @@ export async function creditConnectomeFromExpedition(input: {
 }): Promise<ExpeditionConnectomeResult> {
   const today = todayISO()
   const pending: PendingEvent[] = []
+  // Pairs that first reached `strong` this settlement → unlock their connector
+  // post-commit (add-neurons-connector-neuron-family). Collected in-tx (the
+  // connectorNeurons table is outside this tx's scope), applied after commit.
+  const strongTransitions: string[] = []
   const result: ExpeditionConnectomeResult = {
     effectiveCompletion: false,
     todayRepairs: 0,
@@ -374,6 +378,10 @@ export async function creditConnectomeFromExpedition(input: {
                 name: 'connectome.synapseStrengthened',
                 payload: { pairKey: c.key, fromState, toState },
               })
+              // First time this pair reached `strong` → unlock its connector
+              // (post-commit, below). dormant→weak can never be 'strong', so this
+              // captures exactly the weak→strong transition.
+              if (toState === 'strong') strongTransitions.push(c.key)
             }
             result.newlyWired.push({ pairKey: c.key, formed: false })
           }
@@ -397,6 +405,19 @@ export async function creditConnectomeFromExpedition(input: {
     }
   } catch (err) {
     console.error('[conduction] expedition-settlement conduction failed:', err)
+  }
+
+  // 5. Post-commit connector unlocks for pairs that first reached `strong` this
+  // settlement (add-neurons-connector-neuron-family). Outside the settlement tx
+  // (connectorNeurons is a separate table); dynamic import + best-effort so a
+  // connector failure never breaks settlement. unlockConnector is idempotent.
+  if (strongTransitions.length > 0) {
+    try {
+      const { unlockConnector } = await import('./connector')
+      for (const key of strongTransitions) await unlockConnector(key)
+    } catch (err) {
+      console.error('[connector] unlock on strong transition failed:', err)
+    }
   }
 
   return result

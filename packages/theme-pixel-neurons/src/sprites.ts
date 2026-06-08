@@ -186,6 +186,29 @@ const companionSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
+// Connector neuron sprites (add-neurons-connector-neuron-family). Placeholder this
+// change — NO PNGs ship; the collection page renders a PROCEDURAL split-color card
+// when no sprite is present. Real 55-pair art via a follow-up
+// `generate-connector-sprites` change. Expected filename `<familyA>__<familyB>.png`
+// (two subject ids, `__`-separated — avoids `|` in filenames) → key
+// `connector:<a|b>` (sorted, `|`-joined — matches the synapse/connector pairKey).
+// ONLY present files are keyed (spread present-only into SPRITE_MAP) so a missing
+// sprite leaves the key unresolved and the consumer's procedural fallback fires.
+const connectorSpriteModules = import.meta.glob('../sprites/connectors/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const connectorSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(connectorSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    const [a, b] = stem.split('__')
+    const pairKey = a && b ? [a, b].sort().join('|') : stem
+    return [`connector:${pairKey}`, url]
+  }),
+)
+
 // 11 subject icon keys (matched to FAMILY_BY_SUBJECT in content-neurons-tw build.ts)
 const SUBJECT_IDS = [
   '藥理學',
@@ -380,6 +403,9 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   // Dedicated companion marcher sprites — only PRESENT files keyed, so a missing
   // one stays unresolved and the band's `companion:<id> ?? equipment:<id>` fallback fires.
   ...Object.entries(companionSprites),
+  // Connector neuron sprites — only PRESENT files keyed (none ship this change), so
+  // a missing one stays unresolved and the collection card's procedural fallback fires.
+  ...Object.entries(connectorSprites),
   // Animated hero sheets (variant:<family>:<slot>:<state>) — only present sheets registered.
   ...Object.entries(animatedSprites),
 ])

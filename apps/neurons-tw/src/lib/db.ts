@@ -28,6 +28,31 @@ export interface SynapseRow {
   createdAt: string
 }
 
+/**
+ * Connector neuron unlock record (Dexie v18 — add-neurons-connector-neuron-family).
+ * One row per unlocked subject pair; PK = the synapse `pairKey` (sorted-family
+ * `a|b`) so a strong wire maps 1:1 to its connector. PERMANENT once written
+ * (monotonic): never deleted, survives wire decay. `unlockedAt` is set
+ * deterministically (from the unlocking wire's date at backfill, or the live
+ * unlock instant) so cross-device union-min converges. Sync: union by pairKey,
+ * earliest `unlockedAt` wins (lib/sync/tables.ts connectorNeuronsAdapter).
+ */
+export interface ConnectorNeuronRow {
+  pairKey: string
+  familyA: string
+  familyB: string
+  unlockedAt: number
+  updatedAt: number
+}
+
+/**
+ * Fixed fallback epoch (ms) for a backfilled connector whose wire somehow lacks a
+ * parseable `lastCoFireDate`. A deterministic literal (NOT Date.now()) so two
+ * devices migrating the same save converge under the union-min merge. Equals the
+ * connectome-conduction ship epoch (2026-06-08).
+ */
+const CONNECTOR_BACKFILL_EPOCH = Date.parse('2026-06-08')
+
 export interface FamilyAccrualRow {
   familyId: string
   ap: number
@@ -290,6 +315,11 @@ export class NeuronsDB extends Dexie {
   // add-neurons-acceleration-system (v16)
   inventory!: EntityTable<InventoryRow, 'kind'>
   equipment!: EntityTable<OwnedEquipmentRow, 'equipmentId'>
+  // ─── Connector neurons (Dexie v18+) ─────────────────────────────────────
+  // Per add-neurons-connector-neuron-family. Additive — 1 new table; existing
+  // tables (incl. synapses PK) untouched. PK = the synapse pairKey; monotonic
+  // permanent collectible (union/min-unlockedAt sync).
+  connectorNeurons!: EntityTable<ConnectorNeuronRow, 'pairKey'>
 
   constructor() {
     super('neurons-rpg')
@@ -710,6 +740,56 @@ export class NeuronsDB extends Dexie {
           `maze:${b}:settles`,
         ])
         await tx.table('meta').bulkDelete(retired)
+      })
+    // Per add-neurons-connector-neuron-family. Additive: 1 new table
+    // `connectorNeurons` (the bridge-class collectibles). All existing store index
+    // strings IDENTICAL to v17 (NO PK change — dexie_pk_change_pitfall). The v18
+    // work is the RETROACTIVE BACKFILL upgrade callback: every wire currently in
+    // the `strong` state (incl. legacy 早期連線) unlocks its connector at once, so
+    // existing saves surface earned connectors immediately. No collection/energy
+    // reset, no migration banner.
+    this.version(18)
+      .stores({
+        synapses: 'pairKey, lastCoFireDate, state',
+        familyAccrual: 'familyId, lastFireDate, firedToday',
+        meta: 'key',
+        familyMastery: 'familyId',
+        neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+        leaderboardProfile: 'user_id, nickname_lower',
+        achievements: 'id, unlockedAt',
+        dmnCards: 'cardId, obtainedAt, rarity',
+        dmnEventLog: 'cardId, dispatchedAt',
+        dmnActiveBuffs: '++id, expiresAt, buffKind',
+        questionBookmarks: 'questionId, family, addedAt, updatedAt',
+        questionBookmarkTombstones: 'questionId, updatedAt',
+        questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+        questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt, nextDueAt',
+        neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+        instanceNicknames: 'instanceId, updatedAt',
+        inventory: 'kind, updatedAt',
+        equipment: 'equipmentId, rarity, obtainedAt, updatedAt',
+        // PK = synapse pairKey; secondary index on unlockedAt (chronological
+        // collection display) + updatedAt. everWrong-style monotonic union sync.
+        connectorNeurons: 'pairKey, unlockedAt, updatedAt',
+      })
+      .upgrade(async (tx) => {
+        // RETROACTIVE BACKFILL: unlock a connector for every wire currently in the
+        // `strong` state (INCLUDING legacy 早期連線). Deterministic `unlockedAt`
+        // (the wire's lastCoFireDate parsed to ms, else the fixed epoch) so two
+        // devices migrating the same save converge under union-min. Idempotent:
+        // the table starts empty at this transition, and this v18 callback runs at
+        // most once per device.
+        const synapses = (await tx.table('synapses').toArray()) as SynapseRow[]
+        const rows: ConnectorNeuronRow[] = []
+        for (const s of synapses) {
+          if (s.state !== 'strong') continue
+          const [familyA, familyB] = s.pairKey.split('|')
+          if (!familyA || !familyB) continue
+          const parsed = Date.parse(s.lastCoFireDate)
+          const unlockedAt = Number.isNaN(parsed) ? CONNECTOR_BACKFILL_EPOCH : parsed
+          rows.push({ pairKey: s.pairKey, familyA, familyB, unlockedAt, updatedAt: unlockedAt })
+        }
+        if (rows.length > 0) await tx.table('connectorNeurons').bulkPut(rows)
       })
   }
 }
