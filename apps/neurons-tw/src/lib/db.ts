@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
+import { CONNECTOME_CONDUCTION_EPOCH } from '@study-rpg/content-neurons-tw'
 import type {
   DmnActiveBuffRow,
   DmnCardRow,
@@ -43,6 +44,15 @@ export interface ConnectorNeuronRow {
   familyB: string
   unlockedAt: number
   updatedAt: number
+  /**
+   * Unlock provenance (clarify-connector-backfill-legacy-semantics): `'validated'`
+   * = forward unlock or post-epoch backfill; `'legacy-backfill'` = backfilled from a
+   * pre-epoch 早期連線 wire. Absent on pre-change rows → tolerated as `unknown`
+   * (readers SHALL NOT crash / retry / backfill it). Display-only: does NOT gate
+   * ownership, sync, or any downstream stat. Non-indexed additive field, no `.version()`
+   * bump (forward-compatible: older clients drop it, newer tolerate its absence).
+   */
+  unlockSource?: 'legacy-backfill' | 'validated'
 }
 
 /**
@@ -787,7 +797,12 @@ export class NeuronsDB extends Dexie {
           if (!familyA || !familyB) continue
           const parsed = Date.parse(s.lastCoFireDate)
           const unlockedAt = Number.isNaN(parsed) ? CONNECTOR_BACKFILL_EPOCH : parsed
-          rows.push({ pairKey: s.pairKey, familyA, familyB, unlockedAt, updatedAt: unlockedAt })
+          // Provenance: legacy 早期連線 wires (pre-epoch lastCoFireDate per the
+          // same predicate connectome-collection uses) are 'legacy-backfill'; a
+          // post-epoch wire the backfill happens to see as strong is 'validated'.
+          const unlockSource: 'legacy-backfill' | 'validated' =
+            s.lastCoFireDate < CONNECTOME_CONDUCTION_EPOCH ? 'legacy-backfill' : 'validated'
+          rows.push({ pairKey: s.pairKey, familyA, familyB, unlockedAt, updatedAt: unlockedAt, unlockSource })
         }
         if (rows.length > 0) await tx.table('connectorNeurons').bulkPut(rows)
       })

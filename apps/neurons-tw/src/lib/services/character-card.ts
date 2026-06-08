@@ -25,6 +25,7 @@ import {
 import { db, type ConnectorNeuronRow, type NeuronVariantRow, type VariantRarity } from '../db'
 import { getRepresentativesRaw, type RepresentativeMap } from './representatives'
 import { readTotalStudyMinutes } from './reading-timer'
+import { computeOwnedSlotCount } from './variant-ownership'
 import { variantBirthCaption } from '../variant-caption'
 
 /** Fixed display order of the four NT branches across the card's hero row. */
@@ -121,9 +122,10 @@ const SLOTS_PER_FAMILY = NEURON_VARIANT_TOTAL / FAMILY_TOTAL
 export async function buildCharacterCardPayload(
   userId?: string | null,
 ): Promise<CharacterCardPayload> {
-  const [variants, accruals, synapses, representativeMap, profile, totalStudyMinutes] =
+  const [variants, instances, accruals, synapses, representativeMap, profile, totalStudyMinutes] =
     await Promise.all([
       db.neuronVariants.toArray(),
+      db.neuronInstances.toArray(),
       db.familyAccrual.toArray(),
       db.synapses.toArray(),
       getRepresentativesRaw(),
@@ -150,7 +152,10 @@ export async function buildCharacterCardPayload(
     reps,
     totalAp: accruals.reduce((sum, a) => sum + (a.ap ?? 0), 0),
     strongSynapseCount: synapses.filter((s) => s.state === 'strong').length,
-    variantCount: variants.length,
+    // Distinct-owned count via the canonical projection — a cross-device fusion
+    // ghost slot (variant row, 0 held individuals) does NOT inflate it. `variants`
+    // is still used above for reps + familiesComplete (catalog-history reads).
+    variantCount: computeOwnedSlotCount(variants, instances),
     variantTotal: NEURON_VARIANT_TOTAL,
     familiesComplete,
     familyTotal: FAMILY_TOTAL,
@@ -305,7 +310,10 @@ export function buildConnectorCardPayload(
 }
 
 export interface VariantShareState {
+  /** Full collected-row picker list (every slot the player can feature). */
   variants: NeuronVariantRow[]
+  /** Canonical distinct-owned count for the card stat (ghost slots excluded). */
+  ownedCount: number
   nickname: string
   title: string | null
 }
@@ -316,13 +324,19 @@ export interface ConnectorShareState {
   title: string | null
 }
 
-/** Load everything the 變體 tab needs in one pass (picker list + nickname). */
+/** Load everything the 變體 tab needs in one pass (picker list + owned count + nickname). */
 export async function loadVariantShareState(userId?: string | null): Promise<VariantShareState> {
-  const [variants, { nickname, title }] = await Promise.all([
+  const [variants, instances, { nickname, title }] = await Promise.all([
     db.neuronVariants.toArray(),
+    db.neuronInstances.toArray(),
     readCardNickname(userId),
   ])
-  return { variants: sortVariantsForPicker(variants), nickname, title }
+  return {
+    variants: sortVariantsForPicker(variants),
+    ownedCount: computeOwnedSlotCount(variants, instances),
+    nickname,
+    title,
+  }
 }
 
 /** Load everything the 連結 tab needs in one pass (picker list + nickname). */

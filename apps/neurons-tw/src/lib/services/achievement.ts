@@ -26,6 +26,7 @@ import { db, todayISO } from '../db'
 import { deriveMasteryTier } from '../mastery/mastery-tier'
 import { dispatchReward } from './achievement-reward'
 import { pushAchievementToast } from '../achievement-toast-queue'
+import { computeOwnedSlotCount } from './variant-ownership'
 
 // ─── Stat builder ───────────────────────────────────────────────────────────
 
@@ -49,12 +50,13 @@ async function ensureSaveCreatedDate(): Promise<string> {
 /** Compute fresh stats snapshot from Dexie tables. Read-only — no writes. */
 export async function buildAchievementStats(): Promise<NeuronsAchievementStats> {
   const today = todayISO()
-  const [accruals, synapses, mastery, variants, currentStreak, maxStreak, saveCreatedDate] =
+  const [accruals, synapses, mastery, variants, instances, currentStreak, maxStreak, saveCreatedDate] =
     await Promise.all([
       db.familyAccrual.toArray(),
       db.synapses.toArray(),
       db.familyMastery.toArray(),
       db.neuronVariants.toArray(),
+      db.neuronInstances.toArray(),
       readMetaInt('currentQuizCorrectStreak'),
       readMetaInt('maxQuizCorrectStreak'),
       ensureSaveCreatedDate(),
@@ -68,8 +70,10 @@ export async function buildAchievementStats(): Promise<NeuronsAchievementStats> 
     : 0
 
   // Variant collection signals. Open collection: the collection metric is the
-  // total DISTINCT variant count (no family-complete concept).
-  const variantCount = variants.length
+  // total DISTINCT *owned* variant count (slots with ≥1 held individual) via the
+  // canonical `ownedSlotCount` projection — ghost slots from cross-device fusion
+  // races are excluded (neuron-variant-fusion spec).
+  const variantCount = computeOwnedSlotCount(variants, instances)
 
   // Natural P1 = a P1 obtained without the soft-pity floor. Rarity is now an
   // explicit field (decoupled from slotIndex), so read it directly; `wasPityFloor`

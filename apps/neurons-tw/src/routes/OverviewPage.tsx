@@ -25,6 +25,7 @@ import StudySquadPanel from '../components/StudySquadPanel'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
+import { ownedSlotCount } from '../lib/services/variant-ownership'
 import { filterPoolByFamily, filterPoolByYear, filterPoolByNewOnly } from '../lib/services/quiz-pool'
 import { useQuestionHistory } from '../lib/services/question-history'
 import {
@@ -265,7 +266,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     // above + recordCorrectAnswer).
     const sub = liveQuery(async () => {
       const [variants, dmn, familyAccrual] = await Promise.all([
-        db.neuronVariants.count(),
+        ownedSlotCount(db),
         db.dmnCards.count(),
         db.familyAccrual.toArray(),
       ])

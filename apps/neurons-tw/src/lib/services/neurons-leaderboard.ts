@@ -14,6 +14,7 @@
 
 import { db, type LeaderboardProfileRow } from '../db'
 import { readTotalStudyMinutes } from './reading-timer'
+import { ownedSlotCount } from './variant-ownership'
 import {
   NEURONS_ACHIEVEMENTS,
   FAMILY_IDS,
@@ -73,8 +74,9 @@ export interface NicknameCheckResponse {
 
 /**
  * Build the upsert payload from local Dexie state. Computes:
- * - variant_count = neuronVariants row count (distinct collected — the sole
- *   collection metric; open collection has no family-complete signal)
+ * - variant_count = ownedSlotCount(db) — distinct *currently-held* slots (≥1 held
+ *   individual), the canonical projection from neuron-variant-fusion; excludes
+ *   ghost slots from cross-device fusion races. NOT a raw neuronVariants row count.
  * - total_AP = sum of familyAccrual.ap across all families
  * - total_study_min = sum of meta['totalStudyMinutes'] accrued by the
  *   reading-timer service (wired 2026-05-28 via polish-neurons-final)
@@ -85,12 +87,10 @@ export async function buildLeaderboardPayload(
   nickname: string,
   isPublic: boolean,
 ): Promise<NeuronsLeaderboardPayload> {
-  const [variants, accruals] = await Promise.all([
-    db.neuronVariants.toArray(),
+  const [variant_count, accruals] = await Promise.all([
+    ownedSlotCount(db),
     db.familyAccrual.toArray(),
   ])
-
-  const variant_count = variants.length
 
   const total_AP = accruals.reduce((sum, a) => sum + (a.ap ?? 0), 0)
 
