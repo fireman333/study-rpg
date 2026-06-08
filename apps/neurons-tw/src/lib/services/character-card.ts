@@ -13,14 +13,19 @@
  */
 
 import {
+  CONNECTOR_TOTAL,
   FAMILY_NT_BRANCH,
   NEURON_VARIANT_CATALOG,
   NEURON_VARIANT_TOTAL,
+  connectorColors,
+  connectorFamilies,
+  connectorSpriteKey,
   type NtBranchId,
 } from '@study-rpg/content-neurons-tw'
-import { db, type NeuronVariantRow, type VariantRarity } from '../db'
+import { db, type ConnectorNeuronRow, type NeuronVariantRow, type VariantRarity } from '../db'
 import { getRepresentativesRaw, type RepresentativeMap } from './representatives'
 import { readTotalStudyMinutes } from './reading-timer'
+import { variantBirthCaption } from '../variant-caption'
 
 /** Fixed display order of the four NT branches across the card's hero row. */
 export const CARD_BRANCH_ORDER: readonly NtBranchId[] = ['DA', '5HT', 'GABA', 'Glu']
@@ -152,4 +157,179 @@ export async function buildCharacterCardPayload(
     totalStudyMinutes,
     renderedAt: Date.now(),
   }
+}
+
+// ---------------------------------------------------------------------------
+// 變體 / 連結 share cards (enhance-neurons-share-cards) — pure-derived, no new state.
+// ---------------------------------------------------------------------------
+
+/** Per-rarity Chinese label, shared with VariantUnlockModal copy. */
+export const RARITY_LABEL: Record<VariantRarity, string> = {
+  P0: 'P0 始源',
+  P1: 'P1 夯',
+  P2: 'P2 頂級',
+  P3: 'P3 人上人',
+  P4: 'P4 NPC',
+  P5: 'P5 拉完了',
+}
+
+/** Stable picker key for a collected variant (familyId + slotIndex identity). */
+export function variantCardKey(v: Pick<NeuronVariantRow, 'familyId' | 'slotIndex'>): string {
+  return `${v.familyId}:${v.slotIndex}`
+}
+
+export interface VariantCardPayload {
+  nickname: string
+  title: string | null
+  spriteKey: string
+  displayName: string
+  familyId: string
+  rarity: VariantRarity
+  rarityLabel: string
+  caption: string
+  variantCount: number
+  variantTotal: number
+  renderedAt: number
+}
+
+export interface ConnectorCardPayload {
+  nickname: string
+  pairKey: string
+  familyA: string
+  familyB: string
+  colorA: string
+  colorB: string
+  spriteKey: string
+  unlockedAt: number
+  connectorCount: number
+  connectorTotal: number
+  renderedAt: number
+}
+
+/**
+ * The variant to feature by default: rarest collected (lowest RARITY_RANK),
+ * tiebreak most-recent roll. Pure; returns null for an empty collection.
+ */
+export function pickDefaultVariant(
+  variants: readonly NeuronVariantRow[],
+): NeuronVariantRow | null {
+  if (variants.length === 0) return null
+  return variants
+    .slice()
+    .sort((a, b) => {
+      const byRarity = RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity]
+      if (byRarity !== 0) return byRarity
+      return b.rolledAt - a.rolledAt
+    })[0]
+}
+
+/**
+ * The connector to feature by default: most-recently unlocked. Pure; returns
+ * null when no connector is unlocked.
+ */
+export function pickDefaultConnector(
+  connectors: readonly ConnectorNeuronRow[],
+): ConnectorNeuronRow | null {
+  if (connectors.length === 0) return null
+  return connectors.slice().sort((a, b) => b.unlockedAt - a.unlockedAt)[0]
+}
+
+/** Variants in picker order (rarest first), for the 變體 tab strip. */
+export function sortVariantsForPicker(
+  variants: readonly NeuronVariantRow[],
+): NeuronVariantRow[] {
+  return variants.slice().sort((a, b) => {
+    const byRarity = RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity]
+    if (byRarity !== 0) return byRarity
+    return b.rolledAt - a.rolledAt
+  })
+}
+
+/** Unlocked connectors in picker order (most-recent first), for the 連結 tab strip. */
+export function sortConnectorsForPicker(
+  connectors: readonly ConnectorNeuronRow[],
+): ConnectorNeuronRow[] {
+  return connectors.slice().sort((a, b) => b.unlockedAt - a.unlockedAt)
+}
+
+async function readCardNickname(userId?: string | null): Promise<{ nickname: string; title: string | null }> {
+  const profile = userId
+    ? await db.leaderboardProfile.get(userId)
+    : await db.leaderboardProfile.toArray().then((rows) => rows[0])
+  return {
+    nickname: profile?.nickname?.trim() || DEFAULT_CARD_NICKNAME,
+    title: profile?.selectedTitle ?? null,
+  }
+}
+
+/** Build the variant-card payload for one collected variant row. Pure. */
+export function buildVariantCardPayload(
+  variant: NeuronVariantRow,
+  meta: { nickname: string; title: string | null; variantCount: number },
+): VariantCardPayload {
+  return {
+    nickname: meta.nickname,
+    title: meta.title,
+    spriteKey: variant.spriteKey,
+    displayName: variant.displayName,
+    familyId: variant.familyId,
+    rarity: variant.rarity,
+    rarityLabel: RARITY_LABEL[variant.rarity],
+    caption: variantBirthCaption(variant),
+    variantCount: meta.variantCount,
+    variantTotal: NEURON_VARIANT_TOTAL,
+    renderedAt: Date.now(),
+  }
+}
+
+/** Build the connector-card payload for one unlocked connector row. Pure. */
+export function buildConnectorCardPayload(
+  connector: ConnectorNeuronRow,
+  meta: { nickname: string; connectorCount: number },
+): ConnectorCardPayload {
+  const [familyA, familyB] = connectorFamilies(connector.pairKey)
+  const [colorA, colorB] = connectorColors(connector.pairKey)
+  return {
+    nickname: meta.nickname,
+    pairKey: connector.pairKey,
+    familyA,
+    familyB,
+    colorA,
+    colorB,
+    spriteKey: connectorSpriteKey(connector.pairKey),
+    unlockedAt: connector.unlockedAt,
+    connectorCount: meta.connectorCount,
+    connectorTotal: CONNECTOR_TOTAL,
+    renderedAt: Date.now(),
+  }
+}
+
+export interface VariantShareState {
+  variants: NeuronVariantRow[]
+  nickname: string
+  title: string | null
+}
+
+export interface ConnectorShareState {
+  connectors: ConnectorNeuronRow[]
+  nickname: string
+  title: string | null
+}
+
+/** Load everything the 變體 tab needs in one pass (picker list + nickname). */
+export async function loadVariantShareState(userId?: string | null): Promise<VariantShareState> {
+  const [variants, { nickname, title }] = await Promise.all([
+    db.neuronVariants.toArray(),
+    readCardNickname(userId),
+  ])
+  return { variants: sortVariantsForPicker(variants), nickname, title }
+}
+
+/** Load everything the 連結 tab needs in one pass (picker list + nickname). */
+export async function loadConnectorShareState(userId?: string | null): Promise<ConnectorShareState> {
+  const [connectors, { nickname, title }] = await Promise.all([
+    db.connectorNeurons.toArray(),
+    readCardNickname(userId),
+  ])
+  return { connectors: sortConnectorsForPicker(connectors), nickname, title }
 }
