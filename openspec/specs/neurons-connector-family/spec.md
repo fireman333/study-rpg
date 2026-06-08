@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Defines the connector neuron collectible in `apps/neurons-tw` — a "bridge class" distinct from the subject families and the variant gacha. A connector hub neuron bridges two subject families (modules); it is unlocked the first time that pair's synaptic wire reaches `strong`, and is a permanent collectible decoupled from the connectome's gameplay wire state. The set is closed (one connector per unordered family pair = 11C2 = 55), persisted in its own Dexie table, synced additively with union/monotonic merge, and rendered as a procedural split-color card (per-pair art deferred). Neuroscience framing (OE/PubMed-verified): connector hub / high participation coefficient / rich-club integration substrate (van den Heuvel & Sporns 2013 *J Neurosci*; Schroeter 2015; Senden 2018; Bagarinao 2020).
+Defines the connector neuron collectible in `apps/neurons-tw` — a "bridge class" distinct from the subject families and the variant gacha. A connector hub neuron bridges two subject families (modules); it is unlocked the first time that pair's synaptic wire reaches `strong`, and is a permanent collectible decoupled from the connectome's gameplay wire state. The set is closed (one connector per unordered family pair = 11C2 = 55), persisted in its own Dexie table, synced additively with union/monotonic merge, and rendered with a shared set of generic bridge-neuron sprites over a procedural split-color card fallback. Neuroscience framing (OE/PubMed-verified): connector hub / high participation coefficient / rich-club integration substrate (van den Heuvel & Sporns 2013 *J Neurosci*; Schroeter 2015; Senden 2018; Bagarinao 2020).
 
 ## Requirements
 
@@ -108,7 +108,7 @@ The collection page SHALL present a dedicated「連結神經元」section showin
 
 ### Requirement: Procedural placeholder visual
 
-Each connector SHALL render with a procedural visual derived from its two families' colors: a split-color frame using both families' `FAMILY_COLOR`, plus a shared bridge/axon silhouette and a synaptic glow — requiring no per-connector image asset. The rendering SHALL support a future per-pair sprite: when a connector sprite (keyed `connector:<pairKey>`) is present it SHALL be used; when absent, the procedural placeholder SHALL be shown, and a missing sprite SHALL never produce a broken image.
+Each connector SHALL render its registered sprite when one is present, and fall back to a procedural visual when none is present. Connector sprite art ships as a shared set of generic "bridge hub neuron" variety sprites distributed across the closed set (keyed `connector:<pairKey>`) — NOT per-pair-themed: subject identity is carried by the split-color frame, and the sprite provides only visual charm. The procedural fallback derives from the two families' colors: a split-color frame using both families' `FAMILY_COLOR`, plus a shared bridge/axon silhouette and a synaptic glow, requiring no image asset. When a connector sprite is present it SHALL be used; when absent, the procedural placeholder SHALL be shown; a missing sprite SHALL never produce a broken image.
 
 #### Scenario: Procedural placeholder when no sprite present
 
@@ -119,3 +119,8 @@ Each connector SHALL render with a procedural visual derived from its two famili
 
 - **WHEN** a connector's sprite asset (`connector:<pairKey>`) is registered
 - **THEN** that sprite is used in place of the procedural placeholder
+
+#### Scenario: Generic sprite set distributed across the closed set
+
+- **WHEN** the connector sprite set is shipped
+- **THEN** a shared set of generic bridge-neuron variants covers all 55 pairkeys (one registered sprite per pairkey), with the split-color frame distinguishing each pair
