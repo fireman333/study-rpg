@@ -77,26 +77,36 @@ celebration SHALL respect `prefers-reduced-motion` (no bounce / static under red
 
 ### Requirement: All-subject wrong-question expedition
 
-The connectome homepage SHALL surface a 出征 action that opens a **遠征選單** offering two co-equal expeditions: **錯題遠征** (defined by this requirement) and **年份回數遠征** (defined by `neurons-exam-set-expedition`). The menu itself SHALL be reachable regardless of either pool's state, so the player can always pick the other expedition.
+The connectome homepage SHALL surface **two distinct, visually differentiated entries** — NOT a single 出征 action opening a co-equal chooser:
 
-**錯題遠征** opens the existing `QuizModal` on the cross-subject pool of questions whose `questionHistory.lastResult === 'wrong'` (the "currently unmastered" set), spanning all subjects — NOT a single family. When that pool is empty, the 錯題遠征 option SHALL surface an empty-state (disabled control or message) instead of opening a broken modal; the 遠征選單 SHALL still allow selecting 年份回數遠征.
+1. a prominent **錯題出征** primary CTA (defined by this requirement), framed as **connectome-building** (修復錯題＝建立連線), and
+2. a secondary **模考** entry (defined by `neurons-exam-set-expedition`), framed as a **pure exam drill that does NOT build the connectome**.
 
-#### Scenario: 出征 opens a 遠征選單 with two expeditions
-- **WHEN** the player triggers 出征
-- **THEN** a 遠征選單 SHALL present 錯題遠征 and 年份回數遠征 as co-equal options
+The 錯題出征 CTA SHALL be visually dominant over the 模考 entry (size / accent / connectome visual language), and the two SHALL be independently reachable: 模考 SHALL be available regardless of the wrong-question pool's state, and 錯題出征 SHALL be reachable regardless of exam-paper coverage.
 
-#### Scenario: 錯題遠征 with wrong questions opens the drill
-- **WHEN** the player picks 錯題遠征 and the cross-subject `lastResult === 'wrong'` pool is non-empty
+**錯題出征** opens the existing `QuizModal` on the cross-subject pool of questions whose `questionHistory.lastResult === 'wrong'` (the "currently unmastered" set), spanning all subjects — NOT a single family. When that pool is empty, the 錯題出征 control SHALL surface an empty-state (disabled control or message) instead of opening a broken modal; the 模考 entry SHALL remain independently available.
+
+#### Scenario: Homepage surfaces two differentiated entries
+- **WHEN** the homepage renders
+- **THEN** it SHALL present a prominent 錯題出征 primary CTA and a secondary 模考 entry as two distinct controls (NOT a single 出征 button opening a co-equal chooser)
+- **AND** the 錯題出征 CTA SHALL be visually dominant over the 模考 entry
+
+#### Scenario: Entries communicate connectome vs no-connectome
+- **WHEN** the player views the two entries
+- **THEN** the 錯題出征 entry SHALL carry connectome-building framing (修復＝建立連線) and the 模考 entry SHALL carry an explicit "純測驗 · 不產生連線" framing
+
+#### Scenario: 錯題出征 with wrong questions opens the drill
+- **WHEN** the player picks 錯題出征 and the cross-subject `lastResult === 'wrong'` pool is non-empty
 - **THEN** `QuizModal` opens on exactly that pool, drawing from multiple subjects
 
-#### Scenario: 錯題遠征 with an empty pool
-- **WHEN** the player picks 錯題遠征 and there are no `lastResult === 'wrong'` questions
+#### Scenario: 錯題出征 with an empty pool
+- **WHEN** the player picks 錯題出征 and there are no `lastResult === 'wrong'` questions
 - **THEN** an empty-state message is shown and no `QuizModal` opens
-- **AND** 年份回數遠征 SHALL remain selectable from the 遠征選單
+- **AND** the 模考 entry SHALL remain independently selectable
 
 #### Scenario: Pool is all-subject, not per-family
 - **WHEN** the wrong-question pool spans multiple subjects
-- **THEN** the 錯題遠征 drill includes questions from all of them (no family restriction)
+- **THEN** the 錯題出征 drill includes questions from all of them (no family restriction)
 
 ### Requirement: Expedition completion grants DMN draw entitlement
 

@@ -65,11 +65,18 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // Quick-review mini-batch: when true, the open expedition is capped to ≤5
   // wrong questions (DMN quick-review-batch event, realign-dmn-event-rewards-to-maze).
   const [quickReviewActive, setQuickReviewActive] = useState(false)
-  // 遠征選單 (add-neurons-exam-set-expedition): 出征 opens a chooser →
-  // 'choose' (錯題 / 年份回數) → 'exam' (year+次別 paper picker). 'closed' = hidden.
-  const [expeditionMenu, setExpeditionMenu] = useState<'closed' | 'choose' | 'exam'>('closed')
-  // Active year+次別 paper drill (null = not open). Mutually exclusive with quizEntry / expeditionOpen.
-  const [examSelection, setExamSelection] = useState<{ year: number; session: number } | null>(null)
+  // 模考 picker (split-neurons-expedition-exam-modes): the 📋 模考 secondary entry
+  // opens the per-book exam-paper picker directly. 'exam' = picker open, 'closed' =
+  // hidden. The old co-equal 'choose' chooser is removed — 錯題出征 is now its own
+  // prominent primary CTA.
+  const [expeditionMenu, setExpeditionMenu] = useState<'closed' | 'exam'>('closed')
+  // Active (year, 次別, 冊別) paper drill (null = not open). Mutually exclusive with
+  // quizEntry / expeditionOpen.
+  const [examSelection, setExamSelection] = useState<{
+    year: number
+    session: number
+    book: string
+  } | null>(null)
   // Settlement result of the last wrong-pool expedition → conduction ledger + ritual
   // (rework-neurons-connectome-expedition-driven).
   const [settlement, setSettlement] = useState<ExpeditionConnectomeResult | null>(null)
@@ -206,6 +213,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             questionHistory,
             examSelection.year,
             examSelection.session,
+            examSelection.book,
           )
         : [],
     [examSelection, pack.questions, questionHistory],
@@ -280,25 +288,21 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     setExpeditionOpen(true)
   }
 
-  // 遠征選單 (add-neurons-exam-set-expedition): the 出征 button opens a chooser so
-  // 錯題遠征 and 年份回數遠征 are co-equal; the menu is reachable regardless of pools.
-  const openExpeditionMenu = (): void => {
+  // 📋 模考 (split-neurons-expedition-exam-modes): open the per-book exam-paper
+  // picker directly — no co-equal chooser. 錯題出征 has its own primary CTA above
+  // (openExpedition), so the two modes are distinct entries.
+  const openExamMode = (): void => {
     setQuizEntry(undefined)
     setExpeditionOpen(false)
     setQuickReviewActive(false)
     setExamSelection(null)
-    setExpeditionMenu('choose')
+    setExpeditionMenu('exam')
   }
-  const chooseWrongExpedition = (): void => {
-    if (wrongCount === 0) return
-    setExpeditionMenu('closed')
-    openExpedition()
-  }
-  const chooseExamPaper = (year: number, session: number): void => {
+  const chooseExamPaper = (year: number, session: number, book: string): void => {
     setExpeditionMenu('closed')
     setQuizEntry(undefined)
     setExpeditionOpen(false)
-    setExamSelection({ year, session }) // drill opens when examSetPool is non-empty
+    setExamSelection({ year, session, book }) // drill opens when examSetPool is non-empty
   }
 
   // DMN quick-review-batch: the toast CTA emits `dmn.quickReviewStart`; open the
@@ -442,14 +446,33 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           </button>
           <button
             type="button"
-            style={expeditionButtonStyle}
-            onClick={openExpeditionMenu}
-            aria-label="出征：選擇遠征"
-            title="選擇遠征：全科錯題，或特定年份+次別的全題依序"
+            style={wrongCount > 0 ? wrongExpeditionButtonStyle : wrongExpeditionButtonDisabledStyle}
+            onClick={openExpedition}
+            disabled={wrongCount === 0}
+            aria-label="錯題出征：修復錯題建立連線"
+            title="修復跨科錯題＝在腦圖上建立突觸連線（同時獲得 DMN 抽卡）"
           >
-            <EmojiIcon char="⚔️" size={18} /> 出征
+            <span style={ctaCardMainStyle}>
+              <span>
+                <EmojiIcon char="⚔️" size={18} /> 錯題出征
+              </span>
+              <span style={ctaCountBadgeStyle}>{wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}</span>
+            </span>
+            <span style={ctaCardSubStyle}>🔗 修復錯題＝建立連線</span>
           </button>
         </div>
+        <button
+          type="button"
+          style={examModeButtonStyle}
+          onClick={openExamMode}
+          aria-label="模考：純測驗，不產生連線"
+          title="模考：選一份考卷（醫學一或醫學二，約 100 題）依序作答；純測驗，不長連線"
+        >
+          <span>
+            <EmojiIcon char="📋" size={16} /> 模考
+          </span>
+          <span style={examModeSubStyle}>純測驗 · 不產生連線</span>
+        </button>
         <p style={quizCtaHintStyle}>
           直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
         </p>
@@ -528,63 +551,43 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         />
       )}
 
-      {/* 遠征選單 (add-neurons-exam-set-expedition): 出征 → choose 錯題 / 年份回數;
-          年份回數 → year+次別 paper picker with coverage. */}
-      {expeditionMenu !== 'closed' && (
+      {/* 模考 (split-neurons-expedition-exam-modes): per-book exam-paper picker.
+          A paper = one 冊 (醫學一 or 醫學二) of a (year, 次別) sitting, ~100 Q. */}
+      {expeditionMenu === 'exam' && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="遠征選單"
+          aria-label="模考選單"
           style={examMenuBackdropStyle}
           onClick={() => setExpeditionMenu('closed')}
         >
           <div style={examMenuPanelStyle} onClick={(e) => e.stopPropagation()}>
-            {expeditionMenu === 'choose' ? (
-              <>
-                <h2 style={examMenuTitleStyle}>選擇遠征</h2>
+            <button type="button" onClick={() => setExpeditionMenu('closed')} style={examMenuBackStyle}>
+              ← 關閉
+            </button>
+            <h2 style={examMenuTitleStyle}>模考 · 選試卷</h2>
+            <div style={examPaperListStyle}>
+              {examPapers.map((p) => (
                 <button
+                  key={`${p.year}-${p.session}-${p.book}`}
                   type="button"
-                  onClick={chooseWrongExpedition}
-                  disabled={wrongCount === 0}
-                  style={wrongCount > 0 ? examMenuOptionStyle : examMenuOptionDisabledStyle}
+                  onClick={() => chooseExamPaper(p.year, p.session, p.book)}
+                  disabled={p.complete}
+                  style={p.complete ? examPaperRowDoneStyle : examPaperRowStyle}
+                  title={p.complete ? '已完成全部題目' : `剩 ${p.total - p.answered} 題未答`}
                 >
-                  <span><EmojiIcon char="⚔️" size={16} /> 錯題遠征</span>
-                  <span style={ctaCountBadgeStyle}>{wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}</span>
+                  <span>
+                    {p.year} 第{p.session}次 · {p.book}
+                  </span>
+                  <span style={ctaCountBadgeStyle}>
+                    {p.complete ? '✓ 完成' : `已答 ${p.answered}/${p.total}`}
+                  </span>
                 </button>
-                <button type="button" onClick={() => setExpeditionMenu('exam')} style={examMenuOptionStyle}>
-                  <span><EmojiIcon char="📅" size={16} /> 年份回數遠征</span>
-                  <span style={ctaCountBadgeStyle}>全題依序</span>
-                </button>
-                <p style={examMenuHintStyle}>兩種遠征共用每日 DMN 抽卡上限（同一條出征軸）。</p>
-              </>
-            ) : (
-              <>
-                <button type="button" onClick={() => setExpeditionMenu('choose')} style={examMenuBackStyle}>
-                  ← 返回
-                </button>
-                <h2 style={examMenuTitleStyle}>年份回數遠征 · 選試卷</h2>
-                <div style={examPaperListStyle}>
-                  {examPapers.map((p) => (
-                    <button
-                      key={`${p.year}-${p.session}`}
-                      type="button"
-                      onClick={() => chooseExamPaper(p.year, p.session)}
-                      disabled={p.complete}
-                      style={p.complete ? examPaperRowDoneStyle : examPaperRowStyle}
-                      title={p.complete ? '已完成全部題目' : `剩 ${p.total - p.answered} 題未答`}
-                    >
-                      <span>{p.year} 第{p.session}次</span>
-                      <span style={ctaCountBadgeStyle}>
-                        {p.complete ? '✓ 完成' : `已答 ${p.answered}/${p.total}`}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <p style={examMenuHintStyle}>
-                  每份＝該年該次 醫學一＋醫學二 全題，依題號順序；已答過的題（任何模式）會跳過、累積到答完整份。
-                </p>
-              </>
-            )}
+              ))}
+            </div>
+            <p style={examMenuHintStyle}>
+              每份＝該年該次的單冊（醫學一或醫學二）約 100 題，依題號順序；已答過的題（任何模式）會跳過、累積到答完整冊。模考為純測驗、不產生連線，但與錯題出征共用每日 DMN 抽卡上限。
+            </p>
           </div>
         </div>
       )}
@@ -727,13 +730,6 @@ const examMenuOptionStyle: React.CSSProperties = {
   fontWeight: 600,
   fontSize: '0.95rem',
   cursor: 'pointer',
-}
-
-const examMenuOptionDisabledStyle: React.CSSProperties = {
-  ...examMenuOptionStyle,
-  opacity: 0.5,
-  cursor: 'not-allowed',
-  borderColor: '#c9b48f',
 }
 
 const examMenuHintStyle: React.CSSProperties = {
@@ -885,22 +881,74 @@ const randomQuizButtonStyle: React.CSSProperties = {
   gap: '0.5rem',
 }
 
-const expeditionButtonStyle: React.CSSProperties = {
-  flex: '1 1 200px',
-  padding: '0.65rem 1.2rem',
+// ⚔️ 錯題出征 = the prominent primary connectome-building CTA. Terracotta base +
+// a static synaptic-cyan glow ring signals "this wires the brain". The glow is a
+// box-shadow (no animation) so it degrades cleanly under prefers-reduced-motion.
+// (split-neurons-expedition-exam-modes)
+const wrongExpeditionButtonStyle: React.CSSProperties = {
+  flex: '1 1 220px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  gap: '0.18rem',
+  padding: '0.55rem 1rem',
   borderRadius: '6px',
-  border: '1px solid #9a5a3a',
-  background: '#c06a3a',
+  border: '2px solid #e0a44a',
+  background: 'linear-gradient(135deg, #c06a3a 0%, #a85530 100%)',
   color: '#fff',
-  fontSize: '1.02rem',
-  fontWeight: 700,
   fontFamily: 'inherit',
+  fontWeight: 700,
   cursor: 'pointer',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-  display: 'inline-flex',
+  boxShadow: '0 0 0 2px rgba(255,255,255,0.18), 0 0 14px 1px rgba(64, 210, 200, 0.55)',
+}
+
+const wrongExpeditionButtonDisabledStyle: React.CSSProperties = {
+  ...wrongExpeditionButtonStyle,
+  background: '#cbb89f',
+  border: '2px solid #b8a07a',
+  boxShadow: 'none',
+  opacity: 0.7,
+  cursor: 'not-allowed',
+}
+
+const ctaCardMainStyle: React.CSSProperties = {
+  display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
+  justifyContent: 'space-between',
   gap: '0.5rem',
+  fontSize: '1.02rem',
+}
+
+const ctaCardSubStyle: React.CSSProperties = {
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  opacity: 0.92,
+  letterSpacing: '0.2px',
+}
+
+// 📋 模考 = the secondary, exam-room entry. Slim, muted parchment with a dashed
+// border + an explicit "不產生連線" sub-label so it reads as subordinate to 錯題出征.
+const examModeButtonStyle: React.CSSProperties = {
+  alignSelf: 'stretch',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.5rem',
+  padding: '0.4rem 0.85rem',
+  borderRadius: '6px',
+  border: '1px dashed #b8a07a',
+  background: '#f4ecd8',
+  color: '#6b5436',
+  fontFamily: 'inherit',
+  fontWeight: 600,
+  fontSize: '0.9rem',
+  cursor: 'pointer',
+}
+
+const examModeSubStyle: React.CSSProperties = {
+  fontSize: '0.74rem',
+  fontWeight: 500,
+  color: '#8a7350',
 }
 
 const ctaCountBadgeStyle: React.CSSProperties = {
