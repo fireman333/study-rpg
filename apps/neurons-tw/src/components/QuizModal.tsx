@@ -26,6 +26,8 @@ import SquadCelebration from './SquadCelebration'
 import MazeExpedition from './MazeExpedition'
 import { getExpeditionHidden } from '../lib/expedition-visibility'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
+import { liveQuery } from 'dexie'
+import { db } from '../lib/db'
 
 interface Props {
   pool: Question[]
@@ -164,6 +166,28 @@ const energyStripBarFillStyle: CSSProperties = {
   transition: 'width 0.4s ease',
 }
 
+/**
+ * Reactively report whether the player owns a family's slot-5 傳奇 apex variant
+ * (its `[familyId, 5]` neuronVariants row exists). Drives the featured
+ * correct-reaction upgrade (slot-5 showpiece when owned, else slot-3) per
+ * `neurons-sprite-animation`. Mirrors `useIsBookmarked`'s liveQuery pattern.
+ */
+function useOwnsLegendarySlot(familyId: string | undefined): boolean {
+  const [owns, setOwns] = useState(false)
+  useEffect(() => {
+    if (!familyId) {
+      setOwns(false)
+      return
+    }
+    const sub = liveQuery(() => db.neuronVariants.get([familyId, 5])).subscribe({
+      next: (row) => setOwns(!!row),
+      error: () => setOwns(false),
+    })
+    return () => sub.unsubscribe()
+  }, [familyId])
+  return owns
+}
+
 export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: Props): JSX.Element {
   // Build session pool once: exclude image-option questions, then shuffle unless
   // the caller preserves order (錯題 review mode serves oldest-due-first).
@@ -225,6 +249,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
 
   const q: Question | undefined = sessionPool[idx]
   const exhausted = idx >= sessionPool.length
+  // Featured correct-reaction upgrades to the slot-5 傳奇 showpiece when owned.
+  const ownsLegendary = useOwnsLegendarySlot(q?.subject)
 
   const handlePick = useCallback(
     async (optionKey: string) => {
@@ -463,11 +489,17 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
       : [correctKey]
   const isCorrect = picked !== null && (q.disputed === true || acceptedKeys.includes(picked))
   const revealed = picked !== null
-  // Hero correct-reaction: if the answered family has a featured animated variant
-  // (slot-3 `correct` sheet present), play its flourish next to the spike train.
-  // Only 藥理學 ships sheets in this slice; generalises as other families gain them.
-  const heroReactionBase =
-    isCorrect && SPRITE_MAP[`variant:${q.subject}:3:correct`] ? `variant:${q.subject}:3` : null
+  // Featured correct-reaction: play the answered family's reaction flourish next to
+  // the spike train. Ownership-gated featured slot — when the player owns the slot-5
+  // 傳奇 apex (and it ships a `correct` showpiece) the reaction upgrades to it; else
+  // the slot-3 featured; else no sheet → no flourish (per neurons-sprite-animation).
+  const heroReactionBase = !isCorrect
+    ? null
+    : ownsLegendary && SPRITE_MAP[`variant:${q.subject}:5:correct`]
+      ? `variant:${q.subject}:5`
+      : SPRITE_MAP[`variant:${q.subject}:3:correct`]
+        ? `variant:${q.subject}:3`
+        : null
 
   return (
     <div
