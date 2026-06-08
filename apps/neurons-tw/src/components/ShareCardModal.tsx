@@ -127,7 +127,9 @@ export default function ShareCardModal({ open, onClose, userId }: Props): JSX.El
           const payload = buildVariantCardPayload(featured, {
             nickname: vs.nickname,
             title: vs.title,
-            variantCount: vs.variants.length,
+            // Distinct-owned count via the canonical projection (ghost slots
+            // excluded), NOT the raw picker-list length.
+            variantCount: vs.ownedCount,
           })
           const assets = await loadVariantCardAssets(payload)
           if (cancelled) return

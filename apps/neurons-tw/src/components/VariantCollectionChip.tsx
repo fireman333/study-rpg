@@ -11,6 +11,7 @@
 import { useEffect, useState } from 'react'
 import { db } from '../lib/db'
 import { subscribeVariantGachaEvents } from '../lib/services/variant-gacha'
+import { ownedSlotCountForFamily } from '../lib/services/variant-ownership'
 import { EmojiIcon } from './EmojiIcon'
 
 interface Props {
@@ -22,8 +23,10 @@ export default function VariantCollectionChip({ familyId }: Props): JSX.Element 
 
   useEffect(() => {
     let cancelled = false
+    // Canonical per-family distinct-owned projection — a cross-device fusion
+    // ghost slot (variant row, 0 held individuals) does NOT inflate this count.
     const refresh = async (): Promise<void> => {
-      const n = await db.neuronVariants.where('familyId').equals(familyId).count()
+      const n = await ownedSlotCountForFamily(db, familyId)
       if (!cancelled) setCount(n)
     }
     void refresh()

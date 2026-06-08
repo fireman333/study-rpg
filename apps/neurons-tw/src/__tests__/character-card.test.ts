@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import 'fake-indexeddb/auto'
-import { db, type NeuronVariantRow, type VariantRarity } from '../lib/db'
+import { db, type NeuronVariantRow, type NeuronInstanceRow, type VariantRarity } from '../lib/db'
 import {
   pickBranchRepresentatives,
   buildCharacterCardPayload,
@@ -23,6 +23,18 @@ const mkVariant = (
   spriteKey: `variant:${familyId}:${slotIndex}`,
   rolledAt,
   wasPityFloor: false,
+})
+
+/** One held individual for a variant slot (variantCount now reads the canonical
+ *  ownedSlotCount projection, so every owned slot needs ≥ 1 held instance). */
+const mkHeldInstance = (v: NeuronVariantRow): NeuronInstanceRow => ({
+  instanceId: `${v.familyId}:${v.slotIndex}`,
+  familyId: v.familyId,
+  slotIndex: v.slotIndex,
+  rarity: v.rarity,
+  spriteKey: v.spriteKey,
+  rolledAt: v.rolledAt,
+  consumedAt: null,
 })
 
 describe('pickBranchRepresentatives (pure)', () => {
@@ -94,7 +106,7 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
       { familyId: '藥理學', ap: 100, firedToday: false, lastFireDate: null, unlockedSlots: [], sameDayCorrect: 0, pullCount: 0 },
       { familyId: '解剖學', ap: 50, firedToday: false, lastFireDate: null, unlockedSlots: [], sameDayCorrect: 0, pullCount: 0 },
     ])
-    await db.neuronVariants.bulkPut([
+    const variantRows = [
       mkVariant('藥理學', 1, 'P2'),
       mkVariant('藥理學', 2, 'P3'),
       mkVariant('藥理學', 3, 'P3'),
@@ -118,7 +130,11 @@ describe('buildCharacterCardPayload (Dexie-backed)', () => {
       mkVariant('藥理學', 18, 'P3'),
       mkVariant('藥理學', 19, 'P3'), // 藥理學 now complete (20/20: 10 pyramid + 10 location)
       mkVariant('解剖學', 1, 'P1'),
-    ])
+    ]
+    await db.neuronVariants.bulkPut(variantRows)
+    // Each owned slot holds one individual so the ownedSlotCount projection ==
+    // the 21 distinct slots (no ghost slots in this fixture).
+    await db.neuronInstances.bulkPut(variantRows.map(mkHeldInstance))
     await db.synapses.bulkPut([
       { pairKey: 'a:b', state: 'strong', lastCoFireDate: '2026-06-01', createdAt: '2026-06-01' },
       { pairKey: 'c:d', state: 'strong', lastCoFireDate: '2026-06-01', createdAt: '2026-06-01' },

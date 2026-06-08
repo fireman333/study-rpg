@@ -25,7 +25,7 @@ import {
   type RepresentativeMap,
 } from '../lib/services/representatives'
 import { promoteTier } from '../lib/services/variant-fusion'
-import { computeOwnedSlotCount } from '../lib/services/variant-ownership'
+import { computeOwnedSlotCount, computeOwnedSlotCountByFamily } from '../lib/services/variant-ownership'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
 import VariantSprite from '../components/VariantSprite'
@@ -103,6 +103,8 @@ interface PageState {
   heldByFamily: Map<string, NeuronInstanceRow[]>
   /** Canonical distinct-owned count (slots with ≥1 held individual; ghost slots excluded). */
   ownedSlotCount: number
+  /** Canonical per-family distinct-owned count (familyId → owned slots; ghost slots excluded). */
+  ownedSlotCountByFamily: Map<string, number>
 }
 
 export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Element {
@@ -113,6 +115,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     instancesBySlot: new Map(),
     heldByFamily: new Map(),
     ownedSlotCount: 0,
+    ownedSlotCountByFamily: new Map(),
   })
   const { user } = useAuth()
   const [shareOpen, setShareOpen] = useState(false)
@@ -154,6 +157,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
         instancesBySlot,
         heldByFamily,
         ownedSlotCount: computeOwnedSlotCount(rows, instanceRows),
+        ownedSlotCountByFamily: computeOwnedSlotCountByFamily(rows, instanceRows),
       }
     }).subscribe({
       next: (val) => setState(val),
@@ -248,6 +252,9 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
             .sort((a, b) => a.slotIndex - b.slotIndex)
           const held = state.heldByFamily.get(family.id) ?? []
           const totalIndividuals = held.length
+          // Canonical per-family distinct-owned count (ghost slots excluded) —
+          // NOT familyRows.length, which counts raw neuronVariants rows.
+          const ownedInFamily = state.ownedSlotCountByFamily.get(family.id) ?? 0
           const surplus = surplusByTier(held)
           const promoteTiers = PROMOTABLE_TIERS.filter((t) => (surplus[t] ?? 0) > 0)
           return (
@@ -258,10 +265,11 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                     <VariantSprite row={repRow} size={28} alt={`${family.label} 代表`} />
                   )}
                   {family.label}
-                  {/* Chip stays distinct-slot (種類); total individuals is a faint
-                      secondary, only when there are dupes (totalIndividuals > 種類). */}
-                  <span style={ownedCountStyle}><EmojiIcon char="🧬" size={14} /> {familyRows.length} 隻</span>
-                  {totalIndividuals > familyRows.length && (
+                  {/* Chip stays distinct-slot (種類) via the canonical per-family
+                      projection; total individuals is a faint secondary, only when
+                      there are dupes (totalIndividuals > owned slots). */}
+                  <span style={ownedCountStyle}><EmojiIcon char="🧬" size={14} /> {ownedInFamily} 隻</span>
+                  {totalIndividuals > ownedInFamily && (
                     <span style={individualCountStyle}>· 共 {totalIndividuals} 個體</span>
                   )}
                 </h2>
