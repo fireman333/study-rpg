@@ -1,45 +1,56 @@
-# connectome-collection Specification
+## REMOVED Requirements
 
-## Purpose
+### Requirement: Synapse SHALL be created between two families upon first same-day co-firing reaching N=5 threshold per family
 
-Implements step 3 of the `neurons-mode` Hebbian game loop: a synapse state machine (`dormant → weak → strong`), same-day cross-family co-fire detection (N=5 correct answers per family per local-TZ calendar day), LTD decay (one level after 7+ days without co-fire, never removing a synapse), a monotonic per-family Action Potential counter with a 5-step variant slot unlock threshold ladder, and a stub `/connectome` view grouping the 11 neuron families by NT branch alongside a synapse table. Daily reset runs lazily on the next user interaction crossing local-TZ midnight; all per-answer writes are wrapped in a single Dexie transaction with events emitted only after commit.
-## Requirements
-### Requirement: Per-family Action Potential SHALL be tracked as monotonic counter incremented by correct quiz answers
+**Reason**: 觸發改綁「出征共同修復」（repair together, wire together）以對齊真正的學習價值（錯題回收）；「同日各科答對 5 題」鼓勵的是打卡式多科淺練，與學習目標脫節。
 
-The neurons mode SHALL maintain a per-neuron-family `actionPotential` (AP) counter
-that:
+**Migration**: 由新 ADDED 需求「Synapse SHALL be created between two subjects upon same-day cross-subject expedition repair」取代。既有 `db.synapses` row 保留、不 backfill、從新規則向前更新。`familyAccrual.firedToday` / N=5 同日 co-fire 計數不再用於 synapse 形成（AP monotonic counter 本身保留作 provenance，見既有「Per-family Action Potential」需求，未變）。
 
-- Starts at 0 for each of the 11 families on save creation
-- Increments by exactly 1 for every correct quiz answer attributed to that family
-  (plus any active DMN family-buff bonus)
-- Is monotonic (never decreases — no per-day reset, no decay)
-- Persists across sessions via the local Dexie `familyAccrual` table
+### Requirement: Synapse state machine SHALL implement three discrete states (dormant / weak / strong) with strengthening on subsequent same-day co-fires
 
-AP is a **display + progression signal** (shown on the connectome homepage, and
-recorded as `apAtUnlock` provenance at pull time). AP SHALL NOT gate variant
-collection — variant acquisition is the `neuron-variant-gacha` capability's
-currency-gated pull. AP is distinct from `pullCount` (the per-family P0 pity clock).
+**Reason**: 升階改由「不同日再次跨科共同修復（出征）」驅動，不再是「不同日各科同日共同答對」。
 
-#### Scenario: Initial AP is zero for all families
+**Migration**: 由新 ADDED 需求「Synapse state machine SHALL strengthen on subsequent-day cross-subject co-repair」取代；狀態值 dormant/weak/strong 與既有 row 完全相容。
 
-- **GIVEN** the player creates a new save in neurons-tw
-- **THEN** every family's `actionPotential` SHALL equal 0
-- **AND** the `familyAccrual` table SHALL contain one row per family initialized with
-  `ap = 0` and `pullCount = 0`
+### Requirement: LTD decay SHALL downgrade synapse state by one level after 7+ days without co-fire, never removing the synapse
 
-#### Scenario: Correct answer increments AP by exactly 1
+**Reason**: 衡量基準由「無共同 co-fire」改為「無共同 co-repair」（出征驅動）；衰退窗**維持既有 7 天**（遊戲 ~2 個月玩完，7 天讓「不維護就變弱」有意義、漏 2–3 天又不致挫折——owner 拍板，不改 14/21）。
 
-- **GIVEN** a family's current `actionPotential` is `X`
-- **WHEN** the player answers a question correctly attributed to that family
-- **THEN** that family's `actionPotential` SHALL become `X + 1` (plus DMN bonus if active)
-- **AND** no `connectome.variantSlotUnlocked` event SHALL be emitted (the event no longer exists)
+**Migration**: 由新 ADDED 需求「LTD decay SHALL downgrade synapse state by one level after 7+ days without co-repair」取代；衰退語意（降一階、不移除、降後更新日期防串聯）不變。
 
-#### Scenario: AP no longer unlocks variants
+## MODIFIED Requirements
 
-- **GIVEN** a family's AP crosses any value (e.g. 10, 30, 80)
-- **WHEN** the answer commits
-- **THEN** no variant row SHALL be created as a result of the AP value
-- **AND** variants SHALL only be created by an explicit player pull
+### Requirement: Daily reset SHALL run lazily on next user interaction crossing local-TZ midnight
+
+The system SHALL use a lazy daily reset strategy rather than a background scheduler:
+
+- A `meta.lastResetDate` value SHALL be persisted (initialized on save creation to that date)
+- On every entry into `recordCorrectAnswer`, `loadConnectome`, and the expedition-settlement connectome-credit entry point (`onExpeditionComplete` path), the system SHALL check whether `meta.lastResetDate` ≠ today's local date
+- If different, the system SHALL run the daily reset sequence before continuing:
+  1. Clear the per-day repair tracking used by the expedition-driven synapse trigger (the prior day's `connectome:dailyRepair:<date>` / `connectome:dailyWiredPairs:<date>` are date-keyed and naturally roll; any in-memory per-day accumulator SHALL reset to empty)
+  2. Run the LTD decay pass per the 7-day decay requirement
+  3. If the prior day did NOT record an effective expedition completion, reset `expeditionStreak` to 0 (per the streak requirement)
+  4. Update `meta.lastResetDate` to today's local date
+
+The reset SHALL handle multi-day gaps (user opens the app after a multi-day absence): the LTD decay pass sets each decayed synapse's `lastCoFireDate` to the decay date so no cascading occurs and a single pass suffices; a multi-day gap with no completion breaks the streak (resets to 0).
+
+#### Scenario: First app entry of a new day triggers reset before processing the answer
+
+- **GIVEN** `meta.lastResetDate = "2026-06-08"` and today is `"2026-06-09"`
+- **WHEN** the player takes the first connectome-affecting action of `2026-06-09` (answer, connectome load, or expedition settlement)
+- **THEN** before processing, the per-day repair accumulation SHALL be empty for `2026-06-09`
+- **AND** the 7-day LTD decay pass SHALL have run
+- **AND** if `2026-06-08` recorded no effective expedition completion, `expeditionStreak` SHALL be reset to 0
+- **AND** `meta.lastResetDate` SHALL equal `"2026-06-09"`
+
+#### Scenario: Same-day repeated entry does not re-run reset
+
+- **GIVEN** `meta.lastResetDate = "2026-06-09"` and today is `"2026-06-09"`
+- **WHEN** the player takes a second connectome-affecting action on the same day
+- **THEN** the daily reset sequence SHALL NOT run again
+- **AND** `meta.lastResetDate` SHALL remain `"2026-06-09"`
+
+## ADDED Requirements
 
 ### Requirement: Synapse SHALL be created between two subjects upon same-day cross-subject expedition repair
 
@@ -132,108 +143,6 @@ The daily reset job SHALL run an LTD decay pass:
 - **WHEN** the daily reset runs
 - **THEN** the synapse SHALL still exist with `state = dormant` (decayed one level) and SHALL never be removed
 
-### Requirement: Daily reset SHALL run lazily on next user interaction crossing local-TZ midnight
-
-The system SHALL use a lazy daily reset strategy rather than a background scheduler:
-
-- A `meta.lastResetDate` value SHALL be persisted (initialized on save creation to that date)
-- On every entry into `recordCorrectAnswer`, `loadConnectome`, and the expedition-settlement connectome-credit entry point (`onExpeditionComplete` path), the system SHALL check whether `meta.lastResetDate` ≠ today's local date
-- If different, the system SHALL run the daily reset sequence before continuing:
-  1. Clear the per-day repair tracking used by the expedition-driven synapse trigger (the prior day's `connectome:dailyRepair:<date>` / `connectome:dailyWiredPairs:<date>` are date-keyed and naturally roll; any in-memory per-day accumulator SHALL reset to empty)
-  2. Run the LTD decay pass per the 7-day decay requirement
-  3. If the prior day did NOT record an effective expedition completion, reset `expeditionStreak` to 0 (per the streak requirement)
-  4. Update `meta.lastResetDate` to today's local date
-
-The reset SHALL handle multi-day gaps (user opens the app after a multi-day absence): the LTD decay pass sets each decayed synapse's `lastCoFireDate` to the decay date so no cascading occurs and a single pass suffices; a multi-day gap with no completion breaks the streak (resets to 0).
-
-#### Scenario: First app entry of a new day triggers reset before processing the answer
-
-- **GIVEN** `meta.lastResetDate = "2026-06-08"` and today is `"2026-06-09"`
-- **WHEN** the player takes the first connectome-affecting action of `2026-06-09` (answer, connectome load, or expedition settlement)
-- **THEN** before processing, the per-day repair accumulation SHALL be empty for `2026-06-09`
-- **AND** the 7-day LTD decay pass SHALL have run
-- **AND** if `2026-06-08` recorded no effective expedition completion, `expeditionStreak` SHALL be reset to 0
-- **AND** `meta.lastResetDate` SHALL equal `"2026-06-09"`
-
-#### Scenario: Same-day repeated entry does not re-run reset
-
-- **GIVEN** `meta.lastResetDate = "2026-06-09"` and today is `"2026-06-09"`
-- **WHEN** the player takes a second connectome-affecting action on the same day
-- **THEN** the daily reset sequence SHALL NOT run again
-- **AND** `meta.lastResetDate` SHALL remain `"2026-06-09"`
-
-### Requirement: Synapse formation and strengthening SHALL surface user-facing toast notification, decay SHALL NOT
-
-The system SHALL render a toast notification when the user is in the app and one of the following events fires:
-
-- `connectome.synapseFormed`: toast with copy naming both family `displayName`s and the wiring relation
-- `connectome.synapseStrengthened`: toast with copy naming both family `displayName`s and the new state (`weak` or `strong`)
-
-Toasts SHALL auto-dismiss after `TOAST_AUTO_DISMISS_MS` (8 seconds, sourced from `neurons-motion-library`). Toasts SHALL NOT block input or pause gameplay.
-
-The toast host (`ConnectomeToastHost`) SHALL consume `neurons-motion-library` primitives for animation and timing:
-
-- Entry animation SHALL use Framer Motion `motion.div` slide-from-right + opacity-fade variants (not raw CSS keyframes), so `prefers-reduced-motion` can be honored at runtime via the `useRespectsReducedMotion` hook
-- Auto-dismiss timing SHALL be the imported `TOAST_AUTO_DISMISS_MS` constant, not a locally-declared literal
-- When `useRespectsReducedMotion()` returns true, the entry animation SHALL degrade to opacity fade only (no horizontal translation) while preserving auto-dismiss timing
-
-The host SHALL retain its existing top-right anchored fixed-position vertical-stack layout (distinct from the motion library's single-`<Toast>` top-center primitive) so that multiple concurrent toasts remain visible without overlap.
-
-Decay events (`connectome.synapseDecayed`) SHALL NOT trigger toast notifications (to avoid negative-feedback fatigue). Decay is visible only via the tree edge's recency dimming (edge brightness fading toward the 7-day decay) and the per-edge hover/focus tooltip; there is no synapse table.
-
-#### Scenario: New synapse formation triggers a toast naming both families
-
-- **WHEN** a `connectome.synapseFormed` event fires for `pairKey = "藥理學|解剖學"`
-- **THEN** a toast SHALL render containing both family `displayName`s (the renamed neuron family names per `wire-neurons-content-and-theme`)
-- **AND** the toast SHALL auto-dismiss after `TOAST_AUTO_DISMISS_MS` (8 seconds)
-
-#### Scenario: Synapse decay does NOT trigger a toast
-
-- **WHEN** a `connectome.synapseDecayed` event fires
-- **THEN** no toast SHALL render
-- **AND** the user discovers the decay only via the edge's recency dimming / hover tooltip or a future strengthening event
-
-#### Scenario: Standard motion users see slide-from-right entry animation
-
-- **GIVEN** the user has not enabled OS `prefers-reduced-motion`
-- **WHEN** a connectome toast event fires and the toast mounts
-- **THEN** the toast SHALL enter with Framer Motion `motion.div` variant `initial={{ x: 400, opacity: 0 }}` → `animate={{ x: 0, opacity: 1 }}`
-- **AND** the entry transition SHALL complete within 300ms
-
-#### Scenario: Reduced-motion users see opacity fade only on entry
-
-- **GIVEN** the user has set OS preference `prefers-reduced-motion: reduce`
-- **WHEN** a connectome toast event fires and the toast mounts
-- **THEN** `useRespectsReducedMotion()` SHALL return `true`
-- **AND** the toast SHALL enter with `initial={{ opacity: 0 }}` → `animate={{ opacity: 1 }}` (no horizontal translation)
-- **AND** auto-dismiss timing SHALL remain `TOAST_AUTO_DISMISS_MS` (8 seconds) — only the entry animation degrades
-
-#### Scenario: Toast auto-dismiss timing sourced from motion library constant
-
-- **GIVEN** the developer audits `apps/neurons-tw/src/components/SynapseFormationToast.tsx`
-- **WHEN** the developer searches for the value `8000`
-- **THEN** the value SHALL NOT appear as a local literal in the file
-- **AND** the file SHALL import `TOAST_AUTO_DISMISS_MS` from `'../lib/motion'` and reference it at the auto-dismiss `setTimeout` call site
-
-### Requirement: Connectome service SHALL wrap all writes in a single Dexie transaction with events emitted after commit
-
-The connectome service layer SHALL perform all per-answer state writes (AP increment, `firedToday` flag update, synapse creation or strengthening, daily reset if triggered, `lastCoFireDate` update, `unlockedSlots` mutation) inside a single Dexie `transaction()` block. Event emissions SHALL be deferred until after the transaction commits successfully, to ensure subscribers do not observe partial state.
-
-If the transaction fails, no events SHALL be emitted and the in-memory state SHALL remain consistent with the pre-transaction Dexie state.
-
-#### Scenario: Transaction failure rolls back all writes and emits no events
-
-- **GIVEN** a `recordCorrectAnswer` call begins a Dexie transaction
-- **WHEN** the transaction throws partway through (e.g., due to storage quota exceeded)
-- **THEN** AP, `firedToday`, `synapses`, and `unlockedSlots` SHALL remain at their pre-call values
-- **AND** no `connectome.*` event SHALL have been emitted
-
-#### Scenario: All writes commit before any event fires
-
-- **WHEN** a `recordCorrectAnswer` call succeeds and triggers both AP slot unlock and synapse formation
-- **THEN** all Dexie writes SHALL have committed before either `connectome.variantSlotUnlocked` or `connectome.synapseFormed` event handlers run
-- **AND** event subscribers reading from Dexie SHALL observe the committed post-call state
-
 ### Requirement: Daily effective expedition completion SHALL drive a cross-day study streak
 
 The system SHALL track a cross-day study streak keyed on **effective expedition completion**:
@@ -320,4 +229,3 @@ Synapses created by the removed same-day-co-fire trigger (those whose `lastCoFir
 - **WHEN** the homepage renders 穩定連線數 and an energy batch is conducted
 - **THEN** that synapse SHALL NOT be counted in 穩定連線數, SHALL render as 早期連線, and SHALL NOT conduct any energy
 - **AND** after a new expedition co-repair updates its `lastCoFireDate` to ≥ the ship epoch, it SHALL count toward 穩定連線數 and conduct per its current state
-

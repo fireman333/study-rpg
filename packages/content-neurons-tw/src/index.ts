@@ -83,8 +83,8 @@ export {
   type ExamPaper,
 } from './families'
 
-// Flat-grid maze faucet + pacing + synapse-bonus constants (single source of
-// truth — redesign-neurons-maze-rotjs-grid).
+// Flat-grid maze faucet + pacing + synaptic-conduction constants (single source of
+// truth — redesign-neurons-maze-rotjs-grid + rework-neurons-connectome-expedition-driven).
 export {
   CORRECT_ANSWER_ENERGY,
   READING_MINUTE_ENERGY,
@@ -93,8 +93,13 @@ export {
   RAMP_CAP_N,
   SPEED_BUFF_PER_VARIANT,
   SPEED_BUFF_CAP,
-  SYNAPSE_BONUS_PER,
-  SYNAPSE_BONUS_CAP,
+  CONDUCTION_RATE_WEAK,
+  CONDUCTION_RATE_STRONG,
+  CONDUCTION_WIRE_CAP_WEAK,
+  CONDUCTION_WIRE_CAP_STRONG,
+  CONDUCTION_SOURCE_CAP_PER_DAY,
+  CONDUCTION_TARGET_CAP_PER_DAY,
+  CONNECTOME_CONDUCTION_EPOCH,
 } from './maze-constants'
 
 export {

@@ -30,11 +30,25 @@ export interface VariantSlotUnlockedPayload {
   wasRedemption: boolean
 }
 
+/**
+ * Synaptic conduction pulse (rework-neurons-connectome-expedition-driven): a wired
+ * neighbor received `amount` additive energy from `fromFamily`'s batched earnings.
+ * The visible pulse IS the conduction benefit. Emitted per granted flow at an
+ * expedition settlement / reading-session-end batch.
+ */
+export interface ConductionPulsePayload {
+  fromFamily: string
+  toFamily: string
+  amount: number
+  state: 'weak' | 'strong'
+}
+
 export type ConnectomeEventMap = {
   'connectome.synapseFormed': SynapseFormedPayload
   'connectome.synapseStrengthened': SynapseStrengthenedPayload
   'connectome.synapseDecayed': SynapseDecayedPayload
   'connectome.variantSlotUnlocked': VariantSlotUnlockedPayload
+  'connectome.conductionPulse': ConductionPulsePayload
 }
 
 export type ConnectomeEventName = keyof ConnectomeEventMap

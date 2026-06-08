@@ -37,38 +37,20 @@ Each maze node SHALL correspond to exactly one neuron variant slot (1 node = 1 v
 
 ### Requirement: Growth-signal exploration economy
 
-The system SHALL maintain a per-FAMILY **neural-energy** pool (11 pools) that is BOTH the exploration fuel and the pull cost (one currency per family, no separate manual-pull balance). A correct quiz answer in subject S SHALL accrue energy into family S's own pool directly (S is the family — no neurotransmitter-branch indirection). Reading time SHALL accrue **entirely to the single subject family the player has selected for the current reading session** (the per-subject reading model — there SHALL be no even-split across families); switching the reading subject SHALL end the prior session before the new family begins accruing. Accrual SHALL be scaled by the active answer streak, by that family's mastery tier, by the capped acceleration energy multiplier `energyAccel`, and by the capped synapse cross-family bonus. The settle cost SHALL follow the front-loaded **capped** pacing schedule `cost(N) = round(PACING_BASE × (1 + PACING_K · min(N, RAMP_CAP_N)))` for the N-th cumulative settle within a family (0-indexed); the ramp climbs for the first `RAMP_CAP_N` settles and then **flattens** to a constant `round(PACING_BASE × (1 + PACING_K · RAMP_CAP_N))` for every later settle, so the completionist tail (settles past the cap) costs a fixed amount rather than escalating without bound. First-cut constants (dogfood-telemetry-tunable): `PACING_BASE = 11`, `PACING_K = 0.10`, `RAMP_CAP_N = 20`, `CORRECT_ENERGY = 3`, `READING_ENERGY = 3`. The cumulative settle **index** N itself SHALL remain uncapped (the family can keep settling into 二週目 and beyond); only the per-settle `cost(N)` function is capped. A family's frontier advances inward from its border entry while `earned − Σcost(settled) ≥ cost(nextNode)`. The system MUST NOT introduce any monetary, IAP, ad-reward, or non-gameplay path to advance exploration or settle nodes.
+The system SHALL maintain a per-FAMILY **neural-energy** pool (11 pools) that is BOTH the exploration fuel and the pull cost (one currency per family, no separate manual-pull balance). A correct quiz answer in subject S SHALL accrue energy into family S's own pool directly (S is the family — no neurotransmitter-branch indirection). Reading time SHALL accrue **entirely to the single subject family the player has selected for the current reading session** (the per-subject reading model — there SHALL be no even-split across families); switching the reading subject SHALL end the prior session before the new family begins accruing. Accrual SHALL be scaled by the active answer streak, by that family's mastery tier, by the capped acceleration energy multiplier `energyAccel`, and by the capped acceleration speed multiplier `speedAccel`, plus the collected-count exploration-speed buff. **A family's own accrual SHALL NOT be self-multiplied by any synapse factor** (the prior self-multiplying strong-synapse `synapseBonus` is removed). Instead, a separate ADDITIVE **synaptic conduction** step (per `connectome-collection`) MAY grant a family extra energy from its wired neighbors' batched earnings — this is additive cross-flow into the pool, not a multiplier on the family's own accrual, and an unwired family is never affected. The settle cost SHALL follow the front-loaded **capped** pacing schedule `cost(N) = round(PACING_BASE × (1 + PACING_K · min(N, RAMP_CAP_N)))` for the N-th cumulative settle within a family (0-indexed); the ramp climbs for the first `RAMP_CAP_N` settles and then **flattens** to a constant `round(PACING_BASE × (1 + PACING_K · RAMP_CAP_N))` for every later settle. First-cut constants (dogfood-telemetry-tunable): `PACING_BASE = 11`, `PACING_K = 0.10`, `RAMP_CAP_N = 20`, `CORRECT_ENERGY = 3`, `READING_ENERGY = 3`. The cumulative settle **index** N itself SHALL remain uncapped; only the per-settle `cost(N)` function is capped. A family's frontier advances inward from its border entry while `earned − Σcost(settled) ≥ cost(nextNode)`. The system MUST NOT introduce any monetary, IAP, ad-reward, or non-gameplay path to advance exploration or settle nodes.
 
-#### Scenario: A correct answer accrues to its family's pool
+#### Scenario: Correct answer accrues energy scaled by the non-synapse multipliers
 
-- **WHEN** the user answers a question correctly in subject S
-- **THEN** earned energy is added to family S's pool (scaled by streak, S's mastery, capped `energyAccel`, and S's capped synapse bonus)
-- **AND** no other family's pool is changed by that event
+- **WHEN** the player answers correctly in subject S
+- **THEN** earned energy is added to family S's pool, scaled by streak, S's mastery, capped `energyAccel`, capped `speedAccel`, and the collected-count buff
+- **AND** no synapse self-multiplier SHALL be applied to S's own accrual (conduction, if any, is a separate additive step to neighbors per `connectome-collection`)
 
-#### Scenario: Reading a chosen subject feeds only that subject's pool
+#### Scenario: A family's own accrual is unchanged by its synapses
 
-- **WHEN** the user runs a reading session for a selected subject S and a study-minute accrues
-- **THEN** the per-minute reading energy is added entirely to family S's pool
-- **AND** no other family's pool is changed by that reading minute
-- **AND** the global `totalStudyMinutes` counter still increments (unchanged) for achievements / leaderboard / character card
-
-#### Scenario: Recalibrated front-loaded pacing applies per family
-
-- **WHEN** energy accrues and settles in any family
-- **THEN** the `cost(N) = round(PACING_BASE × (1 + PACING_K · min(N, RAMP_CAP_N)))` schedule applies with the recalibrated shared constants
-- **AND** the first settle (N=0) costs `PACING_BASE` (cheap onboarding) and later settles up to the cap cost strictly more (K > 0)
-
-#### Scenario: Ramp flattens past the cap so the completionist tail does not escalate
-
-- **WHEN** a family's cumulative settle index N exceeds `RAMP_CAP_N`
-- **THEN** `cost(N)` SHALL equal the constant `round(PACING_BASE × (1 + PACING_K · RAMP_CAP_N))` for every such settle
-- **AND** the per-settle cost SHALL NOT grow further as N increases beyond the cap
-
-#### Scenario: No monetary path
-
-- **WHEN** any exploration advance or node settle is triggered
-- **THEN** the trigger is a gameplay action (correct answer / reading time) only
-- **AND** no real-money, IAP, or ad-reward path exists to advance or settle
+- **GIVEN** family A participates in several `strong` synapses
+- **WHEN** the player answers correctly in A
+- **THEN** A's OWN energy accrual SHALL be identical to the case where A has zero synapses (the self-multiplying `synapseBonus` is removed)
+- **AND** A's wired neighbors MAY separately receive additive conduction from A's batched earnings (per `connectome-collection`), which does not alter A's own pool
 
 ### Requirement: Exploration teams from collected variants
 
@@ -222,7 +204,7 @@ The maze SHALL encode each family's identity using redundant channels — a per-
 
 ### Requirement: Synapse network overlay on the maze grid
 
-The system SHALL render the synapse network as an overlay on the maze grid: each formed synapse (a co-firing family pair) SHALL be drawn at/through its synapse-intersection cell(s), with visual weight reflecting synapse state (dormant / weak / strong). The overlay SHALL be read-only with respect to synapse STATE — it SHALL NOT create, strengthen, or decay synapses (that mechanic is owned by `connectome-collection`, unchanged). The overlay SHALL update as synapse state changes and SHALL be toggleable consistent with the maze's display model. (The gameplay bonus that a strong synapse confers is specified separately under "Strong synapse SHALL confer a capped cross-family energy bonus"; the overlay itself remains render-only.)
+The system SHALL render the synapse network as an overlay on the maze grid: each formed synapse (a co-firing **/ co-repair** family pair, per `connectome-collection`) SHALL be drawn at/through its synapse-intersection cell(s), with visual weight reflecting synapse state (dormant / weak / strong). The overlay SHALL be read-only with respect to synapse STATE — it SHALL NOT create, strengthen, or decay synapses (that mechanic is owned by `connectome-collection`). The overlay SHALL update as synapse state changes and SHALL be toggleable consistent with the maze's display model, and SHALL default to visible as the homepage's prominent connectome layer. The overlay SHALL ALSO surface synaptic conduction: when a `connectome.conductionPulse` event fires (per `connectome-collection`), the overlay SHALL animate a pulse traveling the corresponding wire from source family to target family. The overlay remains read-only with respect to synapse STATE and the conduction mechanic (it renders; it does not create/strengthen/decay synapses nor compute conduction energy — those are owned by `connectome-collection`).
 
 #### Scenario: Formed synapse renders at its intersection
 
@@ -230,11 +212,18 @@ The system SHALL render the synapse network as an overlay on the maze grid: each
 - **THEN** an edge/marker is drawn at the A–B synapse-intersection cell on the grid
 - **AND** its visual weight reflects the synapse's current state
 
-#### Scenario: Overlay reflects state changes without mutating state
+#### Scenario: Overlay is render-only and default-visible
 
 - **WHEN** a synapse strengthens or decays
-- **THEN** the overlay weight updates
+- **THEN** the overlay updates its visual weight
 - **AND** the synapse data/state itself is unchanged by the overlay
+- **AND** the overlay defaults to visible (prominent connectome layer) and remains toggleable
+
+#### Scenario: Conduction pulse animates along the wire
+
+- **WHEN** a `connectome.conductionPulse { fromFamily, toFamily, amount }` event fires
+- **THEN** the overlay SHALL animate a pulse traveling that wire from `fromFamily` toward `toFamily`
+- **AND** the overlay SHALL NOT itself grant or modify any energy (it renders the already-granted conduction)
 
 ### Requirement: Maze SHALL be one large square zoomable structural-weave grid
 
@@ -352,26 +341,6 @@ The maze camera SHALL frame the view by the player's current activity, and SHALL
 
 - **WHEN** reduced-motion is enabled and the activity or focus changes
 - **THEN** the camera changes framing with an instant cut, not an animated zoom
-
-### Requirement: Strong synapse SHALL confer a capped cross-family energy bonus
-
-A synapse in the **strong** state (per `connectome-collection`, formed and strengthened by same-day co-firing of its two families) SHALL grant a capped cross-family energy-accrual bonus to both of its families. The bonus SHALL be additive across a family's strong synapses and clamped to `SYNAPSE_BONUS_CAP` (first-cut +X% per strong synapse, total ≤ +30%, dogfood-tunable). The maze economy SHALL READ synapse state read-only — it SHALL NOT create, strengthen, or decay synapses (that mechanic remains owned by `connectome-collection`, unchanged). The maze SHALL NOT apply any LTD/decay penalty (the bonus simply keys off the current strong state). With no strong synapse for a family the bonus SHALL be `1.0`. The bonus SHALL compose multiplicatively with the other capped accrual multipliers (streak × mastery × `energyAccel` × synapse-bonus) such that no factor and no product is unbounded.
-
-#### Scenario: Strong synapse boosts both families' accrual under the cap
-
-- **WHEN** families A and B share a strong synapse and the player answers an A-subject question correctly
-- **THEN** A's energy accrual is multiplied by its synapse bonus (clamped to `SYNAPSE_BONUS_CAP`)
-- **AND** the synapse state itself is unchanged by the maze read
-
-#### Scenario: No strong synapse means no bonus, and no LTD penalty
-
-- **WHEN** family A has no strong synapse (or a synapse has decayed in connectome)
-- **THEN** A's synapse bonus is `1.0` (no bonus, and no maze-side decay penalty)
-
-#### Scenario: Bonus stays capped with many strong synapses
-
-- **WHEN** a family participates in many strong synapses
-- **THEN** the summed synapse bonus does not exceed `SYNAPSE_BONUS_CAP`
 
 ### Requirement: Maze renders as a filled brain-tissue tile field with carved corridors
 

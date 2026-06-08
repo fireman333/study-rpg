@@ -13,11 +13,12 @@ import {
   nextStateOnDecay,
   nextStateOnStrengthen,
   pairKey,
-  shouldFire,
   type ConnectomeEventMap,
   type ConnectomeEventName,
   type ConnectomeListener,
 } from '../connectome'
+import type { ConductionFlow } from '../maze/economy'
+import { CONNECTOME_CONDUCTION_EPOCH } from '@study-rpg/content-neurons-tw'
 import {
   recordAttemptInTx,
   emitMasteryUpdated,
@@ -32,6 +33,19 @@ import { emitAnswerCorrect, emitAnswerWrong } from '../maze/answer-feedback'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
+
+// Expedition-driven connectome tuning (rework-neurons-connectome-expedition-driven,
+// dogfood-tunable). A subject is "repaired today" at ≥ REPAIR_K repairs; pairs only
+// form/strengthen on a day with an effective expedition completion (≥ EFFECTIVE_REPAIR
+// _THRESHOLD repairs, or a <5 wrong pool cleared with ≥ SMALL_POOL_MIN); at most
+// DAILY_PAIR_CAP pairs/day.
+const REPAIR_K = 2
+const DAILY_PAIR_CAP = 3
+const EFFECTIVE_REPAIR_THRESHOLD = 5
+const SMALL_POOL_MIN = 2
+
+const dailyRepairKey = (date: string): string => `connectome:dailyRepair:${date}`
+const dailyWiredPairsKey = (date: string): string => `connectome:dailyWiredPairs:${date}`
 
 /**
  * Emit the "a variant entered the collection" signal on the connectome bus
@@ -86,6 +100,14 @@ async function performDailyReset(today: string): Promise<PendingEvent[]> {
         payload: { pairKey: synapse.pairKey, fromState, toState },
       })
     }
+  }
+
+  // Expedition streak: break it if the prior effective completion is ≥ 2 days ago
+  // (a day was missed). lastComplete === yesterday keeps the streak alive (today is
+  // simply not done yet). (rework-neurons-connectome-expedition-driven)
+  const lastComplete = (await db.meta.get('expeditionLastCompleteDate'))?.value
+  if (lastComplete && daysBetweenISO(lastComplete, today) >= 2) {
+    await db.meta.put({ key: 'expeditionStreak', value: '0' })
   }
 
   await db.meta.put({ key: 'lastResetDate', value: today })
@@ -158,68 +180,23 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     }
 
     const prevAp = accrual.ap
-    // family-buff no longer affects AP (realign-dmn-event-rewards-to-maze): it
-    // multiplies the post-commit maze-energy faucet instead (AP no longer gates
-    // progression post-promote-maze-to-home). AP gain = flat +1 per correct.
+    // AP gain = flat +1 per correct (family-buff multiplies the post-commit maze
+    // faucet, not AP). Co-fire wiring is REMOVED (rework-neurons-connectome-
+    // expedition-driven): synapses now form/strengthen from EXPEDITION co-repair,
+    // credited at expedition settlement via `creditConnectomeFromExpedition` — NOT
+    // per answer. `firedToday` / `sameDayCorrect` fields are retained on the row
+    // (zero-schema) but no longer drive any wiring.
     const newAp = prevAp + 1
-    const prevFiredToday = accrual.firedToday
-    const newSameDayCorrect = accrual.sameDayCorrect + 1
-
-    // AP no longer unlocks variant slots; energy is the per-family maze fuel
-    // accrued post-commit below (promote-maze-to-home / Model A). No in-tx global
-    // energy faucet and no variantSlotUnlocked emission here.
-
-    const justFired = !prevFiredToday && shouldFire(newSameDayCorrect)
     const updatedAccrual: FamilyAccrualRow = {
       familyId,
       ap: newAp,
-      firedToday: prevFiredToday || justFired,
+      firedToday: accrual.firedToday,
       lastFireDate: today,
       unlockedSlots: accrual.unlockedSlots,
-      sameDayCorrect: newSameDayCorrect,
+      sameDayCorrect: accrual.sameDayCorrect,
       pullCount: accrual.pullCount,
     }
     await db.familyAccrual.put(updatedAccrual)
-
-    if (justFired) {
-      const firedNow = await db.familyAccrual.toArray()
-      const firedFamilyIds = firedNow
-        .filter((row) => row.firedToday && row.familyId !== familyId)
-        .map((row) => row.familyId)
-
-      for (const otherFamilyId of firedFamilyIds) {
-        const key = pairKey(familyId, otherFamilyId)
-        const existing = await db.synapses.get(key)
-        if (!existing) {
-          const newSynapse: SynapseRow = {
-            pairKey: key,
-            state: 'dormant',
-            lastCoFireDate: today,
-            createdAt: today,
-          }
-          await db.synapses.put(newSynapse)
-          pending.push({
-            name: 'connectome.synapseFormed',
-            payload: { pairKey: key, state: 'dormant' },
-          })
-        } else if (existing.lastCoFireDate !== today) {
-          const fromState: SynapseState = existing.state
-          const toState = nextStateOnStrengthen(fromState)
-          await db.synapses.update(key, {
-            state: toState,
-            lastCoFireDate: today,
-          })
-          if (toState !== fromState) {
-            pending.push({
-              name: 'connectome.synapseStrengthened',
-              payload: { pairKey: key, fromState, toState },
-            })
-          }
-        } else if (existing.state === 'strong') {
-          await db.synapses.update(key, { lastCoFireDate: today })
-        }
-      }
-    }
   })
 
   emitAll(pending)
@@ -260,6 +237,169 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
 
   // Post-commit: per-family first-pull grant (best-effort, channel [first-pull]).
   await maybeGrantFirstPull(familyId)
+}
+
+export interface ExpeditionConnectomeResult {
+  /** Whether today reached an effective expedition completion (gate + streak bar). */
+  effectiveCompletion: boolean
+  /** Cumulative repairs today (across all expeditions). */
+  todayRepairs: number
+  /** Pairs formed (formed=true) or strengthened (formed=false) by this settlement. */
+  newlyWired: { pairKey: string; formed: boolean }[]
+  /** Synaptic-conduction flows granted by this settlement's batched energy. */
+  conductionFlows: ConductionFlow[]
+  /** Current expedition streak (after this settlement). */
+  streak: number
+}
+
+const sumValues = (m: Record<string, number>): number =>
+  Object.values(m).reduce((a, b) => a + b, 0)
+
+/**
+ * Credit the connectome from a completed WRONG-question expedition settlement
+ * (rework-neurons-connectome-expedition-driven). Called by the wrong-pool
+ * expedition's onComplete ONLY (NOT the year-set exam, NOT normal quiz). Steps:
+ *   1. Accumulate today's per-subject repair counts (wrong→correct flips; in a
+ *      wrong-only pool every correct IS a repair).
+ *   2. Effective-completion gate (≥5 repairs today, or a <5 pool cleared with ≥2)
+ *      → increments the daily streak (once/day) AND gates pair processing.
+ *   3. Wiring: repaired-today subjects (≥K) pair up; ≤ DAILY_PAIR_CAP/day by
+ *      priority (new > weak→strong > longest-since > higher repair product).
+ *   4. Conduction: each subject's batched earned energy flows to its eligible wired
+ *      neighbors (additive, capped, visible pulses) — runs regardless of the gate.
+ * Best-effort caller; returns a result for the settlement ledger / ritual.
+ */
+export async function creditConnectomeFromExpedition(input: {
+  repairsBySubject: Record<string, number>
+  energyBySubject: Record<string, number>
+  sessionPool: number
+}): Promise<ExpeditionConnectomeResult> {
+  const today = todayISO()
+  const pending: PendingEvent[] = []
+  const result: ExpeditionConnectomeResult = {
+    effectiveCompletion: false,
+    todayRepairs: 0,
+    newlyWired: [],
+    conductionFlows: [],
+    streak: 0,
+  }
+
+  await db.transaction('rw', [db.synapses, db.familyAccrual, db.meta], async () => {
+    pending.push(...(await runDailyResetIfNeededInTx(today)))
+
+    // 1. Accumulate today's per-subject repair counts (JSON map keyed by date).
+    const drKey = dailyRepairKey(today)
+    const dr: Record<string, number> = JSON.parse((await db.meta.get(drKey))?.value ?? '{}')
+    for (const [sub, n] of Object.entries(input.repairsBySubject)) {
+      if (n > 0) dr[sub] = (dr[sub] ?? 0) + n
+    }
+    await db.meta.put({ key: drKey, value: JSON.stringify(dr) })
+    const todayRepairs = sumValues(dr)
+    result.todayRepairs = todayRepairs
+
+    // 2. Effective-completion gate.
+    const sessionRepairs = sumValues(input.repairsBySubject)
+    const smallPoolCleared =
+      input.sessionPool < EFFECTIVE_REPAIR_THRESHOLD &&
+      sessionRepairs >= input.sessionPool &&
+      todayRepairs >= SMALL_POOL_MIN
+    const effective = todayRepairs >= EFFECTIVE_REPAIR_THRESHOLD || smallPoolCleared
+    result.effectiveCompletion = effective
+
+    // streak (once per day on first effective completion).
+    const lastComplete = (await db.meta.get('expeditionLastCompleteDate'))?.value
+    let streak = Number((await db.meta.get('expeditionStreak'))?.value ?? '0') || 0
+    if (effective && lastComplete !== today) {
+      streak += 1
+      await db.meta.put({ key: 'expeditionStreak', value: String(streak) })
+      await db.meta.put({ key: 'expeditionLastCompleteDate', value: today })
+      // Track recent effective-completion dates (pruned to ~14 days) for 本週 X/7.
+      const datesRaw = (await db.meta.get('expeditionCompletionDates'))?.value
+      const dates: string[] = datesRaw ? JSON.parse(datesRaw) : []
+      const pruned = [...dates.filter((d) => d !== today && daysBetweenISO(d, today) < 14), today]
+      await db.meta.put({ key: 'expeditionCompletionDates', value: JSON.stringify(pruned) })
+    }
+    result.streak = streak
+
+    // 3. Wiring — only when the gate is met.
+    if (effective) {
+      const repaired = Object.entries(dr)
+        .filter(([, n]) => n >= REPAIR_K)
+        .map(([s]) => s)
+      if (repaired.length >= 2) {
+        const wpKey = dailyWiredPairsKey(today)
+        const wiredSet = new Set<string>(JSON.parse((await db.meta.get(wpKey))?.value ?? '[]'))
+        const synapses = await db.synapses.toArray()
+        const synMap = new Map(synapses.map((s) => [s.pairKey, s]))
+
+        const candidates: { key: string; a: string; b: string; existing?: SynapseRow }[] = []
+        for (let i = 0; i < repaired.length; i++) {
+          for (let j = i + 1; j < repaired.length; j++) {
+            const key = pairKey(repaired[i], repaired[j])
+            if (wiredSet.has(key)) continue
+            candidates.push({ key, a: repaired[i], b: repaired[j], existing: synMap.get(key) })
+          }
+        }
+        // Priority: new pair > weak→strong candidate > longest since co-repair > higher product.
+        candidates.sort((x, y) => {
+          const xn = x.existing ? 1 : 0
+          const yn = y.existing ? 1 : 0
+          if (xn !== yn) return xn - yn
+          const xws = x.existing?.state === 'weak' ? 0 : 1
+          const yws = y.existing?.state === 'weak' ? 0 : 1
+          if (xws !== yws) return xws - yws
+          const xd = x.existing ? daysBetweenISO(x.existing.lastCoFireDate, today) : 0
+          const yd = y.existing ? daysBetweenISO(y.existing.lastCoFireDate, today) : 0
+          if (xd !== yd) return yd - xd
+          return dr[y.a] * dr[y.b] - dr[x.a] * dr[x.b]
+        })
+
+        for (const c of candidates.slice(0, DAILY_PAIR_CAP)) {
+          if (!c.existing) {
+            const newSynapse: SynapseRow = {
+              pairKey: c.key,
+              state: 'dormant',
+              lastCoFireDate: today,
+              createdAt: today,
+            }
+            await db.synapses.put(newSynapse)
+            pending.push({ name: 'connectome.synapseFormed', payload: { pairKey: c.key, state: 'dormant' } })
+            result.newlyWired.push({ pairKey: c.key, formed: true })
+          } else if (c.existing.lastCoFireDate !== today) {
+            const fromState: SynapseState = c.existing.state
+            const toState = nextStateOnStrengthen(fromState)
+            await db.synapses.update(c.key, { state: toState, lastCoFireDate: today })
+            if (toState !== fromState) {
+              pending.push({
+                name: 'connectome.synapseStrengthened',
+                payload: { pairKey: c.key, fromState, toState },
+              })
+            }
+            result.newlyWired.push({ pairKey: c.key, formed: false })
+          }
+          wiredSet.add(c.key)
+        }
+        await db.meta.put({ key: wpKey, value: JSON.stringify([...wiredSet]) })
+      }
+    }
+  })
+
+  emitAll(pending)
+
+  // 4. Post-commit conduction (runs regardless of the wiring gate). Dynamic import
+  // avoids a static cycle (connectome → economy → connectome).
+  try {
+    const { synapticConduction } = await import('../maze/economy')
+    for (const [sub, energy] of Object.entries(input.energyBySubject)) {
+      const flows = await synapticConduction(sub, energy)
+      for (const f of flows) events.emit('connectome.conductionPulse', f)
+      result.conductionFlows.push(...flows)
+    }
+  } catch (err) {
+    console.error('[conduction] expedition-settlement conduction failed:', err)
+  }
+
+  return result
 }
 
 export async function recordIncorrectAnswer(familyId: string): Promise<void> {
@@ -303,6 +443,64 @@ export async function loadConnectome(): Promise<ConnectomeSnapshot> {
     db.synapses.toArray(),
   ])
   return { familyAccrual, synapses, today: todayISO() }
+}
+
+export interface ConnectomeStatus {
+  /** Today's effective expedition completion reached. */
+  todayCompleted: boolean
+  /** Cross-day completion streak. */
+  streak: number
+  /** Effective-completion days within the rolling 7-day window (本週 X/7). */
+  weeklyCount: number
+  /** Strong VALIDATED synapses (legacy 早期連線 excluded — design D12). */
+  stableLinks: number
+  /** pairKey of the strongest/most-recent validated pair, or null. */
+  strongestPair: string | null
+  /** Total conduction energy received today across all wires. */
+  todayConductionEnergy: number
+}
+
+/**
+ * Narrative connectome indicators for the homepage (rework-neurons-connectome-
+ * expedition-driven, D6): 今日出征 / 連續 N 天 / 本週 X/7 / 穩定連線數 / 最強 pair /
+ * 今日連線額外獲得 X 能量. NOT a 116/116 collection bar. Legacy synapses are excluded
+ * from the stable-link + strongest-pair stats until re-validated.
+ */
+export async function getConnectomeStatus(): Promise<ConnectomeStatus> {
+  await runDailyResetIfNeeded()
+  const today = todayISO()
+  const [synapses, streakRow, lastCompleteRow, datesRow] = await Promise.all([
+    db.synapses.toArray(),
+    db.meta.get('expeditionStreak'),
+    db.meta.get('expeditionLastCompleteDate'),
+    db.meta.get('expeditionCompletionDates'),
+  ])
+  const validated = synapses.filter((s) => s.lastCoFireDate >= CONNECTOME_CONDUCTION_EPOCH)
+  const stableLinks = validated.filter((s) => s.state === 'strong').length
+  const ranked = validated
+    .filter((s) => s.state !== 'dormant')
+    .sort((a, b) => {
+      const rank = (st: string): number => (st === 'strong' ? 0 : 1)
+      if (rank(a.state) !== rank(b.state)) return rank(a.state) - rank(b.state)
+      return a.lastCoFireDate < b.lastCoFireDate ? 1 : -1 // most recent first
+    })
+  const dates: string[] = datesRow?.value ? JSON.parse(datesRow.value) : []
+  const weeklyCount = dates.filter((d) => daysBetweenISO(d, today) < 7).length
+  let todayConductionEnergy = 0
+  try {
+    const { readTodayConductionTotal } = await import('../maze/economy')
+    todayConductionEnergy = await readTodayConductionTotal()
+  } catch (err) {
+    console.error('[connectome] readTodayConductionTotal failed:', err)
+  }
+  return {
+    todayCompleted: lastCompleteRow?.value === today,
+    streak: Number(streakRow?.value ?? '0') || 0,
+    weeklyCount,
+    stableLinks,
+    strongestPair: ranked[0]?.pairKey ?? null,
+    todayConductionEnergy,
+  }
 }
 
 export interface ConnectomeSubscription {

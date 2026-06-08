@@ -12,8 +12,10 @@
  * NOT from collected variants.
  *
  * Accrual multipliers (all capped — design D5 runaway guard): streak × mastery ×
- * energyAccel (passed in by the caller) × collection speed-buff × speedAccel ×
- * synapse cross-family LTP bonus (derived here, family-scoped).
+ * energyAccel (passed in by the caller) × collection speed-buff × speedAccel. The
+ * old self-multiplying synapse LTP bonus is REMOVED (rework-neurons-connectome-
+ * expedition-driven); the connectome now confers ADDITIVE, capped, visible
+ * `synapticConduction` (below) computed at batch points, not a self-multiplier.
  *
  * Persistence: per-family synced `meta` keys `maze:<familyId>:earned` (monotonic
  * faucet) + `maze:<familyId>:settles` (monotonic pull count), both in
@@ -26,12 +28,17 @@ import {
   RAMP_CAP_N,
   SPEED_BUFF_PER_VARIANT,
   SPEED_BUFF_CAP,
-  SYNAPSE_BONUS_PER,
-  SYNAPSE_BONUS_CAP,
+  CONDUCTION_RATE_WEAK,
+  CONDUCTION_RATE_STRONG,
+  CONDUCTION_WIRE_CAP_WEAK,
+  CONDUCTION_WIRE_CAP_STRONG,
+  CONDUCTION_SOURCE_CAP_PER_DAY,
+  CONDUCTION_TARGET_CAP_PER_DAY,
+  CONNECTOME_CONDUCTION_EPOCH,
   CORRECT_ANSWER_ENERGY,
   READING_MINUTE_ENERGY,
 } from '@study-rpg/content-neurons-tw'
-import { db } from '../db'
+import { db, todayISO, type SynapseState } from '../db'
 import { frontierNode, litNodes, type MazeNode } from './graph'
 import { pullVariant } from '../services/variant-gacha'
 import { speedAccel } from '../services/acceleration'
@@ -103,38 +110,121 @@ async function collectedCountForFamily(familyId: string): Promise<number> {
 }
 
 /**
- * Synapse cross-family LTP bonus for a family (design D6): each STRONG synapse the
- * family participates in (per `connectome-collection`, read-only) adds
- * `SYNAPSE_BONUS_PER`, summed and clamped to `1 + SYNAPSE_BONUS_CAP`. Returns 1.0
- * with no strong synapse. No LTD/decay penalty — the maze only reads current state.
- */
-export async function synapseBonus(familyId: string): Promise<number> {
-  const strong = await db.synapses.where('state').equals('strong').toArray()
-  let count = 0
-  for (const s of strong) {
-    // pairKey encodes the two familyIds; a strong synapse counts if it involves us.
-    const parts = s.pairKey.split('|')
-    if (parts.includes(familyId)) count += 1
-  }
-  return 1 + Math.min(count * SYNAPSE_BONUS_PER, SYNAPSE_BONUS_CAP)
-}
-
-/**
  * Accrue energy into one family's pool from one gameplay event. `base` already
  * includes the event-scoped multipliers (streak × mastery × energyAccel folded in
  * by the caller); this applies the family-scoped multipliers — team speed-buff ×
- * speedAccel × synapse LTP bonus — and persists. Monotonic — never decremented.
+ * speedAccel — and persists. Monotonic — never decremented. The old self-multiplying
+ * synapse LTP bonus is gone (connectome now uses additive `synapticConduction`).
  */
 export async function accrueMazeEnergy(familyId: string, base: number): Promise<void> {
   if (base <= 0) return
-  const [count, speed, syn] = await Promise.all([
+  const [count, speed] = await Promise.all([
     collectedCountForFamily(familyId),
     speedAccel(),
-    synapseBonus(familyId),
   ])
-  const amount = base * mazeSpeedMultiplier(count) * speed * syn
+  const amount = base * mazeSpeedMultiplier(count) * speed
   const cur = Number((await db.meta.get(earnedKey(familyId)))?.value ?? '0') || 0
   await db.meta.put({ key: earnedKey(familyId), value: String(cur + amount) })
+}
+
+// --- Synaptic Conduction (rework-neurons-connectome-expedition-driven) ---------
+// The connectome's FELT, visible, additive, capped energy benefit. When a source
+// family earns a BATCH of energy (expedition settlement / reading-session end),
+// each of its ELIGIBLE wired neighbors receives `floor(batch × rate(state))` energy
+// (weak 6% / strong 12%), bounded by per-wire / per-source / per-target daily caps.
+// One-hop (the granted energy never itself conducts), additive (the source's own
+// pool is untouched), and it neither strengthens wires nor counts as co-repair.
+// A wire is ELIGIBLE iff state ∈ {weak,strong} AND it is VALIDATED (lastCoFireDate
+// ≥ CONNECTOME_CONDUCTION_EPOCH — legacy same-day-co-fire wires do not conduct
+// until re-validated by a new co-repair). Caller emits the pulses + ledger from the
+// returned flows (keeps this module free of the connectome event bus).
+
+/** One conducted flow this batch (the visible pulse + ledger line). */
+export interface ConductionFlow {
+  fromFamily: string
+  toFamily: string
+  amount: number
+  state: 'weak' | 'strong'
+}
+
+const conductionRate = (state: SynapseState): number =>
+  state === 'strong' ? CONDUCTION_RATE_STRONG : state === 'weak' ? CONDUCTION_RATE_WEAK : 0
+const conductionWireCap = (state: SynapseState): number =>
+  state === 'strong' ? CONDUCTION_WIRE_CAP_STRONG : CONDUCTION_WIRE_CAP_WEAK
+
+const conductionKey = (kind: 'source' | 'target' | 'wire', id: string, date: string): string =>
+  `conduction:${kind}:${id}:${date}`
+
+async function readMetaNum(key: string): Promise<number> {
+  return Number((await db.meta.get(key))?.value ?? '0') || 0
+}
+
+/**
+ * Conduct one family's batched earned energy to its eligible wired neighbors.
+ * Returns the flows actually granted (for the caller to emit pulses + ledger).
+ * No-op (returns []) when batchEnergy ≤ 0 or the family has no eligible wire.
+ */
+export async function synapticConduction(
+  sourceFamilyId: string,
+  batchEnergy: number,
+): Promise<ConductionFlow[]> {
+  if (batchEnergy <= 0) return []
+  const today = todayISO()
+  const synapses = await db.synapses.toArray()
+  const eligible = synapses.filter((s) => {
+    if (s.state === 'dormant') return false
+    if (s.lastCoFireDate < CONNECTOME_CONDUCTION_EPOCH) return false // legacy, not re-validated
+    return s.pairKey.split('|').includes(sourceFamilyId)
+  })
+  if (eligible.length === 0) return []
+  // Deterministic cap allocation: strong wires first, then by pairKey.
+  eligible.sort((a, b) =>
+    a.state === b.state ? (a.pairKey < b.pairKey ? -1 : 1) : a.state === 'strong' ? -1 : 1,
+  )
+
+  const sourceKey = conductionKey('source', sourceFamilyId, today)
+  let sourceUsed = await readMetaNum(sourceKey)
+  const flows: ConductionFlow[] = []
+
+  for (const s of eligible) {
+    if (sourceUsed >= CONDUCTION_SOURCE_CAP_PER_DAY) break
+    const parts = s.pairKey.split('|')
+    const target = parts[0] === sourceFamilyId ? parts[1] : parts[0]
+    const raw = Math.floor(batchEnergy * conductionRate(s.state))
+    if (raw < 1) continue
+    const wireKey = conductionKey('wire', s.pairKey, today)
+    const targetKey = conductionKey('target', target, today)
+    const wireUsed = await readMetaNum(wireKey)
+    const targetUsed = await readMetaNum(targetKey)
+    const amount = Math.min(
+      raw,
+      conductionWireCap(s.state) - wireUsed,
+      CONDUCTION_SOURCE_CAP_PER_DAY - sourceUsed,
+      CONDUCTION_TARGET_CAP_PER_DAY - targetUsed,
+    )
+    if (amount < 1) continue
+    // Additive grant to the neighbor's pool (monotonic faucet) + cap accumulators.
+    const cur = await readMetaNum(earnedKey(target))
+    await db.meta.put({ key: earnedKey(target), value: String(cur + amount) })
+    await db.meta.put({ key: wireKey, value: String(wireUsed + amount) })
+    await db.meta.put({ key: targetKey, value: String(targetUsed + amount) })
+    sourceUsed += amount
+    await db.meta.put({ key: sourceKey, value: String(sourceUsed) })
+    // `s.state` is narrowed to weak|strong by the dormant filter above.
+    flows.push({ fromFamily: sourceFamilyId, toFamily: target, amount, state: s.state as 'weak' | 'strong' })
+  }
+  // Track the day's total conducted energy for the homepage「今日連線額外獲得 X 能量」.
+  const granted = flows.reduce((sum, f) => sum + f.amount, 0)
+  if (granted > 0) {
+    const totalKey = `conduction:dailyTotal:${today}`
+    await db.meta.put({ key: totalKey, value: String((await readMetaNum(totalKey)) + granted) })
+  }
+  return flows
+}
+
+/** Today's total conducted energy received across all wires (homepage indicator). */
+export async function readTodayConductionTotal(): Promise<number> {
+  return readMetaNum(`conduction:dailyTotal:${todayISO()}`)
 }
 
 // Reading is now per-subject (add-neurons-maze-zoom-and-focus): a reading session

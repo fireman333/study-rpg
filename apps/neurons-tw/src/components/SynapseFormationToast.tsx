@@ -46,7 +46,7 @@ export default function ConnectomeToastHost({ pack }: Props): JSX.Element {
     const connectomeSub = subscribeConnectomeEvents({
       'connectome.synapseFormed': (p) => {
         const [a, b] = decodePairKey(p.pairKey)
-        push('✨', `新連線形成：「${labelFor(a)}」⇌「${labelFor(b)}」— 兩個 neuron family 在今天同時 fire，wire together`)
+        push('✨', `新連線形成：「${labelFor(a)}」⇌「${labelFor(b)}」— 今天一起修復了這兩科的錯題，repair together, wire together`)
       },
       'connectome.synapseStrengthened': (p) => {
         const [a, b] = decodePairKey(p.pairKey)

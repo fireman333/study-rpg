@@ -12,12 +12,12 @@ The neurons-tw mode SHALL grant DMN fate-card draws from two independent trigger
 
 - **Expedition axis** (cap = milestone count = 2 draws/day): on each completed 出征 expedition session, let `pool` = the wrong-question count at session open (`questionHistory.lastResult === 'wrong'`, the value the session was launched against) and `cleared` = the number of those cleared this session (correct answers in the wrong-only pool — each a wrong→correct flip). For each milestone in `DMN_EXPEDITION_MILESTONES` (default `[{ pct: 0.25, min: 3, max: 15 }, { pct: 0.50, min: 6, max: 30 }]`) whose threshold `clamp(round(pct × pool), min, max)` is satisfied by `cleared`, the system SHALL grant +1 draw, up to the per-day cap (= `DMN_EXPEDITION_MILESTONES.length`) enforced via `dmnTimeAxisDrawsConsumedToday`. The clamp keeps draws reachable on large backlogs and non-trivial on tiny backlogs while preserving the proportional (percentage) feel in the mid band. Cumulative expedition clears for the current day are tracked in `dmnTimeAxisMinutesAccrued` (legacy key name retained for sync-schema stability; now stores expedition clears, NOT reading minutes) for display / telemetry only — it does NOT gate draws.
   - NOTE — legacy storage names + source change: this axis was historically the "reading-time axis" (30 min reading → +1 draw). As of `add-neurons-expedition-rewards` its input is expedition clears, NOT reading minutes; reading-timer activity SHALL NOT grant DMN draws (reading still fuels maze energy + `totalStudyMinutes`). The persisted meta counters keep their legacy names `dmnTimeAxisMinutesAccrued` / `dmnTimeAxisDrawsConsumedToday` to avoid a `SYNCED_META_KEYS` change and an R2 bundle `SCHEMA_VERSION` bump.
-- **Behavior axis** (cap 3 draws/day): the system SHALL grant +1 bonus draw on each of the following events emitted by `connectome-collection`, up to a maximum of 3 behavior-axis draws per day:
+- **Behavior axis** (cap 3 draws/day): the system SHALL grant +1 bonus draw on the following event emitted by `connectome-collection`, up to a maximum of 3 behavior-axis draws per day:
   - `connectome.variantSlotUnlocked`
-  - `connectome.synapseFormed` (new cross-family synapse created on N=5 same-day co-firing)
-  - `connectome.synapseStrengthened` (existing synapse transitions dormant→weak or weak→strong)
 
-These three primitives are chosen because they map naturally to "meaningful collection milestone" without requiring a daily-open streak service (which neurons-tw does not implement; correct-answer streak is per-question, not per-day).
+  The synapse events (`connectome.synapseFormed` / `connectome.synapseStrengthened`) SHALL NOT grant DMN draws (removed in `rework-neurons-connectome-expedition-driven`): synapse forming/strengthening is now an expedition-repair side effect that already underlies the expedition-axis draw, so granting an additional behavior-axis draw would triple-reward the same activity; in practice the synapse draw was also redundant (usually absorbed by `variantSlotUnlocked` draws against the same daily cap).
+
+`variantSlotUnlocked` is chosen because it maps naturally to "meaningful collection milestone" without requiring a daily-open streak service (which neurons-tw does not implement; correct-answer streak is per-question, not per-day).
 
 The combined entitlement (expedition + behavior) SHALL be tracked as a single integer counter `dmnDrawsAvailable` (monotonic during the day, decremented on consume). Both axis day-counters reset at local-TZ midnight; entitled draws already accrued but unused SHALL persist across days (no expiry).
 
@@ -54,12 +54,19 @@ The combined entitlement (expedition + behavior) SHALL be tracked as a single in
 - **THEN** no additional expedition-axis draw SHALL be granted
 - **AND** `dmnDrawsAvailable` SHALL NOT increment from the expedition axis
 
-#### Scenario: Behavior-axis draw on synapse formed
+#### Scenario: Behavior-axis draw on variant slot unlocked
 
 - **GIVEN** `dmnBehaviorAxisDrawsConsumedToday = 0`
-- **WHEN** `connectome-collection` emits `connectome.synapseFormed` (player triggered cross-family same-day co-firing reaching N=5 threshold)
+- **WHEN** `connectome-collection` emits `connectome.variantSlotUnlocked`
 - **THEN** `dmnDrawsAvailable` SHALL increment by 1
 - **AND** `dmnBehaviorAxisDrawsConsumedToday` SHALL increment by 1
+
+#### Scenario: Synapse events do NOT grant a behavior-axis draw
+
+- **GIVEN** `dmnBehaviorAxisDrawsConsumedToday = 0`
+- **WHEN** `connectome-collection` emits `connectome.synapseFormed` or `connectome.synapseStrengthened`
+- **THEN** `dmnDrawsAvailable` SHALL NOT increment
+- **AND** `dmnBehaviorAxisDrawsConsumedToday` SHALL remain 0
 
 #### Scenario: Daily reset of both axis counters at local-TZ midnight
 
@@ -240,7 +247,7 @@ DMN UI SHALL use motion primitives from `neurons-motion-library` (mirroring exis
 
 A new service `apps/neurons-tw/src/lib/services/dmn-trigger.ts` SHALL be initialized at app boot via the app's main entry point. The service SHALL:
 
-- Register listeners on the connectome event bus for `connectome.variantSlotUnlocked`, `connectome.synapseFormed`, and `connectome.synapseStrengthened`
+- Register a listener on the connectome event bus for `connectome.variantSlotUnlocked` (the only behavior-axis draw trigger; `synapseFormed` / `synapseStrengthened` listeners were removed in `rework-neurons-connectome-expedition-driven`)
 - Expose `creditExpeditionDraws(pool: number, cleared: number)` which the expedition completion path (`onExpeditionComplete`) SHALL invoke on each completed session: it evaluates the `DMN_EXPEDITION_MILESTONES` thresholds against `cleared`, grants the corresponding draws subject to the per-day cap, and updates the cumulative expedition-clears counter for display
 - Run daily-reset lazily on the first user interaction crossing local-TZ midnight (mirrors `connectome-collection` pattern)
 - Persist all state via Dexie writes wrapped in transactions; emit informational logs after commit (no external event subscriber consumes `dmn.drawsGranted` yet)
