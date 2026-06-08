@@ -20,6 +20,8 @@ import {
   CARD_BRANCH_ORDER,
   type BranchRepresentative,
   type CharacterCardPayload,
+  type ConnectorCardPayload,
+  type VariantCardPayload,
 } from './services/character-card'
 
 export const CARD_WIDTH = 1080
@@ -238,6 +240,324 @@ export function renderCharacterCard(
   ctx.textAlign = 'right'
   ctx.fillText(formatDate(payload.renderedAt), W - P, H - 80)
   ctx.textAlign = 'left'
+}
+
+/** Wrap `text` to at most `maxLines` lines that each fit `maxWidth`; last line ellipsised. */
+function wrapLines(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxLines: number,
+): string[] {
+  const chars = Array.from(text)
+  const lines: string[] = []
+  let line = ''
+  for (const ch of chars) {
+    if (ctx.measureText(line + ch).width > maxWidth && line) {
+      lines.push(line)
+      line = ch
+      if (lines.length === maxLines - 1) break
+    } else {
+      line += ch
+    }
+  }
+  const consumed = lines.join('').length
+  let rest = chars.slice(consumed).join('')
+  if (lines.length < maxLines) rest = fit(ctx, rest, maxWidth)
+  if (rest) lines.push(rest)
+  return lines.slice(0, maxLines)
+}
+
+/** Shared background + double frame (single-color). */
+function drawCardBase(ctx: CanvasRenderingContext2D, W: number, H: number): void {
+  ctx.fillStyle = COLORS.bg
+  ctx.fillRect(0, 0, W, H)
+  ctx.lineWidth = 10
+  ctx.strokeStyle = COLORS.frame
+  ctx.strokeRect(5, 5, W - 10, H - 10)
+  ctx.lineWidth = 2
+  ctx.strokeStyle = COLORS.frameLight
+  ctx.strokeRect(22, 22, W - 44, H - 44)
+}
+
+/** Wordmark + nickname + optional title chip header (shared layout). */
+function drawCardHeader(
+  ctx: CanvasRenderingContext2D,
+  W: number,
+  P: number,
+  fam: string,
+  nickname: string,
+  title: string | null,
+  wordmark: string,
+): void {
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+  ctx.fillStyle = COLORS.frameLight
+  ctx.font = `700 26px ${fam}`
+  ctx.fillText(wordmark, P, 84)
+
+  ctx.fillStyle = COLORS.ink
+  ctx.font = `700 76px ${fam}`
+  ctx.fillText(fit(ctx, nickname, W - 2 * P), P, 168)
+
+  if (title) {
+    ctx.font = `400 30px ${fam}`
+    const chipText = fit(ctx, title, W - 2 * P - 40)
+    const chipW = ctx.measureText(chipText).width + 40
+    const chipY = 198
+    const chipH = 50
+    ctx.fillStyle = COLORS.bg
+    ctx.fillRect(P, chipY, chipW, chipH)
+    ctx.lineWidth = 3
+    ctx.strokeStyle = COLORS.amber
+    ctx.strokeRect(P, chipY, chipW, chipH)
+    ctx.fillStyle = COLORS.amber
+    ctx.textBaseline = 'middle'
+    ctx.fillText(chipText, P + 20, chipY + chipH / 2)
+    ctx.textBaseline = 'alphabetic'
+  }
+}
+
+/** Draw a centered sprite (or a `?` empty slot) inside a framed box. */
+function drawHeroSprite(
+  ctx: CanvasRenderingContext2D,
+  img: CanvasImageSource | null,
+  boxX: number,
+  boxY: number,
+  size: number,
+  frameColor: string,
+  fam: string,
+): void {
+  ctx.fillStyle = COLORS.bg
+  ctx.fillRect(boxX, boxY, size, size)
+  ctx.lineWidth = 8
+  ctx.strokeStyle = frameColor
+  ctx.strokeRect(boxX, boxY, size, size)
+  if (img) {
+    const pad = 28
+    ctx.drawImage(img, boxX + pad, boxY + pad, size - 2 * pad, size - 2 * pad)
+  } else {
+    ctx.fillStyle = COLORS.frameLight
+    ctx.font = `700 140px ${fam}`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('?', boxX + size / 2, boxY + size / 2)
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'alphabetic'
+  }
+}
+
+/**
+ * Draw the 變體 share card: one featured collected variant. Synchronous; safe
+ * for a missing sprite (empty slot) — never throws.
+ */
+export function renderVariantCard(
+  ctx: CanvasRenderingContext2D,
+  payload: VariantCardPayload,
+  assets: CardAssets,
+  opts?: { width?: number; height?: number },
+): void {
+  const W = opts?.width ?? CARD_WIDTH
+  const H = opts?.height ?? CARD_HEIGHT
+  const fam = assets.fontFamily || CARD_FONT_STACK
+  const P = 64
+  ctx.imageSmoothingEnabled = false
+  drawCardBase(ctx, W, H)
+  drawCardHeader(ctx, W, P, fam, payload.nickname, payload.title, '神經元 RPG · 變體立繪')
+
+  const rarityColor = RARITY_COLOR[payload.rarity]
+  const size = 520
+  const boxX = (W - size) / 2
+  const boxY = 290
+  drawHeroSprite(ctx, assets.sprites[payload.spriteKey] ?? null, boxX, boxY, size, rarityColor, fam)
+
+  // Name
+  ctx.textAlign = 'center'
+  ctx.fillStyle = COLORS.ink
+  ctx.font = `700 52px ${fam}`
+  ctx.fillText(fit(ctx, payload.displayName, W - 2 * P), W / 2, boxY + size + 78)
+
+  // Rarity badge
+  ctx.fillStyle = rarityColor
+  ctx.font = `700 34px ${fam}`
+  ctx.fillText(payload.rarityLabel, W / 2, boxY + size + 132)
+
+  // Family / subject
+  ctx.fillStyle = COLORS.frameLight
+  ctx.font = `400 30px ${fam}`
+  ctx.fillText(payload.familyId, W / 2, boxY + size + 178)
+  ctx.textAlign = 'left'
+
+  // Caption panel (dark EEG surface, wrapped birth caption)
+  const panelX = P
+  const panelW = W - 2 * P
+  const panelTop = boxY + size + 210
+  const panelH = 150
+  ctx.fillStyle = COLORS.panel
+  ctx.fillRect(panelX, panelTop, panelW, panelH)
+  ctx.lineWidth = 3
+  ctx.strokeStyle = COLORS.cyan
+  ctx.strokeRect(panelX, panelTop, panelW, panelH)
+  ctx.font = `400 28px ${fam}`
+  ctx.fillStyle = COLORS.panelInk
+  const lines = wrapLines(ctx, payload.caption, panelW - 64, 3)
+  lines.forEach((ln, i) => ctx.fillText(ln, panelX + 32, panelTop + 50 + i * 40))
+
+  // Footer
+  ctx.font = `400 24px ${fam}`
+  ctx.fillStyle = COLORS.frameLight
+  ctx.fillText(`變體收集 ${payload.variantCount} / ${payload.variantTotal}`, P, H - 70)
+  ctx.textAlign = 'right'
+  ctx.fillText('med-study-rpg.com/neurons', W - P, H - 70)
+  ctx.textAlign = 'left'
+}
+
+/** Draw a split-color outer frame (left = colorA, right = colorB). */
+function drawSplitFrame(
+  ctx: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  colorA: string,
+  colorB: string,
+  t: number,
+): void {
+  const mid = W / 2
+  ctx.fillStyle = colorA
+  ctx.fillRect(0, 0, mid, t) // top-left
+  ctx.fillRect(0, H - t, mid, t) // bottom-left
+  ctx.fillRect(0, 0, t, H) // left bar
+  ctx.fillStyle = colorB
+  ctx.fillRect(mid, 0, mid, t) // top-right
+  ctx.fillRect(mid, H - t, mid, t) // bottom-right
+  ctx.fillRect(W - t, 0, t, H) // right bar
+}
+
+/**
+ * Draw the 連結 share card: one featured unlocked connector. Synchronous; safe
+ * for a missing sprite (empty slot) — never throws.
+ */
+export function renderConnectorCard(
+  ctx: CanvasRenderingContext2D,
+  payload: ConnectorCardPayload,
+  assets: CardAssets,
+  opts?: { width?: number; height?: number },
+): void {
+  const W = opts?.width ?? CARD_WIDTH
+  const H = opts?.height ?? CARD_HEIGHT
+  const fam = assets.fontFamily || CARD_FONT_STACK
+  const P = 64
+  ctx.imageSmoothingEnabled = false
+
+  ctx.fillStyle = COLORS.bg
+  ctx.fillRect(0, 0, W, H)
+  drawSplitFrame(ctx, W, H, payload.colorA, payload.colorB, 16)
+  ctx.lineWidth = 2
+  ctx.strokeStyle = COLORS.frameLight
+  ctx.strokeRect(28, 28, W - 56, H - 56)
+
+  drawCardHeader(ctx, W, P, fam, payload.nickname, null, '神經元 RPG · 連結神經元')
+
+  // Sprite box with a split-color frame echoing the two subjects
+  const size = 520
+  const boxX = (W - size) / 2
+  const boxY = 300
+  ctx.fillStyle = COLORS.bg
+  ctx.fillRect(boxX, boxY, size, size)
+  drawSplitFrame2(ctx, boxX, boxY, size, payload.colorA, payload.colorB, 8)
+  const img = assets.sprites[payload.spriteKey] ?? null
+  if (img) {
+    const pad = 28
+    ctx.drawImage(img, boxX + pad, boxY + pad, size - 2 * pad, size - 2 * pad)
+  } else {
+    ctx.fillStyle = COLORS.frameLight
+    ctx.font = `700 140px ${fam}`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('🔗', boxX + size / 2, boxY + size / 2)
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'alphabetic'
+  }
+
+  // "familyA ↔ familyB" — each family in its own color, centered
+  ctx.font = `700 48px ${fam}`
+  const sep = '  ↔  '
+  const wA = ctx.measureText(payload.familyA).width
+  const wSep = ctx.measureText(sep).width
+  const wB = ctx.measureText(payload.familyB).width
+  const totalW = wA + wSep + wB
+  let cx = (W - totalW) / 2
+  ctx.textAlign = 'left'
+  ctx.textBaseline = 'alphabetic'
+  const baseline = boxY + size + 88
+  ctx.fillStyle = payload.colorA
+  ctx.fillText(payload.familyA, cx, baseline)
+  cx += wA
+  ctx.fillStyle = COLORS.ink
+  ctx.fillText(sep, cx, baseline)
+  cx += wSep
+  ctx.fillStyle = payload.colorB
+  ctx.fillText(payload.familyB, cx, baseline)
+
+  // Subtitle + descriptor
+  ctx.textAlign = 'center'
+  ctx.fillStyle = COLORS.frameLight
+  ctx.font = `400 30px ${fam}`
+  ctx.fillText('兩科 strong wire 共鳴時誕生的橋接 hub', W / 2, baseline + 56)
+  ctx.fillStyle = COLORS.amber
+  ctx.font = `700 30px ${fam}`
+  ctx.fillText(
+    `連結神經元 ${payload.connectorCount} / ${payload.connectorTotal}`,
+    W / 2,
+    baseline + 108,
+  )
+  ctx.textAlign = 'left'
+
+  // Footer
+  ctx.font = `400 24px ${fam}`
+  ctx.fillStyle = COLORS.frameLight
+  ctx.fillText(formatDate(payload.unlockedAt), P, H - 70)
+  ctx.textAlign = 'right'
+  ctx.fillText('med-study-rpg.com/neurons', W - P, H - 70)
+  ctx.textAlign = 'left'
+}
+
+/** Split-color frame around a box at (x,y) of `size` (left colorA / right colorB). */
+function drawSplitFrame2(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  colorA: string,
+  colorB: string,
+  t: number,
+): void {
+  const mid = x + size / 2
+  ctx.fillStyle = colorA
+  ctx.fillRect(x, y, size / 2, t)
+  ctx.fillRect(x, y + size - t, size / 2, t)
+  ctx.fillRect(x, y, t, size)
+  ctx.fillStyle = colorB
+  ctx.fillRect(mid, y, size / 2, t)
+  ctx.fillRect(mid, y + size - t, size / 2, t)
+  ctx.fillRect(x + size - t, y, t, size)
+}
+
+/** Preload one sprite by key + the card font (browser-only; sprite failure → null). */
+async function loadSingleSpriteAssets(spriteKey: string): Promise<CardAssets> {
+  const sprites: Record<string, CanvasImageSource | null> = {}
+  const url = SPRITE_MAP[spriteKey]
+  sprites[spriteKey] = url ? await loadImage(url).catch(() => null) : null
+  return { sprites, fontFamily: await ensureCardFont() }
+}
+
+/** Preload assets for a 變體 card. */
+export function loadVariantCardAssets(payload: VariantCardPayload): Promise<CardAssets> {
+  return loadSingleSpriteAssets(payload.spriteKey)
+}
+
+/** Preload assets for a 連結 card. */
+export function loadConnectorCardAssets(payload: ConnectorCardPayload): Promise<CardAssets> {
+  return loadSingleSpriteAssets(payload.spriteKey)
 }
 
 function loadImage(url: string): Promise<HTMLImageElement> {

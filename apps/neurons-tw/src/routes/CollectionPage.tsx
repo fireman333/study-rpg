@@ -211,7 +211,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           已收集 <strong>{collectedCount}</strong> 隻。唸書與答對累積神經能量、在腦圖探索，走到節點即解鎖一次抽卡。
         </p>
         <button type="button" style={shareBtnStyle} onClick={() => setShareOpen(true)}>
-          <EmojiIcon char="🔗" size={16} /> 分享角色卡
+          <EmojiIcon char="🔗" size={16} /> 分享卡
         </button>
       </header>
 
