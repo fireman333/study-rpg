@@ -1024,6 +1024,55 @@ const equipmentAdapter: TableAdapter<'equipment'> = {
   },
 }
 
+// ---- Connector neurons (Dexie v18 — add-neurons-connector-neuron-family) ----
+
+const connectorNeuronsAdapter: TableAdapter<'connectorNeurons'> = {
+  name: 'connectorNeurons',
+  async snapshot(db) {
+    return await db.connectorNeurons.toArray()
+  },
+  async apply(db, rows) {
+    // UNION by pairKey, MONOTONIC on presence — an unlocked connector never
+    // un-unlocks (mirrors equipment / neuronInstances / dmnEventLog). On
+    // both-present keep the EARLIER unlockedAt (provenance) + the later updatedAt;
+    // never delete. DO NOT replace with LWW (a stale device that hasn't seen the
+    // unlock must not remove it).
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.connectorNeurons, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const pairKey = row.pairKey
+        if (typeof pairKey !== 'string') {
+          skipped++
+          continue
+        }
+        const local = await db.connectorNeurons.get(pairKey as never)
+        if (!local) {
+          await db.connectorNeurons.put(incoming as never)
+          applied++
+          continue
+        }
+        const incUnlocked = typeof row.unlockedAt === 'number' ? (row.unlockedAt as number) : local.unlockedAt
+        const incUpdated = typeof row.updatedAt === 'number' ? (row.updatedAt as number) : 0
+        const mergedUnlocked = Math.min(local.unlockedAt, incUnlocked)
+        const mergedUpdated = Math.max(local.updatedAt ?? 0, incUpdated)
+        if (mergedUnlocked !== local.unlockedAt || mergedUpdated !== (local.updatedAt ?? 0)) {
+          await db.connectorNeurons.put({ ...local, unlockedAt: mergedUnlocked, updatedAt: mergedUpdated })
+          applied++
+        } else {
+          skipped++
+        }
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
 // ---- Adapter registry -----------------------------------------------------
 
 export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
@@ -1045,4 +1094,5 @@ export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
   instanceNicknamesAdapter,
   inventoryAdapter,
   equipmentAdapter,
+  connectorNeuronsAdapter,
 ]

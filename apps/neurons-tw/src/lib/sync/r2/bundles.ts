@@ -138,11 +138,20 @@
 //        drops the unknown marker keys; a v19 client reading a v18 bundle finds
 //        none → families simply un-celebrated (celebrate on next live completion).
 //        Worker is bundle-opaque (no Worker change).
+//   v20 — add-neurons-connector-neuron-family 2026-06-08: adds the
+//        `connectorNeurons` adapter (bridge-class collectibles; Dexie v18). Merge
+//        is UNION by pairKey + MONOTONIC on presence — an unlocked connector never
+//        un-unlocks; on both-present keep the EARLIER unlockedAt (provenance) + the
+//        later updatedAt (mirrors equipment / neuronInstances). Additive +
+//        reader-tolerant: a v19 client reading a v20 bundle drops the unknown
+//        `connectorNeurons` key; a v20 client reading a v19 bundle (no key) applies
+//        an empty array → preserves its local unlocks on omission (the v18 upgrade
+//        already backfilled strong wires). Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 19
+export const SCHEMA_VERSION = 20
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

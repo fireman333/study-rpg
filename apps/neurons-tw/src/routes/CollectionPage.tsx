@@ -34,6 +34,7 @@ import {
   NICKNAME_MAX_LEN,
 } from '../lib/services/instance-nickname'
 import ShareCardModal from '../components/ShareCardModal'
+import ConnectorSection from '../components/ConnectorSection'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { useAuth } from '../lib/auth/AuthContext'
 
@@ -309,6 +310,11 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           )
         })
       )}
+
+      {/* Connector neurons — bridge-class collectibles, a flat 55-set section
+          independent of the per-family grouping above (add-neurons-connector-
+          neuron-family). */}
+      <ConnectorSection pack={pack} />
     </section>
   )
 }

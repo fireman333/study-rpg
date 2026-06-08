@@ -201,3 +201,13 @@ export {
 } from './equipment-validator'
 
 export { CIRCUIT_LOCATIONS, type CircuitLocation } from './circuit-locations'
+
+// Connector neurons — bridge-class collectibles (add-neurons-connector-neuron-family)
+export {
+  connectorPairKey,
+  connectorFamilies,
+  connectorColors,
+  connectorSpriteKey,
+  CONNECTOR_PAIR_KEYS,
+  CONNECTOR_TOTAL,
+} from './connectors'
