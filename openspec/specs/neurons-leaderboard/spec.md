@@ -232,7 +232,7 @@ The request MUST be authenticated (Supabase JWT in `Authorization: Bearer <token
 
 ### Requirement: Push leaderboard row SHALL be triggered on cloud sync when wired (deferred), with manual-push button as interim
 
-The system SHALL provide a client-side adapter `pushNeuronsLeaderboardRow(client)` that builds the upsert payload from local Dexie state (`neuronVariants` → `variant_count`; `familyAccrual` → `total_AP`; `synapses` where `state='strong'` → `synapse_strong`; `meta['totalStudyMinutes']` → `total_study_min`; sum of `meta['maze:da:settles']` + `['maze:5ht:settles']` + `['maze:gaba:settles']` + `['maze:glu:settles']` → `total_settles`; `leaderboardProfile` → `nickname` + `is_public`) and POSTs to `/leaderboard/neurons/upsert`. The adapter SHALL NOT compute or send `family_complete`. The four `maze:<branch>:settles` keys are the same per-branch settle counters used by the maze economy (`lib/maze/economy.ts`) and are already members of `SYNCED_META_KEYS`, so `total_settles` is cross-device-correct; each SHALL be read defensively (`Number(value) || 0`) so a missing key (legacy save) contributes 0.
+The system SHALL provide a client-side adapter `pushNeuronsLeaderboardRow(client)` that builds the upsert payload from local Dexie state (`ownedSlotCount(db)` → `variant_count`; `familyAccrual` → `total_AP`; `synapses` where `state='strong'` → `synapse_strong`; `meta['totalStudyMinutes']` → `total_study_min`; sum of `meta['maze:da:settles']` + `['maze:5ht:settles']` + `['maze:gaba:settles']` + `['maze:glu:settles']` → `total_settles`; `leaderboardProfile` → `nickname` + `is_public`) and POSTs to `/leaderboard/neurons/upsert`. The adapter SHALL NOT compute or send `family_complete`. The `variant_count` field SHALL be sourced from the canonical `ownedSlotCount` projection defined in `neuron-variant-fusion` (counting slots with at least one held individual), NOT from `db.neuronVariants.count()` directly — this excludes ghost slots produced by cross-device fusion races from the leaderboard ranking signal. The four `maze:<branch>:settles` keys are the same per-branch settle counters used by the maze economy (`lib/maze/economy.ts`) and are already members of `SYNCED_META_KEYS`, so `total_settles` is cross-device-correct; each SHALL be read defensively (`Number(value) || 0`) so a missing key (legacy save) contributes 0.
 
 The adapter SHALL be wired into the cloud-sync pipeline: after every **successful** sync push, the system SHALL automatically upsert the opted-in player's leaderboard row by invoking the adapter from the sync engine's `onPushComplete` hook, piggy-backing the existing R2 bundle push debounce window. The automatic upsert SHALL be gated on the local `leaderboardProfile.opted_in === true` and SHALL carry the player's current `is_public` flag. The automatic path SHALL NOT write any synced Dexie table (in particular it SHALL NOT write `last_pushed_at`), so it cannot re-trigger the push scheduler and create a self-perpetuating push loop. A failure of the automatic upsert (network / auth / Worker rejection) SHALL be logged and SHALL NOT fail or interrupt the sync push.
 
@@ -248,6 +248,7 @@ Players who have never opted in SHALL NOT have their data pushed, on any path (a
 
 - **WHEN** an opted-in player's gameplay (collecting a variant / answering / accruing reading minutes / lighting a maze node) drives a successful cloud-sync push
 - **THEN** the system SHALL invoke the adapter from `onPushComplete` and upsert the current row (including `variant_count` / `total_AP` / `total_study_min` / `total_settles` / `badges_csv`) with no manual action
+- **AND** `variant_count` SHALL equal `ownedSlotCount(db)` at the time of the push
 
 #### Scenario: Automatic upsert does not loop the push engine
 
@@ -282,11 +283,18 @@ Players who have never opted in SHALL NOT have their data pushed, on any path (a
 - **WHEN** an authenticated player who has never opted in triggers any path that would otherwise upsert
 - **THEN** the leaderboard adapter SHALL skip the upsert call entirely; no D1 row SHALL be created
 
-#### Scenario: variant_count computed from neuronVariants by client at push time
+#### Scenario: variant_count computed from the ownedSlotCount projection at push time
 
 - **WHEN** the adapter builds the payload
-- **THEN** `variant_count` SHALL equal `count of rows in db.neuronVariants` computed from `db.neuronVariants.toArray()` at push time, NOT cached from a separate source
+- **THEN** `variant_count` SHALL equal `ownedSlotCount(db)` (distinct slots with ≥ 1 held individual) computed at push time, NOT a raw `db.neuronVariants` row count and NOT cached from a separate source
 - **AND** the payload SHALL NOT include a `family_complete` field
+
+#### Scenario: Ghost slot does NOT inflate variant_count on the leaderboard
+
+- **GIVEN** a player whose Dexie state has 27 `neuronVariants` rows but `ownedSlotCount(db) = 26` (one ghost slot from a cross-device fusion race per `neuron-variant-fusion`)
+- **WHEN** the adapter builds the upsert payload
+- **THEN** the payload's `variant_count` SHALL be `26`, NOT `27`
+- **AND** the player's leaderboard rank SHALL reflect the corrected (lower) value after Worker accepts the upsert
 
 #### Scenario: synapse_strong computed from synapses table at push time
 

@@ -25,6 +25,7 @@ import {
   type RepresentativeMap,
 } from '../lib/services/representatives'
 import { promoteTier } from '../lib/services/variant-fusion'
+import { computeOwnedSlotCount } from '../lib/services/variant-ownership'
 import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
 import VariantSprite from '../components/VariantSprite'
@@ -100,6 +101,8 @@ interface PageState {
   instancesBySlot: Map<string, NeuronInstanceRow[]>
   /** Held individuals per familyId — drives the count chip + promote surplus. */
   heldByFamily: Map<string, NeuronInstanceRow[]>
+  /** Canonical distinct-owned count (slots with ≥1 held individual; ghost slots excluded). */
+  ownedSlotCount: number
 }
 
 export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Element {
@@ -109,6 +112,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     representatives: {},
     instancesBySlot: new Map(),
     heldByFamily: new Map(),
+    ownedSlotCount: 0,
   })
   const { user } = useAuth()
   const [shareOpen, setShareOpen] = useState(false)
@@ -149,6 +153,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
         representatives: filterStaleRepresentatives(repRaw, collectedKeys),
         instancesBySlot,
         heldByFamily,
+        ownedSlotCount: computeOwnedSlotCount(rows, instanceRows),
       }
     }).subscribe({
       next: (val) => setState(val),
@@ -200,7 +205,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   }
   const selectAll = (): void => setVisible(new Set(families.map((f) => f.id)))
 
-  const collectedCount = state.collectedKeys.size
+  const collectedCount = state.ownedSlotCount
   const shownFamilies = families.filter((f) => visible.has(f.id))
 
   return (
