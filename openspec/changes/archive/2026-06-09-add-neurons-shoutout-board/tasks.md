@@ -37,6 +37,6 @@
 - [x] 5.1 Vitest：normalize(全形/零寬/bidi/whitespace)、grapheme 長度、blocklist/PII reject、content-hash、avatar 驗證(注入擋)（`apps/neurons-tw/src/__tests__/shoutout-moderation.test.ts`，25 tests）
 - [x] 5.2 `pnpm -r typecheck`(5/5 綠) + `pnpm --filter @study-rpg/neurons-tw test`(517 綠)
 - [x] 5.3 Chrome MCP UI smoke：`/shoutout` 直接 URL render ✓ + nav「留言」✓ + console clean(僅既有 localhost R2 dev warning)✓ + 後端缺席優雅降級(empty state)✓ + compose modal 開啟 + 暱稱 gate 正確分支 ✓。後端未部署 → post/fetch e2e 延到 owner deploy 後(5.6)
-- [ ] 5.4 ⏸ **OWNER-MANUAL**：apply D1 migration 0008（dashboard D1 console，per wrangler 4.x）+ 記入 `d1_migrations`
-- [ ] 5.5 ⏸ **OWNER-MANUAL**：部署 Worker + smoke 既有 leaderboard/sync/presign 未斷（+ 設 `SHOUTOUT_OWNER_SUBS` secret）
+- [x] 5.4 ✅ applied to prod D1 `study-rpg-leaderboard` via `wrangler d1 execute --remote --file`（4.92 接受純 additive file，6 queries success）；4 表已驗存在。未寫 `d1_migrations` 追蹤表（與既有 dashboard-applied migrations 一致；re-run 因 IF NOT EXISTS 為安全 no-op）
+- [x] 5.5 ✅ Worker deployed (Version `102a80ef`, owner ran `wrangler deploy`) + smoked：`/health` ok / `/leaderboard/neurons/composite` 正常 / `/presign` 401(未斷) / NEW `/shoutouts/neurons` → `{messages:[],count:0}` (edge cache miss→hit、custom domain + workers.dev 皆通、unknown_app guard 正常)。⏸ `SHOUTOUT_OWNER_SUBS` secret 待 owner 設(admin 403 until then；公開板不受影響)
 - [ ] 5.6 ⏸ **OWNER-MANUAL**：prod 端到端 post/list/edit(5min)/delete/report + 確認 KV/D1 寫入量正常
