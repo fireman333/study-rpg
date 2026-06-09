@@ -15,8 +15,14 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
-import type { ContentPack } from '@study-rpg/core'
-import { NEURON_VARIANT_CATALOG, PROMOTE_COST_K } from '@study-rpg/content-neurons-tw'
+import type { ContentPack, Subject } from '@study-rpg/core'
+import {
+  NEURON_VARIANT_CATALOG,
+  PROMOTE_COST_K,
+  EXAM_PAPER_ORDER,
+  FAMILY_EXAM_PAPER,
+  type ExamPaper,
+} from '@study-rpg/content-neurons-tw'
 import { db, type NeuronVariantRow, type NeuronInstanceRow, type VariantRarity } from '../lib/db'
 import {
   getRepresentativesRaw,
@@ -92,6 +98,50 @@ const slotKey = (familyId: string, slotIndex: number): string => `${familyId}:${
 
 /** Strip the "— English persona" suffix used in connectome family displayNames. */
 const shortFamilyLabel = (displayName: string): string => displayName.replace(/\s*—.+$/, '')
+
+/**
+ * Family-section header label: 科目（cell-type）, e.g. 藥理學（VTA Dopaminergic）.
+ * Leads with the exam subject (科目中文) and appends the neuron cell-type in
+ * parens; falls back to the subject id alone if there is no English cell-type.
+ */
+const familyDisplayLabel = (subject: { id: string; displayName: string }): string => {
+  const cellType = shortFamilyLabel(subject.displayName)
+  return cellType && cellType !== subject.id ? `${subject.id}（${cellType}）` : subject.id
+}
+
+/**
+ * Exam-paper sections for the dex (decouple-neurons-subjects-from-nt-branches):
+ * families group by the two 國考第一階 papers (醫學一 → 醫學二) in 試題順序, mirroring the
+ * homepage FamilyPicker so /collection reads the same. Any subject a fork ships
+ * that isn't mapped to a paper falls into a defensive 「其他」 group so it is never
+ * silently dropped. Display-only; does NOT reorder the canonical FAMILY_IDS.
+ */
+const PAPER_META: { id: ExamPaper; label: string }[] = [
+  { id: '醫學一', label: '🧠 醫學一' },
+  { id: '醫學二', label: '🔬 醫學二' },
+]
+
+interface PaperGroup {
+  id: string
+  label: string
+  subjects: Subject[]
+}
+
+function groupSubjectsByPaper(subjects: Subject[]): PaperGroup[] {
+  const byId = new Map(subjects.map((s) => [s.id, s]))
+  const groups: PaperGroup[] = PAPER_META.map(({ id, label }) => {
+    const ordered = (EXAM_PAPER_ORDER[id] ?? [])
+      .map((sid) => byId.get(sid))
+      .filter((s): s is Subject => Boolean(s))
+    const seen = new Set(ordered.map((s) => s.id))
+    const extras = subjects.filter((s) => FAMILY_EXAM_PAPER[s.id] === id && !seen.has(s.id))
+    return { id, label, subjects: [...ordered, ...extras] }
+  })
+  const placed = new Set(groups.flatMap((g) => g.subjects.map((s) => s.id)))
+  const unplaced = subjects.filter((s) => !placed.has(s.id))
+  if (unplaced.length > 0) groups.push({ id: '其他', label: '🧬 其他', subjects: unplaced })
+  return groups.filter((g) => g.subjects.length > 0)
+}
 
 interface PageState {
   collected: Map<string, NeuronVariantRow>
@@ -177,10 +227,17 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     }
   }
 
-  // Families come from the content pack subjects (canonical family list + order).
+  // Families grouped by exam paper (醫學一 → 醫學二, 試題順序) — mirrors the homepage
+  // FamilyPicker so /collection reads the same. Paper dividers render below; chips
+  // + visibility iterate the flattened paper order.
+  const paperGroups = useMemo(() => groupSubjectsByPaper(pack.subjects), [pack.subjects])
+  const orderedSubjects = useMemo(() => paperGroups.flatMap((g) => g.subjects), [paperGroups])
+
+  // Filter chips: compact subject-only label (科目中文) in exam-paper order. The
+  // full 科目（cell-type） label is shown on each family section header below.
   const families: FamilyChipOption[] = useMemo(
-    () => pack.subjects.map((s) => ({ id: s.id, label: shortFamilyLabel(s.displayName) })),
-    [pack.subjects],
+    () => orderedSubjects.map((s) => ({ id: s.id, label: s.id })),
+    [orderedSubjects],
   )
 
   // Catalog description lookup (familyId:slotIndex → description) for collected
@@ -240,86 +297,100 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
       {shownFamilies.length === 0 ? (
         <p style={emptyHintStyle}>（已隱藏所有科別，點「全部」恢復顯示）</p>
       ) : (
-        shownFamilies.map((family) => {
-          const repSlot = state.representatives[family.id]
-          const repRow =
-            repSlot != null ? state.collected.get(slotKey(family.id, repSlot)) : undefined
-          // Open collection: render ONLY collected rows for this family, sorted by
-          // slot index (P0 apex first). No silhouettes, no catalog slot grid, no
-          // denominator — the catalog total stays hidden from the player.
-          const familyRows = [...state.collected.values()]
-            .filter((r) => r.familyId === family.id)
-            .sort((a, b) => a.slotIndex - b.slotIndex)
-          const held = state.heldByFamily.get(family.id) ?? []
-          const totalIndividuals = held.length
-          // Canonical per-family distinct-owned count (ghost slots excluded) —
-          // NOT familyRows.length, which counts raw neuronVariants rows.
-          const ownedInFamily = state.ownedSlotCountByFamily.get(family.id) ?? 0
-          const surplus = surplusByTier(held)
-          const promoteTiers = PROMOTABLE_TIERS.filter((t) => (surplus[t] ?? 0) > 0)
+        paperGroups.map((group) => {
+          // A paper divider only renders when ≥1 of its families is chip-visible.
+          const groupSubjects = group.subjects.filter((s) => visible.has(s.id))
+          if (groupSubjects.length === 0) return null
           return (
-            <section key={family.id} style={familySectionStyle} aria-label={family.label}>
-              <div style={familyHeaderRowStyle}>
-                <h2 style={familyTitleStyle}>
-                  {repRow && (
-                    <VariantSprite row={repRow} size={28} alt={`${family.label} 代表`} />
-                  )}
-                  {family.label}
-                  {/* Chip stays distinct-slot (種類) via the canonical per-family
-                      projection; total individuals is a faint secondary, only when
-                      there are dupes (totalIndividuals > owned slots). */}
-                  <span style={ownedCountStyle}><EmojiIcon char="🧬" size={14} /> {ownedInFamily} 隻</span>
-                  {totalIndividuals > ownedInFamily && (
-                    <span style={individualCountStyle}>· 共 {totalIndividuals} 個體</span>
-                  )}
-                </h2>
-              </div>
-              {/* Tier-promote (add-neurons-dupe-fusion): consume K surplus dupes
-                  of a tier → mint one rarer individual. Only tiers with surplus
-                  show; disabled below K. */}
-              {promoteTiers.length > 0 && (
-                <div style={promoteRowStyle}>
-                  <span style={promoteLabelStyle}><EmojiIcon char="🧬" size={14} /> 融合</span>
-                  {promoteTiers.map((t) => {
-                    const target = NEXT_RARER[t]
-                    if (!target) return null
-                    const have = surplus[t] ?? 0
-                    const key = `${family.id}:${t}`
-                    const busy = promoting === key
-                    const ready = have >= PROMOTE_COST_K && !promoting
-                    return (
-                      <button
-                        key={t}
-                        type="button"
-                        disabled={!ready}
-                        onClick={() => void handlePromote(family.id, t)}
-                        style={ready ? promoteBtnStyle : promoteBtnDisabledStyle}
-                        title={`消耗 ${PROMOTE_COST_K} 隻重複 ${t} → 一隻 ${target}（保留每槽第一隻）`}
-                      >
-                        {busy ? '融合中…' : `${t}→${target}（${have}/${PROMOTE_COST_K}）`}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-              {familyRows.length > 0 && (
-                <div style={slotRowStyle}>
-                  {familyRows.map((row) => (
-                    <VariantSlotCard
-                      key={row.slotIndex}
-                      row={row}
-                      instances={state.instancesBySlot.get(slotKey(family.id, row.slotIndex)) ?? []}
-                      nicknames={nicknames}
-                      description={descByKey.get(slotKey(family.id, row.slotIndex)) ?? ''}
-                      isRepresentative={repSlot === row.slotIndex}
-                      onSetRepresentative={() =>
-                        void setRepresentative(family.id, row.slotIndex)
-                      }
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
+            <div key={group.id}>
+              <h2 style={paperDividerStyle}>
+                {group.label}
+                <span style={paperDividerCountStyle}>{groupSubjects.length} 科</span>
+              </h2>
+              {groupSubjects.map((subject) => {
+                const familyLabel = familyDisplayLabel(subject)
+                const repSlot = state.representatives[subject.id]
+                const repRow =
+                  repSlot != null ? state.collected.get(slotKey(subject.id, repSlot)) : undefined
+                // Open collection: render ONLY collected rows for this family, sorted by
+                // slot index (P0 apex first). No silhouettes, no catalog slot grid, no
+                // denominator — the catalog total stays hidden from the player.
+                const familyRows = [...state.collected.values()]
+                  .filter((r) => r.familyId === subject.id)
+                  .sort((a, b) => a.slotIndex - b.slotIndex)
+                const held = state.heldByFamily.get(subject.id) ?? []
+                const totalIndividuals = held.length
+                // Canonical per-family distinct-owned count (ghost slots excluded) —
+                // NOT familyRows.length, which counts raw neuronVariants rows.
+                const ownedInFamily = state.ownedSlotCountByFamily.get(subject.id) ?? 0
+                const surplus = surplusByTier(held)
+                const promoteTiers = PROMOTABLE_TIERS.filter((t) => (surplus[t] ?? 0) > 0)
+                return (
+                  <section key={subject.id} style={familySectionStyle} aria-label={familyLabel}>
+                    <div style={familyHeaderRowStyle}>
+                      <h3 style={familyTitleStyle}>
+                        {repRow && (
+                          <VariantSprite row={repRow} size={28} alt={`${familyLabel} 代表`} />
+                        )}
+                        {familyLabel}
+                        {/* Chip stays distinct-slot (種類) via the canonical per-family
+                            projection; total individuals is a faint secondary, only when
+                            there are dupes (totalIndividuals > owned slots). */}
+                        <span style={ownedCountStyle}><EmojiIcon char="🧬" size={14} /> {ownedInFamily} 隻</span>
+                        {totalIndividuals > ownedInFamily && (
+                          <span style={individualCountStyle}>· 共 {totalIndividuals} 個體</span>
+                        )}
+                      </h3>
+                    </div>
+                    {/* Tier-promote (add-neurons-dupe-fusion): consume K surplus dupes
+                        of a tier → mint one rarer individual. Only tiers with surplus
+                        show; disabled below K. */}
+                    {promoteTiers.length > 0 && (
+                      <div style={promoteRowStyle}>
+                        <span style={promoteLabelStyle}><EmojiIcon char="🧬" size={14} /> 融合</span>
+                        {promoteTiers.map((t) => {
+                          const target = NEXT_RARER[t]
+                          if (!target) return null
+                          const have = surplus[t] ?? 0
+                          const key = `${subject.id}:${t}`
+                          const busy = promoting === key
+                          const ready = have >= PROMOTE_COST_K && !promoting
+                          return (
+                            <button
+                              key={t}
+                              type="button"
+                              disabled={!ready}
+                              onClick={() => void handlePromote(subject.id, t)}
+                              style={ready ? promoteBtnStyle : promoteBtnDisabledStyle}
+                              title={`消耗 ${PROMOTE_COST_K} 隻重複 ${t} → 一隻 ${target}（保留每槽第一隻）`}
+                            >
+                              {busy ? '融合中…' : `${t}→${target}（${have}/${PROMOTE_COST_K}）`}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                    {familyRows.length > 0 && (
+                      <div style={slotRowStyle}>
+                        {familyRows.map((row) => (
+                          <VariantSlotCard
+                            key={row.slotIndex}
+                            row={row}
+                            instances={state.instancesBySlot.get(slotKey(subject.id, row.slotIndex)) ?? []}
+                            nicknames={nicknames}
+                            description={descByKey.get(slotKey(subject.id, row.slotIndex)) ?? ''}
+                            isRepresentative={repSlot === row.slotIndex}
+                            onSetRepresentative={() =>
+                              void setRepresentative(subject.id, row.slotIndex)
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                )
+              })}
+            </div>
           )
         })
       )}
@@ -543,6 +614,23 @@ const emptyHintStyle: React.CSSProperties = {
   marginTop: '1.5rem',
   textAlign: 'center',
   fontSize: '0.85rem',
+  color: '#8c6d4a',
+}
+
+const paperDividerStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'baseline',
+  gap: '0.5rem',
+  margin: '1.6rem 0 0.2rem',
+  fontSize: '1.05rem',
+  fontWeight: 700,
+  color: '#5a3e1a',
+  letterSpacing: '0.04em',
+}
+
+const paperDividerCountStyle: React.CSSProperties = {
+  fontSize: '0.74rem',
+  fontWeight: 400,
   color: '#8c6d4a',
 }
 
