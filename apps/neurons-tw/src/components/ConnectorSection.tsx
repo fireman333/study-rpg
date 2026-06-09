@@ -23,29 +23,39 @@ import { EmojiIcon } from './EmojiIcon'
 const shortFamilyLabel = (displayName: string): string => displayName.replace(/\s*—.+$/, '')
 
 export default function ConnectorSection({ pack }: { pack: ContentPack }): JSX.Element {
-  const { entries, unlockedCount, total } = useConnectors()
+  const { entries, unlockedCount } = useConnectors()
 
   const labelOf = useMemo(() => {
     const byId = new Map(pack.subjects.map((s) => [s.id, shortFamilyLabel(s.displayName)]))
     return (id: string): string => byId.get(id) ?? id
   }, [pack.subjects])
 
+  // Open collection (mirrors the per-family variant sections): render ONLY the
+  // unlocked connectors — no locked silhouettes, and the closed-set total (55) is
+  // never surfaced. The underlying closed set / unlock / permanence / sync is
+  // unchanged; only the display narrows to what the player has collected.
+  const unlocked = entries.filter((e) => e.unlocked)
+
   return (
     <section style={sectionStyle} aria-label="連結神經元">
       <div style={headerRowStyle}>
         <h2 style={titleStyle}>
           <EmojiIcon char="🔗" size={16} /> 連結神經元
-          <span style={countStyle}>{unlockedCount} / {total}</span>
+          <span style={countStyle}>{unlockedCount} 隻</span>
         </h2>
       </div>
       <p style={blurbStyle}>
-        兩科的突觸連線首次達到「強連結」時，會長出一隻橋接這兩科的<strong>連結神經元</strong>（connector hub）。永久收藏，連線衰退也不會消失。
+        兩科的突觸連線首次達到「強連結」時，會長出一隻橋接這兩科的<strong>連結神經元</strong>（connector hub）。永久收藏。
       </p>
-      <div style={gridStyle}>
-        {entries.map((entry) => (
-          <ConnectorCard key={entry.pairKey} entry={entry} labelOf={labelOf} />
-        ))}
-      </div>
+      {unlocked.length === 0 ? (
+        <p style={emptyHintStyle}>尚未長出連結神經元 —— 兩科一起出征修復錯題、連線變強就會解鎖。</p>
+      ) : (
+        <div style={gridStyle}>
+          {unlocked.map((entry) => (
+            <ConnectorCard key={entry.pairKey} entry={entry} labelOf={labelOf} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }
@@ -57,45 +67,33 @@ function ConnectorCard({
   entry: ConnectorEntry
   labelOf: (id: string) => string
 }): JSX.Element {
-  const { pairKey, familyA, familyB, unlocked } = entry
+  const { pairKey, familyA, familyB } = entry
   const [colorA, colorB] = connectorColors(pairKey)
   const spriteUrl = SPRITE_MAP[connectorSpriteKey(pairKey)]
   const labelA = labelOf(familyA)
   const labelB = labelOf(familyB)
 
+  // Open collection renders only unlocked connectors, so every card is unlocked.
   return (
     <div
       style={{
         ...cardStyle,
-        opacity: unlocked ? 1 : 0.55,
-        background: unlocked
-          ? `linear-gradient(135deg, ${colorA}22, ${colorB}22)`
-          : '#f1ead9',
-        borderColor: unlocked ? '#c9a44d' : '#cdbfa2',
+        background: `linear-gradient(135deg, ${colorA}22, ${colorB}22)`,
+        borderColor: '#c9a44d',
       }}
-      aria-label={
-        unlocked
-          ? `連結神經元：${labelA} × ${labelB}（已解鎖）`
-          : `連結神經元：${labelA} × ${labelB}（未解鎖）`
-      }
+      aria-label={`連結神經元：${labelA} × ${labelB}`}
     >
       <div style={glyphWrapStyle}>
         {spriteUrl ? (
-          <img
-            src={spriteUrl}
-            width={56}
-            height={56}
-            alt=""
-            style={{ imageRendering: 'pixelated', filter: unlocked ? 'none' : 'grayscale(1)' }}
-          />
+          <img src={spriteUrl} width={56} height={56} alt="" style={{ imageRendering: 'pixelated' }} />
         ) : (
-          <ConnectorGlyph colorA={colorA} colorB={colorB} size={56} locked={!unlocked} />
+          <ConnectorGlyph colorA={colorA} colorB={colorB} size={56} />
         )}
       </div>
       <div style={pairLabelStyle}>
-        <span style={{ color: unlocked ? '#3a2a1a' : '#9b8c70' }}>{labelA}</span>
+        <span style={{ color: '#3a2a1a' }}>{labelA}</span>
         <span style={bridgeArrowStyle}>⇌</span>
-        <span style={{ color: unlocked ? '#3a2a1a' : '#9b8c70' }}>{labelB}</span>
+        <span style={{ color: '#3a2a1a' }}>{labelB}</span>
       </div>
     </div>
   )
@@ -103,33 +101,28 @@ function ConnectorCard({
 
 /**
  * Procedural bridge-axon glyph: two somata (the two family colors) joined by an
- * axon with a synaptic glow at the junction. Locked → grey silhouette, glow off.
+ * axon with a synaptic glow at the junction.
  */
 function ConnectorGlyph({
   colorA,
   colorB,
   size,
-  locked,
 }: {
   colorA: string
   colorB: string
   size: number
-  locked: boolean
 }): JSX.Element {
-  const a = locked ? '#c2b290' : colorA
-  const b = locked ? '#c2b290' : colorB
-  const axon = locked ? '#bfb091' : '#8c6d4a'
   return (
     <svg width={size} height={Math.round(size * 0.62)} viewBox="0 0 64 40" aria-hidden="true">
-      <line x1="16" y1="20" x2="48" y2="20" stroke={axon} strokeWidth="3" strokeLinecap="round" />
-      {!locked && <circle cx="32" cy="20" r="7" fill="#fff7d6" opacity="0.9" />}
-      <circle cx="32" cy="20" r="3.2" fill={locked ? '#bfb091' : '#d4a04d'} />
-      <line x1="16" y1="20" x2="6" y2="12" stroke={a} strokeWidth="2" strokeLinecap="round" />
-      <line x1="16" y1="20" x2="6" y2="28" stroke={a} strokeWidth="2" strokeLinecap="round" />
-      <line x1="48" y1="20" x2="58" y2="12" stroke={b} strokeWidth="2" strokeLinecap="round" />
-      <line x1="48" y1="20" x2="58" y2="28" stroke={b} strokeWidth="2" strokeLinecap="round" />
-      <circle cx="16" cy="20" r="8" fill={a} stroke="#3a2a1a" strokeWidth="1.2" />
-      <circle cx="48" cy="20" r="8" fill={b} stroke="#3a2a1a" strokeWidth="1.2" />
+      <line x1="16" y1="20" x2="48" y2="20" stroke="#8c6d4a" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="32" cy="20" r="7" fill="#fff7d6" opacity="0.9" />
+      <circle cx="32" cy="20" r="3.2" fill="#d4a04d" />
+      <line x1="16" y1="20" x2="6" y2="12" stroke={colorA} strokeWidth="2" strokeLinecap="round" />
+      <line x1="16" y1="20" x2="6" y2="28" stroke={colorA} strokeWidth="2" strokeLinecap="round" />
+      <line x1="48" y1="20" x2="58" y2="12" stroke={colorB} strokeWidth="2" strokeLinecap="round" />
+      <line x1="48" y1="20" x2="58" y2="28" stroke={colorB} strokeWidth="2" strokeLinecap="round" />
+      <circle cx="16" cy="20" r="8" fill={colorA} stroke="#3a2a1a" strokeWidth="1.2" />
+      <circle cx="48" cy="20" r="8" fill={colorB} stroke="#3a2a1a" strokeWidth="1.2" />
     </svg>
   )
 }
@@ -168,6 +161,13 @@ const blurbStyle: React.CSSProperties = {
   margin: '0 0 0.8rem',
   fontSize: '0.74rem',
   color: '#8c6d4a',
+  lineHeight: 1.5,
+}
+
+const emptyHintStyle: React.CSSProperties = {
+  margin: '0.4rem 0 0',
+  fontSize: '0.78rem',
+  color: '#9c8a6a',
   lineHeight: 1.5,
 }
 

@@ -67,7 +67,7 @@ export function FamilyPicker({
       {groupSubjectsByPaper(pack.subjects).map((group) => (
         <div key={group.id} style={paperGroupStyle}>
           <div style={paperHeaderStyle}>
-            <span>{group.label}</span>
+            <span><EmojiIcon char={group.emoji} size={16} /> {group.label}</span>
             <span style={paperCountStyle}>{group.subjects.length} 科</span>
           </div>
           <div style={branchRowStyle} className="neurons-family-grid">
@@ -97,30 +97,31 @@ export function FamilyPicker({
  * NT branch. Any subject a fork ships that isn't mapped to a paper falls into a
  * defensive 「其他」 group so it is never silently dropped.
  */
-const PAPER_META: { id: ExamPaper; label: string }[] = [
-  { id: '醫學一', label: '🧠 醫學一' },
-  { id: '醫學二', label: '🔬 醫學二' },
+const PAPER_META: { id: ExamPaper; emoji: string; label: string }[] = [
+  { id: '醫學一', emoji: '🧠', label: '醫學一' },
+  { id: '醫學二', emoji: '🔬', label: '醫學二' },
 ]
 
 interface PaperGroup {
   id: string
+  emoji: string
   label: string
   subjects: Subject[]
 }
 
 function groupSubjectsByPaper(subjects: Subject[]): PaperGroup[] {
   const byId = new Map(subjects.map((s) => [s.id, s]))
-  const groups: PaperGroup[] = PAPER_META.map(({ id, label }) => {
+  const groups: PaperGroup[] = PAPER_META.map(({ id, emoji, label }) => {
     const ordered = (EXAM_PAPER_ORDER[id] ?? [])
       .map((sid) => byId.get(sid))
       .filter((s): s is Subject => Boolean(s))
     const seen = new Set(ordered.map((s) => s.id))
     const extras = subjects.filter((s) => FAMILY_EXAM_PAPER[s.id] === id && !seen.has(s.id))
-    return { id, label, subjects: [...ordered, ...extras] }
+    return { id, emoji, label, subjects: [...ordered, ...extras] }
   })
   const placed = new Set(groups.flatMap((g) => g.subjects.map((s) => s.id)))
   const unplaced = subjects.filter((s) => !placed.has(s.id))
-  if (unplaced.length > 0) groups.push({ id: '其他', label: '🧬 其他', subjects: unplaced })
+  if (unplaced.length > 0) groups.push({ id: '其他', emoji: '🧬', label: '其他', subjects: unplaced })
   return groups.filter((g) => g.subjects.length > 0)
 }
 

@@ -116,30 +116,31 @@ const familyDisplayLabel = (subject: { id: string; displayName: string }): strin
  * that isn't mapped to a paper falls into a defensive 「其他」 group so it is never
  * silently dropped. Display-only; does NOT reorder the canonical FAMILY_IDS.
  */
-const PAPER_META: { id: ExamPaper; label: string }[] = [
-  { id: '醫學一', label: '🧠 醫學一' },
-  { id: '醫學二', label: '🔬 醫學二' },
+const PAPER_META: { id: ExamPaper; emoji: string; label: string }[] = [
+  { id: '醫學一', emoji: '🧠', label: '醫學一' },
+  { id: '醫學二', emoji: '🔬', label: '醫學二' },
 ]
 
 interface PaperGroup {
   id: string
+  emoji: string
   label: string
   subjects: Subject[]
 }
 
 function groupSubjectsByPaper(subjects: Subject[]): PaperGroup[] {
   const byId = new Map(subjects.map((s) => [s.id, s]))
-  const groups: PaperGroup[] = PAPER_META.map(({ id, label }) => {
+  const groups: PaperGroup[] = PAPER_META.map(({ id, emoji, label }) => {
     const ordered = (EXAM_PAPER_ORDER[id] ?? [])
       .map((sid) => byId.get(sid))
       .filter((s): s is Subject => Boolean(s))
     const seen = new Set(ordered.map((s) => s.id))
     const extras = subjects.filter((s) => FAMILY_EXAM_PAPER[s.id] === id && !seen.has(s.id))
-    return { id, label, subjects: [...ordered, ...extras] }
+    return { id, emoji, label, subjects: [...ordered, ...extras] }
   })
   const placed = new Set(groups.flatMap((g) => g.subjects.map((s) => s.id)))
   const unplaced = subjects.filter((s) => !placed.has(s.id))
-  if (unplaced.length > 0) groups.push({ id: '其他', label: '🧬 其他', subjects: unplaced })
+  if (unplaced.length > 0) groups.push({ id: '其他', emoji: '🧬', label: '其他', subjects: unplaced })
   return groups.filter((g) => g.subjects.length > 0)
 }
 
@@ -272,13 +273,15 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   return (
     <section style={pageStyle}>
       <header style={headerStyle}>
-        <h1 style={titleStyle}>神經元圖鑑</h1>
+        <div style={headerTopRowStyle}>
+          <h1 style={titleStyle}>神經元圖鑑</h1>
+          <button type="button" style={shareBtnStyle} onClick={() => setShareOpen(true)}>
+            <EmojiIcon char="🔗" size={16} /> 分享卡
+          </button>
+        </div>
         <p style={subtitleStyle}>
           已收集 <strong>{collectedCount}</strong> 隻。唸書與答對累積神經能量、在腦圖探索，走到節點即解鎖一次抽卡。
         </p>
-        <button type="button" style={shareBtnStyle} onClick={() => setShareOpen(true)}>
-          <EmojiIcon char="🔗" size={16} /> 分享卡
-        </button>
       </header>
 
       <ShareCardModal
@@ -304,6 +307,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           return (
             <div key={group.id}>
               <h2 style={paperDividerStyle}>
+                <EmojiIcon char={group.emoji} size={18} />
                 {group.label}
                 <span style={paperDividerCountStyle}>{groupSubjects.length} 科</span>
               </h2>
@@ -581,7 +585,15 @@ const pageStyle: React.CSSProperties = {
   margin: '0 auto',
 }
 
-const headerStyle: React.CSSProperties = { marginBottom: '0.4rem', textAlign: 'center' }
+const headerStyle: React.CSSProperties = { marginBottom: '0.4rem' }
+
+const headerTopRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.6rem',
+  flexWrap: 'wrap',
+}
 
 const titleStyle: React.CSSProperties = {
   margin: '0 0 0.3rem',
@@ -598,7 +610,7 @@ const subtitleStyle: React.CSSProperties = {
 }
 
 const shareBtnStyle: React.CSSProperties = {
-  marginTop: '0.7rem',
+  flexShrink: 0,
   fontFamily: 'inherit',
   fontSize: '0.82rem',
   fontWeight: 700,

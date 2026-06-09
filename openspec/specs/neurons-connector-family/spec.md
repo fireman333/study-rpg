@@ -78,7 +78,7 @@ On the first load after the connector feature is installed, the system SHALL sca
 
 | Surface | What it tracks | Where defined |
 |---|---|---|
-| Connector dex `N/55` | Lifetime ever-wired pairs (incl. legacy + decayed) | This capability |
+| Connector count (`🔗 X 隻`) | Lifetime ever-wired pairs (incl. legacy + decayed) | This capability |
 | 穩定連線數 narrative stat | Currently-validated wires (excludes legacy + dormant) | `connectome-collection` |
 
 A divergence between connector count and 穩定連線數 (e.g.「5 connectors / 0 stable wires」 immediately after upgrade for a save with 5 legacy strong wires) is **expected and correct**, not a bug. It mirrors the lifetime-vs-currently-held split already adopted for variant collection (`copies` lifetime mint vs `ownedSlotCount` held).
@@ -112,8 +112,8 @@ A divergence between connector count and 穩定連線數 (e.g.「5 connectors / 
 #### Scenario: Connector count and 穩定連線數 are independent stats by design
 
 - **GIVEN** a save with 5 legacy strong wires (pre-epoch `lastCoFireDate`) and 0 post-epoch validated wires
-- **WHEN** the homepage renders 穩定連線數 and the collection page renders the connector dex
-- **THEN** the connector dex SHALL show `5/55` (lifetime ever-wired)
+- **WHEN** the homepage renders 穩定連線數 and the collection page renders the connector section
+- **THEN** the connector section SHALL show「🔗 5 隻」 (lifetime ever-wired)
 - **AND** 穩定連線數 SHALL show `0` (currently-validated, per `connectome-collection`)
 - **AND** the divergence SHALL NOT be surfaced as an error or warning
 
@@ -140,21 +140,31 @@ The sync payload SHALL be additive and reader-tolerant: an older client SHALL sa
 
 ### Requirement: Collection-page connector section
 
-The collection page SHALL present a dedicated「連結神經元」section showing collection progress as `N/55`, separate from the per-family variant sections, as a flat grid not grouped by family. Unlocked connectors SHALL render as colored cards; locked connectors SHALL render as silhouettes.
+The collection page SHALL present a dedicated「連結神經元」section, separate from the per-family variant sections, as a flat grid not grouped by family. The section SHALL use the same **open-collection** model as the per-family variant sections (`neurons-variant-collection-view`): it SHALL render ONLY the connectors the player has unlocked — no locked silhouettes, no dimmed or fog placeholders for un-unlocked pairs — and the closed-set total (55) SHALL be hidden from the player. Progress SHALL render as a pure count (`🔗 X 隻`), NOT as an `N/55` fraction. Each unlocked connector SHALL render as a colored card (its registered sprite when present, else the procedural split-color fallback per the Procedural placeholder visual Requirement).
 
-**Provenance display (optional).** When rendering an unlocked connector whose `unlockSource` is `'legacy-backfill'` AND whose underlying wire is currently in the historical / legacy trace state per `connectome-collection`'s legacy-trace Requirement (i.e. `lastCoFireDate` still precedes the ship epoch — the player has not yet re-validated it via a new expedition co-repair), the UI MAY render an unobtrusive provenance marker (e.g. a small「早期連線·已收藏」 chip, or a faint border treatment). The marker SHALL NOT gate or affect ownership and SHALL NOT change the `N/55` count. Once a re-validation co-repair updates the underlying wire's `lastCoFireDate` to ≥ the ship epoch, the marker SHALL disappear at next render. A connector with `unlockSource` of `'validated'` or `undefined` (unknown) SHALL NOT show the marker.
+The closed 55-set, the unlock trigger, monotonic permanence, backfill, and sync requirements are unchanged — only the collection-page presentation changes (locked entries are no longer shown, and the total is no longer surfaced).
+
+**Provenance display (optional).** When rendering an unlocked connector whose `unlockSource` is `'legacy-backfill'` AND whose underlying wire is currently in the historical / legacy trace state per `connectome-collection`'s legacy-trace Requirement (i.e. `lastCoFireDate` still precedes the ship epoch — the player has not yet re-validated it via a new expedition co-repair), the UI MAY render an unobtrusive provenance marker (e.g. a small「早期連線·已收藏」 chip, or a faint border treatment). The marker SHALL NOT gate or affect ownership and SHALL NOT change the count. Once a re-validation co-repair updates the underlying wire's `lastCoFireDate` to ≥ the ship epoch, the marker SHALL disappear at next render. A connector with `unlockSource` of `'validated'` or `undefined` (unknown) SHALL NOT show the marker.
 
 The provenance marker is a UI affordance, not a contract: this Requirement uses MAY rather than SHALL because the marker is non-load-bearing — a build that omits it is still correct, but a build that shows it SHALL follow the rule above (only render for `'legacy-backfill'` + currently-legacy wire, never for other combinations).
 
-#### Scenario: Section shows progress and states
+#### Scenario: Section shows only unlocked connectors
 
-- **WHEN** the player opens the collection page with K connectors unlocked
-- **THEN** a「連結神經元 K/55」section is shown with K colored connector cards and (55 − K) locked silhouettes
+- **WHEN** the player opens the collection page with K connectors unlocked (of the closed 55-set)
+- **THEN** a「連結神經元」section is shown with exactly K colored connector cards
+- **AND** NO locked silhouette / dimmed / fog placeholder renders for the (55 − K) un-unlocked pairs
+- **AND** the count renders as「🔗 K 隻」with no `/55` denominator, and the closed-set total SHALL NOT be surfaced to the player
+
+#### Scenario: Empty until first unlock
+
+- **GIVEN** the player has unlocked no connectors
+- **WHEN** the connector section renders
+- **THEN** it shows zero connector cards (an empty or hint state), with no silhouettes and no `0/55`
 
 #### Scenario: Section is independent of family filter grouping
 
 - **WHEN** the connector section is rendered
-- **THEN** connectors appear in a single flat grid spanning all pairs, not nested inside any one family's section
+- **THEN** the unlocked connectors appear in a single flat grid spanning all pairs, not nested inside any one family's section
 
 #### Scenario: Legacy-backfill provenance marker only shows for currently-legacy wires
 

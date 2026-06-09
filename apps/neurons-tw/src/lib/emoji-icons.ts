@@ -24,6 +24,7 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   // neurons-only (generated to match the pack style)
   ['⚔', '2694.png'],
   ['🔗', '1f517.png'],
+  ['🔬', '1f52c.png'],
   ['🔭', '1f52d.png'],
   ['🧠', '1f9e0.png'],
   ['🧬', '1f9ec.png'],

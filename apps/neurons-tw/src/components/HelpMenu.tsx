@@ -175,8 +175,7 @@ const SECTIONS: Section[] = [
           這些科就兩兩長出一條 <strong>連線</strong>（每天最多 3 條）。一般隨機答題的對錯<strong>不會</strong>形成連線。
         </p>
         <p>
-          <strong>不同日</strong>再次一起修復，連線會升級（dormant → weak → strong，線越粗）。
-          連續 7 天沒一起修復會降一級（strong → weak → dormant），但<strong>永遠不會消失</strong>。
+          <strong>不同日</strong>再次一起修復，連線會越來越強、線越粗。
         </p>
         <p>
           <strong>突觸傳導</strong>：連起來的兩科，當你讀其中一科 / 修它的錯題、結算時會有一顆 pulse 沿線把
@@ -196,12 +195,12 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          兩科之間的連線第一次達到 <strong>strong</strong> 時，會解鎖一隻「<strong>連結神經元</strong>」立繪
+          兩科之間的連線第一次<strong>變得夠強</strong>時，會解鎖一隻「<strong>連結神經元</strong>」立繪
           （橋接兩科的 hub neuron）。
         </p>
         <p>
-          11 科兩兩配對共 <strong>55 隻</strong>，純收集、不能抽 — 把該配對的連線拉到 strong 是唯一途徑。
-          在「<a href="/collection">變體圖鑑</a>」可看完整列表。
+          11 科兩兩配對都有專屬的連結神經元，純收集、不能抽 — 把該配對的連線練強是唯一途徑。
+          在「<a href="/collection">圖鑑</a>」可看已收集的連結神經元。
         </p>
       </>
     ),

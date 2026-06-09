@@ -126,12 +126,12 @@ function CardTile({
   }
 
   return (
-    <div style={{ ...tileStyle, borderColor: '#3d3270', opacity: 0.5 }}>
-      <div style={{ ...rarityChipStyle, color: '#9b9b9b', borderColor: '#3d3270' }}>?</div>
-      <div style={{ ...spriteWrapStyle, background: '#0a081a' }}>
+    <div style={{ ...tileStyle, borderColor: '#c9b48f', opacity: 0.55 }}>
+      <div style={{ ...rarityChipStyle, color: '#a89074', borderColor: '#c9b48f' }}>?</div>
+      <div style={{ ...spriteWrapStyle, background: '#f4ecd8' }}>
         <span style={silhouetteStyle}>?</span>
       </div>
-      <div style={{ ...tileNameStyle, color: '#5d5878' }}>未收藏</div>
+      <div style={{ ...tileNameStyle, color: '#8c6d4a' }}>未收藏</div>
       <p style={tileDescStyle}>抽到才能解鎖</p>
     </div>
   )
@@ -140,9 +140,7 @@ function CardTile({
 const pageStyle: React.CSSProperties = {
   padding: '1.5rem 1rem 3rem',
   fontFamily: 'var(--font-pixel-cjk)',
-  color: '#e6e6fa',
-  background: '#0f0c24',
-  minHeight: '100vh',
+  color: '#3a2a1a',
 }
 
 const headerStyle: React.CSSProperties = {
@@ -153,21 +151,21 @@ const headerStyle: React.CSSProperties = {
 const titleStyle: React.CSSProperties = {
   margin: '0 0 0.4rem',
   fontSize: '1.6rem',
-  color: '#d4c4ff',
+  color: '#5a3e1a',
   letterSpacing: '0.1em',
 }
 
 const subtitleStyle: React.CSSProperties = {
   margin: 0,
   fontSize: '0.85rem',
-  color: '#b8b3d4',
+  color: '#8c6d4a',
 }
 
 const sectionHeadingStyle: React.CSSProperties = {
   maxWidth: '1100px',
   margin: '0 auto 0.9rem',
   fontSize: '1.2rem',
-  color: '#d4c4ff',
+  color: '#5a3e1a',
   letterSpacing: '0.06em',
   textAlign: 'center',
 }
@@ -186,7 +184,7 @@ const gridStyle: React.CSSProperties = {
 
 const tileStyle: React.CSSProperties = {
   position: 'relative',
-  background: '#1c1838',
+  background: '#fbf6e9',
   border: '2px solid',
   borderRadius: '8px',
   padding: '1.3rem 0.65rem 0.7rem',
@@ -203,7 +201,7 @@ const rarityChipStyle: React.CSSProperties = {
   top: '-0.6rem',
   left: '50%',
   transform: 'translateX(-50%)',
-  background: '#1c1838',
+  background: '#fbf6e9',
   border: '2px solid',
   padding: '0.1rem 0.55rem',
   borderRadius: '999px',
@@ -218,8 +216,8 @@ const spriteWrapStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: '#0f0c24',
-  border: '1px solid #3d3270',
+  background: '#f4ecd8',
+  border: '1px solid #c9b48f',
   borderRadius: '6px',
 }
 
@@ -231,21 +229,21 @@ const spriteStyle: React.CSSProperties = {
 
 const silhouetteStyle: React.CSSProperties = {
   fontSize: '2.5rem',
-  color: '#3d3270',
+  color: '#c9b48f',
   fontWeight: 700,
 }
 
 const tileNameStyle: React.CSSProperties = {
   fontSize: '0.9rem',
   fontWeight: 700,
-  color: '#fff',
+  color: '#3a2a1a',
   textAlign: 'center',
 }
 
 const tileDescStyle: React.CSSProperties = {
   margin: 0,
   fontSize: '0.7rem',
-  color: '#9b9b9b',
+  color: '#8c6d4a',
   textAlign: 'center',
   lineHeight: 1.4,
 }

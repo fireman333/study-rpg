@@ -116,8 +116,8 @@ export default function BackpackPanel(): JSX.Element {
 const panelStyle: React.CSSProperties = {
   maxWidth: '1100px',
   margin: '0 auto 1.5rem',
-  background: '#15122e',
-  border: '2px solid #3d3270',
+  background: '#f4ecd8',
+  border: '2px solid #8c6d4a',
   borderRadius: '10px',
   padding: '1rem 1.1rem',
 }
@@ -125,20 +125,20 @@ const panelStyle: React.CSSProperties = {
 const headingStyle: React.CSSProperties = {
   margin: '0 0 0.6rem',
   fontSize: '1.1rem',
-  color: '#d4c4ff',
+  color: '#5a3e1a',
   letterSpacing: '0.06em',
 }
 
 const subHeadingStyle: React.CSSProperties = {
   margin: '0.8rem 0 0.4rem',
   fontSize: '0.85rem',
-  color: '#9fd4b0',
+  color: '#4f6a2f',
 }
 
 const emptyStyle: React.CSSProperties = {
   margin: 0,
   fontSize: '0.82rem',
-  color: '#9b9b9b',
+  color: '#8c6d4a',
   lineHeight: 1.6,
 }
 
@@ -148,21 +148,21 @@ const rowStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: '0.6rem',
-  background: '#1c1838',
-  border: '1px solid #3d3270',
+  background: '#fbf6e9',
+  border: '1px solid #c9b48f',
   borderRadius: '6px',
   padding: '0.5rem 0.7rem',
 }
 
-const activeRowStyle: React.CSSProperties = { ...rowStyle, borderColor: '#3d6b4d' }
+const activeRowStyle: React.CSSProperties = { ...rowStyle, borderColor: '#6a8c3f' }
 
-const rowLabelStyle: React.CSSProperties = { flex: 1, fontSize: '0.8rem', color: '#cfcae6', lineHeight: 1.4 }
+const rowLabelStyle: React.CSSProperties = { flex: 1, fontSize: '0.8rem', color: '#3a2a1a', lineHeight: 1.4 }
 
 const countChipStyle: React.CSSProperties = {
   fontSize: '0.8rem',
   fontWeight: 700,
-  color: '#d4c4ff',
-  background: '#2d2055',
+  color: '#5a3e1a',
+  background: '#f0e6cf',
   borderRadius: '999px',
   padding: '0.1rem 0.55rem',
 }
@@ -170,13 +170,13 @@ const countChipStyle: React.CSSProperties = {
 const timerChipStyle: React.CSSProperties = {
   fontSize: '0.75rem',
   fontWeight: 700,
-  color: '#9fd4b0',
+  color: '#4f6a2f',
   whiteSpace: 'nowrap',
 }
 
 const activateBtnStyle: React.CSSProperties = {
   padding: '0.35rem 0.9rem',
-  background: '#5d4ec4',
+  background: '#d4a04d',
   color: '#fff',
   border: 'none',
   borderRadius: '4px',

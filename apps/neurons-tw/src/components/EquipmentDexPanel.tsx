@@ -71,14 +71,14 @@ function EquipmentTile({ def, owned }: { def: EquipmentDef; owned: boolean }): J
 
   if (!owned) {
     return (
-      <div style={{ ...tileStyle, borderColor: '#3d3270', opacity: 0.5 }}>
-        <div style={{ ...chipStyle, color: '#9b9b9b', borderColor: '#3d3270' }}>
+      <div style={{ ...tileStyle, borderColor: '#c9b48f', opacity: 0.55 }}>
+        <div style={{ ...chipStyle, color: '#a89074', borderColor: '#c9b48f' }}>
           {RARITY_LABEL[def.rarity]}
         </div>
-        <div style={{ ...spriteWrapStyle, background: '#0a081a' }}>
+        <div style={{ ...spriteWrapStyle, background: '#f4ecd8' }}>
           <span style={silhouetteStyle}>?</span>
         </div>
-        <div style={{ ...nameStyle, color: '#5d5878' }}>未取得</div>
+        <div style={{ ...nameStyle, color: '#8c6d4a' }}>未取得</div>
         <p style={descStyle}>{LANE_LABEL[def.lane]} · +{Math.round(def.bonus * 100)}%</p>
       </div>
     )
@@ -104,7 +104,7 @@ const panelStyle: React.CSSProperties = { maxWidth: '1100px', margin: '2rem auto
 const headingStyle: React.CSSProperties = {
   margin: '0 0 0.3rem',
   fontSize: '1.2rem',
-  color: '#d4c4ff',
+  color: '#5a3e1a',
   letterSpacing: '0.06em',
   textAlign: 'center',
 }
@@ -112,7 +112,7 @@ const headingStyle: React.CSSProperties = {
 const subtitleStyle: React.CSSProperties = {
   margin: '0 0 1rem',
   fontSize: '0.82rem',
-  color: '#b8b3d4',
+  color: '#8c6d4a',
   textAlign: 'center',
 }
 
@@ -124,7 +124,7 @@ const gridStyle: React.CSSProperties = {
 
 const tileStyle: React.CSSProperties = {
   position: 'relative',
-  background: '#1c1838',
+  background: '#fbf6e9',
   border: '2px solid',
   borderRadius: '8px',
   padding: '1.3rem 0.65rem 0.7rem',
@@ -139,7 +139,7 @@ const chipStyle: React.CSSProperties = {
   top: '-0.6rem',
   left: '50%',
   transform: 'translateX(-50%)',
-  background: '#1c1838',
+  background: '#fbf6e9',
   border: '2px solid',
   padding: '0.1rem 0.55rem',
   borderRadius: '999px',
@@ -154,30 +154,30 @@ const spriteWrapStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: '#0f0c24',
-  border: '1px solid #3d3270',
+  background: '#f4ecd8',
+  border: '1px solid #c9b48f',
   borderRadius: '6px',
 }
 
 const spriteStyle: React.CSSProperties = { width: '68px', height: '68px', imageRendering: 'pixelated' }
 
-const silhouetteStyle: React.CSSProperties = { fontSize: '2.5rem', color: '#3d3270', fontWeight: 700 }
+const silhouetteStyle: React.CSSProperties = { fontSize: '2.5rem', color: '#c9b48f', fontWeight: 700 }
 
-const nameStyle: React.CSSProperties = { fontSize: '0.9rem', fontWeight: 700, color: '#fff', textAlign: 'center' }
+const nameStyle: React.CSSProperties = { fontSize: '0.9rem', fontWeight: 700, color: '#3a2a1a', textAlign: 'center' }
 
 const laneChipStyle: React.CSSProperties = {
-  background: '#2d2055',
-  border: '1px solid #5d4ec4',
+  background: '#f0e6cf',
+  border: '1px solid #c9b48f',
   borderRadius: '999px',
   padding: '0.15rem 0.6rem',
   fontSize: '0.68rem',
-  color: '#d4c4ff',
+  color: '#5a3e1a',
 }
 
 const descStyle: React.CSSProperties = {
   margin: 0,
   fontSize: '0.7rem',
-  color: '#9b9b9b',
+  color: '#8c6d4a',
   textAlign: 'center',
   lineHeight: 1.4,
 }
