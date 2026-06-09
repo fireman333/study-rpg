@@ -842,14 +842,8 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
         >
           <EmojiIcon char="🔗" size={15} /> {synapseOverlayOn ? '隱藏連結' : '顯示連結'}
         </button>
-        <button
-          type="button"
-          aria-pressed={!expeditionHidden}
-          onClick={() => setExpeditionHide(!expeditionHidden)}
-          style={chipToggleStyle(!expeditionHidden, '#ffb33e')}
-        >
-          {expeditionHidden ? '🚀 顯示遠征動畫' : '🚀 隱藏遠征動畫'}
-        </button>
+        {/* 遠征動畫的常駐顯示/隱藏 chip 已移除 (tidy-neurons-homepage-ui)：動畫在出征 +
+            閱讀時自動播；隱藏走帶子自帶的 ×、恢復走 HelpMenu。 */}
       </div>
 
       {import.meta.env.DEV && (

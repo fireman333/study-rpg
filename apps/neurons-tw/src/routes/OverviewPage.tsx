@@ -37,8 +37,6 @@ import {
   buildWrongQuestionPool,
   buildQuickReviewPool,
   onExpeditionComplete,
-  buildExamSetExpeditionPool,
-  listExamPapersWithCoverage,
 } from '../lib/services/expedition'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
@@ -69,18 +67,9 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // Quick-review mini-batch: when true, the open expedition is capped to ≤5
   // wrong questions (DMN quick-review-batch event, realign-dmn-event-rewards-to-maze).
   const [quickReviewActive, setQuickReviewActive] = useState(false)
-  // 模考 picker (split-neurons-expedition-exam-modes): the 📋 模考 secondary entry
-  // opens the per-book exam-paper picker directly. 'exam' = picker open, 'closed' =
-  // hidden. The old co-equal 'choose' chooser is removed — 錯題出征 is now its own
-  // prominent primary CTA.
-  const [expeditionMenu, setExpeditionMenu] = useState<'closed' | 'exam'>('closed')
-  // Active (year, 次別, 冊別) paper drill (null = not open). Mutually exclusive with
-  // quizEntry / expeditionOpen.
-  const [examSelection, setExamSelection] = useState<{
-    year: number
-    session: number
-    book: string
-  } | null>(null)
+  // 模考 moved off the homepage → 題庫 tab (tidy-neurons-homepage-ui); its picker +
+  // pure-practice drill now live in QuestionBankPage. The homepage CTA toolbar keeps
+  // only 🎲 隨機 + ⚔️ 錯題出征.
   // Settlement result of the last wrong-pool expedition → conduction ledger + ritual
   // (rework-neurons-connectome-expedition-driven).
   const [settlement, setSettlement] = useState<ExpeditionConnectomeResult | null>(null)
@@ -224,29 +213,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       : buildWrongQuestionPool(pack.questions, questionHistory)
   }, [expeditionOpen, quickReviewActive, pack.questions, questionHistory])
 
-  // 年份回數遠征: paper list (with coverage) for the picker; only materialized
-  // while the picker is open. (add-neurons-exam-set-expedition)
-  const examPapers = useMemo(
-    () =>
-      expeditionMenu === 'exam' ? listExamPapersWithCoverage(pack.questions, questionHistory) : [],
-    [expeditionMenu, pack.questions, questionHistory],
-  )
-  // Unanswered pool for the selected paper, in question order; built at open time
-  // (QuizModal snapshots it, so it won't shrink mid-session). Empty ⇒ paper complete.
-  const examSetPool = useMemo(
-    () =>
-      examSelection
-        ? buildExamSetExpeditionPool(
-            pack.questions,
-            questionHistory,
-            examSelection.year,
-            examSelection.session,
-            examSelection.book,
-          )
-        : [],
-    [examSelection, pack.questions, questionHistory],
-  )
-
   useEffect(() => {
     initMasteryForPack(pack).catch(() => {
       // Non-fatal: chips fall back to 0/0 display until next load
@@ -314,23 +280,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     setQuizEntry(undefined)
     setQuickReviewActive(false) // full expedition, not a quick-review mini-batch
     setExpeditionOpen(true)
-  }
-
-  // 📋 模考 (split-neurons-expedition-exam-modes): open the per-book exam-paper
-  // picker directly — no co-equal chooser. 錯題出征 has its own primary CTA above
-  // (openExpedition), so the two modes are distinct entries.
-  const openExamMode = (): void => {
-    setQuizEntry(undefined)
-    setExpeditionOpen(false)
-    setQuickReviewActive(false)
-    setExamSelection(null)
-    setExpeditionMenu('exam')
-  }
-  const chooseExamPaper = (year: number, session: number, book: string): void => {
-    setExpeditionMenu('closed')
-    setQuizEntry(undefined)
-    setExpeditionOpen(false)
-    setExamSelection({ year, session, book }) // drill opens when examSetPool is non-empty
   }
 
   // DMN quick-review-batch: the toast CTA emits `dmn.quickReviewStart`; open the
@@ -499,18 +448,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             <span style={ctaCardSubStyle}>🔗 修復錯題＝建立連線</span>
           </button>
         </div>
-        <button
-          type="button"
-          style={examModeButtonStyle}
-          onClick={openExamMode}
-          aria-label="模考：純測驗，不產生連線"
-          title="模考：選一份考卷（醫學一或醫學二，約 100 題）依序作答；純測驗，不長連線"
-        >
-          <span>
-            <EmojiIcon char="📋" size={16} /> 模考
-          </span>
-          <span style={examModeSubStyle}>純測驗 · 不產生連線</span>
-        </button>
         <p style={quizCtaHintStyle}>
           直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
         </p>
@@ -590,57 +527,8 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         />
       )}
 
-      {/* 模考 (split-neurons-expedition-exam-modes): per-book exam-paper picker.
-          A paper = one 冊 (醫學一 or 醫學二) of a (year, 次別) sitting, ~100 Q. */}
-      {expeditionMenu === 'exam' && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="模考選單"
-          style={examMenuBackdropStyle}
-          onClick={() => setExpeditionMenu('closed')}
-        >
-          <div style={examMenuPanelStyle} onClick={(e) => e.stopPropagation()}>
-            <button type="button" onClick={() => setExpeditionMenu('closed')} style={examMenuBackStyle}>
-              ← 關閉
-            </button>
-            <h2 style={examMenuTitleStyle}>模考 · 選試卷</h2>
-            <div style={examPaperListStyle}>
-              {examPapers.map((p) => (
-                <button
-                  key={`${p.year}-${p.session}-${p.book}`}
-                  type="button"
-                  onClick={() => chooseExamPaper(p.year, p.session, p.book)}
-                  disabled={p.complete}
-                  style={p.complete ? examPaperRowDoneStyle : examPaperRowStyle}
-                  title={p.complete ? '已完成全部題目' : `剩 ${p.total - p.answered} 題未答`}
-                >
-                  <span>
-                    {p.year} 第{p.session}次 · {p.book}
-                  </span>
-                  <span style={ctaCountBadgeStyle}>
-                    {p.complete ? '✓ 完成' : `已答 ${p.answered}/${p.total}`}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <p style={examMenuHintStyle}>
-              每份＝該年該次的單冊（醫學一或醫學二）約 100 題，依題號順序；已答過的題（任何模式）會跳過、累積到答完整冊。模考為純測驗、不產生連線，但與錯題出征共用每日 DMN 抽卡上限。
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* 年份回數遠征 drill — unanswered questions of the chosen paper, in order.
-          onComplete credits the shared expedition DMN draw axis. */}
-      {examSelection && examSetPool.length > 0 && (
-        <QuizModal
-          pool={examSetPool}
-          preserveOrder
-          onClose={() => setExamSelection(null)}
-          onComplete={onExpeditionComplete}
-        />
-      )}
+      {/* 模考 picker + pure-practice drill moved to the 題庫 tab (QuestionBankPage)
+          per tidy-neurons-homepage-ui. */}
 
       {settlement && (
         <div
@@ -776,53 +664,6 @@ const examMenuOptionStyle: React.CSSProperties = {
   fontWeight: 600,
   fontSize: '0.95rem',
   cursor: 'pointer',
-}
-
-const examMenuHintStyle: React.CSSProperties = {
-  margin: '0.35rem 0 0',
-  fontSize: '0.78rem',
-  color: '#7a5c3a',
-  lineHeight: 1.5,
-}
-
-const examMenuBackStyle: React.CSSProperties = {
-  alignSelf: 'flex-start',
-  background: 'none',
-  border: 'none',
-  color: '#8c6d4a',
-  fontWeight: 600,
-  cursor: 'pointer',
-  padding: 0,
-  fontSize: '0.85rem',
-}
-
-const examPaperListStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  gap: '0.5rem',
-}
-
-const examPaperRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: '0.4rem',
-  padding: '0.5rem 0.6rem',
-  border: '2px solid #b8893a',
-  borderRadius: '6px',
-  background: '#fff',
-  color: '#5a3f29',
-  fontWeight: 600,
-  fontSize: '0.85rem',
-  cursor: 'pointer',
-}
-
-const examPaperRowDoneStyle: React.CSSProperties = {
-  ...examPaperRowStyle,
-  opacity: 0.6,
-  cursor: 'default',
-  background: '#eef3e6',
-  borderColor: '#9bbf6f',
 }
 
 // EEG-monitor status readout — dark signal surface + grid/scanline backdrop +
@@ -970,31 +811,6 @@ const ctaCardSubStyle: React.CSSProperties = {
   fontWeight: 600,
   opacity: 0.92,
   letterSpacing: '0.2px',
-}
-
-// 📋 模考 = the secondary, exam-room entry. Slim, muted parchment with a dashed
-// border + an explicit "不產生連線" sub-label so it reads as subordinate to 錯題出征.
-const examModeButtonStyle: React.CSSProperties = {
-  alignSelf: 'stretch',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: '0.5rem',
-  padding: '0.4rem 0.85rem',
-  borderRadius: '6px',
-  border: '1px dashed #b8a07a',
-  background: '#f4ecd8',
-  color: '#6b5436',
-  fontFamily: 'inherit',
-  fontWeight: 600,
-  fontSize: '0.9rem',
-  cursor: 'pointer',
-}
-
-const examModeSubStyle: React.CSSProperties = {
-  fontSize: '0.74rem',
-  fontWeight: 500,
-  color: '#8a7350',
 }
 
 const ctaCountBadgeStyle: React.CSSProperties = {

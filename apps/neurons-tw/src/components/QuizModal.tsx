@@ -57,6 +57,14 @@ interface Props {
    * to false (新題 / 隨機 / 出征 keep the existing shuffle).
    */
   preserveOrder?: boolean
+  /**
+   * Pure-practice mode (per tidy-neurons-homepage-ui): 模考 / 題庫 answers SHALL NOT
+   * accrue maze energy, advance the walker, pull variants, bump the streak, or
+   * credit the connectome. `questionHistory` (paper coverage + everWrong) and the
+   * SRS schedule STILL record. Callers also omit `onComplete`, so no DMN draw axis
+   * is credited. Defaults to false (養成 quiz / 出征 keep full rewards).
+   */
+  practice?: boolean
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -199,7 +207,7 @@ function useOwnsLegendarySlot(familyId: string | undefined): boolean {
   return owns
 }
 
-export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: Props): JSX.Element {
+export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false }: Props): JSX.Element {
   // Build session pool once: exclude image-option questions, then shuffle unless
   // the caller preserves order (錯題 review mode serves oldest-due-first).
   const sessionPool = useMemo(() => {
@@ -258,15 +266,20 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
   const handleClose = useCallback(() => {
     if (!completedRef.current) {
       completedRef.current = true
-      onComplete?.({
-        total: sessionPool.length,
-        correct: correctCountRef.current,
-        correctBySubject: correctBySubjectRef.current,
-        energyBySubject: energyBySubjectRef.current,
-      })
+      // 純練習 (模考/題庫) never credits the session-end reward seam (the DMN draw
+      // axis) — self-enforce the "純練習 ⇒ no game reward" invariant here rather than
+      // relying on callers to also omit onComplete. (tidy-neurons-homepage-ui)
+      if (!practice) {
+        onComplete?.({
+          total: sessionPool.length,
+          correct: correctCountRef.current,
+          correctBySubject: correctBySubjectRef.current,
+          energyBySubject: energyBySubjectRef.current,
+        })
+      }
     }
     onClose()
-  }, [onClose, onComplete, sessionPool.length])
+  }, [onClose, onComplete, sessionPool.length, practice])
 
   const q: Question | undefined = sessionPool[idx]
   const exhausted = idx >= sessionPool.length
@@ -289,47 +302,51 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
           correctCountRef.current += 1
           correctBySubjectRef.current[q.subject] =
             (correctBySubjectRef.current[q.subject] ?? 0) + 1
-          // Capture maze-energy state around the accrual so the feedback strip can show
-          // the gain + detect a settle-threshold crossing (the homepage useMaze performs
-          // the actual settle/pull). `recordCorrectAnswer` MUST run exactly once; the
-          // before/after reads are best-effort and never break the answer flow.
-          let before: { earned: number; settles: number } | null = null
-          try {
-            before = await readMazeEnergyState(q.subject)
-          } catch (err) {
-            console.error('[maze-feedback] failed to read energy state (before)', err)
-          }
-          await recordCorrectAnswer(q.subject)
-          // Streak-scaled feedback: read the post-answer streak (recordCorrectAnswer
-          // bumped it) → continuous intensity for the spike-train burst. Best-effort;
-          // never break the answer flow.
-          try {
-            const { current } = await getStreaks()
-            setCorrectIntensity(streakFeedbackIntensity(current))
-          } catch (err) {
-            console.error('[streak-feedback] failed to read streak', err)
-          }
-          if (before) {
+          // 純練習 (tidy-neurons-homepage-ui): 模考 / 題庫 答對不給能量 / walker /
+          // variant / streak / connectome；只有 questionHistory + SRS 仍記（見下方）。
+          if (!practice) {
+            // Capture maze-energy state around the accrual so the feedback strip can show
+            // the gain + detect a settle-threshold crossing (the homepage useMaze performs
+            // the actual settle/pull). `recordCorrectAnswer` MUST run exactly once; the
+            // before/after reads are best-effort and never break the answer flow.
+            let before: { earned: number; settles: number } | null = null
             try {
-              const after = await readMazeEnergyState(q.subject)
-              const gain = Math.max(0, after.earned - before.earned)
-              // Accumulate the per-subject conduction batch (rework-neurons-connectome-
-              // expedition-driven): summed energy is conducted to wired neighbors at
-              // settlement by the wrong-pool expedition's onComplete handler.
-              energyBySubjectRef.current[q.subject] =
-                (energyBySubjectRef.current[q.subject] ?? 0) + gain
-              setFeedbackStrip({
-                familyId: q.subject,
-                energyGain: gain,
-                progress: walkerFraction(after),
-                advanced: affordableSettles(after.earned) > affordableSettles(before.earned),
-              })
+              before = await readMazeEnergyState(q.subject)
             } catch (err) {
-              console.error('[maze-feedback] failed to read energy state (after)', err)
+              console.error('[maze-feedback] failed to read energy state (before)', err)
+            }
+            await recordCorrectAnswer(q.subject)
+            // Streak-scaled feedback: read the post-answer streak (recordCorrectAnswer
+            // bumped it) → continuous intensity for the spike-train burst. Best-effort;
+            // never break the answer flow.
+            try {
+              const { current } = await getStreaks()
+              setCorrectIntensity(streakFeedbackIntensity(current))
+            } catch (err) {
+              console.error('[streak-feedback] failed to read streak', err)
+            }
+            if (before) {
+              try {
+                const after = await readMazeEnergyState(q.subject)
+                const gain = Math.max(0, after.earned - before.earned)
+                // Accumulate the per-subject conduction batch (rework-neurons-connectome-
+                // expedition-driven): summed energy is conducted to wired neighbors at
+                // settlement by the wrong-pool expedition's onComplete handler.
+                energyBySubjectRef.current[q.subject] =
+                  (energyBySubjectRef.current[q.subject] ?? 0) + gain
+                setFeedbackStrip({
+                  familyId: q.subject,
+                  energyGain: gain,
+                  progress: walkerFraction(after),
+                  advanced: affordableSettles(after.earned) > affordableSettles(before.earned),
+                })
+              } catch (err) {
+                console.error('[maze-feedback] failed to read energy state (after)', err)
+              }
             }
           }
         } else {
-          await recordIncorrectAnswer(q.subject)
+          if (!practice) await recordIncorrectAnswer(q.subject)
         }
         // Record per-question result for the 錯題 sub-tabs. Best-effort —
         // never break the answer flow if the history write fails.
@@ -351,7 +368,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false }: 
         setBusy(false)
       }
     },
-    [picked, busy, q],
+    [picked, busy, q, practice],
   )
 
   const handleNext = useCallback(() => {

@@ -18,6 +18,9 @@ import {
 } from '@study-rpg/core'
 import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
+import { QuizModal } from '../components/QuizModal'
+import { useQuestionHistory } from '../lib/services/question-history'
+import { buildExamSetExpeditionPool, listExamPapersWithCoverage } from '../lib/services/expedition'
 
 const PAGE_SIZE = 50
 
@@ -41,6 +44,43 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
     [pack.questions],
   )
   const subjects = useMemo(() => pack.subjects.map((s) => s.id), [pack.subjects])
+
+  // 模考 (moved off the homepage CTA → 題庫 tab, per tidy-neurons-homepage-ui).
+  // Pure practice: the drill opens QuizModal with `practice` (no energy / walker /
+  // variant / connectome) and NO onComplete (no DMN draw credit). questionHistory
+  // (coverage + everWrong) + SRS still record, so wrong answers still feed 出征.
+  const questionHistory = useQuestionHistory()
+  const [examMenuOpen, setExamMenuOpen] = useState(false)
+  const [examSelection, setExamSelection] = useState<{
+    year: number
+    session: number
+    book: string
+  } | null>(null)
+  const examPapers = useMemo(
+    () => (examMenuOpen ? listExamPapersWithCoverage(pack.questions, questionHistory) : []),
+    [examMenuOpen, pack.questions, questionHistory],
+  )
+  const examSetPool = useMemo(
+    () =>
+      examSelection
+        ? buildExamSetExpeditionPool(
+            pack.questions,
+            questionHistory,
+            examSelection.year,
+            examSelection.session,
+            examSelection.book,
+          )
+        : [],
+    [examSelection, pack.questions, questionHistory],
+  )
+  const openExamMenu = (): void => {
+    setExamSelection(null)
+    setExamMenuOpen(true)
+  }
+  const chooseExamPaper = (year: number, session: number, book: string): void => {
+    setExamMenuOpen(false)
+    setExamSelection({ year, session, book })
+  }
 
   const years = useMemo(() => {
     const s = new Set<number>()
@@ -108,6 +148,13 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
         發現題目 / 詳解有誤可點每題的 🐞 回報。
       </p>
 
+      <button type="button" style={examEntryBtnStyle} onClick={openExamMenu} aria-label="模考：選一份考卷練習">
+        <span style={examEntryMainStyle}>📋 模考 · 選一份考卷</span>
+        <span style={examEntrySubStyle}>
+          整冊約 100 題依序作答 · 純練習，不影響養成進度（答錯仍記入錯題，可之後出征修復）
+        </span>
+      </button>
+
       <div style={filterBarStyle}>
         <ChipGroup
           label="科別"
@@ -154,6 +201,52 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
 
       {bugForQ && (
         <QuestionBugReportSheet questionId={bugForQ} onClose={() => setBugForQ(null)} />
+      )}
+
+      {examMenuOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="模考選單"
+          style={examBackdropStyle}
+          onClick={() => setExamMenuOpen(false)}
+        >
+          <div style={examPanelStyle} onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={() => setExamMenuOpen(false)} style={examBackStyle}>
+              ← 關閉
+            </button>
+            <h2 style={examTitleStyle}>模考 · 選試卷</h2>
+            <div style={examListStyle}>
+              {examPapers.map((p) => (
+                <button
+                  key={`${p.year}-${p.session}-${p.book}`}
+                  type="button"
+                  onClick={() => chooseExamPaper(p.year, p.session, p.book)}
+                  disabled={p.complete}
+                  style={p.complete ? examRowDoneStyle : examRowStyle}
+                  title={p.complete ? '已完成全部題目' : `剩 ${p.total - p.answered} 題未答`}
+                >
+                  <span>
+                    {p.year} 第{p.session}次 · {p.book}
+                  </span>
+                  <span style={examBadgeStyle}>
+                    {p.complete ? '✓ 完成' : `已答 ${p.answered}/${p.total}`}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p style={examHintStyle}>
+              每份＝該年該次的單冊（醫學一或醫學二）約 100 題，依題號順序；已答過的題（任何模式）會跳過、累積到答完整冊。模考為純練習：不給能量、不抽神經元、不長連線，但答錯仍記入錯題清單，可之後出征修復。
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 模考 drill — pure practice (tidy-neurons-homepage-ui): `practice` suppresses
+          energy / walker / variant / connectome; NO onComplete ⇒ no DMN draw credit.
+          questionHistory (coverage + everWrong) + SRS still record. */}
+      {examSelection && examSetPool.length > 0 && (
+        <QuizModal pool={examSetPool} preserveOrder practice onClose={() => setExamSelection(null)} />
       )}
     </section>
   )
@@ -554,4 +647,88 @@ const secondaryBtnStyle: React.CSSProperties = {
   borderRadius: '4px',
   fontFamily: 'inherit',
   cursor: 'pointer',
+}
+
+// ─── 模考 entry + picker (moved from homepage CTA, enlarged) ──────────────────
+
+const examEntryBtnStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: '0.2rem',
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '0.9rem 1.1rem',
+  marginBottom: '0.8rem',
+  background: '#d4a04d',
+  color: '#fff',
+  border: '2px solid #b8893a',
+  borderRadius: '8px',
+  fontFamily: 'inherit',
+  cursor: 'pointer',
+  textAlign: 'left',
+}
+const examEntryMainStyle: React.CSSProperties = { fontSize: '1.1rem', fontWeight: 700 }
+const examEntrySubStyle: React.CSSProperties = { fontSize: '0.78rem', opacity: 0.95, lineHeight: 1.5 }
+const examBackdropStyle: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(0,0,0,0.45)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000,
+  padding: '1rem',
+}
+const examPanelStyle: React.CSSProperties = {
+  background: '#fbf6e9',
+  border: '2px solid #8c6d4a',
+  borderRadius: '8px',
+  width: 'min(440px, 100%)',
+  maxHeight: '85vh',
+  overflow: 'auto',
+  padding: '0.9rem 1rem 1rem',
+}
+const examBackStyle: React.CSSProperties = {
+  background: 'none',
+  border: 'none',
+  color: '#8c6d4a',
+  fontFamily: 'inherit',
+  fontSize: '0.85rem',
+  cursor: 'pointer',
+  padding: 0,
+}
+const examTitleStyle: React.CSSProperties = { fontSize: '1.15rem', color: '#3a2a1a', margin: '0.4rem 0 0.7rem' }
+const examListStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.4rem' }
+const examRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.5rem',
+  padding: '0.5rem 0.7rem',
+  background: '#f4ecd8',
+  color: '#3a2a1a',
+  border: '1px solid #c9ad7f',
+  borderRadius: '6px',
+  fontFamily: 'inherit',
+  fontSize: '0.9rem',
+  cursor: 'pointer',
+  textAlign: 'left',
+}
+const examRowDoneStyle: React.CSSProperties = {
+  ...examRowStyle,
+  opacity: 0.55,
+  cursor: 'not-allowed',
+}
+const examBadgeStyle: React.CSSProperties = {
+  fontSize: '0.76rem',
+  color: '#8c6d4a',
+  fontWeight: 600,
+  whiteSpace: 'nowrap',
+}
+const examHintStyle: React.CSSProperties = {
+  fontSize: '0.76rem',
+  color: '#6a5238',
+  lineHeight: 1.6,
+  margin: '0.7rem 0 0',
 }

@@ -18,12 +18,51 @@
 
 import { useEffect, useState } from 'react'
 import BugReportModal from './BugReportModal'
+import { getExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-visibility'
 
 interface Section {
   id: string
   icon: string
   title: string
   body: React.ReactNode
+}
+
+/**
+ * Inline control inside the 出征模式 help section to show/hide the decorative
+ * expedition animation band (tidy-neurons-homepage-ui). The on-band × hides it;
+ * this is the restore path now that the persistent on-maze toggle chip is removed.
+ */
+function ExpeditionAnimationHelpControl(): JSX.Element {
+  const [hidden, setHidden] = useState(getExpeditionHidden)
+  const toggle = (): void => {
+    const next = !hidden
+    setHidden(next)
+    setExpeditionHiddenPref(next)
+  }
+  return (
+    <p>
+      <strong>遠征動畫</strong>：出征 + 閱讀時，腦圖上方會有一條神經元小隊行進的裝飾動畫，自動播放。
+      覺得干擾可點動畫右上角的 ×，或在這裡關閉／恢復：{' '}
+      <button
+        type="button"
+        onClick={toggle}
+        aria-pressed={!hidden}
+        style={{
+          padding: '0.15rem 0.6rem',
+          background: '#f4ecd8',
+          color: '#6b5436',
+          border: '1px solid #b8893a',
+          borderRadius: 999,
+          fontFamily: 'inherit',
+          fontSize: '0.82rem',
+          fontWeight: 600,
+          cursor: 'pointer',
+        }}
+      >
+        {hidden ? '🚀 顯示遠征動畫' : '🚀 隱藏遠征動畫'}
+      </button>
+    </p>
+  )
 }
 
 const GITHUB_ISSUES_URL = 'https://github.com/fireman333/study-rpg/issues/new'
@@ -101,10 +140,16 @@ const SECTIONS: Section[] = [
           修復同時做兩件事：給 walker 賺能量推進腦圖，以及驅動連線形成。
         </p>
         <p>
-          兩種出征：<strong>錯題出征</strong>（自動從你的歷史錯題抽 ~10 題，隨機跨科）、
-          <strong>模考</strong>（指定年份 + 次別 + 冊別，整冊 ~100 題重練）。
+          <strong>錯題出征</strong>自動從你的歷史錯題抽 ~10 題、隨機跨科。
           清完出征裡的錯題會發 DMN 抽卡 — 清越多、抽越多。
         </p>
+        <p>
+          想單純練整份考卷？到 <a href="/bank">題庫</a> tab 的 <strong>📋 模考</strong>
+          （指定年份 + 次別 + 冊別，整冊 ~100 題依序作答）。模考是
+          <strong>純練習</strong>：不給能量、不抽神經元、不長連線、也不發 DMN 抽卡，
+          但答錯仍記入錯題清單，可之後出征修復。
+        </p>
+        <ExpeditionAnimationHelpControl />
       </>
     ),
   },

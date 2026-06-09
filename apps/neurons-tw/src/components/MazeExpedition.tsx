@@ -304,21 +304,23 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
         })}
       </div>
 
-      {/* caption — homepage only (the compact quiz band stays unobtrusive) */}
+      {/* caption — homepage only (the compact quiz band stays unobtrusive).
+          Reading-time framing: the squad is exploring the maze as you study. */}
       {!compact && (
         <span className="exp-caption">
-          <EmojiIcon char="🧠" size={16} /> 神經元遠征隊行進中…
+          <EmojiIcon char="🧠" size={16} /> 神經元遠征隊・探索迷宮中…
         </span>
       )}
 
-      {/* quick-hide — kill the animation when it distracts from reading / answering */}
+      {/* quick-hide — kill the animation when it distracts from reading / answering.
+          Restore path is the ❓ Help menu (the on-maze toggle chip was removed). */}
       {onHide && !compact && (
         <button
           type="button"
           className="exp-hide"
           onClick={onHide}
           aria-label="隱藏遠征動畫"
-          title="隱藏遠征動畫（旅程仍持續）"
+          title="隱藏遠征動畫（旅程仍持續；可於說明選單 ❓ 恢復）"
         >
           −
         </button>
