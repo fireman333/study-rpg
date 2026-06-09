@@ -24,6 +24,8 @@ import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { EmojiIcon } from './EmojiIcon'
 import SquadCelebration from './SquadCelebration'
 import MazeExpedition from './MazeExpedition'
+import { QuestionFigure } from './QuestionFigure'
+import { PrecedingContext } from './PrecedingContext'
 import { getExpeditionHidden } from '../lib/expedition-visibility'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { liveQuery } from 'dexie'
@@ -610,6 +612,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         )}
 
         <div style={bodyStyle} ref={scrollContainerRef}>
+          <PrecedingContext question={q} />
           <p style={stemStyle}>{q.stem}</p>
           <QuestionFigure key={q.id} q={q} />
 
@@ -1104,52 +1107,6 @@ const stemStyle: React.CSSProperties = {
  * has no figure available (never silently drop a figure), and nothing otherwise.
  * `key={q.id}` at the call site remounts this per question, resetting onError.
  */
-function QuestionFigure({ q }: { q: Question }) {
-  const [error, setError] = useState(false)
-  if (q.imagePath && !error) {
-    return (
-      <div style={figureWrapStyle}>
-        <img
-          src={`${import.meta.env.BASE_URL}${q.imagePath}`}
-          alt="題目附圖"
-          style={figureImgStyle}
-          onError={() => setError(true)}
-        />
-      </div>
-    )
-  }
-  if (q.hasImage) {
-    return <div style={figurePlaceholderStyle}>[圖] 此題原有附圖，暫無法顯示</div>
-  }
-  return null
-}
-
-const figureWrapStyle: React.CSSProperties = {
-  margin: '0 0 1.25rem',
-  display: 'flex',
-  justifyContent: 'center',
-}
-
-const figureImgStyle: React.CSSProperties = {
-  maxWidth: '100%',
-  maxHeight: '340px',
-  objectFit: 'contain',
-  border: '1px solid #d8c8a8',
-  borderRadius: '6px',
-  background: '#fff',
-}
-
-const figurePlaceholderStyle: React.CSSProperties = {
-  margin: '0 0 1.25rem',
-  padding: '0.9rem',
-  border: '1px dashed #c9b890',
-  borderRadius: '6px',
-  color: '#8a7a5a',
-  fontSize: '0.9rem',
-  textAlign: 'center',
-  background: '#faf6ec',
-}
-
 const optionsGridStyle: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
