@@ -151,9 +151,9 @@ const decorSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
-// Permanent equipment/companion sprites (add-neurons-acceleration-system).
-// Placeholder this change (no PNGs yet → TRANSPARENT_PIXEL fallback); real art
-// via follow-up `generate-acceleration-sprites`. Filename → key:
+// Permanent equipment sprites (add-neurons-acceleration-system). Real art landed
+// via `generate-acceleration-sprites`; any equipmentId without a PNG still falls
+// back to TRANSPARENT_PIXEL. Filename → key:
 // `<equipmentId>.png` → `equipment:<equipmentId>`.
 const equipmentSpriteModules = import.meta.glob('../sprites/equipment/*.png', {
   eager: true,

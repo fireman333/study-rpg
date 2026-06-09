@@ -2,7 +2,7 @@
  * Achievement catalog for neurons-mode.
  *
  * 7 categories × 4 tiers (P1 鑽石 / P2 金 / P3 銀 / P4 銅) per design.md.
- * 30 entries: 4 study + 5 quiz + 5 variant + 4 synapse + 4 mastery + 4 fortune
+ * 33 entries: 4 study + 5 quiz + 8 variant + 4 synapse + 4 mastery + 4 fortune
  * + 4 hidden.
  *
  * Authoring rules (per neurons-achievements spec):
