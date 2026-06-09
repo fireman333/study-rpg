@@ -27,8 +27,9 @@ import { extractBearer, verifyJWT } from "./auth";
 
 // === Per-app config ===
 // Only apps with a migrated shoutouts_<app> table + leaderboard_<app> table are
-// active here. 二階 ('m2') is served from its standalone repo (study-rpg-2nd) and
-// adds its own entry there; this monorepo activates 'neurons' only.
+// active here. This shoutout backend Worker is single-source in THIS monorepo
+// (study-rpg-2nd hosts only the edge-router + the 留言 UI, not this backend), so
+// every app's entry — neurons AND 二階 ('m2') — is registered here.
 interface AppConfig {
   table: string;
   leaderboardTable: string;
@@ -41,6 +42,12 @@ const APP_CONFIG: Record<string, AppConfig> = {
     leaderboardTable: "leaderboard_neurons",
     compositeKvKey: "leaderboard:neurons:top100:composite",
     avatarType: "neuron",
+  },
+  m2: {
+    table: "shoutouts_m2",
+    leaderboardTable: "leaderboard_m2",
+    compositeKvKey: "leaderboard:m2:top100:composite",
+    avatarType: "doctor",
   },
 };
 

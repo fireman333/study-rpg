@@ -1,6 +1,6 @@
 {
   "name": "@study-rpg/core",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Study-RPG engine: stats, leveling, gacha loot with pity, SRS, boss runs, and generic UI components. Content-pack agnostic.",
   "license": "AGPL-3.0-or-later",
   "type": "module",
@@ -44,6 +44,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsup",
+    "test": "vitest run",
     "prepublishOnly": "pnpm typecheck && pnpm build"
   },
   "peerDependencies": {
@@ -59,6 +60,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "tsup": "^8.3.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^2.1.4"
   }
 }

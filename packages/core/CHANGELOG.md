@@ -4,6 +4,36 @@ All notable changes to the public API of `@study-rpg/core`. Follows [Semantic
 Versioning](https://semver.org/). Breaking changes bump the MAJOR; additive opt-in
 changes bump the MINOR; bug fixes bump the PATCH.
 
+**Pre-1.0 policy (overrides the above while the MAJOR is `0`)**: per the
+`core-npm-package` spec, an **additive** change (new exported symbol, new optional
+field) bumps the **PATCH**, and a **breaking** change (removing/renaming a symbol,
+adding a required field, changing a signature) bumps the **MINOR**. The `1.0.0`
+boundary is reserved for declaring the engine API stable.
+
+## [0.6.1] — 2026-06-09
+
+### Added
+
+- `isContinuationQuestion(question)` — content-agnostic detector for 承上題
+  (continuation) questions (stem begins with the literal `承上題`).
+- `resolvePrecedingChain(question, byId)` — resolves a continuation question's
+  ordered preceding chain (root-first … nearest-last) by walking back through the
+  same `<year>-<sitting>-<book>-<subject>` id prefix; best-effort, never crosses
+  papers. Both helpers are pure (`Question` data + a by-id map in, `Question[]` out).
+- **Shoutout contract — first npm release.** These exports already existed in
+  source but predated the published `0.6.0`; `0.6.1` is their first appearance on
+  the registry: `validateShoutoutMessage`, `normalizeShoutoutText`,
+  `shoutoutContentHash`, `isValidAvatar`, `isBlockedText`, `hasPII`, `graphemeLen`,
+  `SHOUTOUT_BLOCKLIST_SEED`, `MESSAGE_MAX_GRAPHEMES`, `MESSAGE_MAX_LINES`,
+  `ASSET_ID_PATTERN`, and types `ShoutoutAvatar` / `ShoutoutMessage` /
+  `ShoutoutBoard` / `MessageValidation`. Released on the `latest` dist-tag.
+
+### Notes
+
+- Publishing is owner-driven; this entry is staged ahead of `npm publish 0.6.1`.
+- (Pre-existing gap: `0.6.0` — the leaderboard exports — has no entry above; this
+  changelog resumes at `0.6.1`.)
+
 ## [0.5.0] — 2026-05-25
 
 ### Added

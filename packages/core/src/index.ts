@@ -209,3 +209,7 @@ export {
   type ShoutoutBoard,
   type MessageValidation,
 } from './lib/shoutout'
+export {
+  isContinuationQuestion,
+  resolvePrecedingChain,
+} from './lib/continuation'
