@@ -81,400 +81,47 @@ OAuth redirect URI allowlist + Supabase Site URL inventory is in [docs/AUTH_REDI
 ## Repo-specific build / dev quick reference
 
 ```bash
-# Re-build 題庫 (defaults to all 10 subjects, ~3291 imported / 309 上游 OCR 缺欄位 skip;
-# set MEDEXAM_SUBJECTS=藥理學 for vertical-slice fast iteration)
-MEDEXAM_ALLOW_SKIPS=1 pnpm --filter @study-rpg/content-medexam-tw build
+# Re-build 題庫 (neurons content pack；複用一階 corpus ~4600 Q / 11 families)
+pnpm run build:neurons-content           # = pnpm --filter @study-rpg/content-neurons-tw build
+# 神經元 app build 有 copy-content prehook，會把 dist JSON 複製到
+# apps/neurons-tw/public/content/neurons-tw/（手動改 subjects.json 時注意 meta.json builtAt churn）
 
-# Copy built questions.json to app public/
-cp packages/content-medexam-tw/dist/*.json apps/medexam-tw/public/content/medexam-tw/
+# Cold checkout 第一次跑前先 build core (main/exports 指向 dist/，不走 src/.ts on-the-fly)。
+# core src/index.ts 改動後也要再跑。`pnpm -r build` topo-sort 自動處理，只跑 `pnpm dev` 不會：
+pnpm --filter @study-rpg/core build      # 必要 cold checkout 或 core 改動後
 
-# Cold checkout 第一次跑前要先 build packages/core (main/exports 已指向 dist/，不再走 src/.ts on-the-fly)。
-# core src/index.ts 改動後也要再跑一次。`pnpm -r build` 會 topo-sort 自動處理，
-# 但只跑 `pnpm dev` 時不會：
-pnpm --filter @study-rpg/core build  # 必要 cold checkout 或 core 改動後
+# Dev server (http://localhost:5173/)
+pnpm dev                                 # = dev:neurons = pnpm --filter @study-rpg/neurons-tw dev
 
-# Dev server (http://localhost:5173/study-rpg/)
-pnpm --filter @study-rpg/medexam-tw dev
-
-# medexam-tw `build` 已加 prebuild hook 會自動 rebuild core，CI deploy.yml 走這條路徑
-
-# Typecheck everything
+# Typecheck + unit tests
 pnpm -r typecheck
+pnpm --filter @study-rpg/neurons-tw test # vitest
+
+# Build + deploy → Cloudflare Pages (med-study-rpg.com/neurons/)
+pnpm run deploy:cf                       # build:cf (VITE_DEPLOY_BASE=/neurons/) → wrangler pages deploy
 ```
 
-## Cloud sync (M4 + R2 migration in-flight)
 
-`apps/medexam-tw` and `apps/medexam2-hospital-tw` mirror gameplay state to cloud via opt-in Google OAuth. IndexedDB stays source of truth; cloud is additive.
+## Backend & shared infra（共用後端 — pointers）
 
-**Backend is mid-migration** (started 2026-05-19, change `add-r2-cloud-sync-migration`): moving data plane from Supabase Postgres (500 MB DB cap + 5 GB egress/月 ceiling) to Cloudflare R2 object storage (10 GB + zero egress) via auth-bridging Worker. Sync unit per-row LWW → per-bundle blob LWW (3 bundles: `m1` 一階 / `m2` 二階 / `bookmarks` 跨 app). Currently **dual-write (Supabase + R2), reads still Supabase**. Phase 3 cuts reads to R2 after 14-day bake. Supabase Auth (Google OAuth) + `bug_reports` table stay on Supabase indefinitely (latter needs server-side SQL for owner dashboard). Migration banner in 一階 + 二階 surfaces for M4-era users with Supabase rows but no R2 blobs.
+> 一階/二階 app code 已從本 repo 移除（`remove-medexam-tw-and-promote-neurons`, 2026-06-03），但**後端是共用的**。完整內容在 `docs/` + openspec archive，這裡只留 operative 指標。
 
-Key handles for R2 path:
-- Worker: `https://study-rpg-sync-worker.tony85314.workers.dev` (source at `cloudflare/sync-worker/`)
-- Blob layout: `users/<user_id>/<bundle>-snapshot.json.gz` (gzipped JSON body holds `meta.schema_version`; R2 `customMetadata['schema-version']` is the **server-authoritative** copy as of `add-bundle-schema-version-guard` 2026-05-27)
-- Migration banner: `apps/<app>/src/components/MigrationBanner.tsx`
-- R2 client adapter: `apps/<app>/src/lib/sync/r2/{client,bundles,engine-r2,migrate-from-supabase}.ts`
-- Reconcile script: `scripts/reconcile.ts` (run via `pnpm reconcile --session <path>`)
+- **Cloud sync**：neurons = R2-only、固定 `'neurons'` bundle（`apps/neurons-tw/src/lib/sync/r2/`）。共用 sync Worker `https://api.med-study-rpg.com`（legacy `study-rpg-sync-worker.tony85314.workers.dev`），source 在本 repo `cloudflare/sync-worker/`。Supabase Auth (Google OAuth)、project ref `jakdyjxojokyqxeiuukx`。env vars 走 per-app `.env.local`（gitignored；per-app + per-worktree 陷阱見 § Known sharp edges）。**完整：`docs/CLOUD_SYNC.md`。**
+- **⚠️ 共用 Worker = 二階依賴點（勿破壞）**：`cloudflare/sync-worker/` 同時服務 neurons + **二階 (`m2`)** + `bookmarks` bundle presign，以及 leaderboard（D1 `study-rpg-leaderboard`：`leaderboard_neurons` + `leaderboard_m2`、KV `LEADERBOARD_KV`、hourly cron）。二階 已抽成 standalone repo `study-rpg-2nd` 但**仍打這個 Worker** → 改 presign whitelist / `leaderboard_m2` / D1 schema 前先確認不會斷二階。**完整：`docs/LEADERBOARD.md`。**
+- **Bug reporting**：neurons in-app（HelpMenu「🩺 回報問題」+ QuizModal inline 🐞）→ Supabase `bug_reports`；neurons categories 走 migration `0017_neurons_bug_reports.sql`。**完整：`docs/BUG_REPORTING.md`。**
+- **二階 app features**（achievement / hospital-equipment / bookmarks-filters）已隨 split 移到 standalone repo `study-rpg-2nd`；本 repo 只留歷史 spec：`openspec/changes/archive/2026-05-24-add-achievement-system/`、`.../2026-06-03-abandoned-add-hospital-equipment-medexam2/`、`.../2026-05-25-add-bookmarks-filters-and-wrong-history-medexam2/`。
+- **OAuth redirect / Supabase Site URL inventory**：`docs/AUTH_REDIRECT_URIS.md`。Dexie upgrade-fixture rule：`docs/DEXIE_UPGRADE_FIXTURE_RULE.md`。
 
-**Worker-side schema_version downgrade guard** (Phase 1 opt-in, shipped 2026-05-27 via `add-bundle-schema-version-guard`): PUT presign requests SHOULD include `schema_version: <N>` in the body. When present, the Worker HEADs the existing R2 blob's `customMetadata['schema-version']` (legacy / absent treated as 0), refuses 409 `r2_schema_downgrade_refused` if `incoming < existing`, otherwise mints a presigned URL with `x-amz-meta-schema-version: <N>` baked into the SigV4 `X-Amz-SignedHeaders` scope. Client MUST send the exact header at PUT time (response `requiredHeaders` field tells it what to send) — omission or tampering causes R2 to reject with 403 SignatureDoesNotMatch. Client-side localStorage guard remains active during P1; legacy clients omitting `schema_version` get the pre-change behaviour (no enforcement) for grace period. Smoke: `bash cloudflare/sync-worker/scripts/smoke-presign-sv.sh`. Spec: [`openspec/specs/dexie-schema-guards/spec.md`](openspec/specs/dexie-schema-guards/spec.md). Follow-ups: `require-bundle-schema-version-in-presign` (P2 — make required), `remove-client-side-sv-downgrade-guard` (P3 — single source of truth).
+## Neurons feature notes（搬到 docs/ — pointer）
 
-### Project + env
+> 6 段 `apps/neurons-tw` feature 實作摘要 / key handles 已移到 **`docs/NEURONS_FEATURE_NOTES.md`**（精簡 always-on；仍 in-repo）。下面每條附該 feature 的 load-bearing sync carve-out（**動 sync 前必讀**）+ 正確的 openspec archive 連結：
 
-| Resource | Value |
-|---|---|
-| Project ref | `jakdyjxojokyqxeiuukx` (Tokyo `ap-northeast-1`, free tier) |
-| Dashboard | https://supabase.com/dashboard/project/jakdyjxojokyqxeiuukx |
-| Anon key format | `sb_publishable_*` (new format, replaces legacy anon JWT; both supported by `@supabase/supabase-js@^2.105.4`) |
-| OAuth provider | Google only (Client ID `554492800193-1gp4...`, scope `study-rpg-web`) |
-
-Env vars (`.env.local` per app, gitignored; `.env.example` committed):
-
-```
-VITE_SUPABASE_URL=https://jakdyjxojokyqxeiuukx.supabase.co
-VITE_SUPABASE_ANON_KEY=sb_publishable_eWafgmt2wbELXnnIAYENOg_pL0aE5yN
-VITE_CLOUD_SYNC_ENABLED=true        # set 'false' to disable client-side (kill switch)
-VITE_SYNC_DEBOUNCE_MS=3000          # debounce window for batched push
-
-# R2 migration (per add-r2-cloud-sync-migration; safe to omit until dogfood)
-VITE_CLOUD_SYNC_BACKEND=dual         # supabase | dual | r2 (default supabase if unset)
-VITE_CLOUD_SYNC_READ_BACKEND=supabase  # supabase | r2 (only honored when BACKEND=dual)
-VITE_SYNC_WORKER_URL=https://study-rpg-sync-worker.tony85314.workers.dev
-```
-
-GH Actions secrets: 
-- **Supabase (required)**: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` exposed to `.github/workflows/deploy.yml`
-- **R2 app build (optional, Phase 3+ flip)**: `VITE_CLOUD_SYNC_BACKEND` (`supabase`/`dual`/`r2`) + `VITE_CLOUD_SYNC_READ_BACKEND` (`supabase`/`r2`) + `VITE_SYNC_WORKER_URL`. Already wired into `deploy.yml` build steps; unset = empty string = safe default (`supabase`/`supabase`/prod Worker URL) per backend-config nonEmpty guard. Owner adds them only when ready to flip Phase 3 or 4.
-- **R2 Worker deploy (one-time)**: `CF_API_TOKEN` + `CF_ACCOUNT_ID` for Worker deploy via `.github/workflows/deploy-worker.yml` (see `cloudflare/sync-worker/README.md` for scopes)
-- Owner manually adds these in repo Settings → Secrets and variables → Actions
-
-### Schema (9 sync tables + 4 RPCs)
-
-Migrations live in `supabase/migrations/`:
-
-- `0001_init_cloud_sync.sql` — 一階 (`player_state` / `srs_cards` / `item_instances` / `mentor_backlog`) + 二階 (`hospital_state` / `hospital_doctors` / `hospital_mastery` / `hospital_question_history`) tables + 32 RLS policies (`auth.uid() = user_id`)
-- `0002_account_lifecycle.sql` — RPCs `delete_my_data()` / `delete_my_account()` / `export_my_data()` (SECURITY DEFINER, scoped to caller's `auth.uid()`)
-- `0003_upsert_lww.sql` — RPC `upsert_lww(table_name, rows)` with 8-table whitelist + server-side LWW (`ON CONFLICT WHERE cloud.updated_at < incoming.updated_at`)
-- `0005_question_bookmarks.sql` — 二階 `question_bookmarks` table (composite PK `(user_id, question_id)`, immutable `added_at` + LWW `updated_at`) + 4 RLS policies. Backs the `/bookmarks` page in `medexam2-hospital-tw`.
-- `0006_upsert_lww_bookmarks.sql` — `CREATE OR REPLACE` of `upsert_lww` extending whitelist to 9 tables + new dispatch branch. Convention: every future `upsert_lww` change ships as a new numbered migration; never edit existing migrations in place.
-
-### Architecture pointers
-
-| Concern | Location |
-|---|---|
-| Sync engine factory | `apps/medexam-tw/src/lib/sync/engine.ts` |
-| Table adapters (per-table snapshot + apply) | `apps/medexam-tw/src/lib/sync/tables.ts` |
-| Migration / conflict gate state machine | `apps/medexam-tw/src/lib/sync/migration.ts` |
-| React hook wiring | `apps/medexam-tw/src/lib/sync/useSync.ts` |
-| Auth context + Supabase client singleton | `apps/medexam-tw/src/lib/auth/{AuthContext,client}.ts` |
-| Sign-in resolution modals | `apps/medexam-tw/src/components/{MigrationUploadPrompt,ConflictChooserModal,SettingsPanel}.tsx` |
-| Dexie schema (v4 with `localBackup` table) | `packages/core/src/lib/db.ts` |
-
-二階 app (`apps/medexam2-hospital-tw`) is fully wired (M4 shipped 2026-05-17 + R2 dual-write shipped 2026-05-19, Phase 2). Both apps share the same backend-config flag matrix.
-
-### DEV-only debug handles
-
-When the engine is running (authed + gate state ∈ `fresh-start` / `silent-pull` / `resolved` / non-keep-separate):
-
-```js
-globalThis.__sync   // SyncEngine instance — getStatus(), pushNow(), pullNow(), pushAllNow(), pullAllNow(), pause(), resume()
-globalThis.__db     // StudyRpgDB Dexie instance
-```
-
-Both gated by `import.meta.env.DEV`; stripped from prod build.
-
-### RLS sanity check (run in dashboard SQL editor)
-
-```sql
--- Should return only your own rows under any active session
-select count(*), user_id from player_state group by user_id;
-
--- Should fail (no auth context) — confirms RLS is enforced
-set role anon;
-select count(*) from player_state;
-reset role;
-```
-
-## Bug reporting (M4.5)
-
-`apps/medexam-tw`, `apps/medexam2-hospital-tw`, and `apps/neurons-tw` all ship an in-app **`💬 回報問題 / 建議`** flow:
-
-- 一階 entry: `SettingsPanel.tsx` new section.
-- 二階 entry: `HelpMenu.tsx` 9th accordion section.
-- **神經元 entry** (`add-neurons-bug-report`, 2026-06-04): `HelpMenu.tsx`「🩺 回報問題」section opens `BugReportModal.tsx`, **plus** an inline 🐞 in `QuizModal.tsx` (question-scoped, stamps `question_id`). neurons uses `NEURONS_BUG_REPORT_CATEGORIES` (12, separate const) + its own snapshot from the neurons Dexie. **Requires migration `supabase/migrations/0017_neurons_bug_reports.sql`** (owner-applied; extends `app` + `category` CHECK to admit `'neurons-tw'` + 4 neurons categories). No Dexie / R2 bump — Supabase-only.
-
-Submissions land in Supabase table **`public.bug_reports`** (migration `supabase/migrations/0004_bug_reports.sql`). RLS = `auth.uid() = user_id` per row; owner reads via `service_role` (dashboard SQL editor today, future `/bug-reports` skill after the follow-up change).
-
-Shared types: `@study-rpg/core` exports `BUG_REPORT_CATEGORIES`, `BUG_REPORT_SEVERITIES`, `BugReportRow`, etc. Per-app `services/bug-report.ts` builds the snapshot from each app's Dexie shape; per-app `services/console-error-buffer.ts` keeps a ring buffer of the last 5 `window.error` + `unhandledrejection` events.
-
-Env vars (split from cloud-sync section above): `VITE_APP_VERSION` (npm `package.json` version; CI fills via `npm_package_version` automatically) and `VITE_COMMIT_SHA` (CI sets to `github.sha`). Local dev falls back to `'dev'`.
-
-Force sign-in gate: modal shows a login CTA instead of the form when `useAuth().user` is null. No anon submit path.
-
-Apply the migration manually once: `supabase db push` or paste `0004_bug_reports.sql` into the dashboard SQL editor. Sanity SQL in `supabase/sanity/bug_reports_rls.sql`. Full reference: `docs/BUG_REPORTING.md`.
-
-## Hospital leaderboard (M_2nd ext)
-
-`apps/medexam2-hospital-tw` ships an opt-in global leaderboard for 二階 — 5 public fields (hospital tier / reputation / doctor count / total study minutes / 2–12 codepoint nickname). Backend is **Cloudflare D1 + KV via the existing sync Worker**, not Supabase (chosen for zero egress at ~1k-player scale and to keep `add-r2-cloud-sync-migration` cutover unblocked).
-
-Worker module: `cloudflare/sync-worker/src/leaderboard.ts` (endpoints + hourly cron). Endpoints:
-
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/leaderboard/upsert` | JWT verify → sanity bounds → D1 UPSERT (LWW on `updated_at`) |
-| GET | `/leaderboard/:filter` | Public read of pre-computed KV snapshot; `filter ∈ {composite, reputation, doctor, study}` |
-| GET | `/leaderboard/nickname-check?n=<candidate>` | JWT verify → NFKC + lowercase D1 lookup |
-| POST | `/leaderboard/opt-out` | JWT verify → flip `is_public = 0`, bump `updated_at` |
-| DELETE | `/leaderboard/me` | JWT verify → hard delete D1 row (account-reset flow) |
-
-| Resource | Value |
-|---|---|
-| D1 database | `study-rpg-leaderboard` (id `365a3809-4960-4373-8b0f-f864b2323c65`) |
-| KV namespace | `LEADERBOARD_KV` (id `f0afc16989654688b5c98d420d468e28`) |
-| Migration | `cloudflare/sync-worker/migrations/0001_leaderboard.sql` (NOT in supabase/migrations/ namespace) |
-| Hourly cron | `0 * * * *` → `runLeaderboardCron` writes 4 KV snapshot keys `leaderboard:m2:top100:<filter>` |
-| Daily cron (existing) | `0 0 * * *` → `runBackupCron` (R2-to-R2 backup, unrelated) |
-| Active Worker version | `3be17865-1d80-4110-aa03-913c3fc28e81` |
-
-Client side: opt-in push hooked into sync engine's `onPushComplete` (only fires when `firstError === null && !anyOffline`). Per-user profile lives in Dexie v14 `leaderboardProfile` table (`user_id` PK, `nickname / opted_in / is_public / dismissed_at / last_pushed_at`). Push helper `apps/medexam2-hospital-tw/src/lib/sync/leaderboard.ts` clamps 國家級教學醫院 tier → 3 to match Worker's `TIER_MAX`.
-
-Apply D1 migration:
-
-```bash
-cd cloudflare/sync-worker
-wrangler d1 migrations apply study-rpg-leaderboard --local   # dev
-wrangler d1 migrations apply study-rpg-leaderboard --remote  # prod
-```
-
-Full reference: `docs/LEADERBOARD.md`.
-
-## Achievement system (M_2nd ext, 2026-05-24)
-
-`apps/medexam2-hospital-tw` ships a milestone-recognition system: 7 categories × 4 tiers (P1 鑽石 / P2 金 / P3 銀 / P4 銅, aligned with PSN Trophy convention) = ~42 catalog entries. New achievement = one entry in `packages/content-medexam2-tw/src/achievements.ts`; zero engine code change. P1 entries MUST set `composite: true` — build-time validator (`validateAchievementCatalog`) rejects pure-grind P1 (single-dimension threshold). 14 科精通 entries use 100% fresh-attempts coverage (per-subject totals from `subjects.json` snapshot, hardcoded for now). Speedrun (1 月) 玩家拿不到任何 subject mastery — intentional differentiation from longplay (6 月).
-
-Engine (`packages/core/src/lib/achievement.ts`) mirrors cosmetic milestone pattern:
-- `checkAchievementUnlocks(prev, prevStats, next, nextStats, catalog)` → diff-based unlock detection
-- `listUnlockedAchievements` / `listLockedAchievements` / `visibleAchievements` helpers
-
-Types in `@study-rpg/core`:
-- `Achievement` interface, `AchievementTier = 'P1' | 'P2' | 'P3' | 'P4'`, `AchievementCategory` (7 options)
-- `AchievementReward` discriminated union: `cosmetic` | `title` | `badge` (equipment/ticket/pity intentionally absent — TypeScript rejects)
-- `AchievementStats` permissive shape — assembled per-call from Dexie state
-
-Persistence (Dexie v15): new `achievements` table (PK `id`, indexed `unlockedAt`). Extended `MonotonicCountersRow` (5 new MAX-merge counters: `totalDoctorsRecruited` / `totalP1DoctorsRecruited` / `maxDailyStreak` / `tierUpgradeCount` / `maxQuizCorrectStreak`). Extended `GameCountersRow.currentQuizCorrectStreak` (LWW, resets on wrong answer). Extended `LeaderboardProfileRow.selectedTitle`.
-
-Sync: `ACHIEVEMENTS` TableAdapter in `M2_ADAPTERS` only (mirror `LEADERBOARD_PROFILE` precedent commit `cfaaa32`). R2-only path — no Supabase migration, no `upsert_lww` whitelist entry. Cross-device pull does NOT trigger unlock toast (apply path skips queue).
-
-Trigger hooks (5 sites): `services/quiz-rewards.ts` (also handles streak counter), `lib/tick.ts` (tier upgrade + study minutes), `services/recruitment.ts` (totalDoctorsRecruited / P1 counter), `services/fate-card.ts`, `services/training.ts` + `services/retire.ts`. All use dynamic import + post-tx try/catch so achievement check never breaks game action.
-
-Reward dispatcher (`services/achievement-reward.ts`): `dispatchReward` branches on reward.kind (cosmetic intent log / title persists to Dexie meta key `achievement-titles-unlocked` / badge no-op). `checkAndUnlockAchievements` orchestrator: idempotent persist + dispatch + queue toast.
-
-UI: `/achievements` route (AchievementsPage with 2 sub-tabs + 3 filters + strict hidden filter), `BadgeSprite` / `SubjectBadgeSprite` CSS atlas sprites, `AchievementUnlockToast` (P2-P4, 8s auto-dismiss), `AchievementUnlockModal` (P1 full-screen, dismiss-required), `AchievementTitleSelector` embedded in `LeaderboardSettingsControls`. Toast queue: `lib/achievement-toast-queue.ts` singleton + `useAchievementToasts` hook.
-
-Atlases: `apps/medexam2-hospital-tw/src/assets/achievements/badge-atlas.png` (512×768, 6×4 cells, category × tier) + `subject-atlas.png` (896×256, 7×2 cells, 14 科 unique icons). Generated via codex CLI: `cd /tmp && codex exec --sandbox workspace-write --skip-git-repo-check "..." < /dev/null` (note: `--skip-git-repo-check` required by codex 1.x; the 0.128.0 recipe in `~/.claude/imports/codex_image_gen.md` is outdated).
-
-Leaderboard integration: D1 migration `cloudflare/sync-worker/migrations/0002_add_badges.sql` adds `badges_csv TEXT DEFAULT ''` + `subject_mastery_count INTEGER DEFAULT 0` to `leaderboard_m2`. Worker `POST /leaderboard/upsert` validates against regex `^([a-z]+:P[1-4])(,[a-z]+:P[1-4]){0,5}$` (≤ 6 entries, ≤ 60 chars) + integer 0-14. `SNAPSHOT_COLUMNS` extended so cron + KV snapshots auto-include. Client derives per-category max-tier in `lib/sync/leaderboard.ts` `deriveAchievementSnapshot()`; `LeaderboardPage` renders inline 20px badges + `🩺 X/14` subject chip via `NicknameWithBadges` helper.
-
-Apply migration 0002 manually (sustain 0001 discipline):
-
-```bash
-cd cloudflare/sync-worker
-wrangler d1 migrations apply study-rpg-leaderboard --remote
-```
-
-Full change reference: `openspec/changes/add-achievement-system/` (proposal / design / specs / tasks).
-
-## Hospital equipment (M_2nd ext, 2026-05-24)
-
-`apps/medexam2-hospital-tw` ships a capital-investment revenue sink: 10 named equipment items (CT / MRI / 內視鏡 / 達文西 / 心導管室 / PET-CT / LINAC / ECMO / 複合式手術房 / NGS) × 3-level upgrade ladder. Total L1 buy-all ~24M; full L3 buy-all ~244M (~6 weeks dedicated grind at 國家級 default revenue). Costs in `packages/content-medexam2-tw/src/equipment-catalog.ts`, types in `@study-rpg/core` (`EquipmentId` / `EquipmentDef` / `OwnedEquipmentRow`). UI = `EquipmentPanel` mounted on Hospital page below room-extension section (responsive grid, collapsible header).
-
-Each equipment level grants additive bonuses (formula `1 + Σ`, level value REPLACES lower):
-- Reputation gain: L1 +1% / L2 +3% / L3 +7% (uniform across all 10 items)
-- Patient throughput: L1 +2% / L2 +5% / L3 +12% (same)
-
-Owning 5 L3 + 5 L1 → 1.40 reputation multiplier (+40%) + 1.70 throughput multiplier (+70%). Additive on purpose (not multiplicative) to keep math predictable.
-
-Multiplier wiring (4 sites):
-- `lib/tick.ts` — equipment throughput multiplier applied to `idleAdjustedThroughput` (affects revenue + tick-time reputation accrual via throughput→reputation coupling)
-- `services/quiz-rewards.ts` — equipment reputation multiplier wraps `reputationDelta` for correct-answer reward
-- `services/er-consultation.ts` — same wrap on ER quiz correct-answer reputation
-- `services/event.ts` `resolveEmergencyShift` — wraps `EMERGENCY_SHIFT_REPUTATION_BONUS` constant at call site
-
-Equipment does NOT generate idle/AFK reputation — multiplier amplifies *active-play* reputation only (per design D3, preserves the fate-card cost-gate strategic tension).
-
-T4 upgrade gate triple condition (new third gate from this change):
-1. Reputation ≥ 300,000 (bumped from 150,000 same change — see `clinic-tiers.ts` `TIER_UPGRADE_THRESHOLDS.醫學中心`)
-2. 10 distinct P2+ subjects + ≥ 1 P1 doctor (unchanged)
-3. **≥ 3 unique equipment installed at level ≥ 1** (new — `lib/tick.ts` T3→T4 evaluation calls `computeUniqueEquipmentCount`)
-
-Pre-existing T4 saves (`gameCounters.tier === '國家級教學醫院'` before this change ships) are **grandfathered** — tier monotonicity per `clinic-level-up` Req 1 means no regression even with 0 equipment + reputation < 300k. T3 players in flight face both new conditions simultaneously.
-
-Persistence (Dexie v16): new `hospitalEquipment` table (PK `equipmentId`, indexed `updatedAt`). Row shape `{ equipmentId, level: 1|2|3, purchasedAt, upgradedAt, updatedAt }`. Schema-only upgrade — no row backfill, starts empty for everyone. v15 was claimed by `add-achievement-system` for `achievements` table.
-
-Sprites: `packages/theme-pixel-hospital/sprites/equipment/<id>.png` (10 files, ~200 KB total, 384×384 16-color quantize PNG). Sprite registry in `packages/theme-pixel-hospital/src/sprites.ts` glob extended to register equipment subfolder with `equipment-` prefix in `SPRITES_MAP`. Generated via codex CLI per `~/.claude/imports/codex_image_gen.md` recipe (Gemini was unavailable at apply time; codex became primary path).
-
-Sync (R2 m2 bundle passenger pattern): bundle schema_version bump 1 → 2 + new `hospitalEquipment` array key. **NOT yet wired** — `add-r2-cloud-sync-migration` §9 R2 cutover (estimated 2026-05-29) gates this. Equipment §1–§8 + §10–§11 are R2-independent and shipped now; §9 sync wiring blocks until R2 reads flip.
-
-Known follow-ups (deferred):
-- V6MigrationModal intro modal explaining 150k→300k recalibration (UX polish per tasks.md §8.5)
-- audit-event pass branch could also use equipment multiplier (currently event.ts only wires emergency-shift; see equipment design D3 logic for why audit was excluded — penalty-and-reward dual-path) — revisit if telemetry shows uneven application
-
-Full change reference: `openspec/changes/add-hospital-equipment-medexam2/` (proposal / design / specs / tasks).
-
-## Neurons achievement system (M_3rd, 2026-05-25)
-
-`apps/neurons-tw` ships a milestone-recognition system borrowed from 二階 `achievement-system` pattern: 7 categories × 4 tiers = 30 catalog entries. Borrowed per `neurons-mode` Req 5 (independent capability spec; no modification of 二階 source).
-
-**Category set** (string union locally declared, NOT imported from `@study-rpg/core`'s 二階-shaped `AchievementCategory`): `study | quiz | variant | synapse | mastery | fortune | hidden`. Semantic mappings: 二階 recruit → variant; hospital → synapse; subject → mastery.
-
-**Catalog** = `packages/content-neurons-tw/src/achievements.ts` (30 entries: 4 study + 5 quiz + 5 variant + 4 synapse + 4 mastery + 4 fortune + 4 hidden). Tiers `P1 鑽石 / P2 金 / P3 銀 / P4 銅` (mirror PSN Trophy convention). Build-time validator at `packages/content-neurons-tw/src/achievement-validator.ts` enforces: (a) every P1 entry MUST declare `composite: true`, (b) non-P1 entries MUST NOT declare composite, (c) all required fields populated, (d) ids unique, (e) every category has ≥ 1 entry. Smoke covered by `scripts/verify-validator.ts` (6 fixtures pass).
-
-**Types declared LOCALLY** at `packages/content-neurons-tw/src/achievement-types.ts` — not in `@study-rpg/core`. Reasoning: core's `AchievementCategory` is a strict 7-literal union containing 二階 字面值 (`'recruit'|'hospital'|'subject'`); `AchievementStats` references `SubjectId` + `totalDoctorsRecruited` + `currentHospitalTier`; `AchievementReward` includes `'cosmetic'`. Widening core to fit both 二階 + neurons would invasively break published `@study-rpg/core@0.4.x` API contract. Neurons uses `NeuronsAchievement` / `NeuronsAchievementStats` / `NeuronsAchievementReward` / `NeuronsAchievementCategory` and re-implements the 5-line `checkAchievementUnlocks` diff function locally at `apps/neurons-tw/src/lib/services/achievement.ts`. Apply-phase decision in `add-neurons-achievements/tasks.md` §1.2.
-
-**Reward channels = 2** (TS union locked): `{kind:'leaderboard'}` (implicit — every unlock contributes to `badges_csv`) + `{kind:'title';title:string}` (appends to `leaderboardProfile.unlockedTitles`, selectable via `TitleSelector` in `LeaderboardSettingsControls`). `cosmetic` / `equipment` / `ticket` / `currency` are TypeScript-rejected at catalog declaration site.
-
-**Persistence** (Dexie v5): new `achievements` table (PK `id`, indexed `unlockedAt`). v4 → v5 is additive. Extended `LeaderboardProfileRow` with `unlockedTitles?: string[]` + `selectedTitle?: string | null` (no schema migration; Dexie tolerates undefined for existing rows).
-
-**Streak counter** persisted in `meta` table: `meta['currentQuizCorrectStreak']` (LWW, +1 correct / reset 0 wrong) + `meta['maxQuizCorrectStreak']` (MAX-merge). Co-commits with `recordCorrectAnswer` / `recordIncorrectAnswer` Dexie transaction.
-
-**Trigger hooks** (3 sites — `apps/neurons-tw/src/lib/services/`):
-- `connectome.ts` `recordCorrectAnswer` collapse-point — captures `prevStats` pre-tx, calls `triggerAchievementCheck` post-commit
-- `connectome.ts` `recordIncorrectAnswer` — streak reset + post-commit check
-- `variant-gacha.ts` `handleSlotUnlock` — capture pre-state if non-silent; trigger check after persist
-
-Each hook wrapped in try/catch (`[achievement]` channel) so failure doesn't break originating game action. `study` category predicates evaluate against `totalStudyMinutes: 0` placeholder (reading-timer not yet wired in neurons-tw); catalog ships ready for when timer ships.
-
-**Backfill** at app boot via `backfillAchievementsFromCurrentStats()` in `App.tsx` `useEffect`: builds stats from Dexie, finds predicates already true, `bulkPut` missing rows with `notificationShown: true`, dispatches NO rewards / NO toasts / NO modals. Idempotent. Same function shape ready for future `onPullComplete` sync hook (post `add-neurons-deploy`).
-
-**UI** components: `BadgeSprite` (placeholder SVG + emoji glyph + tier-color ring — atlas swap deferred to follow-up `generate-neurons-achievement-atlases`), `AchievementCard`, `AchievementsPage` at `/achievements` (sub-tabs 「全部 / 已解鎖」 + category/tier filter dropdowns + strict hidden filtering), `AchievementToastHost` (wraps motion library `<Toast>` + `TOAST_AUTO_DISMISS_MS`), `AchievementUnlockModal` (wraps motion library `<AchievementUnlockModal>` primitive). Toast/modal queue singleton at `lib/achievement-toast-queue.ts`.
-
-**Leaderboard integration**: `deriveAchievementSnapshot(unlocked)` + `deriveBadgesCsvFromDexie()` in `lib/services/neurons-leaderboard.ts` produce max-tier-per-category CSV with hidden category excluded (fits Worker regex `^([a-z]+:P[1-4])(,[a-z]+:P[1-4]){0,5}$` since 7 categories − 1 hidden = 6 max entries). `LeaderboardPage` renders inline 20px badges via `NicknameWithBadges` helper. `D1 leaderboard_neurons.badges_csv` column was reserved by `add-neurons-leaderboard` Req 11 — **no D1 migration** needed. Title display on leaderboard rows deferred to a separate follow-up (would need Worker schema addition for `selected_title`).
-
-**Smoke results** (2026-05-25 Chrome MCP end-to-end): boot backfill populated `mastery-first-novice` row silently; 10× +5 答對 on 藥理學 fired `variant-first-pull` toast + `quiz-streak-10` queued + `hidden-first-day-blitz` queued; `/achievements` page rendered 4 unlocked + 26 locked silhouettes + 3 hidden-locked invisible. Console clean (only pre-existing React Router future warnings).
-
-**Deferred follow-ups**:
-- Atlas asset generation (60–90 min codex CLI batch × 2 atlases) → separate `generate-neurons-achievement-atlases` change
-- Title display on leaderboard rows (needs Worker `selected_title` D1 column + KV)
-- `study` category active triggers (needs reading-timer follow-up)
-
-Full change reference: `openspec/changes/archive/2026-05-25-add-neurons-achievements/`.
-
-## DMN fate cards (M_3rd ext, 2026-05-27)
-
-`apps/neurons-tw` ships a mixed-trigger (time-axis + behavior-axis) fate-card collection system themed on **Default Mode Network** — the brain's resting-state network that produces "spontaneous insight" while the player rests. Catalog = 20 cards × 4-tier rarity (P1 鑽石 × 2 / P2 金 × 4 / P3 銀 × 6 / P4 銅 × 8) with weights 2/10/30/58. Each card simultaneously triggers a one-time event + enters the permanent collection (Pokédex-style closed cap).
-
-Five event kinds (each ≥ 4 cards in catalog — build-time validator enforces ≥ 3 minimum):
-- `family-buff`: random family AP +2/correct for 1 hour
-- `variant-rate-up`: next variant slot unlock uses boosted weights 20/30/30/15/5 (single-consume)
-- `quick-review-batch`: surface 5 SRS-due questions (placeholder toast until SRS pipeline ships)
-- `streak-shield`: one-use immunity to next streak break
-- `hidden-reveal`: silhouette-hint next undrawn P1 card on `/dmn` page
-
-Trigger axes:
-- **Time axis** (cap 2 draws/day): +1 draw per 30 min accrued reading time. **Currently inactive** — `ReadingTimerSubscriber` interface is wired but no timer service publishes to it; will activate when `polish-neurons-pre-ship` ships the reading-timer
-- **Behavior axis** (cap 3 draws/day): listens to `connectome.variantSlotUnlocked` / `connectome.synapseFormed` / `connectome.synapseStrengthened` — each grants +1 bonus draw. (Spec amendment 2026-05-27 dropped `streak.dayIncreased` because neurons-tw has no daily-open streak service, and dropped `actionPotentialThresholdCrossed` because AP thresholds = variant slot thresholds → redundant.)
-
-Catalog + types + validator: `packages/content-neurons-tw/src/{dmn-types,dmn-cards,dmn-card-validator}.ts`. Smoke fixture: `scripts/verify-dmn-validator.ts` (7 cases pass). Catalog uses well-established DMN neuroscience anchors (mPFC / PCC / precuneus / angular gyrus / hippocampal sharp-wave ripples / REM consolidation per Buckner & DiNicola 2019, Raichle 2015).
-
-**Critical sync semantics — `dmnEventLog` uses MONOTONIC-UNION merge, NOT LWW.** `apps/neurons-tw/src/lib/sync/tables.ts` `dmnEventLogAdapter.apply()` carries the carve-out: rows present on either side stay in the union; both sides converge to the same set; earlier `dispatchedAt` wins as the provenance instant. This neutralizes the "fresh-state device pulls bundle and re-triggers all dispatched events" failure mode. Mirrors 二階 `everWrong` monotonic-OR discipline. **DO NOT replace with LWW** — locked by Vitest `dmn-event-idempotency.test.ts`.
-
-**R2 bundle schema bump v1 → v2 + reader tolerance.** `apps/neurons-tw/src/lib/sync/r2/bundles.ts`:
-- `SCHEMA_VERSION` 1 → 2 (additive: adds 3 new adapter keys `dmnCards` / `dmnEventLog` / `dmnActiveBuffs` + 8 new meta keys to the allowlist)
-- `validateBundleMeta` now `console.info(...)` + continues parse on `schema_version > SCHEMA_VERSION` (was: throw `unsupported_schema_version`). Defends `< 1` still. This is the **forward-compat tolerance pattern** that lets v1 clients pull v2 bundles without dying — unknown adapter keys silently drop because `applyBundleSnapshot` iterates only locally-registered adapters
-- v2 client reading v1 bundle: `dmn-*` fields absent → preserve-on-omission (empty local tables stay empty; non-empty local tables not overwritten with empty incoming)
-
-Worker is bundle-opaque (pure presigned-URL transport) — no Worker code change needed for the v2 bump.
-
-Dexie versions claimed in flight (neurons-tw): v6 = `add-neurons-dmn-fate-card` (adds `dmnCards` / `dmnEventLog` / `dmnActiveBuffs` tables).
-
-Trigger detector + draw orchestrator + event dispatcher + 3 consumer hooks (family-buff in `connectome.recordCorrectAnswer`, variant-rate-up in `variant-gacha`, streak-shield in `streak.resetCurrentStreak`) all in `apps/neurons-tw/src/lib/services/dmn-*.ts`. UI: `DmnDrawButton` (top nav), `DmnDrawModal` (modal + reveal inline), `DmnCollectionPage` (`/dmn` route, responsive grid), `DmnQuickReviewToast` (placeholder for quick-review-batch event).
-
-Test coverage: `apps/neurons-tw/src/__tests__/{db-v6-migration,dmn-draw-mechanics,dmn-event-idempotency,dmn-bundle-cross-version,dmn-trigger-counters}.test.ts` — 27 Vitest tests covering v6 migration, draw orchestrator, event log idempotency + monotonic-union, schema_version forward-compat, daily cap enforcement. Run via `pnpm --filter @study-rpg/neurons-tw test` (vitest infra newly bootstrapped in this change, mirroring 二階).
-
-Sprite assets ship as `dmn:card:<cardId>` × 20 + `dmn:card-back` × 1 placeholders (1×1 transparent PNG) — real pixel-art deferred to follow-up `generate-dmn-card-artworks` (codex CLI batch, ~1 hr; mirror `generate-neurons-sprites` pattern).
-
-Full change reference: `openspec/changes/add-neurons-dmn-fate-card/` (proposal / design / specs / tasks).
-
-## Neurons wrong-answer list (M_3rd ext, 2026-06-01)
-
-`apps/neurons-tw` ships a 「錯題」 review experience on `/bookmarks`, mirroring 二階 `wrong-answer-list` but built fresh because neurons had **no per-question result tracking** before this change (`recordCorrectAnswer`/`recordIncorrectAnswer` only ever took `familyId`). Capability spec: [`openspec/specs/neurons-wrong-answer-list/spec.md`](openspec/specs/neurons-wrong-answer-list/spec.md).
-
-`/bookmarks` is now a three-tab container: **手動收藏** (existing ⭐ list, default) / **目前未答對** (`lastResult === 'wrong'`) / **歷史曾錯** (`everWrong === true`, never leaves). The two wrong-answer tabs are live derived views of a new `questionHistory` Dexie store — no separate store, no grace toast (permanent error library by design). Wrong-answer rows are display-only (no inline actions). A single shared filter bar (科目 family + **年份** year + ✨/🤔 標記) applies across all three tabs; exam year is parsed from the question id prefix (`106-1-醫學一-解剖學-Q1` → `106`, helper `lib/wrong-answer-filter.ts`).
-
-Key handles:
-- New `questionHistory` Dexie store (**v9**, additive): `{ questionId, family, lastResult, everWrong, lastAnsweredAt, updatedAt }`. `everWrong` is NOT indexed (IndexedDB can't index booleans) — the 歷史曾錯 tab filters in JS off a full `toArray()`. v8→v9 upgrade fixture at `apps/neurons-tw/src/__tests__/db-v8-to-v9-migration.test.ts`.
-- Recording: `lib/services/question-history.ts` `recordQuestionResult(questionId, family, isCorrect)` (monotonic-OR `everWrong`) + single `useQuestionHistory()` live-query hook (BookmarksPage derives both wrong views from one subscription). Wired in `QuizModal.handlePick` after the existing record calls, best-effort try/catch (channel `[question-history]`) so it never breaks the answer flow. **neurons has only one answer entry point (QuizModal)** — any future answer mode MUST also call `recordQuestionResult`.
-- **Critical sync semantics — `questionHistory` uses MONOTONIC-OR merge for `everWrong`, NOT LWW.** `apps/neurons-tw/src/lib/sync/tables.ts` `questionHistoryAdapter` resolves `everWrong = (local?.everWrong ?? false) || incoming.everWrong`; `lastResult`/`family`/`lastAnsweredAt` are LWW on the greater `lastAnsweredAt`. Mirrors 二階 `everWrong` + neurons `dmnEventLog` discipline. **DO NOT replace with LWW** — locked by `apps/neurons-tw/src/__tests__/question-history-merge.test.ts`.
-- R2 bundle `SCHEMA_VERSION` bumped **4 → 5** (`lib/sync/r2/bundles.ts`); additive + reader tolerance (v4 clients drop the unknown key, v9 clients reading v4 bundles preserve local). Worker is bundle-opaque — no Worker change.
-- Existing players: **no backfill, no banner** — the error library accrues from upgrade onward.
-
-Full change reference: `openspec/changes/archive/2026-06-01-add-neurons-wrong-questions-subtab/` (proposal / design / specs / tasks).
-
-## Neurons context-driven variant art (M_3rd ext, 2026-06-02)
-
-`apps/neurons-tw` turns each collected variant's **birth-context provenance** (from `add-neurons-variant-provenance`) into a glanceable **visual** layer — Pikmin Bloom step 3「帽子=出身」. Capability spec: [`openspec/specs/neurons-variant-context-art/spec.md`](openspec/specs/neurons-variant-context-art/spec.md) (new). The text birth-caption (`lib/variant-caption.ts`) is the sibling text channel; this is the visual channel.
-
-**Background-watermark model (all context art renders BEHIND the neuron).** The neuron always paints on top at full opacity → never occluded, and there are no positioned foreground badges to align. This is a **design pivot (2026-06-02)** made during the live verify pass: earlier cuts (ornate foreground overlays, then iconographic corner badges + a top-left EEG glyph) crowded the soma and had alignment problems the owner rejected — "做成半透明背景圖，比較不會有對齊問題".
-
-**Two channels, both pure-derived at render (zero new state):**
-1. **Decor = 3 universal full-bleed neuro-field textures** composited as faint backdrops (`objectFit:cover`, opacity 0.11 single / 0.07 stacked) behind the neuron, chosen from `provenance`:
-   - `decor:redemption` — action-potential **firing field** — `provenance.wasRedemption === true` (LTP 浴火重生)
-   - `decor:milestone` — **myelinated-axon field** (nodes of Ranvier) — `streakAtMint >= MILESTONE_STREAK_THRESHOLD` (7, saltatory milestone)
-   - `decor:elder` — antique **Cajal histology plate** — `provenance === undefined` (元老/傳承)
-   救贖 + 里程碑 **stack**; 元老 is mutually exclusive (requires absent provenance).
-2. **Brain-wave band** from the variant's birth **hour-of-day**: `brainwaveBand(rolledAt)` reads the hour in a **fixed Asia/Taipei tz** (rolledAt is absolute → cross-device deterministic) → circadian epoch's dominant EEG band: 00–06 **δ** / 06–12 **β** / 12–18 **α** / 18–24 **θ**. Every row gets a band (incl. 元老 — `rolledAt` always exists). Rendered as a colour-coded **δ/θ/α/β** Greek-letter corner watermark (`BAND_META[band].color`, opacity 0.75) — the card's **only colour accent**. NO full-cell colour wash (an earlier per-band wash made the grid look like a rainbow; owner flagged "不同顏色背景"). Band↔state mapping **OpenEvidence-grounded** (NEJM Brown 2010 `10.1056/NEJMra0808281`; Constant 2012 `10.1111/j.1460-9592.2012.03883.x`): δ deep-sleep / θ drowsy-REM / α relaxed / β alert.
-
-Context art is orthogonal to the **rarity** channel (P1–P5 colour / chip / spin) — rarity uses colour, context uses neuro-field texture + band letter.
-
-Key handles:
-- Pure helper `apps/neurons-tw/src/lib/variant-decor.ts` → `variantContextArt(row): { decor: DecorKey[]; band: BandKey }` + `brainwaveBand(rolledAt)` + `BAND_META`. Mirror of `variant-caption.ts`. Unit-tested (`__tests__/variant-decor.test.ts`, 16 cases: decor mapping + stack + elder + birth-hour→band incl. 4 boundaries + elder-gets-a-band).
-- Shared composer `apps/neurons-tw/src/components/VariantSprite.tsx` (`{ row, size, alt, children }`): `position:relative; overflow:hidden` wrap → faint decor field(s) → band letter → base sprite **on top**. Optional `children` lets a caller pass an animated base (modal hero evolve sheet / alive idle img) so reveal animation is preserved. **Adding any new collected-variant render site MUST go through `VariantSprite`.**
-- 3 render sites wired: `routes/CollectionPage.tsx` `VariantSlotCard` (dex card, size 64) + family-`<section>` header **mini representative** (size 28 — decision B 2026-06-02, since the representative isn't shown on the connectome homepage; family node there uses the `subject:` icon) + `components/VariantUnlockModal.tsx` (mint reveal, size 128).
-- Theme reg: `packages/theme-pixel-neurons/sprites/decor/{redemption,milestone,elder}.png` (384×384 full-bleed neuro-field textures, 16-color transparent, Gemini-gen + chroma-key/quantize) via `sprites/decor/*.png` glob in `src/sprites.ts` (`DECOR_KEYS`, `?? TRANSPARENT_PIXEL` → missing asset = no field, never a broken image).
-
-**Zero schema / sync change.** Decor + band are a pure function of the already-synced `provenance` + `rolledAt` — no Dexie `.version()` bump, no R2 bundle `SCHEMA_VERSION` bump, no new adapter. A second device computes identical art. (No Dexie change → no upgrade-fixture-lint trigger.)
-
-Deferred follow-ups: per-NT-branch flavoured decor (4×3=12 assets); sparser milestone myelin field (currently ~93% coverage → soft gold haze at low opacity). Ship universal first, revisit with telemetry.
-
-Full change reference: `openspec/changes/context-driven-variant-art/` (proposal / design / specs / tasks).
-
-## Neurons acceleration system (M_3rd ext, 2026-06-04)
-
-`apps/neurons-tw` merges the two parked progression lanes (P2 DMN→supplies + P3 equipment) into one **加速系統**: a single speed·energy boost layer with **two persistence forms** — transient **consumables** (backpack, manual-activate) vs durable **permanent equipment/companions**. Capability spec: [`openspec/specs/neurons-acceleration-system/spec.md`](openspec/specs/neurons-acceleration-system/spec.md) (new). Pivot rationale in [`openspec/decisions/2026-06-04-neurons-progression-systems-roadmap.md`](openspec/decisions/2026-06-04-neurons-progression-systems-roadmap.md).
-
-**Boost model — additive `1 + Σ`, hard-capped.** `apps/neurons-tw/src/lib/services/acceleration.ts`:
-- `energyAccel(familyId)` = `min(ENERGY_ACCEL_CAP=2.5, 1 + Σ active-energy-consumable bonus + Σ owned-energy-equipment bonus)`. Wired into the correct-answer maze-energy faucet at `connectome.ts` (**replaced** the standalone `getActiveFamilyBuffMultiplier`; family-buff is now a `+1.0` energy bonus inside the pool ⇒ the prior ×2). `family-buff` is family-scoped; `bolus` is global.
-- `speedAccel()` = `min(SPEED_ACCEL_CAP=2.0, 1 + Σ surge + Σ owned-speed-equipment)`. Composed into `maze/economy.ts` `accrueMazeEnergy` (the exploration-speed lane) alongside the existing `mazeSpeedMultiplier(count)`. `speedAccel()`/`energyAccel()` return 1.0 with nothing active → no-op for un-accelerated saves.
-- Caps are dogfood-tunable game-loop numbers (NOT OE-anchored) — the explicit guard against the positive-feedback runaway (collection-count × streak × mastery × acceleration). Consumables are time-limited/one-shot, permanents few + capped ⇒ peak is bounded.
-
-**DMN draw is the single acquisition channel for both forms.** `dmn-fate-card.ts` `drawDmnCard(rng = Math.random)` rolls `EQUIPMENT_DRAW_RATE` (≈5%) vs the unowned equipment pool → on hit awards a rarity-weighted (P1–P5) permanent to the `equipment` table; else deposits a consumable to the `inventory` backpack (NO auto-fire) + the `dmnCards` dex + a `dmnEventLog` provenance row. Falls through to the other pool if one is exhausted; null only when BOTH are fully owned. `rng` is injectable for deterministic tests.
-
-**Backpack model (NO auto-fire on draw).** `inventory.ts`: `depositConsumable` (draw), `activateConsumable` (decrement-then-apply via `applyConsumableEffect`), `pruneExpiredBuffs`. Stock rows are **kept at count 0, never deleted** (per-kind LWW continuity). `dmn-event-dispatcher.ts` was refactored: `dispatchDmnEvent` (draw-time, cardId-idempotent) → **`applyConsumableEffect(kind, sourceCardId)`** (activation applier, NO cardId idempotency — activation is gated by the stock decrement). `getActiveFamilyBuffMultiplier` **removed** (superseded by `energyAccel`).
-
-**`streak-shield` removed entirely (integrity).** The only anti-learning crutch — full footprint gone (`DmnEventKind` union, catalog ×4, dispatcher case, `consumeStreakShield`, `streak.ts` consume site, `SYNCED_META_KEYS` `dmnStreakShieldAvailable`, UI copy, sprite ids, idempotency test). Players mid-armed lose it silently (no refund). The daily streak multiplier + SRS self-report buttons stay (honest mechanics).
-
-**Catalogs** (`packages/content-neurons-tw/src/`):
-- DMN consumable dex recomputed **20 → 22** (`dmn-cards.ts`): removed 4 streak-shield, added 3 `surge` (NE/DA phasic gain → speed) + 3 `bolus` (lactate shuttle → energy). Distribution P1×2 / P2×5 / P3×7 / P4×8; tier weights unchanged 2/10/30/58. Validator `dmn-card-validator.ts` size 22 + the 6-kind set. `family-buff` reframed (AP→energy copy).
-- Equipment catalog `equipment-catalog.ts` — **12 items P1–P5 × 2 lanes** (6 myelin/speed + 6 pump/metabolic-energy). Owned-once, no upgrade ladder (v1). Rarity-scaled bonus `EQUIPMENT_RARITY_BONUS` (P1 +0.30 / P2 +0.18 / P3 +0.10 / P4 +0.04 / P5 +0.01). `equipment-validator.ts`: ≥10 items, ≥2/tier, rarity-matched bonus. OE-anchored (oligodendrocyte myelin = durable speed; Na⁺/K⁺-ATPase pump = endurance NOT speed). `verify:equipment` 6/6.
-
-**Schema (additive).** Dexie **v16** (`db.ts`): new `inventory` (`kind` PK) + `equipment` (`equipmentId` PK) tables; NO pk change; no backfill (grandfather from v16). v15→v16 fixture at `__tests__/db-v15-to-v16-migration.test.ts`. R2 neurons bundle `SCHEMA_VERSION` **15 → 16** (`sync/r2/bundles.ts`): two new adapters in `sync/tables.ts` — **`inventoryAdapter` (per-kind LWW on `updatedAt`)** + **`equipmentAdapter` (UNION by equipmentId, MONOTONIC on presence — owning never un-owns; keeps earliest `obtainedAt`)**. Additive + reader-tolerant (v15 clients drop the unknown keys; v16 reading v15 preserves local). Worker is bundle-opaque — no Worker change.
-
-**UI** (`/dmn` route, `DmnCollectionPage`): `BackpackPanel` (stock list + activate + active-buff timers) above the consumable dex; `EquipmentDexPanel` (P1–P5 owned/silhouette grid) below; `DmnDrawModal` reveal branches consumable (→ "已放入背包") vs equipment (→ "永久裝備 GET"). Top-nav unchanged.
-
-**Sprites: placeholders this change.** `theme-pixel-neurons/src/sprites.ts` registers 12 `equipment:<id>` keys (new `../sprites/equipment/*.png` glob) + refreshed `DMN_CARD_IDS` to the current 22; all fall back to `TRANSPARENT_PIXEL` (no real art yet). Real art (~14: 12 equipment + surge/bolus card) is a deferred follow-up `generate-acceleration-sprites` (Gemini/codex).
-
-Test coverage: `apps/neurons-tw/src/__tests__/{acceleration,inventory,db-v15-to-v16-migration,acceleration-bundle}.test.ts` + updated `{dmn-draw-mechanics,dmn-event-idempotency,dmn-event-realign}.test.ts` (342 neurons tests green). `pnpm --filter @study-rpg/neurons-tw test` + `pnpm -r typecheck` + `pnpm lint:dexie-fixtures` clean.
-
-Full change reference: `openspec/changes/add-neurons-acceleration-system/` (proposal / design / specs / tasks).
-
-## Neurons living companions (M_3rd ext, 2026-06-04)
-
-`apps/neurons-tw` gives the acceleration-system's **living-cell glial companions** an on-screen presence — the "夥伴" that was previously only a dex card + passive number now **marches with the 神經元遠征隊 expedition squad** in the `MazeExpedition` animation band. Owner decision (live verify): **NOT on the brain-map** — "夥伴不放 brain-map，出征動畫才顯示". Capability spec: [`openspec/specs/neurons-living-companion/spec.md`](openspec/specs/neurons-living-companion/spec.md) (new) + MODIFIED `neurons-maze-expedition`. Pure presentational follow-on to `add-neurons-acceleration-system`.
-
-- **Companion subset = catalog flag `companion: true`** on `EquipmentDef` (`equipment-types.ts`), set on the **2 actual cells only** — `eq-oligodendrocyte-companion-p3` + `eq-astrocyte-glycogen-p3` (`equipment-catalog.ts`). Structural/molecular items (myelin wrap, node of Ranvier, Na⁺/K⁺ pump, lactate, glucose, mitochondria…) stay dex-only passive and do NOT march. Helpers `livingCompanionDefs()` / `livingCompanions(ownedIds)` (rarest-first) exported from content. The flag is orthogonal to lane/rarity/bonus — the equipment validator + dex + acceleration passive are unaffected.
-- **Render = expedition-band marchers**: `components/MazeExpedition.tsx` `useOwnedCompanions()` (liveQuery `db.equipment` → `livingCompanions`) appends companions to the band's `members` parade (at the back; index continues for coherent depth-stagger). They inherit the band's `exp-bob` + paused/hidden + reduced-motion treatment — no separate component, keyframe, or gate. Cyan-glia glow distinguishes them from the white-aura variant marchers. Rendered at `COMPANION_MARCHER_SCALE` (= 0.6, tunable) × the squad marcher size — visibly smaller tagalongs. Appears in BOTH band contexts (homepage reading band + compact QuizModal 出征 band). **No brain-map SVG overlay.**
-- **Dedicated marcher sprites** (`generate-companion-sprites`, 2026-06-04): real cute glial-cell art at `packages/theme-pixel-neurons/sprites/companion/{eq-oligodendrocyte-companion-p3,eq-astrocyte-glycogen-p3}.png` (384×384 transparent 16-color, Gemini-gen + magick). `sprites.ts` adds a `companion/*.png` glob → `companion:<id>` keys, **spread present-files-only** into `SPRITE_MAP` (NO hardcoded TRANSPARENT_PIXEL keylist) so a missing PNG leaves the key unresolved and `companionSpriteUrl()`'s `companion:<id> ?? equipment:<id> ?? variant:default` fallback still fires. Single-frame (band is CSS-`exp-bob`, not per-frame) — the earlier `generate-companion-animation-frames` idea is closed.
-- **Zero schema/sync change**: derives entirely from the already-synced `equipment` table — no Dexie `.version()` bump, no R2 `SCHEMA_VERSION` bump, no new adapter, no `SYNCED_META_KEYS`. Every device computes identical companions. Tests: `apps/neurons-tw/src/__tests__/living-companion.test.ts` (9 — catalog-subset predicate + db→ids→marcher data path; 351 neurons tests green).
-
-Full change reference: `openspec/changes/add-neurons-living-companion-render/` (proposal / design / specs / tasks).
+- **Neurons achievement system** — 30 catalog；types 宣告在 content pack 本地（非 `@study-rpg/core`）。`openspec/changes/archive/2026-05-25-add-neurons-achievements/`。
+- **DMN fate cards** — `dmnEventLog` 用 **monotonic-UNION** merge（**不可改 LWW**，Vitest 鎖）；R2 bundle 有 reader-tolerance（forward-compat）。`openspec/changes/archive/2026-05-28-add-neurons-dmn-fate-card/`。
+- **Neurons wrong-answer list** — `questionHistory.everWrong` 用 **monotonic-OR**（**不可改 LWW**，Vitest 鎖）；唯一答題入口 QuizModal 必呼 `recordQuestionResult`。`openspec/changes/archive/2026-06-01-add-neurons-wrong-questions-subtab/`。
+- **Context-driven variant art** — 零 schema、純 derived（decor field + δ/θ/α/β brain-wave band）。`openspec/changes/archive/2026-06-02-context-driven-variant-art/`。
+- **Neurons acceleration system** — Dexie v16、R2 bundle 16；`equipmentAdapter` UNION-monotonic、`inventoryAdapter` per-kind LWW。`openspec/changes/archive/2026-06-04-add-neurons-acceleration-system/`。
+- **Neurons living companions** — 零 schema、純 derived（`equipment` table `companion:true` 子集）。`openspec/changes/archive/2026-06-04-add-neurons-living-companion-render/`。
 
 ## Source data path
 
@@ -487,28 +134,6 @@ $HOME/Desktop/國考/一階國考/陽明國考考古/_extracted/
 
 Build script 預設讀此路徑；其他環境設 `MEDEXAM_SOURCE_ROOT` env var 覆寫。
 
-## Bookmarks filters + 歷史曾錯 + grace toast (M_2nd ext, 2026-05-25)
-
-`apps/medexam2-hospital-tw` `/bookmarks` route gains: (1) year × subject multi-select chip filter shared across all sub-tabs (visually mirrors `YearFilterBar` + `DoctorRoster` rarity filter — `.filter-bar` / `.filter-chip[aria-pressed]` / `.filter-bar__pager*` / `.filter-bar__count` reused as-is), (2) persistent `everWrong` flag on `questionHistory` (Dexie v17) — 「錯題」 tab splits into 「目前未答對」 (existing `lastResult='wrong'`) + 「歷史曾錯」 (`everWrong=true`, never auto-leaves), (3) 10-second grace toast on local wrong→correct transition with ⭐ promote action.
-
-Key handles:
-- Filter component: `src/components/BookmarkFilterBar.tsx` (local React state, NO interaction with `services/year-filter.ts` gameplay filter)
-- Filter helper: `src/lib/bookmarks-filter.ts` — pure `matchesFilter()` function, unit-tested
-- Grace toast: `src/lib/grace-toast.ts` (pub-sub queue + 10s auto-dismiss + `useSyncExternalStore` hook) + `src/components/GraceToastContainer.tsx` (fixed bottom-right, max 3 visible)
-- Wrong-answer query: `src/services/wrong-answers.ts` — `useWrongAnswers()` (current) + `useEverWrongAnswers()` (history)
-- 50-row pagination unified across all 3 list surfaces (手動收藏 / 目前未答對 / 歷史曾錯) — pager reuses `.filter-bar__pager*` CSS
-
-**Critical sync semantics — `everWrong` uses monotonic-OR merge, NOT LWW.** `apps/medexam2-hospital-tw/src/lib/sync/r2/tables.ts` `HOSPITAL_QUESTION_HISTORY.applyToLocal` carries the carve-out: after LWW resolves all other fields, `finalRow.everWrong = local.everWrong || incoming.everWrong`. This neutralizes the v1↔v2 cross-version race (v1 client drops `everWrong` field → reads then writes back v1 bundle → would silently overwrite local `true` to `false` under naive LWW). The R2 m2 bundle `SCHEMA_VERSION` bumps 1 → 2 in lockstep. v1 clients tolerate v2 bundles (drop unknown field), v2 clients tolerate v1 bundles (default to false). **DO NOT 'fix' the monotonic-OR by removing it** — it's intentional, called out in inline doc, and locked by Vitest test `question-history-merge.test.ts`.
-
-`recordCorrectAnswer` in `src/lib/mastery.ts` takes a `CorrectAnswerOpts` 3rd arg with `onTransitionToCorrect?: (questionId) => void` — every call site (currently `QuizModal` + `er-consultation.ts`; future game modes too) MUST wire this to `emitGraceToast`. Code review enforces; TS doesn't force it (optional opts keep tests / helpers ergonomic).
-
-Migration discipline: v17 schema upgrade does NOT backfill `everWrong` on existing wrong-answer rows. Helper banner on 錯題 tab explicitly notes 「歷史紀錄從升級當下開始累積」 to manage user expectations. Pre-existing rows naturally migrate forward on next answer.
-
-Dexie versions claimed in flight: v15 = `add-achievement-system`, v16 = `add-hospital-equipment-medexam2`, v17 = `add-bookmarks-filters-and-wrong-history-medexam2`.
-
-Test coverage: `apps/medexam2-hospital-tw/src/__tests__/{mastery,bookmarks-filter,question-history-merge}.test.ts` — 13 Vitest unit tests (mastery writes + filter logic + bundle round-trip + monotonic-OR). Run via `pnpm --filter @study-rpg/medexam2-hospital-tw test`.
-
-Full change reference: `openspec/changes/add-bookmarks-filters-and-wrong-history-medexam2/` (proposal / design / specs / tasks).
 
 ## Neuroscience design verification (M_3rd track / neurons-tw)
 
