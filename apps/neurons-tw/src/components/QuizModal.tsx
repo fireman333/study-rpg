@@ -208,12 +208,21 @@ function useOwnsLegendarySlot(familyId: string | undefined): boolean {
 }
 
 export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false }: Props): JSX.Element {
-  // Build session pool once: exclude image-option questions, then shuffle unless
-  // the caller preserves order (錯題 review mode serves oldest-due-first).
-  const sessionPool = useMemo(() => {
+  // Build session pool ONCE at mount and freeze it — a quiz session is an
+  // immutable ordered sequence. The caller's `pool` prop ref churns whenever
+  // `questionHistory` updates: the `useQuestionHistory` liveQuery emits a NEW
+  // array on every answer (recordQuestionResult writes the table), which re-runs
+  // the caller's `quizPool` useMemo and hands us a fresh array. A `useMemo` keyed
+  // on `pool` would then RE-SHUFFLE the remaining questions mid-session, so the
+  // displayed question "jumped" on every answer (fix: stale-jump bug). A lazy
+  // useState initializer computes once; QuizModal is conditionally mounted per
+  // session (quizEntry/expeditionOpen), so a new session still re-derives, while
+  // the order stays fixed within one session — including 錯題 review's
+  // pre-ordered oldest-due-first pool (preserveOrder), which must not reshuffle.
+  const [sessionPool] = useState<Question[]>(() => {
     const filtered = pool.filter((q) => !q.hasOptionImages)
     return preserveOrder ? filtered : shuffle(filtered)
-  }, [pool, preserveOrder])
+  })
 
   const [idx, setIdx] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
