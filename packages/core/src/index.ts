@@ -192,3 +192,20 @@ export {
   type LeaderboardUpsertPayload,
   type LeaderboardNicknameCheckResponse,
 } from './lib/leaderboard-types'
+export {
+  MESSAGE_MAX_GRAPHEMES,
+  MESSAGE_MAX_LINES,
+  ASSET_ID_PATTERN,
+  SHOUTOUT_BLOCKLIST_SEED,
+  normalizeShoutoutText,
+  graphemeLen,
+  isBlockedText,
+  hasPII,
+  isValidAvatar,
+  validateShoutoutMessage,
+  shoutoutContentHash,
+  type ShoutoutAvatar,
+  type ShoutoutMessage,
+  type ShoutoutBoard,
+  type MessageValidation,
+} from './lib/shoutout'

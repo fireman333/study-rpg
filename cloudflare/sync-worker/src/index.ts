@@ -24,6 +24,7 @@ import {
   handleNeuronsLeaderboard,
   runNeuronsLeaderboardCron,
 } from "./neurons-leaderboard";
+import { handleShoutout } from "./shoutout";
 import { corsHeaders, preflightResponse } from "./cors";
 
 // Cron expressions — MUST stay byte-for-byte identical with the strings in
@@ -56,10 +57,14 @@ export interface Env {
   R2_BUCKET_NAME: string;
   CORS_ALLOWED_ORIGINS: string;
   PRESIGN_TTL_SECONDS: string;
+
+  // Optional secret (wrangler secret put) — comma-separated Supabase subs allowed
+  // to call /shoutouts/:app/admin/*. Unset → admin endpoints return 403.
+  SHOUTOUT_OWNER_SUBS?: string;
 }
 
 export default {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const origin = request.headers.get("Origin") ?? "";
     const allowedOrigins = env.CORS_ALLOWED_ORIGINS.split(",").map(s => s.trim());
     const corsAllowed = allowedOrigins.includes(origin);
@@ -82,6 +87,11 @@ export default {
       // 二階 leaderboard routes (catches the remaining /leaderboard/* paths).
       if (url.pathname.startsWith("/leaderboard/")) {
         return await handleLeaderboard(request, env, headers);
+      }
+      // Shoutout board routes — hard-isolated namespace (add-neurons-shoutout-board).
+      // ctx is needed for the Cache API put via waitUntil on the GET board read.
+      if (url.pathname.startsWith("/shoutouts/")) {
+        return await handleShoutout(request, env, headers, ctx);
       }
 
       switch (url.pathname) {
