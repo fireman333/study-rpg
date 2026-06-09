@@ -20,6 +20,7 @@ import DmnDrawButton from './components/DmnDrawButton'
 import BookmarksPage from './routes/BookmarksPage'
 import CollectionPage from './routes/CollectionPage'
 import { QuestionBankPage } from './routes/QuestionBankPage'
+import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import HelpMenu from './components/HelpMenu'
 import { AuthProvider } from './lib/auth/AuthContext'
@@ -117,6 +118,11 @@ export default function App(): JSX.Element {
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>排名 →</span>
                 )}
               </NavLink>
+              <NavLink to="/shoutout" style={navLinkStyle}>
+                {({ isActive }) => (
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>留言 →</span>
+                )}
+              </NavLink>
             </nav>
             <span style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <DmnDrawButton />
@@ -161,6 +167,7 @@ function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
           <Route path="/maze-beta" element={<Navigate to="/" replace />} />
           <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
           <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
+          <Route path="/shoutout" element={<ShoutoutBoardPage pack={pack} />} />
           <Route path="/motion-demo" element={<MotionDemoPage />} />
         </Routes>
       </motion.div>
