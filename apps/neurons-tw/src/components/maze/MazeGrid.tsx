@@ -511,7 +511,10 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       // axon stays continuous through the node gaps (never "severed"). Dim gold ahead, bright where
       // explored — the route myelinates as you progress.
       const sheathW = Math.max(2, 1.05 * tile) // myelin sheath ≈ one corridor cell wide
-      const coreW = Math.max(1, 0.4 * tile) // family-colored axon core / signal on top
+      // Family-colored axon core is the corridor's DOMINANT band (the gold sheath
+      // frames it on either side) so each of the 11 subject colours is traceable at
+      // a glance (tune-neurons-maze-path-colors; "gold no longer sacred").
+      const coreW = Math.max(1, 0.6 * tile)
       const hiW = Math.max(1, sheathW * 0.42) // pale-gold sheath highlight
       const dashGold = Math.max(2, NODE_GAP_INTERNODE_CELLS * tile)
       const dashGap = Math.max(1, NODE_GAP_CELLS * tile)
@@ -542,18 +545,19 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
           const last = path.length - 1
           const exploredIdx = Math.min(last, route.explored)
 
-          // (a) unexplored baseline — faint gold myelinated axon over the whole route. Kept dim so the
-          // neuron landmarks (not the gold) are the hero (owner: gold no longer sacred).
+          // (a) unexplored baseline — faint gold myelin sheath framing a clearly-tinted
+          // family-colour core, so the route's subject colour is traceable even before
+          // exploration (gold recedes to a frame; family colour leads).
           ctx.lineCap = 'butt'
           ctx.setLineDash([dashGold, dashGap])
-          ctx.globalAlpha = 0.2
+          ctx.globalAlpha = 0.18
           ctx.strokeStyle = MYELIN_GOLD
           ctx.lineWidth = sheathW
           trace(path, last)
           ctx.stroke()
           ctx.setLineDash([])
           ctx.lineCap = 'round'
-          ctx.globalAlpha = 0.4
+          ctx.globalAlpha = 0.55
           ctx.strokeStyle = enc.color
           ctx.lineWidth = coreW
           trace(path, last)
