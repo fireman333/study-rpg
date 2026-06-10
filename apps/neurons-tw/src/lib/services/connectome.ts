@@ -1,6 +1,7 @@
 import {
   db,
   todayISO,
+  defaultFamilyAccrualRow,
   HOMEPAGE_ONBOARDING_DISMISSED_KEY,
   type FamilyAccrualRow,
   type SynapseRow,
@@ -173,12 +174,12 @@ export async function recordCorrectAnswer(familyId: string): Promise<void> {
     // neurons-achievements spec Req "Streak counter SHALL be persisted...".
     await incrementCurrentStreak()
 
-    const accrual = await db.familyAccrual.get(familyId)
-    if (!accrual) {
-      throw new Error(
-        `[connectome] no familyAccrual row for "${familyId}" — call initFamilyAccrualIfEmpty(pack) before recording answers`,
-      )
-    }
+    // Lazy-seed a missing accrual row (fresh save / sync-hydration race): default
+    // to the canonical zero-init row when absent so the first correct answer for a
+    // family COMMITS its AP atomically instead of aborting the whole transaction.
+    // The `db.familyAccrual.put(updatedAccrual)` below persists the seeded row — no
+    // separate add needed (mirrors variant-gacha's lazy-seed on the pull path).
+    const accrual = (await db.familyAccrual.get(familyId)) ?? defaultFamilyAccrualRow(familyId)
 
     const prevAp = accrual.ap
     // AP gain = flat +1 per correct (family-buff multiplies the post-commit maze

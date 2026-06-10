@@ -16,7 +16,6 @@
  *   "Homepage SHALL compose as a CTA toolbar over the interactive tree panel…"
  */
 
-import { useState } from 'react'
 import type { ConnectomeStatus } from '../lib/services/connectome'
 import { DmnDrawProgressRing } from './DmnDrawProgressRing'
 import { EmojiIcon } from './EmojiIcon'
@@ -45,8 +44,6 @@ export function ConnectomeStatCard({
   dmnOwned,
   totalStudyMin,
 }: Props): JSX.Element {
-  const [showDetail, setShowDetail] = useState(false)
-
   const todayCompleted = status?.todayCompleted ?? false
   const streak = status?.streak ?? 0
   const stableLinks = status?.stableLinks ?? 0
@@ -91,6 +88,7 @@ export function ConnectomeStatCard({
         <div className="neurons-stat-stage" style={stageStyle}>
           <span style={signalStyle}>今日出征 {todayCompleted ? '✓' : '✗'}</span>
           <span style={signalStyle}>🔥 連續 {streak} 天</span>
+          <span style={signalStyle}>📅 本週 {weeklyCount}/7</span>
         </div>
         <span className="neurons-stat-arrow" style={arrowStyle} aria-hidden>
           →
@@ -112,22 +110,12 @@ export function ConnectomeStatCard({
         </p>
       )}
 
-      {showDetail && (
+      {(strongestPair || todayConductionEnergy > 0) && (
         <div style={detailRowStyle}>
-          <span>本週 {weeklyCount}/7</span>
-          {strongestPair && <span>· 最強 {strongestPair.replace('|', '–')}</span>}
-          {todayConductionEnergy > 0 && <span>· ⚡ 今日連線 +{todayConductionEnergy}</span>}
+          {strongestPair && <span>最強 {strongestPair.replace('|', '–')}</span>}
+          {todayConductionEnergy > 0 && <span>⚡ 今日連線 +{todayConductionEnergy}</span>}
         </div>
       )}
-
-      <button
-        type="button"
-        style={detailToggleStyle}
-        onClick={() => setShowDetail((v) => !v)}
-        aria-expanded={showDetail}
-      >
-        {showDetail ? '▴ 收合' : '▾ 詳細'}
-      </button>
 
       {/* ── Total-collection chips, folded into the card in its cream theme
             (fix-neurons-dashboard-card-rwd). Wraps on narrow widths. ── */}
@@ -271,18 +259,6 @@ const detailRowStyle: React.CSSProperties = {
   gap: '0.3rem',
   fontSize: '0.8rem',
   color: '#6b5640',
-}
-
-const detailToggleStyle: React.CSSProperties = {
-  alignSelf: 'flex-start',
-  background: 'none',
-  border: 'none',
-  padding: 0,
-  color: '#9a7a52',
-  fontSize: '0.78rem',
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
 }
 
 // Total-collection chips folded into the card (cream theme, wraps on narrow).
