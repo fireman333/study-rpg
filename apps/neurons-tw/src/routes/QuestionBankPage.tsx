@@ -19,8 +19,15 @@ import {
 import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { QuizModal } from '../components/QuizModal'
+import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
-import { buildExamSetExpeditionPool, listExamPapersWithCoverage } from '../lib/services/expedition'
+import {
+  buildExamSetExpeditionPool,
+  buildExamSetPaper,
+  listExamPapersWithCoverage,
+} from '../lib/services/expedition'
+import { loadMockDraft, deleteMockDraft } from '../lib/services/mock-exam-draft'
+import { isDraftFresh } from '@study-rpg/core'
 
 const PAGE_SIZE = 50
 
@@ -56,10 +63,17 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
     session: number
     book: string
   } | null>(null)
+  // Mode picked after selecting a paper: null = mode chooser showing; 'immediate' =
+  // existing per-冊 remainder practice; 'mock' = full-paper 模擬考試 runner.
+  const [examMode, setExamMode] = useState<'immediate' | 'mock' | null>(null)
+  const [mockResume, setMockResume] = useState<MockResumeState | null>(null)
+  const [pendingResume, setPendingResume] = useState<MockResumeState | null>(null)
+  const [resumePrompt, setResumePrompt] = useState(false)
   const examPapers = useMemo(
     () => (examMenuOpen ? listExamPapersWithCoverage(pack.questions, questionHistory) : []),
     [examMenuOpen, pack.questions, questionHistory],
   )
+  // 即時詳解 pool = unanswered remainder (resumable coverage grind).
   const examSetPool = useMemo(
     () =>
       examSelection
@@ -73,13 +87,59 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
         : [],
     [examSelection, pack.questions, questionHistory],
   )
+  // 模擬考試 pool = the WHOLE 冊 in order (incl. already-answered).
+  const mockPaperPool = useMemo(
+    () =>
+      examSelection
+        ? buildExamSetPaper(pack.questions, examSelection.year, examSelection.session, examSelection.book)
+        : [],
+    [examSelection, pack.questions],
+  )
   const openExamMenu = (): void => {
-    setExamSelection(null)
+    closeExam()
     setExamMenuOpen(true)
   }
   const chooseExamPaper = (year: number, session: number, book: string): void => {
     setExamMenuOpen(false)
     setExamSelection({ year, session, book })
+    setExamMode(null) // → mode chooser
+  }
+  function closeExam(): void {
+    setExamSelection(null)
+    setExamMode(null)
+    setMockResume(null)
+    setPendingResume(null)
+    setResumePrompt(false)
+  }
+  const chooseMock = async (): Promise<void> => {
+    if (!examSelection) return
+    // mockPaperPool is already memoized for the selected paper — reuse it.
+    const draft = await loadMockDraft(examSelection)
+    if (draft && isDraftFresh(draft, mockPaperPool)) {
+      setPendingResume({
+        answers: draft.answers,
+        flaggedIndexes: draft.flaggedIndexes,
+        index: draft.index,
+        startedAt: draft.startedAt,
+      })
+      setResumePrompt(true)
+    } else {
+      if (draft) await deleteMockDraft(examSelection) // stale → discard
+      setMockResume(null)
+      setExamMode('mock')
+    }
+  }
+  const resumeMock = (): void => {
+    setMockResume(pendingResume)
+    setResumePrompt(false)
+    setExamMode('mock')
+  }
+  const restartMock = (): void => {
+    if (examSelection) void deleteMockDraft(examSelection)
+    setMockResume(null)
+    setPendingResume(null)
+    setResumePrompt(false)
+    setExamMode('mock')
   }
 
   const years = useMemo(() => {
@@ -222,9 +282,8 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
                   key={`${p.year}-${p.session}-${p.book}`}
                   type="button"
                   onClick={() => chooseExamPaper(p.year, p.session, p.book)}
-                  disabled={p.complete}
-                  style={p.complete ? examRowDoneStyle : examRowStyle}
-                  title={p.complete ? '已完成全部題目' : `剩 ${p.total - p.answered} 題未答`}
+                  style={examRowStyle}
+                  title={p.complete ? '已全部作答 — 可用模擬考試整卷重做' : `剩 ${p.total - p.answered} 題未答`}
                 >
                   <span>
                     {p.year} 第{p.session}次 · {p.book}
@@ -242,11 +301,86 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
         </div>
       )}
 
-      {/* 模考 drill — pure practice (tidy-neurons-homepage-ui): `practice` suppresses
+      {/* Mode chooser — after a paper is selected, pick 即時詳解 (remainder practice)
+          or 模擬考試 (full-paper closed-book runner). */}
+      {examSelection && examMode === null && !resumePrompt && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="選擇作答模式"
+          style={examBackdropStyle}
+          onClick={closeExam}
+        >
+          <div style={examPanelStyle} onClick={(e) => e.stopPropagation()}>
+            <button type="button" onClick={closeExam} style={examBackStyle}>
+              ← 重選試卷
+            </button>
+            <h2 style={examTitleStyle}>
+              {examSelection.year} 第{examSelection.session}次 · {examSelection.book}
+            </h2>
+            <div style={examListStyle}>
+              <button
+                type="button"
+                onClick={() => setExamMode('immediate')}
+                disabled={examSetPool.length === 0}
+                style={examSetPool.length === 0 ? examRowDoneStyle : examRowStyle}
+                title={examSetPool.length === 0 ? '本冊已全部作答，改用模擬考試重做' : undefined}
+              >
+                <span>📖 即時詳解</span>
+                <span style={examBadgeStyle}>
+                  {examSetPool.length === 0 ? '已全部作答' : `剩 ${examSetPool.length} 題`}
+                </span>
+              </button>
+              <button type="button" onClick={() => void chooseMock()} style={examRowStyle}>
+                <span>📝 模擬考試</span>
+                <span style={examBadgeStyle}>整卷 {mockPaperPool.length} 題</span>
+              </button>
+            </div>
+            <p style={examHintStyle}>
+              即時詳解＝逐題作答即看答案，只練未作答的題；模擬考試＝整冊閉卷作答，全部送出後一次看詳解、各科分數與國考換算分。兩者皆為純練習：不給能量、不抽神經元、不長連線，但答錯仍記入錯題清單，可之後出征修復。
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Resume prompt — a fresh draft exists for this paper's 模擬考試. */}
+      {resumePrompt && (
+        <div role="dialog" aria-modal="true" aria-label="繼續模擬考試" style={examBackdropStyle} onClick={closeExam}>
+          <div style={examPanelStyle} onClick={(e) => e.stopPropagation()}>
+            <h2 style={examTitleStyle}>繼續上次的模擬考試？</h2>
+            <p style={examHintStyle}>
+              偵測到這份試卷有未完成的作答進度。要從上次中斷處繼續，還是重新開始整卷？
+            </p>
+            <div style={examListStyle}>
+              <button type="button" onClick={resumeMock} style={examRowStyle}>
+                <span>▶ 繼續上次進度</span>
+                <span style={examBadgeStyle}>已答 {pendingResume?.answers.filter((a) => a !== null).length ?? 0} 題</span>
+              </button>
+              <button type="button" onClick={restartMock} style={examRowStyle}>
+                <span>↺ 重新開始整卷</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 即時詳解 — pure practice (tidy-neurons-homepage-ui): `practice` suppresses
           energy / walker / variant / connectome; NO onComplete ⇒ no DMN draw credit.
           questionHistory (coverage + everWrong) + SRS still record. */}
-      {examSelection && examSetPool.length > 0 && (
-        <QuizModal pool={examSetPool} preserveOrder practice onClose={() => setExamSelection(null)} />
+      {examSelection && examMode === 'immediate' && examSetPool.length > 0 && (
+        <QuizModal pool={examSetPool} preserveOrder practice onClose={closeExam} />
+      )}
+
+      {/* 模擬考試 — full-paper closed-book runner (add-neurons-exam-set-mock-mode).
+          Pure practice; wrong + unanswered batch-written to 錯題本 at 送出. */}
+      {examSelection && examMode === 'mock' && mockPaperPool.length > 0 && (
+        <MockExamRunner
+          pool={mockPaperPool}
+          paperLabel={`${examSelection.year} 第${examSelection.session}次 · ${examSelection.book}`}
+          paperKey={examSelection}
+          resume={mockResume ?? undefined}
+          onClose={closeExam}
+        />
       )}
     </section>
   )

@@ -81,7 +81,7 @@ describe('Dexie v17 → v18 migration (connector backfill)', () => {
     //    the bump were an illegal pk change.
     const db = new NeuronsDB()
     await db.open()
-    expect(db.verno).toBe(18)
+    expect(db.verno).toBe(19)
 
     // 3. Exactly the 2 strong wires (recent + legacy) backfilled their connectors.
     expect(await db.connectorNeurons.count()).toBe(2)

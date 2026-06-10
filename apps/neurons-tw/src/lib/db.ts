@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
-import type { ContentPack } from '@study-rpg/core'
+import type { ContentPack, MockExamDraftRow } from '@study-rpg/core'
 import { CONNECTOME_CONDUCTION_EPOCH } from '@study-rpg/content-neurons-tw'
 import type {
   DmnActiveBuffRow,
@@ -330,6 +330,11 @@ export class NeuronsDB extends Dexie {
   // tables (incl. synapses PK) untouched. PK = the synapse pairKey; monotonic
   // permanent collectible (union/min-unlockedAt sync).
   connectorNeurons!: EntityTable<ConnectorNeuronRow, 'pairKey'>
+  // ─── Mock-exam drafts (Dexie v19+) ──────────────────────────────────────
+  // Per add-neurons-exam-set-mock-mode. Additive — 1 new table; existing tables
+  // untouched. One in-progress 模擬考試 draft per paper (PK = paperKeyHash).
+  // Local-only: never synced to the cloud (no R2 bundle / SCHEMA_VERSION change).
+  mockExamDrafts!: EntityTable<MockExamDraftRow, 'paperKeyHash'>
 
   constructor() {
     super('neurons-rpg')
@@ -806,6 +811,33 @@ export class NeuronsDB extends Dexie {
         }
         if (rows.length > 0) await tx.table('connectorNeurons').bulkPut(rows)
       })
+    // Per add-neurons-exam-set-mock-mode. Additive: 1 new table `mockExamDrafts`
+    // (one in-progress 模擬考試 draft per paper, PK = paperKeyHash). All existing
+    // store index strings IDENTICAL to v18 (NO PK change — dexie_pk_change_pitfall).
+    // No upgrade callback — purely additive, local-only (never synced).
+    this.version(19).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      dmnCards: 'cardId, obtainedAt, rarity',
+      dmnEventLog: 'cardId, dispatchedAt',
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+      questionBookmarks: 'questionId, family, addedAt, updatedAt',
+      questionBookmarkTombstones: 'questionId, updatedAt',
+      questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+      questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt, nextDueAt',
+      neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+      instanceNicknames: 'instanceId, updatedAt',
+      inventory: 'kind, updatedAt',
+      equipment: 'equipmentId, rarity, obtainedAt, updatedAt',
+      connectorNeurons: 'pairKey, unlockedAt, updatedAt',
+      // PK = paperKeyHash (`${year}-${sitting}-${book}`); secondary index updatedAt.
+      mockExamDrafts: '&paperKeyHash, updatedAt',
+    })
   }
 }
 
