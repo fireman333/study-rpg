@@ -12,7 +12,11 @@ export function corsHeaders(origin: string, allowed: boolean): Record<string, st
   }
   return {
     "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    // PUT is required by the shoutout compose/edit endpoint
+    // (shoutout.ts routes `method === "PUT"` → handlePut). It was missing
+    // here, so the browser preflight blocked every compose request even
+    // though the Worker accepted PUT server-side (curl PUT → 401, not 405).
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Authorization, Content-Type",
     "Access-Control-Max-Age": "3600",
     "Vary": "Origin",
