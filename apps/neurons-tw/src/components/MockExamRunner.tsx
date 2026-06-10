@@ -10,7 +10,7 @@ import {
   scoreMockExam,
   wrongOrUnansweredIndexes,
   type MockExamState,
-} from '@study-rpg/core'
+} from '../lib/exam-set-mock'
 import { recordQuestionResult } from '../lib/services/question-history'
 import {
   saveMockDraft,

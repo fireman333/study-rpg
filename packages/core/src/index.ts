@@ -213,30 +213,3 @@ export {
   isContinuationQuestion,
   resolvePrecedingChain,
 } from './lib/continuation'
-export {
-  POINTS_PER_QUESTION,
-  examSetScore,
-  type ExamSetScore,
-  type ExamPaperKey,
-} from './lib/exam-set'
-export {
-  createInitialMockState,
-  clampIndex,
-  mockExamReducer,
-  isCorrectAnswer,
-  scoreMockExam,
-  unansweredIndexes,
-  firstUnanswered,
-  wrongOrUnansweredIndexes,
-  navigatorCellStates,
-  paperKeyHash,
-  isDraftFresh,
-  type ExamMode,
-  type MockExamState,
-  type MockAction,
-  type SubjectTally,
-  type MockExamScore,
-  type CellState,
-  type ReviewCellState,
-  type MockExamDraftRow,
-} from './lib/exam-set-mock'

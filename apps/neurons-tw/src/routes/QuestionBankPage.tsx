@@ -27,7 +27,7 @@ import {
   listExamPapersWithCoverage,
 } from '../lib/services/expedition'
 import { loadMockDraft, deleteMockDraft } from '../lib/services/mock-exam-draft'
-import { isDraftFresh } from '@study-rpg/core'
+import { isDraftFresh } from '../lib/exam-set-mock'
 
 const PAGE_SIZE = 50
 
