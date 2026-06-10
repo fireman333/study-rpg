@@ -3,6 +3,7 @@ import type { Question } from '@study-rpg/core'
 import type { QuestionHistoryRow } from '../lib/db'
 import {
   buildExamSetExpeditionPool,
+  buildExamSetPaper,
   examSetCoverage,
   listExamPapersWithCoverage,
 } from '../lib/services/expedition'
@@ -62,6 +63,31 @@ describe('buildExamSetExpeditionPool (per-book)', () => {
     expect(buildExamSetExpeditionPool(POOL, [], 114, 2, '醫學一').map((x) => x.id)).toEqual([
       '114-2-醫學一-科-Q1',
     ])
+  })
+})
+
+describe('buildExamSetPaper (full mock-exam paper)', () => {
+  it('returns the WHOLE 冊 in qNumber order, including answered questions', () => {
+    // Even with everything answered, the mock paper serves the full 冊.
+    const all = answered('114-1-醫學一-科-Q1', '114-1-醫學一-科-Q2')
+    void all // coverage is irrelevant to the mock paper builder
+    const pool = buildExamSetPaper(POOL, 114, 1, '醫學一')
+    expect(pool.map((x) => x.id)).toEqual(['114-1-醫學一-科-Q1', '114-1-醫學一-科-Q2'])
+  })
+
+  it('never leaks the other book of the same sitting', () => {
+    expect(buildExamSetPaper(POOL, 114, 1, '醫學二').map((x) => x.id)).toEqual([
+      '114-1-醫學二-科-Q2',
+    ])
+  })
+
+  it('does not leak other sittings or years', () => {
+    expect(buildExamSetPaper(POOL, 114, 2, '醫學一').map((x) => x.id)).toEqual(['114-2-醫學一-科-Q1'])
+    expect(buildExamSetPaper(POOL, 113, 1, '醫學一').map((x) => x.id)).toEqual(['113-1-醫學一-科-Q1'])
+  })
+
+  it('returns empty for an absent paper', () => {
+    expect(buildExamSetPaper(POOL, 99, 1, '醫學一')).toEqual([])
   })
 })
 

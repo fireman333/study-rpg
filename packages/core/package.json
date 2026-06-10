@@ -1,6 +1,6 @@
 {
   "name": "@study-rpg/core",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Study-RPG engine: stats, leveling, gacha loot with pity, SRS, boss runs, and generic UI components. Content-pack agnostic.",
   "license": "AGPL-3.0-or-later",
   "type": "module",

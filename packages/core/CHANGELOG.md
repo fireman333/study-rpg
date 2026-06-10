@@ -10,6 +10,30 @@ field) bumps the **PATCH**, and a **breaking** change (removing/renaming a symbo
 adding a required field, changing a signature) bumps the **MINOR**. The `1.0.0`
 boundary is reserved for declaring the engine API stable.
 
+## [0.6.2] — 2026-06-10
+
+### Added
+
+- **Exam-set mock engine — first lift to core.** The 整回挑戰「模擬考試」engine,
+  previously app-local in 二階, is now a shared content-agnostic export so neurons
+  (一階) and 二階 build on one source of truth. Pure (`Question` data + plain state
+  in, no React / Dexie / fetch). Two new modules:
+  - `lib/exam-set.ts`: `examSetScore`, `POINTS_PER_QUESTION`, types `ExamSetScore` /
+    `ExamPaperKey`. **Scoring is now normalized**: `examScore = total > 0 ? (correct/total)×100 : 0`
+    (replaces the hard-coded `correct × 1.25`). For a standard 80-question paper the two
+    are identical (`1.25 = 100/80`); a ~100-question paper tops out at 100, never 125;
+    an option-image-shrunk paper scores against a 100-point ceiling over its actual length.
+  - `lib/exam-set-mock.ts`: `ExamMode`, `MockExamState`, `MockAction`, `mockExamReducer`,
+    `createInitialMockState`, `clampIndex`, `isCorrectAnswer`, `scoreMockExam`,
+    `unansweredIndexes`, `firstUnanswered`, `wrongOrUnansweredIndexes`, `navigatorCellStates`,
+    the draft pure helpers `paperKeyHash` / `isDraftFresh`, and types `MockExamScore` /
+    `SubjectTally` / `CellState` / `ReviewCellState` / `MockExamDraftRow`. Disputed (送分)
+    questions are credited correct in every figure; `mockExamReducer` locks answers after
+    `submit`. Dexie draft persistence stays per-app.
+- The legacy `lib/mock-exam.ts` exports (`scoreMock`, `applyMockPassReward`, `paperIdOf`,
+  `decodePaperId`) are unchanged and still exported.
+- Released on the `latest` dist-tag — both consumers (二階 + neurons) adopt directly.
+
 ## [0.6.1] — 2026-06-09
 
 ### Added

@@ -88,7 +88,7 @@ describe('connector unlock provenance — backfill (v17 → v18)', () => {
 
     const migrated = new NeuronsDB()
     await migrated.open()
-    expect(migrated.verno).toBe(18)
+    expect(migrated.verno).toBe(19)
 
     expect((await migrated.connectorNeurons.get(LEGACY_PAIR))?.unlockSource).toBe('legacy-backfill')
     expect((await migrated.connectorNeurons.get(POST_EPOCH_PAIR))?.unlockSource).toBe('validated')

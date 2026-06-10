@@ -152,6 +152,28 @@ export function buildExamSetExpeditionPool(
     .sort(examOrderCompare)
 }
 
+/**
+ * Full single-paper pool for a (year, 次別, 冊別) paper — every question in that 冊
+ * in question order, **including ones already answered elsewhere**. This is the
+ * 模擬考試 (mock-exam) pool: you sit the whole paper closed-book, unlike
+ * `buildExamSetExpeditionPool` which serves only the unanswered remainder for the
+ * 即時詳解 coverage grind. Restricted to the chosen `book` (`meta.book`) — never the
+ * other book of the same sitting. Pure + testable.
+ */
+export function buildExamSetPaper(
+  pool: readonly Question[],
+  year: number,
+  session: number,
+  book: string,
+): Question[] {
+  return pool
+    .filter((q) => {
+      const m = examMeta(q)
+      return m.year === year && m.session === session && m.book === book
+    })
+    .sort(examOrderCompare)
+}
+
 /** Answered / total coverage for one (year, 次別, 冊別) paper, derived from history. */
 export function examSetCoverage(
   pool: readonly Question[],
