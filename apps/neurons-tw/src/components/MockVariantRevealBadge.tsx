@@ -1,4 +1,5 @@
 import { MOCK_RARITY_COLOR } from '@study-rpg/content-neurons-tw'
+import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import type { MockRollResult } from '../lib/services/mock-variant-gacha'
 
 // Post-submit reveal strip for the mock-exam variant roll
@@ -7,11 +8,16 @@ import type { MockRollResult } from '../lib/services/mock-variant-gacha'
 
 export function MockVariantRevealBadge({ result }: { result: MockRollResult }): JSX.Element {
   const color = MOCK_RARITY_COLOR[result.rarity]
+  const spriteUrl = SPRITE_MAP[result.spriteKey]
   return (
     <div style={{ ...wrapStyle, borderColor: color }} aria-live="polite">
-      <span style={glyphStyle} aria-hidden>
-        🧬
-      </span>
+      {spriteUrl ? (
+        <img src={spriteUrl} alt="" style={spriteImgStyle} />
+      ) : (
+        <span style={glyphStyle} aria-hidden>
+          🧬
+        </span>
+      )}
       <div>
         <p style={captionStyle}>
           {result.isNew ? '🎉 收集到新的模擬考神經元！' : '✨ 模擬考神經元 +1'}
@@ -38,6 +44,8 @@ const wrapStyle: React.CSSProperties = {
 }
 
 const glyphStyle: React.CSSProperties = { fontSize: 28 }
+
+const spriteImgStyle: React.CSSProperties = { width: 40, height: 40, imageRendering: 'pixelated' }
 
 const captionStyle: React.CSSProperties = { margin: 0, fontSize: 13, opacity: 0.85 }
 

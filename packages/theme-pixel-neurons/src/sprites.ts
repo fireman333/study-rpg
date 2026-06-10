@@ -209,6 +209,23 @@ const connectorSprites: Record<string, string> = Object.fromEntries(
   }),
 )
 
+// Mock-exam variant sprites (finalize-mock-variant-catalog). Expected filename
+// `<variantId>.png` → key `mock-variant:<variantId>`. ONLY present files are keyed
+// (spread present-only into SPRITE_MAP) so a missing sprite leaves the key
+// unresolved and the consumer's 🧬 glyph fallback fires.
+const mockVariantSpriteModules = import.meta.glob('../sprites/mock-variants/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const mockVariantSprites: Record<string, string> = Object.fromEntries(
+  Object.entries(mockVariantSpriteModules).map(([path, url]) => {
+    const stem = path.replace(/.*\/(.+)\.png$/, '$1')
+    return [`mock-variant:${stem}`, url]
+  }),
+)
+
 // 11 subject icon keys (matched to FAMILY_BY_SUBJECT in content-neurons-tw build.ts)
 const SUBJECT_IDS = [
   '藥理學',
@@ -406,6 +423,9 @@ export const SPRITE_MAP: Record<string, string> = Object.fromEntries([
   // Connector neuron sprites — only PRESENT files keyed (none ship this change), so
   // a missing one stays unresolved and the collection card's procedural fallback fires.
   ...Object.entries(connectorSprites),
+  // Mock-exam variant sprites — only PRESENT files keyed, so a missing one stays
+  // unresolved and the mock collection / reveal 🧬 glyph fallback fires.
+  ...Object.entries(mockVariantSprites),
   // Animated hero sheets (variant:<family>:<slot>:<state>) — only present sheets registered.
   ...Object.entries(animatedSprites),
 ])

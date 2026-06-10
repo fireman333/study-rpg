@@ -42,6 +42,7 @@ import {
 } from '../lib/services/instance-nickname'
 import ShareCardModal from '../components/ShareCardModal'
 import ConnectorSection from '../components/ConnectorSection'
+import MockVariantSection from '../components/MockVariantSection'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { useAuth } from '../lib/auth/AuthContext'
 
@@ -403,6 +404,11 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
           independent of the per-family grouping above (add-neurons-connector-
           neuron-family). */}
       <ConnectorSection pack={pack} />
+
+      {/* Mock-exam variant collection — an independent gacha pool unlocked by
+          submitting 模擬考試, shown as a section here (mirrors ConnectorSection).
+          finalize-mock-variant-catalog (relocated from the standalone page). */}
+      <MockVariantSection />
     </section>
   )
 }

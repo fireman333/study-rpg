@@ -342,8 +342,8 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
               <strong>模擬考試</strong>全部送出後會依分數抽一隻「模擬考收藏」神經元（每卷每天一次）。答錯仍記入錯題清單，可之後出征修復。
             </p>
             <p style={examHintStyle}>
-              <Link to="/mock-collection" style={{ color: 'var(--accent, #6a9bc4)', fontWeight: 700 }}>
-                🧬 看模擬考收藏 →
+              <Link to="/collection" style={{ color: 'var(--accent, #6a9bc4)', fontWeight: 700 }}>
+                🧬 看模擬考收藏（在圖鑑底下）→
               </Link>
             </p>
           </div>
