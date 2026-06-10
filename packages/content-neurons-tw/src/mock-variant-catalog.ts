@@ -23,10 +23,10 @@ export interface MockVariantDef {
   blurb: string
   /** Stable sprite key; placeholder glyph until the art follow-up swaps it. */
   spriteKey: string
-  /** True until the neuro-identity is OE-anchored with PMIDs (project M_3rd rule). */
+  /** True until the neuro-identity is OE-anchored (project M_3rd rule). */
   neuroAnchorTODO: boolean
-  /** PubMed anchors backing the neuro-identity; filled by the OE-anchoring pass. */
-  pmids?: string[]
+  /** OpenEvidence crossref-validated citation anchors ("Author Year, Journal, doi:…"). */
+  refs?: string[]
 }
 
 const mk = (
@@ -34,13 +34,16 @@ const mk = (
   rarity: Rarity,
   displayName: string,
   blurb: string,
+  refs: string[],
 ): MockVariantDef => ({
   variantId,
   rarity,
   displayName,
   blurb,
   spriteKey: `mock-variant:${variantId}`,
-  neuroAnchorTODO: true,
+  // Anchored once at least one OE-validated reference backs the neuro-identity.
+  neuroAnchorTODO: refs.length === 0,
+  refs,
 })
 
 /**
@@ -49,24 +52,24 @@ const mk = (
  */
 export const MOCK_VARIANT_CATALOG: readonly MockVariantDef[] = [
   // ── P5 common ──────────────────────────────────────────────────────────
-  mk('dentate-granule', 'P5', '齒狀回顆粒細胞', '海馬齒狀回的顆粒細胞，負責 pattern separation——把相似考題情境分流成不同記憶。'),
-  mk('cortical-pyramidal', 'P5', '皮質錐體細胞', '大腦皮質的主力投射神經元，glutamatergic，撐起整張答題網路的興奮傳遞。'),
-  mk('cerebellar-granule', 'P5', '小腦顆粒細胞', '全腦數量最多的神經元，把程序性「手感」練成自動化作答節奏。'),
-  mk('thalamic-relay', 'P5', '視丘中繼神經元', '感覺資訊進皮質的閘門，決定哪些題幹細節被送上意識桌面。'),
+  mk('dentate-granule', 'P5', '齒狀回顆粒細胞', '海馬齒狀回的顆粒細胞，負責 pattern separation——把相似考題情境分流成不同記憶。', ['Berron 2016, J Neurosci, doi:10.1523/JNEUROSCI.0518-16.2016']),
+  mk('cortical-pyramidal', 'P5', '皮質錐體細胞', '大腦皮質的主力投射神經元，glutamatergic，撐起整張答題網路的興奮傳遞。', ['Xue 2014, Nature, doi:10.1038/nature13321']),
+  mk('cerebellar-granule', 'P5', '小腦顆粒細胞', '全腦數量最多的神經元，把程序性「手感」練成自動化作答節奏。', ['Giovannucci 2017, Nat Neurosci, doi:10.1038/nn.4531']),
+  mk('thalamic-relay', 'P5', '視丘中繼神經元', '感覺資訊進皮質的閘門，決定哪些題幹細節被送上意識桌面。', ['Borden 2022, Neuron, doi:10.1016/j.neuron.2022.06.008']),
   // ── P4 ─────────────────────────────────────────────────────────────────
-  mk('ca1-pyramidal', 'P4', 'CA1 錐體細胞', '海馬 CA1 的輸出層，把當下作答經驗鞏固成可回憶的長期記憶。'),
-  mk('basal-forebrain-ach', 'P4', '基底前腦膽鹼神經元', 'acetylcholine 來源，拉高皮質訊噪比——專注力的化學油門。'),
-  mk('gaba-interneuron', 'P4', 'GABA 中間神經元', '抑制性守門員，靠 GABA 把過度興奮壓住，避免考場焦慮失控。'),
+  mk('ca1-pyramidal', 'P4', 'CA1 錐體細胞', '海馬 CA1 的輸出層，把當下作答經驗鞏固成可回憶的長期記憶。', ['Zielinski 2020, Hippocampus, doi:10.1002/hipo.22821']),
+  mk('basal-forebrain-ach', 'P4', '基底前腦膽鹼神經元', 'acetylcholine 來源，拉高皮質訊噪比——專注力的化學油門。', ['Záborszky 2018, J Neurosci, doi:10.1523/JNEUROSCI.1676-18.2018']),
+  mk('gaba-interneuron', 'P4', 'GABA 中間神經元', '抑制性守門員，靠 GABA 把過度興奮壓住，避免考場焦慮失控。', ['Tremblay 2016, Neuron, doi:10.1016/j.neuron.2016.06.033']),
   // ── P3 ─────────────────────────────────────────────────────────────────
-  mk('locus-coeruleus-ne', 'P3', '藍斑核正腎上腺素神經元', '腦中 noradrenaline 的唯一主源，調節警醒與「該緊張了」的相位反應。'),
-  mk('dlpfc-neuron', 'P3', '背外側前額葉神經元', '工作記憶的持續放電核心，把多步驟題目的中間結果暫存在線上。'),
+  mk('locus-coeruleus-ne', 'P3', '藍斑核正腎上腺素神經元', '腦中 noradrenaline 的唯一主源，調節警醒與「該緊張了」的相位反應。', ['Maness 2022, Brain Res Bull, doi:10.1016/j.brainresbull.2022.07.014']),
+  mk('dlpfc-neuron', 'P3', '背外側前額葉神經元', '工作記憶的持續放電核心，把多步驟題目的中間結果暫存在線上。', ['Wang 2013, Neuron, doi:10.1016/j.neuron.2012.12.032']),
   // ── P2 rare ────────────────────────────────────────────────────────────
-  mk('vta-dopamine', 'P2', '腹側被蓋區多巴胺神經元', 'reward prediction error 的訊號源——答對那一刻的多巴胺脈衝。'),
-  mk('raphe-serotonin', 'P2', '中縫核血清素神經元', 'serotonin 主源，穩定情緒與耐心，撐過冗長的模擬考。'),
+  mk('vta-dopamine', 'P2', '腹側被蓋區多巴胺神經元', 'reward prediction error 的訊號源——答對那一刻的多巴胺脈衝。', ['Cohen 2012, Nature, doi:10.1038/nature10754']),
+  mk('raphe-serotonin', 'P2', '中縫核血清素神經元', 'serotonin 主源，穩定情緒與耐心，撐過冗長的模擬考。', ['Zhong 2017, J Neurosci, doi:10.1523/JNEUROSCI.1181-17.2017']),
   // ── P1 epic ────────────────────────────────────────────────────────────
-  mk('hippocampal-place-cell', 'P1', '海馬位置細胞', 'O’Keefe 發現的空間記憶細胞，在腦中畫出「知識地圖」的座標。'),
+  mk('hippocampal-place-cell', 'P1', '海馬位置細胞', 'O’Keefe 發現的空間記憶細胞，在腦中畫出「知識地圖」的座標。', ['Hayashi 2019, J Neurosci, doi:10.1523/JNEUROSCI.0243-19.2019']),
   // ── P0 apex ────────────────────────────────────────────────────────────
-  mk('mtl-concept-cell', 'P0', '內側顳葉概念細胞', '單一神經元編碼一整個抽象概念（著名的「Jennifer Aniston 神經元」），記憶的最高抽象層。'),
+  mk('mtl-concept-cell', 'P0', '內側顳葉概念細胞', '單一神經元編碼一整個抽象概念（著名的「Jennifer Aniston 神經元」），記憶的最高抽象層。', ['Quiroga 2012, Nat Rev Neurosci, doi:10.1038/nrn3251']),
 ] as const
 
 // ── Score-tier → rarity weight (dogfood-tunable) ─────────────────────────
