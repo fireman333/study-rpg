@@ -19,6 +19,12 @@ This pack was assembled for `pixelate-neurons-emoji` (2026-06-07):
   ImageMagick (chroma-key cream BG → resize 64×64 nearest-neighbor → 16-color
   quantize): 🧬 `1f9ec` (DNA helix) / 🧠 `1f9e0` (brain) / 🔗 `1f517` (chain
   link) / ⚔ `2694` (crossed swords) / 🔭 `1f52d` (telescope).
+- **10 icons generated** 2026-06-10 for the HelpMenu chrome backfill
+  (`pixelate-neurons-helpmenu-emoji`), same codex CLI formula + ImageMagick
+  post-process: 🧭 `1f9ed` (compass) / ⌨ `2328` (keyboard) / 📋 `1f4cb`
+  (clipboard) / 🌟 `1f31f` (glowing star) / 🔌 `1f50c` (electric plug) /
+  💎 `1f48e` (gem stone) / 🐛 `1f41b` (bug) / 🏅 `1f3c5` (sports medal) /
+  ❓ `2753` (question mark) / 🚀 `1f680` (rocket).
 
 ## Style anchor (codex prompt formula)
 

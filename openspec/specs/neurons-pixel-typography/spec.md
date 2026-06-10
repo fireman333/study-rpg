@@ -82,6 +82,8 @@ Inline emoji on the app's warm "RPG chrome" surfaces SHALL be rendered through a
 
 This requirement governs only warm chrome emoji. It SHALL NOT pixelize emoji inside the legible exam/long-form surfaces governed by the "Exam content and long-form prose SHALL stay legible" requirement; emoji that appear within those surfaces SHALL remain native. Emoji embedded in non-JSX contexts (e.g. transient toast strings or dynamic label-data arrays) MAY remain native and are not required to route through `EmojiIcon`.
 
+The HelpMenu SHALL follow the same chrome/prose boundary rather than being excluded wholesale: its floating ❓ FAB, 📖 header icon, accordion section icons, and action-button glyphs (e.g. 🚀 遠征動畫 toggle / 🧭 重看新手引導 / 🩺 開啟回報表單) are chrome and SHALL render through `EmojiIcon`; emoji inside its teaching paragraphs are long-form prose and SHALL remain native.
+
 #### Scenario: Mapped chrome emoji renders as a pixel img
 
 - **GIVEN** the manifest maps `'⚡'` to filename `'26a1.png'`
@@ -106,3 +108,9 @@ This requirement governs only warm chrome emoji. It SHALL NOT pixelize emoji ins
 - **GIVEN** the legible exam/long-form surfaces (QuizModal stem/options/詳解, `/bank` body cells, HelpMenu paragraphs, bug-report body)
 - **WHEN** any emoji appears inside one of those surfaces
 - **THEN** it SHALL render as a native system emoji glyph and SHALL NOT be substituted with a pixel-art sprite
+
+#### Scenario: HelpMenu chrome emoji render as pixel icons
+
+- **WHEN** the player opens the HelpMenu
+- **THEN** the floating ❓ FAB, the 📖 header icon, every accordion section icon, and the action-button glyphs (🚀 / 🧭 / 🩺) SHALL render as pixel `<img>` elements whose assets return HTTP 200
+- **AND** emoji inside the teaching paragraphs SHALL remain native system glyphs

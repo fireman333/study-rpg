@@ -6,10 +6,10 @@ TBD - created by syncing change add-neurons-shoutout-board. Update Purpose after
 ## Requirements
 
 ### Requirement: Shoutout tab entry
-The neurons app SHALL provide a 「留言」 tab reachable via a `/shoutout` route and a navigation link.
+The neurons app SHALL provide a 「留言」 entry reachable via a `/shoutout` route, surfaced as the 留言 sub-tab of the 社群 top-nav group (per `neurons-mode`'s five-tab consolidated navigation).
 
 #### Scenario: Open the board
-- **WHEN** a player taps the 「留言」 nav link
+- **WHEN** a player taps the 社群 top-nav tab and then the 留言 sub-tab
 - **THEN** the app routes to `/shoutout` and renders the bouncing-message board
 
 #### Scenario: Direct URL and refresh
