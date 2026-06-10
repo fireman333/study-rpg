@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import type { CellState, ReviewCellState } from '@study-rpg/core'
+import type { CellState, ReviewCellState } from '../lib/exam-set-mock'
 
 type AnyCellState = CellState | ReviewCellState
 

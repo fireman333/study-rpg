@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
-import type { ContentPack, MockExamDraftRow } from '@study-rpg/core'
+import type { ContentPack } from '@study-rpg/core'
+import type { MockExamDraftRow } from './exam-set-mock'
 import { CONNECTOME_CONDUCTION_EPOCH } from '@study-rpg/content-neurons-tw'
 import type {
   DmnActiveBuffRow,

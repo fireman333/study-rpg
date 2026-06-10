@@ -14,7 +14,7 @@
  *   "In-progress mock exams SHALL be resumable after accidental exit"
  */
 
-import { paperKeyHash, type MockExamDraftRow } from '@study-rpg/core'
+import { paperKeyHash, type MockExamDraftRow } from '../exam-set-mock'
 import { db } from '../db'
 
 /** neurons paper coordinates (次別 = `session`, mapped to core's `sitting`). */

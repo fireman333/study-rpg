@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import 'fake-indexeddb/auto'
 import Dexie from 'dexie'
-import { isDraftFresh } from '@study-rpg/core'
+import { isDraftFresh } from '../lib/exam-set-mock'
 import { db } from '../lib/db'
 import {
   saveMockDraft,

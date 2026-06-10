@@ -1,4 +1,4 @@
-import type { Question } from '../types'
+import type { Question } from '@study-rpg/core'
 import { examSetScore, type ExamSetScore, type ExamPaperKey } from './exam-set'
 
 /**

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import type { Question } from '../../types'
-import { examSetScore } from '../exam-set'
+import type { Question } from '@study-rpg/core'
+import { examSetScore } from '../lib/exam-set'
 import {
   createInitialMockState,
   clampIndex,
@@ -14,7 +14,7 @@ import {
   paperKeyHash,
   isDraftFresh,
   type MockExamDraftRow,
-} from '../exam-set-mock'
+} from '../lib/exam-set-mock'
 
 function mkQ(id: string, answer: string, extra: Partial<Question> = {}): Question {
   return {
