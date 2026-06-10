@@ -71,7 +71,7 @@ describe('Dexie v15 → v16 migration (acceleration: inventory + equipment)', ()
     //    the bump were an illegal pk change.
     const db = new NeuronsDB()
     await db.open()
-    expect(db.verno).toBe(19) // NeuronsDB latest chain (v16 migration still ran)
+    expect(db.verno).toBe(20) // NeuronsDB latest chain (v16 migration still ran)
 
     // 3. Existing rows retained
     expect(await db.dmnCards.get('dmn-default-mode-awakening-p1')).toBeTruthy()

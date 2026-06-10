@@ -20,6 +20,7 @@ import DmnDrawButton from './components/DmnDrawButton'
 import BookmarksPage from './routes/BookmarksPage'
 import CollectionPage from './routes/CollectionPage'
 import { QuestionBankPage } from './routes/QuestionBankPage'
+import MockVariantCollectionPage from './routes/MockVariantCollectionPage'
 import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import HelpMenu from './components/HelpMenu'
@@ -167,6 +168,7 @@ function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
           <Route path="/maze-beta" element={<Navigate to="/" replace />} />
           <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
           <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
+          <Route path="/mock-collection" element={<MockVariantCollectionPage />} />
           <Route path="/shoutout" element={<ShoutoutBoardPage pack={pack} />} />
           <Route path="/motion-demo" element={<MotionDemoPage />} />
         </Routes>

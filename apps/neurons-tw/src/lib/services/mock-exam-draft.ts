@@ -28,6 +28,11 @@ function hashOf(key: NeuronsPaperKey): string {
   return paperKeyHash({ year: key.year, sitting: key.session, book: key.book })
 }
 
+/** Stable string id for a paper — used as the mock-variant daily-cap key. */
+export function neuronsPaperKeyString(key: NeuronsPaperKey): string {
+  return hashOf(key)
+}
+
 export interface SaveMockDraftInput {
   key: NeuronsPaperKey
   /** Frozen question-id order of the pool (used to detect corpus drift on restore). */

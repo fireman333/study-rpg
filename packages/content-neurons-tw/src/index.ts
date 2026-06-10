@@ -202,6 +202,22 @@ export {
 
 export { CIRCUIT_LOCATIONS, type CircuitLocation } from './circuit-locations'
 
+// Mock-exam variant collection (add-neurons-exam-set-mock-variants)
+export {
+  MOCK_VARIANT_CATALOG,
+  MOCK_RARITY_WEIGHTS,
+  MOCK_RARITY_ORDER,
+  MOCK_RARITY_COLOR,
+  MOCK_RARITY_LABEL,
+  MOCK_PITY_AT_ROLLS,
+  MOCK_PITY_FLOOR,
+  mockBandForScore,
+  mockVariantById,
+  mockVariantsByRarity,
+  type MockVariantDef,
+  type MockScoreBand,
+} from './mock-variant-catalog'
+
 // Connector neurons — bridge-class collectibles (add-neurons-connector-neuron-family)
 export {
   connectorPairKey,
