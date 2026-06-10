@@ -22,7 +22,6 @@ import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
 import { ConnectomeStatCard } from '../components/ConnectomeStatCard'
 import { OnboardingHost } from '../components/OnboardingHost'
 import StudySquadPanel from '../components/StudySquadPanel'
-import { EmojiIcon } from '../components/EmojiIcon'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
 import { readTotalStudyMinutes } from '../lib/services/reading-timer'
 import { ownedSlotCount } from '../lib/services/variant-ownership'
@@ -367,14 +366,17 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       </header>
 
       {/* Merged daily-loop stat card = the homepage's top dashboard, ABOVE the maze
-          (redesign-neurons-homepage-cta): ⚔️ 錯題出征 primary CTA + connectome status
-          (今日出征 / 連續 / 穩定連線; 詳細 expands 本週·最強·⚡今日連線) + DMN bar, folded
-          into one themed card. The standalone status strip + standalone DMN ring are gone. */}
+          (redesign-neurons-homepage-cta + fix-neurons-dashboard-card-rwd): ⚔️ 錯題出征
+          primary CTA + connectome status (responsive causal chain) + DMN bar + the
+          total-collection chips (🧬/💎/📖) folded in. Standalone strips are gone. */}
       <ConnectomeStatCard
         status={connStatus}
         hasEverAnsweredWrong={hasEverAnsweredWrong}
         wrongCount={wrongCount}
         onExpedition={openExpedition}
+        variants={stats.variants}
+        dmnOwned={stats.dmnOwned}
+        totalStudyMin={totalStudyMin}
       />
 
       {/* How-to-play caption (kept from the dissolved CTA toolbar). Reading is now
@@ -398,29 +400,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             ConnectomeStatCard above the maze). Sits below the maze as a
             deploy-from-the-map surface. ── */}
       <StudySquadPanel />
-
-      <section style={statusChipStyle} aria-label="進度狀態">
-        <div style={statusItemStyle}>
-          <span style={statusEmojiStyle}><EmojiIcon char="🧬" size={15} /></span>
-          <span style={statusLabelStyle}>變體</span>
-          <span style={statusValueStyle}>{stats.variants}</span>
-          <span style={statusMaxStyle}>隻</span>
-        </div>
-        <span style={statusSepStyle}>·</span>
-        <div style={statusItemStyle}>
-          <span style={statusEmojiStyle}>💎</span>
-          <span style={statusLabelStyle}>DMN</span>
-          <span style={statusValueStyle}>{stats.dmnOwned}</span>
-          <span style={statusMaxStyle}>/ 20</span>
-        </div>
-        <span style={statusSepStyle}>·</span>
-        <div style={statusItemStyle}>
-          <span style={statusEmojiStyle}><EmojiIcon char="📖" size={15} /></span>
-          <span style={statusLabelStyle}>累積閱讀</span>
-          <span style={statusValueStyle}>{totalStudyMin}</span>
-          <span style={statusMaxStyle}>min</span>
-        </div>
-      </section>
 
       <FamilyPicker
         pack={pack}
@@ -593,49 +572,6 @@ const examMenuOptionStyle: React.CSSProperties = {
   fontSize: '0.95rem',
   cursor: 'pointer',
 }
-
-// EEG-monitor status readout — dark signal surface + grid/scanline backdrop +
-// monospace signal-cyan values. The single Overview data surface (D3 + D5); the
-// rest of the page stays warm. (polish-neurons-clinical-machine-aesthetic)
-const statusChipStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  alignItems: 'center',
-  gap: '0.5rem',
-  justifyContent: 'center',
-  padding: '0.5rem 0.85rem',
-  marginBottom: '1rem',
-  background: 'var(--signal-bg)',
-  backgroundImage:
-    'linear-gradient(var(--grid-line) 1px, transparent 1px),' +
-    'linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),' +
-    'repeating-linear-gradient(0deg, var(--scanline) 0px, var(--scanline) 1px, transparent 1px, transparent 3px)',
-  backgroundSize: '18px 18px, 18px 18px, 100% 3px',
-  color: 'var(--signal-ink)',
-  border: '2px solid var(--signal-dim)',
-  borderRadius: '6px',
-  fontSize: '0.8rem',
-  fontWeight: 600,
-}
-
-const statusItemStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'baseline',
-  gap: '0.3rem',
-}
-
-const statusEmojiStyle: React.CSSProperties = { fontSize: '0.95rem' }
-const statusLabelStyle: React.CSSProperties = { color: 'var(--signal-ink)', opacity: 0.75, fontWeight: 500 }
-const statusValueStyle: React.CSSProperties = {
-  color: 'var(--signal-cyan)',
-  fontFamily: 'var(--font-pixel-num)',
-  fontSize: '1.25rem',
-  lineHeight: 1,
-  fontWeight: 400,
-  letterSpacing: '0.5px',
-}
-const statusMaxStyle: React.CSSProperties = { color: 'var(--signal-ink)', opacity: 0.5, fontWeight: 500 }
-const statusSepStyle: React.CSSProperties = { color: 'var(--signal-ink)', opacity: 0.35 }
 
 const heroStyle: React.CSSProperties = {
   marginBottom: '0.75rem',

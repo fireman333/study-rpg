@@ -331,3 +331,35 @@ body:has(.modal-backdrop) {
   55%  { transform: translateX(22px) scale(1.12); }
   100% { transform: translateX(44px) scale(1); }
 }
+
+/* ConnectomeStatCard daily-loop causal chain (fix-neurons-dashboard-card-rwd):
+ * mobile-first vertical stack with ↓ connectors; horizontal with → at ≥520px so the
+ * connector glyphs never orphan onto their own line when the row would wrap. */
+.neurons-stat-stages {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+.neurons-stat-stages > .neurons-stat-stage {
+  flex: 0 0 auto;
+}
+.neurons-stat-arrow {
+  align-self: center;
+  line-height: 1;
+  transform: rotate(90deg); /* → rendered as ↓ in the vertical stack */
+}
+@media (min-width: 520px) {
+  .neurons-stat-stages {
+    flex-direction: row;
+  }
+  .neurons-stat-stages > .neurons-stat-stage {
+    flex: 1 1 130px;
+  }
+  .neurons-stat-stages > .neurons-stat-stage.neurons-stat-stage--dmn {
+    flex: 1 1 200px;
+  }
+  .neurons-stat-arrow {
+    transform: none;
+  }
+}
