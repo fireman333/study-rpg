@@ -19,7 +19,7 @@ import MazeGrid from '../components/maze/MazeGrid'
 import { MazeCompletionCelebration } from '../components/MazeCompletionCelebration'
 import { ExpeditionRitualCelebration } from '../components/ExpeditionRitualCelebration'
 import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
-import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
+import { ConnectomeStatCard } from '../components/ConnectomeStatCard'
 import { OnboardingHost } from '../components/OnboardingHost'
 import StudySquadPanel from '../components/StudySquadPanel'
 import { EmojiIcon } from '../components/EmojiIcon'
@@ -40,7 +40,6 @@ import {
 } from '../lib/services/expedition'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
-import { YearFilterBar } from '../components/YearFilterBar'
 import { useMaze } from '../lib/maze/useMaze'
 import { emitMazeFocus } from '../lib/maze/maze-focus'
 import { db, todayISO } from '../lib/db'
@@ -54,10 +53,10 @@ interface ProgressStats {
   dmnOwned: number
 }
 
-// QuizModal entry state. `null` = 🎲 跨 family 隨機（沿用原行為）；`undefined` =
-// modal 未開；object = 特定 family + mode（🆕 新題 / 🔄 錯題，per
-// add-neurons-quiz-mode-chips-and-srs）。
-type QuizEntry = { familyId: string; mode: QuizMode } | null | undefined
+// QuizModal entry state. `undefined` = modal 未開；object = 特定 family + mode
+// （🆕 新題 / 🔄 錯題，per add-neurons-quiz-mode-chips-and-srs）。The 🎲 cross-family
+// random entry was removed by redesign-neurons-homepage-cta.
+type QuizEntry = { familyId: string; mode: QuizMode } | undefined
 
 export default function OverviewPage({ pack }: Props): JSX.Element {
   const [quizEntry, setQuizEntry] = useState<QuizEntry>(undefined)
@@ -68,8 +67,8 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // wrong questions (DMN quick-review-batch event, realign-dmn-event-rewards-to-maze).
   const [quickReviewActive, setQuickReviewActive] = useState(false)
   // 模考 moved off the homepage → 題庫 tab (tidy-neurons-homepage-ui); its picker +
-  // pure-practice drill now live in QuestionBankPage. The homepage CTA toolbar keeps
-  // only 🎲 隨機 + ⚔️ 錯題出征.
+  // pure-practice drill now live in QuestionBankPage. The ⚔️ 錯題出征 CTA now lives
+  // in the merged ConnectomeStatCard (redesign-neurons-homepage-cta).
   // Settlement result of the last wrong-pool expedition → conduction ledger + ritual
   // (rework-neurons-connectome-expedition-driven).
   const [settlement, setSettlement] = useState<ExpeditionConnectomeResult | null>(null)
@@ -167,10 +166,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
   const quizPool = useMemo(() => {
     if (quizEntry === undefined) return []
-    if (quizEntry === null) {
-      // 🎲 cross-family random — unchanged (whole year-scoped corpus).
-      return yearActive ? filterPoolByYear(pack.questions, yearSet) : [...pack.questions]
-    }
     const { familyId, mode } = quizEntry
     const byFamily = filterPoolByFamily(pack.questions, familyId)
     const scoped = yearActive ? filterPoolByYear(byFamily, yearSet) : byFamily
@@ -190,12 +185,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           : () => true,
       ),
     [pack.questions, questionHistory, yearSet, yearActive],
-  )
-
-  // Random-quiz CTA count reflects the year-filtered total corpus.
-  const totalPoolSize = useMemo(
-    () => (yearActive ? filterPoolByYear(pack.questions, yearSet).length : pack.questions.length),
-    [pack.questions, yearSet, yearActive],
   )
 
   // 出征 pool — all-subject currently-unmastered questions (lastResult==='wrong').
@@ -268,12 +257,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   }, [timer.minutesFired])
 
   // Open quizzes; expedition is mutually exclusive, so opening one closes it.
-  // 🎲 cross-family random keeps the existing whole-corpus behavior (entry null).
-  const openRandomQuiz = (): void => {
-    setExpeditionOpen(false)
-    setQuickReviewActive(false)
-    setQuizEntry(null)
-  }
   // Per-family 🆕 新題 / 🔄 錯題 entry (add-neurons-quiz-mode-chips-and-srs).
   const openFamilyQuiz = (familyId: string, mode: QuizMode): void => {
     setExpeditionOpen(false)
@@ -383,91 +366,22 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         </div>
       </header>
 
-      {/* Connectome narrative indicators (neurons-homepage / D6): 今日出征 · 連續 N 天 ·
-          本週 X/7 · 穩定連線數（不含早期連線）· 最強 pair · 今日連線額外獲得 X 能量.
-          NOT a 116/116 collection bar. */}
-      {connStatus && (
-        <section
-          aria-label="connectome 狀態"
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.4rem 0.9rem',
-            alignItems: 'center',
-            margin: '0 0 0.75rem',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #d8c4a8',
-            borderRadius: 8,
-            background: '#fbf5ea',
-            fontSize: '0.85em',
-            color: '#5a3f29',
-          }}
-        >
-          <span title="今日是否完成有效出征（修復 ≥5 題）">
-            今日出征 {connStatus.todayCompleted ? '✓' : '✗'}
-          </span>
-          <span title="連續完成有效出征的天數">🔥 連續 {connStatus.streak} 天</span>
-          <span title="本週（近 7 天）完成有效出征的天數">本週 {connStatus.weeklyCount}/7</span>
-          <span title="達 strong 的跨科連線數（不含尚未重新驗證的早期連線）">
-            穩定連線 {connStatus.stableLinks}
-          </span>
-          {connStatus.strongestPair && (
-            <span title="最近最強的跨科連線">
-              最強 {connStatus.strongestPair.replace('|', '–')}
-            </span>
-          )}
-          {connStatus.todayConductionEnergy > 0 && (
-            <span title="今日經由突觸傳導從連線額外獲得的能量">
-              ⚡ 今日連線 +{connStatus.todayConductionEnergy}
-            </span>
-          )}
-        </section>
-      )}
+      {/* Merged daily-loop stat card = the homepage's top dashboard, ABOVE the maze
+          (redesign-neurons-homepage-cta): ⚔️ 錯題出征 primary CTA + connectome status
+          (今日出征 / 連續 / 穩定連線; 詳細 expands 本週·最強·⚡今日連線) + DMN bar, folded
+          into one themed card. The standalone status strip + standalone DMN ring are gone. */}
+      <ConnectomeStatCard
+        status={connStatus}
+        hasEverAnsweredWrong={hasEverAnsweredWrong}
+        wrongCount={wrongCount}
+        onExpedition={openExpedition}
+      />
 
-      {/* ── CTA toolbar (above the maze): cross-family random quiz + 全科錯題 出征
-            (persistent expedition CTA, per neurons-homepage). Reading is now
-            per-subject — each family card carries its own 📖 entry below. ── */}
-      <section style={quizCtaSectionStyle} aria-label="核心循環入口">
-        <div style={ctaButtonRowStyle}>
-          <button
-            type="button"
-            style={randomQuizButtonStyle}
-            onClick={openRandomQuiz}
-            aria-label="跨 family 隨機答題"
-            title={`從全部 ${totalPoolSize} 題隨機抽題`}
-          >
-            <EmojiIcon char="🎲" size={18} /> 隨機跨 family 答題
-            <span style={ctaCountBadgeStyle}>{totalPoolSize} 題</span>
-          </button>
-          {/* One-way reveal (improve-neurons-onboarding): hidden for a never-wrong
-              new player (no disabled dead button); shown once they've ever answered
-              wrong, then persistent (disabled「無錯題」when currently nothing wrong). */}
-          {hasEverAnsweredWrong && (
-            <button
-              type="button"
-              style={wrongCount > 0 ? wrongExpeditionButtonStyle : wrongExpeditionButtonDisabledStyle}
-              onClick={openExpedition}
-              disabled={wrongCount === 0}
-              aria-label="錯題出征：修復錯題建立連線"
-              title="修復跨科錯題＝在腦圖上建立突觸連線（同時獲得 DMN 抽卡）"
-            >
-              <span style={ctaCardMainStyle}>
-                <span>
-                  <EmojiIcon char="⚔️" size={18} /> 錯題出征
-                </span>
-                <span style={ctaCountBadgeStyle}>
-                  {wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}
-                </span>
-              </span>
-              <span style={ctaCardSubStyle}>🔗 修復錯題＝建立連線</span>
-            </button>
-          )}
-        </div>
-        <p style={quizCtaHintStyle}>
-          直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
-        </p>
-        <YearFilterBar />
-      </section>
+      {/* How-to-play caption (kept from the dissolved CTA toolbar). Reading is now
+          per-subject — each family card carries its own 📖 entry below. */}
+      <p style={quizCtaHintStyle}>
+        直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
+      </p>
 
       {/* ── The flat-grid maze IS the homepage centerpiece (redesign-neurons-maze-
             rotjs-grid). One square weave grid, 11 per-family routes border→center;
@@ -480,11 +394,10 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         {ritual && <ExpeditionRitualCelebration key={ritual.nonce} streak={ritual.streak} />}
       </div>
 
-      {/* ── Study squad: party + assembly editor (出征 itself now lives in the CTA
-            toolbar above). Sits below the maze as a deploy-from-the-map surface. ── */}
+      {/* ── Study squad: party + assembly editor (出征 itself now lives in the merged
+            ConnectomeStatCard above the maze). Sits below the maze as a
+            deploy-from-the-map surface. ── */}
       <StudySquadPanel />
-
-      <DmnDrawProgressRing />
 
       <section style={statusChipStyle} aria-label="進度狀態">
         <div style={statusItemStyle}>
@@ -523,7 +436,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       {quizEntry !== undefined && expeditionOpen === false && (
         <QuizModal
           pool={quizPool}
-          preserveOrder={quizEntry !== null && quizEntry.mode === 'review'}
+          preserveOrder={quizEntry.mode === 'review'}
           onClose={() => setQuizEntry(undefined)}
         />
       )}
@@ -743,97 +656,6 @@ const heroSubtitleStyle: React.CSSProperties = {
   color: '#5a3f29',
   fontStyle: 'italic',
   fontSize: '0.9rem',
-}
-
-const quizCtaSectionStyle: React.CSSProperties = {
-  background: 'linear-gradient(135deg, #fdf2e8 0%, #f5e6d3 100%)',
-  border: '2px solid #d4a04d',
-  borderRadius: '8px',
-  padding: '1rem 1.1rem',
-  marginBottom: '1rem',
-  boxShadow: '0 2px 6px rgba(212, 160, 77, 0.15)',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-  gap: '0.55rem',
-}
-
-const ctaButtonRowStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '0.5rem',
-  width: '100%',
-}
-
-const randomQuizButtonStyle: React.CSSProperties = {
-  flex: '1 1 200px',
-  padding: '0.65rem 1.2rem',
-  borderRadius: '6px',
-  border: '1px solid #b8893a',
-  background: '#d4a04d',
-  color: '#fff',
-  fontSize: '1.02rem',
-  fontWeight: 700,
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-  boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '0.5rem',
-}
-
-// ⚔️ 錯題出征 = the prominent primary connectome-building CTA. Terracotta base +
-// a static synaptic-cyan glow ring signals "this wires the brain". The glow is a
-// box-shadow (no animation) so it degrades cleanly under prefers-reduced-motion.
-// (split-neurons-expedition-exam-modes)
-const wrongExpeditionButtonStyle: React.CSSProperties = {
-  flex: '1 1 220px',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'stretch',
-  gap: '0.18rem',
-  padding: '0.55rem 1rem',
-  borderRadius: '6px',
-  border: '2px solid #e0a44a',
-  background: 'linear-gradient(135deg, #c06a3a 0%, #a85530 100%)',
-  color: '#fff',
-  fontFamily: 'inherit',
-  fontWeight: 700,
-  cursor: 'pointer',
-  boxShadow: '0 0 0 2px rgba(255,255,255,0.18), 0 0 14px 1px rgba(64, 210, 200, 0.55)',
-}
-
-const wrongExpeditionButtonDisabledStyle: React.CSSProperties = {
-  ...wrongExpeditionButtonStyle,
-  background: '#cbb89f',
-  border: '2px solid #b8a07a',
-  boxShadow: 'none',
-  opacity: 0.7,
-  cursor: 'not-allowed',
-}
-
-const ctaCardMainStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: '0.5rem',
-  fontSize: '1.02rem',
-}
-
-const ctaCardSubStyle: React.CSSProperties = {
-  fontSize: '0.72rem',
-  fontWeight: 600,
-  opacity: 0.92,
-  letterSpacing: '0.2px',
-}
-
-const ctaCountBadgeStyle: React.CSSProperties = {
-  padding: '0.1rem 0.45rem',
-  background: 'rgba(255,255,255,0.25)',
-  borderRadius: '999px',
-  fontSize: '0.78em',
-  fontWeight: 600,
 }
 
 const quizCtaHintStyle: React.CSSProperties = {
