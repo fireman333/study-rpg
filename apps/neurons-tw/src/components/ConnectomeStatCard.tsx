@@ -30,6 +30,10 @@ interface Props {
   wrongCount: number
   /** Opens the cross-subject wrong-question expedition drill directly. */
   onExpedition: () => void
+  /** Total-collection chips folded into the card (🧬 collected / 💎 DMN owned / 📖 reading min). */
+  variants: number
+  dmnOwned: number
+  totalStudyMin: number
 }
 
 export function ConnectomeStatCard({
@@ -37,6 +41,9 @@ export function ConnectomeStatCard({
   hasEverAnsweredWrong,
   wrongCount,
   onExpedition,
+  variants,
+  dmnOwned,
+  totalStudyMin,
 }: Props): JSX.Element {
   const [showDetail, setShowDetail] = useState(false)
 
@@ -78,22 +85,23 @@ export function ConnectomeStatCard({
         </div>
       )}
 
-      {/* ── Causal-chain body: 今日出征狀態 → 修復連線數據 → DMN 抽卡 進度 ── */}
-      <div style={stageRowStyle}>
-        <div style={stageStyle}>
+      {/* ── Causal-chain body: 今日出征狀態 → 修復連線數據 → DMN 抽卡 進度.
+            Responsive via styles.css: vertical stack + ↓ on < 520px, horizontal + → at ≥520px. ── */}
+      <div className="neurons-stat-stages">
+        <div className="neurons-stat-stage" style={stageStyle}>
           <span style={signalStyle}>今日出征 {todayCompleted ? '✓' : '✗'}</span>
           <span style={signalStyle}>🔥 連續 {streak} 天</span>
         </div>
-        <span style={arrowStyle} aria-hidden>
+        <span className="neurons-stat-arrow" style={arrowStyle} aria-hidden>
           →
         </span>
-        <div style={stageStyle}>
+        <div className="neurons-stat-stage" style={stageStyle}>
           <span style={signalStyle}>🔗 穩定連線 {stableLinks}</span>
         </div>
-        <span style={arrowStyle} aria-hidden>
+        <span className="neurons-stat-arrow" style={arrowStyle} aria-hidden>
           →
         </span>
-        <div style={stageDmnStyle}>
+        <div className="neurons-stat-stage neurons-stat-stage--dmn" style={stageStyle}>
           <DmnDrawProgressRing />
         </div>
       </div>
@@ -120,6 +128,20 @@ export function ConnectomeStatCard({
       >
         {showDetail ? '▴ 收合' : '▾ 詳細'}
       </button>
+
+      {/* ── Total-collection chips, folded into the card in its cream theme
+            (fix-neurons-dashboard-card-rwd). Wraps on narrow widths. ── */}
+      <div style={collectionRowStyle} aria-label="收藏進度">
+        <span style={collectionChipStyle}>
+          🧬 變體 <b style={collectionValStyle}>{variants}</b> 隻
+        </span>
+        <span style={collectionChipStyle}>
+          💎 DMN <b style={collectionValStyle}>{dmnOwned}</b> / 20
+        </span>
+        <span style={collectionChipStyle}>
+          📖 累積閱讀 <b style={collectionValStyle}>{totalStudyMin}</b> min
+        </span>
+      </div>
     </section>
   )
 }
@@ -207,15 +229,9 @@ const ctaGuidanceSubStyle: React.CSSProperties = {
   color: '#a06a47',
 }
 
-const stageRowStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  alignItems: 'stretch',
-  gap: '0.5rem',
-}
-
+// Stage visuals only; flex/direction/wrap + the per-stage basis are driven by the
+// `.neurons-stat-stages` / `.neurons-stat-stage` CSS classes (responsive, styles.css).
 const stageStyle: React.CSSProperties = {
-  flex: '1 1 130px',
   minWidth: 0,
   display: 'flex',
   flexDirection: 'column',
@@ -225,11 +241,6 @@ const stageStyle: React.CSSProperties = {
   background: '#fffdf8',
   border: '1px solid #e6d6b8',
   borderRadius: '6px',
-}
-
-const stageDmnStyle: React.CSSProperties = {
-  ...stageStyle,
-  flex: '1 1 200px',
 }
 
 const signalStyle: React.CSSProperties = {
@@ -272,4 +283,32 @@ const detailToggleStyle: React.CSSProperties = {
   fontWeight: 700,
   cursor: 'pointer',
   fontFamily: 'inherit',
+}
+
+// Total-collection chips folded into the card (cream theme, wraps on narrow).
+const collectionRowStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '0.3rem 0.7rem',
+  paddingTop: '0.55rem',
+  marginTop: '0.1rem',
+  borderTop: '1px solid #e6d6b8',
+  fontSize: '0.82rem',
+  color: '#6b5640',
+  fontWeight: 600,
+}
+
+const collectionChipStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'baseline',
+  gap: '0.28rem',
+  whiteSpace: 'nowrap',
+}
+
+const collectionValStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-pixel-num)',
+  fontSize: '1.05rem',
+  color: '#a85530',
+  fontWeight: 400,
 }
