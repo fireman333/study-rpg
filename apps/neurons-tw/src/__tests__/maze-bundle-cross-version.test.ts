@@ -34,8 +34,8 @@ beforeEach(async () => {
 })
 
 describe('Maze per-family energy bundle cross-version (v16↔v17)', () => {
-  it('current SCHEMA_VERSION is 20', () => {
-    expect(SCHEMA_VERSION).toBe(20)
+  it('current SCHEMA_VERSION is 21', () => {
+    expect(SCHEMA_VERSION).toBe(21)
   })
 
   it('v17 round-trip: per-family earned/settles snapshot into the bundle and restore on apply', async () => {
@@ -44,7 +44,7 @@ describe('Maze per-family energy bundle cross-version (v16↔v17)', () => {
     await db.meta.put({ key: `maze:${FAM2}:earned`, value: '54' })
 
     const bundle = await buildBundleSnapshot(db)
-    expect(bundle.meta.schema_version).toBe(20)
+    expect(bundle.meta.schema_version).toBe(21)
 
     const metaRows = (bundle.data.meta as Array<{ key: string; value: string }>) ?? []
     const byKey = new Map(metaRows.map((r) => [r.key, r.value]))

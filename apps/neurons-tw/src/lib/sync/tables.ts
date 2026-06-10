@@ -246,6 +246,68 @@ const neuronVariantsAdapter: TableAdapter<'neuronVariants'> = {
   },
 }
 
+// ---- Mock-exam variants ---------------------------------------------------
+
+const mockExamVariantsAdapter: TableAdapter<'mockExamVariants'> = {
+  name: 'mockExamVariants',
+  async snapshot(db) {
+    return await db.mockExamVariants.toArray()
+  },
+  async apply(db, rows) {
+    let applied = 0
+    let skipped = 0
+    await db.transaction('rw', db.mockExamVariants, async () => {
+      for (const incoming of rows) {
+        if (!incoming || typeof incoming !== 'object') {
+          skipped++
+          continue
+        }
+        const row = incoming as Record<string, unknown>
+        const variantId = row.variantId
+        if (typeof variantId !== 'string') {
+          skipped++
+          continue
+        }
+        const local = await db.mockExamVariants.get(variantId)
+        // Mirror the neuronVariants discipline: row content (rarity/displayName/
+        // spriteKey) immutable once minted; `copies` MAX-merge, `firstRolledAt`
+        // MIN-merge, `lastRolledAt` MAX-merge. Ownership is monotonic (a row
+        // never un-collects) and re-applying the same bundle is idempotent.
+        if (local) {
+          const localCopies = typeof local.copies === 'number' ? local.copies : 1
+          const incCopies = typeof row.copies === 'number' ? (row.copies as number) : 1
+          const mergedCopies = Math.max(localCopies, incCopies)
+          const incFirst =
+            typeof row.firstRolledAt === 'number' ? (row.firstRolledAt as number) : local.firstRolledAt
+          const mergedFirst = Math.min(local.firstRolledAt, incFirst)
+          const incLast =
+            typeof row.lastRolledAt === 'number' ? (row.lastRolledAt as number) : local.lastRolledAt
+          const mergedLast = Math.max(local.lastRolledAt, incLast)
+          if (
+            mergedCopies !== localCopies ||
+            mergedFirst !== local.firstRolledAt ||
+            mergedLast !== local.lastRolledAt
+          ) {
+            await db.mockExamVariants.put({
+              ...local,
+              copies: mergedCopies,
+              firstRolledAt: mergedFirst,
+              lastRolledAt: mergedLast,
+            })
+            applied++
+          } else {
+            skipped++
+          }
+          continue
+        }
+        await db.mockExamVariants.put(incoming as never)
+        applied++
+      }
+    })
+    return { applied, skipped }
+  },
+}
+
 // ---- Achievements ---------------------------------------------------------
 
 const achievementsAdapter: TableAdapter<'achievements'> = {
@@ -1095,4 +1157,5 @@ export const NEURONS_ADAPTERS: ReadonlyArray<TableAdapter> = [
   inventoryAdapter,
   equipmentAdapter,
   connectorNeuronsAdapter,
+  mockExamVariantsAdapter,
 ]

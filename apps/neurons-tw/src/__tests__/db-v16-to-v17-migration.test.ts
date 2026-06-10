@@ -75,7 +75,7 @@ describe('Dexie v16 → v17 migration (flat-grid maze: per-branch economy reset)
     //    the bump were an illegal pk change.
     const db = new NeuronsDB()
     await db.open()
-    expect(db.verno).toBe(19) // NeuronsDB latest chain (the v17 economy-reset still ran)
+    expect(db.verno).toBe(20) // NeuronsDB latest chain (the v17 economy-reset still ran)
 
     // 3. The 8 retired branch economy keys are CLEARED.
     for (const b of ['da', '5ht', 'gaba', 'glu']) {

@@ -9,6 +9,7 @@
  * in-quiz inline reporter uses (so reports land identically, with question_id).
  */
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   QUIZ_BUG_TARGETS,
   QUIZ_BUG_TARGET_TO_CATEGORY,
@@ -337,7 +338,13 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
               </button>
             </div>
             <p style={examHintStyle}>
-              即時詳解＝逐題作答即看答案，只練未作答的題；模擬考試＝整冊閉卷作答，全部送出後一次看詳解、各科分數與國考換算分。兩者皆為純練習：不給能量、不抽神經元、不長連線，但答錯仍記入錯題清單，可之後出征修復。
+              即時詳解＝逐題作答即看答案，只練未作答的題；模擬考試＝整冊閉卷作答，全部送出後一次看詳解、各科分數與國考換算分。兩者皆不給能量、不長連線；
+              <strong>模擬考試</strong>全部送出後會依分數抽一隻「模擬考收藏」神經元（每卷每天一次）。答錯仍記入錯題清單，可之後出征修復。
+            </p>
+            <p style={examHintStyle}>
+              <Link to="/mock-collection" style={{ color: 'var(--accent, #6a9bc4)', fontWeight: 700 }}>
+                🧬 看模擬考收藏 →
+              </Link>
             </p>
           </div>
         </div>

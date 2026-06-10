@@ -15,8 +15,11 @@ import { recordQuestionResult } from '../lib/services/question-history'
 import {
   saveMockDraft,
   deleteMockDraft,
+  neuronsPaperKeyString,
   type NeuronsPaperKey,
 } from '../lib/services/mock-exam-draft'
+import { submitMockVariantRoll, type MockRollResult } from '../lib/services/mock-variant-gacha'
+import { MockVariantRevealBadge } from './MockVariantRevealBadge'
 import { PrecedingContext } from './PrecedingContext'
 import { QuestionFigure } from './QuestionFigure'
 import { QuestionJumpGrid } from './QuestionJumpGrid'
@@ -76,6 +79,7 @@ export function MockExamRunner({
   const startedAtRef = useRef(resume?.startedAt ?? Date.now())
   const [confirmSubmit, setConfirmSubmit] = useState(false)
   const [confirmLeave, setConfirmLeave] = useState(false)
+  const [rollResult, setRollResult] = useState<MockRollResult | null>(null)
   const stemRef = useRef<HTMLParagraphElement>(null)
 
   const q = sessionPool[state.index]
@@ -117,6 +121,15 @@ export function MockExamRunner({
       wrongs.map((i) => recordQuestionResult(sessionPool[i].id, sessionPool[i].subject, false)),
     ).catch((err) => console.error('[mock-exam] 錯題本 batch write failed:', err))
     void deleteMockDraft(paperKey)
+    // Independent mock-variant gacha roll (add-neurons-exam-set-mock-variants):
+    // after the 錯題本 write, score-weighted roll gated by the per-paper daily cap.
+    // null = cap already spent today (exam still recorded; only the roll is capped).
+    // No maze/energy/DMN credit.
+    void submitMockVariantRoll(neuronsPaperKeyString(paperKey), score.examScore)
+      .then((res) => {
+        if (res) setRollResult(res)
+      })
+      .catch((err) => console.error('[mock-exam] variant roll failed:', err))
   }
 
   function onSubmitClick(): void {
@@ -179,6 +192,7 @@ export function MockExamRunner({
                       </li>
                     ))}
                   </ul>
+                  {rollResult && <MockVariantRevealBadge result={rollResult} />}
                   <button type="button" style={primaryBtnStyle} onClick={restart}>
                     再考一次
                   </button>

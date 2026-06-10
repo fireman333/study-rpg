@@ -287,6 +287,23 @@ export interface QuestionHistoryRow {
   correctCount?: number
 }
 
+/**
+ * One collected mock-exam variant (add-neurons-exam-set-mock-variants). PK =
+ * catalog `variantId`. Independent of the maze `neuronVariants` pool. Synced to
+ * R2: ownership is monotonic (a row never un-collects), `copies` merges
+ * MONOTONIC-MAX (mirrors the neuronVariants carve-out), display fields LWW by
+ * `lastRolledAt`. Re-applying the same bundle is idempotent (replace-by-PK).
+ */
+export interface MockExamVariantRow {
+  variantId: string
+  rarity: VariantRarity
+  displayName: string
+  spriteKey: string
+  copies: number
+  firstRolledAt: number
+  lastRolledAt: number
+}
+
 export class NeuronsDB extends Dexie {
   synapses!: EntityTable<SynapseRow, 'pairKey'>
   familyAccrual!: EntityTable<FamilyAccrualRow, 'familyId'>
@@ -336,6 +353,10 @@ export class NeuronsDB extends Dexie {
   // untouched. One in-progress 模擬考試 draft per paper (PK = paperKeyHash).
   // Local-only: never synced to the cloud (no R2 bundle / SCHEMA_VERSION change).
   mockExamDrafts!: EntityTable<MockExamDraftRow, 'paperKeyHash'>
+  // ─── Mock-exam variant collection (Dexie v20+) ──────────────────────────
+  // Per add-neurons-exam-set-mock-variants. Additive — 1 new table; existing
+  // tables untouched. PK = catalog variantId. SYNCED to R2 (SCHEMA_VERSION 21).
+  mockExamVariants!: EntityTable<MockExamVariantRow, 'variantId'>
 
   constructor() {
     super('neurons-rpg')
@@ -838,6 +859,35 @@ export class NeuronsDB extends Dexie {
       connectorNeurons: 'pairKey, unlockedAt, updatedAt',
       // PK = paperKeyHash (`${year}-${sitting}-${book}`); secondary index updatedAt.
       mockExamDrafts: '&paperKeyHash, updatedAt',
+    })
+    // Per add-neurons-exam-set-mock-variants. Additive: 1 new table
+    // `mockExamVariants` (mock-exam collection, PK = catalog variantId, SYNCED).
+    // All existing store index strings IDENTICAL to v19 (NO PK change —
+    // dexie_pk_change_pitfall). No upgrade callback — purely additive.
+    this.version(20).stores({
+      synapses: 'pairKey, lastCoFireDate, state',
+      familyAccrual: 'familyId, lastFireDate, firedToday',
+      meta: 'key',
+      familyMastery: 'familyId',
+      neuronVariants: '[familyId+slotIndex], familyId, rolledAt',
+      leaderboardProfile: 'user_id, nickname_lower',
+      achievements: 'id, unlockedAt',
+      dmnCards: 'cardId, obtainedAt, rarity',
+      dmnEventLog: 'cardId, dispatchedAt',
+      dmnActiveBuffs: '++id, expiresAt, buffKind',
+      questionBookmarks: 'questionId, family, addedAt, updatedAt',
+      questionBookmarkTombstones: 'questionId, updatedAt',
+      questionFlags: 'questionId, easyMarked, guessedMarked, updatedAt',
+      questionHistory: 'questionId, family, lastResult, lastAnsweredAt, updatedAt, nextDueAt',
+      neuronInstances: 'instanceId, familyId, slotIndex, rarity, consumedAt',
+      instanceNicknames: 'instanceId, updatedAt',
+      inventory: 'kind, updatedAt',
+      equipment: 'equipmentId, rarity, obtainedAt, updatedAt',
+      connectorNeurons: 'pairKey, unlockedAt, updatedAt',
+      mockExamDrafts: '&paperKeyHash, updatedAt',
+      // PK = catalog variantId; secondary indices rarity + lastRolledAt for the
+      // collection view (group-by-rarity, recency).
+      mockExamVariants: 'variantId, rarity, lastRolledAt',
     })
   }
 }

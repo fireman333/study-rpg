@@ -76,7 +76,7 @@ describe('Dexie v18 → v19 migration (mockExamDrafts additive table)', () => {
     //    the bump were an illegal pk change.
     const db = new NeuronsDB()
     await db.open()
-    expect(db.verno).toBe(19)
+    expect(db.verno).toBe(20)
 
     // 3. Existing data preserved untouched.
     expect(await db.neuronVariants.count()).toBe(1)

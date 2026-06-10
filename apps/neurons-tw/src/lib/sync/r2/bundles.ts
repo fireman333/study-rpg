@@ -147,11 +147,21 @@
 //        `connectorNeurons` key; a v20 client reading a v19 bundle (no key) applies
 //        an empty array → preserves its local unlocks on omission (the v18 upgrade
 //        already backfilled strong wires). Worker is bundle-opaque (no Worker change).
+//   v21 — add-neurons-exam-set-mock-variants 2026-06-10: adds the
+//        `mockExamVariants` adapter (mock-exam collection line; Dexie v20). Merge
+//        mirrors neuronVariants: ownership MONOTONIC (a collected variant never
+//        un-collects), `copies` MAX-merge, firstRolledAt MIN / lastRolledAt MAX;
+//        re-applying a bundle is idempotent. The roll bookkeeping (pity stats +
+//        per-paper daily-cap dates) is device-LOCAL meta — intentionally NOT synced.
+//        Additive + reader-tolerant: a v20 client reading a v21 bundle drops the
+//        unknown `mockExamVariants` key; a v21 client reading a v20 bundle (no key)
+//        applies an empty array → preserves its local collection on omission.
+//        Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 
-export const SCHEMA_VERSION = 20
+export const SCHEMA_VERSION = 21
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'
