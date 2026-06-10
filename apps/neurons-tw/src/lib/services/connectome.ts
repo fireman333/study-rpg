@@ -30,6 +30,7 @@ import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { energyAccel } from './acceleration'
 import { emitAnswerCorrect, emitAnswerWrong } from '../maze/answer-feedback'
+import { ONBOARDING_KEYS } from './onboarding'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
@@ -648,8 +649,11 @@ export async function resetConnectomeForDebug(): Promise<void> {
       row.pullCount = 0
     })
     await db.meta.put({ key: 'lastResetDate', value: todayISO() })
-    // Re-surface the homepage onboarding for a reset (fresh-start) user.
+    // Re-surface onboarding for a reset (fresh-start) user: the legacy static-card
+    // flag (back-compat) + the guided-overlay / expedition-spotlight flags
+    // (improve-neurons-onboarding).
     await db.meta.delete(HOMEPAGE_ONBOARDING_DISMISSED_KEY)
+    for (const key of ONBOARDING_KEYS) await db.meta.delete(key)
     // Re-arm the per-family first-pull (add-neurons-first-pull-path-rep) so a
     // reset player's next answer per family grants a fresh P5 representative.
     await db.meta.delete('firstPullFamilies')

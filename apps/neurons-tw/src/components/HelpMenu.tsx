@@ -19,12 +19,26 @@
 import { useEffect, useState } from 'react'
 import BugReportModal from './BugReportModal'
 import { getExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-visibility'
+import { requestReplayGuided, onReplayGuided } from '../lib/services/onboarding'
 
 interface Section {
   id: string
   icon: string
   title: string
   body: React.ReactNode
+}
+
+/** Shared "pill" button recipe for inline HelpMenu controls (toggle / replay). */
+const helpPillButtonStyle: React.CSSProperties = {
+  padding: '0.15rem 0.6rem',
+  background: '#f4ecd8',
+  color: '#6b5436',
+  border: '1px solid #b8893a',
+  borderRadius: 999,
+  fontFamily: 'inherit',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  cursor: 'pointer',
 }
 
 /**
@@ -47,17 +61,7 @@ function ExpeditionAnimationHelpControl(): JSX.Element {
         type="button"
         onClick={toggle}
         aria-pressed={!hidden}
-        style={{
-          padding: '0.15rem 0.6rem',
-          background: '#f4ecd8',
-          color: '#6b5436',
-          border: '1px solid #b8893a',
-          borderRadius: 999,
-          fontFamily: 'inherit',
-          fontSize: '0.82rem',
-          fontWeight: 600,
-          cursor: 'pointer',
-        }}
+        style={helpPillButtonStyle}
       >
         {hidden ? '🚀 顯示遠征動畫' : '🚀 隱藏遠征動畫'}
       </button>
@@ -67,7 +71,62 @@ function ExpeditionAnimationHelpControl(): JSX.Element {
 
 const GITHUB_ISSUES_URL = 'https://github.com/fireman333/study-rpg/issues/new'
 
+/**
+ * Replay control for the first-run guided overlay (improve-neurons-onboarding):
+ * asks the OnboardingHost to re-run the interactive guide. The HelpMenu panel
+ * closes itself via its own `onReplayGuided` subscription so the overlay shows.
+ */
+function GuidedReplayControl(): JSX.Element {
+  return (
+    <p>
+      第一次玩會有一段互動引導，帶你答題、看神經元在腦圖上前進、抽出第一隻。想重看可以按這裡：{' '}
+      <button
+        type="button"
+        onClick={requestReplayGuided}
+        style={helpPillButtonStyle}
+      >
+        🧭 重看新手引導
+      </button>
+    </p>
+  )
+}
+
 const SECTIONS: Section[] = [
+  {
+    id: 'onboarding',
+    icon: '🧭',
+    title: '新手引導',
+    body: (
+      <>
+        <GuidedReplayControl />
+        <p>
+          <strong>一句話玩法</strong>：像考生一樣唸書 ＋ 做題，每一分鐘閱讀、每一題答對都變成能量，
+          推著你的神經元在腦圖上前進；走到腦區就抽出一隻神經元收進圖鑑。答錯的題會進「錯題出征」，
+          重新答對＝修復腦圖連線、還能抽 DMN 命運卡。
+        </p>
+        <p>
+          <strong>名詞小辭典</strong>（想知道背後的神經科學再看）：
+        </p>
+        <ul style={{ margin: '0.2rem 0', paddingLeft: '1.1rem', lineHeight: 1.6 }}>
+          <li>
+            <strong>生長錐（growth cone）</strong>：神經發育時在前端探路的構造 —
+            腦圖上替你前進、收集神經元的那隻就是它。
+          </li>
+          <li>
+            <strong>白質束</strong>：大腦各區之間的神經纖維「高速公路」— 腦圖上的路徑。
+          </li>
+          <li>
+            <strong>突觸（synapse）</strong>：兩個神經元之間的連接點 —
+            同一天出征修復不同科，就在它們之間長出突觸連線。
+          </li>
+          <li>
+            <strong>Hebbian（赫布理論）</strong>：「一起激發的神經元會連在一起」—
+            這款遊戲連線機制的科學依據。
+          </li>
+        </ul>
+      </>
+    ),
+  },
   {
     id: 'hotkeys',
     icon: '⌨️',
@@ -387,6 +446,9 @@ export default function HelpMenu(): JSX.Element {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [isOpen])
+
+  // Close the panel when the guided replay is requested so the overlay is visible.
+  useEffect(() => onReplayGuided(() => setIsOpen(false)), [])
 
   function toggleSection(id: string): void {
     setExpandedId((prev) => (prev === id ? null : id))
