@@ -25,6 +25,7 @@ import {
 } from '@study-rpg/content-neurons-tw'
 import {
   db,
+  defaultFamilyAccrualRow,
   todayISO,
   type NeuronVariantRow,
   type NeuronVariantProvenance,
@@ -246,8 +247,17 @@ export async function pullVariant(
         resultRow: NeuronVariantRow
         persistedNew: boolean
       }> => {
-        const accrual = await db.familyAccrual.get(familyId)
-        if (!accrual) throw new Error(`no familyAccrual row for "${familyId}"`)
+        // Lazy-seed a missing accrual row in-tx (fresh save / sync-hydration race):
+        // the row may not exist yet when a maze settle or the silent first-pull
+        // fires before any cloud hydration / answer write has created it. Seed the
+        // canonical default then proceed, so a family's first auto-pull is never
+        // dropped (mirrors recordCorrectAnswer's lazy-seed on the answer path). The
+        // subsequent `update` then bumps pullCount 0 → 1 on the freshly-added row.
+        let accrual = await db.familyAccrual.get(familyId)
+        if (!accrual) {
+          accrual = defaultFamilyAccrualRow(familyId)
+          await db.familyAccrual.add(accrual)
+        }
         const newPullCount = (accrual.pullCount ?? 0) + 1
         await db.familyAccrual.update(familyId, { pullCount: newPullCount })
 

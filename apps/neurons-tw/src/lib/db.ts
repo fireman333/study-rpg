@@ -898,6 +898,26 @@ export function todayISO(): string {
   return new Date().toLocaleDateString('en-CA')
 }
 
+/**
+ * Canonical zero-initialized `familyAccrual` row — the SINGLE source of the default
+ * shape, shared by the bulk seed (`initFamilyAccrualIfEmpty`) and the lazy
+ * in-transaction seed in the pull / answer-recording paths (variant-gacha,
+ * connectome). Keeping one definition means the bulk and lazy seeds can never
+ * drift. A family with no row is semantically equivalent to this row (ap=0,
+ * pullCount=0); the row is created lazily on that family's first write.
+ */
+export function defaultFamilyAccrualRow(familyId: string): FamilyAccrualRow {
+  return {
+    familyId,
+    ap: 0,
+    firedToday: false,
+    lastFireDate: null,
+    unlockedSlots: [],
+    sameDayCorrect: 0,
+    pullCount: 0,
+  }
+}
+
 export async function initFamilyAccrualIfEmpty(pack: ContentPack): Promise<void> {
   // Wrap count + bulkAdd in a Dexie tx so StrictMode double-mount race doesn't
   // produce ConstraintError (both effects see count=0 before either bulkAdds).
@@ -906,15 +926,7 @@ export async function initFamilyAccrualIfEmpty(pack: ContentPack): Promise<void>
     if (existingCount === 0) {
       const today = todayISO()
       await db.familyAccrual.bulkAdd(
-        pack.subjects.map((subject) => ({
-          familyId: subject.id,
-          ap: 0,
-          firedToday: false,
-          lastFireDate: null,
-          unlockedSlots: [],
-          sameDayCorrect: 0,
-          pullCount: 0,
-        })),
+        pack.subjects.map((subject) => defaultFamilyAccrualRow(subject.id)),
       )
       const existingMeta = await db.meta.get('lastResetDate')
       if (!existingMeta) {
