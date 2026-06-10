@@ -20,7 +20,7 @@ import { MazeCompletionCelebration } from '../components/MazeCompletionCelebrati
 import { ExpeditionRitualCelebration } from '../components/ExpeditionRitualCelebration'
 import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
 import { DmnDrawProgressRing } from '../components/DmnDrawProgressRing'
-import { HomepageOnboarding } from '../components/HomepageOnboarding'
+import { OnboardingHost } from '../components/OnboardingHost'
 import StudySquadPanel from '../components/StudySquadPanel'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
@@ -206,6 +206,14 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     () => questionHistory.reduce((n, h) => (h.lastResult === 'wrong' ? n + 1 : n), 0),
     [questionHistory],
   )
+  // Expedition entry one-way reveal (improve-neurons-onboarding): hidden for a
+  // never-wrong new player; shown once the player has ever answered incorrectly.
+  // `everWrong` is monotonic, so this derivation is itself the persistent one-way
+  // signal AND the backstop for players who already had wrong history pre-change.
+  const hasEverAnsweredWrong = useMemo(
+    () => questionHistory.some((h) => h.everWrong === true),
+    [questionHistory],
+  )
   const expeditionPool = useMemo(() => {
     if (!expeditionOpen) return []
     return quickReviewActive
@@ -364,7 +372,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     <>
       <QuizHotkeysAnnouncementBanner />
       <LeaderboardPromoBanner />
-      <HomepageOnboarding />
+      <OnboardingHost />
 
       <header style={heroStyle}>
         <div>
@@ -431,22 +439,29 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             <EmojiIcon char="🎲" size={18} /> 隨機跨 family 答題
             <span style={ctaCountBadgeStyle}>{totalPoolSize} 題</span>
           </button>
-          <button
-            type="button"
-            style={wrongCount > 0 ? wrongExpeditionButtonStyle : wrongExpeditionButtonDisabledStyle}
-            onClick={openExpedition}
-            disabled={wrongCount === 0}
-            aria-label="錯題出征：修復錯題建立連線"
-            title="修復跨科錯題＝在腦圖上建立突觸連線（同時獲得 DMN 抽卡）"
-          >
-            <span style={ctaCardMainStyle}>
-              <span>
-                <EmojiIcon char="⚔️" size={18} /> 錯題出征
+          {/* One-way reveal (improve-neurons-onboarding): hidden for a never-wrong
+              new player (no disabled dead button); shown once they've ever answered
+              wrong, then persistent (disabled「無錯題」when currently nothing wrong). */}
+          {hasEverAnsweredWrong && (
+            <button
+              type="button"
+              style={wrongCount > 0 ? wrongExpeditionButtonStyle : wrongExpeditionButtonDisabledStyle}
+              onClick={openExpedition}
+              disabled={wrongCount === 0}
+              aria-label="錯題出征：修復錯題建立連線"
+              title="修復跨科錯題＝在腦圖上建立突觸連線（同時獲得 DMN 抽卡）"
+            >
+              <span style={ctaCardMainStyle}>
+                <span>
+                  <EmojiIcon char="⚔️" size={18} /> 錯題出征
+                </span>
+                <span style={ctaCountBadgeStyle}>
+                  {wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}
+                </span>
               </span>
-              <span style={ctaCountBadgeStyle}>{wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}</span>
-            </span>
-            <span style={ctaCardSubStyle}>🔗 修復錯題＝建立連線</span>
-          </button>
+              <span style={ctaCardSubStyle}>🔗 修復錯題＝建立連線</span>
+            </button>
+          )}
         </div>
         <p style={quizCtaHintStyle}>
           直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
