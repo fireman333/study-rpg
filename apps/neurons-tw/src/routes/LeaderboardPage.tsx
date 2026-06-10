@@ -345,8 +345,8 @@ function NicknameWithBadges({
 }): JSX.Element {
   const badges = parseBadgesCsv(badgesCsv)
   return (
-    <span style={nicknameCellStyle}>
-      <span style={{ marginRight: badges.length > 0 ? '0.4rem' : 0 }}>{nickname}</span>
+    <span style={badges.length > 0 ? nicknameWithBadgesStyle : nicknameCellStyle}>
+      <span style={nicknameTextStyle}>{nickname}</span>
       {badges.map((b) => (
         <BadgeSprite key={`${b.category}:${b.tier}`} category={b.category} tier={b.tier} size={20} />
       ))}
@@ -469,6 +469,26 @@ const nicknameCellStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
   fontWeight: 600,
   color: '#1a1410',
+}
+
+// With badges present, lay nickname + badges out as ONE inline-flex row.
+// (BadgeSprite is a block <div> with flexShrink:0 — inside a plain inline span it
+// stacked into several rows; a flex container keeps them on one line.)
+const nicknameWithBadgesStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.25rem',
+  maxWidth: '100%',
+  fontWeight: 600,
+  color: '#1a1410',
+}
+
+// The nickname text truncates with an ellipsis; badges (flexShrink:0) stay intact.
+const nicknameTextStyle: React.CSSProperties = {
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  minWidth: 0,
 }
 
 const statCellStyle: React.CSSProperties = {
