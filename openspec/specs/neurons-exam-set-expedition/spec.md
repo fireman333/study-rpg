@@ -188,7 +188,10 @@ submission, all non-disputed questions that are wrong OR unanswered SHALL be rec
 `recordQuestionResult(q.id, q.family, false)` — setting `everWrong` (monotonic-OR, per
 `neurons-wrong-answer-list`) so they enter the ⚔️ 錯題出征 wrong-question pool. Disputed
 questions SHALL be excluded from this write. The mock flow SHALL NOT credit DMN draws (no
-`onExpeditionComplete` / `creditExpeditionDraws`).
+`onExpeditionComplete` / `creditExpeditionDraws`). After the 錯題本 batch write, the mock flow
+SHALL trigger exactly one mock-variant gacha roll, gated by the per-paper daily cap, with the
+roll mechanics and persistence defined by the `neurons-mock-variant-gacha` capability; this
+roll is independent of (and SHALL NOT credit) the DMN expedition axis or any maze progression.
 
 #### Scenario: Warn before submitting with unanswered questions
 
@@ -201,6 +204,12 @@ questions SHALL be excluded from this write. The mock flow SHALL NOT credit DMN 
 - **THEN** those questions SHALL each get a `questionHistory` row with `everWrong` set in a single submit-time batch
 - **AND** disputed questions SHALL NOT be recorded as wrong
 - **AND** no DMN draw SHALL be credited by the mock flow
+
+#### Scenario: Submit triggers exactly one mock-variant roll after the 錯題本 write
+
+- **WHEN** a mock exam is submitted and the per-paper daily cap has not been spent
+- **THEN** the 錯題本 batch write SHALL occur first, then exactly one mock-variant roll SHALL be triggered (per `neurons-mock-variant-gacha`)
+- **AND** the roll SHALL NOT credit DMN draws nor any maze progression
 
 ### Requirement: Mock scoring SHALL report accuracy, national-equivalent score, unanswered count, and per-subject breakdown
 
