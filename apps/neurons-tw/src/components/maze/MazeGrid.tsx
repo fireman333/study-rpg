@@ -92,6 +92,22 @@ const NODE_GAP_CELLS = 0.7 // node-of-Ranvier gap length (cells)
 
 const BASE_TILE = 13 // px per cell at zoom 1
 const FOCUS_SPAN = 60 // cells across when zoomed to a family (bigger grid → wider focus)
+
+// Safari / iOS canvas fill is far costlier per-frame than Chrome's, so cap the
+// device-pixel-ratio backing store lower there to bound per-frame fill cost
+// (fix-neurons-maze-safari-perf). UA heuristic — worst case a misdetected engine
+// renders at 1.5× (imperceptible on the imageSmoothing-off pixel-art), never a
+// functional bug. Chrome and other engines keep the 2× cap.
+const IS_SAFARI_OR_IOS = (() => {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent
+  const isIOS =
+    /iP(hone|od|ad)/.test(ua) ||
+    (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints ?? 0) > 1) // iPadOS reports as Mac
+  const isSafari = /^((?!chrome|crios|chromium|android|edg|fxios).)*safari/i.test(ua)
+  return isIOS || isSafari
+})()
+const MAZE_DPR_CAP = IS_SAFARI_OR_IOS ? 1.5 : 2
 // Mode-B brain backdrop: >1 enlarges the brain (centered on the grid) so its silhouette CONTAINS the
 // whole maze node bounding box (owner: "迷宮都在腦的輪廓內") instead of an oval that leaves the corners
 // outside. Higher = brain bleeds further past the panel edges (less whole-brain shape visible). The
@@ -378,9 +394,13 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     let raf = 0
+    // Edge-feather gradients depend only on canvas w/h (+ constant colours), so cache
+    // them and rebuild only on resize instead of allocating four per frame
+    // (fix-neurons-maze-safari-perf D2).
+    let featherCache: { w: number; h: number; grads: CanvasGradient[] } | null = null
 
     const resize = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      const dpr = Math.min(MAZE_DPR_CAP, window.devicePixelRatio || 1)
       const w = stage.clientWidth
       const h = stage.clientHeight
       canvas.width = Math.round(w * dpr)
@@ -647,15 +667,27 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       // maze still shows; only the rectangular cut-off softens.
       if (softEdgeRef.current) {
         const f = Math.min(w, h) * 0.16 // feather band width
+        // Rebuild the four edge gradients only when the canvas size changes (they
+        // depend solely on w/h + constant colours); reuse the cache every other frame.
+        if (!featherCache || featherCache.w !== w || featherCache.h !== h) {
+          const mk = (x0: number, y0: number, x1: number, y1: number): CanvasGradient => {
+            const g = ctx.createLinearGradient(x0, y0, x1, y1)
+            g.addColorStop(0, OUTSIDE)
+            g.addColorStop(1, OUTSIDE_T)
+            return g
+          }
+          featherCache = {
+            w,
+            h,
+            grads: [mk(0, 0, f, 0), mk(w, 0, w - f, 0), mk(0, 0, 0, f), mk(0, h, 0, h - f)],
+          }
+        }
+        const [gl, gr, gt, gb] = featherCache.grads
         ctx.save()
-        let g = ctx.createLinearGradient(0, 0, f, 0)
-        g.addColorStop(0, OUTSIDE); g.addColorStop(1, OUTSIDE_T); ctx.fillStyle = g; ctx.fillRect(0, 0, f, h)
-        g = ctx.createLinearGradient(w, 0, w - f, 0)
-        g.addColorStop(0, OUTSIDE); g.addColorStop(1, OUTSIDE_T); ctx.fillStyle = g; ctx.fillRect(w - f, 0, f, h)
-        g = ctx.createLinearGradient(0, 0, 0, f)
-        g.addColorStop(0, OUTSIDE); g.addColorStop(1, OUTSIDE_T); ctx.fillStyle = g; ctx.fillRect(0, 0, w, f)
-        g = ctx.createLinearGradient(0, h, 0, h - f)
-        g.addColorStop(0, OUTSIDE); g.addColorStop(1, OUTSIDE_T); ctx.fillStyle = g; ctx.fillRect(0, h - f, w, f)
+        ctx.fillStyle = gl; ctx.fillRect(0, 0, f, h)
+        ctx.fillStyle = gr; ctx.fillRect(w - f, 0, f, h)
+        ctx.fillStyle = gt; ctx.fillRect(0, 0, w, f)
+        ctx.fillStyle = gb; ctx.fillRect(0, h - f, w, f)
         ctx.restore()
       }
 
