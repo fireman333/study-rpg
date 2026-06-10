@@ -215,7 +215,7 @@ function DmnRevealCard({
       <div style={cardNameStyle}>{card.displayName}</div>
       <p style={descStyle}>{catalog.description}</p>
       <div style={eventChipStyle}>✦ {EVENT_LABEL[card.eventKind]}</div>
-      <p style={backpackNoteStyle}>已放入背包 — 在 /dmn 背包頁手動啟用</p>
+      <p style={backpackNoteStyle}>已放入背包 — 在「圖鑑 → DMN」的背包區手動啟用</p>
       <button type="button" onClick={onClose} style={primaryBtnStyle}>
         收下 ✓
       </button>
@@ -253,7 +253,7 @@ function EquipmentRevealCard({
       <div style={cardNameStyle}>{def.displayName}</div>
       <p style={descStyle}>{def.description}</p>
       <div style={eventChipStyle}>{LANE_LABEL[def.lane]} · +{Math.round(def.bonus * 100)}%</div>
-      <p style={backpackNoteStyle}>永久加成已生效 — 在 /dmn 裝備頁查看</p>
+      <p style={backpackNoteStyle}>永久加成已生效 — 在「圖鑑 → DMN」的裝備區查看</p>
       <button type="button" onClick={onClose} style={primaryBtnStyle}>
         收下 ✓
       </button>

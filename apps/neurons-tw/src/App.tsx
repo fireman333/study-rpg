@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import type { ContentPack } from '@study-rpg/core'
 import { getContentPack } from '@study-rpg/content-neurons-tw'
@@ -88,16 +88,7 @@ export default function App(): JSX.Element {
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>腦圖 →</span>
                 )}
               </NavLink>
-              <NavLink to="/collection" style={navLinkStyle}>
-                {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>圖鑑 →</span>
-                )}
-              </NavLink>
-              <NavLink to="/dmn" style={navLinkStyle}>
-                {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>DMN →</span>
-                )}
-              </NavLink>
+              <GroupNavLink to="/collection" label="圖鑑 →" group={COLLECTION_GROUP_PATHS} />
               <NavLink to="/bookmarks" style={navLinkStyle}>
                 {({ isActive }) => (
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>收藏 →</span>
@@ -108,21 +99,7 @@ export default function App(): JSX.Element {
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>題庫 →</span>
                 )}
               </NavLink>
-              <NavLink to="/achievements" style={navLinkStyle}>
-                {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>成就 →</span>
-                )}
-              </NavLink>
-              <NavLink to="/leaderboard" style={navLinkStyle}>
-                {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>排名 →</span>
-                )}
-              </NavLink>
-              <NavLink to="/shoutout" style={navLinkStyle}>
-                {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>留言 →</span>
-                )}
-              </NavLink>
+              <GroupNavLink to="/leaderboard" label="社群 →" group={COMMUNITY_GROUP_PATHS} />
             </nav>
             <span style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <DmnDrawButton />
@@ -159,21 +136,76 @@ function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
           <Route path="/" element={<OverviewPage pack={pack} />} />
           {/* /connectome is fused into the homepage — redirect old bookmarks. */}
           <Route path="/connectome" element={<Navigate to="/" replace />} />
-          <Route path="/leaderboard" element={<LeaderboardPage />} />
-          <Route path="/achievements" element={<AchievementsPage />} />
-          <Route path="/dmn" element={<DmnCollectionPage />} />
-          <Route path="/collection" element={<CollectionPage pack={pack} />} />
+          {/* 圖鑑 group — URLs unchanged, pages share the sub-tab bar via a pathless layout route. */}
+          <Route element={<SubTabLayout group="collection" />}>
+            <Route path="/collection" element={<CollectionPage pack={pack} />} />
+            <Route path="/dmn" element={<DmnCollectionPage />} />
+            <Route path="/achievements" element={<AchievementsPage />} />
+          </Route>
+          {/* 社群 group */}
+          <Route element={<SubTabLayout group="community" />}>
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/shoutout" element={<ShoutoutBoardPage pack={pack} />} />
+          </Route>
           {/* /maze-beta is fused into the homepage — redirect old bookmarks. */}
           <Route path="/maze-beta" element={<Navigate to="/" replace />} />
           <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
           <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
           {/* Relocated into /collection (finalize-mock-variant-catalog); keep a redirect for any old link. */}
           <Route path="/mock-collection" element={<Navigate to="/collection" replace />} />
-          <Route path="/shoutout" element={<ShoutoutBoardPage pack={pack} />} />
           <Route path="/motion-demo" element={<MotionDemoPage />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
+  )
+}
+
+/**
+ * Tab consolidation (consolidate-neurons-nav-tabs): the top nav groups the
+ * collection-flavored pages (圖鑑/DMN/成就) and the community pages (排名/留言)
+ * under one tab each. Routes are unchanged — only navigation is regrouped.
+ */
+const COLLECTION_GROUP_PATHS = ['/collection', '/dmn', '/achievements']
+const COMMUNITY_GROUP_PATHS = ['/leaderboard', '/shoutout']
+
+const SUBTAB_GROUPS = {
+  collection: [
+    { to: '/collection', label: '神經元圖鑑' },
+    { to: '/dmn', label: 'DMN' },
+    { to: '/achievements', label: '成就' },
+  ],
+  community: [
+    { to: '/leaderboard', label: '排名' },
+    { to: '/shoutout', label: '留言' },
+  ],
+} as const
+
+/** Top-nav tab whose active state covers a whole sub-tab group of sibling routes. */
+function GroupNavLink({ to, label, group }: { to: string; label: string; group: string[] }): JSX.Element {
+  const { pathname } = useLocation()
+  const active = group.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+  return (
+    <NavLink to={to} style={navLinkStyle}>
+      <span style={active ? activeNavBoxStyle : navBoxStyle}>{label}</span>
+    </NavLink>
+  )
+}
+
+/** Pathless layout route: sub-tab pill bar above the matched child page. */
+function SubTabLayout({ group }: { group: keyof typeof SUBTAB_GROUPS }): JSX.Element {
+  return (
+    <>
+      <nav style={subTabBarStyle} aria-label={group === 'collection' ? '圖鑑分頁' : '社群分頁'}>
+        {SUBTAB_GROUPS[group].map((t) => (
+          <NavLink key={t.to} to={t.to} style={navLinkStyle} end>
+            {({ isActive }) => (
+              <span style={isActive ? activeSubTabStyle : subTabStyle}>{t.label}</span>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+      <Outlet />
+    </>
   )
 }
 
@@ -226,4 +258,32 @@ const activeNavBoxStyle: React.CSSProperties = {
   color: '#fff',
   border: '2px solid #b8893a',
   boxShadow: '0 2px 6px rgba(180, 137, 58, 0.4)',
+}
+
+/* Underline-tablist sub-tab styling, ported from 二階's `.achievements-tab`
+ * pattern (full-width bottom rule + gold underline on the active tab),
+ * re-palette'd for the neurons warm chrome. */
+const subTabBarStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '0.25rem',
+  borderBottom: '2px solid #d4c4a0',
+  marginBottom: '1rem',
+}
+
+const subTabStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '0.5rem 1.1rem',
+  borderBottom: '3px solid transparent',
+  marginBottom: -2,
+  color: '#8c6d4a',
+  fontSize: '1rem',
+  fontWeight: 700,
+  whiteSpace: 'nowrap',
+  transition: 'color 0.12s ease, border-color 0.12s ease',
+}
+
+const activeSubTabStyle: React.CSSProperties = {
+  ...subTabStyle,
+  color: '#5a3f29',
+  borderBottomColor: '#d4a04d',
 }

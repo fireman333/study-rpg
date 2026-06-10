@@ -28,6 +28,17 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   ['🔭', '1f52d.png'],
   ['🧠', '1f9e0.png'],
   ['🧬', '1f9ec.png'],
+  // HelpMenu chrome backfill (pixelate-neurons-helpmenu-emoji)
+  ['⌨', '2328.png'],
+  ['❓', '2753.png'],
+  ['🌟', '1f31f.png'],
+  ['🏅', '1f3c5.png'],
+  ['🐛', '1f41b.png'],
+  ['💎', '1f48e.png'],
+  ['📋', '1f4cb.png'],
+  ['🔌', '1f50c.png'],
+  ['🚀', '1f680.png'],
+  ['🧭', '1f9ed.png'],
 ]
 
 const ICON_MAP = new Map(ICON_FILES)

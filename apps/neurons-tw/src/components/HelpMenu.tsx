@@ -18,6 +18,7 @@
 
 import { useEffect, useState } from 'react'
 import BugReportModal from './BugReportModal'
+import { EmojiIcon } from './EmojiIcon'
 import { getExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-visibility'
 import { requestReplayGuided, onReplayGuided } from '../lib/services/onboarding'
 
@@ -63,7 +64,7 @@ function ExpeditionAnimationHelpControl(): JSX.Element {
         aria-pressed={!hidden}
         style={helpPillButtonStyle}
       >
-        {hidden ? '🚀 顯示遠征動畫' : '🚀 隱藏遠征動畫'}
+        <EmojiIcon char="🚀" size={14} decorative /> {hidden ? '顯示遠征動畫' : '隱藏遠征動畫'}
       </button>
     </p>
   )
@@ -85,7 +86,7 @@ function GuidedReplayControl(): JSX.Element {
         onClick={requestReplayGuided}
         style={helpPillButtonStyle}
       >
-        🧭 重看新手引導
+        <EmojiIcon char="🧭" size={14} decorative /> 重看新手引導
       </button>
     </p>
   )
@@ -334,7 +335,7 @@ const SECTIONS: Section[] = [
           hidden-reveal（在 /dmn 頁顯示下一張未抽 P1 的剪影提示）。低機率抽到永久裝備/夥伴。
         </p>
         <p>
-          全收集 + 永久陳列在「<a href="/dmn">DMN</a>」頁面。
+          全收集 + 永久陳列在「圖鑑 → <a href="/dmn">DMN</a>」分頁。
         </p>
       </>
     ),
@@ -378,7 +379,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          <a href="/achievements">/achievements</a> 共 33 條 × 4 階
+          「圖鑑 → <a href="/achievements">成就</a>」分頁共 33 條 × 4 階
           （<strong>P1 鑽石 / P2 金 / P3 銀 / P4 銅</strong>），分 7 大類
           （學習 / 答題 / 變體 / 連線 / 精通 / 時運 / 隱藏）。
         </p>
@@ -396,7 +397,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          <strong>Opt-in</strong>：到「<a href="/leaderboard">排行榜</a>」頁面 → 點「公開到排行榜」
+          <strong>Opt-in</strong>：到「社群 → <a href="/leaderboard">排名</a>」分頁 → 點「公開到排行榜」
           → 設定 2–12 字的暱稱（NFKC + 小寫 normalize 撞名檢查）→ 同意公開即上榜。
           完全不上榜也可以正常玩，所有資料留在本機。
         </p>
@@ -660,7 +661,7 @@ export default function HelpMenu(): JSX.Element {
         aria-expanded={isOpen}
         onClick={() => setIsOpen((v) => !v)}
       >
-        ❓
+        <EmojiIcon char="❓" size={22} decorative />
       </button>
 
       {isOpen && (
@@ -677,7 +678,9 @@ export default function HelpMenu(): JSX.Element {
             aria-label="說明選單"
           >
             <header className="neurons-help-header">
-              <h2>📖 說明選單</h2>
+              <h2>
+                <EmojiIcon char="📖" size={16} decorative /> 說明選單
+              </h2>
               <button
                 type="button"
                 className="neurons-help-close"
@@ -710,7 +713,7 @@ export default function HelpMenu(): JSX.Element {
                         }}
                       >
                         <span className="neurons-help-section-icon" aria-hidden="true">
-                          {section.icon}
+                          <EmojiIcon char={section.icon} size={20} decorative />
                         </span>
                         <span>{section.title}</span>
                       </summary>
@@ -722,7 +725,7 @@ export default function HelpMenu(): JSX.Element {
                             className="neurons-help-bugreport-btn"
                             onClick={() => setBugOpen(true)}
                           >
-                            🩺 開啟回報表單
+                            <EmojiIcon char="🩺" size={15} decorative /> 開啟回報表單
                           </button>
                         )}
                       </div>
