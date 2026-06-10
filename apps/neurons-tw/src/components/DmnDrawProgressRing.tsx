@@ -1,40 +1,43 @@
 /**
- * DmnDrawProgressRing — replaces the homepage prose rule line ("每 30 min 觸發 DMN
- * 抽卡…") with a visual ring showing today's EXPEDITION-axis DMN draws earned
- * toward the daily cap. Daily-cap aware: once the cap is reached it renders an
- * explicit terminal state instead of a misleading countdown.
+ * DmnDrawProgressRing — the homepage DMN-draw progress indicator, rendered as a
+ * horizontal progress BAR (the prior circular ring form is retired, per
+ * redesign-neurons-homepage-cta). The export name is kept because the
+ * neurons-homepage spec references this component by name ("the
+ * `DmnDrawProgressRing` indicator (in its bar form)"). It is folded into the
+ * merged daily-loop stat card (ConnectomeStatCard), so it is styled for that
+ * card's light cream/brown theme rather than the old dark signal theme.
  *
- * Data source is the DMN expedition axis (`readDmnMeta`, `dmnTimeAxisDrawsConsumedToday`
- * = expedition draws today, `dmnTimeAxisMinutesAccrued` = cumulative expedition
- * clears today; legacy key names per add-neurons-expedition-rewards). Live via
- * Dexie liveQuery so it advances as the player clears wrong-questions in 出征.
+ * Shows today's EXPEDITION-axis DMN draws earned toward the daily cap.
+ * Daily-cap aware: once the cap is reached it renders an explicit terminal
+ * state (「今日抽卡已達上限」) instead of a misleading countdown.
  *
- * Covers the EXPEDITION-axis story only ("clearing wrong-questions earns draws");
- * behaviour-axis draws (variant / synapse events) surface via their own toasts.
+ * Data source is the DMN expedition axis (`readDmnMeta`,
+ * `dmnTimeAxisDrawsConsumedToday` = expedition draws today,
+ * `dmnTimeAxisMinutesAccrued` = cumulative expedition clears today; legacy key
+ * names per add-neurons-expedition-rewards). Live via Dexie liveQuery so it
+ * advances as the player clears wrong-questions in 出征.
  *
  * Spec: openspec/specs/neurons-homepage/spec.md
  *   "Homepage SHALL display a cap-aware 'next DMN draw' progress ring driven by
- *    real reading-timer data" (data source moved to expedition axis)
+ *    real reading-timer data" (rendered in its bar form; data source = expedition axis)
  */
 
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { liveQuery } from 'dexie'
 import { DMN_EXPEDITION_DAILY_CAP } from '@study-rpg/content-neurons-tw'
 import { readDmnMeta } from '../lib/services/dmn-trigger'
 
-interface RingState {
+interface BarState {
   clearsToday: number
   drawsToday: number
   drawsAvailable: number
   capped: boolean
 }
 
-const R = 26
-const STROKE = 6
-const C = 2 * Math.PI * R
-
-export function DmnDrawProgressRing(): JSX.Element {
-  const [state, setState] = useState<RingState | null>(null)
+// Propless + self-subscribing, so memo lets the parent card's 詳細 toggle re-render
+// without re-running this live-data bar.
+export const DmnDrawProgressRing = memo(function DmnDrawProgressRing(): JSX.Element {
+  const [state, setState] = useState<BarState | null>(null)
 
   useEffect(() => {
     const sub = liveQuery(async () => {
@@ -54,15 +57,11 @@ export function DmnDrawProgressRing(): JSX.Element {
     return () => sub.unsubscribe()
   }, [])
 
-  const fraction = state
-    ? state.capped
-      ? 1
-      : Math.min(1, state.drawsToday / DMN_EXPEDITION_DAILY_CAP)
-    : 0
-  const offset = C * (1 - fraction)
-  const ringColor = state?.capped ? 'var(--signal-amber, #f0a830)' : 'var(--signal-cyan, #38e0d0)'
+  // capped ⟹ drawsToday ≥ CAP, so Math.min already yields 1 in that case.
+  const fraction = state ? Math.min(1, state.drawsToday / DMN_EXPEDITION_DAILY_CAP) : 0
+  const fillColor = state?.capped ? '#e0992f' : '#3a9b8f'
 
-  const centerLabel = (() => {
+  const countLabel = (() => {
     if (!state) return '—'
     if (state.capped) return '滿'
     return `${state.drawsToday}/${DMN_EXPEDITION_DAILY_CAP}`
@@ -77,61 +76,67 @@ export function DmnDrawProgressRing(): JSX.Element {
 
   return (
     <div style={wrapStyle} aria-label={caption}>
-      <svg width={(R + STROKE) * 2} height={(R + STROKE) * 2} aria-hidden>
-        <circle
-          cx={R + STROKE}
-          cy={R + STROKE}
-          r={R}
-          fill="none"
-          stroke="var(--signal-dim, #2a4a52)"
-          strokeWidth={STROKE}
-        />
-        <circle
-          cx={R + STROKE}
-          cy={R + STROKE}
-          r={R}
-          fill="none"
-          stroke={ringColor}
-          strokeWidth={STROKE}
-          strokeLinecap="round"
-          strokeDasharray={C}
-          strokeDashoffset={offset}
-          transform={`rotate(-90 ${R + STROKE} ${R + STROKE})`}
-          style={{ transition: 'stroke-dashoffset 0.5s ease' }}
-        />
-        <text
-          x={R + STROKE}
-          y={R + STROKE}
-          textAnchor="middle"
-          dominantBaseline="central"
-          style={{
-            fill: 'var(--signal-ink, #cfe8e2)',
-            fontFamily: 'var(--font-pixel-num)',
-            fontSize: state?.capped ? 16 : 20,
-          }}
-        >
-          {centerLabel}
-        </text>
-      </svg>
-      <span style={captionStyle}>
-        💎 {caption}
-      </span>
+      <div style={headerRowStyle}>
+        <span style={labelStyle}>💎 DMN 抽卡</span>
+        <span style={countStyle}>{countLabel}</span>
+      </div>
+      <div
+        style={trackStyle}
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={DMN_EXPEDITION_DAILY_CAP}
+        aria-valuenow={state?.drawsToday ?? 0}
+      >
+        <div style={{ ...fillStyle, width: `${fraction * 100}%`, background: fillColor }} />
+      </div>
+      <span style={captionStyle}>{caption}</span>
     </div>
   )
-}
+})
 
 const wrapStyle: React.CSSProperties = {
   display: 'flex',
-  alignItems: 'center',
-  gap: '0.6rem',
-  padding: '0.4rem 0.7rem',
-  background: 'var(--signal-bg, #0c1418)',
-  border: '2px solid var(--signal-dim, #2a4a52)',
-  borderRadius: '6px',
+  flexDirection: 'column',
+  gap: '0.3rem',
+  width: '100%',
+}
+
+const headerRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'baseline',
+  justifyContent: 'space-between',
+  gap: '0.4rem',
+}
+
+const labelStyle: React.CSSProperties = {
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  color: '#5a3f29',
+}
+
+const countStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-pixel-num)',
+  fontSize: '0.9rem',
+  color: '#5a3f29',
+}
+
+const trackStyle: React.CSSProperties = {
+  height: '10px',
+  width: '100%',
+  background: '#e3d5bd',
+  border: '1px solid #cdb892',
+  borderRadius: '999px',
+  overflow: 'hidden',
+}
+
+const fillStyle: React.CSSProperties = {
+  height: '100%',
+  borderRadius: '999px',
+  transition: 'width 0.5s ease',
 }
 
 const captionStyle: React.CSSProperties = {
-  fontSize: '0.82rem',
-  color: 'var(--signal-ink, #cfe8e2)',
-  fontWeight: 600,
+  fontSize: '0.72rem',
+  color: '#6b5640',
+  lineHeight: 1.4,
 }

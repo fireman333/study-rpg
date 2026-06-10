@@ -244,7 +244,7 @@ The maze SHALL be a single unified **square** grid map shared by all 11 subject 
 
 ### Requirement: Maze SHALL read as a brain (neural-fiber design language)
 
-The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural-tissue backdrop (cortical-fold / myelin texture on the dark signal palette), the weave corridors styled as axon fibers, the crossing-synapses as synaptic-bouton glyphs (brightening when potentiated), and the center as a dense synaptic core. The brain styling SHALL be realized through a **crafted 16×16 pixel-art tile atlas** (GBA-寶可夢 art direction) blitted at nearest-neighbor (no smoothing), NOT through procedural primitive shapes. Corridor fiber tiles SHALL be selected by **autotiling** — each corridor cell's structural tile (straight / curve / T-junction / 4-way cross / cap) is chosen from that cell's connectivity to its neighbours along the family routes, and the over/under weave at a crossing renders the over fiber unbroken and the under fiber gapped. Each family's corridor SHALL be rendered in that family's colour (so routes are traceable), tinted at render time from a single neutral fiber tile set rather than per-family atlas art. The brain styling SHALL NOT obscure the redundant family encoding (corridor colour + node colour + node-shape) and SHALL respect reduced-motion (no required animation to perceive structure).
+The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural-tissue backdrop (cortical-fold / myelin texture on the dark signal palette), the weave corridors styled as axon fibers, the crossing-synapses as synaptic-bouton glyphs (brightening when potentiated), and the center as a dense synaptic core. The brain styling SHALL be realized through a **crafted 16×16 pixel-art tile atlas** (GBA-寶可夢 art direction) blitted at nearest-neighbor (no smoothing), NOT through procedural primitive shapes. Corridor fiber tiles SHALL be selected by **autotiling** — each corridor cell's structural tile (straight / curve / T-junction / 4-way cross / cap) is chosen from that cell's connectivity to its neighbours along the family routes, and the over/under weave at a crossing renders the over fiber unbroken and the under fiber gapped. Each family's corridor SHALL be rendered in that family's colour (so routes are traceable), tinted at render time from a single neutral fiber tile set rather than per-family atlas art; the **family colour SHALL be the corridor's dominant visual weight**, with the gold myelin sheath rendered as a framing accent on either side rather than the dominant band, so the 11 families are distinguishable by colour at a glance. The brain styling SHALL NOT obscure the redundant family encoding (corridor colour + node colour + node-shape) and SHALL respect reduced-motion (no required animation to perceive structure).
 
 #### Scenario: Maze is visually brain-themed
 
@@ -262,11 +262,12 @@ The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural
 
 - **WHEN** the maze renders multiple families' corridors
 - **THEN** each family's corridor is drawn in that family's colour (tinted from one neutral fiber tile set), so a route can be visually traced end to end
+- **AND** the family colour is the corridor's dominant visual weight (the gold myelin sheath frames it rather than dominating), so the 11 families' colours are distinguishable at a glance
 - **AND** node colour + node-shape redundancy remains for color-blind users
 
 ### Requirement: Maze SHALL render from a committed pixel-art tile atlas with graceful fallback
 
-The maze renderer SHALL draw cells by blitting from a single committed pixel-art atlas asset (`apps/neurons-tw/src/assets/maze/tiles/maze-atlas.png`) addressed through a tile-index map, using `imageSmoothingEnabled = false` for crisp pixel scaling. The atlas SHALL contain the seamless structural tiles (neural-tissue background, axon corridor straight / curve / T / cross / cap, over-under weave bridge, fog) and the standalone hero glyphs (variant node neuron, synaptic bouton, center soma core, border entry portal, walker). Atlas adoption SHALL NOT change the committed maze routes, economy, schema, or sync (no Dexie or R2 bundle version bump). If the atlas asset fails to load, the renderer SHALL fall back to the procedural draw so the maze never displays broken images.
+The maze renderer SHALL draw cells by blitting from a single committed pixel-art atlas asset (`apps/neurons-tw/src/assets/maze/tiles/maze-atlas.png`) addressed through a tile-index map, using `imageSmoothingEnabled = false` for crisp pixel scaling. The atlas SHALL contain the seamless structural tiles (neural-tissue background, axon corridor straight / curve / T / cross / cap, over-under weave bridge, fog) and the standalone hero glyphs (variant node neuron, synaptic bouton, center soma core, border entry portal, walker). Atlas adoption SHALL NOT change the committed maze routes, economy, schema, or sync (no Dexie or R2 bundle version bump). If the atlas asset fails to load, the renderer SHALL fall back to the procedural draw so the maze never displays broken images. To bound per-frame fill cost on high-cost canvas platforms, the renderer MAY cap the device-pixel-ratio backing-store resolution lower on Safari / iOS (e.g. 1.5×) than on other engines (2×), provided `imageSmoothingEnabled` stays off so the pixel-art tiles remain crisp; this platform-adaptive cap SHALL NOT change routes, economy, schema, or sync.
 
 #### Scenario: Cells blit from the atlas
 
@@ -282,6 +283,13 @@ The maze renderer SHALL draw cells by blitting from a single committed pixel-art
 
 - **WHEN** this change ships
 - **THEN** the committed `grid-graph.json` routes, the per-family economy, the Dexie schema version, and the R2 bundle `SCHEMA_VERSION` are all unchanged
+
+#### Scenario: DPR backing-store is capped lower on Safari / iOS
+
+- **WHEN** the maze renders on a Safari / iOS engine
+- **THEN** the device-pixel-ratio backing store MAY be capped lower (e.g. 1.5×) than on other engines (2×) to reduce per-frame fill cost
+- **AND** `imageSmoothingEnabled` stays off so the tiles remain crisp
+- **AND** routes, economy, schema, and sync are unchanged
 
 ### Requirement: Build-time weave pipeline SHALL emit a single committed grid graph
 

@@ -18,6 +18,7 @@ import type { FamilyModeCounts, QuizMode } from '../lib/services/srs-scheduler'
 import MasteryChip from './MasteryChip'
 import VariantCollectionChip from './VariantCollectionChip'
 import { EmojiIcon } from './EmojiIcon'
+import { YearFilterBar } from './YearFilterBar'
 
 const SPRITE_MAP = THEME_PIXEL_NEURONS.sprites
 
@@ -63,6 +64,11 @@ export function FamilyPicker({
           {pack.subjects.length} family · 出征一起修復跨科錯題 → wire 連線
         </span>
       </header>
+
+      {/* Exam-year filter scopes the per-family quiz pool (relocated here from the
+          old CTA toolbar by redesign-neurons-homepage-cta; reads global
+          quiz.yearFilter meta, no props needed). */}
+      <YearFilterBar />
 
       {groupSubjectsByPaper(pack.subjects).map((group) => (
         <div key={group.id} style={paperGroupStyle}>
