@@ -16,7 +16,6 @@ import AchievementsPage from './routes/AchievementsPage'
 import AchievementToastHost from './components/AchievementToastHost'
 import AchievementUnlockModal from './components/AchievementUnlockModal'
 import DmnCollectionPage from './routes/DmnCollectionPage'
-import DmnDrawButton from './components/DmnDrawButton'
 import BookmarksPage from './routes/BookmarksPage'
 import CollectionPage from './routes/CollectionPage'
 import { QuestionBankPage } from './routes/QuestionBankPage'
@@ -85,24 +84,23 @@ export default function App(): JSX.Element {
             <nav className="neurons-nav">
               <NavLink to="/" style={navLinkStyle} end>
                 {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>腦圖 →</span>
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>腦圖</span>
                 )}
               </NavLink>
-              <GroupNavLink to="/collection" label="圖鑑 →" group={COLLECTION_GROUP_PATHS} />
+              <GroupNavLink to="/collection" label="圖鑑" group={COLLECTION_GROUP_PATHS} />
               <NavLink to="/bookmarks" style={navLinkStyle}>
                 {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>收藏 →</span>
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>收藏</span>
                 )}
               </NavLink>
               <NavLink to="/bank" style={navLinkStyle}>
                 {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>題庫 →</span>
+                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>題庫</span>
                 )}
               </NavLink>
-              <GroupNavLink to="/leaderboard" label="社群 →" group={COMMUNITY_GROUP_PATHS} />
+              <GroupNavLink to="/leaderboard" label="社群" group={COMMUNITY_GROUP_PATHS} />
             </nav>
-            <span style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <DmnDrawButton />
+            <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
               <AuthGate />
             </span>
           </header>

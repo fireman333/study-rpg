@@ -115,6 +115,293 @@ body:has(.modal-backdrop) {
   }
 }
 
+/* ── Family-grid + embedded-maze master-detail (reposition-neurons-maze-master-detail → C′ desktop /
+ * A2 mobile). The ONE maze canvas always lives in `.neurons-md__detail`; EVERY layout state change is
+ * a class-toggle + grid-template change only — the canvas is NEVER re-parented/remounted. ALL
+ * canvas-container size changes SNAP (no transitions on `.neurons-md*` / `.maze-stage` — a width/height
+ * transition would fire the ResizeObserver every frame → backing-store realloc + full reblit → iOS OOM);
+ * only sibling DockHeader / chip-rail opacity+translateY one-shot fades animate.
+ *
+ * DESKTOP (≥768px): non-detail = 2-col rail (cards left, maze sticky right). Detail mode (`is-detail`,
+ * == a family is selected) = FULL-WIDTH single column — a DockHeader (the enlarged selected card) above
+ * the maze, the 2-col grid `display:none` (stays MOUNTED so its liveQuery chip counts stay warm), and a
+ * single-row FamilyChipRail below for no-返回 family switching.
+ * MOBILE (<768px): cards stack; tapping a card CSS-docks the detail under it (`is-docked`, absolute).
+ * The DockHeader + chip rail are hidden on mobile (the card itself is the affordance + switch surface). */
+.neurons-md { display: block; position: relative; }
+.neurons-md__detail { margin: 0 0 0.7rem; }
+
+/* Maze stage sizing (off inline so the media + detail-mode rules can override the 1:1 aspect). */
+.maze-stage {
+  width: 100%;
+  max-width: 760px;
+  margin: 0.75rem auto 0;
+  aspect-ratio: 1 / 1;
+}
+
+/* ── Observation-well seam (light/dark): cream box → darkened-cream mat → copper hairline → navy
+ * glass panel. The detail wrapper is the mat; the maze panel a recessed navy well with a warm radial
+ * top-light + faint purple inner stroke. When a family is selected both edges pick up its accent
+ * (--family-accent, set inline on .neurons-md). Presentation-only — the in-canvas spotlight is
+ * handled separately by emphasisFamilyId, so no canvas re-bake. */
+.neurons-md.is-expanded .neurons-md__detail {
+  background: #e7dabb;
+  border: 1px solid #8c6d4a;
+  border-radius: 14px;
+  padding: 5px;
+  box-shadow: inset 0 1px 5px rgba(60, 42, 26, 0.3);
+}
+.neurons-md.is-detail .neurons-md__detail {
+  border-color: color-mix(in srgb, var(--family-accent, #8c6d4a) 55%, #8c6d4a);
+}
+.neurons-md.is-expanded .neurons-md__detail .maze-panel {
+  background: radial-gradient(120% 90% at 50% 0%, #221c3f 0%, #0b0a1f 55%);
+  border: 1.5px solid #8c6d4a;
+  box-shadow: inset 0 0 0 1px rgba(124, 112, 196, 0.22), 0 2px 12px rgba(20, 14, 38, 0.5);
+}
+.neurons-md.is-detail .neurons-md__detail .maze-panel {
+  border-color: color-mix(in srgb, var(--family-accent, #8c6d4a) 60%, #3a2f63);
+}
+
+/* DockHeader (C′) + chip rail one-shot fade-in. These are SIBLINGS of the canvas container, so
+ * animating them never resizes the stage. Re-runs only on mount (entering detail), not on family
+ * switch (the element persists → content swaps with no re-fade → zero layout shift). */
+.neurons-md__dock-header,
+.neurons-md__rail {
+  animation: maze-dock-fade-in 240ms ease-out 1 both;
+}
+@keyframes maze-dock-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Chip rail = single horizontal row of all 11 family chips below the maze (醫學一/醫學二 flattened to
+ * a thin divider). Wraps rather than scrolls if a viewport is unusually narrow for ≥768px. */
+.neurons-md__rail {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #c4a878;
+}
+.neurons-md__rail-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 22px;
+  background: #c4a878;
+  margin: 0 0.15rem;
+}
+
+/* On mobile the DockHeader + chip rail are NOT used — the card stays on-screen above the docked maze. */
+@media (max-width: 767px) {
+  .neurons-md__dock-header,
+  .neurons-md__rail { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neurons-md__dock-header,
+  .neurons-md__rail { animation: none; }
+}
+
+@media (min-width: 768px) {
+  /* Non-detail = the 2-col rail (cards left, maze sticky right; DOM order is detail-first → placed to
+   * column 2). Collapsed → block flow (thin teaser on top, cards full width). */
+  .neurons-md.is-expanded:not(.is-detail) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    gap: 1rem;
+    align-items: start;
+  }
+  .neurons-md.is-expanded:not(.is-detail) .neurons-md__detail {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    position: sticky;
+    top: 0.6rem;
+    align-self: start;
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+  }
+  .neurons-md.is-expanded:not(.is-detail) .neurons-md__master {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Detail mode (C′): full-width single column. The 2-col grid is hidden (stays MOUNTED); the stage
+   * drops its 1:1/max-width and takes a tall fixed height — a SNAP change (no transition). */
+  .neurons-md.is-expanded.is-detail {
+    display: block;
+  }
+  .neurons-md.is-expanded.is-detail .neurons-md__master {
+    display: none;
+  }
+  .neurons-md.is-expanded.is-detail .neurons-md__detail .maze-stage {
+    max-width: none;
+    aspect-ratio: auto;
+    height: clamp(380px, 62vh, 640px);
+    margin: 0.4rem auto 0;
+  }
+}
+
+/* Mobile compact IN-FLOW panel + A2 dock-under-card. The maze scrolls naturally with the page (NOT a
+ * pinned band — a first cut pinned `position:sticky;top:0` covering ~60-70% of the iOS large viewport +
+ * `touch-action:none` trapped page scroll → owner「腦圖展開會擋住整個視窗」→ reverted). All MazeGrid
+ * chrome is hidden + the panel tightened so only collapse + stage show; the stage takes a compact band
+ * height sized against the SMALL viewport (svh). */
+@media (max-width: 767px) {
+  .neurons-md.is-expanded .neurons-md__detail {
+    margin: 0 0 0.7rem;
+  }
+  .neurons-md.is-expanded .neurons-md__detail .maze-topbar,
+  .neurons-md.is-expanded .neurons-md__detail .maze-howto,
+  .neurons-md.is-expanded .neurons-md__detail .maze-expedition-band,
+  .neurons-md.is-expanded .neurons-md__detail .maze-legend {
+    display: none;
+  }
+  .neurons-md.is-expanded .neurons-md__detail .maze-panel {
+    padding: 0.5rem 0.6rem 0.6rem;
+    margin-bottom: 0;
+  }
+  .neurons-md.is-expanded .neurons-md__detail .maze-stage {
+    aspect-ratio: auto;
+    height: clamp(220px, 40vh, 320px); /* fallback for pre-svh browsers */
+    height: clamp(220px, 40svh, 320px);
+    max-width: none;
+    margin: 0.4rem 0 0;
+  }
+
+  /* A2 dock-under-card: the detail CSS-moves under the tapped card (position:absolute; DOM unchanged →
+   * no re-parent/remount). The stage width is UNCHANGED (= box inner width, same as in-flow) so the
+   * ResizeObserver does NOT fire → the canvas is NOT re-baked/re-blitted (free dock/undock). The
+   * `--maze-dock-top` / `--maze-dock-h` custom props are measured in a useLayoutEffect on OverviewPage
+   * (pre-paint, with anchor-scroll compensation so the tapped card stays visually fixed). One-shot
+   * dock-in, disabled under reduced-motion. No position:fixed/sticky, no body lock, no backdrop. */
+  .neurons-md.is-expanded .neurons-md__detail.is-docked {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--maze-dock-top, 0);
+    z-index: 5;
+    margin: 0;
+    animation: maze-dock-in 220ms ease-out 1 both;
+  }
+  .neurons-family-grid .is-dock-anchor {
+    margin-bottom: calc(var(--maze-dock-h, 320px) + 0.55rem);
+  }
+  @keyframes maze-dock-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .neurons-md.is-expanded .neurons-md__detail.is-docked { animation: none; }
+}
+/* ── Per-card axon node-track (deep card↔maze integration) ───────────────────
+ * Each subject card's derived「腦圖切片」: the family tract's node dots in the
+ * card's accent colour (`--axon-accent`, set inline per card). Lit = filled,
+ * frontier = pulsing hollow, unlit = parchment hollow. Pure DOM/CSS — the ONE
+ * maze canvas invariant is untouched. Dots space-between across the card width,
+ * so the strip works at every card width (desktop grid + mobile single column). */
+.neurons-axon-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.neurons-axon-strip__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  height: 12px;
+}
+/* The thin axon line the node dots sit on (fallback colour first for pre-color-mix browsers). */
+.neurons-axon-strip__track::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  border-radius: 1px;
+  background: #ddd0b2;
+  background: color-mix(in srgb, var(--axon-accent) 30%, #e8dfc8);
+}
+.neurons-axon-dot {
+  position: relative;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #f6efdc;
+  border: 1.5px solid #c9b893;
+}
+.neurons-axon-dot.is-lit {
+  background: var(--axon-accent);
+  border-color: var(--axon-accent);
+}
+.neurons-axon-dot.is-frontier {
+  background: #fff;
+  border-color: var(--axon-accent);
+  animation: neurons-axon-frontier 1.6s ease-in-out infinite;
+}
+@keyframes neurons-axon-frontier {
+  0%, 100% { box-shadow: 0 0 0 0 var(--axon-accent); }
+  50% { box-shadow: 0 0 0 3.5px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neurons-axon-dot.is-frontier { animation: none; }
+}
+.neurons-axon-strip__count {
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.neurons-maze-teaser {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  background: linear-gradient(135deg, #1a1633 0%, #241d44 100%);
+  border: 2px solid #3a2f63;
+  border-radius: 8px;
+  color: #cfc8f0;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+.neurons-maze-teaser__row { display: flex; align-items: center; gap: 0.5rem; }
+.neurons-maze-teaser__brain { font-size: 1.25rem; line-height: 1; }
+.neurons-maze-teaser__label { font-weight: 700; color: #e8e3ff; }
+.neurons-maze-teaser__chev { margin-left: auto; opacity: 0.8; }
+.neurons-maze-teaser__hint { font-size: 0.76rem; opacity: 0.7; }
+.neurons-maze-collapse {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 0.4rem;
+  padding: 2px 8px;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid #3a2f63;
+  border-radius: 6px;
+  color: #9a96c8;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 /* ── Leaderboard rows (LeaderboardPage) ──────────────────────────────────── */
 
 /* Desktop base = the former inline gridTemplateColumns (moved here per
@@ -330,6 +617,94 @@ body:has(.modal-backdrop) {
   0%   { transform: translateX(0) scale(1); }
   55%  { transform: translateX(22px) scale(1.12); }
   100% { transform: translateX(44px) scale(1); }
+}
+
+/* §3 node-reveal + §4 synapse-pulse one-shot rings (redesign-neurons-maze-static-render). The outer
+ * wrapper is camera-positioned in JS; this inner ring expands + fades once over PING_MS, GPU-only
+ * (no canvas reblit). currentColor drives both the border + glow; the kind class sets the hue. */
+@keyframes maze-ping-expand {
+  0%   { transform: translate(-50%, -50%) scale(0.35); opacity: 0.9; }
+  70%  { opacity: 0.45; }
+  100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+}
+.maze-ping {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  box-shadow: 0 0 9px 1px currentColor;
+  transform: translate(-50%, -50%) scale(0.35);
+  animation: maze-ping-expand var(--maze-ping-ms, 700ms) ease-out forwards;
+}
+.maze-ping--node { color: #f4d06a; }       /* node lit — gold */
+.maze-ping--synapse { color: #6fe0ff; }    /* new synapse — cyan */
+.maze-ping--strengthen { color: #b98cff; } /* synapse strengthened — violet */
+.maze-ping--conduction { color: #9ff7ee; } /* §7.2 conduction pulse — dim cyan (quieter than --synapse) */
+
+/* §2.5 settle-travel: the walker's motion-trail dot (family colour set inline) — a soft glowing
+ * dot that fades + shrinks where the growth cone just passed. Same transient ping plumbing
+ * (camera-tracked wrapper, auto-removed after PING_MS), different inner look. */
+@keyframes maze-trail-fade {
+  0%   { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+}
+.maze-ping--trail {
+  width: 11px;
+  height: 11px;
+  border: none;
+  background: currentColor;
+  box-shadow: 0 0 10px 2px currentColor;
+  animation: maze-trail-fade var(--maze-ping-ms, 700ms) ease-out forwards;
+}
+/* §2.5 arrival flourish ring — GOLD (the maze's "earned/lit" vocabulary, matches --node; the
+ * family colour stays on the trail dots); thicker than the node ring. */
+.maze-ping--advance { color: #f4d06a; border-width: 3px; }
+
+/* A4 walker idle "breathe" — on the INNER wrapper between the camera-positioned outer div and the
+ * sprite (never the outer wrapper, whose transform is imperative). Declared BEFORE
+ * .maze-walker-arrive so the one-shot arrival pop (same element, later rule) wins while present,
+ * then the breathe resumes. Compositor-only (transform/opacity). */
+@keyframes maze-walker-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.04); opacity: 0.9; }
+}
+.maze-walker-breathe { animation: maze-walker-breathe 3.4s ease-in-out infinite; }
+
+/* §2.5 arrival pop on the walker sprite itself (applied to the sprite INSIDE the camera-positioned
+ * wrapper, so it never fights the wrapper's imperative translate/scale transform). */
+@keyframes maze-walker-arrive {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.32); }
+  68%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+.maze-walker-arrive { animation: maze-walker-arrive 520ms cubic-bezier(0.34, 1.3, 0.5, 1); }
+
+/* §6 ambient firing — tiny synapse glow dots that breathe on a slow loop. Compositor-only CSS
+ * keyframes (opacity/transform) on a 14px radial — NOT a canvas pass, NOT a rAF. The component
+ * already returns zero ambient cells under reduced-motion / 隱藏連結; the reduced-motion rule
+ * below is the double-gate (mirrors .maze-ping). */
+@keyframes maze-ambient-glow {
+  0%, 100% { opacity: 0.12; transform: scale(0.85); }
+  50%      { opacity: 0.45; transform: scale(1.12); }
+}
+.maze-ambient {
+  width: 14px;
+  height: 14px;
+  margin: -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(150, 247, 238, 0.8), rgba(56, 224, 208, 0) 70%);
+  animation: maze-ambient-glow 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maze-ping { animation: none; opacity: 0; }
+  .maze-walker-arrive { animation: none; }
+  .maze-walker-breathe { animation: none; }
+  .maze-ambient { animation: none; opacity: 0; }
 }
 
 /* ConnectomeStatCard daily-loop causal chain (fix-neurons-dashboard-card-rwd):

@@ -108,6 +108,12 @@ export interface VariantRolledPayload {
 
 type VariantGachaEventMap = {
   variantRolled: VariantRolledPayload
+  /**
+   * The reveal-modal queue just drained (last queued reveal dismissed). Pure
+   * presentation signal — MazeGrid holds the §2.5 settle-travel walker animation
+   * while the full-screen reveal covers the maze and flushes it on this event.
+   */
+  revealQueueIdle: Record<string, never>
 }
 
 type Listener<E extends keyof VariantGachaEventMap> = (

@@ -16,9 +16,12 @@
  *   "Homepage SHALL compose as a CTA toolbar over the interactive tree panel…"
  */
 
+import { useState } from 'react'
 import type { ConnectomeStatus } from '../lib/services/connectome'
 import { DmnDrawProgressRing } from './DmnDrawProgressRing'
 import { EmojiIcon } from './EmojiIcon'
+import { useDmnStatus } from '../lib/hooks/useDmnStatus'
+import DmnDrawModal from './DmnDrawModal'
 
 interface Props {
   /** Engine-computed connectome status; null while loading (renders zeroed). */
@@ -50,6 +53,13 @@ export function ConnectomeStatCard({
   const weeklyCount = status?.weeklyCount ?? 0
   const strongestPair = status?.strongestPair ?? null
   const todayConductionEnergy = status?.todayConductionEnergy ?? 0
+
+  // DMN draw action, relocated from the retired top-nav DmnDrawButton into this card's DMN stage
+  // (consolidate-neurons-dmn-draw-surface). Same entitlement semantics: enabled iff a draw is
+  // available AND not both-pools-exhausted (the tighten-neurons-dmn-entitlement-semantics no-op guard).
+  const dmn = useDmnStatus()
+  const [dmnModalOpen, setDmnModalOpen] = useState(false)
+  const canDraw = dmn.drawsAvailable >= 1 && !dmn.bothPoolsExhausted
 
   return (
     <section style={cardStyle} aria-label="今日學習儀表板">
@@ -101,6 +111,21 @@ export function ConnectomeStatCard({
         </span>
         <div className="neurons-stat-stage neurons-stat-stage--dmn" style={stageStyle}>
           <DmnDrawProgressRing />
+          {canDraw ? (
+            <button
+              type="button"
+              onClick={() => setDmnModalOpen(true)}
+              style={dmnDrawCtaStyle}
+              title={`你有 ${dmn.drawsAvailable} 次 DMN 抽卡可用`}
+              aria-label={`抽 ${dmn.drawsAvailable} 張 DMN`}
+            >
+              ▶ 抽 {dmn.drawsAvailable} 張 DMN
+            </button>
+          ) : dmn.bothPoolsExhausted ? (
+            <span style={dmnExhaustedStyle} title="DMN 圖鑑與裝備皆已蒐集完整">
+              DMN 圖鑑完整
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -130,6 +155,8 @@ export function ConnectomeStatCard({
           📖 累積閱讀 <b style={collectionValStyle}>{totalStudyMin}</b> min
         </span>
       </div>
+
+      {dmnModalOpen && <DmnDrawModal onClose={() => setDmnModalOpen(false)} />}
     </section>
   )
 }
@@ -154,6 +181,9 @@ const ctaStyle: React.CSSProperties = {
   alignItems: 'stretch',
   gap: '0.18rem',
   width: '100%',
+  // box-sizing: width:100% + padding + border must stay inside the card; without
+  // border-box the box bleeds ~36px past the card edge (visible "超出框框" on iPhone).
+  boxSizing: 'border-box',
   padding: '0.6rem 1rem',
   borderRadius: '6px',
   border: '2px solid #e0a44a',
@@ -202,6 +232,7 @@ const ctaGuidanceStyle: React.CSSProperties = {
   flexDirection: 'column',
   gap: '0.2rem',
   width: '100%',
+  boxSizing: 'border-box', // keep the guidance box inside the card (see ctaStyle)
   padding: '0.6rem 1rem',
   borderRadius: '6px',
   border: '2px dashed #d8a06a',
@@ -215,6 +246,32 @@ const ctaGuidanceSubStyle: React.CSSProperties = {
   fontSize: '0.72rem',
   fontWeight: 600,
   color: '#a06a47',
+}
+
+// DMN draw action, hosted in the card's DMN stage (relocated from the retired top-nav button).
+// Purple (#5d4ec4) matches the prior DmnDrawButton so the affordance reads the same; full-width
+// inside the stage with border-box so padding+border never bleed past the stage edge.
+const dmnDrawCtaStyle: React.CSSProperties = {
+  width: '100%',
+  boxSizing: 'border-box',
+  marginTop: '0.1rem',
+  padding: '0.35rem 0.6rem',
+  border: '2px solid #2d2055',
+  borderRadius: '6px',
+  background: '#5d4ec4',
+  color: '#fff',
+  fontFamily: 'inherit',
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  letterSpacing: '0.03em',
+  cursor: 'pointer',
+}
+
+const dmnExhaustedStyle: React.CSSProperties = {
+  marginTop: '0.1rem',
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  color: '#8c6d4a',
 }
 
 // Stage visuals only; flex/direction/wrap + the per-stage basis are driven by the

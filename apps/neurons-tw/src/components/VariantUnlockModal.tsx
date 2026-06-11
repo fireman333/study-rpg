@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRespectsReducedMotion, RARITY_TIMINGS } from '../lib/motion'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
-import { subscribeVariantGachaEvents, type VariantRolledPayload } from '../lib/services/variant-gacha'
+import {
+  subscribeVariantGachaEvents,
+  variantGachaEvents,
+  type VariantRolledPayload,
+} from '../lib/services/variant-gacha'
 import type { VariantRarity } from '../lib/db'
 import { variantBirthCaption } from '../lib/variant-caption'
 import { locationVariantArt } from '../lib/variant-decor'
@@ -46,6 +50,21 @@ export default function VariantUnlockModal(): JSX.Element {
     })
     return () => sub.dispose()
   }, [])
+
+  // Reveal-queue drain signal (§2.5 settle-travel): when the LAST queued reveal is
+  // dismissed, tell listeners (MazeGrid) the maze is uncovered again so the held
+  // walker travel can play in full view. Emits only on a non-empty → empty edge.
+  const hadRevealsRef = useRef(false)
+  useEffect(() => {
+    if (queue.length > 0) {
+      hadRevealsRef.current = true
+      return
+    }
+    if (hadRevealsRef.current) {
+      hadRevealsRef.current = false
+      variantGachaEvents.emit('revealQueueIdle', {})
+    }
+  }, [queue.length])
 
   const dismissCurrent = (): void => {
     setQueue((prev) => prev.slice(1))

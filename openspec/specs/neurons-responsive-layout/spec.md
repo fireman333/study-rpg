@@ -7,7 +7,7 @@ TBD - created by archiving change add-neurons-mobile-rwd. Update Purpose after a
 
 ### Requirement: Homepage top-nav SHALL reflow without horizontal overflow at mobile widths
 
-The `OverviewPage` top navigation (route links + `DmnDrawButton` + `AuthGate`) SHALL remain fully reachable and SHALL NOT cause page-level horizontal overflow at viewport widths down to **375px**. At ≤ **480px** the nav SHALL adopt 二階's horizontal-scroll-tabs pattern with a fade-edge affordance (`-webkit-mask-image` gradient) signalling more items off-screen. Breakpoints SHALL use the 二階 values (480 / 768px).
+The `OverviewPage` top navigation (route links + `AuthGate`) SHALL remain fully reachable and SHALL NOT cause page-level horizontal overflow at viewport widths down to **375px**. At ≤ **480px** the nav SHALL adopt 二階's horizontal-scroll-tabs pattern with a fade-edge affordance (`-webkit-mask-image` gradient) signalling more items off-screen. Breakpoints SHALL use the 二階 values (480 / 768px). The DMN draw entry-point SHALL NOT be a top-nav item (it is hosted in the homepage daily-loop stat card's DMN stage, per `neurons-dmn-fate-cards`).
 
 #### Scenario: Nav does not overflow the page at 375px
 

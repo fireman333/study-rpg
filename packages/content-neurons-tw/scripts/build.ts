@@ -277,7 +277,7 @@ function main(): void {
   // Step 5: Generate meta.json with statSchema
   const outputMeta = {
     id: 'neurons-tw',
-    displayName: '神經元 RPG — Long-term Potentiation Edition',
+    displayName: '神經元 RPG — Long-term Potentiation',
     locale: 'zh-TW',
     builtAt: new Date().toISOString(),
     sourceCredit: '陽明國考考古題小組 + 中華民國考選部歷屆考題 + neurons reskin',
