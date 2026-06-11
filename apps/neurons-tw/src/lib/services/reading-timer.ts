@@ -1,7 +1,9 @@
 /**
  * Reading-timer service — singleton state machine that accrues study minutes
  * while the user is in "reading" mode, with anti-cheat auto-pause on tab-hidden
- * + 90s idle.
+ * (visibilitychange). Genuine reading produces no input events, so there is
+ * deliberately NO input-activity idle pause (remove-neurons-reading-timer-idle-pause);
+ * the per-minute attribute cap (elsewhere) is the other anti-cheat layer.
  *
  * Wire-up:
  *   - Each game-minute (60 accumulated seconds) → fires Promise.all of:
@@ -14,7 +16,6 @@
  * State machine: idle → reading → paused → reading → ... → idle
  *
  * Tick interval: 10s in dev / 60s in prod (smaller in dev for visible accrual).
- * Idle threshold: 90s without mousemove / keydown / touchstart.
  *
  * Not persisted: sub-minute accumulated time. Only the per-minute counter
  * (meta['totalStudyMinutes']) is persisted to Dexie + synced cross-device.
@@ -29,7 +30,7 @@ import {
 } from '../maze/economy'
 
 export type ReadingTimerStatus = 'idle' | 'reading' | 'paused'
-export type ReadingTimerPauseReason = 'manual' | 'visibility' | 'idle' | null
+export type ReadingTimerPauseReason = 'manual' | 'visibility' | null
 
 export interface ReadingTimerState {
   status: ReadingTimerStatus
@@ -48,7 +49,6 @@ export interface ReadingTimerState {
 }
 
 const TICK_MS = import.meta.env.PROD ? 60_000 : 10_000
-const IDLE_TIMEOUT_MS = 90_000
 
 let state: ReadingTimerState = {
   status: 'idle',
@@ -60,7 +60,6 @@ let state: ReadingTimerState = {
 
 const listeners = new Set<() => void>()
 let tickInterval: ReturnType<typeof setInterval> | null = null
-let idleTimer: ReturnType<typeof setTimeout> | null = null
 // Post-multiplier reading energy accrued in the current session (the synaptic-
 // conduction batch, rework-neurons-connectome-expedition-driven). Conducted to wired
 // neighbors at session end (stop / subject-switch). Reset on start / stop.
@@ -147,28 +146,6 @@ function onTick(): void {
   emit()
 }
 
-function resetIdleTimer(): void {
-  if (idleTimer !== null) clearTimeout(idleTimer)
-  idleTimer = setTimeout(() => {
-    if (state.status === 'reading') {
-      pause('idle')
-    }
-  }, IDLE_TIMEOUT_MS)
-}
-
-function clearIdleTimer(): void {
-  if (idleTimer !== null) {
-    clearTimeout(idleTimer)
-    idleTimer = null
-  }
-}
-
-function onActivity(): void {
-  if (state.status === 'reading') {
-    resetIdleTimer()
-  }
-}
-
 function onVisibilityChange(): void {
   if (typeof document === 'undefined') return
   if (document.hidden && state.status === 'reading') {
@@ -177,24 +154,18 @@ function onVisibilityChange(): void {
   // Note: NO auto-resume on visibility return — explicit user action required.
 }
 
-let activityListenersAttached = false
+let visibilityListenerAttached = false
 
-function attachActivityListeners(): void {
-  if (activityListenersAttached || typeof window === 'undefined') return
-  window.addEventListener('mousemove', onActivity)
-  window.addEventListener('keydown', onActivity)
-  window.addEventListener('touchstart', onActivity)
+function attachVisibilityListener(): void {
+  if (visibilityListenerAttached || typeof document === 'undefined') return
   document.addEventListener('visibilitychange', onVisibilityChange)
-  activityListenersAttached = true
+  visibilityListenerAttached = true
 }
 
-function detachActivityListeners(): void {
-  if (!activityListenersAttached || typeof window === 'undefined') return
-  window.removeEventListener('mousemove', onActivity)
-  window.removeEventListener('keydown', onActivity)
-  window.removeEventListener('touchstart', onActivity)
+function detachVisibilityListener(): void {
+  if (!visibilityListenerAttached || typeof document === 'undefined') return
   document.removeEventListener('visibilitychange', onVisibilityChange)
-  activityListenersAttached = false
+  visibilityListenerAttached = false
 }
 
 function startTickInterval(): void {
@@ -220,7 +191,6 @@ export function start(familyId: string): void {
   sessionReadingEnergy = 0
   if (prevFam && prevFam !== familyId && prevBatch > 0) void conductReadingBatch(prevFam, prevBatch)
   stopTickInterval()
-  clearIdleTimer()
   state = {
     status: 'reading',
     pauseReason: null,
@@ -228,16 +198,14 @@ export function start(familyId: string): void {
     minutesFired: 0,
     readingFamilyId: familyId,
   }
-  attachActivityListeners()
-  resetIdleTimer()
+  attachVisibilityListener()
   startTickInterval()
   emit()
 }
 
 export function stop(): void {
   stopTickInterval()
-  clearIdleTimer()
-  detachActivityListeners()
+  detachVisibilityListener()
   // Conduct this reading session's batched energy to wired neighbors (session end).
   const fam = state.readingFamilyId
   const batch = sessionReadingEnergy
@@ -256,8 +224,7 @@ export function stop(): void {
 export function pause(reason: Exclude<ReadingTimerPauseReason, null>): void {
   if (state.status !== 'reading') return
   stopTickInterval()
-  clearIdleTimer()
-  // Keep activity listeners attached so resume()-via-button works
+  // Keep visibility listener attached so resume()-via-button works
   state = { ...state, status: 'paused', pauseReason: reason }
   emit()
 }
@@ -269,8 +236,7 @@ export function pause(reason: Exclude<ReadingTimerPauseReason, null>): void {
 export function resume(): void {
   if (state.status !== 'paused') return
   state = { ...state, status: 'reading', pauseReason: null }
-  attachActivityListeners()
-  resetIdleTimer()
+  attachVisibilityListener()
   startTickInterval()
   emit()
 }
@@ -295,8 +261,7 @@ export function onReadingTimerStateChange(listener: () => void): () => void {
  */
 export function __resetForTests(): void {
   stopTickInterval()
-  clearIdleTimer()
-  detachActivityListeners()
+  detachVisibilityListener()
   sessionReadingEnergy = 0
   state = {
     status: 'idle',

@@ -42,7 +42,7 @@
 
 ## Failure Modes & Constraints
 
-- **誠信防護**: reading timer 必須抓 `visibilitychange` + idle > 90s 自動 pause；timer 不可手動編輯；每分鐘最多 +1 屬性（防刷）
+- **誠信防護**: reading timer 必須抓 `visibilitychange` 自動 pause（分頁必須保持 focus；**無** input-activity idle 偵測 — 真實閱讀不產生 input event，idle pause 已於 `remove-neurons-reading-timer-idle-pause` 移除）；timer 不可手動編輯；每分鐘最多 +1 屬性（防刷）
 - **No Silent Errors**: build script 必印 imported / skipped / total 三個數字（避免 71736 silent skip 案例）
 - **題庫 schema 變化**: 加 normalization helper，未知 enum 值 `raise` 不 fall through
 - **Loot 不平衡**: telemetry 紀錄每次 roll，dogfood 一週後依分佈微調權重；保底機制必做（30 rolls 必 SR、100 rolls 必 SSR）

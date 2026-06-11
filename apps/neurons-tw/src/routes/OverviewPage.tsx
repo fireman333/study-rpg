@@ -486,7 +486,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     if (timer.status === 'reading') return `🟢 閱讀中 · ${timer.currentMinute} min · 點擊結束`
     if (timer.status === 'paused') {
       if (timer.pauseReason === 'visibility') return '⏸ 切到別的分頁 · 點擊繼續'
-      if (timer.pauseReason === 'idle') return '⏸ 90s 無動作 · 點擊繼續'
       return '⏸ 已暫停 · 點擊繼續'
     }
     return undefined

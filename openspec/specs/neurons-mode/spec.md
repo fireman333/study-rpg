@@ -411,18 +411,18 @@ The `neurons-mode` umbrella SHALL ensure that the neurons-tw application provide
 
    The reading-timer SHALL NOT publish ticks to any DMN time-axis subscriber. DMN time-axis entitlement is owned entirely by `neurons-dmn-fate-cards` (expedition-completion path). Reading minutes still fuel the maze-energy faucet per `neurons-brain-maze` (separate code path, unaffected).
 4. Auto-pauses when the browser tab becomes hidden (via `visibilitychange` event)
-5. Auto-pauses when the user has been idle for ≥ 90 seconds (no mousemove / keydown / touchstart events)
+5. SHALL NOT auto-pause on input inactivity: the timer SHALL NOT listen for `mousemove` / `keydown` / `touchstart` (or any other input-activity events), and SHALL keep accruing through arbitrarily long no-input stretches while the tab stays visible — genuine reading produces no input events, so an input-idle pause penalizes real readers while barely deterring AFK farming. The anti-cheat surface is tab-visibility (point 4) plus the per-minute attribute cap (owned elsewhere; unchanged by this requirement)
 6. Does NOT auto-resume on tab focus return — explicit user action SHALL restart reading
-7. Exposes its state (status / accumulated seconds / current minute count / pause reason) to UI consumers via a React hook
+7. Exposes its state (status / accumulated seconds / current minute count / pause reason) to UI consumers via a React hook. The pause-reason domain SHALL be `'manual' | 'visibility' | null` — no `'idle'` pause reason exists. (The `'idle'` member of the separate `ReadingTimerStatus` union means "stopped / not reading" and is unaffected.)
 
 The achievement-stats builder (`apps/neurons-tw/src/lib/services/achievement.ts buildAchievementStats`) SHALL read the current value of `meta['totalStudyMinutes']` so the 4 `study-*` achievements (`study-warmup` / `study-hours-5` / `study-hours-20` / `study-marathon`) can unlock when the user accumulates sufficient reading time.
 
-This requirement supersedes the prior implicit state where `totalStudyMinutes` was hardcoded to 0 in achievement stats and the DMN time-axis was inactive. It also supersedes the earlier wording (pre-`realign-dmn-event-rewards-to-maze`) where the minute boundary called `dmnReadingTimerSubscriber.onMinutesAccrued(1)` — that path is removed; reading minutes are no longer a DMN entitlement source.
+This requirement supersedes the prior implicit state where `totalStudyMinutes` was hardcoded to 0 in achievement stats and the DMN time-axis was inactive. It also supersedes the earlier wording (pre-`realign-dmn-event-rewards-to-maze`) where the minute boundary called `dmnReadingTimerSubscriber.onMinutesAccrued(1)` — that path is removed; reading minutes are no longer a DMN entitlement source. It further supersedes the earlier 90-second input-idle auto-pause clause (pre-`remove-neurons-reading-timer-idle-pause`) — that auto-pause paused genuine reading and is removed.
 
 #### Scenario: User starts reading and 60 seconds of accrued time increments totalStudyMinutes only
 
 - **GIVEN** the user clicks 「📖 開始閱讀」 on the overview page
-- **WHEN** 60 seconds of accrued reading time pass (with no idle pauses, no tab-hidden pauses)
+- **WHEN** 60 seconds of accrued reading time pass (with no tab-hidden pauses)
 - **THEN** `meta['totalStudyMinutes']` SHALL be incremented by 1 (from N to N+1)
 - **AND** no DMN draw SHALL be granted from this minute boundary regardless of cumulative reading minutes
 - **AND** `dmnDrawsAvailable`, `dmnTimeAxisDrawsConsumedToday`, and `dmnTimeAxisMinutesAccrued` SHALL be unchanged by this minute boundary
@@ -441,12 +441,13 @@ This requirement supersedes the prior implicit state where `totalStudyMinutes` w
 - **THEN** the timer state SHALL transition to `paused` with reason `'visibility'`
 - **AND** no further tick increments SHALL occur until the user explicitly resumes
 
-#### Scenario: 90s idle auto-pauses the timer
+#### Scenario: Long no-input stretch does NOT pause the timer
 
-- **GIVEN** the timer is in reading state and the user has not generated a `mousemove` / `keydown` / `touchstart` event for ≥ 90 seconds
-- **WHEN** the 90-second idle threshold elapses
-- **THEN** the timer state SHALL transition to `paused` with reason `'idle'`
-- **AND** no further tick increments SHALL occur until the user explicitly resumes
+- **GIVEN** the timer is in reading state and the tab remains visible (`document.hidden === false`)
+- **WHEN** the user generates no `mousemove` / `keydown` / `touchstart` events for an extended stretch (e.g. 5 minutes — well past the former 90-second threshold)
+- **THEN** the timer SHALL remain in `reading` state with `pauseReason === null`
+- **AND** minute side-effects SHALL keep firing on every 60-second boundary throughout the stretch
+- **AND** at no point SHALL the state expose a pause reason of `'idle'` (that pause reason no longer exists)
 
 #### Scenario: No auto-resume on tab focus return
 
