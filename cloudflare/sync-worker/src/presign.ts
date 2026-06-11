@@ -33,13 +33,13 @@ import { extractBearer, verifyJWT } from "./auth";
 
 // `m1` (一階 medexam-tw) removed by remove-medexam-tw-and-promote-neurons.
 // `m2` retained — the standalone 二階 app still PUT/GETs it via this shared Worker.
-type Bundle = "m2" | "bookmarks" | "neurons";
+export type Bundle = "m2" | "bookmarks" | "neurons";
 type Op = "put" | "get";
 
-const BUNDLES: ReadonlyArray<Bundle> = ["m2", "bookmarks", "neurons"];
+export const BUNDLES: ReadonlyArray<Bundle> = ["m2", "bookmarks", "neurons"];
 const OPS: ReadonlyArray<Op> = ["put", "get"];
 
-function bundleKey(userSub: string, bundle: Bundle): string {
+export function bundleKey(userSub: string, bundle: Bundle): string {
   switch (bundle) {
     case "m2":
       return `users/${userSub}/m2-snapshot.json.gz`;
