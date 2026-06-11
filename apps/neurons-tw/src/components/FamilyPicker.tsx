@@ -29,6 +29,18 @@ export interface FamilyAccrual {
   firedToday: boolean
 }
 
+/** Per-family maze-progress hint (deep card↔maze integration): a derived snapshot of the
+ * family's tract on the ONE maze canvas — lit node count, total nodes (both laps), the
+ * first-route node count (lap split) and whether the tract is fully lit. Rendered as a small
+ * node-dot track on each card so the card visually IS a slice of the maze (same accent colour,
+ * same lit nodes), without a second canvas. */
+export interface MazeFamilyHint {
+  lit: number
+  total: number
+  firstRouteCount: number
+  complete: boolean
+}
+
 interface Props {
   pack: ContentPack
   onStartQuiz: (familyId: string, mode: QuizMode) => void
@@ -44,6 +56,15 @@ interface Props {
   readingFamilyId?: string | null
   /** Dynamic label for the actively-reading card (status / pause-reason feedback). */
   readingActiveLabel?: string
+  /** Master-detail selection: the family whose card is currently focused on the embedded maze. */
+  selectedFamilyId?: string | null
+  /** The embedded maze (teaser when collapsed, full panel when expanded) — rendered as the
+   * master-detail's detail surface INSIDE this box (reposition-neurons-maze-master-detail). */
+  mazeSlot?: React.ReactNode
+  /** Drives the two-column (desktop) vs stacked (mobile/collapsed) master-detail layout. */
+  mazeExpanded?: boolean
+  /** Per-family maze tract progress → each card's derived axon node-track (no extra canvas). */
+  mazeHintByFamily?: Map<string, MazeFamilyHint>
 }
 
 export function FamilyPicker({
@@ -55,6 +76,10 @@ export function FamilyPicker({
   onToggleReading,
   readingFamilyId,
   readingActiveLabel,
+  selectedFamilyId,
+  mazeSlot,
+  mazeExpanded,
+  mazeHintByFamily,
 }: Props): JSX.Element {
   return (
     <section style={pickerSectionStyle} aria-label="選 family 直接答題">
@@ -70,29 +95,39 @@ export function FamilyPicker({
           quiz.yearFilter meta, no props needed). */}
       <YearFilterBar />
 
-      {groupSubjectsByPaper(pack.subjects).map((group) => (
-        <div key={group.id} style={paperGroupStyle}>
-          <div style={paperHeaderStyle}>
-            <span><EmojiIcon char={group.emoji} size={16} /> {group.label}</span>
-            <span style={paperCountStyle}>{group.subjects.length} 科</span>
-          </div>
-          <div style={branchRowStyle} className="neurons-family-grid">
-            {group.subjects.map((s) => (
-              <FamilyCard
-                key={s.id}
-                family={s}
-                accrual={accrualByFamily?.get(s.id)}
-                counts={modeCountsByFamily?.get(s.id)}
-                onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
-                onFocus={onFocusFamily ? () => onFocusFamily(s.id) : undefined}
-                onToggleReading={onToggleReading ? () => onToggleReading(s.id) : undefined}
-                isReading={readingFamilyId === s.id}
-                readingActiveLabel={readingFamilyId === s.id ? readingActiveLabel : undefined}
-              />
-            ))}
-          </div>
+      {/* Master-detail INSIDE this box (reposition-neurons-maze-master-detail): the embedded maze
+          is the detail surface — desktop = sticky right rail (only when expanded), mobile/collapsed
+          = stacked (maze/teaser on top, cards below). ONE maze instance; CSS reflow, no remount. */}
+      <div className={mazeExpanded ? 'neurons-md is-expanded' : 'neurons-md'}>
+        {mazeSlot != null && <div className="neurons-md__detail">{mazeSlot}</div>}
+        <div className="neurons-md__master">
+          {groupSubjectsByPaper(pack.subjects).map((group) => (
+            <div key={group.id} style={paperGroupStyle}>
+              <div style={paperHeaderStyle}>
+                <span><EmojiIcon char={group.emoji} size={16} /> {group.label}</span>
+                <span style={paperCountStyle}>{group.subjects.length} 科</span>
+              </div>
+              <div style={branchRowStyle} className="neurons-family-grid">
+                {group.subjects.map((s) => (
+                  <FamilyCard
+                    key={s.id}
+                    family={s}
+                    accrual={accrualByFamily?.get(s.id)}
+                    counts={modeCountsByFamily?.get(s.id)}
+                    mazeHint={mazeHintByFamily?.get(s.id)}
+                    onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
+                    onFocus={onFocusFamily ? () => onFocusFamily(s.id) : undefined}
+                    onToggleReading={onToggleReading ? () => onToggleReading(s.id) : undefined}
+                    isReading={readingFamilyId === s.id}
+                    readingActiveLabel={readingFamilyId === s.id ? readingActiveLabel : undefined}
+                    selected={selectedFamilyId === s.id}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </section>
   )
 }
@@ -135,20 +170,24 @@ function FamilyCard({
   family,
   accrual,
   counts,
+  mazeHint,
   onStartQuiz,
   onFocus,
   onToggleReading,
   isReading,
   readingActiveLabel,
+  selected,
 }: {
   family: Subject
   accrual?: FamilyAccrual
   counts?: FamilyModeCounts
+  mazeHint?: MazeFamilyHint
   onStartQuiz: (mode: QuizMode) => void
   onFocus?: () => void
   onToggleReading?: () => void
   isReading?: boolean
   readingActiveLabel?: string
+  selected?: boolean
 }): JSX.Element {
   const accent = family.color ?? '#8c6d4a'
   const spriteUrl = SPRITE_MAP[`subject:${family.id}`] ?? ''
@@ -159,7 +198,12 @@ function FamilyCard({
   const freshDisabled = isEmpty || freshCount === 0
   const reviewDisabled = dueCount === 0
   return (
-    <article style={familyCardStyle(accent)} aria-label={`${family.id} · ${family.displayName}`}>
+    <article
+      id={`family-card-${family.id}`}
+      style={selected ? { ...familyCardStyle(accent), boxShadow: `0 0 0 2px ${accent}, 0 2px 10px rgba(0,0,0,0.18)` } : familyCardStyle(accent)}
+      aria-current={selected ? 'true' : undefined}
+      aria-label={`${family.id} · ${family.displayName}`}
+    >
       <header
         style={onFocus ? { ...cardHeaderStyle, cursor: 'pointer' } : cardHeaderStyle}
         onClick={onFocus}
@@ -192,6 +236,12 @@ function FamilyCard({
           <div style={personaNameStyle}>{family.displayName}</div>
         </div>
       </header>
+
+      {/* Derived axon node-track (deep card↔maze integration): the card's slice of the maze —
+          this family's tract progress in its own accent colour. Tap = same focus as the header. */}
+      {mazeHint && mazeHint.total > 0 && (
+        <AxonProgressStrip hint={mazeHint} accent={accent} familyId={family.id} onFocus={onFocus} />
+      )}
 
       <div style={apLineStyle}>
         AP <strong style={{ color: accent }}>{ap}</strong>
@@ -244,6 +294,57 @@ function FamilyCard({
         </button>
       )}
     </article>
+  )
+}
+
+/**
+ * AxonProgressStrip — the card's derived「腦圖切片」: a node-dot track mirroring this family's
+ * tract on the single maze canvas (lit nodes filled in the family accent, the frontier node
+ * pulsing, 二週目 shown as the second lap of dots with a ↻ marker). Pure derived DOM/CSS — NOT a
+ * canvas — so the ONE-MazeGrid-instance invariant holds. Tapping it focuses the maze on this
+ * family (duplicate affordance of the card header; not separately keyboard-focusable).
+ */
+function AxonProgressStrip({
+  hint,
+  accent,
+  familyId,
+  onFocus,
+}: {
+  hint: MazeFamilyHint
+  accent: string
+  familyId: string
+  onFocus?: () => void
+}): JSX.Element {
+  const first = hint.firstRouteCount > 0 ? hint.firstRouteCount : hint.total
+  // Current lap: route 1 until its nodes are all lit, then route 2 (二週目) when the graph has one.
+  const onSecondLap = hint.lit >= first && hint.total > first
+  const lapTotal = onSecondLap ? hint.total - first : first
+  const lapLit = onSecondLap ? hint.lit - first : Math.min(hint.lit, first)
+  const dots = Array.from({ length: lapTotal }, (_, i) => {
+    const isLit = i < lapLit
+    const isFrontier = !hint.complete && i === lapLit
+    const cls = `neurons-axon-dot${isLit ? ' is-lit' : ''}${isFrontier ? ' is-frontier' : ''}`
+    return <span key={i} className={cls} />
+  })
+  const lapLabel = onSecondLap ? '（二週目）' : ''
+  return (
+    <div
+      className="neurons-axon-strip"
+      style={{ ['--axon-accent' as string]: accent, cursor: onFocus ? 'pointer' : undefined }}
+      onClick={onFocus}
+      role="img"
+      aria-label={`${familyId} 腦圖進度 ${hint.lit}/${hint.total} 節點${lapLabel}`}
+      title={
+        onFocus
+          ? `腦圖進度 ${hint.lit}/${hint.total} 節點${lapLabel} — 點擊在腦圖上聚焦 ${familyId}`
+          : `腦圖進度 ${hint.lit}/${hint.total} 節點${lapLabel}`
+      }
+    >
+      <span className="neurons-axon-strip__track" aria-hidden>{dots}</span>
+      <span className="neurons-axon-strip__count" style={{ color: accent }} aria-hidden>
+        {hint.complete ? '✦ ' : onSecondLap ? '↻ ' : ''}{hint.lit}/{hint.total}
+      </span>
+    </div>
   )
 }
 

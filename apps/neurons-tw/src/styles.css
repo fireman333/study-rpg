@@ -115,6 +115,179 @@ body:has(.modal-backdrop) {
   }
 }
 
+/* ── Family-grid + embedded-maze master-detail (reposition-neurons-maze-master-detail).
+ * Mobile: stacked (cards, then the maze panel below). Desktop ≥768px: two columns —
+ * cards left, the single maze instance a sticky detail panel on the right. ── */
+.neurons-md { display: block; }
+.neurons-md__detail { margin: 0 0 0.7rem; }
+/* Desktop: two columns ONLY when expanded — maze a sticky rail on the right (DOM order is
+ * detail-first, placed to column 2), cards on the left. Collapsed → block flow (thin teaser on
+ * top, cards full width). Mobile (any state): block (maze/teaser on top, cards below). */
+/* Maze stage sizing (moved off inline so the mobile band can override the 1:1 aspect). */
+.maze-stage {
+  width: 100%;
+  max-width: 760px;
+  margin: 0.75rem auto 0;
+  aspect-ratio: 1 / 1;
+}
+@media (min-width: 768px) {
+  .neurons-md.is-expanded {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    gap: 1rem;
+    align-items: start;
+  }
+  .neurons-md.is-expanded .neurons-md__detail {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    position: sticky;
+    top: 0.6rem;
+    align-self: start;
+    max-height: calc(100vh - 1rem);
+    overflow-y: auto;
+  }
+  .neurons-md.is-expanded .neurons-md__master {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+/* Mobile compact IN-FLOW panel (fix 「腦圖展開會擋住整個視窗」): the previous cut pinned the band
+ * with `position: sticky; top: 0` for the WHOLE card-list scroll, and its real height (40vh of the
+ * iOS LARGE viewport + the un-hidden topbar chips + panel padding/border/margin + collapse button)
+ * came to ~60-70% of the visible viewport — all of it `touch-action: none`, so the page barely
+ * scrolled. The maze now scrolls naturally with the page; the per-subject in-view feedback is the
+ * existing card-tap path (expand + sticky-focus + scrollIntoView brings the maze on screen). All
+ * MazeGrid chrome (topbar chips / how-to / expedition band / legend) is hidden and the panel
+ * padding tightened so only collapse button + stage show; the stage takes a compact band height
+ * sized against the SMALL viewport (svh) instead of the 1:1 square. */
+@media (max-width: 767px) {
+  .neurons-md.is-expanded .neurons-md__detail {
+    margin: 0 0 0.7rem;
+  }
+  .neurons-md.is-expanded .neurons-md__detail .maze-topbar,
+  .neurons-md.is-expanded .neurons-md__detail .maze-howto,
+  .neurons-md.is-expanded .neurons-md__detail .maze-expedition-band,
+  .neurons-md.is-expanded .neurons-md__detail .maze-legend {
+    display: none;
+  }
+  .neurons-md.is-expanded .neurons-md__detail .maze-panel {
+    padding: 0.5rem 0.6rem 0.6rem;
+    margin-bottom: 0;
+  }
+  .neurons-md.is-expanded .neurons-md__detail .maze-stage {
+    aspect-ratio: auto;
+    height: clamp(220px, 40vh, 320px); /* fallback for pre-svh browsers */
+    height: clamp(220px, 40svh, 320px);
+    max-width: none;
+    margin: 0.4rem 0 0;
+  }
+}
+/* ── Per-card axon node-track (deep card↔maze integration) ───────────────────
+ * Each subject card's derived「腦圖切片」: the family tract's node dots in the
+ * card's accent colour (`--axon-accent`, set inline per card). Lit = filled,
+ * frontier = pulsing hollow, unlit = parchment hollow. Pure DOM/CSS — the ONE
+ * maze canvas invariant is untouched. Dots space-between across the card width,
+ * so the strip works at every card width (desktop grid + mobile single column). */
+.neurons-axon-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.neurons-axon-strip__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  height: 12px;
+}
+/* The thin axon line the node dots sit on (fallback colour first for pre-color-mix browsers). */
+.neurons-axon-strip__track::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  border-radius: 1px;
+  background: #ddd0b2;
+  background: color-mix(in srgb, var(--axon-accent) 30%, #e8dfc8);
+}
+.neurons-axon-dot {
+  position: relative;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #f6efdc;
+  border: 1.5px solid #c9b893;
+}
+.neurons-axon-dot.is-lit {
+  background: var(--axon-accent);
+  border-color: var(--axon-accent);
+}
+.neurons-axon-dot.is-frontier {
+  background: #fff;
+  border-color: var(--axon-accent);
+  animation: neurons-axon-frontier 1.6s ease-in-out infinite;
+}
+@keyframes neurons-axon-frontier {
+  0%, 100% { box-shadow: 0 0 0 0 var(--axon-accent); }
+  50% { box-shadow: 0 0 0 3.5px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neurons-axon-dot.is-frontier { animation: none; }
+}
+.neurons-axon-strip__count {
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.neurons-maze-teaser {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  background: linear-gradient(135deg, #1a1633 0%, #241d44 100%);
+  border: 2px solid #3a2f63;
+  border-radius: 8px;
+  color: #cfc8f0;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+.neurons-maze-teaser__row { display: flex; align-items: center; gap: 0.5rem; }
+.neurons-maze-teaser__brain { font-size: 1.25rem; line-height: 1; }
+.neurons-maze-teaser__label { font-weight: 700; color: #e8e3ff; }
+.neurons-maze-teaser__chev { margin-left: auto; opacity: 0.8; }
+.neurons-maze-teaser__hint { font-size: 0.76rem; opacity: 0.7; }
+.neurons-maze-collapse {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 0.4rem;
+  padding: 2px 8px;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid #3a2f63;
+  border-radius: 6px;
+  color: #9a96c8;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 /* ── Leaderboard rows (LeaderboardPage) ──────────────────────────────────── */
 
 /* Desktop base = the former inline gridTemplateColumns (moved here per
@@ -355,8 +528,38 @@ body:has(.modal-backdrop) {
 .maze-ping--node { color: #f4d06a; }       /* node lit — gold */
 .maze-ping--synapse { color: #6fe0ff; }    /* new synapse — cyan */
 .maze-ping--strengthen { color: #b98cff; } /* synapse strengthened — violet */
+
+/* §2.5 settle-travel: the walker's motion-trail dot (family colour set inline) — a soft glowing
+ * dot that fades + shrinks where the growth cone just passed. Same transient ping plumbing
+ * (camera-tracked wrapper, auto-removed after PING_MS), different inner look. */
+@keyframes maze-trail-fade {
+  0%   { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+}
+.maze-ping--trail {
+  width: 11px;
+  height: 11px;
+  border: none;
+  background: currentColor;
+  box-shadow: 0 0 10px 2px currentColor;
+  animation: maze-trail-fade var(--maze-ping-ms, 700ms) ease-out forwards;
+}
+/* §2.5 arrival flourish ring — family colour set inline; thicker than the node ring. */
+.maze-ping--advance { border-width: 3px; }
+
+/* §2.5 arrival pop on the walker sprite itself (applied to the sprite INSIDE the camera-positioned
+ * wrapper, so it never fights the wrapper's imperative translate/scale transform). */
+@keyframes maze-walker-arrive {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.32); }
+  68%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+.maze-walker-arrive { animation: maze-walker-arrive 520ms cubic-bezier(0.34, 1.3, 0.5, 1); }
+
 @media (prefers-reduced-motion: reduce) {
   .maze-ping { animation: none; opacity: 0; }
+  .maze-walker-arrive { animation: none; }
 }
 
 /* ConnectomeStatCard daily-loop causal chain (fix-neurons-dashboard-card-rwd):
