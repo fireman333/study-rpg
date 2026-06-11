@@ -13,6 +13,7 @@ import type { NeuronsDB } from '../db'
 import { NEURONS_ADAPTERS, SYNCED_META_KEYS } from './tables'
 
 const MARKER_KEY = 'neurons:lastSyncedUserId'
+const ACK_RESET_KEY_PREFIX = 'neurons:lastAckResetAt:'
 
 export function readLastSyncedUserId(): string | null {
   try {
@@ -27,6 +28,33 @@ export function writeLastSyncedUserId(userId: string): void {
     localStorage.setItem(MARKER_KEY, userId)
   } catch {
     // fail-open — gate degrades to first-sign-in semantics next launch
+  }
+}
+
+/**
+ * Reset acknowledgement (add-neurons-account-reset) — the highest bundle
+ * `meta.reset_at` this device has already honoured for a given user. Keyed
+ * per-user so account switching on one device never cross-acks. 0 = never.
+ * Fail-open like the marker: lost storage just means the pull-side gate
+ * re-runs one (idempotent) wipe against already-empty data.
+ */
+export function readAckResetAt(userId: string | null): number {
+  if (!userId) return 0
+  try {
+    const raw = localStorage.getItem(ACK_RESET_KEY_PREFIX + userId)
+    const n = raw === null ? 0 : Number(raw)
+    return Number.isFinite(n) && n > 0 ? n : 0
+  } catch {
+    return 0
+  }
+}
+
+export function writeAckResetAt(userId: string | null, resetAt: number): void {
+  if (!userId) return
+  try {
+    localStorage.setItem(ACK_RESET_KEY_PREFIX + userId, String(resetAt))
+  } catch {
+    // fail-open
   }
 }
 
@@ -74,4 +102,21 @@ export async function clearLocalSyncedData(db: NeuronsDB): Promise<void> {
 export async function adoptAccount(db: NeuronsDB, userId: string): Promise<void> {
   await clearLocalSyncedData(db)
   writeLastSyncedUserId(userId)
+}
+
+/**
+ * Pull-side reset-propagation gate (add-neurons-account-reset): when a pulled
+ * bundle carries a `reset_at` this device hasn't acked for the current owner,
+ * local pre-reset data must die BEFORE adapters merge — the merges are
+ * monotonic, so applying first would resurrect the wiped account. Returns true
+ * when a wipe ran. Idempotent: the resetting device acks before its own next
+ * pull, and a re-run wipes already-empty tables.
+ */
+export async function honorResetMarker(db: NeuronsDB, resetAt: unknown): Promise<boolean> {
+  if (typeof resetAt !== 'number' || resetAt <= 0) return false
+  const owner = readLastSyncedUserId()
+  if (resetAt <= readAckResetAt(owner)) return false
+  await clearLocalSyncedData(db)
+  writeAckResetAt(owner, resetAt)
+  return true
 }

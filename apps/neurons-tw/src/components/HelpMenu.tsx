@@ -21,6 +21,8 @@ import BugReportModal from './BugReportModal'
 import { EmojiIcon } from './EmojiIcon'
 import { getExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-visibility'
 import { requestReplayGuided, onReplayGuided } from '../lib/services/onboarding'
+import { useAuth } from '../lib/auth/AuthContext'
+import { resetNeuronsAccountData } from '../lib/services/account-reset'
 
 interface Section {
   id: string
@@ -68,6 +70,190 @@ function ExpeditionAnimationHelpControl(): JSX.Element {
       </button>
     </p>
   )
+}
+
+/**
+ * 「♻ 重置此帳號進度」 (add-neurons-account-reset) — signed-in-gated destructive
+ * action: cloud save overwritten empty + reset broadcast, local synced data
+ * wiped, leaderboard row deleted (nickname freed). Device prefs / onboarding
+ * records / signed-in identity survive. Confirm dialog mirrors the
+ * AccountSwitchConfirmModal visual language.
+ */
+function AccountResetControl(): JSX.Element {
+  const { status, user } = useAuth()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+
+  if (status !== 'authed' || !user) {
+    return (
+      <p>
+        重置會清空這個<strong>帳號</strong>的雲端與本機遊戲進度，需要先登入 Google
+        帳號才能執行（右上角「登入」）。
+      </p>
+    )
+  }
+
+  const runReset = async (): Promise<void> => {
+    setBusy(true)
+    setError(null)
+    try {
+      await resetNeuronsAccountData()
+      setDone(true)
+      setConfirmOpen(false)
+    } catch (err) {
+      console.warn('[account-reset] failed', err)
+      setError('重置失敗（雲端尚未清除、本機資料未動），請檢查網路後再試一次。')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      <p>
+        把這個帳號的進度<strong>全部歸零、砍掉重練</strong>。會清除：雲端存檔、
+        這台裝置的本機進度、排行榜紀錄（暱稱釋出給其他玩家使用）。會保留：登入狀態、
+        裝置偏好與教學紀錄。其他裝置會在下次同步時自動跟著清空。
+      </p>
+      {done ? (
+        <p>
+          <strong>✓ 已重置完成</strong> — 所有進度歸零，可以直接重新開始。
+        </p>
+      ) : (
+        <p>
+          <button type="button" style={helpResetButtonStyle} onClick={() => setConfirmOpen(true)}>
+            ♻ 重置此帳號進度
+          </button>
+        </p>
+      )}
+      {confirmOpen && (
+        <div style={resetOverlayStyle} role="dialog" aria-modal="true" aria-labelledby="account-reset-title">
+          <div style={resetCardStyle}>
+            <h2 id="account-reset-title" style={resetTitleStyle}>
+              ♻ 重置此帳號進度
+            </h2>
+            <p style={resetBodyStyle}>
+              即將清除這個帳號的：<strong>雲端存檔</strong>、<strong>本機遊戲進度</strong>
+              、<strong>排行榜紀錄</strong>（暱稱會釋出）。
+            </p>
+            <p style={resetBodyStyle}>保留：登入狀態、裝置偏好與教學紀錄。</p>
+            <p style={resetDangerStyle}>此操作無法復原。</p>
+            {error && <p style={resetErrorStyle}>{error}</p>}
+            <div style={resetButtonRowStyle}>
+              <button
+                type="button"
+                style={resetCancelButtonStyle}
+                disabled={busy}
+                onClick={() => {
+                  setConfirmOpen(false)
+                  setError(null)
+                }}
+              >
+                取消
+              </button>
+              <button type="button" style={resetConfirmButtonStyle} disabled={busy} onClick={() => void runReset()}>
+                {busy ? '重置中…' : '確定重置'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+const helpResetButtonStyle: React.CSSProperties = {
+  ...helpPillButtonStyle,
+  background: '#fbeaea',
+  color: '#a4262c',
+  border: '1px solid #a4262c',
+}
+
+const resetOverlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(0, 0, 0, 0.55)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1200,
+  fontFamily: 'var(--font-pixel-cjk)',
+  padding: '1rem',
+}
+
+const resetCardStyle: React.CSSProperties = {
+  background: '#f4ecd8',
+  border: '3px solid #b58900',
+  borderRadius: '8px',
+  padding: '1.25rem 1.5rem',
+  width: 'min(440px, 92vw)',
+  maxHeight: '90vh',
+  overflowY: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.7rem',
+  color: '#1a1410',
+  boxShadow: '0 12px 36px rgba(0,0,0,0.35)',
+}
+
+const resetTitleStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '1.1rem',
+  fontWeight: 700,
+  color: '#8a3b12',
+}
+
+const resetBodyStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '0.85rem',
+  lineHeight: 1.6,
+  color: '#5a3f29',
+}
+
+const resetDangerStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '0.85rem',
+  fontWeight: 700,
+  color: '#a4262c',
+}
+
+const resetErrorStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '0.8rem',
+  color: '#a4262c',
+  fontWeight: 700,
+}
+
+const resetButtonRowStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '0.6rem',
+  justifyContent: 'flex-end',
+  marginTop: '0.4rem',
+}
+
+const resetCancelButtonStyle: React.CSSProperties = {
+  padding: '0.45rem 0.9rem',
+  fontSize: '0.85rem',
+  fontFamily: 'inherit',
+  background: '#e8ddc3',
+  border: '2px solid #8a7a55',
+  borderRadius: '6px',
+  color: '#5a3f29',
+  cursor: 'pointer',
+}
+
+const resetConfirmButtonStyle: React.CSSProperties = {
+  padding: '0.45rem 0.9rem',
+  fontSize: '0.85rem',
+  fontFamily: 'inherit',
+  background: '#a4262c',
+  border: '2px solid #7a1a1f',
+  borderRadius: '6px',
+  color: '#fff',
+  fontWeight: 700,
+  cursor: 'pointer',
 }
 
 const GITHUB_ISSUES_URL = 'https://github.com/fireman333/study-rpg/issues/new'
@@ -433,6 +619,12 @@ const SECTIONS: Section[] = [
         </p>
       </>
     ),
+  },
+  {
+    id: 'account-reset',
+    icon: '♻',
+    title: '重置此帳號進度',
+    body: <AccountResetControl />,
   },
 ]
 

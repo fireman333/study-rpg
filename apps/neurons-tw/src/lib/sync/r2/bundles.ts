@@ -157,11 +157,22 @@
 //        unknown `mockExamVariants` key; a v21 client reading a v20 bundle (no key)
 //        applies an empty array → preserves its local collection on omission.
 //        Worker is bundle-opaque (no Worker change).
+//   v22 — add-neurons-account-reset 2026-06-11: adds the optional envelope field
+//        `meta.reset_at` (epoch ms). Account reset overwrites the cloud blob with
+//        an EMPTY snapshot carrying reset_at; pulls clear local synced data when
+//        reset_at exceeds the device's per-user ack (account-guard) BEFORE apply,
+//        and every subsequent push carries the acked reset_at forward so the
+//        marker is never washed out. The SV bump deliberately leans on the Worker
+//        schema-version guard: after any v22 push, v21 clients get 409 on push
+//        presign (cannot resurrect pre-reset data or strip the marker) while pull
+//        stays reader-tolerant; an SPA reload recovers them. NO new adapter / meta
+//        key / Dexie bump. Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
+import { readAckResetAt, readLastSyncedUserId } from '../account-guard'
 
-export const SCHEMA_VERSION = 21
+export const SCHEMA_VERSION = 22
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'
@@ -171,6 +182,13 @@ export interface BundleMeta {
   updated_at: string  // ISO 8601
   client_id: string
   app_version: string
+  /**
+   * Account-reset propagation marker (add-neurons-account-reset, v22).
+   * Epoch ms of the latest reset; absent when the account was never reset.
+   * Carried forward on every push from the device's acked value so the
+   * signal survives post-reset gameplay pushes.
+   */
+  reset_at?: number
 }
 
 export interface BundleSnapshot {
@@ -209,14 +227,39 @@ export async function buildBundleSnapshot(db: NeuronsDB): Promise<BundleSnapshot
   for (const adapter of NEURONS_ADAPTERS) {
     data[adapter.name] = await adapter.snapshot(db)
   }
+  // Carry the acked reset marker forward (the ownership marker IS the current
+  // local-data owner — the account gate guarantees it matches the signed-in
+  // user before the engine ever pushes). Without this, the first post-reset
+  // gameplay push would wash reset_at out of the cloud envelope and
+  // slower-syncing devices would never see the reset.
+  const ackResetAt = readAckResetAt(readLastSyncedUserId())
   return {
     meta: {
       schema_version: SCHEMA_VERSION,
       updated_at: new Date().toISOString(),
       client_id: getClientId(),
       app_version: BUNDLE_APP_VERSION,
+      ...(ackResetAt > 0 ? { reset_at: ackResetAt } : {}),
     },
     data,
+  }
+}
+
+/**
+ * Reset bundle (add-neurons-account-reset): an EMPTY snapshot whose envelope
+ * carries the fresh reset instant. Pushing it both wipes the cloud save
+ * (overwrite) and broadcasts the reset to every other device (pull-side gate).
+ */
+export function buildResetSnapshot(resetAt: number): BundleSnapshot {
+  return {
+    meta: {
+      schema_version: SCHEMA_VERSION,
+      updated_at: new Date(resetAt).toISOString(),
+      client_id: getClientId(),
+      app_version: BUNDLE_APP_VERSION,
+      reset_at: resetAt,
+    },
+    data: {},
   }
 }
 

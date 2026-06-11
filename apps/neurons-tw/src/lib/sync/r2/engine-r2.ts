@@ -16,6 +16,7 @@ import {
 } from './bundles'
 import { requestPresign } from './client'
 import { getEtag, setEtag } from './etag'
+import { honorResetMarker } from '../account-guard'
 
 const MAX_PUSH_RETRIES = 3
 const BACKOFF_MS = [250, 1000, 4000]
@@ -39,13 +40,24 @@ export interface PullBundleResult {
 export async function pushBundle(
   supabase: SupabaseClient,
   db: NeuronsDB,
+  opts?: {
+    /**
+     * Replace the Dexie-derived snapshot (add-neurons-account-reset): the
+     * reset flow pushes a constant empty bundle carrying `reset_at` instead
+     * of snapshotting local data. Re-invoked per attempt like the default
+     * builder so the retry loop semantics stay identical.
+     */
+    snapshotOverride?: () => Promise<BundleSnapshot> | BundleSnapshot
+  },
 ): Promise<PushBundleResult> {
   let lastErr: unknown = null
   let lastStatus: number | null = null
 
   for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
     try {
-      const snapshot = await buildBundleSnapshot(db)
+      const snapshot = opts?.snapshotOverride
+        ? await opts.snapshotOverride()
+        : await buildBundleSnapshot(db)
       const gz = await gzipBundle(snapshot)
       // Pass snapshot.meta.schema_version so the Worker can validate against
       // R2 customMetadata['schema-version'] and bake the value into the
@@ -163,6 +175,9 @@ export async function pullBundle(
   }
 
   if (etag) setEtag(etag)
+
+  // Reset-propagation gate (add-neurons-account-reset) — see honorResetMarker.
+  await honorResetMarker(db, snapshot.meta.reset_at)
 
   const applied = await applyBundleSnapshot(db, snapshot)
   return { etag, notModified: false, blobMissing: false, applied, snapshot }
