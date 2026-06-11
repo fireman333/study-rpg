@@ -467,6 +467,12 @@ local wipe / signout. If the R2 step fails, the whole flow aborts before
 touching Supabase, so the user retries from a clean slate. R2 cleanup is
 no-op (skipped) when `writeR2 === false` (Phase 0–1 compatibility).
 
+> **2026-06-11 update**: `/reset` + `/delete-account` now accept an
+> optional `{ "bundle": ... }` scope (no body = legacy full-prefix wipe
+> across ALL apps' bundles). neurons does NOT use these endpoints — its
+> reset is empty-bundle-overwrite based. See「neurons sync integrity」
+> section at the end of this doc.
+
 ### Bulk migration tool (`scripts/bulk-migrate.ts`)
 
 The client-side migration banner only fires when the affected user
@@ -588,3 +594,68 @@ After Phase 3 bakes 7+ days with no rollback events:
 - Once Phase 5 drops the 9 tables, `delete_my_data` RPC will fail (table
   doesn't exist). The follow-up change must update or drop the RPC
   alongside the table drops to keep reset functional through transition.
+
+## neurons sync integrity (shipped 2026-06-11)
+
+Four changes hardened the neurons-tw sync surface. Normative source:
+`openspec/specs/neurons-cloud-sync/spec.md` (8 requirements) + the
+"Worker delete endpoints accept an optional bundle scope" requirement in
+`openspec/specs/cloud-sync/spec.md`. Summary for operators:
+
+### Account-switch guard (`fix-neurons-account-switch-guard`)
+
+neurons merges are predominantly monotonic (MAX / UNION / first-write-wins),
+so a cross-account merge on a shared device is irreversible once pushed.
+A device-local ownership marker (`localStorage neurons:lastSyncedUserId`)
+records who owns the local Dexie data; signing in with a *different*
+account blocks the engine mount entirely (no hooks / pull / push) behind a
+confirm dialog — confirm wipes local synced data then adopts, cancel signs
+out untouched. The wipe (`account-guard.ts clearLocalSyncedData`) covers
+all `NEURONS_ADAPTERS` tables + the `SYNCED_META_KEYS` subset of `meta` +
+local-only `mockExamDrafts`; device-local meta (onboarding flags) survives.
+Same change derived the push-trigger hook list from `NEURONS_ADAPTERS`
+(the hand list had drifted to 7/20 — bookmark / flag / nickname-only
+writes never scheduled pushes).
+
+### Account reset (`add-neurons-account-reset`) — differs from 一階/二階
+
+neurons reset does **NOT** call the Worker `/reset` endpoint. Instead it
+pushes an **empty bundle** whose envelope carries `meta.reset_at` (epoch
+ms) through the normal presign PUT path:
+
+- Order: leaderboard `DELETE /leaderboard/neurons/me` (best-effort) →
+  reset-bundle push (MUST succeed or abort with local untouched) → write
+  per-user ack (`localStorage neurons:lastAckResetAt:<uid>`) → local wipe.
+  User stays signed in.
+- Propagation: every pull runs `honorResetMarker` — when the bundle's
+  `reset_at` exceeds the device's ack, local synced data is wiped BEFORE
+  adapters merge (monotonic merges would otherwise resurrect the account).
+  Every later push carries the acked `reset_at` forward so the marker is
+  never washed out of the envelope.
+- `SCHEMA_VERSION` bumped 21 → 22 with the field; the Worker's existing
+  schema-version guard (409 on lower-SV push presign) fences stale
+  clients from pushing pre-reset data. Pulls stay forward-tolerant; an
+  SPA reload self-heals.
+
+### Worker bundle-scoped delete (`add-worker-bundle-scoped-delete`)
+
+`POST /reset` and `POST /delete-account` now accept an optional JSON body
+`{ "bundle": "m2" | "bookmarks" | "neurons" }` and delete only that
+bundle's object (key from the exported presign `bundleKey()`). **No body =
+legacy behavior: every object under `users/<sub>/` is deleted — i.e. ALL
+apps' saves for that account.** Unknown bundle values are a 400 that
+deletes nothing (fail-closed). Response carries `scope: "all" | <bundle>`.
+
+⚠ As of 2026-06-11 the 二階 client still calls `/reset` with no body, so a
+二階 「重置此帳號進度」 wipes the sibling neurons blob too (low harm —
+neurons local state re-pushes — but semantically wrong). Fix tracked as a
+study-rpg-2nd client change: send `{ "bundle": "m2" }` (+ decide whether
+`bookmarks` belongs to 二階 reset semantics).
+
+### Sync status light (`add-neurons-sync-status-chip`)
+
+`SyncProvider` (React context) replaced the headless `SyncMount`; the
+signed-in auth pill shows 🟢 synced / 🟡 in flight / 🔴 failed (tooltip =
+error or last push time), click = force pull + push. Push failures are no
+longer console-only. Hidden when signed out or while the account-switch
+gate is pending.
