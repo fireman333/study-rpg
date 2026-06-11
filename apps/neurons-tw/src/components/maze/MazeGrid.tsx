@@ -15,8 +15,12 @@
  * `will-change: transform` is promoted to one composited layer and rasterized at devicePixelRatio →
  * a ~hundreds-of-MB GPU layer that OOM-kills the iOS Safari content process on scroll-into-view. The
  * viewport-blit model keeps the displayed layer viewport-sized, so it stays within the iOS budget.
- * (§2 walker glide / §4 synapse pulse / §5 focus fly / §6 ambient / §8 colour bands are event-driven
- * follow-ups; §1 transitions are instant.)
+ *
+ * EVENT-DRIVEN JUICE (all shipped, all one-shot / compositor-driven — no steady-state rAF):
+ * §2 walker glide + §2.5 settle-travel (one-shot rAF chain), §3 node-reveal + §4 synapse-pulse
+ * (transient DOM "ping" rings), §5 focus-fly (one-shot rAF camera tween in `flyTo`), §6 ambient
+ * firing (≤12 CSS-keyframe glow dots, compositor-only), §7.2 conduction-pulse ping, §8 per-cell
+ * progress-ranked colour bands (computed in the discrete scene bake via `maze-route-bands.ts`).
  *
  * It does NOT call useMaze itself — the page owns the single useMaze(pack) subscription and passes the
  * `view` down. Camera framing: a correct answer (maze-focus bus) frames that family's walker; reading
@@ -53,6 +57,9 @@ import {
 // Large textbook neuron-symbol landmarks at static hubs — the "obvious neuron" lever (locked via
 // grilled-neurons-maze-looks-like-brain): the corridors are the wiring, these are the cells.
 import { MAZE_LANDMARKS, landmarkImage, ALL_NODE_CELLS } from './maze-landmarks'
+// §8 per-cell progress-ranked colour bands — pure module (Vitest-covered), computed inside the
+// discrete scene bake only (rank key = the already-synced settles counter; zero new state).
+import { buildBandRuns, type BandFamilyInput } from './maze-route-bands'
 // Codex gpt-image-2 muted brain-silhouette + nerve-fiber backdrop — a faint full-bleed layer so the
 // maze reads as sitting inside a brain (owner: brain outline + fibers, muted teal/violet on navy). It
 // is blitted into the viewport per camera draw (its 1.8× silhouette extends beyond the grid bounds).
@@ -112,12 +119,30 @@ const WALKER_MIN_PX = 15
 const WALKER_MAX_PX = 44
 const PING_MS = 700 // §3/§4: one-shot reveal/pulse overlay lifetime
 
+// Touch devices (phones/tablets) get HALVED transient-overlay density (A4 polish): fewer trail
+// dots per travel + a lower live-ping cap — the visual juice budget that feels right under a mouse
+// reads busy (and costs compositor layers) under a thumb on a small hot SoC.
+const IS_TOUCH =
+  typeof window !== 'undefined' &&
+  (window.matchMedia?.('(pointer: coarse)').matches || (navigator.maxTouchPoints ?? 0) > 0)
+const PING_CAP = IS_TOUCH ? 24 : 48
+
+// §5 focus-fly: one-shot rAF camera tween (NOT a CSS transition — there is no CSS-transformed
+// stage; the camera is camRef blitted per event). Duration scales mildly with screen-space
+// distance, clamped to [FLY_MS_BASE, FLY_MS_MAX]. Reduced-motion / trivial deltas snap.
+const FLY_MS_BASE = 420
+const FLY_MS_MAX = 800
+
+// §6 ambient firing: at most this many tiny CSS-keyframe glow dots over real synapse cells —
+// compositor-driven (opacity/transform only), ZERO canvas/rAF cost, gated by 隱藏連結 + reduced-motion.
+const MAZE_AMBIENT_MAX = 12
+
 // §3 node-reveal + §4 synapse-pulse share one transient overlay ("ping"): a CSS-animated ring at a
 // cell, positioned in screen-space with the camera (like walkers), auto-removed after PING_MS. No
 // per-frame canvas pass — the ring is a GPU-composited DOM layer. §2.5 settle-travel reuses the
 // same system for its motion-trail dots ('trail') + arrival flourish ('advance'), with an optional
-// per-ping family colour.
-type MazePingKind = 'node' | 'synapse' | 'strengthen' | 'trail' | 'advance'
+// per-ping family colour; §7.2 'conduction' is the synaptic conduction-pulse glow (dim cyan).
+type MazePingKind = 'node' | 'synapse' | 'strengthen' | 'trail' | 'advance' | 'conduction'
 interface MazePing { id: number; cell: Cell; kind: MazePingKind; initialTransform: string; color?: string }
 
 // --- §2.5 settle-travel — the threshold-crossing REWARD moment -------------------------------
@@ -135,7 +160,7 @@ const TRAVEL_SPAN_MAX_SETTLES = 3 // clamp multi-settle batches to the last 3 no
 const TRAVEL_MS_BASE = 850
 const TRAVEL_MS_PER_CELL = 16
 const TRAVEL_MS_MAX = 2200
-const TRAVEL_TRAIL_EVERY_MS = 95 // family-coloured trail-dot cadence along the corridor
+const TRAVEL_TRAIL_EVERY_MS = IS_TOUCH ? 190 : 95 // trail-dot cadence (halved density on touch)
 const TRAVEL_PENDING_EXPIRE_MS = 3000 // due-tick anchor expiry (failed-pull guard)
 const TRAVEL_SAMPLE_STEP_P = 0.02 // progress-units (settles+frac) per sampled polyline point
 
@@ -207,7 +232,9 @@ function pointAtTravelDistance(tp: TravelPath, d: number): Cell {
 // head or the OUTSIDE void. When the visible rect is wider than (maze + margin), it locks to
 // centre. z is untouched; Z_MIN already keeps the content covering the viewport (no void).
 const MAZE_PAN_MARGIN = 40
-function clampPan(cam: { cx: number; cy: number; z: number }, vw: number, vh: number): { cx: number; cy: number; z: number } {
+/** Camera: maze-space centre (cx, cy) + zoom z (on-screen px per cell). */
+type Cam = { cx: number; cy: number; z: number }
+function clampPan(cam: Cam, vw: number, vh: number): Cam {
   const halfW = vw / cam.z / 2
   const halfH = vh / cam.z / 2
   const minX = -MAZE_PAN_MARGIN, maxX = GRID_W + MAZE_PAN_MARGIN
@@ -232,6 +259,10 @@ const IS_SAFARI_OR_IOS = (() => {
   return isIOS || isSafari
 })()
 const VIEW_DPR_CAP = IS_SAFARI_OR_IOS ? 1.75 : 2
+// Max displayed-canvas backing-store area (px²). At App content width ≈ 880px usable and the detail-mode
+// stage height clamp(380,62vh,640) a full-width stage is ≈ 880×640 ≈ 0.56M CSS px → 2.25M backing at DPR 2,
+// well under this ceiling; the cap only bites on unusually large viewports / DPR 3 devices.
+const VIEW_AREA_CAP = 4_800_000
 
 // Mode-B brain backdrop: >1 enlarges the brain (centered on the grid) so its silhouette CONTAINS the
 // whole maze (owner: "迷宮都在腦的輪廓內"). DEV-tunable; BRAIN_HERO_ALPHA keeps it faint enough that
@@ -446,7 +477,10 @@ function drawScene(
       trace(path, last)
       ctx.stroke()
 
-      // (b) explored prefix — full bright sheath + highlight + solid family-colour core.
+      // (b) explored prefix — bright gold sheath + highlight (the base/frame; §8 demoted gold from
+      // the dominant band). The family-colour core is NO LONGER a single solid stroke here — the
+      // shared-cell colour belongs to the §8 progress-ranked band pass below (the old per-family
+      // solid core devolved into "last drawn wins" on the 84%-shared lattice).
       if (exploredIdx >= 1) {
         ctx.globalAlpha = famDim
         ctx.lineCap = 'butt'
@@ -461,16 +495,36 @@ function drawScene(
         ctx.stroke()
         ctx.setLineDash([])
         ctx.lineCap = 'round'
-        ctx.strokeStyle = enc.color
-        ctx.lineWidth = coreW
-        trace(path, exploredIdx)
-        ctx.stroke()
       }
     }
   }
   ctx.setLineDash([])
   ctx.globalAlpha = 1
   ctx.lineCap = 'round'
+
+  // Layer ②b — §8 per-cell progress-ranked colour bands over the explored corridor: each walked
+  // cell shows the up-to-3 most-progressed families through it as nested width bands (rank key =
+  // already-synced settles; pure module `maze-route-bands.ts`). Runs arrive widest-first so the
+  // narrowest (most-progressed) band strokes last = the solid centre core. Spotlight dims
+  // non-selected families' bands like their tracts. Discrete-bake only — never per-frame.
+  const bandInputs: BandFamilyInput[] = fams.map((f) => ({
+    familyId: f.familyId,
+    explored1: exploredOnRoute(f, 1),
+    explored2: exploredOnRoute(f, 2),
+    settles: f.energy.settles,
+  }))
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  for (const run of buildBandRuns(bandInputs)) {
+    const enc = FAMILY_ENC[run.familyId]
+    if (!enc) continue
+    ctx.globalAlpha = flags.emphasis != null && run.familyId !== flags.emphasis ? 0.22 : 1
+    ctx.strokeStyle = enc.color
+    ctx.lineWidth = Math.max(1, run.w * tile)
+    trace(run.pts, run.pts.length - 1)
+    ctx.stroke()
+  }
+  ctx.globalAlpha = 1
 
   // Layer ③a — faint unlit node POSITION pins (reveals position only, not shape/rarity → fog-of-war
   // preserved) so the tracts read as populated with neurons even before exploration.
@@ -575,6 +629,21 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
   const reducedMotion = useRespectsReducedMotion()
   const reducedMotionRef = useRef(reducedMotion)
   reducedMotionRef.current = reducedMotion
+  // §6 ambient firing: the up-to-12 "breathing" synapse cells (strong > weak > dormant, stable
+  // pairKey tie-break). Empty when the synapse overlay is hidden (the dots mark synapse cells —
+  // they vanish with 隱藏連結) or under reduced-motion. DOM overlays over the ONE canvas, like pings.
+  const ambientRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  const ambientCells = useMemo(() => {
+    if (!synapseOverlayOn || reducedMotion) return []
+    const rank: Record<SynapseState, number> = { strong: 0, weak: 1, dormant: 2 }
+    return synapseData
+      .filter((s) => !s.isLegacy)
+      .sort((a, b) => rank[a.state] - rank[b.state] || (a.pairKey < b.pairKey ? -1 : a.pairKey > b.pairKey ? 1 : 0))
+      .slice(0, MAZE_AMBIENT_MAX)
+      .map((s) => ({ key: s.pairKey, cell: s.cell }))
+  }, [synapseData, synapseOverlayOn, reducedMotion])
+  const ambientCellsRef = useRef(ambientCells)
+  ambientCellsRef.current = ambientCells
   // Offscreen baked scene (created once) + cached tile bake (re-baked only on design-switch).
   const sceneRef = useRef<HTMLCanvasElement | null>(null)
   const tileBakeRef = useRef<{ sel: MazeSel | null; canvas: HTMLCanvasElement | null }>({ sel: null, canvas: null })
@@ -698,11 +767,27 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     }
   }, [])
 
+  // §6 ambient positioner — same camera projection as positionPings; the outer wrapper tracks the
+  // camera imperatively while the inner `.maze-ambient` runs its compositor-only glow keyframes.
+  const positionAmbient = useCallback((vw: number, vh: number) => {
+    if (ambientCellsRef.current.length === 0) return
+    const { cx, cy, z } = camRef.current
+    const fitTile = (Math.min(vw, vh) / Math.max(GRID_W, GRID_H)) * 0.98
+    const scale = fitTile > 0 ? z / fitTile : 1
+    for (const a of ambientCellsRef.current) {
+      const el = ambientRefs.current.get(a.key)
+      if (!el) continue
+      const px = vw / 2 + (a.cell[0] - cx) * z
+      const py = vh / 2 + (a.cell[1] - cy) * z
+      el.style.transform = `translate(${px}px, ${py}px) scale(${scale})`
+    }
+  }, [])
+
   // Spawn a one-shot reveal/pulse ring at a cell (skipped under reduced motion). Snapped to the
   // current camera at spawn (no top-left flash), then tracked by positionWalkers; self-removes.
-  // `color` overrides the kind's CSS hue (the §2.5 trail/advance pings use the family colour).
-  // Cap 48: a multi-family expedition settle can run several travels at once, each shedding
-  // short-lived trail dots — still strictly bounded, all self-remove after PING_MS.
+  // `color` overrides the kind's CSS hue (the §2.5 trail pings use the family colour).
+  // PING_CAP (48 desktop / 24 touch): a multi-family expedition settle can run several travels at
+  // once, each shedding short-lived trail dots — strictly bounded, all self-remove after PING_MS.
   const addPing = useCallback((cell: Cell, kind: MazePingKind, color?: string) => {
     if (reducedMotionRef.current) return
     const stage = stageRef.current
@@ -716,7 +801,7 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     const py = vh / 2 + (cell[1] - cy) * z
     const id = ++pingIdRef.current
     const initialTransform = `translate(${px}px, ${py}px) scale(${scale})`
-    setPings((prev) => [...prev, { id, cell, kind, initialTransform, color }].slice(-48))
+    setPings((prev) => [...prev, { id, cell, kind, initialTransform, color }].slice(-PING_CAP))
     window.setTimeout(() => {
       pingRefs.current.delete(id)
       setPings((prev) => prev.filter((p) => p.id !== id))
@@ -737,7 +822,12 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     if (!stage || !canvas) return
     const vw = stage.clientWidth || 1
     const vh = stage.clientHeight || 1
-    const dpr = Math.min(VIEW_DPR_CAP, window.devicePixelRatio || 1)
+    // Belt-and-suspenders backing-store cap (reposition-neurons-maze-master-detail C′): the detail-mode
+    // full-width stage is much larger than the prior rail panel, so cap the effective DPR by display AREA
+    // (≤ 4.8M backing px) ON TOP of VIEW_DPR_CAP — a wide+tall stage can't blow the iOS Safari canvas
+    // budget even at devicePixelRatio 2/3.
+    const areaCap = Math.sqrt(VIEW_AREA_CAP / Math.max(1, vw * vh))
+    const dpr = Math.min(VIEW_DPR_CAP, window.devicePixelRatio || 1, areaCap)
     const needW = Math.round(vw * dpr)
     const needH = Math.round(vh * dpr)
     if (canvas.width !== needW || canvas.height !== needH) {
@@ -805,7 +895,8 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
 
     positionWalkers(vw, vh)
     positionPings(vw, vh)
-  }, [positionWalkers, positionPings])
+    positionAmbient(vw, vh)
+  }, [positionWalkers, positionPings, positionAmbient])
 
   // Coalesced redraw for the high-frequency input paths (pan / wheel / pinch): at most one blit per
   // frame regardless of event rate. One-shot, self-cancelling — no steady-state loop.
@@ -822,9 +913,87 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     if (drawRafRef.current != null) cancelAnimationFrame(drawRafRef.current)
   }, [])
 
+  // --- §5 focus-fly: one-shot rAF camera tween (mirrors the §2.5 travelTick chain) -------------
+  // There is no CSS-transformed stage to transition (post-OOM rewrite) — the "fly" tweens
+  // `camRef {cx,cy,z}` and blits per frame, exists ONLY while a fly is active, self-stops at t=1,
+  // and is cancelled on unmount + on any manual pan/zoom/pinch (markManual reclaims the camera).
+  // `flyStageSizeRef` records the stage size the fly was framed for, so the ResizeObserver can
+  // tell "this fly already targets the post-resize layout" (C′ detail entry/exit) apart from a
+  // genuine reframe-needed resize.
+  const flyRafRef = useRef<number | null>(null)
+  const flyRef = useRef<{ from: Cam; to: Cam; start: number; dur: number } | null>(null)
+  const flyStageSizeRef = useRef<{ vw: number; vh: number } | null>(null)
+
+  const cancelFly = useCallback(() => {
+    flyRef.current = null
+    flyStageSizeRef.current = null
+    if (flyRafRef.current != null) { cancelAnimationFrame(flyRafRef.current); flyRafRef.current = null }
+  }, [])
+
+  const flyTick = useCallback(() => {
+    flyRafRef.current = null
+    const fly = flyRef.current
+    const stage = stageRef.current
+    if (!fly || !stage) return
+    const vw = stage.clientWidth || 1
+    const vh = stage.clientHeight || 1
+    const t = Math.min(1, (performance.now() - fly.start) / fly.dur)
+    const e = easeInOutCubic(t)
+    camRef.current = clampPan({
+      cx: fly.from.cx + (fly.to.cx - fly.from.cx) * e,
+      cy: fly.from.cy + (fly.to.cy - fly.from.cy) * e,
+      // Zoom interpolates in LOG space — a linear z lerp reads as a lurch when zooming far.
+      z: fly.from.z * Math.pow(fly.to.z / fly.from.z, e),
+    }, vw, vh)
+    drawCamera() // already inside a rAF — draw directly, don't re-defer through scheduleDraw
+    if (t < 1) {
+      flyRafRef.current = requestAnimationFrame(flyTick)
+    } else {
+      const to = fly.to
+      flyRef.current = null
+      flyStageSizeRef.current = null
+      camRef.current = clampPan(to, vw, vh)
+      drawCamera()
+    }
+  }, [drawCamera])
+
+  // Cancel an in-flight fly frame on unmount.
+  useEffect(() => () => {
+    if (flyRafRef.current != null) cancelAnimationFrame(flyRafRef.current)
+  }, [])
+
+  /** Move the camera to `target` — animated one-shot fly by default; SNAP when `instant`,
+   * reduced-motion, or the delta is trivial (sub-perceptual centre shift + zoom ratio). */
+  const flyTo = useCallback((target: Cam, instant = false) => {
+    const stage = stageRef.current
+    if (!stage) return
+    const vw = stage.clientWidth || 1
+    const vh = stage.clientHeight || 1
+    const to = clampPan(target, vw, vh)
+    const from = { ...camRef.current }
+    const zMean = Math.sqrt(Math.max(1e-6, from.z * to.z))
+    const dPx = Math.hypot((to.cx - from.cx) * zMean, (to.cy - from.cy) * zMean)
+    const zRatio = Math.max(to.z / from.z, from.z / to.z)
+    if (instant || reducedMotionRef.current || (dPx < 8 && zRatio < 1.03)) {
+      cancelFly()
+      camRef.current = to
+      drawCamera()
+      return
+    }
+    const zoomPx = Math.abs(Math.log(zRatio)) * 260 // zoom change contributes to perceived distance
+    flyRef.current = {
+      from, to,
+      start: performance.now(),
+      dur: Math.min(FLY_MS_MAX, FLY_MS_BASE + (dPx + zoomPx) * 0.35),
+    }
+    flyStageSizeRef.current = { vw, vh }
+    if (flyRafRef.current == null) flyRafRef.current = requestAnimationFrame(flyTick)
+  }, [cancelFly, drawCamera, flyTick])
+
   // Whole-map default fit (pulled in past the exact fit so the neuron landmarks read big) or, when a
-  // family is focused, that family's cluster. Mutates camRef and blits.
-  const frameContextual = useCallback(() => {
+  // family is focused, that family's cluster. Computes the target and hands it to flyTo (animated
+  // fly by default; `instant` for mount / resize / DEV-toggle reframes).
+  const frameContextual = useCallback((opts?: { instant?: boolean }) => {
     const stage = stageRef.current
     if (!stage) return
     const vw = stage.clientWidth || 1
@@ -833,25 +1002,24 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     if (focus.familyId && (focus.sticky || performance.now() < focus.until)) {
       const fam = viewRef.current.families.find((f) => f.familyId === focus.familyId)
       if (fam) {
-        camRef.current = clampPan({
+        flyTo({
           cx: fam.walkerCell[0], cy: fam.walkerCell[1],
           z: Math.min(Math.max(Math.min(vw, vh) / FOCUS_SPAN, Z_MIN), Z_MAX),
-        }, vw, vh)
-        drawCamera()
+        }, opts?.instant)
         return
       }
     }
     const fitZ = (Math.min(vw, vh) / Math.max(GRID_W, GRID_H)) * 0.98 * zoomBoostRef.current
-    camRef.current = clampPan({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], z: Math.min(Math.max(fitZ, Z_MIN), Z_MAX) }, vw, vh)
-    drawCamera()
-  }, [drawCamera])
+    flyTo({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], z: Math.min(Math.max(fitZ, Z_MIN), Z_MAX) }, opts?.instant)
+  }, [flyTo])
 
   const markManual = useCallback(() => {
     manualUntilRef.current = performance.now() + 6000
+    cancelFly() // a wheel/drag/pinch instantly reclaims the camera from an in-flight fly
     if (focusRef.current.familyId) focusRef.current = { familyId: null, until: 0, sticky: false }
     if (autoRevertTimerRef.current) { clearTimeout(autoRevertTimerRef.current); autoRevertTimerRef.current = null }
     if (hoveredPairRef.current) setHoveredWire(null) // a pan/zoom would drift the tooltip → dismiss
-  }, [])
+  }, [cancelFly])
 
   // --- §2.5 settle-travel engine (one-shot rAF chain; self-cancels when no travel is active) ---
   // Each frame reads camRef live (pan/zoom mid-travel stays correct), moves the walker along its
@@ -890,7 +1058,9 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
         travels.delete(famId)
         el.style.zIndex = '5'
         lastWalkerCellRef.current.set(famId, tr.endCell)
-        addPing(tr.endCell, 'advance', tr.color)
+        // Arrival ring is GOLD (the maze's "earned/lit" vocabulary, matching the node-lit ring) —
+        // the family colour stays on the trail dots (A4 polish, reverting a family-colour drift).
+        addPing(tr.endCell, 'advance')
         const inner = el.firstElementChild
         if (inner instanceof HTMLElement) {
           inner.classList.remove('maze-walker-arrive')
@@ -1033,8 +1203,10 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
   // synapses / design switch / a landmark image arriving) — a discrete event, never per-frame — then
   // re-blit. `bakeKey` coalesces these into one signature.
   const bakeKey = useMemo(() => {
+    // settles is in the signature because the §8 band ranking reads it — a settle (or a cloud-sync
+    // convergence that lands one) re-ranks the shared-cell bands, so it must re-bake. Discrete.
     const famSig = view.families
-      .map((f) => `${f.familyId}:${exploredOnRoute(f, 1)}:${exploredOnRoute(f, 2)}:${f.litNodes.length}`)
+      .map((f) => `${f.familyId}:${exploredOnRoute(f, 1)}:${exploredOnRoute(f, 2)}:${f.litNodes.length}:${f.energy.settles}`)
       .join(';')
     const synSig = synapseData.map((s) => `${s.pairKey}:${s.state}`).join(';')
     return `${sel.wall},${sel.path},${sel.bg},${sel.node}|lm${landmarksOn ? 1 : 0}|up${unlitPins ? 1 : 0}|sy${synapseOverlayOn ? 1 : 0}|av${assetsVersion}|em${emphasisFamilyId ?? ''}|${famSig}|${synSig}`
@@ -1064,13 +1236,22 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     return () => cleanups.forEach((fn) => fn())
   }, [])
 
-  // Initial frame + reframe on resize (unless the user just interacted manually).
+  // Initial frame + reframe on resize — both INSTANT (no fly on load or on a layout restructure;
+  // C′ detail-mode entry/exit resizes the stage and must snap, per the master-detail spec).
+  // EXCEPTION: when an in-flight §5 fly was already framed FOR the current (post-resize) stage size
+  // — the focus emit is microtask-deferred past the React commit, so a card-tap fly measures the
+  // new layout — the RO lets that fly run instead of instant-snapping over it (no double-move).
   useEffect(() => {
     const stage = stageRef.current
     if (!stage) return
-    frameContextual()
+    frameContextual({ instant: true })
     const ro = new ResizeObserver(() => {
-      if (performance.now() > manualUntilRef.current) frameContextual()
+      const sz = flyStageSizeRef.current
+      if (
+        flyRef.current && sz &&
+        sz.vw === (stage.clientWidth || 1) && sz.vh === (stage.clientHeight || 1)
+      ) return // active fly already targets this layout — let it finish
+      if (performance.now() > manualUntilRef.current) frameContextual({ instant: true })
       else drawCamera()
     })
     ro.observe(stage)
@@ -1092,6 +1273,13 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     const stage = stageRef.current
     if (stage) positionPings(stage.clientWidth || 1, stage.clientHeight || 1)
   }, [pings, positionPings])
+
+  // §6: place freshly-mounted ambient dots pre-paint (no top-left flash); thereafter they ride the
+  // camera via drawCamera → positionAmbient.
+  useLayoutEffect(() => {
+    const stage = stageRef.current
+    if (stage) positionAmbient(stage.clientWidth || 1, stage.clientHeight || 1)
+  }, [ambientCells, positionAmbient])
 
   // §3 fog/node reveal: ping cells that newly lit since the last view tick (seed silently on first
   // run so existing progress doesn't burst-ping on load). Overlay reveal, no per-frame fog pass.
@@ -1133,14 +1321,21 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     prevSynRef.current = next
   }, [synapseData, addPing])
 
-  // Focus / recenter bus (family-picker tap, correct-answer auto-focus, 🔭 recenter).
+  // Focus / recenter bus (family-picker tap, correct-answer auto-focus, 🔭 recenter). §5: these
+  // paths FLY (animated one-shot tween). The two paths that can coincide with a C′/A2 layout
+  // restructure (manual focus = card/walker tap entering detail mode; recenter = 全覽 exiting it)
+  // defer the framing one microtask — past React's synchronous commit — so the fly target is
+  // measured at the POST-resize stage size and the ResizeObserver recognises it (no double-move:
+  // a fly started at the old size would be instant-snapped over by the RO reframe).
   useEffect(() => {
     const offFocus = onMazeFocus((familyId, manual) => {
       if (manual) {
         focusRef.current = { familyId, until: Infinity, sticky: true }
         manualUntilRef.current = 0
         if (autoRevertTimerRef.current) { clearTimeout(autoRevertTimerRef.current); autoRevertTimerRef.current = null }
-        frameContextual()
+        queueMicrotask(() => {
+          if (focusRef.current.sticky && focusRef.current.familyId === familyId) frameContextual()
+        })
       } else {
         if (focusRef.current.sticky) return
         focusRef.current = { familyId, until: performance.now() + 4500, sticky: false }
@@ -1159,7 +1354,9 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
       focusRef.current = { familyId: null, until: 0, sticky: false }
       manualUntilRef.current = 0
       if (autoRevertTimerRef.current) { clearTimeout(autoRevertTimerRef.current); autoRevertTimerRef.current = null }
-      frameContextual()
+      queueMicrotask(() => {
+        if (focusRef.current.familyId == null) frameContextual() // fly back to the whole map
+      })
     })
     return () => {
       offFocus()
@@ -1182,13 +1379,26 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     prevCount.current = view.totalConnectedCount
   }, [view.totalConnectedCount])
 
-  // Per-wire tooltip data: refresh on conduction pulse + when the synapse set changes (form/strengthen/decay).
+  // Per-wire tooltip data: refresh on conduction pulse + when the synapse set changes
+  // (form/strengthen/decay). §7.2: a conduction pulse ALSO glows its wire's crossing cell — a dim
+  // cyan one-shot ping (re-wiring the behaviour the deleted per-frame loop used to render). A
+  // settle batch can emit many flows in one tick → cap to the first 8 per ~200ms window (addPing's
+  // own PING_CAP + reduced-motion gates still apply).
+  const conductionPingWindowRef = useRef<{ at: number; n: number }>({ at: 0, n: 0 })
   useEffect(() => {
     const sub = subscribeConnectomeEvents({
-      'connectome.conductionPulse': () => { void getWireConductionStatuses().then(setWireStatuses) },
+      'connectome.conductionPulse': (p) => {
+        void getWireConductionStatuses().then(setWireStatuses)
+        const now = performance.now()
+        const w = conductionPingWindowRef.current
+        if (now - w.at > 200) { w.at = now; w.n = 0 }
+        if (w.n >= 8) return
+        const cell = synapseCell(p.fromFamily, p.toFamily)
+        if (cell) { w.n += 1; addPing(cell, 'conduction') }
+      },
     })
     return () => sub.dispose()
-  }, [])
+  }, [addPing])
   useEffect(() => {
     let alive = true
     void getWireConductionStatuses().then((m) => { if (alive) setWireStatuses(m) })
@@ -1352,8 +1562,9 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
     }
   }, [scheduleDraw, markManual])
 
-  // DEV switches that change framing (zoom boost) need a reframe when toggled.
-  useEffect(() => { if (performance.now() > manualUntilRef.current) frameContextual() }, [zoomBoost, frameContextual])
+  // DEV switches that change framing (zoom boost) need a reframe when toggled (instant — a
+  // framing-parameter change, not a focus moment worth a fly).
+  useEffect(() => { if (performance.now() > manualUntilRef.current) frameContextual({ instant: true }) }, [zoomBoost, frameContextual])
 
   const legend = useMemo(() => view.families.map((f) => f.familyId), [view.families])
 
@@ -1474,7 +1685,7 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
         >
           <EmojiIcon char="🔭" size={15} /> 全覽
         </button>
-        {view.families.map((fam) => (
+        {view.families.map((fam, idx) => (
           <div
             key={`walker-${fam.familyId}`}
             ref={(el) => walkerRefs.current.set(fam.familyId, el)}
@@ -1486,11 +1697,36 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
               opacity: emphasisFamilyId != null && fam.familyId !== emphasisFamilyId ? 0.35 : 1,
             }}
           >
-            {fam.walkerVariant ? (
-              <VariantSprite row={fam.walkerVariant} size={WALKER_RENDER_PX} alt={`${fam.familyId} 路徑代表神經元`} />
-            ) : (
-              <NeuronSilhouette size={WALKER_RENDER_PX - 4} alt={`${fam.familyId} 尚未解鎖代表（答題後出現）`} />
-            )}
+            {/* A4 idle "breathe" on an INNER wrapper — never the outer wrapper, whose transform is
+                imperative camera positioning. This div is `firstElementChild`, so travelTick's
+                one-shot `.maze-walker-arrive` pop targets the same element (arrive wins while
+                present, breathe resumes after). Only unlocked reps breathe; the grayscale
+                silhouette stays inert. Staggered phase so 11 walkers don't pulse in lockstep. */}
+            <div
+              className={fam.walkerVariant ? 'maze-walker-breathe' : undefined}
+              style={fam.walkerVariant ? { animationDelay: `${(idx % 7) * -0.47}s` } : undefined}
+            >
+              {fam.walkerVariant ? (
+                <VariantSprite row={fam.walkerVariant} size={WALKER_RENDER_PX} alt={`${fam.familyId} 路徑代表神經元`} />
+              ) : (
+                <NeuronSilhouette size={WALKER_RENDER_PX - 4} alt={`${fam.familyId} 尚未解鎖代表（答題後出現）`} />
+              )}
+            </div>
+          </div>
+        ))}
+        {/* §6 ambient firing — ≤12 compositor-only glow dots over the strongest live synapse cells
+            (DOM overlays over the ONE canvas; camera-tracked outer wrapper, CSS-keyframe inner).
+            zIndex 3 = below the edge feather (4) / walkers (5) / pings (6). */}
+        {ambientCells.map((a, i) => (
+          <div
+            key={`amb-${a.key}`}
+            ref={(el) => {
+              if (el) ambientRefs.current.set(a.key, el)
+              else ambientRefs.current.delete(a.key)
+            }}
+            style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none', zIndex: 3, willChange: 'transform' }}
+          >
+            <div className="maze-ambient" style={{ animationDelay: `${i * 0.45}s` }} aria-hidden />
           </div>
         ))}
         {/* §3/§4 one-shot reveal/pulse rings (node lit / synapse formed / strengthened). The outer

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
 import {
@@ -286,47 +286,133 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     return () => dmnUiEvents.off('dmn.quickReviewStart', handler)
   }, [wrongCount])
 
-  // ── Maze master-detail (reposition-neurons-maze-master-detail): ONE embedded MazeGrid is the
-  // family-grid's detail panel, collapsed to a teaser by default. Selecting a family expands +
-  // sticky-focuses it + scrolls it into view (the in-view feedback). Expand pref is device-local
-  // (NOT synced).
+  // ── Maze master-detail (reposition-neurons-maze-master-detail → C′ desktop / A2 mobile): ONE
+  // embedded MazeGrid is the family-grid's detail panel, collapsed to a teaser by default.
+  // DESKTOP "C′": detail-mode == `selectedFamilyId !== null` — the detail region expands to FULL box
+  // width with a DockHeader (the enlarged selected card) above the maze, and the 2-col grid collapses
+  // into a single FamilyChipRail BELOW the maze (switch families with no 返回 step, no layout shift).
+  // MOBILE "A2": the maze docks (CSS-absolute) directly UNDER the tapped card (`dockFamilyId`); 全覽
+  // clears the spotlight but KEEPS the panel docked. Expand pref is device-local (NOT synced).
   // First-visit + default = expanded (the brain map is the product hook); a returning player's
   // explicit collapse is respected (device-local pref; absent pref → stay expanded).
   const [mazeExpanded, setMazeExpanded] = useState(true)
   const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null)
+  // Mobile-only ephemeral dock anchor — which card the maze panel sits under. EPHEMERAL React state:
+  // NOT persisted (reload clears it), NOT a meta key, NOT synced. Kept separate from selectedFamilyId
+  // so mobile 🔭 全覽 can clear the spotlight while leaving the panel docked.
+  const [dockFamilyId, setDockFamilyId] = useState<string | null>(null)
+  // Pre-dock anchor top (mobile): captured at tap time BEFORE React applies the dock, so the layout
+  // effect can scroll-compensate the tapped card to zero visible jump. Ref → no re-render.
+  const dockAnchorRef = useRef<number | null>(null)
   useEffect(() => {
     let alive = true
     void db.meta.get('maze:homeExpanded').then((r) => { if (alive && r?.value === '0') setMazeExpanded(false) })
     return () => { alive = false }
   }, [])
+  const isMobileMaze = (): boolean =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  const prefersReduced = (): boolean =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const expandMaze = (): void => {
     setMazeExpanded(true)
     void db.meta.put({ key: 'maze:homeExpanded', value: '1' })
   }
   const collapseMaze = (): void => {
     setMazeExpanded(false)
+    // Collapsing returns to the teaser at the top: drop both the desktop detail-mode (selection) and
+    // the mobile dock so the layout fully resets (per A2「▴ 收合」).
+    setSelectedFamilyId(null)
+    setDockFamilyId(null)
     void db.meta.put({ key: 'maze:homeExpanded', value: '0' })
   }
   const focusFamilyOnMaze = (familyId: string): void => {
+    const wasDetail = selectedFamilyId !== null
+    // Mobile: capture the tapped card's pre-dock viewport top so the layout effect can scroll-compensate.
+    if (isMobileMaze()) {
+      const card = document.getElementById(`family-card-${familyId}`)
+      dockAnchorRef.current = card ? card.getBoundingClientRect().top : null
+    }
     setSelectedFamilyId(familyId)
+    setDockFamilyId(familyId)
     expandMaze()
     emitMazeFocus(familyId, { manual: true })
-    // Bring the maze into view on mobile — it sits at the top of the box and scrolls naturally
-    // (NOT sticky; the pinned band blocked the whole viewport on iPhone), so this scroll IS the
-    // per-subject in-view feedback. On desktop it's a sticky rail so this is effectively a no-op.
-    requestAnimationFrame(() => document.querySelector('.neurons-md__detail')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }))
+    // Desktop: entering detail (tap 1) is a one-time restructure → scroll the detail to the top to
+    // soften it. Switching families (taps 2..n) does NOT scroll (zero layout shift — the C′ promise).
+    // Mobile: the dock layout effect (keyed on dockFamilyId) OWNS scroll, so do nothing here.
+    if (!isMobileMaze() && !wasDetail) {
+      requestAnimationFrame(() =>
+        document.querySelector('.neurons-md__detail')?.scrollIntoView({
+          behavior: prefersReduced() ? 'auto' : 'smooth',
+          block: 'start',
+        }),
+      )
+    }
   }
   // 🔭 全覽 (or the maze topbar 🎯 chip) = back to the equal-weight whole map: clear the card
-  // selection too, so the spotlight bake + the card ring drop together (one selection state).
+  // selection (spotlight bake + card ring drop together). On DESKTOP this also exits detail mode →
+  // back to the 2-col grid (the sole exit; no 返回 button). On MOBILE the panel STAYS docked
+  // (dockFamilyId untouched) so 全覽 just shows the whole map without relayout.
   useEffect(() => onMazeRecenter(() => setSelectedFamilyId(null)), [])
-  // Reverse link (maze → cards): tapping a family's walker on the stage selects its subject card
-  // and brings it into view. Camera intentionally NOT moved — the player is already looking there.
+  // Reverse link (maze → cards): tapping a family's walker on the stage selects its subject card.
+  // BUG FIX (C′): walker-tap must ALSO emit a sticky focus — in detail mode the resulting full-width
+  // stage resize fires the ResizeObserver → frameContextual would otherwise reframe to the WHOLE map
+  // (focusRef null) and discard the family the player tapped. Emitting the manual focus keeps the
+  // camera on that family across the resize.
   const onMazeFamilyTap = (familyId: string): void => {
     setSelectedFamilyId(familyId)
+    setDockFamilyId(familyId)
+    emitMazeFocus(familyId, { manual: true })
     requestAnimationFrame(() =>
       document.getElementById(`family-card-${familyId}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
     )
   }
+
+  // ── Mobile A2 dock measurement (CSS visual move, DOM unchanged → no canvas re-parent/remount).
+  // Writes `--maze-dock-top` (= tapped card bottom, offset 8px) + `--maze-dock-h` (= detail height) so
+  // CSS can absolutely-position the detail under the card and open a matching gap. Runs pre-paint
+  // (useLayoutEffect) so the anchor-scroll compensation is invisible. Mobile-only; desktop is a no-op.
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia('(max-width: 767px)').matches) return
+    const md = document.querySelector('.neurons-md') as HTMLElement | null
+    const detail = document.querySelector('.neurons-md__detail') as HTMLElement | null
+    if (!md || !detail) return
+    if (dockFamilyId == null) {
+      md.style.removeProperty('--maze-dock-top')
+      md.style.removeProperty('--maze-dock-h')
+      dockAnchorRef.current = null
+      return
+    }
+    const card = document.getElementById(`family-card-${dockFamilyId}`)
+    if (!card) return
+    const measure = (): void => {
+      const mdTop = md.getBoundingClientRect().top
+      const cardBottom = card.getBoundingClientRect().bottom
+      md.style.setProperty('--maze-dock-top', `${Math.round(cardBottom - mdTop + 8)}px`)
+      const h = detail.getBoundingClientRect().height
+      if (h > 0) md.style.setProperty('--maze-dock-h', `${Math.round(h)}px`)
+    }
+    measure()
+    // Anchor-scroll compensation (only for a card-tap entry, which set dockAnchorRef): the dock removes
+    // the in-flow maze above the cards, so the cards (incl. the tapped one) jump up — scroll back by the
+    // delta so the tapped card stays visually fixed. Walker reverse-tap skips this (it scrolls-to-card).
+    if (dockAnchorRef.current != null) {
+      const afterTop = card.getBoundingClientRect().top
+      const delta = afterTop - dockAnchorRef.current
+      dockAnchorRef.current = null
+      if (Math.abs(delta) > 0.5) window.scrollBy(0, delta)
+    }
+    // Re-measure the dock offset when card heights change while docked (live chip counts / reading label).
+    const ro = new ResizeObserver(() => measure())
+    const master = document.querySelector('.neurons-md__master')
+    if (master) ro.observe(master)
+    // Bounded: if the docked panel bottom overflows the viewport, nudge it into view (block:'nearest').
+    const panelBottom = detail.getBoundingClientRect().bottom
+    if (panelBottom > window.innerHeight) {
+      detail.scrollIntoView({ block: 'nearest', behavior: prefersReduced() ? 'auto' : 'smooth' })
+    }
+    return () => ro.disconnect()
+  }, [dockFamilyId, mazeExpanded])
   // Per-card maze-progress hints (deep card↔maze integration): each subject card renders a small
   // derived axon node-track (lit / frontier / 二週目) mirroring its tract on the ONE maze canvas.
   const mazeHintByFamily = useMemo(() => {
@@ -476,13 +562,14 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
       {/* How-to-play caption — describes the master-detail interaction below. */}
       <p style={quizCtaHintStyle}>
-        直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
+        直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片會聚焦該科腦圖（桌機展開成全寬詳情 + 科目切換列；手機在卡片下方展開）；🔭 全覽 回到整張腦圖；走腦圖到節點即可抽出神經元。
       </p>
 
-      {/* ── Family-grid + embedded-maze master-detail (reposition-neurons-maze-master-detail):
-            ONE MazeGrid lives INSIDE the「選 family 直接練習」box as the detail surface — desktop
-            sticky right rail (only when expanded), mobile/collapsed stacked (maze/teaser on top).
-            A family-card tap (or the teaser) expands + sticky-focuses it. ── */}
+      {/* ── Family-grid + embedded-maze master-detail (reposition-neurons-maze-master-detail → C′/A2):
+            ONE MazeGrid lives INSIDE the「選 family 直接練習」box as the detail surface. Desktop: a
+            tap enters FULL-WIDTH detail mode (DockHeader + maze + chip rail, 2-col grid hidden); 🔭 全覽
+            exits. Mobile: the maze docks under the tapped card; 🔭 全覽 keeps it docked, shows whole map.
+            ONE canvas, never re-parented — CSS class-toggle + grid-template only. ── */}
       <FamilyPicker
         pack={pack}
         accrualByFamily={accrualByFamily}
@@ -493,6 +580,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         readingFamilyId={timer.readingFamilyId}
         readingActiveLabel={readingActiveLabel}
         selectedFamilyId={selectedFamilyId}
+        dockFamilyId={dockFamilyId}
         mazeExpanded={mazeExpanded}
         mazeSlot={mazeSlot}
         mazeHintByFamily={mazeHintByFamily}

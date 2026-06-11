@@ -11,6 +11,7 @@
  * the active quiz pool and is the action surface itself.
  */
 
+import { Fragment } from 'react'
 import type { ContentPack, Subject } from '@study-rpg/core'
 import { EXAM_PAPER_ORDER, FAMILY_EXAM_PAPER, type ExamPaper } from '@study-rpg/content-neurons-tw'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
@@ -56,8 +57,13 @@ interface Props {
   readingFamilyId?: string | null
   /** Dynamic label for the actively-reading card (status / pause-reason feedback). */
   readingActiveLabel?: string
-  /** Master-detail selection: the family whose card is currently focused on the embedded maze. */
+  /** Master-detail selection: the family whose card is currently focused on the embedded maze.
+   * On desktop (≥768px) a non-null value puts the box into FULL-WIDTH detail mode (C′): DockHeader +
+   * maze, the 2-col grid hidden, a FamilyChipRail below. */
   selectedFamilyId?: string | null
+  /** Mobile-only (A2) dock anchor: which card the maze panel is CSS-docked under. Drives the
+   * `is-docked` class on the detail + the `is-dock-anchor` margin on the tapped card. Ephemeral. */
+  dockFamilyId?: string | null
   /** The embedded maze (teaser when collapsed, full panel when expanded) — rendered as the
    * master-detail's detail surface INSIDE this box (reposition-neurons-maze-master-detail). */
   mazeSlot?: React.ReactNode
@@ -77,10 +83,26 @@ export function FamilyPicker({
   readingFamilyId,
   readingActiveLabel,
   selectedFamilyId,
+  dockFamilyId,
   mazeSlot,
   mazeExpanded,
   mazeHintByFamily,
 }: Props): JSX.Element {
+  const selectedSubject =
+    selectedFamilyId != null ? pack.subjects.find((s) => s.id === selectedFamilyId) ?? null : null
+  const accent = selectedSubject?.color ?? '#8c6d4a'
+  // .neurons-md modifier classes: is-expanded (maze open) + is-detail (DESKTOP full-width detail mode,
+  // C′ — driven by selectedFamilyId). is-docked on the detail (MOBILE A2). The accent custom prop
+  // drives the family-tinted observation-well seam.
+  const mdClass = [
+    'neurons-md',
+    mazeExpanded ? 'is-expanded' : '',
+    selectedFamilyId != null ? 'is-detail' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+  const mdStyle = selectedSubject ? ({ ['--family-accent' as string]: accent } as React.CSSProperties) : undefined
+
   return (
     <section style={pickerSectionStyle} aria-label="選 family 直接答題">
       <header style={headerRowStyle}>
@@ -95,11 +117,30 @@ export function FamilyPicker({
           quiz.yearFilter meta, no props needed). */}
       <YearFilterBar />
 
-      {/* Master-detail INSIDE this box (reposition-neurons-maze-master-detail): the embedded maze
-          is the detail surface — desktop = sticky right rail (only when expanded), mobile/collapsed
-          = stacked (maze/teaser on top, cards below). ONE maze instance; CSS reflow, no remount. */}
-      <div className={mazeExpanded ? 'neurons-md is-expanded' : 'neurons-md'}>
-        {mazeSlot != null && <div className="neurons-md__detail">{mazeSlot}</div>}
+      {/* Master-detail INSIDE this box (reposition-neurons-maze-master-detail → C′ desktop / A2 mobile).
+          DESKTOP detail mode (is-detail): the detail region expands FULL-WIDTH with a DockHeader (the
+          enlarged selected card) above the ONE maze, the 2-col grid is display:none (stays MOUNTED so
+          its liveQuery chips stay warm), and a FamilyChipRail renders below for one-tap family switching.
+          MOBILE (A2): the detail CSS-docks under the tapped card (is-docked). The canvas NEVER leaves
+          .neurons-md__detail — every layout change is class-toggle + grid-template only, no re-parent. */}
+      <div className={mdClass} style={mdStyle}>
+        {mazeSlot != null && (
+          <div className={dockFamilyId != null ? 'neurons-md__detail is-docked' : 'neurons-md__detail'}>
+            {selectedSubject && (
+              <DockHeader
+                family={selectedSubject}
+                accrual={accrualByFamily?.get(selectedSubject.id)}
+                counts={modeCountsByFamily?.get(selectedSubject.id)}
+                mazeHint={mazeHintByFamily?.get(selectedSubject.id)}
+                onStartQuiz={(mode) => onStartQuiz(selectedSubject.id, mode)}
+                onToggleReading={onToggleReading ? () => onToggleReading(selectedSubject.id) : undefined}
+                isReading={readingFamilyId === selectedSubject.id}
+                readingActiveLabel={readingFamilyId === selectedSubject.id ? readingActiveLabel : undefined}
+              />
+            )}
+            {mazeSlot}
+          </div>
+        )}
         <div className="neurons-md__master">
           {groupSubjectsByPaper(pack.subjects).map((group) => (
             <div key={group.id} style={paperGroupStyle}>
@@ -121,14 +162,187 @@ export function FamilyPicker({
                     isReading={readingFamilyId === s.id}
                     readingActiveLabel={readingFamilyId === s.id ? readingActiveLabel : undefined}
                     selected={selectedFamilyId === s.id}
+                    isDockAnchor={dockFamilyId === s.id}
                   />
                 ))}
               </div>
             </div>
           ))}
         </div>
+        {/* Single-row family switcher (C′ desktop): only in detail mode, CSS-hidden on mobile (the
+            cards stay the switch surface there). Reuses onFocusFamily → zero-layout-shift switch. */}
+        {selectedSubject && onFocusFamily && (
+          <FamilyChipRail
+            subjects={pack.subjects}
+            selectedFamilyId={selectedFamilyId ?? null}
+            modeCountsByFamily={modeCountsByFamily}
+            onSelect={onFocusFamily}
+          />
+        )}
       </div>
     </section>
+  )
+}
+
+/**
+ * DockHeader — the C′ desktop detail-mode banner: the FULL enlarged selected card duplicated as a
+ * horizontal header above the embedded maze, so practice-entry (🆕/🔄/📖) stays intact when the 2-col
+ * grid is collapsed. Mirrors `FamilyCard`'s affordances + reuses the same callbacks; CSS-hidden on
+ * mobile (where the card itself stays on-screen above the docked maze). Plain DOM — no canvas.
+ */
+function DockHeader({
+  family,
+  accrual,
+  counts,
+  mazeHint,
+  onStartQuiz,
+  onToggleReading,
+  isReading,
+  readingActiveLabel,
+}: {
+  family: Subject
+  accrual?: FamilyAccrual
+  counts?: FamilyModeCounts
+  mazeHint?: MazeFamilyHint
+  onStartQuiz: (mode: QuizMode) => void
+  onToggleReading?: () => void
+  isReading?: boolean
+  readingActiveLabel?: string
+}): JSX.Element {
+  const accent = family.color ?? '#8c6d4a'
+  const spriteUrl = SPRITE_MAP[`subject:${family.id}`] ?? ''
+  const isEmpty = family.totalQuestions === 0
+  const ap = accrual?.ap ?? 0
+  const freshCount = counts?.fresh ?? (isEmpty ? 0 : family.totalQuestions)
+  const dueCount = counts?.due ?? 0
+  const freshDisabled = isEmpty || freshCount === 0
+  const reviewDisabled = dueCount === 0
+  return (
+    <div className="neurons-md__dock-header" style={dockHeaderStyle(accent)}>
+      <div style={dockIdentityStyle}>
+        <div style={spriteFrameStyle(accent)}>
+          {spriteUrl ? (
+            <img src={spriteUrl} alt="" width={48} height={48} className="neuron-sprite--alive" style={spriteStyle} />
+          ) : (
+            <EmojiIcon char="🧬" size={22} decorative />
+          )}
+        </div>
+        <div style={cardHeadTextStyle}>
+          <div style={primaryNameStyle(accent)}>
+            {accrual?.firedToday && <span title="今日已激發" aria-label="今日已激發">🔥 </span>}
+            {family.id}
+          </div>
+          <div style={personaNameStyle}>{family.displayName}</div>
+        </div>
+      </div>
+
+      <div style={dockBodyStyle}>
+        {mazeHint && mazeHint.total > 0 && (
+          <AxonProgressStrip hint={mazeHint} accent={accent} familyId={family.id} />
+        )}
+        <div style={dockMetaRowStyle}>
+          <span style={apLineStyle}>
+            AP <strong style={{ color: accent }}>{ap}</strong>
+          </span>
+          <MasteryChip familyId={family.id} displayName={family.displayName} />
+          <VariantCollectionChip familyId={family.id} />
+          <span style={countChipStyle(accent)}>{family.totalQuestions} 題</span>
+        </div>
+        <div style={dockActionRowStyle}>
+          <button
+            type="button"
+            onClick={() => onStartQuiz('fresh')}
+            disabled={freshDisabled}
+            style={{ ...(freshDisabled ? modeChipDisabledStyle : modeChipFreshStyle(accent)), flex: '1 1 130px' }}
+            title={
+              isEmpty
+                ? '本 family 目前無題目'
+                : freshCount === 0
+                  ? '本 family 已全部答過'
+                  : `從 ${family.id} 出沒答過的新題（${freshCount} 題）`
+            }
+          >
+            🆕 新題
+            <span style={modeChipBadgeStyle}>{freshCount === 0 && !isEmpty ? '全部答過' : freshCount}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onStartQuiz('review')}
+            disabled={reviewDisabled}
+            style={{ ...(reviewDisabled ? modeChipDisabledStyle : modeChipReviewStyle(accent)), flex: '1 1 130px' }}
+            title={reviewDisabled ? '今日沒有到期的複習題' : `複習 ${family.id} 今日到期的 ${dueCount} 題`}
+          >
+            🔄 錯題
+            <span style={modeChipBadgeStyle}>{reviewDisabled ? '今日無到期' : dueCount}</span>
+          </button>
+          {onToggleReading && (
+            <button
+              type="button"
+              onClick={onToggleReading}
+              aria-pressed={!!isReading}
+              style={{ ...(isReading ? readingChipActiveStyle(accent) : readingChipStyle(accent)), width: 'auto', flex: '1 1 100%' }}
+              title={isReading ? `結束 ${family.id} 的閱讀` : `開始閱讀 ${family.id}（能量全進此科）`}
+            >
+              {isReading ? (readingActiveLabel ?? '🟢 閱讀中 · 點擊結束') : '📖 閱讀此科'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * FamilyChipRail — the single horizontal row of all 11 family chips below the maze in C′ detail mode.
+ * One tap switches the focused family with NO 返回 step and (taps 2..n) zero layout shift. The
+ * 醫學一/醫學二 grouping is flattened to a thin divider. CSS-hidden on mobile.
+ */
+function FamilyChipRail({
+  subjects,
+  selectedFamilyId,
+  modeCountsByFamily,
+  onSelect,
+}: {
+  subjects: Subject[]
+  selectedFamilyId: string | null
+  modeCountsByFamily?: Map<string, FamilyModeCounts>
+  onSelect: (familyId: string) => void
+}): JSX.Element {
+  const groups = groupSubjectsByPaper(subjects)
+  return (
+    <div className="neurons-md__rail" role="tablist" aria-label="切換科目">
+      {groups.map((group, gi) => (
+        <Fragment key={group.id}>
+          {gi > 0 && <span className="neurons-md__rail-divider" aria-hidden />}
+          {group.subjects.map((s) => {
+            const chipAccent = s.color ?? '#8c6d4a'
+            const spriteUrl = SPRITE_MAP[`subject:${s.id}`] ?? ''
+            const fresh = modeCountsByFamily?.get(s.id)?.fresh ?? 0
+            const selected = selectedFamilyId === s.id
+            return (
+              <button
+                key={s.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => onSelect(s.id)}
+                className="neurons-md__rail-chip"
+                style={railChipStyle(chipAccent, selected)}
+                title={`${s.id} · ${s.displayName}`}
+              >
+                {spriteUrl ? (
+                  <img src={spriteUrl} alt="" width={22} height={22} style={railChipSpriteStyle} />
+                ) : (
+                  <EmojiIcon char="🧬" size={16} decorative />
+                )}
+                <span style={railChipNameStyle}>{s.id}</span>
+                {fresh > 0 && <span style={railChipBadgeStyle(chipAccent)}>🆕{fresh}</span>}
+              </button>
+            )
+          })}
+        </Fragment>
+      ))}
+    </div>
   )
 }
 
@@ -177,6 +391,7 @@ function FamilyCard({
   isReading,
   readingActiveLabel,
   selected,
+  isDockAnchor,
 }: {
   family: Subject
   accrual?: FamilyAccrual
@@ -188,6 +403,9 @@ function FamilyCard({
   isReading?: boolean
   readingActiveLabel?: string
   selected?: boolean
+  /** Mobile A2: this card is the maze dock anchor — opens a margin gap for the absolutely-positioned
+   * panel (rule lives in the `@media (max-width:767px)` block; no-op on desktop). */
+  isDockAnchor?: boolean
 }): JSX.Element {
   const accent = family.color ?? '#8c6d4a'
   const spriteUrl = SPRITE_MAP[`subject:${family.id}`] ?? ''
@@ -200,6 +418,7 @@ function FamilyCard({
   return (
     <article
       id={`family-card-${family.id}`}
+      className={isDockAnchor ? 'is-dock-anchor' : undefined}
       style={selected ? { ...familyCardStyle(accent), boxShadow: `0 0 0 2px ${accent}, 0 2px 10px rgba(0,0,0,0.18)` } : familyCardStyle(accent)}
       aria-current={selected ? 'true' : undefined}
       aria-label={`${family.id} · ${family.displayName}`}
@@ -573,5 +792,95 @@ function readingChipActiveStyle(accent: string): React.CSSProperties {
     background: '#1f7a3d',
     color: '#fff',
     border: '1.5px solid #1f7a3d',
+  }
+}
+
+// ─── C′ DockHeader styles (desktop full-width detail-mode banner) ───────────────
+
+function dockHeaderStyle(accent: string): React.CSSProperties {
+  return {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '0.75rem',
+    flexWrap: 'wrap',
+    padding: '0.6rem 0.7rem',
+    background: '#fff',
+    border: `2px solid ${accent}`,
+    borderRadius: '8px',
+    marginBottom: '0.55rem',
+  }
+}
+
+const dockIdentityStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.55rem',
+  flex: '0 0 auto',
+}
+
+const dockBodyStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.45rem',
+  flex: '1 1 280px',
+  minWidth: 0,
+}
+
+const dockMetaRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  flexWrap: 'wrap',
+}
+
+const dockActionRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'stretch',
+  gap: '0.45rem',
+  flexWrap: 'wrap',
+}
+
+// ─── C′ FamilyChipRail styles (single horizontal switcher below the maze) ───────
+
+function railChipStyle(accent: string, selected: boolean): React.CSSProperties {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.3rem',
+    flex: '0 0 auto',
+    padding: '0.28rem 0.5rem',
+    borderRadius: '999px',
+    background: selected ? accent : '#fff',
+    color: selected ? '#fff' : '#5a3f29',
+    border: `1.5px solid ${accent}`,
+    fontFamily: 'inherit',
+    fontSize: '0.74rem',
+    fontWeight: 700,
+    cursor: 'pointer',
+    boxShadow: selected ? `0 0 0 2px ${accent}55` : 'none',
+    whiteSpace: 'nowrap',
+  }
+}
+
+const railChipSpriteStyle: React.CSSProperties = {
+  imageRendering: 'pixelated',
+  width: 22,
+  height: 22,
+  flexShrink: 0,
+}
+
+const railChipNameStyle: React.CSSProperties = {
+  whiteSpace: 'nowrap',
+}
+
+function railChipBadgeStyle(accent: string): React.CSSProperties {
+  return {
+    fontSize: '0.64rem',
+    fontWeight: 700,
+    padding: '0 0.25rem',
+    borderRadius: '999px',
+    background: '#fdf6e3',
+    color: accent,
+    border: `1px solid ${accent}`,
   }
 }
