@@ -6,17 +6,34 @@
 // when unauthed, surfaces a Google sign-in button.
 
 import { useAuth } from '../lib/auth/AuthContext'
+import { useSyncContext } from '../lib/sync/SyncProvider'
+import { mapSyncLight } from '../lib/sync/sync-light'
 
 export function AuthGate(): JSX.Element | null {
   const { status, user, signInWithGoogle, signOut } = useAuth()
+  const sync = useSyncContext()
 
   if (status === 'disabled') return null
   if (status === 'initializing') return null
 
   if (status === 'authed' && user) {
     const label = user.user_metadata?.name ?? user.email ?? user.id.slice(0, 8)
+    const light = sync ? mapSyncLight(sync.status, sync.accountSwitch.pending) : null
     return (
       <div style={chipStyle}>
+        {light && (
+          <button
+            type="button"
+            style={lightButtonStyle}
+            title={light.title}
+            aria-label={light.title}
+            onClick={() => {
+              if (!light.busy) void sync?.syncNow()
+            }}
+          >
+            {light.glyph}
+          </button>
+        )}
         <span style={{ opacity: 0.8 }}>已登入</span>
         <span style={{ fontWeight: 600 }}>{String(label)}</span>
         <button onClick={signOut} style={buttonStyle} type="button">
@@ -45,6 +62,15 @@ const chipStyle: React.CSSProperties = {
   background: '#f4ead5',
   border: '1px solid #8c6d4a',
   fontSize: '0.85rem',
+}
+
+const lightButtonStyle: React.CSSProperties = {
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  fontSize: '0.9rem',
+  lineHeight: 1,
 }
 
 const buttonStyle: React.CSSProperties = {

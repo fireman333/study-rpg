@@ -49,6 +49,8 @@ export function useSync(): {
   engine: SyncEngine | null
   status: SyncStatus | null
   accountSwitch: AccountSwitchState
+  /** Manual sync (status-light click): force pull, then push. No-op when unmounted. */
+  syncNow: () => Promise<void>
 } {
   const { status: authStatus, user, signOut } = useAuth()
   const engineRef = useRef<SyncEngine | null>(null)
@@ -132,9 +134,21 @@ export function useSync(): {
     }
     window.addEventListener('beforeunload', onBeforeUnload)
 
-    // Status poll for UI binding.
+    // Status poll for UI binding. Seed immediately (the light shouldn't wait a
+    // tick), then only swap state when a field actually changed — the provider
+    // wraps the whole tree, so identity-stable snapshots keep consumers quiet.
+    setSnapshot(engine.getStatus())
     const poll = setInterval(() => {
-      setSnapshot(engine.getStatus())
+      setSnapshot((prev) => {
+        const next = engine.getStatus()
+        return prev &&
+          prev.state === next.state &&
+          prev.lastError === next.lastError &&
+          prev.lastPushAt === next.lastPushAt &&
+          prev.lastPullAt === next.lastPullAt
+          ? prev
+          : next
+      })
     }, 1000)
 
     if (import.meta.env.DEV) {
@@ -174,10 +188,18 @@ export function useSync(): {
     await signOut()
   }, [signOut])
 
+  const syncNow = useCallback(async () => {
+    const engine = engineRef.current
+    if (!engine) return
+    await engine.pullNow({ force: true })
+    await engine.pushNow()
+  }, [])
+
   return {
     engine: engineRef.current,
     status: snapshot,
     accountSwitch: { pending: switchPending, error: switchError, confirm, cancel },
+    syncNow,
   }
 }
 
