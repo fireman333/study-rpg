@@ -3,8 +3,9 @@
  *
  * Mirrors 二階 YearFilterBar behaviorally (select-all chip + per-year chips,
  * null/[] = all), but inline-styled to match the neurons pixel aesthetic
- * (neurons has no shared `.filter-bar` CSS). 9 years (106–114) fit one row,
- * so no pager. Single source of truth = `quiz.yearFilter` meta.
+ * (neurons has no shared `.filter-bar` CSS). 12 years (104–115) shown newest-first
+ * as flat tags that wrap (no count, no pager). Single source of truth =
+ * `quiz.yearFilter` meta.
  *
  * Spec: openspec/specs/neurons-quiz-year-filter/spec.md
  */
@@ -39,7 +40,9 @@ export function YearFilterBar(): JSX.Element {
         >
           全部
         </button>
-        {ALL_YEARS.map((year) => {
+        {/* Newest year first (owner) — display order only; ALL_YEARS / the filter set
+            stay ascending. */}
+        {[...ALL_YEARS].reverse().map((year) => {
           const on = effective.has(year)
           return (
             <button
@@ -54,63 +57,54 @@ export function YearFilterBar(): JSX.Element {
           )
         })}
       </div>
-      <span style={countStyle}>
-        {effective.size} / {ALL_YEARS.length} 年
-      </span>
     </section>
   )
 }
 
 // ─── Styles (match OverviewPage cream/brown pixel aesthetic) ─────────────────
 
+// Lightweight, flat layout (owner: the bordered cream box + dashed gold pills read
+// too heavy now that 12 years wrap to 3 rows). No box — the bar sits directly on the
+// FamilyPicker card; chips are flat tinted tags (selected = solid gold).
 const barStyle: React.CSSProperties = {
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   flexWrap: 'wrap',
-  gap: '0.5rem',
-  marginTop: '0.6rem',
-  padding: '0.5rem 0.7rem',
-  background: '#f4ecd8',
-  border: '2px solid #8c6d4a',
-  borderRadius: '4px',
+  gap: '0.4rem',
+  margin: '0.4rem 0 0.2rem',
 }
 
 const labelStyle: React.CSSProperties = {
-  fontSize: '0.82rem',
+  fontSize: '0.8rem',
   fontWeight: 700,
-  color: '#3a2a1a',
+  color: '#6b5535',
+  // Top-align so the row label + count don't float at the vertical center of a
+  // multi-row wrapped chip block on narrow (iPhone) widths.
+  alignSelf: 'flex-start',
+  paddingTop: '0.18rem',
 }
 
 const chipRowStyle: React.CSSProperties = {
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '0.35rem',
+  gap: '0.3rem',
   flex: 1,
 }
 
 const chipStyle: React.CSSProperties = {
-  padding: '0.2rem 0.55rem',
-  background: 'transparent',
-  color: '#8c6d4a',
-  border: '1px dashed #b8893a',
-  borderRadius: '999px',
-  fontSize: '0.78rem',
+  padding: '0.13rem 0.5rem',
+  background: 'rgba(140,109,74,0.12)',
+  color: '#7a6038',
+  border: 'none',
+  borderRadius: '5px',
+  fontSize: '0.74rem',
   fontWeight: 600,
   fontFamily: 'inherit',
   cursor: 'pointer',
-  opacity: 0.7,
 }
 
 const chipActiveStyle: React.CSSProperties = {
   ...chipStyle,
   background: '#d4a04d',
   color: '#fff',
-  border: '1px solid #b8893a',
-  opacity: 1,
-}
-
-const countStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: '#8c6d4a',
-  whiteSpace: 'nowrap',
 }

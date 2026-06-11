@@ -350,6 +350,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     return undefined
   })()
 
+  // Split the display name at the em-dash into a big name + a smaller tagline so the long
+  // English half no longer wraps mid-phrase on mobile (owner). Falls back to the whole string
+  // if there's no separator.
+  const [heroTitleMain, ...heroTitleRest] = pack.meta.displayName.split(' — ')
+  const heroTitleTag = heroTitleRest.join(' — ')
+
   return (
     <>
       <QuizHotkeysAnnouncementBanner />
@@ -358,7 +364,10 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
       <header style={heroStyle}>
         <div>
-          <h1 style={heroTitleStyle}>{pack.meta.displayName}</h1>
+          <h1 style={heroTitleStyle}>
+            {heroTitleMain}
+            {heroTitleTag && <span style={heroTitleTagStyle}>{heroTitleTag}</span>}
+          </h1>
           <p style={heroSubtitleStyle}>
             "Neurons that fire together, wire together." — Donald Hebb
           </p>
@@ -379,12 +388,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         totalStudyMin={totalStudyMin}
       />
 
-      {/* How-to-play caption (kept from the dissolved CTA toolbar). Reading is now
-          per-subject — each family card carries its own 📖 entry below. */}
-      <p style={quizCtaHintStyle}>
-        直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
-      </p>
-
       {/* ── The flat-grid maze IS the homepage centerpiece (redesign-neurons-maze-
             rotjs-grid). One square weave grid, 11 per-family routes border→center;
             zoomable brain-pixel tilemap; the connectome tree no longer mounts here. ── */}
@@ -400,6 +403,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             ConnectomeStatCard above the maze). Sits below the maze as a
             deploy-from-the-map surface. ── */}
       <StudySquadPanel />
+
+      {/* How-to-play caption — moved below the maze (owner), sitting directly above the
+          family cards it describes ("下方科目卡片" now reads literally). */}
+      <p style={quizCtaHintStyle}>
+        直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點科目卡片可在腦圖上聚焦該科；走腦圖到節點即可抽出神經元。
+      </p>
 
       <FamilyPicker
         pack={pack}
@@ -583,15 +592,29 @@ const heroStyle: React.CSSProperties = {
 
 const heroTitleStyle: React.CSSProperties = {
   fontSize: '1.35rem',
-  margin: '0 0 0.25rem',
+  margin: '0 0 0.3rem',
   color: '#3a2a1a',
+}
+
+// English half of the display name — a smaller inline tagline trailing the big name on the SAME
+// row (owner: space is enough for one line). `nowrap` keeps "Long-term Potentiation" together,
+// so on a too-narrow viewport the whole tagline drops to its own line instead of breaking mid-phrase.
+const heroTitleTagStyle: React.CSSProperties = {
+  fontSize: '0.95rem',
+  fontWeight: 600,
+  letterSpacing: '0.01em',
+  color: '#7a5a3a',
+  marginLeft: '0.5rem',
+  whiteSpace: 'nowrap',
 }
 
 const heroSubtitleStyle: React.CSSProperties = {
   margin: 0,
   color: '#5a3f29',
   fontStyle: 'italic',
-  fontSize: '0.9rem',
+  // Shrink-to-fit so the Hebb quote sits on one line on a phone (owner: it wrapped to two rows
+  // at a fixed 0.9rem). Caps at 0.9rem on desktop.
+  fontSize: 'clamp(0.65rem, 2.8vw, 0.9rem)',
 }
 
 const quizCtaHintStyle: React.CSSProperties = {
