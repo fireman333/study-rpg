@@ -409,7 +409,7 @@ const leaderboardProfileAdapter: TableAdapter<'leaderboardProfile'> = {
  * like `lastResetDate` and `currentQuizCorrectStreak` (LWW will set on push;
  * see backfill/counters.ts for MAX-merge counters that ride on this adapter).
  */
-const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
+export const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'maxQuizCorrectStreak',
   'totalStudyMinutes',
   'currentQuizCorrectStreak',
