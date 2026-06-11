@@ -28,15 +28,16 @@
 
 ## 2. Walker overlay (D2)
 
-- [ ] 2.1 Position the existing walker DOM overlays in maze-space inside the transform; CSS-transition the glide when a settle advances the target cell (no per-frame easing). Reduced-motion → snap.
+- [x] 2.1 Walker DOM overlays already positioned in maze-space by `positionWalkers` (screen-space project from the camera). Added the **glide**: a settle that advances `walkerCell` while the camera holds still CSS-transitions the walker (`transform ${WALKER_GLIDE_MS=650}ms ease-in-out`); pan/zoom/camera-fly snap (no lag). Glide is auto-detected from **cell-changed && camera-stable** (via `lastWalkerCellRef` + `lastCamRef`) rather than a caller flag — this survives the bake-effect-runs-before-view-effect order (the first call on a stationary settle glides; the redundant follow-up is a no-op). Reduced-motion (`useRespectsReducedMotion`) → snap. Chrome typecheck clean; **owner iPhone verify pending** (glide shows on a stationary-camera settle, e.g. answering while sticky-focused on that family or on the idle whole-map view; auto-focus answers ride the camera fly = §5).
+- [x] 2.2 **Walker sprite size/quality fix** (owner: read too big + blurry when zoomed). The walker was a 26px box CSS-`transform: scale()`-d by `z/fitTile` (≈1.5–2.6×) — a compositor upscale that bilinear-blurs pixel art and grows unbounded with zoom. Now rendered into a fixed `WALKER_RENDER_PX=52` box and displayed via a scale that's **always a downscale** (on-screen px = `clamp(WALKER_DISPLAY_AT_FIT·zoomScale, 15, 44)`, cap 44 < 52) → crisp at every zoom (variant sprites are 384px native) and capped at ~44px (~25px at whole-map fit). Chrome-measured: 44px shown from 384px native = clean downscale, no console errors.
 
 ## 3. Fog / node reveal
 
-- [ ] 3.1 On exploration, reveal the newly-lit node via overlay-reveal (preferred) or a cheap base re-render. No per-frame fog pass.
+- [x] 3.1 Overlay-reveal (no per-frame fog pass): a newly-lit node fires a one-shot gold ring (`maze-ping--node`) via the shared ping system — a `[view]` effect diffs lit-node cells against `litCellsRef` (seeded silently on first load so existing progress doesn't burst-ping) and calls `addPing(cell,'node')` for each freshly-lit cell. The static lit node stays baked in the scene; the ring is a GPU-composited DOM overlay. Reduced-motion → no ring (node still appears via the bake). Chrome non-regression green (CSS `maze-ping-expand` loaded, no errors).
 
 ## 4. Synapse overlay (D4)
 
-- [ ] 4.1 Draw the synapse/connectome layer (inside the transform) from synapse state; re-draw on synapse change; one-shot pulse on wiring. Re-wire hit-testing (tap a wire → tooltip) against static layout + current transform.
+- [x] 4.1 The synapse spark layer + tap-a-wire tooltip hit-testing were already drawn/working in §1 (baked sparks + `findWireAt` screen→cell math against the live transform). Added the **one-shot pulse on wiring**: a `[synapseData]` effect diffs the live synapse rows (seeded on first load) and `addPing(s.cell, …)` fires a cyan ring (`maze-ping--synapse`) on a newly-formed synapse and a violet ring (`maze-ping--strengthen`) on a state upgrade (dormant→weak→strong). Shares the camera-tracked ping overlay + reduced-motion gate. Pings positioned by a dedicated `positionPings` (separate from `positionWalkers` so a co-occurring node-lit ping can't reset an in-progress walker glide).
 
 ## 5. Focus-on-family + per-subject view (D3/D5)
 

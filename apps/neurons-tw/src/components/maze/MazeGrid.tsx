@@ -22,7 +22,7 @@
  * `view` down. Camera framing: a correct answer (maze-focus bus) frames that family's walker; reading
  * / idle frames the whole map. Manual wheel-zoom + drag-pan override.
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { liveQuery } from 'dexie'
 import { FAMILY_IDS, FAMILY_COLOR, CONNECTOME_CONDUCTION_EPOCH } from '@study-rpg/content-neurons-tw'
 import VariantSprite from '../VariantSprite'
@@ -39,6 +39,7 @@ import {
   synapseCell, type Cell,
 } from '../../lib/maze/graph'
 import { onMazeFocus, onMazeRecenter, emitMazeRecenter } from '../../lib/maze/maze-focus'
+import { useRespectsReducedMotion } from '../../lib/motion'
 import type { FamilyViewState, MazeViewState } from '../../lib/maze/useMaze'
 // DEV design-language switcher (maze-themes): 6 switchable looks for WALL / PATH / BG / NODE; the
 // maze TOPOLOGY is untouched. Gold MYELIN routes are still drawn per-route (now baked, not per-frame).
@@ -97,6 +98,22 @@ const WORLD_H = GRID_H * SCENE_SCALE
 const Z_MIN = 1.4
 const Z_MAX = 80
 const FOCUS_SPAN = 60 // cells across when framed to a family
+const WALKER_GLIDE_MS = 650 // §2: growth-cone glide when a settle advances the walker's target cell
+// Walker sprite sizing (owner: the growth-cone read too big + blurry). The sprite is rendered into a
+// fixed hi-res box and DISPLAYED via a transform-scale capped BELOW the render px — so it's always a
+// downscale (crisp; a compositor upscale would bilinear-blur the pixel art) and never larger than
+// WALKER_MAX_PX. On-screen size still tracks zoom between the min/max clamp.
+const WALKER_RENDER_PX = 52
+const WALKER_DISPLAY_AT_FIT = 17 // on-screen px at fit zoom (walkerScale ≈ 1)
+const WALKER_MIN_PX = 15
+const WALKER_MAX_PX = 44
+const PING_MS = 700 // §3/§4: one-shot reveal/pulse overlay lifetime
+
+// §3 node-reveal + §4 synapse-pulse share one transient overlay ("ping"): a CSS-animated ring at a
+// cell, positioned in screen-space with the camera (like walkers), auto-removed after PING_MS. No
+// per-frame canvas pass — the ring is a GPU-composited DOM layer.
+type MazePingKind = 'node' | 'synapse' | 'strengthen'
+interface MazePing { id: number; cell: Cell; kind: MazePingKind; initialTransform: string }
 
 // Pan boundary (owner: 限制 pan 邊界, don't hard-crop the brain backdrop, 留空間多一點). The
 // camera centre is clamped so the visible rect never strays beyond the maze + this margin of
@@ -395,6 +412,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   const synapseData = useSynapseData()
   const reading = useReadingTimer()
   const [synapseOverlayOn, setSynapseOverlayOn] = useState(true)
+  const [pings, setPings] = useState<MazePing[]>([]) // §3/§4 transient reveal/pulse overlays
   const [expeditionHidden, setExpeditionHidden] = useState(getExpeditionHidden)
   const setExpeditionHide = (hidden: boolean) => {
     setExpeditionHidden(hidden)
@@ -422,6 +440,24 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   const viewCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const stageRef = useRef<HTMLDivElement | null>(null)
   const walkerRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+  // §2 walker glide: last rendered cell + last camera per walker, so a settle that advances the cell
+  // with a stationary camera CSS-transitions the glide while pan/zoom/fly stays instant.
+  const lastWalkerCellRef = useRef<Map<string, readonly [number, number]>>(new Map())
+  const lastCamRef = useRef<{ cx: number; cy: number; z: number } | null>(null)
+  // §3/§4 ping overlays: element refs (for camera-tracked positioning) + a monotonic id counter +
+  // the diff seeds (lit-node cells + per-synapse state) so existing state doesn't ping on first load.
+  const pingRefs = useRef<Map<number, HTMLDivElement | null>>(new Map())
+  const pingsRef = useRef<MazePing[]>(pings)
+  pingsRef.current = pings
+  const pingIdRef = useRef(0)
+  const litCellsRef = useRef<Set<string>>(new Set())
+  const litSeededRef = useRef(false)
+  const prevSynRef = useRef<Map<string, SynapseState>>(new Map())
+  const synSeededRef = useRef(false)
+  // Reduced-motion → walkers snap (no glide); also gates §5 focus-fly / §6 ambient.
+  const reducedMotion = useRespectsReducedMotion()
+  const reducedMotionRef = useRef(reducedMotion)
+  reducedMotionRef.current = reducedMotion
   // Offscreen baked scene (created once) + cached tile bake (re-baked only on design-switch).
   const sceneRef = useRef<HTMLCanvasElement | null>(null)
   const tileBakeRef = useRef<{ sel: MazeSel | null; canvas: HTMLCanvasElement | null }>({ sel: null, canvas: null })
@@ -463,17 +499,74 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   }, [])
 
   // --- camera blit (no rAF; called on input event + settle + focus + resize) ---
+  // The growth-cone walker CSS-transitions ("glides") to its new target cell ONLY when the cell
+  // advanced while the camera held still (a settle on the whole-map view) — pan/zoom/resize and
+  // camera-fly all snap, so the walker tracks the camera with zero lag. Auto-detecting glide from
+  // camera-stability (rather than a caller flag) survives the bake-effect-before-view-effect order:
+  // whichever positionWalkers call lands first on a stationary-camera settle does the glide, and the
+  // redundant follow-up is a no-op. Reduced-motion always snaps.
   const positionWalkers = useCallback((vw: number, vh: number) => {
     const { cx, cy, z } = camRef.current
     const fitTile = (Math.min(vw, vh) / Math.max(GRID_W, GRID_H)) * 0.98
-    const walkerScale = fitTile > 0 ? z / fitTile : 1
+    const zoomScale = fitTile > 0 ? z / fitTile : 1
+    // On-screen walker px tracks zoom but is clamped; the transform scale is on-screen/render-px,
+    // always < 1 (cap < render), so the sprite is downscaled = crisp at every zoom.
+    const onScreen = Math.min(WALKER_MAX_PX, Math.max(WALKER_MIN_PX, WALKER_DISPLAY_AT_FIT * zoomScale))
+    const walkerScale = onScreen / WALKER_RENDER_PX
+    const lastCam = lastCamRef.current
+    const cameraChanged = lastCam == null || lastCam.cx !== cx || lastCam.cy !== cy || lastCam.z !== z
     for (const fam of viewRef.current.families) {
       const el = walkerRefs.current.get(fam.familyId)
       if (!el) continue
+      const prev = lastWalkerCellRef.current.get(fam.familyId)
+      const cellChanged = prev != null && (prev[0] !== fam.walkerCell[0] || prev[1] !== fam.walkerCell[1])
+      const useGlide = cellChanged && !cameraChanged && !reducedMotionRef.current
+      el.style.transition = useGlide ? `transform ${WALKER_GLIDE_MS}ms ease-in-out` : 'none'
       const sx = vw / 2 + (fam.walkerCell[0] - cx) * z
       const sy = vh / 2 + (fam.walkerCell[1] - cy) * z
       el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%) scale(${walkerScale})`
+      lastWalkerCellRef.current.set(fam.familyId, fam.walkerCell)
     }
+    lastCamRef.current = { cx, cy, z }
+  }, [])
+
+  // §3/§4 ping positioner — kept separate from positionWalkers so repositioning a ping never resets
+  // walker glide state. Keeps active rings locked to their cell while the camera pans/flies; the
+  // ring's own expand/fade keyframe runs independently on the inner element.
+  const positionPings = useCallback((vw: number, vh: number) => {
+    if (pingsRef.current.length === 0) return
+    const { cx, cy, z } = camRef.current
+    const fitTile = (Math.min(vw, vh) / Math.max(GRID_W, GRID_H)) * 0.98
+    const scale = fitTile > 0 ? z / fitTile : 1
+    for (const ping of pingsRef.current) {
+      const el = pingRefs.current.get(ping.id)
+      if (!el) continue
+      const px = vw / 2 + (ping.cell[0] - cx) * z
+      const py = vh / 2 + (ping.cell[1] - cy) * z
+      el.style.transform = `translate(${px}px, ${py}px) scale(${scale})`
+    }
+  }, [])
+
+  // Spawn a one-shot reveal/pulse ring at a cell (skipped under reduced motion). Snapped to the
+  // current camera at spawn (no top-left flash), then tracked by positionWalkers; self-removes.
+  const addPing = useCallback((cell: Cell, kind: MazePingKind) => {
+    if (reducedMotionRef.current) return
+    const stage = stageRef.current
+    if (!stage) return
+    const vw = stage.clientWidth || 1
+    const vh = stage.clientHeight || 1
+    const { cx, cy, z } = camRef.current
+    const fitTile = (Math.min(vw, vh) / Math.max(GRID_W, GRID_H)) * 0.98
+    const scale = fitTile > 0 ? z / fitTile : 1
+    const px = vw / 2 + (cell[0] - cx) * z
+    const py = vh / 2 + (cell[1] - cy) * z
+    const id = ++pingIdRef.current
+    const initialTransform = `translate(${px}px, ${py}px) scale(${scale})`
+    setPings((prev) => [...prev, { id, cell, kind, initialTransform }].slice(-16))
+    window.setTimeout(() => {
+      pingRefs.current.delete(id)
+      setPings((prev) => prev.filter((p) => p.id !== id))
+    }, PING_MS + 120)
   }, [])
 
   // One-shot rAF coalescer (Fable audit P2-1): pan/zoom/pinch fire faster than the display refreshes,
@@ -557,7 +650,8 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     if (!recedeOn && brainReady) drawBrain(0.16, 'screen') // faint brain-silhouette contour on top
 
     positionWalkers(vw, vh)
-  }, [positionWalkers])
+    positionPings(vw, vh)
+  }, [positionWalkers, positionPings])
 
   // Coalesced redraw for the high-frequency input paths (pan / wheel / pinch): at most one blit per
   // frame regardless of event rate. One-shot, self-cancelling — no steady-state loop.
@@ -661,6 +755,49 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     const stage = stageRef.current
     if (stage) positionWalkers(stage.clientWidth || 1, stage.clientHeight || 1)
   }, [view, positionWalkers])
+
+  // Position ping overlays before paint whenever the set changes (new ring mounted, or a re-render
+  // reset a survivor's transform back to its spawn snapshot) — keeps them flash-free and in place.
+  useLayoutEffect(() => {
+    const stage = stageRef.current
+    if (stage) positionPings(stage.clientWidth || 1, stage.clientHeight || 1)
+  }, [pings, positionPings])
+
+  // §3 fog/node reveal: ping cells that newly lit since the last view tick (seed silently on first
+  // run so existing progress doesn't burst-ping on load). Overlay reveal, no per-frame fog pass.
+  useEffect(() => {
+    const cur = new Set<string>()
+    for (const fam of view.families) for (const n of fam.litNodes) cur.add(`${n.cell[0]},${n.cell[1]}`)
+    if (litSeededRef.current) {
+      for (const key of cur) {
+        if (!litCellsRef.current.has(key)) {
+          const [x, y] = key.split(',').map(Number)
+          addPing([x, y], 'node')
+        }
+      }
+    } else {
+      litSeededRef.current = true
+    }
+    litCellsRef.current = cur
+  }, [view, addPing])
+
+  // §4 synapse pulse: one-shot ring on a newly-formed (cyan) or strengthened (violet) synapse,
+  // diffed from the live synapse rows (seed on first run). The static spark stays baked in the scene.
+  useEffect(() => {
+    const rank: Record<SynapseState, number> = { dormant: 0, weak: 1, strong: 2 }
+    if (synSeededRef.current) {
+      for (const s of synapseData) {
+        const before = prevSynRef.current.get(s.pairKey)
+        if (before === undefined) addPing(s.cell, 'synapse')
+        else if (rank[s.state] > rank[before]) addPing(s.cell, 'strengthen')
+      }
+    } else {
+      synSeededRef.current = true
+    }
+    const next = new Map<string, SynapseState>()
+    for (const s of synapseData) next.set(s.pairKey, s.state)
+    prevSynRef.current = next
+  }, [synapseData, addPing])
 
   // Focus / recenter bus (family-picker tap, correct-answer auto-focus, 🔭 recenter).
   useEffect(() => {
@@ -947,13 +1084,24 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
           <div
             key={`walker-${fam.familyId}`}
             ref={(el) => walkerRefs.current.set(fam.familyId, el)}
-            style={{ position: 'absolute', left: 0, top: 0, width: 26, height: 26, pointerEvents: 'none', zIndex: 5, willChange: 'transform' }}
+            style={{ position: 'absolute', left: 0, top: 0, width: WALKER_RENDER_PX, height: WALKER_RENDER_PX, pointerEvents: 'none', zIndex: 5, willChange: 'transform' }}
           >
             {fam.walkerVariant ? (
-              <VariantSprite row={fam.walkerVariant} size={26} alt={`${fam.familyId} 路徑代表神經元`} />
+              <VariantSprite row={fam.walkerVariant} size={WALKER_RENDER_PX} alt={`${fam.familyId} 路徑代表神經元`} />
             ) : (
-              <NeuronSilhouette size={24} alt={`${fam.familyId} 尚未解鎖代表（答題後出現）`} />
+              <NeuronSilhouette size={WALKER_RENDER_PX - 4} alt={`${fam.familyId} 尚未解鎖代表（答題後出現）`} />
             )}
+          </div>
+        ))}
+        {/* §3/§4 one-shot reveal/pulse rings (node lit / synapse formed / strengthened). The outer
+            div is camera-positioned (positionWalkers); the inner .maze-ping runs the expand+fade. */}
+        {pings.map((p) => (
+          <div
+            key={p.id}
+            ref={(el) => pingRefs.current.set(p.id, el)}
+            style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none', zIndex: 6, transform: p.initialTransform, willChange: 'transform' }}
+          >
+            <div className={`maze-ping maze-ping--${p.kind}`} aria-hidden />
           </div>
         ))}
         {hoveredWire && (() => {

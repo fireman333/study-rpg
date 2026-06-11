@@ -332,6 +332,33 @@ body:has(.modal-backdrop) {
   100% { transform: translateX(44px) scale(1); }
 }
 
+/* §3 node-reveal + §4 synapse-pulse one-shot rings (redesign-neurons-maze-static-render). The outer
+ * wrapper is camera-positioned in JS; this inner ring expands + fades once over PING_MS, GPU-only
+ * (no canvas reblit). currentColor drives both the border + glow; the kind class sets the hue. */
+@keyframes maze-ping-expand {
+  0%   { transform: translate(-50%, -50%) scale(0.35); opacity: 0.9; }
+  70%  { opacity: 0.45; }
+  100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+}
+.maze-ping {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  box-shadow: 0 0 9px 1px currentColor;
+  transform: translate(-50%, -50%) scale(0.35);
+  animation: maze-ping-expand var(--maze-ping-ms, 700ms) ease-out forwards;
+}
+.maze-ping--node { color: #f4d06a; }       /* node lit — gold */
+.maze-ping--synapse { color: #6fe0ff; }    /* new synapse — cyan */
+.maze-ping--strengthen { color: #b98cff; } /* synapse strengthened — violet */
+@media (prefers-reduced-motion: reduce) {
+  .maze-ping { animation: none; opacity: 0; }
+}
+
 /* ConnectomeStatCard daily-loop causal chain (fix-neurons-dashboard-card-rwd):
  * mobile-first vertical stack with ↓ connectors; horizontal with → at ≥520px so the
  * connector glyphs never orphan onto their own line when the row would wrap. */
