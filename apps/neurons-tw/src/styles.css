@@ -122,10 +122,12 @@ body:has(.modal-backdrop) {
  * transition would fire the ResizeObserver every frame → backing-store realloc + full reblit → iOS OOM);
  * only sibling DockHeader / chip-rail opacity+translateY one-shot fades animate.
  *
- * DESKTOP (≥768px): non-detail = 2-col rail (cards left, maze sticky right). Detail mode (`is-detail`,
- * == a family is selected) = FULL-WIDTH single column — a DockHeader (the enlarged selected card) above
- * the maze, the 2-col grid `display:none` (stays MOUNTED so its liveQuery chip counts stay warm), and a
- * single-row FamilyChipRail below for no-返回 family switching.
+ * DESKTOP (≥768px): non-detail (overview) = STACKED single column mirroring mobile — the global maze
+ * full-width ABOVE the family-card grid, below the year-filter chips (stack-neurons-homepage-maze-desktop;
+ * no side column, no sticky panel). Detail mode (`is-detail`, == a family is selected) = FULL-WIDTH
+ * single column — a DockHeader (the enlarged selected card) above the maze, the card grid `display:none`
+ * (stays MOUNTED so its liveQuery chip counts stay warm), and a single-row FamilyChipRail below for
+ * no-返回 family switching.
  * MOBILE (<768px): cards stack; tapping a card CSS-docks the detail under it (`is-docked`, absolute).
  * The DockHeader + chip rail are hidden on mobile (the card itself is the affordance + switch surface). */
 .neurons-md { display: block; position: relative; }
@@ -205,30 +207,19 @@ body:has(.modal-backdrop) {
 }
 
 @media (min-width: 768px) {
-  /* Non-detail = the 2-col rail (cards left, maze sticky right; DOM order is detail-first → placed to
-   * column 2). Collapsed → block flow (thin teaser on top, cards full width). */
-  .neurons-md.is-expanded:not(.is-detail) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
-    gap: 1rem;
-    align-items: start;
-  }
-  .neurons-md.is-expanded:not(.is-detail) .neurons-md__detail {
-    grid-column: 2;
-    grid-row: 1;
-    margin: 0;
-    position: sticky;
-    top: 0.6rem;
-    align-self: start;
-    max-height: calc(100vh - 1rem);
-    overflow-y: auto;
-  }
-  .neurons-md.is-expanded:not(.is-detail) .neurons-md__master {
-    grid-column: 1;
-    grid-row: 1;
+  /* Non-detail (overview) = STACKED single column mirroring mobile (stack-neurons-homepage-maze-desktop):
+   * the GLOBAL maze renders full-width ABOVE the family-card grid and BELOW the year-filter chips, in
+   * plain block flow (DOM order is detail-first — no grid placement, no sticky side column). The stage
+   * drops its 1:1 square for a wide viewport-bounded band — a SNAP change (no transition; canvas
+   * invariant above). Collapsed → same block flow (thin teaser on top, cards full width). */
+  .neurons-md.is-expanded:not(.is-detail) .neurons-md__detail .maze-stage {
+    max-width: none;
+    aspect-ratio: auto;
+    height: clamp(320px, 48vh, 540px);
+    margin: 0.4rem auto 0;
   }
 
-  /* Detail mode (C′): full-width single column. The 2-col grid is hidden (stays MOUNTED); the stage
+  /* Detail mode (C′): full-width single column. The card grid is hidden (stays MOUNTED); the stage
    * drops its 1:1/max-width and takes a tall fixed height — a SNAP change (no transition). */
   .neurons-md.is-expanded.is-detail {
     display: block;

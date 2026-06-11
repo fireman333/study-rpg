@@ -73,14 +73,16 @@ function ExpeditionAnimationHelpControl(): JSX.Element {
 const GITHUB_ISSUES_URL = 'https://github.com/fireman333/study-rpg/issues/new'
 
 /**
- * Replay control for the first-run guided overlay (improve-neurons-onboarding):
- * asks the OnboardingHost to re-run the interactive guide. The HelpMenu panel
- * closes itself via its own `onReplayGuided` subscription so the overlay shows.
+ * Replay control for the first-run guided tour
+ * (rebuild-neurons-onboarding-as-guided-tour): asks the OnboardingHost to
+ * re-run the tour from the welcome card. The HelpMenu panel closes itself via
+ * its own `onReplayGuided` subscription so the tour shows.
  */
 function GuidedReplayControl(): JSX.Element {
   return (
     <p>
-      第一次玩會有一段互動引導，帶你答題、看神經元在腦圖上前進、抽出第一隻。想重看可以按這裡：{' '}
+      第一次玩會有一段互動導覽：先用歡迎卡講一遍核心循環，再一步步用聚光燈框出
+      📖 閱讀、答題、腦圖、儀表板，直到你抽出第一隻神經元。想重看可以按這裡：{' '}
       <button
         type="button"
         onClick={requestReplayGuided}

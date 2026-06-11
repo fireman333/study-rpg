@@ -616,7 +616,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           <p style={stemStyle}>{q.stem}</p>
           <QuestionFigure key={q.id} q={q} />
 
-          <div style={optionsGridStyle}>
+          {/* data-tutorial: guided-tour anchor (rebuild-neurons-onboarding-as-guided-tour) */}
+          <div style={optionsGridStyle} data-tutorial="quiz-answer">
             {optionKeys.map((key, optIdx) => {
               const optText = q.options[key]
               let border = '2px solid #d4c4a0'
