@@ -67,7 +67,9 @@ interface Props {
   /** The embedded maze (teaser when collapsed, full panel when expanded) — rendered as the
    * master-detail's detail surface INSIDE this box (reposition-neurons-maze-master-detail). */
   mazeSlot?: React.ReactNode
-  /** Drives the two-column (desktop) vs stacked (mobile/collapsed) master-detail layout. */
+  /** Drives the expanded (observation-well seam + stage band sizing) vs collapsed (teaser) detail
+   * styling. Overview state stacks the maze ABOVE the card grid on ALL viewports
+   * (stack-neurons-homepage-maze-desktop); only detail mode re-arranges further. */
   mazeExpanded?: boolean
   /** Per-family maze tract progress → each card's derived axon node-track (no extra canvas). */
   mazeHintByFamily?: Map<string, MazeFamilyHint>
@@ -117,9 +119,12 @@ export function FamilyPicker({
           quiz.yearFilter meta, no props needed). */}
       <YearFilterBar />
 
-      {/* Master-detail INSIDE this box (reposition-neurons-maze-master-detail → C′ desktop / A2 mobile).
+      {/* Master-detail INSIDE this box (reposition-neurons-maze-master-detail → C′ desktop / A2 mobile;
+          overview stacking per stack-neurons-homepage-maze-desktop).
+          OVERVIEW (no family selected, all viewports): block flow — the GLOBAL maze full-width ABOVE the
+          card grid, below the YearFilterBar chips (desktop mirrors the mobile stacking; no side column).
           DESKTOP detail mode (is-detail): the detail region expands FULL-WIDTH with a DockHeader (the
-          enlarged selected card) above the ONE maze, the 2-col grid is display:none (stays MOUNTED so
+          enlarged selected card) above the ONE maze, the card grid is display:none (stays MOUNTED so
           its liveQuery chips stay warm), and a FamilyChipRail renders below for one-tap family switching.
           MOBILE (A2): the detail CSS-docks under the tapped card (is-docked). The canvas NEVER leaves
           .neurons-md__detail — every layout change is class-toggle + grid-template only, no re-parent. */}
@@ -280,6 +285,7 @@ function DockHeader({
               type="button"
               onClick={onToggleReading}
               aria-pressed={!!isReading}
+              data-tutorial="reading"
               style={{ ...(isReading ? readingChipActiveStyle(accent) : readingChipStyle(accent)), width: 'auto', flex: '1 1 100%' }}
               title={isReading ? `結束 ${family.id} 的閱讀` : `開始閱讀 ${family.id}（能量全進此科）`}
             >
@@ -506,6 +512,9 @@ function FamilyCard({
           type="button"
           onClick={onToggleReading}
           aria-pressed={!!isReading}
+          // data-tutorial="reading": onboarding-spotlight anchor (on every family card's 📖 entry +
+          // the DockHeader's — the tutorial agent targets the first match).
+          data-tutorial="reading"
           style={isReading ? readingChipActiveStyle(accent) : readingChipStyle(accent)}
           title={isReading ? `結束 ${family.id} 的閱讀` : `開始閱讀 ${family.id}（能量全進此科）`}
         >

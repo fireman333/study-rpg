@@ -1,5 +1,7 @@
 /**
- * New-player onboarding state (improve-neurons-onboarding).
+ * New-player onboarding state (improve-neurons-onboarding; rebuilt as a full
+ * guided tour by rebuild-neurons-onboarding-as-guided-tour — same two flags,
+ * NO new keys).
  *
  * Pure device-local `meta` flags — NOT in SYNCED_META_KEYS, NO Dexie schema
  * bump, NO R2 bundle change. Onboarding is a one-time first-run EXPERIENCE,
@@ -8,8 +10,12 @@
  * (`resetConnectomeForDebug`) clears these so a reset player re-experiences it.
  *
  * Two onboarding moments, two flags:
- *   - guidedComplete           — the interactive guided overlay finished or was skipped.
+ *   - guidedComplete           — the guided tour (welcome card + element
+ *                                spotlights) finished or was skipped.
  *   - expeditionSpotlightSeen  — the just-in-time benefit spotlight has fired once.
+ *
+ * Tour step definitions / transition logic live in `onboarding-tour.ts`
+ * (pure + unit-tested); the React side is `components/onboarding/`.
  *
  * The ⚔️ expedition entry's one-way reveal is NOT a separate flag — it derives
  * from the monotonic `questionHistory.everWrong` signal in OverviewPage (already

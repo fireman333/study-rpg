@@ -501,7 +501,10 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // The embedded maze detail surface (collapsed = teaser, expanded = the maze panel + a collapse
   // affordance). Passed into FamilyPicker as the master-detail's detail slot.
   const mazeSlot = mazeExpanded ? (
-    <div className="neurons-md__maze">
+    // data-tutorial="maze": stable onboarding-spotlight anchor (tutorial agent contract). The collapsed
+    // teaser below carries the same anchor so [data-tutorial="maze"] resolves in BOTH states (exactly
+    // one of the two is mounted at a time).
+    <div className="neurons-md__maze" data-tutorial="maze">
       <button type="button" className="neurons-maze-collapse" onClick={collapseMaze} aria-label="收合腦圖">
         🧠 腦圖 ▴ 收合
       </button>
@@ -514,7 +517,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       </div>
     </div>
   ) : (
-    <button type="button" className="neurons-maze-teaser" onClick={expandMaze} aria-label="展開腦圖">
+    <button type="button" className="neurons-maze-teaser" data-tutorial="maze" onClick={expandMaze} aria-label="展開腦圖">
       <span className="neurons-maze-teaser__row">
         <span className="neurons-maze-teaser__brain" aria-hidden>🧠</span>
         <span className="neurons-maze-teaser__label">神經元腦圖</span>

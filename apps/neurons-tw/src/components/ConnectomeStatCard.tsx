@@ -62,7 +62,8 @@ export function ConnectomeStatCard({
   const canDraw = dmn.drawsAvailable >= 1 && !dmn.bothPoolsExhausted
 
   return (
-    <section style={cardStyle} aria-label="今日學習儀表板">
+    // data-tutorial="connectome-status": stable onboarding-spotlight anchor (tutorial agent contract).
+    <section style={cardStyle} aria-label="今日學習儀表板" data-tutorial="connectome-status">
       {/* ── Top band: ⚔️ primary CTA, or new-player guidance (one-way reveal) ── */}
       {hasEverAnsweredWrong ? (
         <button
@@ -70,6 +71,9 @@ export function ConnectomeStatCard({
           style={wrongCount > 0 ? ctaStyle : ctaDisabledStyle}
           onClick={onExpedition}
           disabled={wrongCount === 0}
+          // data-tutorial="expedition": onboarding-spotlight anchor. NOTE: this button only mounts
+          // once hasEverAnsweredWrong (one-way reveal) — absent for a never-wrong new player.
+          data-tutorial="expedition"
           aria-label="錯題出征：修復錯題建立連線"
           title="修復跨科錯題＝在腦圖上建立突觸連線（同時獲得 DMN 抽卡）"
         >

@@ -56,18 +56,20 @@ export function FamilyFilterChips({
           )
         })}
       </div>
-      <span style={countStyle}>
-        {visible.size} / {families.length} 科
-      </span>
+      {/* No `X / N 科` visible-count — it read as a collection denominator (the dex hides totals)
+          and crowded the bar on narrow viewports (improve-neurons-dex-filter-chips-rwd). */}
     </section>
   )
 }
 
 // ─── Styles (match OverviewPage cream/brown pixel aesthetic, like YearFilterBar) ─
 
+// Chips flow freely into as many rows as they need (flexWrap on the bar + the chip row; no
+// max-row cap, no horizontal overflow). Label top-aligns so it doesn't float at the vertical
+// center of a multi-row chip block on narrow widths (mirrors YearFilterBar).
 const barStyle: React.CSSProperties = {
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   flexWrap: 'wrap',
   gap: '0.5rem',
   marginTop: '0.6rem',
@@ -81,6 +83,8 @@ const labelStyle: React.CSSProperties = {
   fontSize: '0.82rem',
   fontWeight: 700,
   color: '#3a2a1a',
+  paddingTop: '0.18rem',
+  whiteSpace: 'nowrap',
 }
 
 const chipRowStyle: React.CSSProperties = {
@@ -109,10 +113,4 @@ const chipActiveStyle: React.CSSProperties = {
   color: '#fff',
   border: '1px solid #b8893a',
   opacity: 1,
-}
-
-const countStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: '#8c6d4a',
-  whiteSpace: 'nowrap',
 }
