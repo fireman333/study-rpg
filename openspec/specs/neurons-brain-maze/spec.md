@@ -6,13 +6,14 @@ A fog-of-war exploration view over a single unified **square grid** maze coverin
 ## Requirements
 ### Requirement: Maze is the homepage route
 
-The system SHALL render the unified square grid maze as the neurons-tw homepage at route `/` in `apps/neurons-tw`, covering all 11 subject families on one shared grid (no neurotransmitter regions). The prior beta route `/maze-beta` SHALL redirect to `/`. The maze SHALL host the homepage's existing companion surfaces (CTA toolbar, family grid, DMN progress ring, onboarding) per the `neurons-homepage` capability.
+The system SHALL render the unified square grid maze on the neurons-tw homepage at route `/` in `apps/neurons-tw`, covering all 11 subject families on one shared grid (no neurotransmitter regions). The prior beta route `/maze-beta` SHALL redirect to `/`. There SHALL be exactly **one** maze canvas instance on the homepage, and that canvas SHALL remain in the same stable DOM node across all layout-state changes — collapse / expand / desktop detail-mode / mobile dock SHALL be CSS class-toggle / grid-template changes only, never a re-parent or remount of the canvas. The maze SHALL be **embedded in the homepage's family-grid master-detail surface** (per `neurons-homepage`) rather than rendered as a standalone full-width centerpiece: on wide viewports (≥ 768px) as the **sticky detail panel** beside the family-card list when no family is selected, and as a **full-width detail panel** (the maze below a dock header, with the card grid collapsed and a single-row family chip rail below) when a family is selected; on narrow viewports (< 768px) as a single panel that **docks directly under the tapped family card** (CSS-positioned, DOM unchanged) without a page scroll-jump. The maze SHALL be **collapsed by default to a slim teaser strip**, expanding when the player taps the teaser or any family card; the expand/collapse preference SHALL persist device-locally (NOT synced), while the mobile dock anchor SHALL be ephemeral device-local-only state (NOT persisted, NOT synced). The maze SHALL NOT animate the size of its canvas container (size changes SHALL snap); the displayed-canvas backing store SHALL be capped both by the per-platform DPR cap AND by a display-area clamp so the larger detail-mode / dock stage cannot exceed the canvas-memory budget. When expanded the maze SHALL host its own exploration UI (walker, fog, synapse overlay, 🔭 全覽 recenter) and SHALL remain the canonical view of the whole connectome (the per-subject view is this same map framed to a family, not a separate maze).
 
-#### Scenario: Grid maze renders as the homepage
+#### Scenario: Grid maze renders embedded in the homepage master-detail
 
 - **WHEN** the user navigates to `/`
-- **THEN** the unified square grid maze renders as the homepage centerpiece with its exploration UI
-- **AND** no four-region brain map and no connectome tree is the centerpiece
+- **THEN** the unified square grid maze is present as the family-grid master-detail's detail panel (one canvas instance), collapsed to a teaser by default
+- **AND** no four-region brain map and no connectome tree is rendered
+- **AND** expanding it (teaser tap or family-card tap) reveals the full maze with its exploration UI
 
 #### Scenario: Legacy maze-beta route redirects home
 
@@ -24,6 +25,13 @@ The system SHALL render the unified square grid maze as the neurons-tw homepage 
 - **WHEN** the maze loads its node set
 - **THEN** the grid contains the border entry, corridor, and nodes for all 11 families
 - **AND** each family's node count equals that family's variant-slot count
+
+#### Scenario: Per-subject view is the whole map focused, not an isolated mini-maze
+
+- **WHEN** the player selects a family card
+- **THEN** the single embedded maze expands (if collapsed) and flies its camera to that family's cluster, with the rest of the connectome (neighbouring families + cross-subject synapses) still part of the same map
+- **AND** a 🔭 全覽 control returns the camera to the whole-connectome view
+- **AND** no second canvas or isolated single-family maze is mounted
 
 ### Requirement: Node-to-variant-slot binding
 
@@ -244,7 +252,7 @@ The maze SHALL be a single unified **square** grid map shared by all 11 subject 
 
 ### Requirement: Maze SHALL read as a brain (neural-fiber design language)
 
-The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural-tissue backdrop (cortical-fold / myelin texture on the dark signal palette), the weave corridors styled as axon fibers, the crossing-synapses as synaptic-bouton glyphs (brightening when potentiated), and the center as a dense synaptic core. The brain styling SHALL be realized through a **crafted 16×16 pixel-art tile atlas** (GBA-寶可夢 art direction) blitted at nearest-neighbor (no smoothing), NOT through procedural primitive shapes. Corridor fiber tiles SHALL be selected by **autotiling** — each corridor cell's structural tile (straight / curve / T-junction / 4-way cross / cap) is chosen from that cell's connectivity to its neighbours along the family routes, and the over/under weave at a crossing renders the over fiber unbroken and the under fiber gapped. Each family's corridor SHALL be rendered in that family's colour (so routes are traceable), tinted at render time from a single neutral fiber tile set rather than per-family atlas art; the **family colour SHALL be the corridor's dominant visual weight**, with the gold myelin sheath rendered as a framing accent on either side rather than the dominant band, so the 11 families are distinguishable by colour at a glance. The brain styling SHALL NOT obscure the redundant family encoding (corridor colour + node colour + node-shape) and SHALL respect reduced-motion (no required animation to perceive structure).
+The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural-tissue backdrop (cortical-fold / myelin texture on the dark signal palette), the weave corridors styled as axon fibers, the crossing-synapses as synaptic-bouton glyphs (brightening when potentiated), and the center as a dense synaptic core. The brain styling SHALL be realized through a **crafted 16×16 pixel-art tile atlas** (GBA-寶可夢 art direction) blitted at nearest-neighbor (no smoothing), NOT through procedural primitive shapes. Corridor fiber tiles SHALL be selected by **autotiling** — each corridor cell's structural tile (straight / curve / T-junction / 4-way cross / cap) is chosen from that cell's connectivity to its neighbours along the family routes, and the over/under weave at a crossing renders the over fiber unbroken and the under fiber gapped. Corridor colour SHALL be tinted at render time from a single neutral fiber tile set rather than per-family atlas art: a family's **exclusive** corridor segments SHALL be rendered in that family's colour, while a **shared** corridor cell SHALL render concentric thin bands of the up-to-3 most-progressed families that have walked it (per the route-colour requirement), with the gold myelin demoted to a base sheath rather than the dominant band — so a family's exclusive route is colour-traceable and the densely-shared lattice (84% of corridor cells are shared, 62% by ≥4 families) stays legible without an unrenderable per-family band stack. The brain styling SHALL NOT obscure the redundant family encoding (corridor colour + node colour + node-shape) and SHALL respect reduced-motion (no required animation to perceive structure).
 
 #### Scenario: Maze is visually brain-themed
 
@@ -258,12 +266,12 @@ The maze SHALL be styled to read as brain tissue, not a bare grid: a soft neural
 - **THEN** the rendered fiber tile matches the cell's connectivity (a curve at a turn, a junction where routes meet, a straight along a run)
 - **AND** at a weave crossing the over fiber renders unbroken while the under fiber is gapped
 
-#### Scenario: Each family's corridor is colour-traceable
+#### Scenario: Corridor colour is traceable on exclusive segments and legible on shared ones
 
 - **WHEN** the maze renders multiple families' corridors
-- **THEN** each family's corridor is drawn in that family's colour (tinted from one neutral fiber tile set), so a route can be visually traced end to end
-- **AND** the family colour is the corridor's dominant visual weight (the gold myelin sheath frames it rather than dominating), so the 11 families' colours are distinguishable at a glance
-- **AND** node colour + node-shape redundancy remains for color-blind users
+- **THEN** a family's exclusive corridor segments are drawn in that family's colour (tinted from one neutral fiber tile set), so those segments trace that family
+- **AND** a shared corridor cell shows concentric thin bands of its up-to-3 most-progressed families, with the gold myelin demoted to a base sheath rather than dominating
+- **AND** node colour + node-shape redundancy (and the distinct carved route) remains so families stay distinguishable on shared segments and for color-blind users
 
 ### Requirement: Maze SHALL render from a committed pixel-art tile atlas with graceful fallback
 
@@ -420,4 +428,81 @@ After a correct answer, the QuizModal SHALL surface a lightweight, **non-interac
 - **WHEN** the feedback strip or its escalation animation plays
 - **THEN** the actual energy consumption, pull, and walker advance are performed by the homepage maze reconcile, not by the strip
 - **AND** the strip remains a display-only replay
+
+### Requirement: Selecting a family SHALL spotlight its tract, with reverse walker-select
+
+When a family is selected (its card tapped, per `neurons-homepage`), the single embedded maze SHALL **emphasise** that family's tract — dimming the other families' corridors + lit nodes while keeping cross-subject synapse sparks and landmarks at full strength (the「fire together, wire together」cross-subject metaphor is NOT weakened) — and SHALL surface a clear-emphasis affordance (🔭 全覽, and a 🎯 chip where the topbar is shown). Conversely, **tapping a family's walker sprite on the maze** (a clean tap, not a pan/drag) SHALL select that family, focus the camera on it (a sticky focus emitted through the focus bus, so that any layout resize from entering detail mode does not reframe the camera to the whole map), and scroll its card into view. Clearing the emphasis (全覽 / 🎯✕) SHALL flow through the recenter bus so the card selection and the maze emphasis clear together (one selection state); on narrow viewports the recenter SHALL clear the spotlight while leaving the maze panel docked.
+
+#### Scenario: Card tap spotlights the family tract
+- **WHEN** the player selects a family card
+- **THEN** the maze dims the other families' tracts + lit nodes and the selected family's tract is emphasised
+- **AND** cross-subject synapse sparks + landmarks remain at full strength
+- **AND** a clear-emphasis control (🔭 全覽 / 🎯) is available
+
+#### Scenario: Tapping a walker selects its card
+- **WHEN** the player taps a family's walker sprite on the maze (a clean tap, not a pan/drag)
+- **THEN** that family becomes selected, the camera focuses on it (sticky), and its card scrolls into view
+- **AND** when this enters detail mode and resizes the stage, the camera stays on the tapped family (it is not reframed to the whole map)
+
+### Requirement: Crossing a settle threshold SHALL play a one-shot neuron-travel reward animation
+
+When a family's accumulated maze energy (from correct answers + per-subject reading) crosses a settle threshold that advances its growth cone — observed from the **existing** economy/settle signal; this requirement adds NO new counter and changes NO economy value or persistence — the maze SHALL play a one-shot animation of that family's walker travelling forward along its axon path (eased motion along the corridor polyline, a family-colour trail, and an arrival flourish). The animation SHALL be a **transient self-cancelling** effect (no steady-state render loop), SHALL be **deferred until any variant-reveal modal queue is idle** so it plays unobstructed, and SHALL degrade under `prefers-reduced-motion` to an instant snap (no travel). An advance that arrives via background state hydration / cloud rehydration (already-reconciled, no live settle tick) SHALL NOT trigger it.
+
+#### Scenario: A live settle plays the travel animation
+- **WHEN** a family's energy crosses a settle threshold during play (a live advance)
+- **THEN** its walker animates travelling forward along its path with a trail + arrival flourish
+- **AND** the effect is one-shot (no persistent loop) and a single maze canvas is used
+- **AND** if a variant-reveal modal is open, the travel is deferred until the reveal queue is idle
+
+#### Scenario: Reduced-motion and hydration do not animate
+- **WHEN** reduced-motion is active, OR the advance came from state hydration / cloud rehydration rather than a live settle
+- **THEN** the walker snaps to its new position with no travel animation
+
+### Requirement: Maze SHALL render as a static panorama with event-driven overlays (no per-frame repaint)
+
+The maze SHALL render its base scene (brain-tissue tiles, corridors, gold myelin sheaths, progress-ranked colour bands, neuron-symbol landmarks, and node pins) into **offscreen maze-resolution bitmaps baked on demand** — once on mount and again only on discrete changes (exploration progress, settle progress, synapse change, theme switch) — NOT repainted every animation frame. The only maze canvas in the DOM SHALL be a single **viewport-sized display canvas**; the camera (`{cx, cy, z}` — maze-space centre + zoom) SHALL be realized by **blitting the camera's slice of the offscreen scene into the display canvas via `drawImage` on discrete events** (input events, re-bakes, resizes, one-shot animation frames) — NOT as a CSS transform of a full-resolution stage (a full-resolution composited canvas layer is rasterized at devicePixelRatio and OOM-kills the iOS Safari content process) and NOT as a steady-state repaint loop. The renderer SHALL NOT run a continuous steady-state `requestAnimationFrame` loop; transient rAFs MAY drive one-shot animations (the input-coalescing redraw, a walker settle-travel, a focus fly) and each SHALL self-stop on completion and be cancelled on unmount. The camera SHALL be **pan-bounded**: the visible rect SHALL never stray beyond the maze plus a fixed margin of cells (and SHALL lock to centre when the visible rect is wider than maze + margin). Pan and zoom SHALL update only on user input — wheel-zoom + drag-pan on desktop, pinch-zoom on touch — with input bursts coalesced to at most one blit per displayed frame, and SHALL preserve page-scroll containment (the maze SHALL NOT trap page scroll). All dynamic elements SHALL be **event-driven overlays over that single canvas** updating only when their state changes, never at a fixed frame rate: the exploration **walker** (a DOM overlay positioned from the camera; glides on a settle, idle-breathes via compositor-only CSS keyframes on unlocked representatives), **fog/node reveal** (a one-shot reveal ring when a node lights), the **synapse overlay** (sparks baked into the scene, re-baked when wires change, with one-shot pulse rings on wiring and on a conduction pulse), **focus-on-family** (a one-shot self-stopping rAF camera fly to that family's cluster — which also serves as the per-subject focused view), and the **ambient firing** animation (a small bounded set of compositor-driven CSS-keyframe glow dots at live synapse cells, hidden with the synapse overlay toggle and under reduced-motion). The same static renderer SHALL serve both desktop and mobile (a single renderer). This change SHALL preserve all existing maze behaviour — routes, fog-of-war exploration, settle/pull economy, synapse formation/strengthening, focus-on-family, atlas rendering + graceful fallback — and SHALL NOT change `grid-graph.json` routes, the per-family economy, the Dexie schema, or the R2 bundle `SCHEMA_VERSION`. (The route **colour** model is upgraded per the route-colour requirement below — not preserved — but adds no new state.)
+
+#### Scenario: No continuous per-frame repaint at rest
+- **WHEN** the maze is displayed and the player is not interacting and no exploration/wiring event is in flight
+- **THEN** the renderer SHALL NOT be repainting the canvas every frame (no steady-state `requestAnimationFrame` loop)
+- **AND** the base scene remains displayed statically
+
+#### Scenario: Pan/zoom is an event-driven camera blit within pan bounds
+- **WHEN** the player pinch-zooms (touch) or wheel-zooms + drags (desktop)
+- **THEN** the camera `{cx, cy, z}` is mutated on the input event and the viewport-sized display canvas re-blits the offscreen scene (bursts coalesced to at most one blit per frame — no per-frame repaint loop, no full-resolution composited layer)
+- **AND** the camera stays within the maze + margin pan bounds
+- **AND** the page still scrolls normally past the maze (the maze does not trap page scroll)
+
+#### Scenario: Dynamic elements update only on their events
+- **WHEN** the player advances exploration (a settle), forms/strengthens a synapse, or taps a family card to focus
+- **THEN** the corresponding overlay updates as a one-shot (walker glides/travels a segment / node reveals / synapse sparks re-bake + pulse / the camera flies to the cluster via a one-shot self-stopping rAF tween)
+- **AND** none of these introduces a continuous steady-state animation loop
+
+#### Scenario: Focus fly is one-shot and yields to the user
+- **WHEN** a family-card tap, a correct-answer auto-focus, or a 🔭 recenter moves the camera
+- **THEN** a transient rAF tween flies the camera to the target and stops when it arrives (cancelled on unmount)
+- **AND** under reduced-motion, on a trivial delta, or when the focus coincides with a stage-layout resize (entering/exiting the detail layout) the camera snaps instantly instead
+- **AND** a manual wheel / drag / pinch during the fly cancels it immediately (the player reclaims the camera)
+
+#### Scenario: Behaviour and data are unchanged
+- **WHEN** this render re-architecture ships
+- **THEN** the committed `grid-graph.json` routes, the per-family economy, the Dexie schema version, and the R2 bundle `SCHEMA_VERSION` are all unchanged
+- **AND** fog-of-war, settle/pull, synapse formation, focus-on-family, and atlas fallback all behave as before (the route colour model is upgraded per the route-colour requirement below)
+
+### Requirement: Maze route colour SHALL encode each corridor cell's up-to-3 most-progressed families
+
+The maze route layer SHALL colour each **walked** corridor cell with the colours of the **up to three most-progressed families** that pass through that cell, rendered as concentric thin bands over a neutral base myelin sheath (the gold myelin SHALL be demoted to that base/frame, no longer the dominant or default band). "Walked" means a family's exploration frontier has reached/passed the cell (reusing the existing fog/explored-prefix logic); a cell no family has walked yet SHALL remain the faint fog baseline. A cell walked by one or two families SHALL show one or two bands; a cell walked by three or more SHALL show exactly the three most-progressed (the per-cell cap is three, so a densely-shared trunk cell — up to all 11 families — SHALL NOT attempt to stack more than three bands). "Most-progressed" SHALL be ranked by each family's already-synced settle-progress counter (`maze:<familyId>:settles`, a member of `SYNCED_META_KEYS`), so the colour ordering is **consistent across devices** and the colour model SHALL add **no new meta key, no `SYNCED_META_KEYS` entry, no Dexie store, and no R2 `SCHEMA_VERSION` change**; ties (e.g. before any settle) SHALL fall back to a deterministic family order. The colour computation SHALL run inside the on-demand static base bake and be re-baked only on discrete change (a settle that changes a family's progress or the explored frontier), never per animation frame. The redundant non-colour family encoding (the distinct carved route + node/marker shape) SHALL remain intact so families stay distinguishable on shared segments and for color-blind users.
+
+#### Scenario: Exclusive corridor cell shows its family's colour
+- **WHEN** a corridor cell is on exactly one family's route and that family has walked it
+- **THEN** the cell is rendered in that family's colour over the neutral base sheath
+
+#### Scenario: Densely-shared cell shows its three most-progressed families, capped
+- **WHEN** a corridor cell is shared by four or more families that have walked it
+- **THEN** the cell renders exactly three concentric bands — the three most-progressed families (ranked by settle progress) — and does not attempt to render a band per family
+
+#### Scenario: Colour ordering is consistent cross-device with zero new state
+- **WHEN** the route colour bake ranks families for a shared cell
+- **THEN** it ranks by the already-synced `maze:<familyId>:settles` counter, adding no new meta key and no `SYNCED_META_KEYS` / R2 `SCHEMA_VERSION` / Dexie change
+- **AND** the same account on another device computes the same ordering (the rank key is MAX-merged cross-device)
 

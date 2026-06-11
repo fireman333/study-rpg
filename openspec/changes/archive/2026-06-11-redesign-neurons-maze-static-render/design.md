@@ -92,6 +92,48 @@ Concrete facts the next session needs (so it doesn't re-derive from 1264 lines):
 - §1 move: add a `bakeScene()` that draws tiles+routes+landmarks+node-pins into ONE maze-resolution offscreen canvas (reuse the existing draw fns but project in maze-space, no cam); show it in a CSS-`transform` stage; pan/zoom = transform on input only (reuse the existing wheel/pinch/drag math, but apply to the transform instead of `targetRef`); reposition the walker DOM overlays inside the transform. Keep `imageSmoothingEnabled=false` + `MAZE_DPR_CAP` for the bake resolution. Then delete the steady-state rAF.
 - DEV switcher (`maze-themes`, lines ~885–926) re-bakes on `sel` change — keep it driving a re-bake, not a per-frame read.
 
+## Final architecture (as shipped — §1–§8 + A4; supersedes the §1 starting blueprint above)
+
+The "CSS-transformed stage" framing in the original Decisions/Architecture sections is **obsolete**:
+the first §1 cut displayed the maze as a 3840² canvas with `will-change: transform`, which iOS
+promoted to ONE composited layer rasterized at devicePixelRatio (~hundreds of MB GPU) → WebKit
+content-process OOM on scroll-into-view (§1.3 iter-1 failure). The shipped model:
+
+1. **Offscreen scene bake** — two maze-resolution (3072², `SCENE_SCALE=8` px/cell) offscreen 2D
+   bitmaps, never in the DOM: the tile floor (`tileBakeRef`, re-baked only on design-switch) and the
+   "ink" (`sceneRef` — landmarks / gold sheaths / §8 colour bands / node pins / lit nodes / synapse
+   sparks / core via `drawScene`), re-baked only on a discrete `bakeKey` change (explored / lit /
+   synapse / settles / DEV-switch / emphasis). ~75 MB of plain canvas memory, not GPU-layer memory.
+2. **Viewport-blit camera** — the ONLY DOM canvas is viewport-sized (backing store ≤
+   `VIEW_DPR_CAP` 1.75-iOS/2 AND the `VIEW_AREA_CAP` 4.8M-px² area clamp from the master-detail
+   change). `drawCamera()` blits the camera's slice (`camRef {cx,cy,z}`, pan-bounded by `clampPan`
+   to maze + 40-cell margin) per DISCRETE event; input bursts coalesce through a one-shot
+   `scheduleDraw` rAF. **No steady-state rAF anywhere**; the three surviving rAF handles
+   (`drawRafRef` coalescer, `travelRafRef` settle-travel, `flyRafRef` focus fly) are one-shot,
+   self-stopping, unmount-cancelled.
+3. **§5 focus fly** = a one-shot rAF camera tween (`flyTo`/`flyTick`): lerped centre, log-space zoom,
+   `easeInOutCubic`, 420–800ms scaled by screen-space distance; snaps on `instant` / reduced-motion /
+   trivial delta; cancelled by any manual input (`markManual`). Mount / ResizeObserver / DEV-zoom
+   reframes are instant; bus framings (card tap, auto-focus, recenter, travel auto-frame) fly.
+   **C′ resize integration**: manual-focus + recenter framings defer one microtask past React's
+   commit so the fly target is measured at the post-resize stage size, and the RO skips its instant
+   reframe while an in-flight fly already targets the current size (`flyStageSizeRef`) — detail-mode
+   entry/exit is one smooth move, never fly-then-snap.
+4. **§6 ambient** = ≤12 DOM glow dots (`MAZE_AMBIENT_MAX`) over the strongest live synapse cells,
+   camera-positioned like pings, inner element on compositor-only CSS keyframes; gone when 隱藏連結
+   or reduced-motion. **§7.2 conduction pulse** = a dim-cyan one-shot ping on
+   `connectome.conductionPulse` at `synapseCell(from,to)`, ≤8 per 200ms window.
+5. **§8 colour bands** (D8 algorithm, implemented in pure `maze-route-bands.ts`, Vitest ×8):
+   `CELL_FAMILIES` precompute + `buildBandRuns` → per walked cell the top-≤3 settles-ranked families
+   become nested width bands (`{1:[0.62], 2:[0.36,0.72], 3:[0.26,0.50,0.78]}`, index 0 = most
+   progressed = narrowest core, drawn last via widest-first run sort; 1-pt run overlap kills seams).
+   `drawScene` pass (a) faint baseline unchanged; pass (b) keeps gold sheath + highlight (gold =
+   base/frame) and DROPS the old solid per-family core; one global band pass after the loop.
+   Re-bake trigger = `settles` appended to `bakeKey`. Zero new state.
+6. **A4 polish**: walker idle breathe on an inner wrapper (arrive-pop wins while present; unlocked
+   reps only), touch devices halve trail cadence (190ms) + ping cap (24), arrival ring back to gold
+   (family colour stays on the trail).
+
 ## Risks / Trade-offs
 
 - [Big rewrite of a 1240-line working component] → build **incrementally** (see Implementation plan); keep the maze functional at each step; owner verifies each cut on iPhone. Worktree is `track-neurons`; ship via the batched merge like A–D.
