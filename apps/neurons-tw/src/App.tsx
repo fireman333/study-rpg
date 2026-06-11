@@ -24,7 +24,7 @@ import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import HelpMenu from './components/HelpMenu'
 import { AuthProvider } from './lib/auth/AuthContext'
 import { AuthGate } from './components/AuthGate'
-import { SyncMount } from './lib/sync/SyncMount'
+import { SyncProvider } from './lib/sync/SyncProvider'
 
 interface AppState {
   loading: boolean
@@ -70,7 +70,7 @@ export default function App(): JSX.Element {
 
   return (
     <AuthProvider>
-      <SyncMount />
+      <SyncProvider>
       <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
         <ConnectomeToastHost pack={pack} />
         <VariantUnlockModal />
@@ -107,6 +107,7 @@ export default function App(): JSX.Element {
           <AnimatedRoutes pack={pack} />
         </main>
       </BrowserRouter>
+      </SyncProvider>
     </AuthProvider>
   )
 }

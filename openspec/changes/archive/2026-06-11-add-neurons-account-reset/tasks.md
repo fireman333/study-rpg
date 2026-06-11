@@ -34,5 +34,6 @@
 ## 6. 驗證
 
 - [x] 6.1 Chrome MCP dev smoke（受 localhost R2 限制只驗 UI 半場）：HelpMenu section 渲染、未登入 gate、確認對話框文案、取消無副作用
-- [ ] 6.2 OWNER-VERIFY（prod，部署後）：真帳號重置 → 雲端歸零 + 排行榜暱稱消失 + 第二台裝置 pull 後自動清空不復活
+- [x] 6.2 OWNER-VERIFY（prod，部署後）：真帳號重置 → 雲端歸零 + 排行榜暱稱消失 + 第二台裝置 pull 後自動清空不復活
+  - 2026-06-11 owner 於 prod 實測重置：ack 已寫（=雲端空 bundle push 成功後才會寫）、本機 store 全零（familyMastery 11 列為開機 fresh seed 全零）；排行榜 KV 快照等下個整點 cron 重建後消失（既有設計）；第二裝置驗證留 owner 抽空（單元測試已鎖 pull gate）
 - [x] 6.3 Follow-up 記錄：二階 `/reset` 全 prefix 誤刪 neurons bundle（Worker optional bundle 參數 + study-rpg-2nd client，跨 repo 另開 change）— 已開 background-task chip `task_dbe65cb5`（2026-06-11），含兩處修法細節
