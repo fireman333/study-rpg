@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'
 
-// Minimal DOM stub for node-env tests — service uses document.hidden + visibilitychange + window event listeners
+// Minimal DOM stub for node-env tests — service uses document.hidden + visibilitychange
+// (window stub kept for transitively-imported modules that probe it)
 const documentListeners = new Map<string, Set<() => void>>()
 const windowListeners = new Map<string, Set<() => void>>()
 const stubEventTarget = (map: Map<string, Set<() => void>>) => ({
@@ -46,7 +47,9 @@ const FAM2 = FAMILY_IDS[1] // 公共衛生學
 
 /**
  * Spec Req: reading-timer accrues minutes, fires both side-effects per minute
- * crossing, auto-pauses on visibility / 90s idle, no auto-resume on focus return.
+ * crossing, auto-pauses on visibility (the ONLY auto-pause — the input-activity
+ * idle pause was removed per remove-neurons-reading-timer-idle-pause), no
+ * auto-resume on focus return.
  */
 
 beforeEach(async () => {
@@ -91,24 +94,34 @@ describe('reading-timer service', () => {
   it('fires minute side-effect after 60s — totalStudyMinutes increments', async () => {
     start(FAM)
     expect(await readTotalStudyMinutes()).toBe(0)
-    // Advance 60s of ticks
-    vi.advanceTimersByTime(60_000)
-    // Need to flush microtasks since fireMinuteSideEffects is async
-    await vi.runAllTimersAsync()
+    // Advance 60s of ticks (async variant flushes the async fireMinuteSideEffects).
+    // NOTE: runAllTimersAsync would never terminate now that the tick interval
+    // keeps running (no idle pause kills it) — use a bounded advance.
+    await vi.advanceTimersByTimeAsync(60_000)
     expect(await readTotalStudyMinutes()).toBe(1)
     expect(getReadingTimerState().minutesFired).toBe(1)
   })
 
-  it('fires two minute side-effects after 120s (with activity to defeat idle pause)', async () => {
+  it('fires two minute side-effects after 120s with zero input events', async () => {
     start(FAM)
-    // Need to dispatch activity events to defeat the 90s idle auto-pause
     await vi.advanceTimersByTimeAsync(60_000)
     expect(await readTotalStudyMinutes()).toBe(1)
-    // Simulate user activity to reset idle timer
-    ;(globalThis as unknown as { window: { dispatchEvent: (e: { type: string }) => void } }).window.dispatchEvent({ type: 'mousemove' })
+    // No activity events dispatched — genuine reading produces no input, and
+    // the timer must keep accruing regardless.
     await vi.advanceTimersByTimeAsync(60_000)
     expect(await readTotalStudyMinutes()).toBe(2)
     expect(getReadingTimerState().minutesFired).toBe(2)
+  })
+
+  it('keeps running through a long no-input stretch — never idle-pauses (idle pause removed)', async () => {
+    start(FAM)
+    // Advance 5 minutes (well past the old 90s idle threshold) with NO
+    // mousemove / keydown / touchstart events at all.
+    await vi.advanceTimersByTimeAsync(300_000)
+    expect(getReadingTimerState().status).toBe('reading')
+    expect(getReadingTimerState().pauseReason).toBe(null)
+    expect(getReadingTimerState().minutesFired).toBe(5)
+    expect(await readTotalStudyMinutes()).toBe(5)
   })
 
   it('does NOT feed the DMN axis (reading decoupled from DMN draws per add-neurons-expedition-rewards)', async () => {
@@ -141,10 +154,10 @@ describe('reading-timer service', () => {
     expect(getReadingTimerState().accumulatedSeconds).toBe(30)
     resume()
     expect(getReadingTimerState().status).toBe('reading')
-    vi.advanceTimersByTime(30_000)
+    // Crossing the minute boundary → side-effect fires (bounded async advance;
+    // runAllTimersAsync would spin forever on the now-unkillable tick interval).
+    await vi.advanceTimersByTimeAsync(30_000)
     expect(getReadingTimerState().accumulatedSeconds).toBe(60)
-    // Now we've crossed the minute boundary → side-effect should fire
-    await vi.runAllTimersAsync()
     expect(getReadingTimerState().minutesFired).toBe(1)
     expect(await readTotalStudyMinutes()).toBe(1)
   })
@@ -166,7 +179,7 @@ describe('reading-timer service', () => {
   it('paused state does not fire side-effects on subsequent ticks', async () => {
     start(FAM)
     vi.advanceTimersByTime(30_000)
-    pause('idle')
+    pause('manual')
     expect(await readTotalStudyMinutes()).toBe(0)
     // Even if we advance 5 more minutes worth of fake time, no side-effects
     await vi.advanceTimersByTimeAsync(300_000)
