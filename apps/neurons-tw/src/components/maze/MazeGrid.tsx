@@ -1,20 +1,26 @@
 /**
  * MazeGrid — the flat-grid maze homepage centerpiece.
  *
- * REBUILD (redesign-neurons-maze-brain-tileset D10): renders the committed
- * 3-region tilemap (BACKGROUND / WALL / PATH — see build-tilemap-maze.mjs) as
- * FLAT COLORS first (16px tile art per region drops in later without touching
- * this layout). The static tilemap is baked ONCE to an offscreen canvas (1px per
- * cell) and blitted per frame (viewport, imageSmoothing off → crisp chunky cells).
- * On top: thin colored family routes (fog = dim whole route / bright explored
- * prefix), lit variant nodes, read-only synapse sparks, the center core.
+ * RENDER ARCHITECTURE (redesign-neurons-maze-static-render §1): the maze is a STATIC PANORAMA, not a
+ * per-frame live canvas. The full scene (3-region tile art + family axon tracts + neuron-symbol
+ * landmarks + node pins + lit variant nodes + read-only synapse sparks + center core) is baked ONCE
+ * into a maze-resolution OFFSCREEN canvas (SCENE_SCALE px/cell, never in the DOM), re-baked only on a
+ * DISCRETE change (settle / explore / synapse wiring / DEV switch). A small VIEWPORT-sized canvas is
+ * the only displayed canvas; the "camera" blits the relevant slice of the offscreen scene into it via
+ * a single `drawImage` ON EACH INPUT EVENT (wheel / drag / pinch) — bitmap blits are cheap even on
+ * Safari (the old per-frame cost was the VECTOR redraw + gradient/path churn, now hoisted into the
+ * one-time bake). There is NO steady-state `requestAnimationFrame` repaint loop.
  *
- * It does NOT call useMaze itself — the page owns the single useMaze(pack)
- * subscription and passes the `view` down (double-mount → double pulls).
+ * Why not a CSS-transformed full-resolution canvas (the first §1 cut): a 3840² element with
+ * `will-change: transform` is promoted to one composited layer and rasterized at devicePixelRatio →
+ * a ~hundreds-of-MB GPU layer that OOM-kills the iOS Safari content process on scroll-into-view. The
+ * viewport-blit model keeps the displayed layer viewport-sized, so it stays within the iOS budget.
+ * (§2 walker glide / §4 synapse pulse / §5 focus fly / §6 ambient / §8 colour bands are event-driven
+ * follow-ups; §1 transitions are instant.)
  *
- * Camera: a correct answer (maze-focus bus) zooms to that family's walker;
- * reading / idle frames the whole map. Manual wheel-zoom + drag-pan override.
- * Reduced-motion → instant cuts.
+ * It does NOT call useMaze itself — the page owns the single useMaze(pack) subscription and passes the
+ * `view` down. Camera framing: a correct answer (maze-focus bus) frames that family's walker; reading
+ * / idle frames the whole map. Manual wheel-zoom + drag-pan override.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { liveQuery } from 'dexie'
@@ -26,7 +32,6 @@ import MazeExpedition from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
 import { decodePairKey, subscribeConnectomeEvents } from '../../lib/services/connectome'
 import { getWireConductionStatuses, type WireConductionStatus } from '../../lib/maze/economy'
-import { useRespectsReducedMotion } from '../../lib/motion'
 import { useReadingTimer } from '../../lib/hooks/useReadingTimer'
 import { getExpeditionHidden, setExpeditionHiddenPref } from '../../lib/expedition-visibility'
 import {
@@ -36,7 +41,7 @@ import {
 import { onMazeFocus, onMazeRecenter, emitMazeRecenter } from '../../lib/maze/maze-focus'
 import type { FamilyViewState, MazeViewState } from '../../lib/maze/useMaze'
 // DEV design-language switcher (maze-themes): 6 switchable looks for WALL / PATH / BG / NODE; the
-// maze TOPOLOGY is untouched. Gold MYELIN routes are still drawn live per-route (never baked).
+// maze TOPOLOGY is untouched. Gold MYELIN routes are still drawn per-route (now baked, not per-frame).
 // Once the owner picks, collapse to the chosen styles + delete the switcher.
 import {
   WALL_STYLES, PATH_STYLES, BG_STYLES, NODE_STYLES, THEME_PRESETS, DEFAULT_SEL, type MazeSel,
@@ -44,13 +49,9 @@ import {
 // Large textbook neuron-symbol landmarks at static hubs — the "obvious neuron" lever (locked via
 // grilled-neurons-maze-looks-like-brain): the corridors are the wiring, these are the cells.
 import { MAZE_LANDMARKS, landmarkImage, ALL_NODE_CELLS } from './maze-landmarks'
-// Codex gpt-image-2 muted brain-silhouette + nerve-fiber texture — faint full-bleed BG so the maze
-// reads as sitting inside a brain (owner: brain outline + fibers, colours not too loud). Alt = ghost.
-import bgNeuropilUrl from '../../assets/maze/bg-neuropil.png'
-const bgNeuropilImg = new Image()
-bgNeuropilImg.src = bgNeuropilUrl
-// Mode B "brain is hero" backdrop: codex gpt-image-2 top-down brain (two hemispheres + central fissure
-// + branching white-matter fibers, muted teal/violet on navy — owner: brain outline + fibers, muted).
+// Codex gpt-image-2 muted brain-silhouette + nerve-fiber backdrop — a faint full-bleed layer so the
+// maze reads as sitting inside a brain (owner: brain outline + fibers, muted teal/violet on navy). It
+// is blitted into the viewport per camera draw (its 1.8× silhouette extends beyond the grid bounds).
 import bgBrainHeroUrl from '../../assets/maze/bg-brain-hero.png'
 const bgBrainHeroImg = new Image()
 bgBrainHeroImg.src = bgBrainHeroUrl
@@ -74,14 +75,7 @@ const FAMILY_ENC: Record<string, FamEnc> = (() => {
   return out
 })()
 
-// --- 3-region brain-tissue colors (plain dark tissue; myelin lives on the routes, not here) ---
-const REGION = {
-  bg: [7, 11, 16], // BACKGROUND — quiet deep neuropil (behind the cover-image tissue slice)
-  wall: [19, 27, 36], // WALL — dark glial boundary, slightly lighter so maze geometry reads
-  path: [5, 7, 10], // PATH — near-black corridor floor (myelinated axon runs on top)
-}
-const OUTSIDE = '#0a0e14' // beyond the grid bounds
-const OUTSIDE_T = 'rgba(10,14,20,0)' // OUTSIDE, fully transparent — for the edge-feather gradient
+const OUTSIDE = '#0a0e14' // beyond the grid bounds / stage backdrop
 const SYNAPSE_COLOR = '#38e0d0'
 const CORE_COLOR = '#f0a830'
 // --- myelin sheath (shared gold for all routes; family identity lives in the axon core) ---
@@ -90,14 +84,41 @@ const MYELIN_HI = '#f2d46b'
 const NODE_GAP_INTERNODE_CELLS = 2.4 // gold internode length along the path (cells)
 const NODE_GAP_CELLS = 0.7 // node-of-Ranvier gap length (cells)
 
-const BASE_TILE = 13 // px per cell at zoom 1
-const FOCUS_SPAN = 60 // cells across when zoomed to a family (bigger grid → wider focus)
+// Offscreen bake resolution: px per cell in the static scene canvas (= the tile-bake scale, so tiles
+// blit 1:1). 384 cells × 8 = 3072² (~37 MB) — a 2D bitmap, NOT a composited layer, so this is bounded
+// canvas memory, not GPU-layer memory. Kept modest (8, not 10) to stay well within the iOS canvas
+// budget alongside the tile bake. Crisp at the whole-map default + family-focus; mildly soft only at
+// extreme manual zoom (the §1.x zoom-bucket fallback if the owner finds it too soft).
+const SCENE_SCALE = 8
+const WORLD_W = GRID_W * SCENE_SCALE
+const WORLD_H = GRID_H * SCENE_SCALE
+// Camera zoom = on-screen px per cell. Whole-grid default fit sits near Z_MIN; Z_MAX matches the prior
+// 6× ceiling (≈ 78 px/cell). The displayed viewport canvas is the only DOM canvas → small layer.
+const Z_MIN = 1.4
+const Z_MAX = 80
+const FOCUS_SPAN = 60 // cells across when framed to a family
 
-// Safari / iOS canvas fill is far costlier per-frame than Chrome's, so cap the
-// device-pixel-ratio backing store lower there to bound per-frame fill cost
-// (fix-neurons-maze-safari-perf). UA heuristic — worst case a misdetected engine
-// renders at 1.5× (imperceptible on the imageSmoothing-off pixel-art), never a
-// functional bug. Chrome and other engines keep the 2× cap.
+// Pan boundary (owner: 限制 pan 邊界, don't hard-crop the brain backdrop, 留空間多一點). The
+// camera centre is clamped so the visible rect never strays beyond the maze + this margin of
+// cells — you can pan to a brain ring at the maze edge, but never past it to reveal the whole
+// head or the OUTSIDE void. When the visible rect is wider than (maze + margin), it locks to
+// centre. z is untouched; Z_MIN already keeps the content covering the viewport (no void).
+const MAZE_PAN_MARGIN = 40
+function clampPan(cam: { cx: number; cy: number; z: number }, vw: number, vh: number): { cx: number; cy: number; z: number } {
+  const halfW = vw / cam.z / 2
+  const halfH = vh / cam.z / 2
+  const minX = -MAZE_PAN_MARGIN, maxX = GRID_W + MAZE_PAN_MARGIN
+  const minY = -MAZE_PAN_MARGIN, maxY = GRID_H + MAZE_PAN_MARGIN
+  const loX = minX + halfW, hiX = maxX - halfW
+  const loY = minY + halfH, hiY = maxY - halfH
+  const cx = loX > hiX ? (minX + maxX) / 2 : Math.min(Math.max(cam.cx, loX), hiX)
+  const cy = loY > hiY ? (minY + maxY) / 2 : Math.min(Math.max(cam.cy, loY), hiY)
+  return { cx, cy, z: cam.z }
+}
+
+// Safari / iOS: cap the displayed viewport canvas's backing-store DPR so its compositing-layer memory
+// stays small (the device may report 3× — a 760px stage at 3× is a 2280² layer). The blit is
+// imageSmoothing-off pixel-art, so a lower backing DPR is imperceptible.
 const IS_SAFARI_OR_IOS = (() => {
   if (typeof navigator === 'undefined') return false
   const ua = navigator.userAgent
@@ -107,30 +128,24 @@ const IS_SAFARI_OR_IOS = (() => {
   const isSafari = /^((?!chrome|crios|chromium|android|edg|fxios).)*safari/i.test(ua)
   return isIOS || isSafari
 })()
-const MAZE_DPR_CAP = IS_SAFARI_OR_IOS ? 1.5 : 2
+const VIEW_DPR_CAP = IS_SAFARI_OR_IOS ? 1.75 : 2
+
 // Mode-B brain backdrop: >1 enlarges the brain (centered on the grid) so its silhouette CONTAINS the
-// whole maze node bounding box (owner: "迷宮都在腦的輪廓內") instead of an oval that leaves the corners
-// outside. Higher = brain bleeds further past the panel edges (less whole-brain shape visible). The
-// default scale is DEV-tunable live; BRAIN_HERO_ALPHA keeps the brain faint enough that the maze reads.
+// whole maze (owner: "迷宮都在腦的輪廓內"). DEV-tunable; BRAIN_HERO_ALPHA keeps it faint enough that
+// the maze reads on top.
 const BRAIN_SCALE_DEFAULT = 1.8 // owner: 放大到 1.8× so the enlarged brain spans the whole maze
 const BRAIN_HERO_ALPHA = 0.82 // mode-B brain opacity (owner: 腦再淡一點 so the maze reads on top)
-
-interface TileAssets {
-  /** Whole-maze tile art baked (TILE_BAKE px/cell) → blitted at every zoom; re-baked on selection change. */
-  tileBake: HTMLCanvasElement | null
-}
-
-const TILE_BAKE = 10 // px per cell in the baked tile-art canvas (384×10 = 3840² — Safari-safe < 4096²)
+const BRAIN_GLOW_ALPHA = 0.42 // mode-A faint screen-blend brain glow over the opaque maze
 
 /**
  * Bake the maze tilemap for the active design selection (re-baked on switch): BACKGROUND tile →
  * per-cell PATH + WALL styles (+ optional relief cast-shadow on path cells adjacent to walls).
- * Gold myelin routes + pale neuropil are drawn live on top, never baked.
+ * Gold myelin routes + neuron landmarks are drawn into the scene on top, never into this tile bake.
  */
 function bakeTileArt(sel: MazeSel): HTMLCanvasElement | null {
   const ck = CELL_KINDS
   if (!ck) return null
-  const S = TILE_BAKE
+  const S = SCENE_SCALE
   const cvs = document.createElement('canvas')
   cvs.width = ck.w * S
   cvs.height = ck.h * S
@@ -172,29 +187,6 @@ function bakeTileArt(sel: MazeSel): HTMLCanvasElement | null {
   return cvs
 }
 
-/** Bake the static 3-region tilemap to an offscreen canvas (1px per cell). */
-function bakeTilemap(): HTMLCanvasElement | null {
-  const ck = CELL_KINDS
-  const cvs = document.createElement('canvas')
-  if (!ck) return null
-  cvs.width = ck.w
-  cvs.height = ck.h
-  const c = cvs.getContext('2d')
-  if (!c) return null
-  const img = c.createImageData(ck.w, ck.h)
-  for (let i = 0; i < ck.data.length; i++) {
-    const col = ck.data[i] === CELL_PATH ? REGION.path : ck.data[i] === CELL_WALL ? REGION.wall : REGION.bg
-    const j = i * 4
-    img.data[j] = col[0]
-    img.data[j + 1] = col[1]
-    img.data[j + 2] = col[2]
-    img.data[j + 3] = 255
-  }
-  c.putImageData(img, 0, 0)
-  return cvs
-}
-
-interface Cam { cx: number; cy: number; zoom: number }
 // `isLegacy` = a pre-epoch same-day-co-fire wire (early connection, not re-validated):
 // rendered quieter / grey-blue + excluded from the stable-link stat (rework-neurons-
 // connectome-expedition-driven D12).
@@ -238,8 +230,168 @@ function useSynapseData(): SynapseDatum[] {
   return data
 }
 
+interface SceneFlags { landmarksOn: boolean; unlitPins: boolean; synapseOn: boolean }
+
+/**
+ * Bake the maze "ink" layer (landmarks + family axon tracts + node pins + lit nodes + synapse sparks +
+ * center core) into the OFFSCREEN `canvas` in MAZE-SPACE (SCENE_SCALE px/cell, no camera), on a
+ * TRANSPARENT background. Runs ONCE on mount + on each discrete change (settle / explore / synapse /
+ * DEV switch) — never per-frame. The 3-region TILE floor is a separate bake (`tileBakeRef`) blitted
+ * UNDER this ink at draw time, with the brain wash sandwiched between (tiles → brain → ink) so the
+ * tracts stay crisp over the faint brain glow — matching the prior per-frame layering. The brain
+ * backdrop + edge feather + walkers are NOT drawn here.
+ */
+function drawScene(
+  canvas: HTMLCanvasElement,
+  sel: MazeSel,
+  fams: readonly FamilyViewState[],
+  synapses: readonly SynapseDatum[],
+  flags: SceneFlags,
+): void {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const tile = SCENE_SCALE
+  const toX = (wx: number) => wx * tile
+  const toY = (wy: number) => wy * tile
+
+  ctx.clearRect(0, 0, WORLD_W, WORLD_H) // transparent — tiles are a separate layer blitted under this
+  ctx.imageSmoothingEnabled = false
+
+  // Layer ① — neuron-symbol landmarks at static hubs, drawn UNDER the gold routes so each axon tract
+  // flows continuously THROUGH the cell (route over sprite = continuity, no occlusion).
+  if (flags.landmarksOn) {
+    ctx.imageSmoothingEnabled = true
+    for (const lm of MAZE_LANDMARKS) {
+      const img = landmarkImage(lm.src)
+      if (!img.complete || img.naturalWidth === 0) continue
+      const cx = toX(lm.cell[0])
+      const cy = toY(lm.cell[1])
+      const dh = lm.cells * tile
+      const dw = dh * (img.naturalWidth / img.naturalHeight)
+      if (lm.halo > 0) {
+        const r = Math.max(4, dh * 0.5)
+        const glow = ctx.createRadialGradient(cx, cy, r * 0.15, cx, cy, r)
+        glow.addColorStop(0, `rgba(255,210,90,${lm.halo})`)
+        glow.addColorStop(1, 'rgba(255,190,70,0)')
+        ctx.fillStyle = glow
+        ctx.beginPath()
+        ctx.arc(cx, cy, r, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      ctx.globalAlpha = lm.alpha
+      ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh)
+    }
+    ctx.globalAlpha = 1
+    ctx.imageSmoothingEnabled = false
+  }
+
+  // Layer ② — each family route = one continuous MYELINATED AXON: a dashed gold myelin sheath
+  // (internodes + nodes of Ranvier) with the family-colored axon core drawn SOLID over it, so the
+  // axon stays continuous through the node gaps. Dim ahead, bright where explored.
+  const sheathW = Math.max(2, 1.05 * tile)
+  // Family-colored axon core is the corridor's DOMINANT band (tune-neurons-maze-path-colors).
+  const coreW = Math.max(1, 0.6 * tile)
+  const hiW = Math.max(1, sheathW * 0.42) // pale-gold sheath highlight
+  const dashGold = Math.max(2, NODE_GAP_INTERNODE_CELLS * tile)
+  const dashGap = Math.max(1, NODE_GAP_CELLS * tile)
+  ctx.lineJoin = 'round'
+  const cornerR = Math.max(1.5, tile * 0.7)
+  const trace = (path: readonly Cell[], n: number): void => {
+    ctx.beginPath()
+    ctx.moveTo(toX(path[0][0]), toY(path[0][1]))
+    for (let i = 1; i < n; i++) {
+      ctx.arcTo(toX(path[i][0]), toY(path[i][1]), toX(path[i + 1][0]), toY(path[i + 1][1]), cornerR)
+    }
+    if (n >= 1) ctx.lineTo(toX(path[n][0]), toY(path[n][1]))
+  }
+  for (const fam of fams) {
+    const enc = FAMILY_ENC[fam.familyId]
+    if (!enc || !fam.graph) continue
+    const routes = [
+      { path: fam.graph.path, explored: exploredOnRoute(fam, 1) },
+      { path: fam.graph.path2, explored: exploredOnRoute(fam, 2) },
+    ]
+    for (const route of routes) {
+      const path = route.path
+      if (!path || path.length < 2) continue
+      const last = path.length - 1
+      const exploredIdx = Math.min(last, route.explored)
+
+      // (a) unexplored baseline — faint gold sheath framing a clearly-tinted family-colour core.
+      ctx.lineCap = 'butt'
+      ctx.setLineDash([dashGold, dashGap])
+      ctx.globalAlpha = 0.18
+      ctx.strokeStyle = MYELIN_GOLD
+      ctx.lineWidth = sheathW
+      trace(path, last)
+      ctx.stroke()
+      ctx.setLineDash([])
+      ctx.lineCap = 'round'
+      ctx.globalAlpha = 0.55
+      ctx.strokeStyle = enc.color
+      ctx.lineWidth = coreW
+      trace(path, last)
+      ctx.stroke()
+
+      // (b) explored prefix — full bright sheath + highlight + solid family-colour core.
+      if (exploredIdx >= 1) {
+        ctx.globalAlpha = 1
+        ctx.lineCap = 'butt'
+        ctx.setLineDash([dashGold, dashGap])
+        ctx.strokeStyle = MYELIN_GOLD
+        ctx.lineWidth = sheathW
+        trace(path, exploredIdx)
+        ctx.stroke()
+        ctx.strokeStyle = MYELIN_HI
+        ctx.lineWidth = hiW
+        trace(path, exploredIdx)
+        ctx.stroke()
+        ctx.setLineDash([])
+        ctx.lineCap = 'round'
+        ctx.strokeStyle = enc.color
+        ctx.lineWidth = coreW
+        trace(path, exploredIdx)
+        ctx.stroke()
+      }
+    }
+  }
+  ctx.setLineDash([])
+  ctx.globalAlpha = 1
+  ctx.lineCap = 'round'
+
+  // Layer ③a — faint unlit node POSITION pins (reveals position only, not shape/rarity → fog-of-war
+  // preserved) so the tracts read as populated with neurons even before exploration.
+  if (flags.unlitPins) {
+    const lit = new Set<string>()
+    for (const fam of fams) for (const n of fam.litNodes) lit.add(`${n.cell[0]},${n.cell[1]}`)
+    ctx.fillStyle = 'rgba(150,160,190,0.16)'
+    for (const cell of ALL_NODE_CELLS) {
+      if (lit.has(`${cell[0]},${cell[1]}`)) continue
+      ctx.beginPath(); ctx.arc(toX(cell[0]), toY(cell[1]), Math.max(1, tile * 0.5), 0, Math.PI * 2); ctx.fill()
+    }
+  }
+
+  // Layer ③ — lit variant nodes, styled per the active design selection (neuron-seed glyph).
+  const nodeSize = Math.max(6, tile * 3.2)
+  const nodeDraw = (NODE_STYLES[sel.node] ?? NODE_STYLES.ranvier).draw
+  for (const fam of fams) {
+    for (const node of fam.litNodes) nodeDraw(ctx, toX(node.cell[0]), toY(node.cell[1]), nodeSize)
+  }
+
+  // Layer ④ — read-only synapse sparks (+ legacy grey-blue). The transient conduction-pulse glow is a
+  // §4 event-driven follow-up; the static spark is baked here so the connectome stays visible.
+  if (flags.synapseOn) {
+    for (const s of synapses) {
+      const wgt = SYNAPSE_WEIGHT[s.state]
+      drawSpark(ctx, toX(s.cell[0]), toY(s.cell[1]), Math.max(3, tile), wgt.op, wgt.r, s.isLegacy)
+    }
+  }
+
+  // Layer ⑤ — center core.
+  drawCore(ctx, toX(GRID_CENTER[0]), toY(GRID_CENTER[1]), Math.max(3, tile))
+}
+
 export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element {
-  const reducedMotion = useRespectsReducedMotion()
   const synapseData = useSynapseData()
   const reading = useReadingTimer()
   const [synapseOverlayOn, setSynapseOverlayOn] = useState(true)
@@ -252,86 +404,298 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
   const [sel, setSel] = useState<MazeSel>(DEFAULT_SEL)
   // Neuron landmark layer (the "obvious neuron" lever) + pulled-in default zoom — DEV-tunable for A/B.
   const [landmarksOn, setLandmarksOn] = useState(true)
+  // Collapsed-by-default how-to panel (owner: the full instructions + legend prose ate
+  // too much vertical space above/below the map). Toggle reveals both blurbs.
+  const [helpOpen, setHelpOpen] = useState(false)
   const [zoomBoost, setZoomBoost] = useState(1.0)
   const [bgFibers, setBgFibers] = useState(true)
   const [unlitPins, setUnlitPins] = useState(true)
-  // recede = "brain is hero" mode (owner B): the brain image becomes a near-opaque backdrop and the
-  // maze tiles blit TRANSLUCENT on top, so the brain outline + fibers actually show through the dense
-  // maze (a crisp silhouette can't survive behind opaque tiles). OFF = mode A (faint screen-blend BG).
+  // recede = "brain is hero" mode (owner B): the brain becomes a near-opaque backdrop and the maze
+  // blits TRANSLUCENT on top, so the brain outline + fibers show through the dense maze. OFF = mode A
+  // (faint screen-blend brain glow over an opaque maze).
   const [recede, setRecede] = useState(false) // owner: 腦當主角 OFF (maze fully visible; brain a faint enlarged backdrop)
   const [brainScale, setBrainScale] = useState(BRAIN_SCALE_DEFAULT)
   const [softEdge, setSoftEdge] = useState(true) // owner: 迷宮方形邊界不要那麼明顯 → feather the panel edges
-  // 1.0 = whole brain/maze visible (brain silhouette reads); >1.0 pulls in (landmarks bigger).
+  // Bumped when a landmark / brain image finishes loading so the scene re-bakes + re-blits with it.
+  const [assetsVersion, setAssetsVersion] = useState(0)
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const viewCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const stageRef = useRef<HTMLDivElement | null>(null)
   const walkerRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
-  // Per-family eased render position in MAZE space (neurons-juice-animations item
-  // 7) — glides toward the target walkerCell so cell-advancement is not an instant
-  // snap. Persists across draw-effect re-runs. Camera transform stays per-frame.
-  const walkerRenderRef = useRef<Map<string, [number, number]>>(new Map())
-  const tilemap = useMemo(() => bakeTilemap(), [])
-  const tilesRef = useRef<TileAssets>({ tileBake: null })
-  const selRef = useRef(sel)
-  selRef.current = sel
-  const landmarksOnRef = useRef(landmarksOn)
-  landmarksOnRef.current = landmarksOn
-  const zoomBoostRef = useRef(zoomBoost)
-  zoomBoostRef.current = zoomBoost
-  const bgFibersRef = useRef(bgFibers)
-  bgFibersRef.current = bgFibers
-  const unlitPinsRef = useRef(unlitPins)
-  unlitPinsRef.current = unlitPins
-  const recedeRef = useRef(recede)
-  recedeRef.current = recede
-  const brainScaleRef = useRef(brainScale)
-  brainScaleRef.current = brainScale
-  const softEdgeRef = useRef(softEdge)
-  softEdgeRef.current = softEdge
-  const rebake = useCallback(() => { tilesRef.current.tileBake = bakeTileArt(selRef.current) }, [])
+  // Offscreen baked scene (created once) + cached tile bake (re-baked only on design-switch).
+  const sceneRef = useRef<HTMLCanvasElement | null>(null)
+  const tileBakeRef = useRef<{ sel: MazeSel | null; canvas: HTMLCanvasElement | null }>({ sel: null, canvas: null })
 
-  // Bake the tilemap on mount + every design switch (fully procedural — no async assets). The rAF
-  // loop reads tilesRef.tileBake each frame. Gold myelin routes are drawn live per-route, never baked.
-  useEffect(() => { rebake() }, [sel, rebake])
-
-  const camRef = useRef<Cam>({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], zoom: 0.5 })
-  const targetRef = useRef<Cam>({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], zoom: 0.5 })
-  // Focus state: `sticky` = manual focus from the family picker / reading start (no
-  // time expiry, held until the next interaction); otherwise `until` time-boxes the
-  // answer-driven auto-focus (add-neurons-maze-zoom-and-focus).
-  const focusRef = useRef<{ familyId: string | null; until: number; sticky: boolean }>({
-    familyId: null,
-    until: 0,
-    sticky: false,
-  })
-  const manualUntilRef = useRef(0)
   const viewRef = useRef(view)
   viewRef.current = view
   const synapseRef = useRef(synapseData)
   synapseRef.current = synapseData
-  const synapseOnRef = useRef(synapseOverlayOn)
-  synapseOnRef.current = synapseOverlayOn
+  const zoomBoostRef = useRef(zoomBoost)
+  zoomBoostRef.current = zoomBoost
+  const bgFibersRef = useRef(bgFibers)
+  bgFibersRef.current = bgFibers
+  const recedeRef = useRef(recede)
+  recedeRef.current = recede
+  const brainScaleRef = useRef(brainScale)
+  brainScaleRef.current = brainScale
 
-  // Per-wire tooltip (polish-neurons-connectome-visual): the draw loop records each
-  // rendered spark's screen position (CSS px) so a pointer hit-test can map cursor →
-  // wire. `wireStatuses` is the read-only conduction projection shown in the tooltip;
-  // `hoveredWire` is the currently-shown wire (hover on desktop / tap on touch).
-  const synapseHitRef = useRef<Array<{ pairKey: string; x: number; y: number; r: number }>>([])
+  // Camera: maze-space center cell (cx, cy) + zoom (on-screen px per cell). Mutated directly on input
+  // events; the blit reads it. No React state on pan/zoom.
+  const camRef = useRef<{ cx: number; cy: number; z: number }>({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], z: 2 })
+  // Focus state: `sticky` = manual focus from the family picker / reading start (held until the next
+  // interaction); otherwise `until` time-boxes the answer-driven auto-focus.
+  const focusRef = useRef<{ familyId: string | null; until: number; sticky: boolean }>({
+    familyId: null, until: 0, sticky: false,
+  })
+  const manualUntilRef = useRef(0)
+  const autoRevertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Per-wire tooltip (polish-neurons-connectome-visual): `wireStatuses` is the read-only conduction
+  // projection shown in the tooltip; `hoveredWire` is the currently-shown wire (hover desktop / tap touch).
   const [wireStatuses, setWireStatuses] = useState<Map<string, WireConductionStatus>>(new Map())
   const [hoveredWire, setHoveredWire] = useState<{ pairKey: string; x: number; y: number } | null>(null)
   const hoveredPairRef = useRef<string | null>(null)
   hoveredPairRef.current = hoveredWire?.pairKey ?? null
 
-  // DEV-only: expose the per-frame synapse hit-map for smoke-testing the tooltip
-  // hit-test (consistent with __db / __sync). Stripped from prod by the DEV gate.
-  useEffect(() => {
-    if (!import.meta.env.DEV) return
-    ;(globalThis as unknown as { __synapseHits?: () => unknown }).__synapseHits = () =>
-      synapseHitRef.current.map((h) => ({ ...h }))
-    return () => {
-      delete (globalThis as unknown as { __synapseHits?: () => unknown }).__synapseHits
+  const ensureTileBake = useCallback((s: MazeSel): HTMLCanvasElement | null => {
+    if (tileBakeRef.current.sel !== s) tileBakeRef.current = { sel: s, canvas: bakeTileArt(s) }
+    return tileBakeRef.current.canvas
+  }, [])
+
+  // --- camera blit (no rAF; called on input event + settle + focus + resize) ---
+  const positionWalkers = useCallback((vw: number, vh: number) => {
+    const { cx, cy, z } = camRef.current
+    const fitTile = (Math.min(vw, vh) / Math.max(GRID_W, GRID_H)) * 0.98
+    const walkerScale = fitTile > 0 ? z / fitTile : 1
+    for (const fam of viewRef.current.families) {
+      const el = walkerRefs.current.get(fam.familyId)
+      if (!el) continue
+      const sx = vw / 2 + (fam.walkerCell[0] - cx) * z
+      const sy = vh / 2 + (fam.walkerCell[1] - cy) * z
+      el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -50%) scale(${walkerScale})`
     }
   }, [])
+
+  // One-shot rAF coalescer (Fable audit P2-1): pan/zoom/pinch fire faster than the display refreshes,
+  // so a burst of input events is collapsed into AT MOST ONE drawCamera per animation frame. The rAF
+  // exists only while a redraw is pending and self-cancels — it is NOT a steady-state loop, so the
+  // no-steady-state-rAF invariant holds. Also the shared frame scheduler for §2–§8 animated layers.
+  const drawRafRef = useRef<number | null>(null)
+  const viewCtxRef = useRef<CanvasRenderingContext2D | null>(null)
+
+  const drawCamera = useCallback(() => {
+    const stage = stageRef.current
+    const canvas = viewCanvasRef.current
+    const scene = sceneRef.current
+    if (!stage || !canvas) return
+    const vw = stage.clientWidth || 1
+    const vh = stage.clientHeight || 1
+    const dpr = Math.min(VIEW_DPR_CAP, window.devicePixelRatio || 1)
+    const needW = Math.round(vw * dpr)
+    const needH = Math.round(vh * dpr)
+    if (canvas.width !== needW || canvas.height !== needH) {
+      canvas.width = needW
+      canvas.height = needH
+      canvas.style.width = `${vw}px`
+      canvas.style.height = `${vh}px`
+    }
+    const ctx = viewCtxRef.current ?? (viewCtxRef.current = canvas.getContext('2d'))
+    if (!ctx) return
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const { cx, cy, z } = camRef.current
+    const toX = (wx: number) => vw / 2 + (wx - cx) * z
+    const toY = (wy: number) => vh / 2 + (wy - cy) * z
+
+    ctx.fillStyle = OUTSIDE
+    ctx.fillRect(0, 0, vw, vh)
+
+    const tileBake = tileBakeRef.current.canvas
+    const brainReady = bgFibersRef.current && bgBrainHeroImg.complete && bgBrainHeroImg.naturalWidth > 0
+    const brainW = GRID_W * z * brainScaleRef.current
+    const brainH = GRID_H * z * brainScaleRef.current
+    const brainX = toX(GRID_W / 2) - brainW / 2
+    const brainY = toY(GRID_H / 2) - brainH / 2
+    const recedeOn = recedeRef.current && brainReady
+    const mazeAlpha = recedeOn ? 0.4 : 1
+
+    // Shared scene→viewport slice (clamped to scene bounds so out-of-range src is never passed to
+    // drawImage; the OUTSIDE fill shows beyond the grid). Tiles + ink share the same maze-space rect.
+    const scale = z / SCENE_SCALE // scene px → screen px
+    let sx = cx * SCENE_SCALE - (vw / 2) / scale
+    let sy = cy * SCENE_SCALE - (vh / 2) / scale
+    let ssw = vw / scale
+    let ssh = vh / scale
+    let dx = 0, dy = 0, dw = vw, dh = vh
+    if (sx < 0) { dx = -sx * scale; dw -= -sx * scale; ssw += sx; sx = 0 }
+    if (sy < 0) { dy = -sy * scale; dh -= -sy * scale; ssh += sy; sy = 0 }
+    if (sx + ssw > WORLD_W) { const cut = sx + ssw - WORLD_W; dw -= cut * scale; ssw -= cut }
+    if (sy + ssh > WORLD_H) { const cut = sy + ssh - WORLD_H; dh -= cut * scale; ssh -= cut }
+    const sliceOk = ssw > 0 && ssh > 0
+    const blit = (layer: HTMLCanvasElement | null): void => { if (layer && sliceOk) ctx.drawImage(layer, sx, sy, ssw, ssh, dx, dy, dw, dh) }
+    const drawBrain = (alpha: number, composite: GlobalCompositeOperation): void => {
+      ctx.save(); ctx.globalAlpha = alpha; ctx.globalCompositeOperation = composite
+      ctx.imageSmoothingEnabled = true; ctx.drawImage(bgBrainHeroImg, brainX, brainY, brainW, brainH); ctx.restore()
+    }
+
+    // Layer order (matches the prior per-frame model): [recede: brain under] → tiles → [mode-A brain
+    // glow, screen] → ink (tracts/nodes/sparks stay crisp over the wash) → [mode-A faint contour].
+    // imageSmoothing is per-LAYER: OFF for the pixel-art tile floor (crisp chunky cells), but ON for
+    // the ink layer — its neuron-symbol landmark sprites + vector axon tracts are smooth (not pixel
+    // art), and at the whole-map default the 8px/cell scene is downscaled ~4.4×, so nearest-neighbor
+    // aliases the sprites badly. Smoothing the ink downscale fixes the sprite quality (the source
+    // sprites are higher-res than the bake, so this is a clean filtered downscale, not a blur).
+    if (recedeOn) drawBrain(BRAIN_HERO_ALPHA, 'source-over')
+    ctx.imageSmoothingEnabled = false
+    ctx.globalAlpha = mazeAlpha
+    blit(tileBake)
+    ctx.globalAlpha = 1
+    if (!recedeOn && brainReady) drawBrain(BRAIN_GLOW_ALPHA, 'screen')
+    ctx.imageSmoothingEnabled = true
+    ctx.globalAlpha = mazeAlpha
+    blit(scene)
+    ctx.globalAlpha = 1
+    if (!recedeOn && brainReady) drawBrain(0.16, 'screen') // faint brain-silhouette contour on top
+
+    positionWalkers(vw, vh)
+  }, [positionWalkers])
+
+  // Coalesced redraw for the high-frequency input paths (pan / wheel / pinch): at most one blit per
+  // frame regardless of event rate. One-shot, self-cancelling — no steady-state loop.
+  const scheduleDraw = useCallback(() => {
+    if (drawRafRef.current != null) return // a blit is already queued for the next frame
+    drawRafRef.current = requestAnimationFrame(() => {
+      drawRafRef.current = null
+      drawCamera()
+    })
+  }, [drawCamera])
+
+  // Cancel any pending coalesced blit on unmount.
+  useEffect(() => () => {
+    if (drawRafRef.current != null) cancelAnimationFrame(drawRafRef.current)
+  }, [])
+
+  // Whole-map default fit (pulled in past the exact fit so the neuron landmarks read big) or, when a
+  // family is focused, that family's cluster. Mutates camRef and blits.
+  const frameContextual = useCallback(() => {
+    const stage = stageRef.current
+    if (!stage) return
+    const vw = stage.clientWidth || 1
+    const vh = stage.clientHeight || 1
+    const focus = focusRef.current
+    if (focus.familyId && (focus.sticky || performance.now() < focus.until)) {
+      const fam = viewRef.current.families.find((f) => f.familyId === focus.familyId)
+      if (fam) {
+        camRef.current = clampPan({
+          cx: fam.walkerCell[0], cy: fam.walkerCell[1],
+          z: Math.min(Math.max(Math.min(vw, vh) / FOCUS_SPAN, Z_MIN), Z_MAX),
+        }, vw, vh)
+        drawCamera()
+        return
+      }
+    }
+    const fitZ = (Math.min(vw, vh) / Math.max(GRID_W, GRID_H)) * 0.98 * zoomBoostRef.current
+    camRef.current = clampPan({ cx: GRID_CENTER[0], cy: GRID_CENTER[1], z: Math.min(Math.max(fitZ, Z_MIN), Z_MAX) }, vw, vh)
+    drawCamera()
+  }, [drawCamera])
+
+  const markManual = useCallback(() => {
+    manualUntilRef.current = performance.now() + 6000
+    if (focusRef.current.familyId) focusRef.current = { familyId: null, until: 0, sticky: false }
+    if (autoRevertTimerRef.current) { clearTimeout(autoRevertTimerRef.current); autoRevertTimerRef.current = null }
+    if (hoveredPairRef.current) setHoveredWire(null) // a pan/zoom would drift the tooltip → dismiss
+  }, [])
+
+  // Re-bake the offscreen scene whenever the rendered content changes (explored progress / lit nodes /
+  // synapses / design switch / a landmark image arriving) — a discrete event, never per-frame — then
+  // re-blit. `bakeKey` coalesces these into one signature.
+  const bakeKey = useMemo(() => {
+    const famSig = view.families
+      .map((f) => `${f.familyId}:${exploredOnRoute(f, 1)}:${exploredOnRoute(f, 2)}:${f.litNodes.length}`)
+      .join(';')
+    const synSig = synapseData.map((s) => `${s.pairKey}:${s.state}`).join(';')
+    return `${sel.wall},${sel.path},${sel.bg},${sel.node}|lm${landmarksOn ? 1 : 0}|up${unlitPins ? 1 : 0}|sy${synapseOverlayOn ? 1 : 0}|av${assetsVersion}|${famSig}|${synSig}`
+  }, [view.families, synapseData, sel, landmarksOn, unlitPins, synapseOverlayOn, assetsVersion])
+
+  useEffect(() => {
+    let scene = sceneRef.current
+    if (!scene) { scene = document.createElement('canvas'); scene.width = WORLD_W; scene.height = WORLD_H; sceneRef.current = scene }
+    ensureTileBake(sel) // populate tileBakeRef for the draw-time tile layer (re-baked only on sel change)
+    drawScene(scene, sel, view.families ?? [], synapseData ?? [], {
+      landmarksOn, unlitPins, synapseOn: synapseOverlayOn,
+    })
+    drawCamera()
+    // bakeKey captures every input above; re-running on it (not the raw deps) coalesces re-bakes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bakeKey, ensureTileBake, drawCamera])
+
+  // Re-bake/re-blit when a landmark or the brain image finishes loading (they decode async).
+  useEffect(() => {
+    const onLoad = () => setAssetsVersion((v) => v + 1)
+    const targets = [...new Set(MAZE_LANDMARKS.map((l) => l.src))].map(landmarkImage).concat(bgBrainHeroImg)
+    const cleanups = targets.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return () => {}
+      img.addEventListener('load', onLoad)
+      return () => img.removeEventListener('load', onLoad)
+    })
+    return () => cleanups.forEach((fn) => fn())
+  }, [])
+
+  // Initial frame + reframe on resize (unless the user just interacted manually).
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+    frameContextual()
+    const ro = new ResizeObserver(() => {
+      if (performance.now() > manualUntilRef.current) frameContextual()
+      else drawCamera()
+    })
+    ro.observe(stage)
+    return () => ro.disconnect()
+  }, [frameContextual, drawCamera])
+
+  // A walker step (view tick) that doesn't change bakeKey needs only the walker DOM overlays
+  // repositioned — NOT a full tiles+brain+scene reblit (Fable audit P2-3). Scene content changes go
+  // through the bakeKey bake effect (which ends in drawCamera); here we just move the walkers. This is
+  // the foundation §2 walker-glide builds on (frame-rate walker ticks must not reblit the static stack).
+  useEffect(() => {
+    const stage = stageRef.current
+    if (stage) positionWalkers(stage.clientWidth || 1, stage.clientHeight || 1)
+  }, [view, positionWalkers])
+
+  // Focus / recenter bus (family-picker tap, correct-answer auto-focus, 🔭 recenter).
+  useEffect(() => {
+    const offFocus = onMazeFocus((familyId, manual) => {
+      if (manual) {
+        focusRef.current = { familyId, until: Infinity, sticky: true }
+        manualUntilRef.current = 0
+        if (autoRevertTimerRef.current) { clearTimeout(autoRevertTimerRef.current); autoRevertTimerRef.current = null }
+        frameContextual()
+      } else {
+        if (focusRef.current.sticky) return
+        focusRef.current = { familyId, until: performance.now() + 4500, sticky: false }
+        frameContextual()
+        // No rAF to expire the time-box → schedule the revert as a one-shot timer.
+        if (autoRevertTimerRef.current) clearTimeout(autoRevertTimerRef.current)
+        autoRevertTimerRef.current = setTimeout(() => {
+          if (!focusRef.current.sticky && focusRef.current.familyId === familyId) {
+            focusRef.current = { familyId: null, until: 0, sticky: false }
+            if (performance.now() > manualUntilRef.current) frameContextual()
+          }
+        }, 4600)
+      }
+    })
+    const offRecenter = onMazeRecenter(() => {
+      focusRef.current = { familyId: null, until: 0, sticky: false }
+      manualUntilRef.current = 0
+      if (autoRevertTimerRef.current) { clearTimeout(autoRevertTimerRef.current); autoRevertTimerRef.current = null }
+      frameContextual()
+    })
+    return () => {
+      offFocus()
+      offRecenter()
+      if (autoRevertTimerRef.current) { clearTimeout(autoRevertTimerRef.current); autoRevertTimerRef.current = null }
+    }
+  }, [frameContextual])
 
   const prevCount = useRef(view.totalConnectedCount)
   useEffect(() => {
@@ -339,475 +703,95 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
     prevCount.current = view.totalConnectedCount
   }, [view.totalConnectedCount])
 
-  // Synaptic conduction pulse glow (rework-neurons-connectome-expedition-driven): when
-  // a `connectome.conductionPulse` fires, briefly brighten that wire's crossing glyph.
-  // pairKey = sorted(from,to)|-joined (matches the lexicographic synapse pairKey).
-  const recentPulsesRef = useRef<Map<string, number>>(new Map())
+  // Per-wire tooltip data: refresh on conduction pulse + when the synapse set changes (form/strengthen/decay).
   useEffect(() => {
     const sub = subscribeConnectomeEvents({
-      'connectome.conductionPulse': (p) => {
-        recentPulsesRef.current.set([p.fromFamily, p.toFamily].sort().join('|'), performance.now())
-        // Conduction changed today's per-wire usage → refresh the tooltip projection.
-        void getWireConductionStatuses().then(setWireStatuses)
-      },
+      'connectome.conductionPulse': () => { void getWireConductionStatuses().then(setWireStatuses) },
     })
     return () => sub.dispose()
   }, [])
-
-  // Per-wire tooltip data: refresh when the synapse set changes (form / strengthen /
-  // decay). Conduction-usage changes are handled by the pulse subscription above.
   useEffect(() => {
     let alive = true
     void getWireConductionStatuses().then((m) => { if (alive) setWireStatuses(m) })
     return () => { alive = false }
   }, [synapseData])
 
+  // --- pointer / wheel / touch input → camera blit (no rAF) ---
   useEffect(() => {
-    const offFocus = onMazeFocus((familyId, manual) => {
-      if (manual) {
-        // Sticky manual focus (family picker tap / reading start): hold until the
-        // next interaction. Clear any manual-gesture freeze so the camera flies now.
-        focusRef.current = { familyId, until: Infinity, sticky: true }
-        manualUntilRef.current = 0
-      } else {
-        // Time-boxed auto-focus on a correct answer — but do NOT interrupt an active
-        // sticky manual focus.
-        if (focusRef.current.sticky) return
-        focusRef.current = { familyId, until: performance.now() + 4500, sticky: false }
-      }
-    })
-    const offRecenter = onMazeRecenter(() => {
-      // Clear sticky/auto focus and let the contextual framing fall back to whole-map.
-      focusRef.current = { familyId: null, until: 0, sticky: false }
-      manualUntilRef.current = 0
-    })
-    return () => {
-      offFocus()
-      offRecenter()
-    }
-  }, [])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
     const stage = stageRef.current
-    if (!canvas || !stage) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    let raf = 0
-    // Edge-feather gradients depend only on canvas w/h (+ constant colours), so cache
-    // them and rebuild only on resize instead of allocating four per frame
-    // (fix-neurons-maze-safari-perf D2).
-    let featherCache: { w: number; h: number; grads: CanvasGradient[] } | null = null
+    if (!stage) return
 
-    const resize = () => {
-      const dpr = Math.min(MAZE_DPR_CAP, window.devicePixelRatio || 1)
-      const w = stage.clientWidth
-      const h = stage.clientHeight
-      canvas.width = Math.round(w * dpr)
-      canvas.height = Math.round(h * dpr)
-      canvas.style.width = `${w}px`
-      canvas.style.height = `${h}px`
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.imageSmoothingEnabled = false
-    }
-    resize()
-    const ro = new ResizeObserver(resize)
-    ro.observe(stage)
-
-    const computeTarget = (): Cam => {
-      const w = stage.clientWidth || 1
-      const h = stage.clientHeight || 1
-      const now = performance.now()
-      const focus = focusRef.current
-      if (focus.familyId && (focus.sticky || now < focus.until) && now > manualUntilRef.current) {
-        const fam = viewRef.current.families.find((f) => f.familyId === focus.familyId)
-        if (fam) {
-          const zoom = Math.min(w, h) / (FOCUS_SPAN * BASE_TILE)
-          return { cx: fam.walkerCell[0], cy: fam.walkerCell[1], zoom }
-        }
+    const clampZ = (z: number) => Math.min(Math.max(z, Z_MIN), Z_MAX)
+    // Per-wire tooltip hit-test: nearest synapse cell within a ~16px tap radius (mapped to cells).
+    const findWireAt = (clientX: number, clientY: number): { pairKey: string; x: number; y: number } | null => {
+      const rect = stage.getBoundingClientRect()
+      const { cx, cy, z } = camRef.current
+      const wx = cx + (clientX - rect.left - rect.width / 2) / z
+      const wy = cy + (clientY - rect.top - rect.height / 2) / z
+      const rCells = Math.max(1.4, 16 / z)
+      let best: SynapseDatum | null = null
+      let bestD = Infinity
+      for (const s of synapseRef.current) {
+        const d = Math.hypot(wx - s.cell[0], wy - s.cell[1])
+        if (d <= rCells && d < bestD) { bestD = d; best = s }
       }
-      // Pull in past the whole-maze fit so the neuron landmarks read big (owner locked "拉近預設 zoom").
-      const zoom = (Math.min(w, h) / (Math.max(GRID_W, GRID_H) * BASE_TILE)) * 0.98 * zoomBoostRef.current
-      return { cx: GRID_CENTER[0], cy: GRID_CENTER[1], zoom }
+      if (!best) return null
+      return {
+        pairKey: best.pairKey,
+        x: rect.width / 2 + (best.cell[0] - cx) * z,
+        y: rect.height / 2 + (best.cell[1] - cy) * z,
+      }
     }
-
-    const draw = () => {
-      const w = stage.clientWidth || 1
-      const h = stage.clientHeight || 1
-      const now = performance.now()
-
-      if (now > manualUntilRef.current) targetRef.current = computeTarget()
-      const tgt = targetRef.current
+    const zoomAround = (factor: number, clientX: number, clientY: number) => {
+      const rect = stage.getBoundingClientRect()
       const cam = camRef.current
-      const k = reducedMotion ? 1 : 0.12
-      cam.cx += (tgt.cx - cam.cx) * k
-      cam.cy += (tgt.cy - cam.cy) * k
-      cam.zoom += (tgt.zoom - cam.zoom) * k
-
-      const tile = BASE_TILE * cam.zoom
-      const toX = (wx: number) => (wx - cam.cx) * tile + w / 2
-      const toY = (wy: number) => (wy - cam.cy) * tile + h / 2
-
-      // Layer ① — 3-region tile art: ONE scaled blit of the baked tile map, so the
-      // tiles render continuously at every zoom (no LOD seam). Falls back to the
-      // flat-color tilemap only until the bake finishes.
-      ctx.fillStyle = OUTSIDE
-      ctx.fillRect(0, 0, w, h)
-      const tiles = tilesRef.current
-      const baked = tiles.tileBake
-      const brainImg = bgBrainHeroImg.complete && bgBrainHeroImg.naturalWidth > 0 ? bgBrainHeroImg : bgNeuropilImg
-      const brainReady = bgFibersRef.current && brainImg.complete && brainImg.naturalWidth > 0
-      // Brain backdrop dest rect: enlarged BRAIN_SCALE× and centered on the grid so the silhouette
-      // contains the whole maze (corners included), not just an inscribed oval.
-      const brainW = GRID_W * tile * brainScaleRef.current
-      const brainH = GRID_H * tile * brainScaleRef.current
-      const brainX = toX(GRID_W / 2) - brainW / 2
-      const brainY = toY(GRID_H / 2) - brainH / 2
-      // Mode B (recede / "brain is hero"): paint the brain UNDER the maze, then blit the tiles
-      // TRANSLUCENT so the brain outline + fibers read through the dense maze.
-      const recedeOn = recedeRef.current && brainReady
-
-      if (recedeOn) {
-        ctx.save()
-        ctx.globalAlpha = BRAIN_HERO_ALPHA
-        ctx.imageSmoothingEnabled = true
-        ctx.drawImage(brainImg, brainX, brainY, brainW, brainH)
-        ctx.restore()
-      }
-
-      ctx.imageSmoothingEnabled = false
-      ctx.globalAlpha = recedeOn ? 0.4 : 1 // recede: maze translucent so the brain shows through
-      if (baked) {
-        const S = TILE_BAKE
-        ctx.drawImage(baked, (cam.cx - w / 2 / tile) * S, (cam.cy - h / 2 / tile) * S, (w / tile) * S, (h / tile) * S, 0, 0, w, h)
-      } else if (tilemap) {
-        ctx.drawImage(tilemap, cam.cx - w / 2 / tile, cam.cy - h / 2 / tile, w / tile, h / tile, 0, 0, w, h)
-      }
-      ctx.globalAlpha = 1
-
-      // Mode A (recede OFF) — neuropil: muted brain-silhouette + nerve-fiber texture screen-blended at
-      // low alpha OVER the opaque maze → soft brain glow behind. (Mode B already painted it as hero.)
-      if (!recedeOn && brainReady) {
-        ctx.save()
-        ctx.globalCompositeOperation = 'screen'
-        ctx.globalAlpha = 0.42
-        ctx.imageSmoothingEnabled = true
-        ctx.drawImage(brainImg, brainX, brainY, brainW, brainH)
-        ctx.restore()
-      }
-
-      const fams = viewRef.current.families
-
-      // Layer ①·⑤ — neuron-symbol landmarks at static hubs, drawn UNDER the gold routes so each axon
-      // tract flows continuously THROUGH the cell (Codex: route over sprite = continuity, no occlusion).
-      // soma origins (always-visible anchors → fresh save still reads as a brain) / center synapses /
-      // off-route glia, anatomically placed (OE consult 2026-06-06). See maze-landmarks.ts.
-      if (landmarksOnRef.current) {
-        for (const lm of MAZE_LANDMARKS) {
-          const img = landmarkImage(lm.src)
-          if (!img.complete || img.naturalWidth === 0) continue
-          const cx = toX(lm.cell[0])
-          const cy = toY(lm.cell[1])
-          const dh = lm.cells * tile
-          const dw = dh * (img.naturalWidth / img.naturalHeight)
-          if (lm.halo > 0) {
-            const r = Math.max(4, dh * 0.5)
-            const glow = ctx.createRadialGradient(cx, cy, r * 0.15, cx, cy, r)
-            glow.addColorStop(0, `rgba(255,210,90,${lm.halo})`)
-            glow.addColorStop(1, 'rgba(255,190,70,0)')
-            ctx.fillStyle = glow
-            ctx.beginPath()
-            ctx.arc(cx, cy, r, 0, Math.PI * 2)
-            ctx.fill()
-          }
-          ctx.globalAlpha = lm.alpha
-          ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh)
-        }
-        ctx.globalAlpha = 1
-      }
-
-      // Layer ② — each family route = one continuous MYELINATED AXON: a dashed gold myelin sheath
-      // (internodes + nodes of Ranvier) with the family-colored axon core drawn SOLID over it, so the
-      // axon stays continuous through the node gaps (never "severed"). Dim gold ahead, bright where
-      // explored — the route myelinates as you progress.
-      const sheathW = Math.max(2, 1.05 * tile) // myelin sheath ≈ one corridor cell wide
-      // Family-colored axon core is the corridor's DOMINANT band (the gold sheath
-      // frames it on either side) so each of the 11 subject colours is traceable at
-      // a glance (tune-neurons-maze-path-colors; "gold no longer sacred").
-      const coreW = Math.max(1, 0.6 * tile)
-      const hiW = Math.max(1, sheathW * 0.42) // pale-gold sheath highlight
-      const dashGold = Math.max(2, NODE_GAP_INTERNODE_CELLS * tile)
-      const dashGap = Math.max(1, NODE_GAP_CELLS * tile)
-      ctx.lineJoin = 'round'
-      // Rounded bends (arcTo at each vertex) so the gold tracts read biological, not circuit-board.
-      const cornerR = Math.max(1.5, tile * 0.7)
-      const trace = (path: readonly Cell[], n: number): void => {
-        ctx.beginPath()
-        ctx.moveTo(toX(path[0][0]), toY(path[0][1]))
-        for (let i = 1; i < n; i++) {
-          ctx.arcTo(toX(path[i][0]), toY(path[i][1]), toX(path[i + 1][0]), toY(path[i + 1][1]), cornerR)
-        }
-        if (n >= 1) ctx.lineTo(toX(path[n][0]), toY(path[n][1]))
-      }
-      for (const fam of fams) {
-        const enc = FAMILY_ENC[fam.familyId]
-        if (!enc || !fam.graph) continue
-        // Route 1 (border entry → center, always) + Route 2 (center → far border,
-        // 二回目 — add-neurons-maze-second-lap-variants). Each draws a faint
-        // unexplored baseline + a bright explored prefix (per-route progress).
-        const routes = [
-          { path: fam.graph.path, explored: exploredOnRoute(fam, 1) },
-          { path: fam.graph.path2, explored: exploredOnRoute(fam, 2) },
-        ]
-        for (const route of routes) {
-          const path = route.path
-          if (!path || path.length < 2) continue
-          const last = path.length - 1
-          const exploredIdx = Math.min(last, route.explored)
-
-          // (a) unexplored baseline — faint gold myelin sheath framing a clearly-tinted
-          // family-colour core, so the route's subject colour is traceable even before
-          // exploration (gold recedes to a frame; family colour leads).
-          ctx.lineCap = 'butt'
-          ctx.setLineDash([dashGold, dashGap])
-          ctx.globalAlpha = 0.18
-          ctx.strokeStyle = MYELIN_GOLD
-          ctx.lineWidth = sheathW
-          trace(path, last)
-          ctx.stroke()
-          ctx.setLineDash([])
-          ctx.lineCap = 'round'
-          ctx.globalAlpha = 0.55
-          ctx.strokeStyle = enc.color
-          ctx.lineWidth = coreW
-          trace(path, last)
-          ctx.stroke()
-
-          // (b) explored prefix — full bright myelin sheath + highlight + solid (continuous) axon core
-          if (exploredIdx >= 1) {
-            ctx.globalAlpha = 1
-            ctx.lineCap = 'butt'
-            ctx.setLineDash([dashGold, dashGap])
-            ctx.strokeStyle = MYELIN_GOLD
-            ctx.lineWidth = sheathW
-            trace(path, exploredIdx)
-            ctx.stroke()
-            ctx.strokeStyle = MYELIN_HI
-            ctx.lineWidth = hiW
-            trace(path, exploredIdx)
-            ctx.stroke()
-            ctx.setLineDash([])
-            ctx.lineCap = 'round'
-            ctx.strokeStyle = enc.color
-            ctx.lineWidth = coreW
-            trace(path, exploredIdx)
-            ctx.stroke()
-          }
-        }
-      }
-      ctx.setLineDash([])
-      ctx.globalAlpha = 1
-      ctx.lineCap = 'round'
-
-      // Layer ③a — faint unlit node POSITION pins (reveals position only, NOT shape/rarity → fog-of-war
-      // preserved) so the tracts read as populated with neurons even before exploration.
-      if (unlitPinsRef.current) {
-        const lit = new Set<string>()
-        for (const fam of fams) for (const n of fam.litNodes) lit.add(`${n.cell[0]},${n.cell[1]}`)
-        ctx.fillStyle = 'rgba(150,160,190,0.16)'
-        for (const cell of ALL_NODE_CELLS) {
-          if (lit.has(`${cell[0]},${cell[1]}`)) continue
-          ctx.beginPath(); ctx.arc(toX(cell[0]), toY(cell[1]), Math.max(1, tile * 0.5), 0, Math.PI * 2); ctx.fill()
-        }
-      }
-
-      // Layer ③ — lit variant nodes, styled per the active design selection (neuron-seed glyph).
-      const nodeSize = Math.max(6, tile * 3.2)
-      const nodeDraw = (NODE_STYLES[selRef.current.node] ?? NODE_STYLES.ranvier).draw
-      for (const fam of fams) {
-        for (const node of fam.litNodes) nodeDraw(ctx, toX(node.cell[0]), toY(node.cell[1]), nodeSize)
-      }
-
-      // Layer ④ — read-only synapse sparks (+ legacy grey-blue + conduction-pulse glow).
-      if (synapseOnRef.current) {
-        const nowMs = performance.now()
-        const hits: Array<{ pairKey: string; x: number; y: number; r: number }> = []
-        for (const s of synapseRef.current) {
-          const wgt = SYNAPSE_WEIGHT[s.state]
-          const pulsedAt = recentPulsesRef.current.get(s.pairKey)
-          const boost = pulsedAt !== undefined ? Math.max(0, 1 - (nowMs - pulsedAt) / 1100) : 0
-          const sx = toX(s.cell[0])
-          const sy = toY(s.cell[1])
-          drawSpark(ctx, sx, sy, Math.max(3, tile), wgt.op, wgt.r, s.isLegacy, boost)
-          // Record this spark's screen position (CSS px) for the tooltip hit-test.
-          hits.push({ pairKey: s.pairKey, x: sx, y: sy, r: Math.max(16, tile) })
-        }
-        synapseHitRef.current = hits
-      } else {
-        synapseHitRef.current = []
-      }
-
-      // Layer ⑤ — center core.
-      drawCore(ctx, toX(GRID_CENTER[0]), toY(GRID_CENTER[1]), Math.max(3, tile))
-
-      // Layer ⑥ — brain-silhouette CONTOUR overlay (mode A only): the same brain texture re-drawn ON TOP
-      // very faintly, so only its brightest fibers (the brain outline) glow over the maze. In mode B the
-      // brain is already the hero backdrop, so no over-draw is needed.
-      if (!recedeOn && brainReady) {
-        ctx.save()
-        ctx.globalCompositeOperation = 'screen'
-        ctx.globalAlpha = 0.18
-        ctx.imageSmoothingEnabled = true
-        ctx.drawImage(brainImg, brainX, brainY, brainW, brainH)
-        ctx.restore()
-      }
-
-      // Layer ⑦ — edge feather: fade all four canvas edges to the dark panel colour so the maze's
-      // hard SQUARE boundary dissolves into the frame (owner: 迷宮的方形邊界不要那麼明顯). The whole
-      // maze still shows; only the rectangular cut-off softens.
-      if (softEdgeRef.current) {
-        const f = Math.min(w, h) * 0.16 // feather band width
-        // Rebuild the four edge gradients only when the canvas size changes (they
-        // depend solely on w/h + constant colours); reuse the cache every other frame.
-        if (!featherCache || featherCache.w !== w || featherCache.h !== h) {
-          const mk = (x0: number, y0: number, x1: number, y1: number): CanvasGradient => {
-            const g = ctx.createLinearGradient(x0, y0, x1, y1)
-            g.addColorStop(0, OUTSIDE)
-            g.addColorStop(1, OUTSIDE_T)
-            return g
-          }
-          featherCache = {
-            w,
-            h,
-            grads: [mk(0, 0, f, 0), mk(w, 0, w - f, 0), mk(0, 0, 0, f), mk(0, h, 0, h - f)],
-          }
-        }
-        const [gl, gr, gt, gb] = featherCache.grads
-        ctx.save()
-        ctx.fillStyle = gl; ctx.fillRect(0, 0, f, h)
-        ctx.fillStyle = gr; ctx.fillRect(w - f, 0, f, h)
-        ctx.fillStyle = gt; ctx.fillRect(0, 0, w, f)
-        ctx.fillStyle = gb; ctx.fillRect(0, h - f, w, f)
-        ctx.restore()
-      }
-
-      // Walker sprites are fixed-px HTML overlays; scale them with zoom so they grow WITH the maze
-      // instead of staying 26px (which reads as shrinking on zoom-in). Self-calibrated to the
-      // whole-maze fit tile → scale = 1.0 at the default zoom (look unchanged), grows past it.
-      const fitTile = (Math.min(w, h) / Math.max(GRID_W, GRID_H)) * 0.98
-      const walkerScale = fitTile > 0 ? tile / fitTile : 1
-      // Ease the walker toward its target cell in MAZE space (not screen space):
-      // cell-advancement glides while the camera transform stays exact per-frame
-      // (easing the screen transform would lag the walker behind camera pan/zoom).
-      // Reduced-motion → snap (k=1). neurons-juice-animations item 7.
-      const walkerEaseK = reducedMotion ? 1 : 0.18
-      for (const fam of fams) {
-        const el = walkerRefs.current.get(fam.familyId)
-        if (!el) continue
-        const target = fam.walkerCell
-        let pos = walkerRenderRef.current.get(fam.familyId)
-        if (!pos) {
-          pos = [target[0], target[1]]
-          walkerRenderRef.current.set(fam.familyId, pos)
-        }
-        pos[0] += (target[0] - pos[0]) * walkerEaseK
-        pos[1] += (target[1] - pos[1]) * walkerEaseK
-        el.style.transform = `translate(${toX(pos[0])}px, ${toY(pos[1])}px) translate(-50%, -50%) scale(${walkerScale})`
-      }
-
-      raf = requestAnimationFrame(draw)
+      const newZ = clampZ(cam.z * factor)
+      const sx = clientX - rect.left - rect.width / 2
+      const sy = clientY - rect.top - rect.height / 2
+      const wx = cam.cx + sx / cam.z
+      const wy = cam.cy + sy / cam.z
+      camRef.current = clampPan({ cx: wx - sx / newZ, cy: wy - sy / newZ, z: newZ }, rect.width, rect.height)
+      scheduleDraw()
     }
-    raf = requestAnimationFrame(draw)
 
-    const markManual = () => {
-      manualUntilRef.current = performance.now() + 6000
-      // A manual gesture ends any sticky/auto focus → revert to the contextual default.
-      if (focusRef.current.familyId) focusRef.current = { familyId: null, until: 0, sticky: false }
-    }
     let dragging = false
-    let lastX = 0
-    let lastY = 0
-    let downX = 0
-    let downY = 0
+    let lastX = 0, lastY = 0, downX = 0, downY = 0
     let pinching = false
     let pinchDist = 0
     let lastTapAt = 0
-    // Per-wire tooltip hit-test: nearest recorded spark within its radius (CSS px).
-    const findWireAt = (clientX: number, clientY: number): { pairKey: string; x: number; y: number } | null => {
-      const rect = canvas.getBoundingClientRect()
-      const px = clientX - rect.left
-      const py = clientY - rect.top
-      let best: { pairKey: string; x: number; y: number } | null = null
-      let bestD = Infinity
-      for (const h of synapseHitRef.current) {
-        const d = Math.hypot(px - h.x, py - h.y)
-        if (d <= h.r && d < bestD) { bestD = d; best = { pairKey: h.pairKey, x: h.x, y: h.y } }
-      }
-      return best
-    }
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
       markManual()
-      const t = targetRef.current
-      const factor = Math.exp(-e.deltaY * 0.0015)
-      t.zoom = Math.max(0.12, Math.min(6, t.zoom * factor))
+      zoomAround(Math.exp(-e.deltaY * 0.0015), e.clientX, e.clientY)
     }
-    const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; downX = e.clientX; downY = e.clientY; markManual() }
+    const onDown = (e: PointerEvent) => { dragging = true; lastX = e.clientX; lastY = e.clientY; downX = e.clientX; downY = e.clientY }
     const onMove = (e: PointerEvent) => {
-      // Desktop hover tooltip (mouse only — touch has no hover; it taps below).
       if (!dragging && !pinching && e.pointerType !== 'touch') {
         const hit = findWireAt(e.clientX, e.clientY)
-        if ((hit?.pairKey ?? null) !== hoveredPairRef.current) {
-          setHoveredWire(hit)
-        }
+        if ((hit?.pairKey ?? null) !== hoveredPairRef.current) setHoveredWire(hit)
       }
       if (!dragging || pinching) return
-      markManual()
-      const tile = BASE_TILE * camRef.current.zoom
-      targetRef.current.cx -= (e.clientX - lastX) / tile
-      targetRef.current.cy -= (e.clientY - lastY) / tile
-      camRef.current.cx = targetRef.current.cx
-      camRef.current.cy = targetRef.current.cy
+      if (Math.hypot(e.clientX - downX, e.clientY - downY) > 3) markManual()
+      camRef.current.cx -= (e.clientX - lastX) / camRef.current.z
+      camRef.current.cy -= (e.clientY - lastY) / camRef.current.z
+      camRef.current = clampPan(camRef.current, stage.clientWidth, stage.clientHeight)
       lastX = e.clientX
       lastY = e.clientY
+      scheduleDraw()
     }
     const onUp = (e: PointerEvent) => {
       dragging = false
-      // Touch tap (no drag) toggles the per-wire tooltip; tapping empty space dismisses.
       if (e.pointerType === 'touch' && Math.hypot(e.clientX - downX, e.clientY - downY) <= 6) {
         const hit = findWireAt(e.clientX, e.clientY)
         setHoveredWire(hit && hit.pairKey === hoveredPairRef.current ? null : hit)
       }
     }
     const onLeave = (e: PointerEvent) => {
-      // Mouse left the canvas → dismiss hover tooltip (touch tooltips persist until tap-away).
       if (e.pointerType !== 'touch' && hoveredPairRef.current) setHoveredWire(null)
     }
 
-    // Touch (add-neurons-maze-zoom-and-focus): two-finger pinch-zoom anchored on the
-    // midpoint + double-tap recenter. One-finger pan is already handled by the Pointer
-    // Events above; `touch-action: none` on the canvas keeps these gestures from
-    // hijacking page scroll.
-    const touchDist = (t: TouchList): number =>
-      Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
-    const zoomAround = (factor: number, screenX: number, screenY: number) => {
-      const rect = canvas.getBoundingClientRect()
-      const cw = rect.width || 1
-      const ch = rect.height || 1
-      const t = targetRef.current
-      const newZoom = Math.max(0.12, Math.min(6, t.zoom * factor))
-      const oldTile = BASE_TILE * t.zoom
-      const newTile = BASE_TILE * newZoom
-      const sx = screenX - rect.left
-      const sy = screenY - rect.top
-      const wx = t.cx + (sx - cw / 2) / oldTile
-      const wy = t.cy + (sy - ch / 2) / oldTile
-      t.zoom = newZoom
-      t.cx = wx - (sx - cw / 2) / newTile
-      t.cy = wy - (sy - ch / 2) / newTile
-      camRef.current.cx = t.cx
-      camRef.current.cy = t.cy
-    }
+    const touchDist = (t: TouchList): number => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
         pinching = true
@@ -816,10 +800,7 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
         e.preventDefault()
       } else if (e.touches.length === 1) {
         const now = performance.now()
-        if (now - lastTapAt < 300) {
-          emitMazeRecenter() // double-tap → whole-map
-          e.preventDefault()
-        }
+        if (now - lastTapAt < 300) { emitMazeRecenter(); e.preventDefault() }
         lastTapAt = now
       }
     }
@@ -832,7 +813,6 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
           zoomAround(d / pinchDist, midX, midY)
         }
         pinchDist = d
-        markManual()
         e.preventDefault()
       }
     }
@@ -840,28 +820,28 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
       if (e.touches.length < 2) { pinching = false; pinchDist = 0 }
     }
 
-    canvas.addEventListener('wheel', onWheel, { passive: false })
-    canvas.addEventListener('pointerdown', onDown)
+    stage.addEventListener('wheel', onWheel, { passive: false })
+    stage.addEventListener('pointerdown', onDown)
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
-    canvas.addEventListener('pointerleave', onLeave)
-    canvas.addEventListener('touchstart', onTouchStart, { passive: false })
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false })
-    canvas.addEventListener('touchend', onTouchEnd)
-
+    stage.addEventListener('pointerleave', onLeave)
+    stage.addEventListener('touchstart', onTouchStart, { passive: false })
+    stage.addEventListener('touchmove', onTouchMove, { passive: false })
+    stage.addEventListener('touchend', onTouchEnd)
     return () => {
-      cancelAnimationFrame(raf)
-      ro.disconnect()
-      canvas.removeEventListener('wheel', onWheel)
-      canvas.removeEventListener('pointerdown', onDown)
+      stage.removeEventListener('wheel', onWheel)
+      stage.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
-      canvas.removeEventListener('pointerleave', onLeave)
-      canvas.removeEventListener('touchstart', onTouchStart)
-      canvas.removeEventListener('touchmove', onTouchMove)
-      canvas.removeEventListener('touchend', onTouchEnd)
+      stage.removeEventListener('pointerleave', onLeave)
+      stage.removeEventListener('touchstart', onTouchStart)
+      stage.removeEventListener('touchmove', onTouchMove)
+      stage.removeEventListener('touchend', onTouchEnd)
     }
-  }, [reducedMotion, tilemap])
+  }, [scheduleDraw, markManual])
+
+  // DEV switches that change framing (zoom boost) need a reframe when toggled.
+  useEffect(() => { if (performance.now() > manualUntilRef.current) frameContextual() }, [zoomBoost, frameContextual])
 
   const legend = useMemo(() => view.families.map((f) => f.familyId), [view.families])
 
@@ -878,8 +858,6 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
         >
           <EmojiIcon char="🔗" size={15} /> {synapseOverlayOn ? '隱藏連結' : '顯示連結'}
         </button>
-        {/* 遠征動畫的常駐顯示/隱藏 chip 已移除 (tidy-neurons-homepage-ui)：動畫在出征 +
-            閱讀時自動播；隱藏走帶子自帶的 ×、恢復走 HelpMenu。 */}
       </div>
 
       {import.meta.env.DEV && (
@@ -925,9 +903,24 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
         </div>
       )}
 
-      <p style={hintStyle}>
-        唸書與答對讓各科的 growth cone 沿軸突束（axon tract）由邊界向中心推進 — 抵達節點點亮並抽出一隻神經元。11 條路徑在同一張腦圖上交織，交叉處是跨科連線生長的位置 — 出征一起修復不同科的錯題會在這裡 wire 起來。滾輪／雙指縮放、拖曳平移；點下方科目卡片聚焦該科、🔭 全覽 回到整體；答對會自動聚焦該科。
-      </p>
+      <button
+        type="button"
+        style={helpToggleStyle}
+        onClick={() => setHelpOpen((v) => !v)}
+        aria-expanded={helpOpen}
+      >
+        ⓘ 怎麼玩 {helpOpen ? '▴' : '▾'}
+      </button>
+      {helpOpen && (
+        <>
+          <p style={hintStyle}>
+            唸書與答對讓各科的 growth cone 沿軸突束（axon tract）由邊界向中心推進 — 抵達節點點亮並抽出一隻神經元。11 條路徑在同一張腦圖上交織，交叉處是跨科連線生長的位置 — 出征一起修復不同科的錯題會在這裡 wire 起來。滾輪／雙指縮放、拖曳平移；點下方科目卡片聚焦該科、🔭 全覽 回到整體；答對會自動聚焦該科。
+          </p>
+          <p style={hintStyle}>
+            霧中的節點尚未探索 — 不預顯形狀或稀有度。抵達後揭曉並點亮。🔗 連結由「出征一起修復不同科的錯題」長出。
+          </p>
+        </>
+      )}
 
       {!expeditionHidden && (
         <MazeExpedition onHide={() => setExpeditionHide(true)} paused={reading.status !== 'reading'} />
@@ -935,9 +928,12 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
 
       <div ref={stageRef} style={stageStyle}>
         <canvas
-          ref={canvasRef}
+          ref={viewCanvasRef}
           style={{ position: 'absolute', inset: 0, display: 'block', touchAction: 'none' }}
         />
+
+        {softEdge && <div aria-hidden style={featherOverlayStyle} />}
+
         <button
           type="button"
           onClick={() => emitMazeRecenter()}
@@ -963,7 +959,6 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
         {hoveredWire && (() => {
           const st = wireStatuses.get(hoveredWire.pairKey)
           if (!st) return null
-          // Flip below the spark when too near the top edge (stage is overflow:hidden).
           const below = hoveredWire.y < 56
           return (
             <div
@@ -998,9 +993,6 @@ export default function MazeGrid({ view }: { view: MazeViewState }): JSX.Element
             )
           })}
         </div>
-        <p style={{ margin: '6px 0 0' }}>
-          霧中的節點尚未探索 — 不預顯形狀或稀有度。抵達後揭曉並點亮。🔗 連結由「出征一起修復不同科的錯題」長出。
-        </p>
       </div>
     </section>
   )
@@ -1033,8 +1025,6 @@ function exploredOnRoute(fam: FamilyViewState, route: 1 | 2): number {
 /**
  * Spark-in-circle synapse glyph: cyan halo + yellow rays + white core.
  * `legacy` → quiet grey-blue, no rays (early connection, not re-validated).
- * `boost` (0..1) → a transient conduction-pulse glow (bigger + brighter halo) that
- * the render loop decays after a `connectome.conductionPulse` fires on this wire.
  */
 function drawSpark(
   ctx: CanvasRenderingContext2D,
@@ -1044,11 +1034,10 @@ function drawSpark(
   op: number,
   rFrac: number,
   legacy = false,
-  boost = 0,
 ): void {
-  const r = Math.max(3, tile * (1 + rFrac + boost * 0.6))
+  const r = Math.max(3, tile * (1 + rFrac))
   ctx.save()
-  ctx.globalAlpha = Math.min(1, op + boost * 0.4)
+  ctx.globalAlpha = op
   const halo = ctx.createRadialGradient(cx, cy, r * 0.15, cx, cy, r)
   if (legacy) {
     // Early connection: muted slate-blue, no spikes — reads as historical.
@@ -1066,7 +1055,7 @@ function drawSpark(
     ctx.restore()
     return
   }
-  halo.addColorStop(0, boost > 0 ? 'rgba(190,255,250,0.95)' : 'rgba(150,247,238,0.85)')
+  halo.addColorStop(0, 'rgba(150,247,238,0.85)')
   halo.addColorStop(0.55, 'rgba(56,224,208,0.35)')
   halo.addColorStop(1, 'rgba(56,224,208,0)')
   ctx.fillStyle = halo
@@ -1173,6 +1162,20 @@ const hintStyle: CSSProperties = {
   margin: '0.55rem 0 0',
   lineHeight: 1.5,
 }
+const helpToggleStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  margin: '0.55rem 0 0',
+  padding: 0,
+  background: 'transparent',
+  border: 'none',
+  color: '#9a96c8',
+  fontSize: '0.8rem',
+  fontWeight: 600,
+  fontFamily: 'inherit',
+  cursor: 'pointer',
+}
 const wireTooltipStyle: CSSProperties = {
   position: 'absolute',
   zIndex: 7,
@@ -1203,6 +1206,16 @@ const stageStyle: CSSProperties = {
   boxShadow: '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
   touchAction: 'none',
   cursor: 'grab',
+}
+// Screen-space edge feather: soften the maze's hard square boundary into the panel (owner: 迷宮的方形
+// 邊界不要那麼明顯). An inset shadow vignette — cheap, static, no per-frame cost.
+const featherOverlayStyle: CSSProperties = {
+  position: 'absolute',
+  inset: 0,
+  pointerEvents: 'none',
+  zIndex: 4,
+  borderRadius: 12,
+  boxShadow: `inset 0 0 90px 30px ${OUTSIDE}`,
 }
 const recenterButtonStyle: CSSProperties = {
   position: 'absolute',

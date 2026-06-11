@@ -96,7 +96,7 @@ export const MAZE_LANDMARKS: Landmark[] = (() => {
  * POSITION only (not shape/rarity), so the tracts read as populated while fog-of-war is preserved. */
 export const ALL_NODE_CELLS: Cell[] = FAMILY_IDS.flatMap((fam) => nodesInRouteOrder(fam).map((n) => n.cell))
 
-// Lazy image cache — the rAF loop calls landmarkImage(src) each frame and draws once .complete.
+// Lazy image cache — the scene bake (drawScene) calls landmarkImage(src) and draws once .complete.
 const cache = new Map<string, HTMLImageElement>()
 export function landmarkImage(src: string): HTMLImageElement {
   let img = cache.get(src)
