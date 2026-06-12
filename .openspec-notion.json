@@ -1,0 +1,28 @@
+{
+  "project": "neurons-tw",
+  "notion": {
+    "pageName": "Neurons-tw",
+    "databaseId": "92704f64df31466ea98756e3c9b703a9"
+  },
+  "openspec": {
+    "root": "openspec",
+    "archivedWindow": 30
+  },
+  "tracks": [
+    { "label": "neurons", "match": "neurons|connectome|dmn|maze|synapse|expedition|shoutout" },
+    { "label": "二階", "match": "hospital|medexam2|doctor" },
+    { "label": "一階", "match": "medexam-tw|gh-pages" },
+    { "label": "core/shared", "match": "core|theme|npm|deploy|content-pack|dexie|sync|leaderboard|auth|cloudflare" }
+  ],
+  "fallbackTrack": "core/shared",
+  "statusColumns": ["Under Human", "Proposed", "In Progress", "Verifying", "Archived", "Bug report"],
+  "bugs": {
+    "enabled": true,
+    "source": "supabase",
+    "table": "bug_reports",
+    "filter": { "app": ["neurons-tw"], "category": [] },
+    "limit": 100,
+    "envFiles": [".openspec-notion.env", ".env.local", "apps/neurons-tw/.env.local"],
+    "env": { "url": "SUPABASE_URL", "key": "SUPABASE_SERVICE_ROLE_KEY" }
+  }
+}

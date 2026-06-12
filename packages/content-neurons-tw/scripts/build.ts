@@ -173,6 +173,41 @@ function classifyMicroImmune(q: MedexamQuestion): { subject: '微生物學' | '�
   return { subject: DEFAULT_MICROIMMUNE_FALLBACK, tagged: false }
 }
 
+/**
+ * Normalize whitespace cruft left by the upstream PDF→text extraction in the
+ * 陽明國考考古 explanations (fix-neurons-question-mislabels-and-explanation-
+ * whitespace, 2026-06-12). SAFE SUBSET — only touches whitespace and stray bare
+ * page-number lines; it never alters a content line (verified: 0 content lines
+ * changed across the corpus). Vertical single-char-per-line runs (e.g.
+ * 依\n栓\n塞) are intentionally left intact — auto-rejoining them risks merging
+ * legitimately short lines, so they are handled separately.
+ *
+ *   - strip per-line trailing whitespace
+ *   - drop isolated bare 2–3 digit page-number lines (e.g. the answer-key "82")
+ *   - collapse runs of blank lines to a single blank line
+ *   - trim leading/trailing blank lines
+ */
+function normalizeExplanation(ex: string): string {
+  if (!ex) return ex
+  const kept: string[] = []
+  for (const line of ex.split('\n')) {
+    if (/^\s*\d{2,3}\s*$/.test(line)) continue // bare page-number line
+    kept.push(line.replace(/\s+$/, '')) // strip trailing whitespace
+  }
+  const collapsed: string[] = []
+  let blank = false
+  for (const line of kept) {
+    if (line === '') {
+      if (!blank) collapsed.push('')
+      blank = true
+    } else {
+      collapsed.push(line)
+      blank = false
+    }
+  }
+  return collapsed.join('\n').trim()
+}
+
 function main(): void {
   // Step 1: Read medexam-tw artifacts
   const metaPath = resolve(MEDEXAM_TW_DIST, 'meta.json')
@@ -208,15 +243,18 @@ function main(): void {
   let figuresWired = 0
   let flaggedNoFigure = 0
   function wireFigure<T extends MedexamQuestion>(q: T): T {
+    // Clean upstream PDF-extraction whitespace cruft before output (every
+    // question passes through here exactly once).
+    const explanation = normalizeExplanation(q.explanation)
     if (FALSE_POSITIVE_HASIMAGE.has(q.id)) {
-      return { ...q, hasImage: false, imagePath: null }
+      return { ...q, explanation, hasImage: false, imagePath: null }
     }
     if (figureIds.has(q.id)) {
       figuresWired += 1
-      return { ...q, hasImage: true, imagePath: `content/neurons-tw/figures/${q.id}.png` }
+      return { ...q, explanation, hasImage: true, imagePath: `content/neurons-tw/figures/${q.id}.png` }
     }
     if (q.hasImage) flaggedNoFigure += 1
-    return q
+    return { ...q, explanation }
   }
 
   // Step 2 + 3: 直送 9 subjects verbatim + split 微生物暨免疫學 (+ figure wiring)

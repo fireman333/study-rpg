@@ -5,7 +5,7 @@
     "group": "DA",
     "color": "#d4a04d",
     "iconKey": "subject:藥理學",
-    "totalQuestions": 575
+    "totalQuestions": 585
   },
   {
     "id": "公共衛生學",
@@ -13,7 +13,7 @@
     "group": "DA",
     "color": "#c639ba",
     "iconKey": "subject:公共衛生學",
-    "totalQuestions": 357
+    "totalQuestions": 354
   },
   {
     "id": "寄生蟲學",
@@ -21,7 +21,7 @@
     "group": "5HT",
     "color": "#ca4970",
     "iconKey": "subject:寄生蟲學",
-    "totalQuestions": 157
+    "totalQuestions": 161
   },
   {
     "id": "組織學",
@@ -37,7 +37,7 @@
     "group": "GABA",
     "color": "#6a9bc4",
     "iconKey": "subject:生物化學",
-    "totalQuestions": 610
+    "totalQuestions": 606
   },
   {
     "id": "病理學",
@@ -45,7 +45,7 @@
     "group": "GABA",
     "color": "#9859cf",
     "iconKey": "subject:病理學",
-    "totalQuestions": 586
+    "totalQuestions": 571
   },
   {
     "id": "免疫學",
@@ -53,7 +53,7 @@
     "group": "GABA",
     "color": "#696cd3",
     "iconKey": "subject:免疫學",
-    "totalQuestions": 307
+    "totalQuestions": 309
   },
   {
     "id": "解剖學",
@@ -61,7 +61,7 @@
     "group": "Glu",
     "color": "#6a8c3f",
     "iconKey": "subject:解剖學",
-    "totalQuestions": 698
+    "totalQuestions": 700
   },
   {
     "id": "生理學",
@@ -69,7 +69,7 @@
     "group": "Glu",
     "color": "#27866f",
     "iconKey": "subject:生理學",
-    "totalQuestions": 608
+    "totalQuestions": 610
   },
   {
     "id": "胚胎學",
@@ -85,6 +85,6 @@
     "group": "Glu",
     "color": "#278634",
     "iconKey": "subject:微生物學",
-    "totalQuestions": 369
+    "totalQuestions": 371
   }
 ]

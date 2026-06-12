@@ -34,3 +34,10 @@ output/
 
 # session-bus cross-session message queue (ephemeral, per-worktree; session-bus skill)
 .claude-msgs/
+
+# openspec-to-notion skill: generated plan + per-project secret env (never commit)
+.openspec-notion.plan.json
+.openspec-notion.env
+
+# bug-fix-queue local state (ledger + queues; may contain PII from real user reports — NEVER commit)
+bug-queue/
