@@ -21,6 +21,7 @@ import CollectionPage from './routes/CollectionPage'
 import { QuestionBankPage } from './routes/QuestionBankPage'
 import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
+import { CustomTooltipHost } from './components/CustomTooltipHost'
 import HelpMenu from './components/HelpMenu'
 import { AuthProvider } from './lib/auth/AuthContext'
 import { AuthGate } from './components/AuthGate'
@@ -77,6 +78,7 @@ export default function App(): JSX.Element {
         <AchievementToastHost />
         <AchievementUnlockModal />
         <DmnQuickReviewToast />
+        <CustomTooltipHost />
         <HelpMenu />
         <main style={pageStyle}>
           <header style={topBarStyle}>

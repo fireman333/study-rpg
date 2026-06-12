@@ -10,9 +10,12 @@
  * Capability spec: openspec/specs/neurons-achievements/spec.md
  */
 
-import type {
-  NeuronsAchievementCategory,
-  NeuronsAchievementTier,
+import {
+  NEURONS_ACHIEVEMENTS,
+  CATEGORY_LABEL,
+  TIER_LABEL,
+  type NeuronsAchievementCategory,
+  type NeuronsAchievementTier,
 } from '@study-rpg/content-neurons-tw'
 import badgeAtlasUrl from '../assets/achievements/badge-atlas.png'
 
@@ -21,6 +24,35 @@ export interface BadgeSpriteProps {
   tier: NeuronsAchievementTier
   size?: number
   locked?: boolean
+  /**
+   * Accessible label / hover tooltip override. Defaults to the representative
+   * achievement name(s) for this (category, tier) resolved from the catalog.
+   */
+  ariaLabel?: string
+}
+
+/**
+ * Resolve a hover-tooltip label for a badge from the achievement catalog.
+ *
+ * A leaderboard badge encodes only `<category>:<tier>` (the highest tier
+ * unlocked per category), so it cannot point at one specific achievement.
+ * When more than one achievement shares that (category, tier) — e.g. two
+ * different `quiz P2` achievements — we join all their names with " / " so the
+ * viewer can recognise whichever one they actually unlocked. The badge art and
+ * tier semantics are identical regardless of which achievement triggered it.
+ *
+ * Falls back to a generic「<tier>級<category>成就」label if the catalog has no
+ * match (e.g. a future category not yet populated).
+ */
+export function resolveBadgeLabel(
+  category: NeuronsAchievementCategory,
+  tier: NeuronsAchievementTier,
+): string {
+  const names = NEURONS_ACHIEVEMENTS.filter(
+    (a) => a.category === category && a.tier === tier,
+  ).map((a) => a.name)
+  if (names.length > 0) return names.join(' / ')
+  return `${TIER_LABEL[tier]}級${CATEGORY_LABEL[category]}成就`
 }
 
 // Column index per category (atlas left-to-right ordering).
@@ -50,6 +82,7 @@ export function BadgeSprite({
   tier,
   size = 48,
   locked = false,
+  ariaLabel,
 }: BadgeSpriteProps): JSX.Element {
   const col = CATEGORY_COL[category]
   const row = TIER_ROW[tier]
@@ -59,10 +92,22 @@ export function BadgeSprite({
   // For N=1 single cell, position = 0%. Guard against div-by-zero.
   const xPct = NUM_COLS > 1 ? (col * 100) / (NUM_COLS - 1) : 0
   const yPct = NUM_ROWS > 1 ? (row * 100) / (NUM_ROWS - 1) : 0
+  // Locked badges must NOT reveal the achievement name — the achievements page
+  // masks locked names as「????」on purpose. Tier + category are already shown
+  // openly on the card, so the generic locked label exposes only those.
+  const label =
+    ariaLabel ??
+    (locked
+      ? `${TIER_LABEL[tier]}級${CATEGORY_LABEL[category]}成就（尚未解鎖）`
+      : resolveBadgeLabel(category, tier))
 
   return (
     <div
-      aria-label={`${category} achievement, tier ${tier}${locked ? ', locked' : ''}`}
+      role="img"
+      aria-label={label}
+      // `data-tooltip` is picked up by <CustomTooltipHost> for a fast, styled
+      // hover tooltip (mirrors 二階). No-op on touch devices.
+      data-tooltip={label}
       style={{
         width: size,
         height: size,

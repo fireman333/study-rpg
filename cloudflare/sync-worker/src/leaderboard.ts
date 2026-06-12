@@ -6,6 +6,9 @@
  *   GET    /leaderboard/:filter          → read KV snapshot (no D1 hit at request time)
  *                                          filter ∈ {composite, correct, reputation, doctor, study}
  *   GET    /leaderboard/nickname-check?n=<candidate>   → JWT verify → D1 lookup
+ *   GET    /leaderboard/my-rank/:filter  → JWT verify → D1 rank COUNT (exact rank
+ *                                          for opted-in players outside the top-100
+ *                                          snapshot — Phase 4 follow-up)
  *   POST   /leaderboard/opt-out          → JWT verify → set is_public = 0
  *   DELETE /leaderboard/me               → JWT verify → DELETE row (account deletion)
  *
@@ -142,6 +145,65 @@ const ORDER_BY: Record<Filter, string> = {
   correct: "total_correct DESC",
 };
 
+// Attribute snapshot of the requesting user's own row, used to compute their
+// exact rank (my-rank endpoint). Mirrors the columns ORDER_BY can reference.
+interface MyRankAttrs {
+  hospital_tier: number;
+  reputation: number;
+  doctor_count: number;
+  total_study_min: number;
+  total_correct: number;
+}
+
+/**
+ * Build the "sorts STRICTLY BEFORE me" WHERE predicate for a filter. MUST
+ * stay in lock-step with ORDER_BY above (column + direction + tie-breakers) —
+ * rank = COUNT(public rows matching predicate) + 1 then matches the row's
+ * position in the cron-built snapshot for that filter.
+ *
+ * Tie semantics: the four single-column filters carry no explicit tie-breaker
+ * in ORDER_BY (tied rows appear in unspecified order in the snapshot), and
+ * composite has no unique final tie-breaker either — so the COUNT yields
+ * competition-style ranking (ties share the best rank), which is consistent
+ * with whichever tie permutation the snapshot happens to display.
+ *
+ * Pure function (no D1 / no env) — exported so it can be unit-tested once the
+ * worker package grows a test runner.
+ */
+export function buildMyRankPredicate(
+  filter: Filter,
+  me: MyRankAttrs,
+): { where: string; binds: number[] } {
+  switch (filter) {
+    case "composite":
+      // ORDER_BY.composite = hospital_tier DESC, reputation DESC, doctor_count DESC
+      return {
+        where:
+          "hospital_tier > ? OR (hospital_tier = ? AND reputation > ?) OR (hospital_tier = ? AND reputation = ? AND doctor_count > ?)",
+        binds: [
+          me.hospital_tier,
+          me.hospital_tier,
+          me.reputation,
+          me.hospital_tier,
+          me.reputation,
+          me.doctor_count,
+        ],
+      };
+    case "reputation":
+      return { where: "reputation > ?", binds: [me.reputation] };
+    case "doctor":
+      return { where: "doctor_count > ?", binds: [me.doctor_count] };
+    case "study":
+      return { where: "total_study_min > ?", binds: [me.total_study_min] };
+    case "correct":
+      return { where: "total_correct > ?", binds: [me.total_correct] };
+  }
+}
+
+// my-rank route matches any trailing segment; the handler validates it
+// against FILTERS so an unknown filter yields a 400 (not a silent 404).
+const MY_RANK_ROUTE_REGEX = /^\/leaderboard\/my-rank\/([^/]+)$/;
+
 // === Dispatcher ===
 
 export async function handleLeaderboard(
@@ -171,6 +233,10 @@ export async function handleLeaderboard(
   // path is guarded by feature detection (404 → fall back to opt-in modal).
   if (path === "/leaderboard/nickname-check" && method === "GET") {
     return handleNicknameCheck(request, env, headers);
+  }
+  const myRankMatch = path.match(MY_RANK_ROUTE_REGEX);
+  if (myRankMatch && method === "GET") {
+    return handleMyRank(myRankMatch[1], request, env, headers);
   }
   const filterMatch = path.match(FILTER_ROUTE_REGEX);
   if (filterMatch && method === "GET") {
@@ -500,6 +566,78 @@ async function handleGetMe(
     200,
     headers,
   );
+}
+
+async function handleMyRank(
+  rawFilter: string,
+  request: Request,
+  env: Env,
+  headers: Record<string, string>,
+): Promise<Response> {
+  // Exact-rank lookup for opted-in players who fall outside the top-100 KV
+  // snapshot. Without this, the client's my-rank chip rendered nothing once
+  // other players pushed the user past #100 — prod reports read as "我的
+  // 排名不見了". This is the Phase 4 Worker follow-up that closes that gap.
+  //
+  // JWT-gated (same pattern as handleGetMe) — rank is derived from the
+  // requester's OWN row, so the verified `sub` claim is the only identity
+  // input; the URL never carries a user id.
+  let userSub: string;
+  try {
+    userSub = await authUser(request, env);
+  } catch {
+    return jsonResponse({ error: "unauthenticated" }, 401, headers);
+  }
+
+  if (!(FILTERS as readonly string[]).includes(rawFilter)) {
+    return jsonResponse({ error: "unknown_filter" }, 400, headers);
+  }
+  const filter = rawFilter as Filter;
+
+  try {
+    const [me, totalRow] = await Promise.all([
+      env.LEADERBOARD_DB
+        .prepare(
+          "SELECT hospital_tier, reputation, doctor_count, total_study_min, total_correct, is_public FROM leaderboard_m2 WHERE user_id = ?",
+        )
+        .bind(userSub)
+        .first<MyRankAttrs & { is_public: number }>(),
+      env.LEADERBOARD_DB
+        .prepare("SELECT COUNT(*) AS c FROM leaderboard_m2 WHERE is_public = 1")
+        .first<{ c: number }>(),
+    ]);
+
+    const total = totalRow?.c ?? 0;
+
+    // No row (never opted in) or is_public = 0 (opted out) → not on the
+    // board. 200, not an error — the client renders a "hidden / not joined"
+    // chip for this state.
+    if (!me || me.is_public !== 1) {
+      return jsonResponse(
+        { in_leaderboard: false, rank: null, total },
+        200,
+        headers,
+      );
+    }
+
+    // rank = rows that sort strictly before me (per this filter's ORDER BY,
+    // replicated exactly by buildMyRankPredicate) + 1. Cheap even as the
+    // table grows — the per-column partial indexes cover the COUNT.
+    const { where, binds } = buildMyRankPredicate(filter, me);
+    const aheadRow = await env.LEADERBOARD_DB
+      .prepare(
+        `SELECT COUNT(*) AS c FROM leaderboard_m2 WHERE is_public = 1 AND (${where})`,
+      )
+      .bind(...binds)
+      .first<{ c: number }>();
+
+    const rank = (aheadRow?.c ?? 0) + 1;
+    return jsonResponse({ in_leaderboard: true, rank, total, filter }, 200, headers);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[leaderboard] my-rank failed", { user: userSub, filter, err: message });
+    return jsonResponse({ error: "my_rank_failed" }, 500, headers);
+  }
 }
 
 async function handleDeleteMe(
