@@ -5,7 +5,7 @@
     "group": "DA",
     "color": "#d4a04d",
     "iconKey": "subject:藥理學",
-    "totalQuestions": 585
+    "totalQuestions": 580
   },
   {
     "id": "公共衛生學",
@@ -13,7 +13,7 @@
     "group": "DA",
     "color": "#c639ba",
     "iconKey": "subject:公共衛生學",
-    "totalQuestions": 354
+    "totalQuestions": 361
   },
   {
     "id": "寄生蟲學",
@@ -21,7 +21,7 @@
     "group": "5HT",
     "color": "#ca4970",
     "iconKey": "subject:寄生蟲學",
-    "totalQuestions": 161
+    "totalQuestions": 158
   },
   {
     "id": "組織學",
@@ -53,7 +53,7 @@
     "group": "GABA",
     "color": "#696cd3",
     "iconKey": "subject:免疫學",
-    "totalQuestions": 309
+    "totalQuestions": 310
   },
   {
     "id": "解剖學",

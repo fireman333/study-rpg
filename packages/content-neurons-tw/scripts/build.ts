@@ -184,6 +184,9 @@ function classifyMicroImmune(q: MedexamQuestion): { subject: '微生物學' | '�
  *
  *   - strip per-line trailing whitespace
  *   - drop isolated bare 2–3 digit page-number lines (e.g. the answer-key "82")
+ *   - drop standalone book-name footer lines (醫學一 / 醫學二) — these are page
+ *     footers from the extraction, NOT content. (Legit section headers like
+ *     參考資料 / 補充 / 筆者的話 are multi-char and NOT matched.)
  *   - collapse runs of blank lines to a single blank line
  *   - trim leading/trailing blank lines
  */
@@ -192,6 +195,7 @@ function normalizeExplanation(ex: string): string {
   const kept: string[] = []
   for (const line of ex.split('\n')) {
     if (/^\s*\d{2,3}\s*$/.test(line)) continue // bare page-number line
+    if (/^\s*醫學[一二]\s*$/.test(line)) continue // standalone book-name footer
     kept.push(line.replace(/\s+$/, '')) // strip trailing whitespace
   }
   const collapsed: string[] = []
