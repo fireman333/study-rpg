@@ -169,7 +169,7 @@ export default function LeaderboardPage(): JSX.Element {
       <header style={{ marginBottom: '1rem' }}>
         <h1 style={{ fontSize: '1.4rem', marginBottom: '0.25rem' }}>排行榜</h1>
         <p style={{ margin: 0, color: '#5a3f29', fontStyle: 'italic' }}>
-          neurons-tw 全球排名 · opt-in only · 每 30 分鐘更新一次
+          Opt-in only · 每 30 分鐘更新一次
         </p>
       </header>
 
