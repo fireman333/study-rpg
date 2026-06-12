@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.wlk.studyrpg.bugqueue — daily bug-report import + desktop notification.
+
+  This is the IN-REPO TEMPLATE. It is installed (copied) into
+  ~/Library/LaunchAgents/ by scripts/install-bugqueue-launchd.sh — run that
+  script yourself; nothing auto-installs this.
+
+  Fires daily at 09:00 (see StartCalendarInterval below; the install script
+  explains how to change the hour).
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.wlk.studyrpg.bugqueue</string>
+
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>/Users/kangweiling/coding-scratch/study-rpg-neurons/scripts/bug-queue-notify.sh</string>
+	</array>
+
+	<!-- Daily at 09:00. -->
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>9</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+
+	<!-- Don't fire on every login/load — this is a daily reminder, not a startup task. -->
+	<key>RunAtLoad</key>
+	<false/>
+
+	<key>ProcessType</key>
+	<string>Background</string>
+
+	<!-- Belt-and-suspenders for node discovery: launchd's default PATH is
+	     /usr/bin:/bin:/usr/sbin:/sbin (no Homebrew). The wrapper script also
+	     has its own absolute-path fallbacks. -->
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+
+	<key>StandardOutPath</key>
+	<string>/Users/kangweiling/coding-scratch/study-rpg-neurons/bug-queue/launchd.out.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Users/kangweiling/coding-scratch/study-rpg-neurons/bug-queue/launchd.err.log</string>
+</dict>
+</plist>
