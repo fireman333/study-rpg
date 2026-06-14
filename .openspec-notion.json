@@ -16,6 +16,10 @@
   ],
   "fallbackTrack": "core/shared",
   "statusColumns": ["Under Human", "Proposed", "In Progress", "Verifying", "Archived", "Bug report"],
+  "obsidian": {
+    "vaultDir": "/Users/kangweiling/claude_domain/vibe-coding",
+    "boardFolder": "_project-boards/neurons-tw"
+  },
   "bugs": {
     "enabled": true,
     "source": "supabase",
