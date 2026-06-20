@@ -1098,6 +1098,7 @@ const stemStyle: React.CSSProperties = {
   marginTop: 0,
   marginBottom: '1.25rem',
   whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
   // Exam content — legible, never pixel (opt out of the global pixel default).
   fontFamily: 'var(--font-legible)',
 }
@@ -1127,6 +1128,7 @@ const optionCardStyle: React.CSSProperties = {
   color: '#3a2a1a',
   // Exam content (option text) — legible, never pixel.
   fontFamily: 'var(--font-legible)',
+  overflowWrap: 'anywhere',
   transition: 'background 0.15s, border-color 0.15s',
 }
 
@@ -1201,6 +1203,7 @@ const explanationBodyStyle: React.CSSProperties = {
   lineHeight: 1.6,
   color: '#3a2a1a',
   whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
   // 詳解 explanation prose — legible, never pixel.
   fontFamily: 'var(--font-legible)',
 }

@@ -431,6 +431,7 @@ const stemStyle: React.CSSProperties = {
   marginTop: 0,
   marginBottom: '1rem',
   whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
   fontFamily: 'var(--font-legible)',
 }
 const optionsGridStyle: React.CSSProperties = {
@@ -450,6 +451,7 @@ const optionCardStyle: React.CSSProperties = {
   lineHeight: 1.5,
   color: '#3a2a1a',
   fontFamily: 'var(--font-legible)',
+  overflowWrap: 'anywhere',
   cursor: 'pointer',
 }
 const optionKeyStyle: React.CSSProperties = {
@@ -482,6 +484,7 @@ const explanationBodyStyle: React.CSSProperties = {
   lineHeight: 1.6,
   color: '#3a2a1a',
   whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
   fontFamily: 'var(--font-legible)',
 }
 const aiNoteStyle: React.CSSProperties = { marginTop: '0.6rem', fontSize: '0.74rem', lineHeight: 1.5, color: '#8a5a2a', fontStyle: 'italic', fontFamily: 'var(--font-legible)' }
