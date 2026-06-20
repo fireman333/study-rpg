@@ -55,6 +55,8 @@ function errorMessage(error: string, retryAfterMs?: number): string {
       return '今天更新次數已達上限，明天再來'
     case 'nickname_required':
       return '要先設定排行榜暱稱才能留言'
+    case 'invalid_avatar':
+      return '頭像資料有誤，請重新選一隻神經元'
     case 'blocked_content':
       return '留言含不適當字詞，請修改'
     case 'pii_detected':

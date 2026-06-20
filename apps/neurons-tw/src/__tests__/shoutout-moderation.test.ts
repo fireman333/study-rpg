@@ -95,8 +95,21 @@ describe('isValidAvatar', () => {
   it('accepts a structured neuron avatar', () => {
     expect(isValidAvatar({ avatarType: 'neuron', assetId: 'dopamine' })).toBe(true)
   })
+  it('accepts the CJK family ids the neurons app actually sends', () => {
+    // Regression: the content pack's canonical sprite ids are Chinese (subject ids
+    // like 「寄生蟲學」). They are what ShoutoutBoardPage passes as avatar.assetId,
+    // so isValidAvatar (and the Worker mirror) MUST accept them — an ASCII-only
+    // pattern silently rejected every post (board stuck empty / 「送出失敗」).
+    for (const id of ['寄生蟲學', '藥理學', '公共衛生學', '生物化學', '微生物學']) {
+      expect(isValidAvatar({ avatarType: 'neuron', assetId: id })).toBe(true)
+    }
+  })
   it('rejects a URL in assetId (injection guard)', () => {
     expect(isValidAvatar({ avatarType: 'neuron', assetId: 'http://evil/x.svg' })).toBe(false)
+  })
+  it('rejects spaces / angle brackets even with the Unicode-letter charset', () => {
+    expect(isValidAvatar({ avatarType: 'neuron', assetId: '寄生蟲 學' })).toBe(false)
+    expect(isValidAvatar({ avatarType: 'neuron', assetId: '寄<b>學' })).toBe(false)
   })
   it('rejects HTML in assetId', () => {
     expect(isValidAvatar({ avatarType: 'neuron', assetId: '<img src=x>' })).toBe(false)
