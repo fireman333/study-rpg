@@ -19,5 +19,5 @@
 
 ## 4. Deploy (owner-gated)
 
-- [ ] 4.1 Deploy the neurons app (Cloudflare Pages)
-- [ ] 4.2 Spot-check a long-explanation question on a real phone — no horizontal page scroll
+- [x] 4.1 Deploy the neurons app (Cloudflare Pages) — bundle `index-OORvSfTy.js` (2026-06-20)
+- [x] 4.2 Spot-check a long-explanation question — prod `/neurons/bank` at 390px via Playwright = 0px horizontal overflow (was 221px); real-device dogfood optional

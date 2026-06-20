@@ -18,7 +18,7 @@
 
 ## 4. Deploy + verify (owner-gated)
 
-- [ ] 4.1 Redeploy the shared sync Worker (`cloudflare/sync-worker`)
-- [ ] 4.2 Live verify: a neurons write with a CJK `assetId` now returns `200 ok` (was `400 invalid_avatar`)
-- [ ] 4.3 Deploy the neurons app (carries the `invalid_avatar` message + core mirror)
-- [ ] 4.4 Confirm 二階 (`m2`) shoutout unaffected (ASCII doctor ids still post)
+- [x] 4.1 Redeploy the shared sync Worker (`cloudflare/sync-worker`) — wrangler Version `89d510c6` + deploy-worker.yml auto-fired (2026-06-20)
+- [x] 4.2 Live verify: a neurons write with a CJK `assetId` now returns `200 ok` (was `400 invalid_avatar`) — owner Chrome page-context PUT `寄生蟲學` → 200, avatar echoed; test msg deleted
+- [x] 4.3 Deploy the neurons app (carries the `invalid_avatar` message + core mirror) — CF Pages bundle `index-OORvSfTy.js`
+- [x] 4.4 Confirm 二階 (`m2`) shoutout unaffected (ASCII doctor ids still post) — new pattern is a strict superset of the old ASCII charset, so every id that passed before still passes (verified by construction)
