@@ -102,6 +102,7 @@ const stemTextStyle: CSSProperties = {
   lineHeight: 1.6,
   color: '#5a4a2a',
   whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
 }
 
 const toggleStyle: CSSProperties = {

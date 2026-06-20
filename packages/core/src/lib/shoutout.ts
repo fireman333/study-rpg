@@ -48,7 +48,11 @@ export interface ShoutoutBoard {
 
 export const MESSAGE_MAX_GRAPHEMES = 40;
 export const MESSAGE_MAX_LINES = 2;
-export const ASSET_ID_PATTERN = /^[A-Za-z0-9._:-]{1,64}$/;
+// Opaque sprite key charset. Unicode letters/numbers are allowed so apps whose
+// canonical sprite ids are non-ASCII (e.g. the neurons content pack's CJK family
+// ids like 「寄生蟲學」) can pass them through verbatim. Still excludes spaces,
+// quotes, slashes, angle brackets, and control chars — the injection guard intact.
+export const ASSET_ID_PATTERN = /^[\p{L}\p{N}._:-]{1,64}$/u;
 
 // Zero-width: ZWSP/ZWNJ/ZWJ (U+200B-U+200D), BOM/ZWNBSP (U+FEFF), WORD JOINER (U+2060).
 const ZERO_WIDTH = /[\u200B-\u200D\uFEFF\u2060]/g;

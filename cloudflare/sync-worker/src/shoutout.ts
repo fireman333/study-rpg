@@ -58,7 +58,11 @@ const EDIT_COOLDOWN_MS = 5 * 60 * 1000; // 300s (design Facet/Decision: 5-min co
 const DAILY_WRITE_CAP = 30; // coarse token bucket (per-user per-day)
 const REPORT_HIDE_THRESHOLD = 3; // distinct reporters → soft-hide
 const TOP_N_HALO = 10; // composite Top-N gets the special halo
-const ASSET_ID_PATTERN = /^[A-Za-z0-9._:-]{1,64}$/;
+// Opaque sprite key charset. Unicode letters/numbers allowed so apps with
+// non-ASCII canonical sprite ids (neurons content pack's CJK family ids, e.g.
+// 「寄生蟲學」) pass through verbatim; still excludes spaces / quotes / slashes /
+// angle brackets / control chars. Mirror of @study-rpg/core ASSET_ID_PATTERN.
+const ASSET_ID_PATTERN = /^[\p{L}\p{N}._:-]{1,64}$/u;
 
 // Seed 繁中/EN keyword blocklist — minimal; owner extends via back-office / redeploy.
 // Matched against the NFKC-normalized, whitespace-collapsed, lower-cased text.

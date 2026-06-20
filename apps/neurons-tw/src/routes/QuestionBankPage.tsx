@@ -708,14 +708,14 @@ const tagStyle: React.CSSProperties = {
 }
 // Exam content (stem / option text / answer / 詳解 body / AI note) — legible, never
 // pixel (opt out of the global pixel default). Filter chips + count stay pixel chrome.
-const stemStyle: React.CSSProperties = { fontSize: '0.95rem', color: '#2a2118', lineHeight: 1.6, margin: '0.4rem 0', fontFamily: 'var(--font-legible)' }
+const stemStyle: React.CSSProperties = { fontSize: '0.95rem', color: '#2a2118', lineHeight: 1.6, margin: '0.4rem 0', fontFamily: 'var(--font-legible)', overflowWrap: 'anywhere' }
 const optionsStyle: React.CSSProperties = { listStyle: 'none', padding: 0, margin: '0.3rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }
-const optionItemStyle: React.CSSProperties = { fontSize: '0.9rem', color: '#3a2a1a', lineHeight: 1.5, fontFamily: 'var(--font-legible)' }
+const optionItemStyle: React.CSSProperties = { fontSize: '0.9rem', color: '#3a2a1a', lineHeight: 1.5, fontFamily: 'var(--font-legible)', overflowWrap: 'anywhere' }
 const optionKeyStyle: React.CSSProperties = { fontWeight: 700, color: '#8c6d4a' }
 const answerStyle: React.CSSProperties = { fontSize: '0.9rem', color: '#4d8c4d', fontWeight: 600, margin: '0.5rem 0 0.3rem', fontFamily: 'var(--font-legible)' }
 const explanationStyle: React.CSSProperties = { marginTop: '0.4rem', background: '#f4ecd8', border: '1px solid #c9ad7f', borderRadius: '4px', padding: '0.4rem 0.6rem' }
 const explanationSummaryStyle: React.CSSProperties = { fontWeight: 700, color: '#8c6d4a', cursor: 'pointer', fontSize: '0.86rem' }
-const explanationBodyStyle: React.CSSProperties = { whiteSpace: 'pre-wrap', fontSize: '0.86rem', color: '#3a2a1a', lineHeight: 1.65, marginTop: '0.4rem', fontFamily: 'var(--font-legible)' }
+const explanationBodyStyle: React.CSSProperties = { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontSize: '0.86rem', color: '#3a2a1a', lineHeight: 1.65, marginTop: '0.4rem', fontFamily: 'var(--font-legible)' }
 const aiNoteStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#a07a3a', marginTop: '0.4rem', fontStyle: 'italic', fontFamily: 'var(--font-legible)' }
 const pagerStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', margin: '1rem 0' }
 const pagerBtnStyle: React.CSSProperties = {

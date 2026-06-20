@@ -656,6 +656,7 @@ const stemStyle: React.CSSProperties = {
   lineHeight: 1.5,
   color: '#3a2a1a',
   whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
   // Exam content (truncated question stem preview) — legible, never pixel.
   fontFamily: 'var(--font-legible)',
 }
