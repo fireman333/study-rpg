@@ -21,7 +21,7 @@
     "group": "5HT",
     "color": "#ca4970",
     "iconKey": "subject:寄生蟲學",
-    "totalQuestions": 158
+    "totalQuestions": 165
   },
   {
     "id": "組織學",
@@ -53,7 +53,7 @@
     "group": "GABA",
     "color": "#696cd3",
     "iconKey": "subject:免疫學",
-    "totalQuestions": 310
+    "totalQuestions": 309
   },
   {
     "id": "解剖學",
@@ -69,7 +69,7 @@
     "group": "Glu",
     "color": "#27866f",
     "iconKey": "subject:生理學",
-    "totalQuestions": 610
+    "totalQuestions": 611
   },
   {
     "id": "胚胎學",
@@ -85,6 +85,6 @@
     "group": "Glu",
     "color": "#278634",
     "iconKey": "subject:微生物學",
-    "totalQuestions": 371
+    "totalQuestions": 364
   }
 ]
