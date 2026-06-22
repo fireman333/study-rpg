@@ -83,6 +83,7 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
   const [nickname, setNickname] = useState<string | null>(null)
   const [ownedFamilies, setOwnedFamilies] = useState<OwnedFamily[]>([])
   const [composeOpen, setComposeOpen] = useState(false)
+  const [reportTarget, setReportTarget] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
 
   const mine = userId ? board.find((m) => m.authorKey === userId) ?? null : null
@@ -143,6 +144,7 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
 
   const handleReport = useCallback(
     async (authorKey: string) => {
+      setReportTarget(null)
       if (!accessToken) {
         setToast('要先登入才能檢舉')
         return
@@ -188,9 +190,9 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
           </p>
         </div>
       ) : reduced ? (
-        <StaticGrid board={board} userId={userId} onReport={handleReport} />
+        <StaticGrid board={board} userId={userId} onReport={setReportTarget} />
       ) : (
-        <BounceFrame board={board} userId={userId} onReport={handleReport} />
+        <BounceFrame board={board} userId={userId} onReport={setReportTarget} />
       )}
 
       <p style={disclaimerFooterStyle}>留言內容由使用者自行負責；不當內容可檢舉，站方保留刪除權。</p>
@@ -214,8 +216,49 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
         />
       )}
 
+      {reportTarget !== null && (
+        <ReportConfirmModal
+          message={board.find((m) => m.authorKey === reportTarget) ?? null}
+          onCancel={() => setReportTarget(null)}
+          onConfirm={() => void handleReport(reportTarget)}
+        />
+      )}
+
       {toast && <div style={toastStyle}>{toast}</div>}
     </section>
+  )
+}
+
+// ─── Report confirmation modal ───────────────────────────────────────────────
+
+function ReportConfirmModal({
+  message,
+  onCancel,
+  onConfirm,
+}: {
+  message: ShoutoutMessage | null
+  onCancel: () => void
+  onConfirm: () => void
+}): JSX.Element {
+  return (
+    <div style={overlayStyle} onClick={onCancel} role="presentation">
+      <div style={modalStyle} onClick={(e) => e.stopPropagation()} role="alertdialog" aria-label="檢舉留言確認">
+        <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>檢舉這則留言？</h3>
+        {message && <div style={reportPreviewStyle}>「{message.message}」</div>}
+        <p style={{ margin: '0.6rem 0 0', fontSize: '0.82rem', color: '#8c6d4a' }}>
+          檢舉後站方會收到通知；多次檢舉的留言會自動隱藏。
+        </p>
+        <div style={modalActionsStyle}>
+          <span style={{ flex: 1 }} />
+          <button type="button" style={secondaryBtnStyle} onClick={onCancel}>
+            取消
+          </button>
+          <button type="button" style={dangerBtnStyle} onClick={onConfirm}>
+            確定檢舉
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -694,6 +737,17 @@ const reportBtnStyle: React.CSSProperties = {
   fontSize: '0.8rem',
   padding: 0,
   lineHeight: 1,
+}
+const reportPreviewStyle: React.CSSProperties = {
+  marginTop: '0.4rem',
+  padding: '0.5rem 0.7rem',
+  background: '#faf3e3',
+  border: '1px solid #e4d6b4',
+  borderRadius: '8px',
+  fontSize: '0.85rem',
+  color: '#3a2a1a',
+  wordBreak: 'break-word',
+  whiteSpace: 'pre-wrap',
 }
 const disclaimerFooterStyle: React.CSSProperties = {
   marginTop: '0.6rem',
