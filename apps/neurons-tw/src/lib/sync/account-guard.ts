@@ -11,6 +11,8 @@
 
 import type { NeuronsDB } from '../db'
 import { NEURONS_ADAPTERS, SYNCED_META_KEYS } from './tables'
+import { clearAllPersistedEtags } from './r2/etag'
+import { clearPresignCache } from './r2/client'
 
 const MARKER_KEY = 'neurons:lastSyncedUserId'
 const ACK_RESET_KEY_PREFIX = 'neurons:lastAckResetAt:'
@@ -92,6 +94,15 @@ export async function clearLocalSyncedData(db: NeuronsDB): Promise<void> {
       }
     }
   })
+  // reduce-r2-412-storm D4: drop the outgoing user's persisted R2 etag(s) and
+  // the presigned-URL cache so the next account's first push isn't gated by a
+  // stale etag and never reuses a previous user's signed URL. localStorage /
+  // in-memory only — runs after the Dexie wipe succeeds, so a failed wipe
+  // (which throws above) leaves them intact for retry, matching the
+  // marker-unwritten contract. Covers the in-place reset path transitively
+  // (services/account-reset.ts calls clearLocalSyncedData).
+  clearAllPersistedEtags()
+  clearPresignCache()
 }
 
 /**

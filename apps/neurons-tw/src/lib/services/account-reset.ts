@@ -45,7 +45,7 @@ export async function resetNeuronsAccountData(): Promise<void> {
 
   // (2) Cloud wipe + broadcast. Abort on failure — nothing local touched yet.
   const resetAt = Date.now()
-  await pushBundle(supabase, db, { snapshotOverride: () => buildResetSnapshot(resetAt) })
+  await pushBundle(supabase, db, userId, { snapshotOverride: () => buildResetSnapshot(resetAt) })
 
   // (3) Ack our own reset so the next pull doesn't re-trigger the gate.
   writeAckResetAt(userId, resetAt)
