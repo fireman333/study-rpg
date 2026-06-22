@@ -1,7 +1,5 @@
 # neurons-cloud-sync (delta)
 
-> DRAFT — requirement wording pending owner confirmation (curator rule: spec content needs user-confirmed phrasing before archive).
-
 ## ADDED Requirements
 
 ### Requirement: R2 push ETag SHALL persist across reloads, user-scoped, published only after apply
