@@ -197,7 +197,10 @@ describe('resetNeuronsAccountData', () => {
     await resetNeuronsAccountData()
 
     expect(pushBundleMock).toHaveBeenCalledTimes(1)
-    const opts = pushBundleMock.mock.calls[0][2] as { snapshotOverride: () => BundleSnapshot }
+    // reduce-r2-412-storm: pushBundle gained a userId 3rd positional arg, so
+    // opts is now arg-index 3 (the reset bundle's snapshotOverride lives there).
+    expect(pushBundleMock.mock.calls[0][2]).toBe(USER_A)
+    const opts = pushBundleMock.mock.calls[0][3] as { snapshotOverride: () => BundleSnapshot }
     const pushed = opts.snapshotOverride()
     expect(pushed.data).toEqual({})
     expect(typeof pushed.meta.reset_at).toBe('number')

@@ -15,7 +15,7 @@ import {
   type BundleSnapshot,
 } from './bundles'
 import { requestPresign } from './client'
-import { getEtag, setEtag } from './etag'
+import { getEtag, setEtag, clearEtag } from './etag'
 import { honorResetMarker } from '../account-guard'
 
 const MAX_PUSH_RETRIES = 3
@@ -40,6 +40,7 @@ export interface PullBundleResult {
 export async function pushBundle(
   supabase: SupabaseClient,
   db: NeuronsDB,
+  userId: string,
   opts?: {
     /**
      * Replace the Dexie-derived snapshot (add-neurons-account-reset): the
@@ -73,7 +74,7 @@ export async function pushBundle(
         'Content-Type': 'application/gzip',
         ...(requiredHeaders ?? {}),
       }
-      const known = getEtag()
+      const known = getEtag(userId)
       if (known) headers['If-Match'] = known
       else headers['If-None-Match'] = '*'
 
@@ -81,19 +82,21 @@ export async function pushBundle(
 
       if (res.ok) {
         const etag = res.headers.get('ETag')
-        if (etag) setEtag(etag)
+        // Push-path 200: persist immediately — the just-uploaded snapshot IS
+        // local truth, so there is no un-merged-state race (cf. the pull path).
+        if (etag) setEtag(userId, etag)
         return { etag, bytes: gz.size, attempts: attempt }
       }
 
       if (res.status === 412 || res.status === 409) {
-        await pullBundle(supabase, db, { conditional: false })
+        await pullBundle(supabase, db, userId, { conditional: false })
         lastStatus = res.status
         await sleep(BACKOFF_MS[attempt - 1] ?? 4000)
         continue
       }
 
       if (res.status === 428 && !known) {
-        await pullBundle(supabase, db, { conditional: false })
+        await pullBundle(supabase, db, userId, { conditional: false })
         lastStatus = res.status
         await sleep(BACKOFF_MS[attempt - 1] ?? 4000)
         continue
@@ -120,18 +123,22 @@ export async function pushBundle(
 export async function pullBundle(
   supabase: SupabaseClient,
   db: NeuronsDB,
+  userId: string,
   opts?: { conditional?: boolean; force?: boolean },
 ): Promise<PullBundleResult> {
   const { url } = await requestPresign(supabase, 'get')
 
   const conditional = opts?.conditional !== false
   const force = opts?.force === true
-  const cachedEtag = conditional && !force ? getEtag() : null
+  const cachedEtag = conditional && !force ? getEtag(userId) : null
 
   if (cachedEtag) {
     try {
       const headRes = await fetch(url, { method: 'HEAD' })
       if (headRes.status === 404) {
+        // Server blob gone (deleted / reset): drop the stale etag so the
+        // retry push falls back to If-None-Match:* instead of looping 412.
+        clearEtag(userId)
         return { etag: null, notModified: false, blobMissing: true, applied: null }
       }
       if (headRes.ok) {
@@ -156,6 +163,8 @@ export async function pullBundle(
   const res = await fetch(url, { method: 'GET' })
 
   if (res.status === 404) {
+    // Server blob gone (deleted / reset): drop the stale etag (see HEAD-404).
+    clearEtag(userId)
     return { etag: null, notModified: false, blobMissing: true, applied: null }
   }
   if (!res.ok) {
@@ -170,16 +179,23 @@ export async function pullBundle(
   try {
     snapshot = await gunzipBundle(blob)
   } catch {
-    if (etag) setEtag(etag)
+    // Corrupt-blob recovery: keep the etag so the next push can If-Match
+    // overwrite the bad blob. No snapshot was merged.
+    if (etag) setEtag(userId, etag)
     return { etag, notModified: false, blobMissing: false, applied: null, decodeFailed: true }
   }
-
-  if (etag) setEtag(etag)
 
   // Reset-propagation gate (add-neurons-account-reset) — see honorResetMarker.
   await honorResetMarker(db, snapshot.meta.reset_at)
 
   const applied = await applyBundleSnapshot(db, snapshot)
+
+  // D2 (reduce-r2-412-storm): persist the pulled etag ONLY AFTER the snapshot
+  // is merged into Dexie — never before. Publishing it pre-apply would let a
+  // concurrent tab PUT with this etag while its local state is still un-merged,
+  // bypassing whole-bundle conflict detection and overwriting newer cloud rows.
+  if (etag) setEtag(userId, etag)
+
   return { etag, notModified: false, blobMissing: false, applied, snapshot }
 }
 

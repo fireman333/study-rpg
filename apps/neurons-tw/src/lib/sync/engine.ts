@@ -78,7 +78,7 @@ export class SyncEngine {
     this.pending = false
     this.state = 'pushing'
     try {
-      await pushBundle(this.supabase, this.db)
+      await pushBundle(this.supabase, this.db, this.user.id)
       this.lastPushAt = Date.now()
       this.state = 'idle'
       this.lastError = null
@@ -98,7 +98,7 @@ export class SyncEngine {
     if (this.state === 'paused') return
     this.state = 'pulling'
     try {
-      const result = await pullBundle(this.supabase, this.db, {
+      const result = await pullBundle(this.supabase, this.db, this.user.id, {
         conditional: !opts?.force,
         force: opts?.force,
       })
