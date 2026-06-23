@@ -53,7 +53,7 @@
     "group": "GABA",
     "color": "#696cd3",
     "iconKey": "subject:免疫學",
-    "totalQuestions": 307
+    "totalQuestions": 265
   },
   {
     "id": "解剖學",
@@ -85,6 +85,6 @@
     "group": "Glu",
     "color": "#278634",
     "iconKey": "subject:微生物學",
-    "totalQuestions": 363
+    "totalQuestions": 405
   }
 ]
