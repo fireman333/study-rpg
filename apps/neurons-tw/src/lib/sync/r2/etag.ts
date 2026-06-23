@@ -60,6 +60,24 @@ export function clearEtag(userId: string): void {
   }
 }
 
+/** Re-sync the in-memory etag for `userId` from localStorage (single-flight S2).
+ *  Called at push-lock entry so a serialized writer picks up the PREVIOUS
+ *  writer's just-persisted etag (esp. cross-tab) instead of its own stale
+ *  in-memory copy → it sends `If-Match: <fresh>` rather than a value that 412s.
+ *  Drops the mem entry when the key was cleared server-side (→ next push falls
+ *  back to `If-None-Match:*`). No-op when localStorage is unavailable (keeps
+ *  whatever mem already holds). */
+export function refreshEtagFromStore(userId: string): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const v = localStorage.getItem(keyFor(userId))
+    if (v && v.length > 0) mem.set(userId, v)
+    else mem.delete(userId)
+  } catch {
+    // ignore — keep whatever mem has
+  }
+}
+
 /** Clear the in-memory map AND every persisted (localStorage) ETag for every
  *  user. Called on account switch / local wipe / in-place reset so the next
  *  user's first push is never gated by a previous user's stale etag

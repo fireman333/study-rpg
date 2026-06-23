@@ -15,7 +15,8 @@ import {
   type BundleSnapshot,
 } from './bundles'
 import { requestPresign } from './client'
-import { getEtag, setEtag, clearEtag } from './etag'
+import { getEtag, setEtag, clearEtag, refreshEtagFromStore } from './etag'
+import { withPushLock } from './push-lock'
 import { honorResetMarker } from '../account-guard'
 
 const MAX_PUSH_RETRIES = 3
@@ -118,6 +119,28 @@ export async function pushBundle(
   throw new Error(
     `r2_push_exhausted: ${(lastErr as { message?: string })?.message ?? 'unknown'}`,
   )
+}
+
+/**
+ * Serialized R2 push (port-neurons-r2-single-flight-push S1/S2). Runs
+ * `pushBundle` under the per-user push lock (`withPushLock`), refreshing the
+ * persisted ETag from localStorage FIRST so a serialized writer — especially a
+ * second tab — sends `If-Match: <fresh>` instead of a stale in-memory value
+ * that 412s. BOTH R2 PUT call sites route through this helper: the sync engine's
+ * debounced / manual push AND the account-reset bundle push. Keeping them on one
+ * helper prevents the two sites from drifting (cf. 二階's `pushAllNow`, which
+ * first shipped missing the ETag refresh — codex F4).
+ */
+export function pushBundleSerialized(
+  supabase: SupabaseClient,
+  db: NeuronsDB,
+  userId: string,
+  opts?: Parameters<typeof pushBundle>[3],
+): Promise<PushBundleResult> {
+  return withPushLock(userId, () => {
+    refreshEtagFromStore(userId)
+    return pushBundle(supabase, db, userId, opts)
+  })
 }
 
 export async function pullBundle(

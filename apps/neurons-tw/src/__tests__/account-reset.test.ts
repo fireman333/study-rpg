@@ -26,6 +26,11 @@ import {
 
 // ---- mocks for the reset-flow orchestration test ---------------------------
 
+// The reset flow calls the LOW-LEVEL pushBundle inside its own withPushLock
+// critical section (port-neurons-r2-single-flight-push D6 — PUT + ack + local
+// wipe under one lock so a queued push can't resurrect the account). The real
+// withPushLock / refreshEtagFromStore run transparently here (node has no
+// navigator.locks → in-tab fallback just invokes the callback).
 const pushBundleMock = vi.fn()
 vi.mock('../lib/sync/r2/engine-r2', () => ({
   pushBundle: (...args: unknown[]) => pushBundleMock(...args),
