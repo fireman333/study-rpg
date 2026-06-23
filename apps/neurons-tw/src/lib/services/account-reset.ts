@@ -13,15 +13,21 @@
 //   4. wipe local synced data (account-guard helper — device-local meta and
 //      the ownership marker survive; the user stays signed in)
 //
-// No engine coordination needed: a racing debounced push after step 4 builds
-// "empty data + carried-forward reset_at" (equivalent to the reset bundle),
-// and a racing pull sees reset_at == ack → no-op.
+// Steps 2–4 run inside ONE per-user push lock (port-neurons-r2-single-flight-push
+// D6). The cloud wipe, the ack, AND the local wipe must all complete before any
+// debounced/manual push can acquire the lock — otherwise a push queued behind the
+// reset would slot in right after the empty bundle lands, read the still-unwiped
+// Dexie data, and resurrect the just-reset account. We call the LOW-LEVEL
+// pushBundle here (not pushBundleSerialized) to avoid acquiring the same Web Lock
+// name twice (self-deadlock); refreshEtagFromStore preserves the fresh-ETag win.
 
 import { getSupabase } from '../auth/client'
 import { db } from '../db'
 import { clearLocalSyncedData, writeAckResetAt } from '../sync/account-guard'
 import { buildResetSnapshot } from '../sync/r2/bundles'
 import { pushBundle } from '../sync/r2/engine-r2'
+import { refreshEtagFromStore } from '../sync/r2/etag'
+import { withPushLock } from '../sync/r2/push-lock'
 import { deleteLeaderboardRow, getLeaderboardProfile } from './neurons-leaderboard'
 
 export async function resetNeuronsAccountData(): Promise<void> {
@@ -43,13 +49,20 @@ export async function resetNeuronsAccountData(): Promise<void> {
     console.warn('[account-reset] leaderboard delete failed; continuing', err)
   }
 
-  // (2) Cloud wipe + broadcast. Abort on failure — nothing local touched yet.
+  // (2)–(4) One critical section under the per-user push lock, so no debounced /
+  // manual push can interleave between the cloud wipe and the local wipe and
+  // resurrect the account (single-flight D6).
   const resetAt = Date.now()
-  await pushBundle(supabase, db, userId, { snapshotOverride: () => buildResetSnapshot(resetAt) })
-
-  // (3) Ack our own reset so the next pull doesn't re-trigger the gate.
-  writeAckResetAt(userId, resetAt)
-
-  // (4) Local wipe — signed-in identity and device-local meta survive.
-  await clearLocalSyncedData(db)
+  await withPushLock(userId, async () => {
+    refreshEtagFromStore(userId)
+    // (2) Cloud wipe + broadcast. Abort on failure — the throw propagates out of
+    // the lock BEFORE ack/wipe, so local data stays untouched and a retry is safe.
+    await pushBundle(supabase, db, userId, {
+      snapshotOverride: () => buildResetSnapshot(resetAt),
+    })
+    // (3) Ack our own reset so this device's next pull doesn't re-trigger the gate.
+    writeAckResetAt(userId, resetAt)
+    // (4) Local wipe — signed-in identity and device-local meta survive.
+    await clearLocalSyncedData(db)
+  })
 }

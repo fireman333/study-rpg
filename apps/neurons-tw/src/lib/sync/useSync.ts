@@ -109,8 +109,10 @@ export function useSync(): {
     })
     engineRef.current = engine
 
-    // Initial pull on mount.
-    void engine.pullNow({ force: true })
+    // Initial pull on mount — retained on the engine (S3) so the first push
+    // awaits it (bounded) and sends If-Match with a warm ETag instead of the
+    // guaranteed cold-start If-None-Match:* 412.
+    engine.beginStartupForcePull()
 
     // Subscribe to Dexie changes via the `on('versionchange'|'populate'|...)` API
     // is not granular enough — use polling via setInterval (single low-cost timer)
