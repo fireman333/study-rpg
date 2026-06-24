@@ -16,9 +16,9 @@
 
 - [x] 3.1 Reconstruct flattened tables via LLM agents → structured blocks (faithful reformat: no fact add/drop; drop footers; propagate group labels; skip-don't-guess on scrambled)
 - [x] 3.2 Automated gate: row-width == columns AND ≤4 non-footer source tokens missing → apply; else quarantine
-- [x] 3.3 Apply pilot 5 + wave-1 49 = **54 questions** with blocks; quarantine 1 pilot (104-2) + 15 wave-1 fails + 20 agent self-skips for human review
-- [ ] 3.4 Remaining severe waves (chunks 06–17, ~188 questions) — pending (owner gating on token cost)
-- [ ] 3.5 Human spot-check of the quarantined / scrambled set (e.g. 104-2 生理 Q7) — pending
+- [x] 3.3 Apply pilot + waves 1–3 = **175 questions** with blocks (173 of the 256-severe set + 2 pilot outside it)
+- [x] 3.4 All severe waves done (chunks 00–17, 252 questions processed across 18 agents)
+- [ ] 3.5 Human spot-check of the **83 quarantined** severe questions (scrambled cell order / dropped-OCR / row-width fail) — list at `quarantine-severe.json`; they render flat text until reviewed
 
 ## 4. Verify
 
