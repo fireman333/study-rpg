@@ -27,5 +27,12 @@
 
 ## 5. Deploy
 
-- [ ] 5.1 Deploy neurons (Cloudflare Pages) via `pnpm run deploy:cf`
-- [ ] 5.2 Prod spot-check: a reconstructed question renders a real table; a non-reconstructed one still renders flat text (fallback)
+- [x] 5.1 Deployed neurons (Cloudflare Pages) via `pnpm run deploy:cf` (waves 1–3); main pushed (`35280f4`), GH Actions Deploy CF Pages + Dexie lint green
+- [x] 5.2 Prod verified: `med-study-rpg.com/neurons/` serves 175 explanationBlocks; 題庫 112-2 Q31 renders 2 real tables; control question falls back to flat text
+
+## 6. Follow-up (separate work — see handoff)
+
+- [ ] 6.1 Human spot-check + apply the 83 quarantined severe questions (`quarantine-severe.json`)
+- [x] 6.2 Moderate-flagged tables (heuristic 15–29 fragment lines, 263 q) — DONE: all 19 chunks (00–18) processed across 3 waves = **+148 applied** → total **323 explanationBlocks**; ~25 gate-quarantined (dropped scrambled figure-OCR / row-width fail), render flat text as before
+- [ ] 6.3 Mild-flagged tables (heuristic 8–14 fragment lines, ~350 q) — not yet attempted
+- [ ] 6.4 Archive this change once the batch is closed (or split 6.x into a new change)
