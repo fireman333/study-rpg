@@ -26,7 +26,7 @@
 - [x] 4.2 `pnpm --filter @study-rpg/neurons-tw typecheck` clean; 664 vitest green (+9); build clean
 - [x] 4.3 Live smoke (dev, navigate via 題庫 nav click): 「乙醯膽鹼」 4600→36; 「乙醯膽鹼 受體」 AND→20; +解剖學 chip→1; gibberish→0 + 清除搜尋; 「巴拉松」+藥理學 chip→0 + 「清除篩選後可找到 1 題」; 清除篩選 restores; zero console errors
 
-## 5. Deploy (owner-gated)
+## 5. Deploy
 
-- [ ] 5.1 Deploy the neurons app (Cloudflare Pages) via `pnpm run deploy:cf` from the deploy worktree `~/coding-scratch/study-rpg`
-- [ ] 5.2 Prod Chrome MCP smoke on `med-study-rpg.com/neurons/bank`: keyword narrows count, gibberish → empty state, chip + search AND, clear restores; zero console errors
+- [x] 5.1 Deployed the neurons app (Cloudflare Pages) via `pnpm run deploy:cf` from the deploy worktree `~/coding-scratch/study-rpg` — bundle `index-DRXckLEl.js` (2026-06-24); prod `/neurons/` serves it, Supabase env baked
+- [x] 5.2 Prod Chrome MCP smoke on `med-study-rpg.com/neurons/bank`: 「乙醯膽鹼」 4600→36; 「乙醯膽鹼 受體」 AND→20; gibberish→empty state + 清除搜尋; 「乙醯膽鹼」+解剖學 chip→1; clear search→700 (解剖學-only, chip preserved); zero console errors
