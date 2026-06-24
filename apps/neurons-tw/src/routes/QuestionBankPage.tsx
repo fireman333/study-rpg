@@ -8,7 +8,7 @@
  * Supabase `bug_reports` table via the same `submitBugReport` service the
  * in-quiz inline reporter uses (so reports land identically, with question_id).
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   QUIZ_BUG_TARGETS,
@@ -42,6 +42,27 @@ function sessionLabel(s: number): string {
   if (s === 1) return '第一次'
   if (s === 2) return '第二次'
   return `第${s}次`
+}
+
+/**
+ * Lowercased, NFKC-normalized searchable text for one question (題號 + 題幹 +
+ * 選項 + 詳解). NFKC folds full/half-width Latin so 藥名/英文縮寫 match regardless
+ * of width; substring search over this is the most predictable behavior for the
+ * no-word-boundary CJK corpus (vs a fuzzy/tokenizer library).
+ */
+export function buildHaystack(q: Question): string {
+  return `${q.id} ${q.stem} ${Object.values(q.options).join(' ')} ${q.explanation ?? ''}`
+    .normalize('NFKC')
+    .toLowerCase()
+}
+
+/**
+ * Split a raw search query into NFKC-lowercased, whitespace-separated tokens.
+ * Tokens are AND-combined by the caller. NFKC folding means a full-width query
+ * (ＳＯＤ１) matches half-width content (SOD1) and vice versa.
+ */
+export function tokenizeSearchQuery(query: string): string[] {
+  return query.trim().normalize('NFKC').toLowerCase().split(/\s+/).filter(Boolean)
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -167,30 +188,65 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
   const [page, setPage] = useState(0)
   const [bugForQ, setBugForQ] = useState<string | null>(null)
 
-  const filtered = useMemo(
-    () =>
-      questions.filter((q) => {
-        if (selSubjects.size > 0 && !selSubjects.has(q.subject)) return false
-        if (selYears.size > 0) {
-          const y = qYear(q)
-          if (y == null || !selYears.has(y)) return false
-        }
-        if (selSessions.size > 0) {
-          const v = qSession(q)
-          if (v == null || !selSessions.has(v)) return false
-        }
-        return true
-      }),
-    [questions, selSubjects, selYears, selSessions],
-  )
+  // Search: `searchInput` is the controlled input value; `committedQuery` is the
+  // debounced value that actually drives filtering. `composingRef` suppresses
+  // commits mid-IME-composition (注音/拼音) — the search box's composition
+  // handlers commit immediately on compositionEnd.
+  const [searchInput, setSearchInput] = useState('')
+  const [committedQuery, setCommittedQuery] = useState('')
+  const composingRef = useRef(false)
+
+  // Precompute the searchable haystack once per corpus (co-located with the
+  // question to avoid a per-row lookup during filtering).
+  const searchRows = useMemo(() => questions.map((q) => ({ q, haystack: buildHaystack(q) })), [questions])
+  // Whitespace-split tokens, AND-combined; NFKC-lowercased to match the haystack.
+  const searchTokens = useMemo(() => tokenizeSearchQuery(committedQuery), [committedQuery])
+
+  const filtered = useMemo(() => {
+    const out: Question[] = []
+    for (const { q, haystack } of searchRows) {
+      if (selSubjects.size > 0 && !selSubjects.has(q.subject)) continue
+      if (selYears.size > 0) {
+        const y = qYear(q)
+        if (y == null || !selYears.has(y)) continue
+      }
+      if (selSessions.size > 0) {
+        const v = qSession(q)
+        if (v == null || !selSessions.has(v)) continue
+      }
+      if (searchTokens.length > 0 && !searchTokens.every((t) => haystack.includes(t))) continue
+      out.push(q)
+    }
+    return out
+  }, [searchRows, selSubjects, selYears, selSessions, searchTokens])
+
+  // How many questions the search alone matches (ignoring chip filters) — lets
+  // the empty state offer 「清除篩選可看到 N 題」 when chips have hidden all hits.
+  const searchMatchTotal = useMemo(() => {
+    if (searchTokens.length === 0) return 0
+    let n = 0
+    for (const { haystack } of searchRows) {
+      if (searchTokens.every((t) => haystack.includes(t))) n++
+    }
+    return n
+  }, [searchRows, searchTokens])
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const clampedPage = Math.min(page, pageCount - 1)
   const paged = filtered.slice(clampedPage * PAGE_SIZE, (clampedPage + 1) * PAGE_SIZE)
 
+  // Reset to page 0 when any chip filter OR the search query changes.
   useEffect(() => {
     setPage(0)
-  }, [selSubjects, selYears, selSessions])
+  }, [selSubjects, selYears, selSessions, committedQuery])
+
+  // Debounce the search box into the active query. Hold off while an IME
+  // composition is mid-flight (組字中) — onCompositionEnd commits immediately.
+  useEffect(() => {
+    if (composingRef.current) return
+    const t = window.setTimeout(() => setCommittedQuery(searchInput), 200)
+    return () => window.clearTimeout(t)
+  }, [searchInput])
 
   function toggle<T>(set: Set<T>, value: T, apply: (next: Set<T>) => void): void {
     const next = new Set(set)
@@ -199,7 +255,18 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
     apply(next)
   }
 
-  const hasFilter = selSubjects.size > 0 || selYears.size > 0 || selSessions.size > 0
+  const hasChipFilter = selSubjects.size > 0 || selYears.size > 0 || selSessions.size > 0
+  const hasFilter = hasChipFilter || committedQuery !== ''
+
+  function clearSearch(): void {
+    setSearchInput('')
+    setCommittedQuery('')
+  }
+  function clearAllChipFilters(): void {
+    setSelSubjects(new Set())
+    setSelYears(new Set())
+    setSelSessions(new Set())
+  }
 
   return (
     <section aria-label="題庫">
@@ -215,6 +282,37 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
           整冊約 100 題依序作答 · 純練習，不影響養成進度（答錯仍記入錯題，可之後出征修復）
         </span>
       </button>
+
+      <div style={searchBarStyle}>
+        <label style={searchLabelStyle} htmlFor="qbank-search-input">
+          🔍 搜尋
+        </label>
+        <span style={searchFieldStyle}>
+          <input
+            id="qbank-search-input"
+            type="text"
+            style={searchInputStyle}
+            placeholder="關鍵字、藥名或題號（題幹 / 選項 / 詳解）"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onCompositionStart={() => {
+              composingRef.current = true
+            }}
+            onCompositionEnd={(e) => {
+              composingRef.current = false
+              const v = e.currentTarget.value
+              setSearchInput(v)
+              setCommittedQuery(v)
+            }}
+            aria-label="搜尋題庫（題幹、選項、詳解、題號），可用空格分隔多個關鍵字"
+          />
+          {searchInput !== '' && (
+            <button type="button" style={searchClearStyle} onClick={clearSearch} aria-label="清除搜尋">
+              ×
+            </button>
+          )}
+        </span>
+      </div>
 
       <div style={filterBarStyle}>
         <ChipGroup
@@ -243,13 +341,40 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
             onToggle={(k) => toggle(selSessions, k as number, setSelSessions)}
           />
         )}
-        <span style={countStyle}>
+        <span style={countStyle} aria-live="polite">
           {filtered.length} / {questions.length} 題
         </span>
       </div>
 
       {filtered.length === 0 && hasFilter && (
-        <p style={emptyStyle}>沒有符合篩選條件的題目。</p>
+        <div style={emptyStyle} role="status" aria-live="polite">
+          {committedQuery !== '' ? (
+            <>
+              <p style={emptyTextStyle}>
+                {hasChipFilter
+                  ? `目前篩選條件下找不到符合「${committedQuery}」的題目。`
+                  : `找不到包含「${committedQuery}」的題目。`}
+              </p>
+              {hasChipFilter && searchMatchTotal > 0 && (
+                <p style={emptyHintStyle}>
+                  清除篩選後，「{committedQuery}」可找到 {searchMatchTotal} 題。
+                </p>
+              )}
+              <div style={emptyActionsStyle}>
+                <button type="button" style={chipStyle} onClick={clearSearch}>
+                  清除搜尋
+                </button>
+                {hasChipFilter && (
+                  <button type="button" style={chipStyle} onClick={clearAllChipFilters}>
+                    清除篩選
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <p style={emptyTextStyle}>沒有符合篩選條件的題目。</p>
+          )}
+        </div>
       )}
 
       <ul style={listStyle}>
@@ -677,6 +802,56 @@ const chipActiveStyle: React.CSSProperties = {
 }
 const countStyle: React.CSSProperties = { fontSize: '0.78rem', color: '#8c6d4a', fontWeight: 600, alignSelf: 'flex-end' }
 const emptyStyle: React.CSSProperties = { color: '#8c6d4a', fontSize: '0.9rem', padding: '1rem 0', textAlign: 'center' }
+const emptyTextStyle: React.CSSProperties = { margin: '0 0 0.4rem', lineHeight: 1.6 }
+const emptyHintStyle: React.CSSProperties = { margin: '0 0 0.6rem', fontSize: '0.82rem', color: '#a07a3a' }
+const emptyActionsStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: '0.4rem', justifyContent: 'center' }
+
+// ─── Search box (cream/brown pixel aesthetic, matches filterBarStyle) ─────────
+const searchBarStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  padding: '0.6rem 0.8rem',
+  background: '#f4ecd8',
+  border: '2px solid #8c6d4a',
+  borderRadius: '4px',
+  marginBottom: '0.6rem',
+}
+const searchLabelStyle: React.CSSProperties = {
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  color: '#3a2a1a',
+  whiteSpace: 'nowrap',
+}
+const searchFieldStyle: React.CSSProperties = { position: 'relative', display: 'flex', flex: 1, alignItems: 'center' }
+const searchInputStyle: React.CSSProperties = {
+  flex: 1,
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '0.4rem 1.8rem 0.4rem 0.6rem',
+  background: '#fbf6e9',
+  border: '1px solid #c9ad7f',
+  borderRadius: '4px',
+  fontFamily: 'var(--font-legible)',
+  fontSize: '0.88rem',
+  color: '#2a2118',
+}
+const searchClearStyle: React.CSSProperties = {
+  position: 'absolute',
+  right: '0.4rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '1.2rem',
+  height: '1.2rem',
+  padding: 0,
+  background: 'transparent',
+  border: 'none',
+  color: '#8c6d4a',
+  fontSize: '1.1rem',
+  lineHeight: 1,
+  cursor: 'pointer',
+}
 const listStyle: React.CSSProperties = { listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.7rem' }
 const entryStyle: React.CSSProperties = {
   background: '#fbf6e9',
