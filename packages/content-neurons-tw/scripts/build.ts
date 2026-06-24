@@ -206,10 +206,10 @@ function normalizeExplanation(ex: string): string {
   for (const line of ex.split('\n')) {
     if (/^\s*\d{2,3}\s*$/.test(line)) continue // bare page-number line
     if (/^\s*醫學[一二]\s*$/.test(line)) continue // standalone book-name footer
-    if (/^\s*陽明醫學系\s*\d+\s*級\s*$/.test(line)) continue // 「陽明醫學系110 級」 page header
-    if (/^\s*\d+\s*第[一二三四]次（?[暑寒]?）?\s*醫學[一二]\s*$/.test(line)) continue // 「108 第二次（暑）醫學二」 paper footer
-    if (/^\s*陽明醫學系歷屆國考詳解\s*$/.test(line)) continue // doc-title footer
-    if (/^\s*回目錄\s*$/.test(line)) continue // TOC back-link footer
+    if (/^\s*\d*\s*陽明醫學系\s*\d+\s*級\s*$/.test(line)) continue // 「陽明醫學系110 級」 / 「100 陽明醫學系110 級」 page header (optional leading page no.)
+    if (/^\s*\d+\s*第[一二三四]次（?[暑寒]?）?\s*醫學[一二]\s*$/.test(line)) continue // 「108 第二次（暑）醫學二」 paper footer (anchored: 「類似題：…」content lines kept)
+    if (/^\s*\d*\s*陽明醫學系歷屆國考詳解\s*$/.test(line)) continue // 「陽明醫學系歷屆國考詳解」 / 「100 …」 doc-title footer
+    if (/^\s*\d*\s*回目錄\s*$/.test(line)) continue // 「回目錄」 TOC back-link footer
     kept.push(line.replace(/\s+$/, '')) // strip trailing whitespace
   }
   const collapsed: string[] = []
