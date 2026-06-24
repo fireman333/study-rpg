@@ -34,5 +34,5 @@
 
 - [~] 6.1 Severe quarantine (83) — TRIAGED via 6 agents (2026-06-24): 25 no-table (flat text correct, no action), **13 recovered+applied** (zero content loss), 70 remain in `quarantine-severe.json`. Owner-review queue in `quarantine-review.md`: Bucket A (11 quick-verify), Bucket B (7 dropped-content), Bucket C (27 needs-human medical-judgment alignment)
 - [x] 6.2 Moderate-flagged tables (heuristic 15–29 fragment lines, 263 q) — DONE: all 19 chunks (00–18) processed across 3 waves = **+148 applied** → total **323 explanationBlocks**; ~25 gate-quarantined (dropped scrambled figure-OCR / row-width fail), render flat text as before
-- [~] 6.3 Mild-flagged tables (heuristic 8–14 fragment lines, 395 q) — in progress: chunks 00–11 (waves 1–2) = **+48 applied** → total 384; lower yield (many short spans are prose lists, agents skip); chunks 12–28 remaining
+- [x] 6.3 Mild-flagged tables (heuristic 8–14 fragment lines, 395 q) — DONE: all 29 chunks (00–28) processed across 5 waves = **+106 applied** → total **442 explanationBlocks**; lower yield than moderate (~27% — many short spans are prose lists / image-only tables, agents correctly skip as no-table)
 - [ ] 6.4 Archive this change once the batch is closed (or split 6.x into a new change)
