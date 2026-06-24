@@ -33,6 +33,6 @@
 ## 6. Follow-up (separate work — see handoff)
 
 - [ ] 6.1 Human spot-check + apply the 83 quarantined severe questions (`quarantine-severe.json`)
-- [~] 6.2 Moderate-flagged tables (heuristic 15–29 fragment lines, 263 q) — in progress: chunks 00–11 (waves 1–2) = **+88 applied** → total 263 explanationBlocks; ~33 gate-quarantined; chunks 12–18 remaining
+- [x] 6.2 Moderate-flagged tables (heuristic 15–29 fragment lines, 263 q) — DONE: all 19 chunks (00–18) processed across 3 waves = **+148 applied** → total **323 explanationBlocks**; ~25 gate-quarantined (dropped scrambled figure-OCR / row-width fail), render flat text as before
 - [ ] 6.3 Mild-flagged tables (heuristic 8–14 fragment lines, ~350 q) — not yet attempted
 - [ ] 6.4 Archive this change once the batch is closed (or split 6.x into a new change)
