@@ -20,6 +20,7 @@ import {
 import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { QuizModal } from '../components/QuizModal'
+import { Explanation } from '../components/Explanation'
 import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
 import {
@@ -591,7 +592,7 @@ function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): 
       {q.explanation && (
         <details style={explanationStyle} open>
           <summary style={explanationSummaryStyle}>📖 詳解</summary>
-          <div style={explanationBodyStyle}>{q.explanation}</div>
+          <Explanation question={q} textStyle={explanationBodyStyle} />
           {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
             <p style={aiNoteStyle}>※ 本題詳解由 AI 生成，僅供參考。</p>
           )}

@@ -10,6 +10,16 @@ field) bumps the **PATCH**, and a **breaking** change (removing/renaming a symbo
 adding a required field, changing a signature) bumps the **MINOR**. The `1.0.0`
 boundary is reserved for declaring the engine API stable.
 
+## [0.6.2] — 2026-06-24
+
+### Added
+
+- `ExplanationBlock` type (`{ type: 'prose'; text } | { type: 'table'; columns; rows; caption? }`)
+  and an optional `Question.explanationBlocks?: ExplanationBlock[]` field. When present, host
+  renderers SHOULD render the structured blocks (real tables) and use the flat `explanation`
+  string only as a fallback. Additive + optional (no behavior change for existing consumers);
+  introduced to repair PDF-flattened tables in 詳解 without altering `id` / `answer`.
+
 ## [0.6.1] — 2026-06-09
 
 ### Added
