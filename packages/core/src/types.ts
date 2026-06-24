@@ -47,13 +47,25 @@ export interface Subject {
   totalQuestions: number
 }
 
+/**
+ * A structured explanation block. `prose` is a free-text paragraph; `table` is a
+ * reconstructed grid (header row + data rows). When a Question carries
+ * `explanationBlocks`, host renderers SHOULD render the blocks (real tables) and
+ * use the flat `explanation` string only as a fallback. Introduced to repair
+ * PDF-flattened tables in 詳解 without ever altering `id` / `answer`.
+ */
+export type ExplanationBlock =
+  | { type: 'prose'; text: string }
+  | { type: 'table'; columns: string[]; rows: string[][]; caption?: string }
+
 export interface Question {
   id: QuestionId
   subject: SubjectId
   stem: string
   options: Record<string, string> // e.g. { A: "...", B: "...", C: "...", D: "..." }
   answer: string                  // key into options, e.g. "C"; for disputed questions this is a placeholder — see `disputed`
-  explanation: string             // markdown allowed
+  explanation: string             // markdown allowed; flat fallback when `explanationBlocks` is absent
+  explanationBlocks?: ExplanationBlock[] // structured 詳解 (prose + real tables); when present, renderers prefer this over `explanation`
   hasImage?: boolean
   imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
   hasOptionImages?: boolean       // at least one option is an un-renderable image; host apps filter from quiz pools

@@ -101,6 +101,12 @@ const TAG_TO_SUBJECT: Array<{ pattern: RegExp; subject: '微生物學' | '免疫
 ]
 const DEFAULT_MICROIMMUNE_FALLBACK: '微生物學' = '微生物學'
 
+// Structured 詳解 block — mirrors @study-rpg/core's ExplanationBlock (build is
+// kept import-free of core; the shape is carried through verbatim via `...q`).
+type ExplanationBlock =
+  | { type: 'prose'; text: string }
+  | { type: 'table'; columns: string[]; rows: string[][]; caption?: string }
+
 interface MedexamQuestion {
   id: string
   subject: string
@@ -108,6 +114,7 @@ interface MedexamQuestion {
   options: Record<string, string>
   answer: string
   explanation: string
+  explanationBlocks?: ExplanationBlock[] // structured 詳解 (real tables); passed through verbatim, normalizer touches only `explanation`
   hasImage?: boolean
   imagePath?: string | null  // set by build when a figures/<id>.png exists (see FIGURES_DIR)
   hasOptionImages?: boolean

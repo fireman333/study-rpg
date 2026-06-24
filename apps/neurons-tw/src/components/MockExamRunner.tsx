@@ -20,6 +20,7 @@ import {
 } from '../lib/services/mock-exam-draft'
 import { submitMockVariantRoll, type MockRollResult } from '../lib/services/mock-variant-gacha'
 import { MockVariantRevealBadge } from './MockVariantRevealBadge'
+import { Explanation } from './Explanation'
 import { PrecedingContext } from './PrecedingContext'
 import { QuestionFigure } from './QuestionFigure'
 import { QuestionJumpGrid } from './QuestionJumpGrid'
@@ -258,7 +259,7 @@ export function MockExamRunner({
                   <summary style={explanationSummaryStyle}>
                     <EmojiIcon char="📖" size={15} /> 詳解
                   </summary>
-                  <div style={explanationBodyStyle}>{q.explanation}</div>
+                  <Explanation question={q} textStyle={explanationBodyStyle} />
                   {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
                     <p style={aiNoteStyle}>🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
                   )}
