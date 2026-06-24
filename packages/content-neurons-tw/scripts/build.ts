@@ -187,8 +187,18 @@ function classifyMicroImmune(q: MedexamQuestion): { subject: '微生物學' | '�
  *   - drop standalone book-name footer lines (醫學一 / 醫學二) — these are page
  *     footers from the extraction, NOT content. (Legit section headers like
  *     參考資料 / 補充 / 筆者的話 are multi-char and NOT matched.)
+ *   - drop chapter/page-break footers injected mid-explanation by the paginated
+ *     陽明 PDF source — confined to the 106–109 papers (add-neurons-explanation-
+ *     footer-cleanup, 2026-06-24): 「陽明醫學系<NNN> 級」, 「<NNN> 第N次（暑/寒）
+ *     醫學一/二」, 「陽明醫學系歷屆國考詳解」, 「回目錄」. A corpus scan found these
+ *     match only a handful of distinct furniture strings (zero content-line FP);
+ *     they always sit mid-text, splitting one explanation across "pages".
  *   - collapse runs of blank lines to a single blank line
  *   - trim leading/trailing blank lines
+ *
+ * Vertical flattened-table cell runs (a PDF table extracted one cell per line)
+ * are NOT repaired here — that needs semantic, per-table reconstruction, handled
+ * as a separate content batch, not a regex normalizer.
  */
 function normalizeExplanation(ex: string): string {
   if (!ex) return ex
@@ -196,6 +206,10 @@ function normalizeExplanation(ex: string): string {
   for (const line of ex.split('\n')) {
     if (/^\s*\d{2,3}\s*$/.test(line)) continue // bare page-number line
     if (/^\s*醫學[一二]\s*$/.test(line)) continue // standalone book-name footer
+    if (/^\s*陽明醫學系\s*\d+\s*級\s*$/.test(line)) continue // 「陽明醫學系110 級」 page header
+    if (/^\s*\d+\s*第[一二三四]次（?[暑寒]?）?\s*醫學[一二]\s*$/.test(line)) continue // 「108 第二次（暑）醫學二」 paper footer
+    if (/^\s*陽明醫學系歷屆國考詳解\s*$/.test(line)) continue // doc-title footer
+    if (/^\s*回目錄\s*$/.test(line)) continue // TOC back-link footer
     kept.push(line.replace(/\s+$/, '')) // strip trailing whitespace
   }
   const collapsed: string[] = []
