@@ -77,6 +77,10 @@ def parse_ym_md(path):
                 opts[om.group(1)] = om.group(2).strip()
         ans = gettext('答案')
         am = re.search(r'([A-E])', ans)
+        # NOTE: only 詳解 is taken here; the 陽明 author's `### Key` (簡解/答題要訣)
+        # is dropped at this point. The hand-maintained corpus restores it post-hoc
+        # via reconcile/restore_jianjie_key.py (prepended 簡解 block). Do NOT re-run
+        # reconcile_all.py to "fix" this — it would wipe the hand-maintained edits.
         out[qn] = {'qn': qn, 'subject': fm.get('subject', ''), 'missing': False,
                    'stem': stem, 'options': opts,
                    'answer': am.group(1) if am else '',
