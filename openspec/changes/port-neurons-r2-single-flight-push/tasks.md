@@ -30,7 +30,7 @@
 ## 6. Verify
 
 - [x] 6.1 Codex (`/cdx review` or `gpt-5.x` adversarial) review of the apply diff before archive (二階's codex pass caught a blocking regression — mirror that gate).
-- [ ] 6.2 `/verify` — build + Chrome MCP live smoke on prod after deploy: assert via the Performance API (`performance.getEntriesByType('resource')`) that R2 PUTs for the user do NOT overlap and push-412s drop to ~0 in-session (the `read_network_requests` PUT-blindspot rule applies — verify PUTs via the Performance API, not the network panel). Confirm `navigator.locks` is the active path (not fallback).
+- [x] 6.2 `/verify` — built+deployed (CI Deploy Cloudflare Pages green; prod bundle `index-D7LXtueJ.js` carries the Supabase env + `neurons-rpg.r2-push` lock string). Chrome MCP live smoke on prod (owner signed in, 2026-06-23): monkeypatched `navigator.locks.request` caught the deployed code acquiring `neurons-rpg.r2-push.<uid>` (req→acq→held 493ms→rel around the real R2 PUT) and, under a self-generated push burst, granted **5 concurrent requests one-at-a-time** (1 held, 3 pending) — single-flight serialization confirmed live (Web Locks active path, not fallback). **0 push-412 across all PUTs (all 200), PUTs non-overlapping, 0 console errors.** (Behavioral instrument = the `request` monkeypatch; the `read_network_requests` PUT-blindspot + a flaky `locks.query()` poll both apply — verify via the patch / Performance timings.)
 - [x] 6.3 `openspec validate port-neurons-r2-single-flight-push --strict` passes.
 
 ## 7. Measure (post-deploy, gates archive)
