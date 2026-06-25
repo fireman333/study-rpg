@@ -18,7 +18,7 @@
 - [x] 3.2 Automated gate: row-width == columns AND ≤4 non-footer source tokens missing → apply; else quarantine
 - [x] 3.3 Apply pilot + waves 1–3 = **175 questions** with blocks (173 of the 256-severe set + 2 pilot outside it)
 - [x] 3.4 All severe waves done (chunks 00–17, 252 questions processed across 18 agents)
-- [ ] 3.5 Human spot-check of the **83 quarantined** severe questions (scrambled cell order / dropped-OCR / row-width fail) — list at `quarantine-severe.json`; they render flat text until reviewed
+- [x] 3.5 Human spot-check of the **83 quarantined** severe questions — DONE: all triaged + dispositioned (`quarantine-review.md`). 25 no-table (correct flat) · 27 recovered+applied (incl. Bucket A) · 27 Bucket C → **table images** (shipped as `add-neurons-explanation-table-images`, archived `a32395f`) · **29 destroyed-OCR** (un-reconstructable without fabricating medical facts) kept flat text → deferred to follow-up change `add-neurons-explanation-tables-image-tail` (owner decision 2026-06-25). None left in an undecided state.
 
 ## 4. Verify
 
@@ -36,4 +36,4 @@
 - [x] 6.5 Gate upgrade + Bucket A apply (2026-06-24, post-Codex fusion consult): faithfulness gate switched from `≤4 multiset-miss` → `entirely-absent non-furniture content token == 0` (+ row-width). Recovered **+35 gate-failed-but-faithful** tables (21 mild + 14 severe Bucket A); 477 total. Both Claude+Codex independently endorsed the metric (multiset over-rejects de-dup/footer noise). Position-blind precision gap acknowledged (can't catch cell-swap) — mitigated by agent skip-discipline; structural fix = image-crop for the unrecoverable tail (next change).
 - [x] 6.2 Moderate-flagged tables (heuristic 15–29 fragment lines, 263 q) — DONE: all 19 chunks (00–18) processed across 3 waves = **+148 applied** → total **323 explanationBlocks**; ~25 gate-quarantined (dropped scrambled figure-OCR / row-width fail), render flat text as before
 - [x] 6.3 Mild-flagged tables (heuristic 8–14 fragment lines, 395 q) — DONE: all 29 chunks (00–28) processed across 5 waves = **+106 applied** → total **442 explanationBlocks**; lower yield than moderate (~27% — many short spans are prose lists / image-only tables, agents correctly skip as no-table)
-- [ ] 6.4 Archive this change once the batch is closed (or split 6.x into a new change)
+- [x] 6.4 Archive this change — batch closed (severe/moderate/mild waves + quarantine triage done; 477 explanationBlocks live). The 29 destroyed-OCR flat-text tables split into follow-up change `add-neurons-explanation-tables-image-tail`.
