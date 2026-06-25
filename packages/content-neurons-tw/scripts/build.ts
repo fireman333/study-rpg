@@ -226,8 +226,62 @@ function classifyMicroImmune(q: MedexamQuestion): { subject: '微生物學' | '�
  * are NOT repaired here — that needs semantic, per-table reconstruction, handled
  * as a separate content batch, not a regex normalizer.
  */
+/**
+ * Restore OCR'd Wingdings/Symbol private-use glyphs whose font mapping was lost
+ * upstream (fix-neurons-corpus-ocr-garble, 2026-06-25). Each codepoint was
+ * verified individually against the source-PDF render — directional arrows
+ * (↑ ↓ → ←) are medically load-bearing (e.g. a thyroid table's「T3/T4↓」), so
+ * they MUST NOT be flattened to bullets; only genuine list-marker glyphs
+ * (●◆■▲⊙❖➢ …) collapse to a neutral bullet. Any PUA codepoint NOT in this map is
+ * left untouched and reported (No-Silent-Errors), never guessed.
+ */
+const PUA_GLYPH_MAP: Record<number, string> = {
+  0xf0e0: '→', 0xf0e8: '→', 0xf0f0: '→', 0xf05f: '→', // right arrows
+  0xf0e1: '↑', 0xf0c7: '↑', // up arrows
+  0xf0e2: '↓', // down arrow
+  0xf0df: '←', // left arrow
+  0xf0fc: '✓', // check mark (present / yes, used in comparison tables)
+  0xf0ab: '★', // emphasis star
+  0xf04a: '☺', // author smiley
+  // list-marker / decorative bullets → neutral bullet
+  0xf06c: '•', 0xf09f: '•', 0xf0b7: '•', 0xf075: '•', 0xf0b2: '•', 0xf0d8: '•',
+  0xf06e: '•', 0xf0a4: '•', 0xf070: '•', 0xf076: '•', 0xf09e: '•', 0xf026: '•',
+}
+let puaMappedCount = 0
+const puaUnmapped = new Map<number, number>() // codepoint → occurrences left as-is
+
+function isPuaCodepoint(cp: number): boolean {
+  return (
+    (cp >= 0xe000 && cp <= 0xf8ff) || // BMP private use area
+    (cp >= 0xf0000 && cp <= 0xffffd) || // supplementary private use area-A
+    (cp >= 0x100000 && cp <= 0x10fffd) // supplementary private use area-B
+  )
+}
+
+function mapPuaGlyphs(ex: string): string {
+  if (!ex) return ex
+  let out = ''
+  for (const ch of ex) {
+    const cp = ch.codePointAt(0)!
+    if (!isPuaCodepoint(cp)) {
+      out += ch
+      continue
+    }
+    const mapped = PUA_GLYPH_MAP[cp]
+    if (mapped !== undefined) {
+      puaMappedCount++
+      out += mapped
+    } else {
+      puaUnmapped.set(cp, (puaUnmapped.get(cp) ?? 0) + 1) // leave + log
+      out += ch
+    }
+  }
+  return out
+}
+
 function normalizeExplanation(ex: string): string {
   if (!ex) return ex
+  ex = mapPuaGlyphs(ex) // restore lost Wingdings/Symbol glyphs before whitespace pass
   const kept: string[] = []
   for (const line of ex.split('\n')) {
     if (/^\s*\d{2,3}\s*$/.test(line)) continue // bare page-number line
@@ -457,6 +511,16 @@ function main(): void {
   console.log(
     `table-images: wired ${tableImagesWired} questions / copied ${tableImagesCopied} webp files`,
   )
+  const puaUnmappedTotal = [...puaUnmapped.values()].reduce((a, b) => a + b, 0)
+  console.log(
+    `pua-glyphs: mapped ${puaMappedCount} occurrences (Wingdings → → ↑ ↓ ← ✓ ★ ☺ •) / left-as-is ${puaUnmappedTotal} across ${puaUnmapped.size} unmapped codepoint(s)`,
+  )
+  if (puaUnmapped.size > 0) {
+    const list = [...puaUnmapped.entries()]
+      .map(([cp, n]) => `U+${cp.toString(16).toUpperCase()}×${n}`)
+      .join(', ')
+    console.warn(`  ⚠ unmapped PUA codepoints (left intact, not guessed): ${list}`)
+  }
   console.log(`Written: ${OUT_DIR}`)
 
   // Step 8: Validate achievement catalog (fail build on rule violation)
