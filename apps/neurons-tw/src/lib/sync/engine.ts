@@ -15,6 +15,17 @@ export type SyncState = 'idle' | 'pushing' | 'pulling' | 'paused' | 'error'
 // hung pull never blocks pushes permanently.
 const STARTUP_PULL_AWAIT_MS = 8000
 
+// Phase 1 (eliminate-cross-device-r2-412-storm): a cross-device 412 resolves to
+// a DEFERRED push — a normal converging backoff, not an error — so the light
+// stays idle and re-arms on the next (jittered) debounce. But after this many
+// CONSECUTIVE defers with no success, surface an error so a pathologically
+// non-converging multi-device writer isn't silent. One success resets the streak.
+const MAX_CONSECUTIVE_DEFERS = 5
+
+// ±jitter fraction on the debounce timer so two devices whose timers would fire
+// together de-synchronize and stop re-colliding on the same R2 object.
+const DEBOUNCE_JITTER = 0.3
+
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
 }
@@ -49,6 +60,9 @@ export class SyncEngine {
   private lastError: string | null = null
   private pushTimer: ReturnType<typeof setTimeout> | null = null
   private pending = false
+  // Consecutive deferred (cross-device 412) pushes since the last success — see
+  // MAX_CONSECUTIVE_DEFERS. Reset to 0 on any landed push or hard error.
+  private consecutiveDefers = 0
   // Retained cold-start force-pull promise (S3). The first push awaits it
   // (bounded) before its PUT; nulled after so only the first push waits.
   private startupForcePull: Promise<void> | null = null
@@ -79,9 +93,13 @@ export class SyncEngine {
     if (this.state === 'paused') return
     this.pending = true
     if (this.pushTimer) clearTimeout(this.pushTimer)
+    // ±jitter so concurrent devices that would fire together de-synchronize.
+    const base = this.debounceMs
+    const delay = Math.max(0, base + (Math.random() * 2 - 1) * base * DEBOUNCE_JITTER)
     this.pushTimer = setTimeout(() => {
+      this.pushTimer = null
       void this.pushNow()
-    }, this.debounceMs)
+    }, delay)
   }
 
   /**
@@ -100,6 +118,12 @@ export class SyncEngine {
     if (this.state === 'paused') return
     if (!this.pending && this.state === 'pushing') return
     this.pending = false
+    // The debounce timer (if any) has fired or is being superseded — clear the
+    // ref so a deferred re-arm starts a clean timer.
+    if (this.pushTimer) {
+      clearTimeout(this.pushTimer)
+      this.pushTimer = null
+    }
 
     // S3: the FIRST push after cold start waits for the startup force-pull to
     // warm the ETag cache. Awaited BEFORE the lock (inside pushBundleSerialized)
@@ -113,8 +137,31 @@ export class SyncEngine {
     this.state = 'pushing'
     try {
       // S1/S2: serialize the R2 push per user across same-tab overlaps AND
-      // concurrent tabs, using the freshest persisted ETag.
-      await pushBundleSerialized(this.supabase, this.db, this.user.id)
+      // concurrent tabs, using the freshest persisted ETag. Phase 1: a
+      // cross-device 412 resolves to a deferred outcome (not a throw).
+      const result = await pushBundleSerialized(this.supabase, this.db, this.user.id, {
+        deferOnConflict: true,
+      })
+
+      if (result.status === 'deferred') {
+        // The push did NOT land. CRITICAL: do not set lastPushAt and do not fire
+        // onPushComplete — that would falsely upsert the leaderboard for a push
+        // that never succeeded. Keep the state dirty and re-arm on the jittered
+        // debounce; only surface an error after a sustained non-converging streak.
+        this.consecutiveDefers += 1
+        this.pending = true
+        if (this.consecutiveDefers >= MAX_CONSECUTIVE_DEFERS) {
+          this.state = 'error'
+          this.lastError = 'sync_deferred_concurrent_writer'
+        } else {
+          this.state = 'idle'
+          this.lastError = null
+        }
+        this.schedulePush()
+        return
+      }
+
+      this.consecutiveDefers = 0
       this.lastPushAt = Date.now()
       this.state = 'idle'
       this.lastError = null
@@ -124,6 +171,7 @@ export class SyncEngine {
         console.warn('[sync] onPushComplete failed', err)
       }
     } catch (err) {
+      this.consecutiveDefers = 0
       this.lastError = (err as { message?: string })?.message ?? 'unknown'
       this.state = 'error'
       console.warn('[sync] push failed', err)

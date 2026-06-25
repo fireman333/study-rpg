@@ -19,14 +19,46 @@ import { getEtag, setEtag, clearEtag, refreshEtagFromStore } from './etag'
 import { withPushLock } from './push-lock'
 import { honorResetMarker } from '../account-guard'
 
-const MAX_PUSH_RETRIES = 3
+// Phase 1 (eliminate-cross-device-r2-412-storm): cap in-cycle retries to 1 so a
+// single push intent issues at most one PUT — killing the ×3 PUT-412 + ×3 GET
+// amplification a cross-device `If-Match` conflict otherwise spun up. On a
+// surviving conflict the engine DEFERS the push (stays dirty) to the next
+// jittered debounce cycle instead of looping or hard-erroring.
+const MAX_PUSH_RETRIES = 1
 const BACKOFF_MS = [250, 1000, 4000]
 
-export interface PushBundleResult {
+// ±jitter fraction on backoff sleeps so concurrent devices that collided in
+// lockstep de-synchronize on retry rather than re-colliding deterministically.
+const BACKOFF_JITTER = 0.3
+
+function jitter(ms: number): number {
+  return Math.max(0, ms + (Math.random() * 2 - 1) * ms * BACKOFF_JITTER)
+}
+
+/** Successful R2 PUT — the bundle landed. */
+export interface PushBundlePushed {
+  status: 'pushed'
   etag: string | null
   bytes: number
   attempts: number
 }
+
+/**
+ * The push could not land this cycle because of a cross-device `If-Match`
+ * precondition conflict (412/409) that survived the (bounded) retry budget. The
+ * caller (sync engine) SHALL keep the state dirty and re-attempt on the next
+ * debounced cycle after a fresh pull — NOT treat this as a hard error or fire
+ * any success side effect. Only returned when `opts.deferOnConflict` is set; the
+ * account-reset path omits it so a conflicted reset still throws
+ * (must-succeed-or-abort — the empty reset bundle must actually land).
+ */
+export interface PushBundleDeferred {
+  status: 'deferred'
+  reason: 'concurrent-writer'
+  attempts: number
+}
+
+export type PushBundleResult = PushBundlePushed | PushBundleDeferred
 
 export interface PullBundleResult {
   etag: string | null
@@ -50,6 +82,13 @@ export async function pushBundle(
      * builder so the retry loop semantics stay identical.
      */
     snapshotOverride?: () => Promise<BundleSnapshot> | BundleSnapshot
+    /**
+     * When set, a 412/409 conflict that survives the retry budget resolves to
+     * `{ status: 'deferred' }` instead of throwing — the sync engine re-arms a
+     * deferred push on the next debounce. Omitted by the account-reset path so a
+     * conflicted reset still throws (the empty reset bundle must actually land).
+     */
+    deferOnConflict?: boolean
   },
 ): Promise<PushBundleResult> {
   let lastErr: unknown = null
@@ -86,20 +125,26 @@ export async function pushBundle(
         // Push-path 200: persist immediately — the just-uploaded snapshot IS
         // local truth, so there is no un-merged-state race (cf. the pull path).
         if (etag) setEtag(userId, etag)
-        return { etag, bytes: gz.size, attempts: attempt }
+        return { status: 'pushed', etag, bytes: gz.size, attempts: attempt }
       }
 
       if (res.status === 412 || res.status === 409) {
+        // Refresh from the winning writer before deferring/retrying so the next
+        // attempt carries a fresh `If-Match`. On the LAST attempt skip the
+        // backoff sleep — no retry will consume it; the jittered debounce IS the
+        // backoff (Fork D).
         await pullBundle(supabase, db, userId, { conditional: false })
         lastStatus = res.status
-        await sleep(BACKOFF_MS[attempt - 1] ?? 4000)
+        if (attempt >= MAX_PUSH_RETRIES) break
+        await sleep(jitter(BACKOFF_MS[attempt - 1] ?? 4000))
         continue
       }
 
       if (res.status === 428 && !known) {
         await pullBundle(supabase, db, userId, { conditional: false })
         lastStatus = res.status
-        await sleep(BACKOFF_MS[attempt - 1] ?? 4000)
+        if (attempt >= MAX_PUSH_RETRIES) break
+        await sleep(jitter(BACKOFF_MS[attempt - 1] ?? 4000))
         continue
       }
 
@@ -109,11 +154,17 @@ export async function pushBundle(
       lastErr = err
       if (isUnrecoverable(err)) throw err
       if (attempt >= MAX_PUSH_RETRIES) break
-      await sleep(BACKOFF_MS[attempt - 1] ?? 4000)
+      await sleep(jitter(BACKOFF_MS[attempt - 1] ?? 4000))
     }
   }
 
   if (lastStatus === 412 || lastStatus === 409) {
+    // Cross-device conflict survived the retry budget. With deferOnConflict the
+    // engine keeps the state dirty and re-attempts next cycle (no throw, no
+    // amplification). Without it (account-reset), throw — the reset must land.
+    if (opts?.deferOnConflict) {
+      return { status: 'deferred', reason: 'concurrent-writer', attempts: MAX_PUSH_RETRIES }
+    }
     throw new Error('r2_blob_concurrent_writer_exhausted: neurons')
   }
   throw new Error(

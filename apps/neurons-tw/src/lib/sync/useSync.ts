@@ -26,7 +26,12 @@ import { autoPushLeaderboardOnSync } from '../services/neurons-leaderboard'
 import { NEURONS_ADAPTERS } from './tables'
 import { adoptAccount, evaluateAccountGate, readLastSyncedUserId, writeLastSyncedUserId } from './account-guard'
 
-const DEBOUNCE_MS = Number(import.meta.env.VITE_SYNC_DEBOUNCE_MS) || 3000
+// Phase 1 (eliminate-cross-device-r2-412-storm): 3s → 12s (matches 二階's ~10s)
+// so concurrent devices push less often → fewer cross-device ETag collisions.
+// schedulePush adds ±jitter on top so two devices de-synchronize. Cost: cloud
+// durability / cross-device visibility lag up to the debounce window; data is
+// never lost (stays in Dexie, flushed on beforeunload / next session).
+const DEBOUNCE_MS = Number(import.meta.env.VITE_SYNC_DEBOUNCE_MS) || 12000
 
 // Push-trigger hook coverage derives from the adapter registry — every synced
 // table schedules a push on write. A hand-maintained literal drifted to 7/20

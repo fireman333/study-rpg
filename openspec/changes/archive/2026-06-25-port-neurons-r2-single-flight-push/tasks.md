@@ -35,4 +35,4 @@
 
 ## 7. Measure (post-deploy, gates archive)
 
-- [ ] 7.1 After clients reload-taper (~hours), re-run the per-UTC-hour `PutObject userError` GraphQL (`~/.cf-analytics-token`, recipe in `~/.claude/scratch/handoff-r2-single-flight-2026-06-23.md`); record the account-wide 412-fraction step-down vs the pre-fix 84–90% baseline. Only then `/opsx:archive`.
+- [x] 7.1 Post-deploy CF analytics measurement DONE (2026-06-24/25, `r2OperationsAdaptiveGroups` via `~/.cf-analytics-token`): `PutObject` 412 dropped 84–90% baseline → **3–5% under low load** (06-24), confirming single-flight killed the same-origin storm. The **~82% high-load residual** (06-25) is **cross-device** (read-only `wrangler tail`: all `/presign` 200 → downstream R2 `If-Match` ETag conflict, not a 409/401). This residual is **out of scope for single-flight** (origin-wide locks can't reach across devices) and is now owned by the follow-up change `eliminate-cross-device-r2-412-storm`. The archive gate is therefore satisfied — single-flight is verified correct + effective for what it claims.
