@@ -58,6 +58,18 @@ export type ExplanationBlock =
   | { type: 'prose'; text: string }
   | { type: 'table'; columns: string[]; rows: string[][]; caption?: string }
 
+/**
+ * A 詳解 table preserved as a cropped image of the original source PDF — the
+ * faithful image-crop tier for tables that cannot be reconstructed as structured
+ * text without medical guessing (scrambled-cell tables, embedded-figure tables).
+ * Additive to the flat `explanation`: host renderers render these AFTER the
+ * explanation text; `explanation` / `id` / `answer` are never altered.
+ */
+export interface ExplanationTableImage {
+  src: string // relative path under app's /public; prepend BASE_URL at render
+  caption?: string
+}
+
 export interface Question {
   id: QuestionId
   subject: SubjectId
@@ -66,6 +78,7 @@ export interface Question {
   answer: string                  // key into options, e.g. "C"; for disputed questions this is a placeholder — see `disputed`
   explanation: string             // markdown allowed; flat fallback when `explanationBlocks` is absent
   explanationBlocks?: ExplanationBlock[] // structured 詳解 (prose + real tables); when present, renderers prefer this over `explanation`
+  explanationTableImages?: ExplanationTableImage[] // image-crop tier for 詳解 tables unrecoverable as text; rendered after the explanation (additive)
   hasImage?: boolean
   imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
   hasOptionImages?: boolean       // at least one option is an un-renderable image; host apps filter from quiz pools

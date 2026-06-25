@@ -34,4 +34,18 @@ if (existsSync(FIG_SRC)) {
     figureCount += 1
   }
 }
-console.log(`✓ Copied content-neurons-tw artifacts (+ ${figureCount} figures) → ${DEST_DIR}`)
+
+// 詳解 table-image crops: copy dist/table-images/*.webp → public/content/neurons-tw/table-images/
+const TI_SRC = resolve(SRC_DIR, 'table-images')
+let tableImageCount = 0
+if (existsSync(TI_SRC)) {
+  const TI_DEST = resolve(DEST_DIR, 'table-images')
+  mkdirSync(TI_DEST, { recursive: true })
+  for (const f of readdirSync(TI_SRC).filter((n) => n.endsWith('.webp'))) {
+    copyFileSync(resolve(TI_SRC, f), resolve(TI_DEST, f))
+    tableImageCount += 1
+  }
+}
+console.log(
+  `✓ Copied content-neurons-tw artifacts (+ ${figureCount} figures, ${tableImageCount} table-images) → ${DEST_DIR}`,
+)

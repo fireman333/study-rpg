@@ -33,6 +33,25 @@ const FIGURES_DIR = resolve(import.meta.dirname, '..', 'figures')
 // unreliable `**有附圖**：是` source marker, but the stem references no figure).
 // Forced to hasImage:false so they show neither a figure nor a [圖] placeholder.
 const FALSE_POSITIVE_HASIMAGE = new Set<string>(['111-2-醫學一-生理學-Q57'])
+// 詳解 table-image crops: the image-crop tier for tables that can't be faithfully
+// reconstructed as text (scrambled-cell / figure tables). `table-images/manifest.json`
+// maps qid → [{src, caption}]; assets are the committed `table-images/<qid>__N.webp`.
+// The build attaches the list to the question and copies the webp files like figures.
+// See add-neurons-explanation-table-images.
+const TABLE_IMAGES_DIR = resolve(import.meta.dirname, '..', 'table-images')
+const tableImagesByQid: Record<string, { src: string; caption?: string }[]> = existsSync(
+  resolve(TABLE_IMAGES_DIR, 'manifest.json'),
+)
+  ? JSON.parse(readFileSync(resolve(TABLE_IMAGES_DIR, 'manifest.json'), 'utf-8'))
+  : {}
+// Clean prose blocks for the image-tier questions: the narrative text with the
+// PDF-flattened (garbled) table runs removed, so the renderer shows clean prose
+// + the table image instead of the gibberish. Verbatim substrings of the
+// original `explanation` (gated by an exact-substring check). `explanation`
+// itself stays untouched (search/fallback). See add-neurons-explanation-table-images.
+const proseByQid: Record<string, string[]> = existsSync(resolve(TABLE_IMAGES_DIR, 'prose.json'))
+  ? JSON.parse(readFileSync(resolve(TABLE_IMAGES_DIR, 'prose.json'), 'utf-8'))
+  : {}
 
 interface FamilyMap {
   family: string
@@ -267,19 +286,32 @@ function main(): void {
   )
   let figuresWired = 0
   let flaggedNoFigure = 0
+  let tableImagesWired = 0
   function wireFigure<T extends MedexamQuestion>(q: T): T {
     // Clean upstream PDF-extraction whitespace cruft before output (every
     // question passes through here exactly once).
     const explanation = normalizeExplanation(q.explanation)
+    // 詳解 table-image crops are additive to the explanation (image-crop tier).
+    const tableImages = tableImagesByQid[q.id]
+    const extra: Record<string, unknown> = tableImages?.length
+      ? { explanationTableImages: tableImages }
+      : {}
+    if (tableImages?.length) tableImagesWired += 1
+    // Clean prose-only blocks (garbled flattened-table text removed) — only when
+    // the source has no structured blocks already (these are quarantined questions).
+    const prose = proseByQid[q.id]
+    if (prose?.length && !('explanationBlocks' in q)) {
+      extra.explanationBlocks = prose.map((text) => ({ type: 'prose', text }))
+    }
     if (FALSE_POSITIVE_HASIMAGE.has(q.id)) {
-      return { ...q, explanation, hasImage: false, imagePath: null }
+      return { ...q, explanation, hasImage: false, imagePath: null, ...extra }
     }
     if (figureIds.has(q.id)) {
       figuresWired += 1
-      return { ...q, explanation, hasImage: true, imagePath: `content/neurons-tw/figures/${q.id}.png` }
+      return { ...q, explanation, hasImage: true, imagePath: `content/neurons-tw/figures/${q.id}.png`, ...extra }
     }
     if (q.hasImage) flaggedNoFigure += 1
-    return { ...q, explanation }
+    return { ...q, explanation, ...extra }
   }
 
   // Step 2 + 3: 直送 9 subjects verbatim + split 微生物暨免疫學 (+ figure wiring)
@@ -396,6 +428,17 @@ function main(): void {
     }
   }
 
+  // Step 6c: Copy 詳解 table-image crops into dist/table-images (→ app public/)
+  let tableImagesCopied = 0
+  if (existsSync(TABLE_IMAGES_DIR)) {
+    const tiOut = resolve(OUT_DIR, 'table-images')
+    mkdirSync(tiOut, { recursive: true })
+    for (const f of readdirSync(TABLE_IMAGES_DIR).filter((n) => n.endsWith('.webp'))) {
+      copyFileSync(resolve(TABLE_IMAGES_DIR, f), resolve(tiOut, f))
+      tableImagesCopied += 1
+    }
+  }
+
   // Step 7: Counters
   const ntCount = (br: NtBranchId) => outputSubjects.filter((s) => s.group === br).length
   console.log(`---`)
@@ -410,6 +453,9 @@ function main(): void {
   )
   console.log(
     `figures: wired ${figuresWired} (imagePath set) / copied ${figuresCopied} files / flagged-without-figure ${flaggedNoFigure} (→ [圖] fallback)`,
+  )
+  console.log(
+    `table-images: wired ${tableImagesWired} questions / copied ${tableImagesCopied} webp files`,
   )
   console.log(`Written: ${OUT_DIR}`)
 

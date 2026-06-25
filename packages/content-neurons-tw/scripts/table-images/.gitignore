@@ -1,0 +1,9 @@
+# Build scratch + source material — the shipped assets live in ../../table-images/
+_work/
+for-owner/
+from-owner/
+out/
+preview/
+_preview/
+__pycache__/
+*.pyc
