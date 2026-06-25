@@ -14,33 +14,68 @@
  * prose `textStyle` (its existing explanationBodyStyle) so flat/prose text keeps
  * each surface's look; table chrome is owned here for consistency.
  */
-import type { CSSProperties } from 'react'
-import type { ExplanationBlock, Question } from '@study-rpg/core'
+import { useState, type CSSProperties } from 'react'
+import type { ExplanationBlock, ExplanationTableImage, Question } from '@study-rpg/core'
 
 export function Explanation({
   question,
   textStyle,
 }: {
-  question: Pick<Question, 'explanation' | 'explanationBlocks'>
+  question: Pick<Question, 'explanation' | 'explanationBlocks' | 'explanationTableImages'>
   textStyle?: CSSProperties
 }): JSX.Element {
   const blocks = question.explanationBlocks
+  const tableImages = question.explanationTableImages
   const proseStyle = { ...baseTextStyle, ...textStyle }
-  if (!blocks || blocks.length === 0) {
-    return <div style={proseStyle}>{question.explanation}</div>
+
+  // Explanation body: structured blocks when present, else the flat string.
+  const hasBlocks = !!(blocks && blocks.length > 0)
+  const body = hasBlocks ? (
+    blocks!.map((block, i) =>
+      block.type === 'prose' ? (
+        <div key={i} style={proseStyle}>
+          {block.text}
+        </div>
+      ) : (
+        <ExplanationTable key={i} block={block} />
+      ),
+    )
+  ) : (
+    <div style={proseStyle}>{question.explanation}</div>
+  )
+
+  // No image crops → preserve the original output exactly.
+  if (!tableImages || tableImages.length === 0) {
+    return hasBlocks ? <div style={blocksWrapStyle}>{body}</div> : (body as JSX.Element)
   }
+  // Image-crop tier: render the faithful 詳解 table images AFTER the explanation.
   return (
     <div style={blocksWrapStyle}>
-      {blocks.map((block, i) =>
-        block.type === 'prose' ? (
-          <div key={i} style={proseStyle}>
-            {block.text}
-          </div>
-        ) : (
-          <ExplanationTable key={i} block={block} />
-        ),
-      )}
+      {body}
+      {tableImages.map((img, i) => (
+        <ExplanationTableImageView key={`ti-${i}`} img={img} />
+      ))}
     </div>
+  )
+}
+
+function ExplanationTableImageView({ img }: { img: ExplanationTableImage }): JSX.Element | null {
+  const [error, setError] = useState(false)
+  if (error) return null
+  const caption = img.caption || '原始詳解表格'
+  return (
+    <figure style={tableFigureStyle}>
+      <figcaption style={tableCaptionStyle}>{caption}</figcaption>
+      <div style={tableImageScrollStyle}>
+        <img
+          src={`${import.meta.env.BASE_URL}${img.src}`}
+          alt={`原始詳解表格：${caption}`}
+          loading="lazy"
+          style={tableImageStyle}
+          onError={() => setError(true)}
+        />
+      </div>
+    </figure>
   )
 }
 
@@ -129,4 +164,20 @@ const tdStyle: CSSProperties = {
   lineHeight: 1.55,
   whiteSpace: 'normal',
   wordBreak: 'keep-all',
+}
+// Image-crop tier: the original 詳解 table as a scanned-looking framed image.
+// Horizontal scroll on narrow screens (a wide table image must not force page
+// overflow); white background reads as an intentional "scanned excerpt".
+const tableImageScrollStyle: CSSProperties = {
+  maxWidth: '100%',
+  overflowX: 'auto',
+  WebkitOverflowScrolling: 'touch',
+  border: '1px solid #c9ad7f',
+  borderRadius: '4px',
+  background: '#fff',
+}
+const tableImageStyle: CSSProperties = {
+  display: 'block',
+  maxWidth: '100%',
+  height: 'auto',
 }

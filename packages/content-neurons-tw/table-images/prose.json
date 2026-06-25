@@ -1,0 +1,203 @@
+{
+ "104-2-醫學一-公共衛生學-Q90": [
+  "空氣污染指標的定義：將當日空氣中懸浮微粒（PM10，粒徑10微米以下之細微粒）、\nSO₂、NO2、CO、O₃濃度等數值，以其對人體健康的影響程度，分別換算出不同污\n染物之副指標值，再以當日各副指標之最大值為空氣污染指標值（PSI）。"
+ ],
+ "104-2-醫學一-微生物暨免疫學-Q64": [
+  "注意 CTL 的TCR 只會認MHC I，還有他會釋放 perforin, granulysin, granzymes 使目\n標細胞凋亡",
+  "（D）CTL 不會分泌IL-12，IL-12 來自於 dendritic cell 或巨噬細胞，會刺激T細胞分化\n成Th1，也有促進造血的功能",
+  "補充一個 CD4 T cell 分化的表格：",
+  "陽明大學醫學系108級免疫學共筆04"
+ ],
+ "104-2-醫學一-微生物暨免疫學-Q71": [
+  "物感染會讓身體產生自體抗體呢？最直觀的可能就是微生物上面的抗原跟組織抗原\n長得很像，讓免疫系統生產出具有自體免疫性的抗體。",
+  "（A）HLA （Human Leukocyte Antigen）是人體原本就表現在白血球上的抗原，基本上\n是控制對於自體免疫疾病的易感性（susceptibility），這個易感性大多跟MHCII\n（跟 CD4T cell 有關）比較相關，不過有一些也會跟 MHCI （CD8 T cell）相關，\nHLA allele 跟自體免疫疾病的風險請見圖（一）。MHC 的genotype 決定了T細\n胞回應抗原的能力，因此有不同的MHC，就代表將類似自體抗原的多肽\n（autoantigenic peptides ）呈現給T細胞的能力不同，所以發展出自體免疫疾病的\n可能性也會不同。HLA 應該不會因為微生物感染而有特殊的抗原表現。",
+  "（B） 有些病原體會表現出像是宿主細胞分子的蛋白質或是 carbonhydrate，這種現象就\n稱為分子類似性（molecular mimicry），這種時候，免疫系統針對病原體的抗原\n決定位（epitope）所製造出的抗體可能就會跟自己的蛋白質產生交互作用。病原\n體表現的這種結構不一定要跟宿主蛋白質一模一樣，只要像到能夠被同一種抗體\n認得即可。如果病原體抗原上面的多肽跟宿主的多肽的相同或類似，也可能會活\n化 autoreactive naive/effector T cell，攻擊自體組織。跟分子類似性有關的自體免\n疫疾病包括 Streptococcus感染引起的 rheumatic fever、腸道感染引起的 reactive\narthritis、Borrelia burgdorferi 感染引起的 Lyme arthritis 等等。",
+  "（C） HEV（High Endothelial Venules ）又稱為 post capillary venule，為淋巴結、脾臟壁\n之特殊上皮，其表皮細胞屬於 tall cuboidal cell，表面具有 glycoprotein 跟 integrin\n協助淋巴球經由 cell adhesion 的機制進入淋巴結，也具高量的chemokine 能吸引\n淋巴球。有90%淋巴球經由 HEV進入淋巴結，其餘10%則是經由淋巴管（\nafferent lymphatic vessels）。HEV 跟淋巴球的通過較相關，跟活化無關。",
+  "（D）這邊的胸腺的 central deletion 應該就是T細胞在胸腺成熟時會經過的 negative\nselection，亦即篩選掉會跟自己組織結合強的T細胞，如果T細胞跟 MHC 結合\n的很好的話就會引發 apoptosis。",
+  "（小複習）跟MHC 結合太弱的T細胞也會被篩選掉，稱為 positive selection。"
+ ],
+ "104-2-醫學一-組織學-Q37": [
+  "myoepi.：汗腺、乳腺、唾液腺 只能背下來了~",
+  "四大組織之中間絲體：",
+  "染到 keratin 就是上皮組織！其它組織也是同理"
+ ],
+ "104-2-醫學一-解剖學-Q19": [
+  "想想提睪反射"
+ ],
+ "104-2-醫學一-解剖學-Q4": [
+  "熟悉各腦神經所支配的功能",
+  "1. 動眼神經所支配的功能包括：",
+  "使瞳孔縮小為動眼神經正常時的功能之一，並非動眼神經損傷的典型臨床症狀。\n若動眼神經出現異常，應出現瞳孔放大。控制瞳孔放大的肌肉為瞳孔擴張肌\n（dilator pupillae）。",
+  "2. 各腦神經所支配的功能",
+  "（1） 各腦神經大致功能",
+  "（2）\n各腦神經可能出現的功能異常"
+ ],
+ "104-2-醫學二-生物化學-Q48": [
+  "GPCR 在膜上，是 transmembrance receptor，不是細胞核受體",
+  "1. G protein 和 GPCR\n（1） GPCR 是穿膜蛋白，共穿膜7次（LD）。作用是活化 G protein（C），使之經\neffector（效用蛋白，即某種酵素）產生 2nd messenger。\n一（B）錯誤，GPCR 在細胞膜上，非細胞核受體（nuclear receptor）\n（2） G protein：由 a、B、Y三個 subunit 組成的 trimer。其中 a subunit 可與 GTP、\nGDP 結合，且具有水解 GTP的活性。\n（3） 參考圖",
+  "2. Gprotein 有 2種訊息傳遞路徑：",
+  "（1） cAMP system",
+  "（2） PIP system"
+ ],
+ "104-2-醫學二-生理學-Q12": [
+  "A. 心室舒張末期，對應至 Ventricular Filling 末、Atrial Systole 之前，可見圖一最上方\n之「Atrial Systole」在往下 Electrocardiogram 對齊，可觀察到P波；或查看圖二之\nPhase 1 與其之於心電圖之對應。\nB. QRS複合波後為 S-T Interval，此時是心室射血至主動脈與肺動脈之時刻，請查看\n圖一之 Ejection 或圖二 Phase 2b；Isovolumic Relaxation 已是T波後段的要務，請\n查看圖一之 Isovolumic Relaxation 或圖二 Phase 3。\nC. T波之意義：心室再極化，此時乃心室將血液射出腔室之際，應是心室體積於心\n動週期中最小的，最大時應在 Atrial Systole 期間。圖一或圖二皆清晰可見。\nD. 心房的再極化發生於 P Wave 之後，QRS Complex 之時。\n翻閱 First Choice 生理學（二）2016版p. 122-127 講解，只有p. 122 有些許相關，其餘依\n舊沒有幫助，感恩讚嘆讓撰寫詳解人擁有充分的自我導向學習機會。\n選項A、C較無法直接藉由文字作對應，建議各位先看題目，接著將底下之文字、表\n格與圖形都看過一次，再回頭看答題要訣。\n心動週期包含 Diastole 舒張、Systole 收縮與 Intervening Pause 收縮及舒張之期間，每\n分鐘心動週期之發生頻率通稱為心跳速率，每次心跳包含五個主要階段，前二總稱為\n心房注入血液至心室之 Ventricular Filling Stage，後三則為心室將血液打入肺動脈及主\n動脈。\n圖一：心房、心室之壓力與體積變化",
+  "以下為心動週期五階段：\nDiastole - Semilunar Valves 半月瓣（肺動脈瓣及主動脈辦）關閉、Atrioventricular\n1.\n（AV） Valves 房室瓣（僧帽/二尖瓣及三尖瓣）敞開，心室舒張，血液被動經由AV\nValves，自心房注入心室；右心房接收由上下腔靜脈之血液、左心房接受肺靜脈\n流回之充氧血。\n2.\nAtrial Systole —雙側心房收縮，血液主動由心房注入心室。\nIsovolumic Contraction-心室開始收縮，AV、半月瓣關閉，心臟體積不變。\n4.\nVentricular Ejection -心室收縮射出血液且排空，AV瓣關閉、半月瓣敞開；全身\n靜脈血液持續進入心房。\nIsovolumic Relaxation Time —心臟壓力降低，心室停止收縮、開始舒張，此時無\n5.\n血液注入心室，主動脈壓致使半月辦關閉。\n心動週期瓣膜與心室之關係",
+  "心電圖之詮釋與心動週期對應\n此圖以左心為例，三大 Phase 與上述之五大階段不同，但大觀念與上述一致。\n1. Ventricular Filling Phase —為此圖之 Phase1，與最初之解釋相同，並對應至上表\n格之 Ventricular Filling、Atrial Systole，為心室舒張之中後期，被動及心房去極化\n主動收縮打血至心室內，配對至P波以及 P-Q Interval。\n2.\nVentricular Systole- Q-T Interval 為此圖之 Phase2，又可細分為2a、2b。2a 對應\n至QRS波、上表格之心室去極化等容收縮Isovolumetric Contraction，辦膜全數關\n閉。2b對應至 S-T Interval、上表格之 Ventricular Ejection（對應至選項 B），AV\nValve 關閉、半月瓣打開，血液注入主動脈及肺動脈。\nQuiescent Phase -T Wave 末端至下一P波開始前，對應至上表格 Isovolumetric\n3.\nRelaxation（對應至選項 B），心室舒張早期，至心房收縮前結束。\n圖二：比圖一更貼近題目敘述的心臟週期暨心電圖對應",
+  "基本術語解釋"
+ ],
+ "104-2-醫學二-生理學-Q7": [
+  "把肌肉搞懂…？\n• 激烈運動時，肌細胞需要相對多的氧來產生ATP，造成而供氧相對不足，所以肌\n細胞行無氧代謝產生ATP，並產生乳酸堆積，造成肌肉疲勞。\n• 心肌和平滑肌具自律性，以特定速率產生動作電位，且絕對不反應期較長，較不\n易受外在因素影響而做功增加。\n• 骨骼肌可以依據收縮速度分類為：\n（1） 慢肌/紅肌/第一型肌纖維/Type I:slow oxidative fibers\n• 血液供應豐富、粒腺體多、氧化酶多（有氧呼吸用）和大量肌紅蛋白。\n• 有較大的有氧代謝能耐。\n（2） 快肌/白肌/第二型肌纖維/Type IIB: fast glycolytic fibers\n• 肌纖維較粗，血液供給、粒腺體和肌紅蛋白均較少。\n• 糖解酵素濃度高，利於其進行無氧代謝，因此又成為快縮糖解肌纖維。\n（3） 快肌/白肌/第二型肌纖維/Type IIA:fast oxidative fibers 快肌/中間肌\n• 介於兩者之間，兼具兩者特色。\n• 總結『易疲勞程度』：\nType IIB fast glycolytic > Type IIA fast oxidative\n≥ Type I slow oxidative >心肌、平滑肌\n•另外附上比較圖，趕時間可略（嗚嗚做完比較才發現根本不用到）：\n（1）骨骼肌 VS.心肌 VS.平滑肌",
+  "（2） 骨骼肌之分類：",
+  "老趙、生理學課本、大三共筆、網路上資料各種彙整。"
+ ],
+ "104-2-醫學二-生理學-Q8": [
+  "呃.請掌握各種生理\nA. 血基質經血基質氧化酶氧化，釋放出鐵、一氧化碳（CO）和膽綠素（biliverdin）。\n• 鐵和 Transferrin 結合，運送到骨髓（製造 RBC）或肝臟（儲藏為 Ferritin）（詳見C.）\n一氧化碳由肺排出\n• 膽綠素經膽綠素還原酶形成膽紅素（bilirubin：脂溶性/未結合型/間接型）\n• 血中：與白蛋白（Albumin）結合，送到肝臟\n• 肝臟：形成水溶性/結合型/直接型膽紅素，隨著膽汁進入腸道\n腸道：由腸內菌將之代謝成尿膽素原（urobilinogen）；大部分由腸內菌繼續代\n謝為糞膽素（stercobilin）隨糞便排出，少部分重吸收送至腎臟形成尿膽素\n（urobilin）隨尿液排出。",
+  "B. 免疫球蛋白（immunoglobulin），即抗體，也就是血液中的γ球蛋白\n•\n由B cell/Plasma cell 分泌（不是肝臟！！！）\n•.\n與病原體抗原表位（epitope）結合，成為免疫複合體（Ag-Ab complex），引發沉\n澱、中和、凝集反應，進而活化補體，增加吞噬作用，\n一『標記』病原體，並非直接『殺』菌！！！\n• 分類如下：",
+  "那那那肝臟製造的『蛋白』又是什麼呢？這裡另外給大家介紹血液中的主要蛋白：",
+  "C.維生素K：在腸道吸收（脂溶性一需要膽汁幫助吸收），其分類如下：",
+  "D. 血中鐵的來源主要有：（1）腸道吸收 （2） RBC 破壞（3）由儲藏部位釋放。\n•\n血鐵和運鐵素（Transferrin） 結合，送到骨髓（製造 RBC）或是肝臟（儲藏）\n• 骨髓：鐵進入 Normoblast 細胞質，形成鐵堆積區 （Iron pool），作為製造RBC用\n一>攜帶氧氣\n• 肝臟：鐵和儲鐵蛋白（Apoferritin） 結合成鐵蛋白（Ferritin）儲存\n老趙、生理學課本、大三共筆、網路上資料各種彙整。"
+ ],
+ "104-2-醫學二-藥理學-Q60": [
+  "促進/抑制生長的藥物，和其作用在GH 回饋路徑的哪裡\n首先複習一下 GH 回饋路徑：",
+  "（1）促進反應：",
+  "（2）抑制反應：",
+  "生長相關藥物：",
+  "（A）題幹說IGF-1缺乏，故即使補充GH也無法刺激IGF-1製造\n（C）直接補充IGF-1，正確\n（B）（D） 為抑制生長，不符題意\n四上藥理學第13本"
+ ],
+ "104-2-醫學二-藥理學-Q61": [
+  "1. 這題是性腺荷爾蒙的範圍，先了解它們與 estrogen/progesterone/androgen（包括\ntestosterone）其中哪一個相關，再細分各藥物是屬於致效性 or 抑制性的",
+  "2. estrogen還要注意 SERM（如這題的Clomiphene），比較特殊",
+  "3. 建議搭配生理學一起複習",
+  "（趕時間請看紅字，剩餘為整體架構複習）",
+  "簡單生理複習：",
+  "FSH 促進濾泡成熟（卵子生成）",
+  "FSH+ Testosterone 刺激 spermatogenesis 產生精子",
+  "最新彩色圖解藥理學 第四版第25 章雌性素與雄性素"
+ ],
+ "104-2-醫學二-藥理學-Q62": [
+  "97（一）專 醫學二-53\n下列抗心律不整藥物中，何者較不會引起 Torsade de pointes 的副作用？",
+  "A.Amiodarone 答案跟這次的一樣，一定要背起來！",
+  "B.Sotalol",
+  "C.Dofetilide",
+  "D.Quinidine",
+  "抗心律不整藥物中，class la 與 class III 的藥物因為會延長 action potential（AP）所\n以在心電圖上會看到 QT interval 延長一可能導致 TdP（Torsade de pointes，多型\n性心室心搏過速）",
+  "+ 但有一個特例：Amiodarone 屬於 class III，但引起TdP的機會低很多，副作用\n反而是心跳過慢",
+  "TdP 與心電圖 QT interval延長有關，原因是什麼呢？",
+  "V 鉀離子通道阻斷 所以會把鉀離子通道阻斷的 class III（最典型）、class la\n（除了原始的鈉離子通道阻斷，還會阻斷鉀離子通道）都要小心",
+  "V 鎂離子缺乏 所以可以用MgSO4治療",
+  "那，為什麼 Amiodarone 不太會造成TdP呢？",
+  "V 阻斷鉀離子通道 造成 QT interval延長（與其他la、III類似）",
+  "V 抑制 adrenergic receptor、鈣離子通道 心跳減慢一反而不易TdP",
+  "以下摘自 First choice 表格：AP=action potential, AV=atrioventricular, PR=PR\ninterval，全部藥名都要背",
+  "補充：\nAmiodarone 的副作用：\n肺纖維化、肝毒性、甲狀腺功能亢進/低下、光敏感、低血壓、神經病變、肌肉\n無力、碘沈積在皮膚下（藍皮膚）、depression、TdP",
+  "la 的記憶法：皇后宣稱 Diso’s金字塔是一等A級品",
+  "Quinidine, Procainamide, Disopyramide",
+  "First choice 國考分科詳解醫學（二）第三冊藥理學 心律不整藥物"
+ ],
+ "104-2-醫學二-藥理學-Q63": [
+  "首先要先把心律不整的藥物有哪些搞清楚",
+  "先附上FC的表格",
+  "接下來分不同的藥說明藥物副作用",
+  "Propafenone :negative inotropic effect 減弱心肌收縮力，會使心臟衰竭，心肌梗塞患\n者禁用",
+  "Adenosine: Flushing 潮紅",
+  "Procainamide：出現 lupus like reaction（發燒，肋膜炎，關節痛）",
+  "Atenolol ：屬於早期的 Bi selective blocker，相較而言沒有其他的交感神經阻斷器的副\n作用，如氣喘惡化等。",
+  "Atenolol 常見副作用（from Medscape）：主要就是 Bblocker 易造成的副作用一低血壓",
+  "First choice 醫學（二）第3冊P100心律不整藥物"
+ ],
+ "104-2-醫學二-藥理學-Q65": [
+  "*血管平滑肌只有交感神經支配，但血管內皮細胞有副交感受體 M3 receptor，ACh 與\nM3 receptor 結合後會釋放鈣離子，進而使 NO（即所謂的 EDRF）釋放到血管平滑肌，\n使血管舒張。",
+  "1.基本的ANS生理",
+  "A. 可分為",
+  "i.\nSympathetic neurons（thoraco-lumbar）",
+  "ii\nParasympathetic neurons（cranio-sacral）",
+  "B. 交感 VS.副交感",
+  "2. Cholinergic Receptors （=cholinoceptors）包含",
+  "A. Muscarinic receptors:M1、M2、M3、M4、M5",
+  "B. Nicotinic receptors : NN、NM （N :neuro ; M :muscle）"
+ ],
+ "106-1-醫學一-公共衛生學-Q91": [
+  "新國際與舊輻射專用單位之關係 ",
+  "活度 (activity) \n一放射性核種於每單位時間內產生自發性蛻變的次數，稱為活度。活度\n的單位為「貝克」，簡寫成Bq，它的定義為1 貝克 (Bq) ＝1 蛻變/秒 ",
+  "曝露量 (Ｘ)：單位質量之乾空氣與χ 或γ 射線作用所產生之電荷量。 \n。 傳統單位（侖琴）：使1 公斤乾空氣產生2.58x10-4 C 電量為1R \n（Roentgen，侖琴） \n。 國際單位(C/kg)：1 R = 2.58×10 國際單位(C/kg)：1 R = 2.58×10-4 \nC/kg ",
+  "活度吸收劑量 (absorbed dose)，D \n每單位質量的物質（公斤），平均吸收的輻射能量（焦耳），稱為吸收劑\n量。吸收劑量單位是「戈雷」，簡寫為Gy，它的定義為：1 戈雷 (Gy)＝\n1 焦耳/公斤 ",
+  "等效劑量 (dose equivalent)，HT \n不同種類的輻射（α、β、γ、n）照射人體的組織或器官，雖使人體組織\n有相同的吸收劑量，但卻會造成不同程度的傷害現象。為此，針對不同\n種類的輻射訂出射質因數 (Q) ，代表不同輻射對人體組織造成不同程\n度的生物傷害，它的值列於下表： ",
+  "等效劑量即為人體組織的吸收劑量和射質因數的乘積，它已含有輻射對\n組織器官傷害的意義了。它的單位是「西弗」，簡寫成Sv，定義為： \nHT（西弗）＝D（戈雷）×Q ",
+  "有效劑量（effective dose） \n由於人體各組織器官對輻射的敏感度不同，所以雖各接受相同的等效劑\n量，但是造成健康損失（罹患致死癌或不良遺傳）的風險（機率）卻不\n同，也就是說不同的器官組織，照射相同的輻射量所照成的傷害不同。\n因此又訂出「組織加權因數」（WT）來代表各組織器官接受輻射對健康\n",
+  "損失的機率。把各組織器官的等效劑量 (HT) ，與其加權因數的乘績再\n加以總和，即成為有效等效劑量 (HE)。HE 代表全身的輻射劑量，用來\n評估輻射可能造成我們健康效應的風險，單位也是西弗（Sv）。 ",
+  "參考資\n料 \n \n清蔚園。輻射的單位有那些？可取得：http://thnf-\nweb.vm.nthu.edu.tw/science/shows/nuclear/rad/2/2-2.html \n \n中山大學輻射防護委員會。輻防簡介、輻射計量單位及生物效應。可取\n得：http://www2.nsysu.edu.tw/COHP/institute/files/97-2.pdf"
+ ],
+ "106-2-醫學二-病理學-Q82": [
+  "Hypercoagulable state 可分為原發性(遺傳性)和續發性(後天性)，本題主要討論\n續發性，以下表格則兩者都整理： ",
+  "依照以下表格，知道ABC 三選項都屬於高危險群，而(D)吸菸，則為低危險群，故\n正解為(D)。 ",
+  "參考資料 \n小羅第四章p.79 ",
+  "陽明醫學系歷屆國考詳解"
+ ],
+ "108-2-醫學二-病理學-Q80": [
+  "稍微整理一下各種副腫瘤症候群及其常見的癌症，肺癌會做比較細的分類",
+  "副腫瘤症候群的成因主要就是腫瘤產生的異位性激素(ectopic hormone) ",
+  " 老趙病理學 "
+ ],
+ "108-2-醫學二-病理學-Q93": [
+  "恩，這題….憑現有知識也不知道怎麼猜，果斷放棄\n翻了一下老趙病理也沒有講，遇到就直接送他ㄅ\n(有空再看，直接背答案比較快)",
+  "經研究發現，M 型的 Phospholipase A2 受體，一種大量表現於絲球體足細胞的穿膜蛋白被認定為原發性膜性腎病變中的主要抗原。在 37 位病人原發性 MN 病人當中，可在 26 位病人(70%)發現 PLA2R 的抗體，並且與疾病活性相關。但從次發性 MN 病人或其他與蛋白尿有關的疾病則與抗 PLA2R 抗體不具有顯著的相關性。而循環的 PLA2R 抗體主要為 IgG4，為原發性 MN 絲球體中的免疫複合體最豐富的蛋白質。",
+  "2. 老趙病理  \n審稿補充 \n好奇的話，可以跟110 級借PBL 教案來看＾＾你會發現他是個不只跟腎臟有關的\n新世界呢＾＾ 在四下的AIR 教案，IgG4 related diseaseˊˇˋ) \n(附上wrap-up 的共筆\nhttps://drive.google.com/file/d/1DJk9H125wn3olsbwn0IzJNQoA0EOyZ7s/view?fbclid\n=IwAR3K0LraGXd6wNAOqedAHDHSjs-8nXivMsk71xQEXAUtAfhbUJzTuH8csoo"
+ ],
+ "108-2-醫學二-藥理學-Q55": [
+  "1.快速緩解症狀支氣管擴張劑 \n2.長期控制的藥物 ",
+  "*提供筆者的記法 terol  \n， terol  \n，五個字母為較長效  ",
+  "參考資料 FC 藥理 "
+ ],
+ "108-2-醫學二-藥理學-Q59": [
+  "先來看看肺結核常用藥物的機制和重要的副作用～",
+  "再來看選項～\n(A) INH 是抑制細胞壁的合成，不是細胞膜！\n(B) 這個選項我當時看到也不確定，如果不會不要太緊張XD 經過查詢之後發現服用劑型有 tablets、oral syrup 以及 injectable solution\n(C) 這個真的只能記了 XD 有三種藥物在肝臟以 acetylation 的方式代謝：\n1. Hydralazine\n2. Procainamide\n3. Isoniazid\n值得注意的是，acetylation 的酵素強弱與基因很有關聯，某些人天生 acetylation 較慢，稱為 slow acetylators，這些人比起一般人更容易受到上面三種藥物影響，產生 drug-induced SLE。\n(D) 會影響視力的是 Ethambutol（口訣：Eyes～Ethambutol）",
+  "參考資料 110 級藥理學共筆 No.06"
+ ],
+ "108-2-醫學二-藥理學-Q63": [
+  "簡介長期使用類固醇之副作用 ",
+  "其他選項之藥物 ",
+  "(A) Lovastatin [-statin]  \n \n①屬於HMG CoA reductase inhibitor， \n \n合成所需的酵素 \nHMG CoA，導致cholesterol 合成減少 \n②治療LDL 過高的首選藥物 \n③副作用：橫紋肌溶解、肝功能受損 ",
+  "(B) Metformin：糖尿病藥物 \n①屬於Biguanide 類，增加組織對胰島素敏感度 \n肝臟敏感度上升，使糖質新生率下降 \n組織敏感度上升，使組織利用血糖率上升 \n②可治療空腹血糖：因為metformin  \n，也可改善lipid profile",
+  "③副作用：剛服用時腹瀉噁心，嚴重情況則有乳酸中毒（心肝腎差的人不能使\n用，因為乳酸中毒機率較高） \n（口訣：mate for me~肝臟還沒吃東西（空腹）就請你跟他交配） \n(C) Propranolol：[-olol] 非選擇性β blocker  \n①降低心收縮力、降低心跳速率；支氣管收縮 \n②可治療高血壓（心輸出下降）、心絞痛(心跳下降、心輸出下降)、心衰竭 \n③禁忌：氣喘、COPD 禁用 \n參考資料 FC 藥理、藥理口訣8.00"
+ ],
+ "110-2-醫學二-微生物暨免疫學-Q12": [
+  "1. 肝炎病毒A 型：過去教課書都標示是糞口傳染，但近年研究表明同性性行為也會\n造成HAV 傳染，此傳播途徑亦經美國CDC 認同，並視同性性行為者為風險族\n群，故為今年的爭議選項。",
+  "2. HSV：屬於人類疱疹病毒家族(HHV)，需特別注意HHV 家族之間的不同，以下簡\n單做表格整理，筆者認為可以特別記下性行為傳染及會在唾腺製造者：",
+  "3. 茲卡病毒：屬於黃病毒科，此科特徵是蚊蟲傳播，而茲卡病毒透過蚊子入血後，\n又能穿透胎盤、唾液、性行為傳播，會造成胎兒小頭症。",
+  "4. 麻疹病毒：屬於副黏液病毒，這個家族包含呼吸道融合病毒、副流感病毒等，看\n到這些病毒要很快想到呼吸道症狀，所以可以和呼吸道/飛沫傳染連結。",
+  "★麻疹典型臨床症狀CCC+P(咳嗽、鼻炎、結膜炎+畏光)，也可以很快地連結呼吸道/飛沫感染。",
+  "參考資料 \n1. Sexual Transmission and Viral Hepatitis。US CDC。Retrieved from \nhttps://www.cdc.gov/hepatitis/populations/stds.htm。2021.09.12  \n2. 黃麗華老師病毒學講義 \n3. FC 醫學(二)第1 冊(2020) p.174, 186 \n4. Mandell, Douglas, and Bennett's Principles and Practice of Infectious \n\nDiseases, 9th Edition, Chapter 174",
+  "補充 \n★補充肝炎病毒的整理表格，注意數項病毒特徵: \n1.HAV、HEV 是糞口傳染，其他是透過血液及性行為。 \n2.HBV、HCV 可能造成慢性感染(致癌)，其他都是急性發作。 \n3.HBV 是唯一DNA 病毒，其他都是RNA 病毒(只有HDV 是負股RNA)。 \n4. HBV、HCV、HDV 會帶原。",
+  "(By 澐)：這題是今年申覆最成功的一題了！大家平常學HAV 都知道是糞口傳染，但\n其實HAV 也有血液傳染的案例，甚至有兩個垂直傳染的病例被發表（但或許跟胎糞\n有關），在感染科教科書Mandell 也特別提到了輸血或使用被汙染的血品有可能感\n染，之所以HAV 不常血液傳染的一個原因是HAV 不會造成慢性感染，病人也就比較\n少機會透過血液傳播病原，但如果在醫院針扎還是要注意（HAV 不是針扎常規要驗\n的項目）。另外性行為其實廣義上包括口肛交，這在MSM 裡面常常傳播糞口病原例\n如HAV 和E. histolytica，也或許是這題送分的一個考量，不然即便偶而能透過血液\n傳染，HAV 要藉由性行為傳播還是極為困難的。"
+ ],
+ "111-1-醫學二-微生物暨免疫學-Q7": [
+  "針對這一題的鏈球菌比較",
+  "簡單整理整理，細項就再翻翻書ㄛ",
+  "參考資料 \n細菌整理(by 黃柏修)"
+ ],
+ "112-1-醫學二-藥理學-Q73": [
+  "(A) topiramate：阻斷AMPA 受器 \n(B) valproic acid：阻斷鈉離⼦通道、阻斷NMDA 受器、活化GABA 提升濃度(增加合\n成、減少代謝酵素活性、抑制回收 \n(C) gabapentin：促進GABA 釋放、抑制GABA 回收 \n(D) levetiracetam：局部抑制 N 型鈣離⼦電流，並降低鈣離⼦由神經內的貯存處釋出",
+  "上網查到的資料是topiramate 可做為減重藥物使⽤但⽬前台灣尚未核准上市，作⽤機\n制主要是抑制食慾來達成減重的效果，可以聯想到AMPA 受器",
+  "在這邊幫⼤家複習癲癇藥物 \n1. 癲癇推測機制：神經元興奮性太⾼ \n(1) GABA 不⾜：GABA 作為抑制性神經傳導物質，作⽤於𝐺𝐴𝐵𝐴஺−𝑅 \n(2) Glutamate 過多：glutamate 作為興奮性神經傳導物質 \n(3) 產⽣動作電位的通道發⽣異常變化",
+  "2. 癲癇藥物治療",
+  "補充減重藥物",
+  "參考資料 \nhttps://www.cth.org.tw/?aid=606&pid=40&page_name=detail&iid=1660 \nhttps://epaper.ntuh.gov.tw/health/201602/project_3.html \nhttp://web.csh.org.tw/web/cshmagazine/?p=885 \n藥理全無寄蟲⽤藥p.11, 12 \n筆者的整理",
+  "校稿補充 \n1. \n曾考過topiramate 的機轉： \n(109-1-58) \n(109-1-58)",
+  "2. \n(D)選項levetiracetam 也考過： \n(107-2-74)",
+  "(108-1-72)",
+  " \n參考資料：陽明國考詳解"
+ ],
+ "112-2-醫學一-胚胎學-Q34": [
+  "純考背誦 \n男性生殖器發育分別如下： \n中腎管：副睪、副睪附件、輸精管、儲精囊、射精管 \n中腎小管：睪丸輸出小管 \n副中腎管：退化 \n泌尿生殖竇：前列腺囊、前列腺、尿道球腺、尿道",
+  "真的忘記的話的解題思路 \n前列腺和前列腺囊好像是一組的(單看名字的話)，然後內生殖器的順序大致是儲精囊-\n攝護腺-尿道球腺。而中腎管應該是構成比較上游的生殖器官，故選儲精囊。",
+  "參考資料 \n趙俊彥 醫師解剖第二版 第17 章 28、29 頁",
+  "補充 \n剛好是之前我做的共筆範圍，偷偷讓我小改一下拿來用XD～ 先上常考的背誦表格",
+  "再加一個修改自原文書的背誦表格 (同源對應) \n(合併修改自 Netter′s Atlas of Human Embryology 和 The Developing Human: Clinically Oriented \nEmbryology, 10t e.d.)",
+  "看完背誦表格，性腺、外生殖器、尿道、腎的發育流程太多了，真心無法幫大家補\n上，大家自己回去翻吧，丟題目了喔~ \n \n醫學 (一) 111-1-34 \n在男性生殖系統，下列何者構造衍生自胚胎時期之中腎管（mesonephric duct）？ \n(A) 細精管（seminiferous tubule） \n(B) 睪丸網（rete testis） \n(C) 射精管（ejaculatory duct） \n(D) 睪丸附件（appendix of testis）"
+ ],
+ "114-2-醫學一-組織學-Q38": [
+  "肌肉的組成結構和生理機制都很重要，但篇幅有限，在這邊主要詳述三聯體： \n三聯體在A-I junction 處圍繞每條肌原纖維，由細胞膜凹陷形成的T 小管和兩側的肌\n漿質網(又稱為終池，內含高濃度鈣)形成。當神經訊號傳遞到運動終板時①，神經末\n梢釋放的乙醯膽鹼②與肌肉細胞膜上受器反應，啟動動作電位③，動作電位傳遞到T\n小管④，其上的DHP receptor 感應到細胞膜去極化⑤，接著活化終池上的\nRyanodine receptor⑥讓鈣進入細胞質中⑦，肌肉開始收縮(這部份算生理範疇) \n參考資料 \nFC 組織學、Histology：A Text And Atlas 7th p.325、329",
+  "補充 \n三種肌肉的比較也是熱門考題，FC 組織和何宣生理都有詳細的表格，這邊附上何宣\n的內容，一定要認真的塞進腦袋裡喔！",
+  "在骨骼肌（skeletal muscle）中，每一個肌肉細胞（muscle cell）又稱為？（109-\n2） \nA.肌原纖維（myofibril）  \nB.肌纖維（muscle fiber）  \nC.肌絲（myofilament）  \nD.肌束（muscle fascicle） \n \n下列何者主要是由骨骼肌細胞的細胞膜（plasma membrane）所組成？（108-1） \nA.肌纖維膜（sarcolemma）  \nB.肌外膜（epimysium）  \nC.肌內膜（endomysium）  \nD.肌束膜（perimysium） \n \n有關骨骼肌和平滑肌的比較，下列敘述何者錯誤？（105-1） \nA.骨骼肌是多核細胞，平滑肌是單核細胞  \nB.骨骼肌細胞核位在細胞的周邊，平滑肌細胞核位在中央  \nC.骨骼肌具有橫紋，平滑肌則無  \nD.骨骼肌可經有絲分裂增殖，平滑肌則否 \n解答：BAD"
+ ]
+}
