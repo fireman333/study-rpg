@@ -8,12 +8,12 @@
 
 ## 1. Phase 1 — client mitigation (low-risk, both apps)
 
-- [ ] 1.1 `apps/neurons-tw/src/lib/sync/r2/engine-r2.ts`: `MAX_PUSH_RETRIES` 3 → 1; on the retry's 412 (or first 412), do NOT throw — return a "deferred, still dirty" outcome so `engine.ts` keeps `pending` set for the next cycle.
-- [ ] 1.2 `engine-r2.ts`: add jitter to `BACKOFF_MS` sleeps (e.g. ±30%).
-- [ ] 1.3 `apps/neurons-tw/src/lib/sync/engine.ts` / `useSync.ts`: raise `DEBOUNCE_MS` 3s → ~10–15s + add ±jitter to `schedulePush`'s timer so concurrent devices de-sync. Keep `beforeunload`/visibility flush.
-- [ ] 1.4 Unit tests: a 412 yields ≤1 retry then defers-dirty (not throw, not 3× burst); jitter applied; dirty state retained across a deferred cycle. `pnpm --filter @study-rpg/neurons-tw test` + `pnpm -r typecheck` green.
-- [ ] 1.5 **Coordinate the same tuning into 二階** (`study-rpg-2nd` repo — separate; via session-bus / handoff). The Worker is shared, so neurons-only tuning leaves 二階's share of the storm.
-- [ ] 1.6 Deploy neurons; re-measure the 412 fraction + absolute PUT volume at a **matched high-traffic window** (not a quiet one) after taper, vs the 84–90% baseline. Record the residual.
+- [x] 1.1 `engine-r2.ts`: `MAX_PUSH_RETRIES` 3 → 1; `pushBundle` return is now a discriminated union (`{status:'pushed'}` | `{status:'deferred', reason:'concurrent-writer'}`) + new `opts.deferOnConflict`. A surviving 412/409 with `deferOnConflict` returns deferred (no throw); WITHOUT it (account-reset) still throws `r2_blob_concurrent_writer_exhausted` (codex G3 confirmed). `engine.pushNow` re-arms `pending` + `schedulePush()` on deferred (codex G2), and crucially does NOT fire `onPushComplete` on deferred (codex G1 — would falsely upsert leaderboard).
+- [x] 1.2 `engine-r2.ts`: `jitter()` helper (±30%) on `BACKOFF_MS` sleeps; on the LAST attempt the 412/409 path breaks WITHOUT the now-redundant sleep (Fork D — the jittered debounce is the backoff).
+- [x] 1.3 `engine.ts`: `schedulePush` adds ±30% jitter to the debounce timer + clears `pushTimer` in the fired callback; `pushNow` clears a stale timer at the top. `useSync.ts`: default `DEBOUNCE_MS` 3000 → 12000 (env override kept). `beforeunload`/visibility flush unchanged. Fork C: deferred stays `idle`+`lastError=null` (light 🟢) until `MAX_CONSECUTIVE_DEFERS=5` consecutive defers → `state='error'`+marker (🔴) but still re-arms to recover; a landed push resets the streak.
+- [x] 1.4 Unit tests: `r2-defer-on-conflict.test.ts` (412 & 409 → deferred after exactly 1 PUT, not 3× burst; reset path still throws; 200 → pushed) + `sync-engine-defer.test.ts` (deferred does NOT fire onPushComplete / record lastPushAt; re-arms; threshold→error; success resets streak). 676 vitest green; `pnpm --filter @study-rpg/neurons-tw typecheck` clean.
+- [ ] 1.5 **Coordinate the same tuning into 二階** (`study-rpg-2nd` repo — separate; via session-bus / handoff). The Worker is shared, so neurons-only tuning leaves 二階's share of the storm. → spawned as an owner task-chip targeting that repo.
+- [ ] 1.6 Deploy neurons; re-measure the 412 fraction + absolute PUT volume at a **matched high-traffic window** (not a quiet one) after taper, vs the 84–90% baseline. Record the residual. (Deploy = merge track-neurons→main; gated on owner confirm.)
 
 ## 2. Phase 2 — server-side merge DO (decision-gated; only if §0/§1 residual is material)
 
@@ -22,6 +22,6 @@
 
 ## 3. Spec + verify
 
-- [ ] 3.1 `cloud-sync` spec delta (2 ADDED mechanism-agnostic requirements: bounded retry amplification + cross-device convergence-without-loss) — `openspec validate eliminate-cross-device-r2-412-storm --strict` passes.
-- [ ] 3.2 Codex review of the Phase-1 diff before archive (mirror the single-flight gate).
-- [ ] 3.3 `/verify` after the Phase-1 deploy (Chrome MCP smoke: a 412 defers-dirty instead of bursting; sync still converges).
+- [x] 3.1 `cloud-sync` spec delta (2 ADDED mechanism-agnostic requirements: bounded retry amplification + cross-device convergence-without-loss) — `openspec validate eliminate-cross-device-r2-412-storm --strict` passes.
+- [x] 3.2 Codex diff review (mirror the single-flight gate). Verdict: **SHIP AS-IS** — G1/G2/G3 confirmed in-code, no blocking issues, sync-light threshold→error still re-arms for recovery. 3 P3 test gaps noted (409 path now covered; real-jitter-timer + account-reset-call-site regression left as optional follow-ups).
+- [ ] 3.3 `/verify` after the Phase-1 deploy (Chrome MCP smoke: a 412 defers-dirty instead of bursting; sync still converges). (Post-deploy; gated on the merge=deploy confirm.)
