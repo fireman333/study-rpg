@@ -72,3 +72,14 @@ agent fan-out (the path the owner used to salvage Q59/Q93 last time).
   whole-question-region fallback crop.
 - **Multi-question crops**: as in batch 1 (Q83/Q94), a candidate crop can depict a neighbour's
   table → excluded per the existing scenario.
+
+## Decisions (2026-06-25 — refined; resume via handoff)
+
+**Full handoff: `/Users/kangweiling/.claude/scratch/handoff-neurons-detail-tables-and-jianjie-2026-06-25.md`** (read at /spec resume).
+
+- The PDF outer 詳解 card IS a table → `find_tables` detected the card, not the inner content. 3 types: (1) card-as-table, content is IMAGE → `extract_image` (precise) + clean text; (2) real inner table → extract-or-render-crop + clean text; (3) already-correct → leave.
+- TEXT comes from the corpus `explanation` (PDF text layer is broken) — clean it, don't re-extract from PDF.
+- **都要**: figure+table questions need BOTH image and table.
+- Codex built `scripts/table-images/extract_tail.py` (direct-extract vs render-crop decision rule + rotation + selection). Verified precise (Q29 zero-margin). Page resolution done in `_work/segments-tail.json` (15 exam-numbered + 10 content-matched + 1 manual + 3 prose→text).
+- TODO: systematic 3-type health-check (consult Codex), 都要 dual-emit, move 3 prose out of image-tier, owner-prune `auto-crop-tail/`, then ingest.
+- **SIBLING effort to fold in**: 簡解缺失 restore (~2,659 q; reconcile.py:83 drops `### Key`; targeted by-id merge, NOT regen). See handoff Part B.

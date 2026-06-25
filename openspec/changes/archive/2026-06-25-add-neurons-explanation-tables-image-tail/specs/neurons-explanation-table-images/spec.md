@@ -35,3 +35,19 @@ Bucket C pilot (e.g. the destroyed-OCR severe-quarantine tail), so coverage grow
 - **THEN** they SHALL be attached under the identical contract (rasterized owner-verified crop, clean prose
   replacing the garbled flattened text, `id`/`answer`/source corpus json unchanged)
 - **AND** the questions already cropped in earlier batches SHALL be unaffected
+
+## ADDED Requirements
+
+### Requirement: Block-rendered questions SHALL surface a restored 簡解 above the clean prose
+
+Block-rendered questions (those that emit `explanationBlocks` — the image-crop tier and the text-recover tier) SHALL surface a restored 簡解 (### Key), when present at the top of the question's `explanation` string, as the first prose block so the block renderer does not hide it. The `explanation` string remains the single source of the 簡解 and `prose.json` stays clean-詳解-only (no 簡解 duplication).
+
+#### Scenario: An image-tier question with a 簡解 shows it above the prose and image
+
+- **WHEN** a question has table-image crops and its `explanation` string begins with the 簡解 sentinel
+- **THEN** its `explanationBlocks` SHALL begin with the 簡解 prose block, then the clean 詳解 prose, and the table image(s) render after the blocks
+
+#### Scenario: A block question without a 簡解 is unchanged
+
+- **WHEN** a block-rendered question's `explanation` string does not begin with the 簡解 sentinel
+- **THEN** no 簡解 block SHALL be prepended and its blocks are the clean prose only

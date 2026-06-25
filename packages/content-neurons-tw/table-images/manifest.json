@@ -1,244 +1,380 @@
 {
-  "104-2-醫學一-公共衛生學-Q90": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-公共衛生學-Q90__1.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-公共衛生學-Q90__2.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學一-微生物暨免疫學-Q64": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-微生物暨免疫學-Q64__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學一-微生物暨免疫學-Q71": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-微生物暨免疫學-Q71__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學一-組織學-Q37": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-組織學-Q37__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學一-解剖學-Q19": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q19__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學一-解剖學-Q4": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__1.webp",
-      "caption": "動眼神經所支配的功能包括"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__2.webp",
-      "caption": "各腦神經所支配的功能"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__3.webp",
-      "caption": "各腦神經可能出現的功能異常"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__4.webp",
-      "caption": "各腦神經所支配的功能"
-    }
-  ],
-  "104-2-醫學二-生物化學-Q48": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q48__1.webp",
-      "caption": "G protein"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q48__2.webp",
-      "caption": "PIP"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q48__3.webp",
-      "caption": "cAMP"
-    }
-  ],
-  "104-2-醫學二-生理學-Q12": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q12__1.webp",
-      "caption": "圖二：比圖一更貼近題目敘述的心臟週期暨心電圖對應"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q12__2.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q12__3.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學二-生理學-Q7": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q7__1.webp",
-      "caption": "骨骼肌之分類"
-    }
-  ],
-  "104-2-醫學二-生理學-Q8": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q8__1.webp",
-      "caption": "分類如下"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q8__2.webp",
-      "caption": "那那那肝臟製造的『蛋白』又是什麼呢？"
-    }
-  ],
-  "104-2-醫學二-藥理學-Q60": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q60__1.webp",
-      "caption": "生長相關藥物"
-    }
-  ],
-  "104-2-醫學二-藥理學-Q61": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__1.webp",
-      "caption": "Testosterone的小旅行"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__2.webp",
-      "caption": "女性停經前後的estrogen製造"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__3.webp",
-      "caption": "簡單生理複習"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__4.webp",
-      "caption": "Testosterone的小旅行"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__5.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學二-藥理學-Q62": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q62__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學二-藥理學-Q63": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q63__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "104-2-醫學二-藥理學-Q65": [
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q65__1.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q65__2.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "106-1-醫學一-公共衛生學-Q91": [
-    {
-      "src": "content/neurons-tw/table-images/106-1-醫學一-公共衛生學-Q91__1.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/106-1-醫學一-公共衛生學-Q91__2.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "106-2-醫學二-病理學-Q82": [
-    {
-      "src": "content/neurons-tw/table-images/106-2-醫學二-病理學-Q82__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "108-2-醫學二-病理學-Q80": [
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-病理學-Q80__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "108-2-醫學二-病理學-Q93": [
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-病理學-Q93__1.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-病理學-Q93__2.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "108-2-醫學二-藥理學-Q55": [
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q55__1.webp",
-      "caption": "快速緩解症狀"
-    },
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q55__2.webp",
-      "caption": "長期控制的藥物"
-    }
-  ],
-  "108-2-醫學二-藥理學-Q59": [
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q59__1.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q59__2.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "108-2-醫學二-藥理學-Q63": [
-    {
-      "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q63__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "110-2-醫學二-微生物暨免疫學-Q12": [
-    {
-      "src": "content/neurons-tw/table-images/110-2-醫學二-微生物暨免疫學-Q12__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "111-1-醫學二-微生物暨免疫學-Q7": [
-    {
-      "src": "content/neurons-tw/table-images/111-1-醫學二-微生物暨免疫學-Q7__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "112-1-醫學二-藥理學-Q73": [
-    {
-      "src": "content/neurons-tw/table-images/112-1-醫學二-藥理學-Q73__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "112-2-醫學一-胚胎學-Q34": [
-    {
-      "src": "content/neurons-tw/table-images/112-2-醫學一-胚胎學-Q34__1.webp",
-      "caption": "原始詳解表格"
-    }
-  ],
-  "114-2-醫學一-組織學-Q38": [
-    {
-      "src": "content/neurons-tw/table-images/114-2-醫學一-組織學-Q38__1.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/114-2-醫學一-組織學-Q38__2.webp",
-      "caption": "原始詳解表格"
-    },
-    {
-      "src": "content/neurons-tw/table-images/114-2-醫學一-組織學-Q38__3.webp",
-      "caption": "原始詳解表格"
-    }
-  ]
+ "104-2-醫學一-公共衛生學-Q90": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-公共衛生學-Q90__1.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-公共衛生學-Q90__2.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學一-微生物暨免疫學-Q64": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-微生物暨免疫學-Q64__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學一-微生物暨免疫學-Q71": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-微生物暨免疫學-Q71__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學一-組織學-Q37": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-組織學-Q37__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學一-解剖學-Q19": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q19__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學一-解剖學-Q4": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__1.webp",
+   "caption": "動眼神經所支配的功能包括"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__2.webp",
+   "caption": "各腦神經所支配的功能"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__3.webp",
+   "caption": "各腦神經可能出現的功能異常"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q4__4.webp",
+   "caption": "各腦神經所支配的功能"
+  }
+ ],
+ "104-2-醫學二-生物化學-Q48": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q48__1.webp",
+   "caption": "G protein"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q48__2.webp",
+   "caption": "PIP"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q48__3.webp",
+   "caption": "cAMP"
+  }
+ ],
+ "104-2-醫學二-生理學-Q12": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q12__1.webp",
+   "caption": "圖二：比圖一更貼近題目敘述的心臟週期暨心電圖對應"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q12__2.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q12__3.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學二-生理學-Q7": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q7__1.webp",
+   "caption": "骨骼肌之分類"
+  }
+ ],
+ "104-2-醫學二-生理學-Q8": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q8__1.webp",
+   "caption": "分類如下"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q8__2.webp",
+   "caption": "那那那肝臟製造的『蛋白』又是什麼呢？"
+  }
+ ],
+ "104-2-醫學二-藥理學-Q60": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q60__1.webp",
+   "caption": "生長相關藥物"
+  }
+ ],
+ "104-2-醫學二-藥理學-Q61": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__1.webp",
+   "caption": "Testosterone的小旅行"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__2.webp",
+   "caption": "女性停經前後的estrogen製造"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__3.webp",
+   "caption": "簡單生理複習"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__4.webp",
+   "caption": "Testosterone的小旅行"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q61__5.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學二-藥理學-Q62": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q62__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學二-藥理學-Q63": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q63__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學二-藥理學-Q65": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q65__1.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-藥理學-Q65__2.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "106-1-醫學一-公共衛生學-Q91": [
+  {
+   "src": "content/neurons-tw/table-images/106-1-醫學一-公共衛生學-Q91__1.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/106-1-醫學一-公共衛生學-Q91__2.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "106-2-醫學二-病理學-Q82": [
+  {
+   "src": "content/neurons-tw/table-images/106-2-醫學二-病理學-Q82__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "108-2-醫學二-病理學-Q80": [
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-病理學-Q80__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "108-2-醫學二-病理學-Q93": [
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-病理學-Q93__1.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-病理學-Q93__2.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "108-2-醫學二-藥理學-Q55": [
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q55__1.webp",
+   "caption": "快速緩解症狀"
+  },
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q55__2.webp",
+   "caption": "長期控制的藥物"
+  }
+ ],
+ "108-2-醫學二-藥理學-Q59": [
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q59__1.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q59__2.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "108-2-醫學二-藥理學-Q63": [
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-藥理學-Q63__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "110-2-醫學二-微生物暨免疫學-Q12": [
+  {
+   "src": "content/neurons-tw/table-images/110-2-醫學二-微生物暨免疫學-Q12__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "111-1-醫學二-微生物暨免疫學-Q7": [
+  {
+   "src": "content/neurons-tw/table-images/111-1-醫學二-微生物暨免疫學-Q7__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "112-1-醫學二-藥理學-Q73": [
+  {
+   "src": "content/neurons-tw/table-images/112-1-醫學二-藥理學-Q73__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "112-2-醫學一-胚胎學-Q34": [
+  {
+   "src": "content/neurons-tw/table-images/112-2-醫學一-胚胎學-Q34__1.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "114-2-醫學一-組織學-Q38": [
+  {
+   "src": "content/neurons-tw/table-images/114-2-醫學一-組織學-Q38__1.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/114-2-醫學一-組織學-Q38__2.webp",
+   "caption": "原始詳解表格"
+  },
+  {
+   "src": "content/neurons-tw/table-images/114-2-醫學一-組織學-Q38__3.webp",
+   "caption": "原始詳解表格"
+  }
+ ],
+ "104-2-醫學一-公共衛生學-Q95": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-公共衛生學-Q95__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學一-微生物暨免疫學-Q63": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-微生物暨免疫學-Q63__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學一-解剖學-Q22": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q22__1.webp",
+   "caption": "原始詳解圖表"
+  },
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q22__2.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學一-解剖學-Q26": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q26__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學一-解剖學-Q9": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學一-解剖學-Q9__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學二-生物化學-Q29": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q29__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學二-生物化學-Q32": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q32__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學二-生物化學-Q37": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q37__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學二-生物化學-Q39": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生物化學-Q39__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學二-生理學-Q13": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q13__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學二-生理學-Q17": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q17__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "104-2-醫學二-生理學-Q18": [
+  {
+   "src": "content/neurons-tw/table-images/104-2-醫學二-生理學-Q18__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "105-2-醫學二-病理學-Q87": [
+  {
+   "src": "content/neurons-tw/table-images/105-2-醫學二-病理學-Q87__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "105-2-醫學二-藥理學-Q55": [
+  {
+   "src": "content/neurons-tw/table-images/105-2-醫學二-藥理學-Q55__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "106-2-醫學二-寄生蟲學-Q32": [
+  {
+   "src": "content/neurons-tw/table-images/106-2-醫學二-寄生蟲學-Q32__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "107-2-醫學二-微生物暨免疫學-Q26": [
+  {
+   "src": "content/neurons-tw/table-images/107-2-醫學二-微生物暨免疫學-Q26__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "108-2-醫學二-病理學-Q86": [
+  {
+   "src": "content/neurons-tw/table-images/108-2-醫學二-病理學-Q86__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "109-2-醫學二-藥理學-Q74": [
+  {
+   "src": "content/neurons-tw/table-images/109-2-醫學二-藥理學-Q74__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "111-2-醫學一-組織學-Q40": [
+  {
+   "src": "content/neurons-tw/table-images/111-2-醫學一-組織學-Q40__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "113-1-醫學一-組織學-Q41": [
+  {
+   "src": "content/neurons-tw/table-images/113-1-醫學一-組織學-Q41__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "113-2-醫學一-生物化學-Q76": [
+  {
+   "src": "content/neurons-tw/table-images/113-2-醫學一-生物化學-Q76__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ],
+ "114-1-醫學一-解剖學-Q31": [
+  {
+   "src": "content/neurons-tw/table-images/114-1-醫學一-解剖學-Q31__1.webp",
+   "caption": "原始詳解圖表"
+  }
+ ]
 }

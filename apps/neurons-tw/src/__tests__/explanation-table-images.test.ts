@@ -14,19 +14,27 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const PACK = resolve(HERE, '../../../../packages/content-neurons-tw')
 const ASSET_DIR = resolve(PACK, 'table-images')
 const MANIFEST = resolve(ASSET_DIR, 'manifest.json')
+const PROSE = resolve(ASSET_DIR, 'prose.json')
 const CORPUS = resolve(PACK, 'data/medexam-reconciled/questions.json')
 
 type Manifest = Record<string, { src: string; caption?: string }[]>
 
 describe('explanation table-image manifest', () => {
   const manifest: Manifest = JSON.parse(readFileSync(MANIFEST, 'utf-8'))
+  const prose: Record<string, string[]> = JSON.parse(readFileSync(PROSE, 'utf-8'))
   const corpus: { id: string; answer: string }[] = JSON.parse(readFileSync(CORPUS, 'utf-8'))
   const byId = new Map(corpus.map((q) => [q.id, q]))
 
-  it('covers the 27 Bucket C questions with 47 images', () => {
-    expect(Object.keys(manifest)).toHaveLength(27)
+  it('covers the 49 Bucket C questions with 70 images (27 pilot + 22 tail)', () => {
+    expect(Object.keys(manifest)).toHaveLength(49)
     const total = Object.values(manifest).reduce((n, imgs) => n + imgs.length, 0)
-    expect(total).toBe(47)
+    expect(total).toBe(70)
+  })
+
+  it('every image-tier question has clean prose (so the garbled string is never shown)', () => {
+    for (const qid of Object.keys(manifest)) {
+      expect(prose[qid]?.length, `${qid} missing prose.json entry`).toBeTruthy()
+    }
   })
 
   it('every manifest qid resolves to a real corpus question', () => {

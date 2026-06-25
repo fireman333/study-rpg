@@ -53,6 +53,20 @@ const proseByQid: Record<string, string[]> = existsSync(resolve(TABLE_IMAGES_DIR
   ? JSON.parse(readFileSync(resolve(TABLE_IMAGES_DIR, 'prose.json'), 'utf-8'))
   : {}
 
+// 簡解 (### Key author tips) restored by restore_jianjie_key.py live at the top of the
+// `explanation` string as `簡解：<key>\n\n<divider>\n\n<詳解>`. For image-tier / prose-tier
+// questions the renderer shows `explanationBlocks` and IGNORES the raw explanation string, so
+// the 簡解 would be hidden. extractJianjieBlock pulls the 簡解 portion out so wireFigure can
+// surface it as the first prose block (single source = the explanation string; prose.json stays
+// clean-詳解-only). See restore-neurons-jianjie-key + add-neurons-explanation-tables-image-tail.
+const JIANJIE_SENTINEL = '簡解：'
+const JIANJIE_DIVIDER = '────────────────'
+function extractJianjieBlock(explanation: string): string | null {
+  if (!explanation.startsWith(JIANJIE_SENTINEL)) return null
+  const idx = explanation.indexOf(JIANJIE_DIVIDER)
+  return idx > 0 ? explanation.slice(0, idx).trimEnd() : null
+}
+
 interface FamilyMap {
   family: string
   persona: string
@@ -355,7 +369,10 @@ function main(): void {
     // the source has no structured blocks already (these are quarantined questions).
     const prose = proseByQid[q.id]
     if (prose?.length && !('explanationBlocks' in q)) {
-      extra.explanationBlocks = prose.map((text) => ({ type: 'prose', text }))
+      const jianjie = extractJianjieBlock(explanation)
+      const texts =
+        jianjie && !prose[0].startsWith(JIANJIE_SENTINEL) ? [jianjie, ...prose] : prose
+      extra.explanationBlocks = texts.map((text) => ({ type: 'prose', text }))
     }
     if (FALSE_POSITIVE_HASIMAGE.has(q.id)) {
       return { ...q, explanation, hasImage: false, imagePath: null, ...extra }

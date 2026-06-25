@@ -1,7 +1,10 @@
 # Build scratch + source material — the shipped assets live in ../../table-images/
 _work/
 for-owner/
+for-owner-tail/
+auto-crop-tail/
 from-owner/
+from-owner-tail/
 out/
 preview/
 _preview/
