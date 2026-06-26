@@ -17,12 +17,12 @@
 - [x] 3.2 4 parallel agents reviewed the sample → findings: severe TABLE_DAMAGE concentrated in flattened tables (isTable flag UNRELIABLE — Latin tables are isTable=false); systematic section-label / citation / bullet fusion in non-table prose
 - [x] 3.3 Added deterministic guards from findings: (a) build.ts skips rejoin for table-image questions (CJK tables); (b) both-CJK-free guard (Latin tables/labels/citations); (c) section-label + `＞`/`>`/`•` bullet + ordered `(1.)` markers; (d) URL / citation-page / verdict-tag / Word-dash keep-breaks; (e) ASCII↔ASCII boundary left broken (no space-guessing). verify-normalize 17/17 + invariant 0 violations. `scripts/spot-check-fixes.ts` confirms all severe cases fixed
 - [x] 3.4 Wrap-width threshold confirmed at `WRAP_MIN_WIDTH = 28` against the audited sample
-- [ ] 3.5 (optional) Remove one-off audit scaffolding `scripts/sample-rejoin-audit.ts` + `scripts/spot-check-fixes.ts` before commit (keep permanent `verify-normalize.ts`); known minor residuals left as-is (Q72 parallel 「以「X」為詞尾」 list, Q85 Word-dash-no-space, Q94 lone-bullet — cosmetic, no content loss)
+- [x] 3.5 Removed one-off audit scaffolding `scripts/sample-rejoin-audit.ts` + `scripts/spot-check-fixes.ts` before commit (keep permanent `verify-normalize.ts`); known minor residuals left as-is (Q72 parallel 「以「X」為詞尾」 list, Q85 Word-dash-no-space, Q94 lone-bullet — cosmetic, no content loss)
 
 ## 4. Build, verify, ship (coordination-gated)
 
-- [ ] 4.1 GATE: confirm work tree clean or coordinated with the other session (`public/questions.json` + untracked `explanation-figures/*.webp`) before rebuilding
-- [ ] 4.2 `pnpm run build:neurons-content` + copy-content → regenerate `apps/neurons-tw/public/content/neurons-tw/questions.json`; check No-Silent-Errors counter output
+- [x] 4.1 GATE: confirmed (peer merged figure/送分 work to main f4732bf, prod-verified) → merged main into track-neurons (8b6160e, 0 conflict). Original work tree clean or coordinated with the other session (`public/questions.json` + untracked `explanation-figures/*.webp`) before rebuilding
+- [x] 4.2 Rebuilt (core+content+copy-content): imported 4600/skipped 0/total 4600; explanation-figures 1128q/1585webp/0 missing; table-images 49; verify:normalize invariant 0 violations on built output. + copy-content → regenerate `apps/neurons-tw/public/content/neurons-tw/questions.json`; check No-Silent-Errors counter output
 - [ ] 4.3 Chrome MCP smoke: open a few rejoined explanations (prose / list / table-bearing) in the app, confirm they read continuously and structure is intact
-- [ ] 4.4 `/opsx:verify` → `/opsx:archive` (syncs delta into `openspec/specs/neurons-corpus-ingestion/spec.md`)
+- [x] 4.4 verify (no CRITICAL) + archive — synced delta ADDITIVELY into neurons-corpus-ingestion (only the whitespace requirement; peer 更正答案/hasOptionImages untouched); spec corrected to match shipped code (no-space join, table-skip, CJK-free, section/bullet guards). `/opsx:verify` → `/opsx:archive` (syncs delta into `openspec/specs/neurons-corpus-ingestion/spec.md`)
 - [ ] 4.5 Commit with explicit per-file `git add` (build.ts + test + built questions.json + meta.json + openspec change/spec files only); NEVER `git add -A`; user-confirmed commit
