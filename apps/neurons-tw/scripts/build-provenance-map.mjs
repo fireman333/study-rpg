@@ -29,6 +29,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = resolve(__dirname, '..', '..', '..', 'packages/content-neurons-tw')
 const MANIFEST = resolve(PKG, 'explanation-figures/manifest.json')
 const TEXTMAP = resolve(PKG, 'provenance/question-page-map.json')
+const RESIDUALMAP = resolve(PKG, 'provenance/question-page-map-residual.json')
 const OUT_DIR = resolve(__dirname, '..', 'public/provenance')
 const OUT_FILE = resolve(OUT_DIR, 'question-pdf-map.v1.json')
 
@@ -69,6 +70,20 @@ if (existsSync(TEXTMAP)) {
   }
 }
 
+// Residual questions (second-layer resolver: multi-token vote + numeric/Latin + agent-verified).
+// Earlier sources win, so this only fills questions still uncovered.
+let residual = 0
+if (existsSync(RESIDUALMAP)) {
+  const rawResidual = readFileSync(RESIDUALMAP, 'utf8')
+  hash.update(rawResidual)
+  for (const [questionId, ent] of Object.entries(JSON.parse(rawResidual))) {
+    if (questionId in entries) continue
+    if (!ent?.file || ent.page == null) continue
+    entries[questionId] = { file: ent.file, page: ent.page + 1 } // 0-based → 1-based
+    residual += 1
+  }
+}
+
 const sourceHash = hash.digest('hex').slice(0, 16)
 const mapped = Object.keys(entries).length
 // Stable key order + 2-space indent → deterministic bytes across builds.
@@ -80,6 +95,6 @@ mkdirSync(OUT_DIR, { recursive: true })
 writeFileSync(OUT_FILE, JSON.stringify(out, null, 2) + '\n', 'utf8')
 
 console.log(
-  `[provenance-map] mapped ${mapped} (figure ${figures} + text ${text}; ` +
+  `[provenance-map] mapped ${mapped} (figure ${figures} + text ${text} + residual ${residual}; ` +
     `multi-page→min ${multiPage}; src ${sourceHash}) → public/provenance/question-pdf-map.v1.json`,
 )
