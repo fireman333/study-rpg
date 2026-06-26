@@ -36,7 +36,7 @@
 - [x] 6.1 Source-and-build immutable-text gate: capture a pre-apply baseline of source `questions.json`; after, assert `id`/`answer`/`stem`/`options`/`explanation`/`explanationBlocks` byte-identical to baseline in BOTH the source AND built `questions.json` (a concurrent source edit must FAIL the gate, not pass on a self-consistent rebuild)
 - [x] 6.2 `pnpm run build:neurons-content` (expect imported 4600/0) + `pnpm --filter @study-rpg/neurons-tw test` green (incl. the 4.4 renderer tests); spot-check a few pilot ids render their figure
 - [x] 6.3 `/verify` — Chrome MCP on `/bank`: open a 112-114 figure-question → figure lazy-fetches (Performance API confirms the asset request only after expand) + renders after explanation; a missing-asset case shows fallback
-- [ ] 6.4 Deploy file-count preflight: measure TOTAL built-app static file count vs the CF Pages plan limit (fail if exceeded) → `/opsx:verify` → `/opsx:archive` → commit (explicit per-file `git add`) → merge `track-neurons`→`main` → `deploy:cf` → prod-verify a figure asset 200s + renders on `med-study-rpg.com/neurons/`
+- [x] 6.4 Deploy file-count preflight: measure TOTAL built-app static file count vs the CF Pages plan limit (fail if exceeded) → `/opsx:verify` → `/opsx:archive` → commit (explicit per-file `git add`) → merge `track-neurons`→`main` → `deploy:cf` → prod-verify a figure asset 200s + renders on `med-study-rpg.com/neurons/`
 
 ## 7. Provenance + follow-up
 

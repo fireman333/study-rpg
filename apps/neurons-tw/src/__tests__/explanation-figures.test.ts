@@ -28,16 +28,16 @@ describe('explanation-figure manifest', () => {
   )
   const byId = new Map(source.map((q) => [q.id, q]))
 
-  it('covers the pilot 112-114 set (636 questions / 926 figures, post agent-QA prune of 9 decorative embeds)', () => {
-    expect(Object.keys(manifest)).toHaveLength(636)
+  it('covers the 106-114 set (1128 questions / 1585 figures = 112-114 pilot 636/926 + 106-111 batch 492/659, post agent-QA prune of 9 pilot + 17 multi-fig + 47 single-fig decorative/off-topic/pure-text embeds)', () => {
+    expect(Object.keys(manifest)).toHaveLength(1128)
     const total = Object.values(manifest).reduce((n, figs) => n + figs.length, 0)
-    expect(total).toBe(926)
+    expect(total).toBe(1585)
   })
 
-  it('every manifest qid is a pilot booklet (112/113/114) and a real corpus question', () => {
+  it('every manifest qid is an in-scope booklet (106-114, excluding the deferred no-題號-anchor 109-1/111-1 + 104-105) and a real corpus question', () => {
     for (const qid of Object.keys(manifest)) {
       expect(byId.has(qid), `unknown qid ${qid}`).toBe(true)
-      expect(qid, `${qid} not a pilot booklet`).toMatch(/^11[234]-[12]-/)
+      expect(qid, `${qid} not an in-scope (106-114) booklet`).toMatch(/^1(?:0[6-9]|1[0-4])-[12]-/)
     }
   })
 
@@ -58,7 +58,7 @@ describe('explanation-figure manifest', () => {
     const seen = new Set<string>()
     for (const figs of Object.values(manifest)) {
       const fig = figs[0]
-      const booklet = fig.src.match(/(11[234]-[12])/)?.[1] ?? ''
+      const booklet = fig.src.match(/(1(?:0[6-9]|1[0-4])-[12])/)?.[1] ?? ''
       if (seen.has(booklet)) continue
       seen.add(booklet)
       const base = fig.src.split('/').pop()!

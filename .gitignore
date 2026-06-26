@@ -41,3 +41,6 @@ output/
 
 # bug-fix-queue local state (ledger + queues; may contain PII from real user reports — NEVER commit)
 bug-queue/
+
+# healthcheck figure-extraction debug preview (regenerated per extraction run; never commit)
+packages/content-neurons-tw/reconcile/healthcheck/figure-preview/
