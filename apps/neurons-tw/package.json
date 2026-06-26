@@ -7,8 +7,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "pnpm --filter @study-rpg/core build && pnpm --filter @study-rpg/content-neurons-tw build && node ./scripts/copy-content.mjs",
-    "predev": "pnpm --filter @study-rpg/core build && pnpm --filter @study-rpg/content-neurons-tw build && node ./scripts/copy-content.mjs",
+    "prebuild": "pnpm --filter @study-rpg/core build && pnpm --filter @study-rpg/content-neurons-tw build && node ./scripts/copy-content.mjs && node ./scripts/build-provenance-map.mjs",
+    "predev": "pnpm --filter @study-rpg/core build && pnpm --filter @study-rpg/content-neurons-tw build && node ./scripts/copy-content.mjs && node ./scripts/build-provenance-map.mjs",
+    "build:provenance-map": "node ./scripts/build-provenance-map.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "pretypecheck": "pnpm --filter @study-rpg/core build",
