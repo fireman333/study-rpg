@@ -105,7 +105,7 @@ async function writeRedirects() {
   //
   // The per-app `404.html` (GH-Pages SPA-fallback helper) is stripped from
   // dist-cf/<dest>/ in copyTree() so it doesn't intercept before this fires.
-  const assetDirs = ['assets', 'content', 'fonts', 'icons', 'images']
+  const assetDirs = ['assets', 'content', 'fonts', 'icons', 'images', 'provenance']
   const lines = []
   for (const { dest } of ROUTES) {
     for (const dir of assetDirs) {
