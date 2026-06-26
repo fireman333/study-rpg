@@ -21,6 +21,7 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { QuizModal } from '../components/QuizModal'
 import { Explanation } from '../components/Explanation'
+import { LocalPdfButton } from '../components/LocalPdfButton'
 import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
 import {
@@ -275,6 +276,7 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
       <p style={helperStyle}>
         全部 {questions.length} 題依科別、年份、次別篩選後完整陳列題目、選項與詳解。
         發現題目 / 詳解有誤可點每題的 🐞 回報。
+        含圖表詳解的題目可開啟你本機的原始詳解 PDF；純文字詳解目前以頁面內整理版為主。
       </p>
 
       <button type="button" style={examEntryBtnStyle} onClick={openExamMenu} aria-label="模考：選一份考卷練習">
@@ -590,13 +592,16 @@ function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): 
         {(q as { disputed?: boolean }).disputed ? '⚖ 送分題（考選部判定全部給分）' : `(${q.answer})`}
       </p>
       {q.explanation && (
-        <details style={explanationStyle} open>
-          <summary style={explanationSummaryStyle}>📖 詳解</summary>
-          <Explanation question={q} textStyle={explanationBodyStyle} />
-          {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
-            <p style={aiNoteStyle}>※ 本題詳解由 AI 生成，僅供參考。</p>
-          )}
-        </details>
+        <>
+          <LocalPdfButton questionId={q.id} />
+          <details style={explanationStyle} open>
+            <summary style={explanationSummaryStyle}>📖 詳解</summary>
+            <Explanation question={q} textStyle={explanationBodyStyle} />
+            {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
+              <p style={aiNoteStyle}>※ 本題詳解由 AI 生成，僅供參考。</p>
+            )}
+          </details>
+        </>
       )}
     </li>
   )
