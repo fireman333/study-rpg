@@ -2,6 +2,11 @@ dist/
 node_modules/
 *.tsbuildinfo
 
+# Build output — regenerated from committed source by copy-content.mjs (prebuild/predev
+# hook) and rebuilt by the CF Pages deploy. Do NOT commit; the authoritative copies live
+# in packages/content-neurons-tw/{data,figures,table-images,explanation-figures}/ + dist.
+public/content/neurons-tw/
+
 # maze debug renders (regenerate via build:maze-atlas / render-maze-preview)
 src/assets/maze/grid-preview.png
 src/assets/maze/tiles/atlas-preview.png
