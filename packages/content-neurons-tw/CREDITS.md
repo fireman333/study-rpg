@@ -32,6 +32,12 @@
   - `111-1-醫學一-解剖學-Q29`（皮節示意圖）— 唯一可得來源（北醫詳解）未重現原題附圖，故未收錄；該題仍標 `hasImage: true`，於 App 顯示 `[圖]` placeholder。
   - `111-2-醫學一-生理學-Q57`（心電圖波形概念題）— 原 `**有附圖**：是` 標記為誤標（題幹未引用任何圖、純概念題），build 已改為 `hasImage: false`，不收圖也不顯 placeholder。
 
+## Recovered 詳解 figures (詳解附圖 — 重建)
+- **What**: 陽明國考考古題小組詳解內嵌的手繪圖、圖表與教科書截圖（含 Netter 等 atlas 插圖），原 PDF→`questions.json` 擷取時只保留文字、圖片整批遺失（health-check 盤點全 corpus 約 1,764 張 / 1,181 題）。本批為 **pilot 112–114**（638 題 / 935 張），自原始 PDF 以 **render-crop**（按 PDF 顯示樣態裁切，方位/框取正確）還原為 content-hash 命名的 webp，lazy-load 後渲染於詳解文字之後（additive；不更動 `id`/`answer`/`stem`/`options`/`explanation`）。
+- **Method / provenance**: `reconcile/healthcheck/`（偵測器 + canonical inventory）→ `extract_figures.py`（render-crop）→ `explanation-figures/manifest.json`（每張記 `provenance{sourcePdf,page,bbox,booklet,category}`）。build 時注入 built `questions.json` 的 `explanationFigures`（source 不動）。
+- **License / posture**: 比照詳解整體 — 陽明國考考古題小組詳解屬 **非營利**、CC-BY-NC-4.0、保留署名、**24 hr takedown SLA**（開 Issue 即下架）。圖內若含第三方 atlas（Netter / 教科書）之插圖，依台灣著作權法 **§65 合理使用**（非營利教育、引用必要範圍）主張 + takedown 兜底。
+- **Scope note**: 餘約 1,063 題（多數 106–114 booklet）之詳解圖於 follow-up `recover-neurons-explanation-figures-full` 收錄；104–105 booklet 因 layout-parser 未涵蓋暫缺。
+
 ## Question bank packaging
 - Source corpus: `data/medexam-reconciled/`（考選部-authoritative reconciled artifacts）
 - Build script: `scripts/build.ts`（含 figure wiring：`figures/<id>.png` 存在 → 設 `imagePath` + `hasImage`）

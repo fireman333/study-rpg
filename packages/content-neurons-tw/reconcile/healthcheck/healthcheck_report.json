@@ -1,0 +1,18 @@
+{
+  "corpusTotal": 4600,
+  "scanned": 3624,
+  "unscanned": 976,
+  "explFigureQuestions": 1181,
+  "explFigureNetNew": 1063,
+  "multiFigure": 355,
+  "stemImageQuestions": 11,
+  "optionImageQuestions": 0,
+  "totalExplFigures": 1764,
+  "notextBooklets": [
+    "104-1一",
+    "104-1二",
+    "104-2一",
+    "105-1一",
+    "105-1二"
+  ]
+}

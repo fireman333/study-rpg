@@ -15,17 +15,21 @@
  * each surface's look; table chrome is owned here for consistency.
  */
 import { useState, type CSSProperties } from 'react'
-import type { ExplanationBlock, ExplanationTableImage, Question } from '@study-rpg/core'
+import type { ExplanationBlock, ExplanationFigure, ExplanationTableImage, Question } from '@study-rpg/core'
 
 export function Explanation({
   question,
   textStyle,
 }: {
-  question: Pick<Question, 'explanation' | 'explanationBlocks' | 'explanationTableImages'>
+  question: Pick<
+    Question,
+    'explanation' | 'explanationBlocks' | 'explanationTableImages' | 'explanationFigures'
+  >
   textStyle?: CSSProperties
 }): JSX.Element {
   const blocks = question.explanationBlocks
   const tableImages = question.explanationTableImages
+  const figures = question.explanationFigures
   const proseStyle = { ...baseTextStyle, ...textStyle }
 
   // Explanation body: structured blocks when present, else the flat string.
@@ -44,18 +48,42 @@ export function Explanation({
     <div style={proseStyle}>{question.explanation}</div>
   )
 
-  // No image crops → preserve the original output exactly.
-  if (!tableImages || tableImages.length === 0) {
+  // No image tier (table-image crops or recovered figures) → preserve original output exactly.
+  const hasTail = (tableImages?.length ?? 0) > 0 || (figures?.length ?? 0) > 0
+  if (!hasTail) {
     return hasBlocks ? <div style={blocksWrapStyle}>{body}</div> : (body as JSX.Element)
   }
-  // Image-crop tier: render the faithful 詳解 table images AFTER the explanation.
+  // Image tier: render the faithful 詳解 table images, then recovered figures, AFTER the explanation.
   return (
     <div style={blocksWrapStyle}>
       {body}
-      {tableImages.map((img, i) => (
+      {tableImages?.map((img, i) => (
         <ExplanationTableImageView key={`ti-${i}`} img={img} />
       ))}
+      {figures?.map((fig, i) => (
+        <ExplanationFigureView key={`ef-${i}`} fig={fig} />
+      ))}
     </div>
+  )
+}
+
+function ExplanationFigureView({ fig }: { fig: ExplanationFigure }): JSX.Element | null {
+  const [error, setError] = useState(false)
+  if (error) return null
+  const caption = fig.caption || '原始詳解圖'
+  return (
+    <figure style={tableFigureStyle}>
+      <figcaption style={tableCaptionStyle}>{caption}</figcaption>
+      <div style={tableImageScrollStyle}>
+        <img
+          src={`${import.meta.env.BASE_URL}${fig.src}`}
+          alt={`原始詳解圖：${caption}`}
+          loading="lazy"
+          style={tableImageStyle}
+          onError={() => setError(true)}
+        />
+      </div>
+    </figure>
   )
 }
 

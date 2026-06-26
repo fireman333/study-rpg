@@ -10,6 +10,18 @@ field) bumps the **PATCH**, and a **breaking** change (removing/renaming a symbo
 adding a required field, changing a signature) bumps the **MINOR**. The `1.0.0`
 boundary is reserved for declaring the engine API stable.
 
+## [0.6.4] — 2026-06-26
+
+### Added
+
+- `ExplanationFigure` type (`{ src; caption? }`) and an optional
+  `Question.explanationFigures?: ExplanationFigure[]` field — the recovered 詳解 figure tier
+  (hand-drawn diagrams / textbook crops the original extraction dropped, re-cropped from the source
+  PDF as displayed). Lazy-loaded static assets, rendered AFTER the explanation; build-injected from
+  the content-package figure manifest (source `questions.json` untouched). Additive and optional
+  (`explanation` / `id` / `answer` / `stem` / `options` unchanged; no behavior change for existing
+  consumers). Pre-1.0 PATCH bump per the `core-npm-package` additive policy.
+
 ## [0.6.3] — 2026-06-24
 
 ### Added
