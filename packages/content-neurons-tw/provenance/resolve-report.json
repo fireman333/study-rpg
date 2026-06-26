@@ -1,0 +1,1957 @@
+{
+  "report": {
+    "corpusTotal": 4600,
+    "figureMapped(manifest)": 1128,
+    "textPageResolved(shipped)": 2270,
+    "  ofWhich_doubleVerified": 1920,
+    "  ofWhich_anchorOnly": 350,
+    "combinedShippableCoverage": 3398,
+    "excluded_disagree(agent)": 80,
+    "excluded_suspect(agent)": 157,
+    "unresolved(agent/OCR)": 996,
+    "notextBooklets": [
+      "104-1一",
+      "104-1二",
+      "104-2一",
+      "105-1一",
+      "105-1二"
+    ]
+  },
+  "perBooklet": {
+    "104-1一": {
+      "file": "104-1醫學(一).pdf",
+      "verified": 0,
+      "anchorOnly": 0,
+      "disagree": 0,
+      "suspect": 1,
+      "notext": true
+    },
+    "104-1二": {
+      "file": "104-1醫學(二).pdf",
+      "verified": 0,
+      "anchorOnly": 0,
+      "disagree": 0,
+      "suspect": 0,
+      "notext": true
+    },
+    "104-2一": {
+      "file": "104-2醫學(一).pdf",
+      "verified": 0,
+      "anchorOnly": 0,
+      "disagree": 0,
+      "suspect": 0,
+      "notext": true
+    },
+    "104-2二": {
+      "file": "104-2醫學(二).pdf",
+      "verified": 0,
+      "anchorOnly": 31,
+      "disagree": 0,
+      "suspect": 0,
+      "notext": false
+    },
+    "105-1一": {
+      "file": "105-1醫學(一).pdf",
+      "verified": 0,
+      "anchorOnly": 0,
+      "disagree": 0,
+      "suspect": 2,
+      "notext": true
+    },
+    "105-1二": {
+      "file": "105-1醫學(二).pdf",
+      "verified": 0,
+      "anchorOnly": 0,
+      "disagree": 0,
+      "suspect": 0,
+      "notext": true
+    },
+    "105-2一": {
+      "file": "105-2醫學(一).pdf",
+      "verified": 14,
+      "anchorOnly": 1,
+      "disagree": 1,
+      "suspect": 14,
+      "notext": false
+    },
+    "105-2二": {
+      "file": "105-2醫學(二).pdf",
+      "verified": 32,
+      "anchorOnly": 3,
+      "disagree": 0,
+      "suspect": 0,
+      "notext": false
+    },
+    "106-1一": {
+      "file": "106-1醫學(一).pdf",
+      "verified": 62,
+      "anchorOnly": 7,
+      "disagree": 2,
+      "suspect": 0,
+      "notext": false
+    },
+    "106-1二": {
+      "file": "106-1醫學(二).pdf",
+      "verified": 69,
+      "anchorOnly": 5,
+      "disagree": 2,
+      "suspect": 0,
+      "notext": false
+    },
+    "106-2一": {
+      "file": "106-2醫學(一).pdf",
+      "verified": 93,
+      "anchorOnly": 4,
+      "disagree": 2,
+      "suspect": 1,
+      "notext": false
+    },
+    "106-2二": {
+      "file": "106-2醫學(二).pdf",
+      "verified": 96,
+      "anchorOnly": 2,
+      "disagree": 0,
+      "suspect": 0,
+      "notext": false
+    },
+    "107-1一": {
+      "file": "107-1醫學(一).pdf",
+      "verified": 76,
+      "anchorOnly": 1,
+      "disagree": 0,
+      "suspect": 21,
+      "notext": false
+    },
+    "107-1二": {
+      "file": "107-1醫學(二).pdf",
+      "verified": 58,
+      "anchorOnly": 1,
+      "disagree": 4,
+      "suspect": 33,
+      "notext": false
+    },
+    "107-2一": {
+      "file": "107-2醫學(一).pdf",
+      "verified": 15,
+      "anchorOnly": 83,
+      "disagree": 0,
+      "suspect": 2,
+      "notext": false
+    },
+    "107-2二": {
+      "file": "107-2醫學(二).pdf",
+      "verified": 11,
+      "anchorOnly": 83,
+      "disagree": 0,
+      "suspect": 6,
+      "notext": false
+    },
+    "108-1一": {
+      "file": "108-1醫學(一).pdf",
+      "verified": 92,
+      "anchorOnly": 5,
+      "disagree": 3,
+      "suspect": 0,
+      "notext": false
+    },
+    "108-1二": {
+      "file": "108-1醫學(二).pdf",
+      "verified": 80,
+      "anchorOnly": 5,
+      "disagree": 7,
+      "suspect": 0,
+      "notext": false
+    },
+    "108-2一": {
+      "file": "108-2醫學(一).pdf",
+      "verified": 79,
+      "anchorOnly": 3,
+      "disagree": 1,
+      "suspect": 8,
+      "notext": false
+    },
+    "108-2二": {
+      "file": "108-2醫學(二).pdf",
+      "verified": 77,
+      "anchorOnly": 9,
+      "disagree": 3,
+      "suspect": 7,
+      "notext": false
+    },
+    "109-1一": {
+      "file": "109-1醫學(一).pdf",
+      "verified": 93,
+      "anchorOnly": 5,
+      "disagree": 2,
+      "suspect": 0,
+      "notext": false
+    },
+    "109-1二": {
+      "file": "109-1醫學(二).pdf",
+      "verified": 91,
+      "anchorOnly": 0,
+      "disagree": 2,
+      "suspect": 0,
+      "notext": false
+    },
+    "109-2一": {
+      "file": "109-2醫學(一).pdf",
+      "verified": 89,
+      "anchorOnly": 7,
+      "disagree": 3,
+      "suspect": 1,
+      "notext": false
+    },
+    "109-2二": {
+      "file": "109-2醫學(二).pdf",
+      "verified": 89,
+      "anchorOnly": 4,
+      "disagree": 3,
+      "suspect": 4,
+      "notext": false
+    },
+    "110-1一": {
+      "file": "110-1醫學(一).pdf",
+      "verified": 39,
+      "anchorOnly": 55,
+      "disagree": 6,
+      "suspect": 0,
+      "notext": false
+    },
+    "110-1二": {
+      "file": "110-1醫學(二).pdf",
+      "verified": 33,
+      "anchorOnly": 61,
+      "disagree": 6,
+      "suspect": 0,
+      "notext": false
+    },
+    "110-2一": {
+      "file": "110-2醫學(一).pdf",
+      "verified": 85,
+      "anchorOnly": 4,
+      "disagree": 0,
+      "suspect": 11,
+      "notext": false
+    },
+    "110-2二": {
+      "file": "110-2醫學(二).pdf",
+      "verified": 95,
+      "anchorOnly": 5,
+      "disagree": 0,
+      "suspect": 0,
+      "notext": false
+    },
+    "111-1一": {
+      "file": "111-1醫學(一).pdf",
+      "verified": 94,
+      "anchorOnly": 2,
+      "disagree": 2,
+      "suspect": 0,
+      "notext": false
+    },
+    "111-1二": {
+      "file": "111-1醫學(二).pdf",
+      "verified": 93,
+      "anchorOnly": 4,
+      "disagree": 1,
+      "suspect": 0,
+      "notext": false
+    },
+    "111-2一": {
+      "file": "111-2醫學一合併檔案.pdf",
+      "verified": 88,
+      "anchorOnly": 2,
+      "disagree": 3,
+      "suspect": 7,
+      "notext": false
+    },
+    "111-2二": {
+      "file": "111-2醫學二合併檔案.pdf",
+      "verified": 97,
+      "anchorOnly": 0,
+      "disagree": 2,
+      "suspect": 1,
+      "notext": false
+    },
+    "112-1一": {
+      "file": "112-1醫學一 詳解.pdf",
+      "verified": 91,
+      "anchorOnly": 1,
+      "disagree": 1,
+      "suspect": 7,
+      "notext": false
+    },
+    "112-1二": {
+      "file": "112-1醫學二 詳解 (校正).pdf",
+      "verified": 26,
+      "anchorOnly": 68,
+      "disagree": 4,
+      "suspect": 2,
+      "notext": false
+    },
+    "112-2一": {
+      "file": "112-2醫學一(全)_merged.pdf",
+      "verified": 95,
+      "anchorOnly": 3,
+      "disagree": 1,
+      "suspect": 1,
+      "notext": false
+    },
+    "112-2二": {
+      "file": "112-2醫學二(全)_merged.pdf",
+      "verified": 93,
+      "anchorOnly": 2,
+      "disagree": 0,
+      "suspect": 4,
+      "notext": false
+    },
+    "113-1一": {
+      "file": "113-1醫學一（修）.pdf",
+      "verified": 96,
+      "anchorOnly": 3,
+      "disagree": 1,
+      "suspect": 0,
+      "notext": false
+    },
+    "113-1二": {
+      "file": "113-1醫學二.pdf",
+      "verified": 96,
+      "anchorOnly": 1,
+      "disagree": 3,
+      "suspect": 0,
+      "notext": false
+    },
+    "113-2一": {
+      "file": "113-2_醫學一總檔.pdf",
+      "verified": 86,
+      "anchorOnly": 2,
+      "disagree": 2,
+      "suspect": 9,
+      "notext": false
+    },
+    "113-2二": {
+      "file": "113-2_醫學二總檔.pdf",
+      "verified": 93,
+      "anchorOnly": 2,
+      "disagree": 0,
+      "suspect": 5,
+      "notext": false
+    },
+    "114-1一": {
+      "file": "114-1_醫學一總檔案（修訂版）.pdf",
+      "verified": 88,
+      "anchorOnly": 11,
+      "disagree": 1,
+      "suspect": 0,
+      "notext": false
+    },
+    "114-1二": {
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "verified": 83,
+      "anchorOnly": 10,
+      "disagree": 6,
+      "suspect": 1,
+      "notext": false
+    },
+    "114-2一": {
+      "file": "114-2醫學一合併總檔.pdf",
+      "verified": 96,
+      "anchorOnly": 1,
+      "disagree": 1,
+      "suspect": 2,
+      "notext": false
+    },
+    "114-2二": {
+      "file": "114-2醫學二合併總檔.pdf",
+      "verified": 88,
+      "anchorOnly": 0,
+      "disagree": 5,
+      "suspect": 7,
+      "notext": false
+    }
+  },
+  "disagreements": [
+    {
+      "id": "105-2-醫學一-解剖學-Q2",
+      "file": "105-2醫學(一).pdf",
+      "anchorPage": 91,
+      "stemPage": 2
+    },
+    {
+      "id": "106-1-醫學一-解剖學-Q7",
+      "file": "106-1醫學(一).pdf",
+      "anchorPage": 6,
+      "stemPage": 14
+    },
+    {
+      "id": "106-1-醫學一-微生物暨免疫學-Q54",
+      "file": "106-1醫學(一).pdf",
+      "anchorPage": 50,
+      "stemPage": 14
+    },
+    {
+      "id": "106-1-醫學二-藥理學-Q68",
+      "file": "106-1醫學(二).pdf",
+      "anchorPage": 57,
+      "stemPage": 48
+    },
+    {
+      "id": "106-1-醫學二-病理學-Q95",
+      "file": "106-1醫學(二).pdf",
+      "anchorPage": 83,
+      "stemPage": 7
+    },
+    {
+      "id": "106-2-醫學一-生理學-Q56",
+      "file": "106-2醫學(一).pdf",
+      "anchorPage": 63,
+      "stemPage": 7
+    },
+    {
+      "id": "106-2-醫學一-生理學-Q64",
+      "file": "106-2醫學(一).pdf",
+      "anchorPage": 70,
+      "stemPage": 19
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q8",
+      "file": "107-1醫學(二).pdf",
+      "anchorPage": 8,
+      "stemPage": 2
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q13",
+      "file": "107-1醫學(二).pdf",
+      "anchorPage": 13,
+      "stemPage": 16
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q17",
+      "file": "107-1醫學(二).pdf",
+      "anchorPage": 17,
+      "stemPage": 21
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q22",
+      "file": "107-1醫學(二).pdf",
+      "anchorPage": 28,
+      "stemPage": 25
+    },
+    {
+      "id": "108-1-醫學一-解剖學-Q13",
+      "file": "108-1醫學(一).pdf",
+      "anchorPage": 22,
+      "stemPage": 2
+    },
+    {
+      "id": "108-1-醫學一-生物化學-Q84",
+      "file": "108-1醫學(一).pdf",
+      "anchorPage": 127,
+      "stemPage": 2
+    },
+    {
+      "id": "108-1-醫學一-生物化學-Q94",
+      "file": "108-1醫學(一).pdf",
+      "anchorPage": 145,
+      "stemPage": 143
+    },
+    {
+      "id": "108-1-醫學二-微生物暨免疫學-Q7",
+      "file": "108-1醫學(二).pdf",
+      "anchorPage": 10,
+      "stemPage": 5
+    },
+    {
+      "id": "108-1-醫學二-微生物暨免疫學-Q11",
+      "file": "108-1醫學(二).pdf",
+      "anchorPage": 18,
+      "stemPage": 9
+    },
+    {
+      "id": "108-1-醫學二-寄生蟲學-Q35",
+      "file": "108-1醫學(二).pdf",
+      "anchorPage": 48,
+      "stemPage": 5
+    },
+    {
+      "id": "108-1-醫學二-藥理學-Q55",
+      "file": "108-1醫學(二).pdf",
+      "anchorPage": 84,
+      "stemPage": 5
+    },
+    {
+      "id": "108-1-醫學二-藥理學-Q62",
+      "file": "108-1醫學(二).pdf",
+      "anchorPage": 91,
+      "stemPage": 9
+    },
+    {
+      "id": "108-1-醫學二-藥理學-Q72",
+      "file": "108-1醫學(二).pdf",
+      "anchorPage": 101,
+      "stemPage": 39
+    },
+    {
+      "id": "108-1-醫學二-病理學-Q86",
+      "file": "108-1醫學(二).pdf",
+      "anchorPage": 122,
+      "stemPage": 107
+    },
+    {
+      "id": "108-2-醫學一-生物化學-Q86",
+      "file": "108-2醫學(一).pdf",
+      "anchorPage": 108,
+      "stemPage": 7
+    },
+    {
+      "id": "108-2-醫學二-微生物暨免疫學-Q14",
+      "file": "108-2醫學(二).pdf",
+      "anchorPage": 22,
+      "stemPage": 9
+    },
+    {
+      "id": "108-2-醫學二-病理學-Q58",
+      "file": "108-2醫學(二).pdf",
+      "anchorPage": 69,
+      "stemPage": 2
+    },
+    {
+      "id": "108-2-醫學二-藥理學-Q59",
+      "file": "108-2醫學(二).pdf",
+      "anchorPage": 70,
+      "stemPage": 2
+    },
+    {
+      "id": "109-1-醫學一-解剖學-Q14",
+      "file": "109-1醫學(一).pdf",
+      "anchorPage": 16,
+      "stemPage": 10
+    },
+    {
+      "id": "109-1-醫學一-生物化學-Q91",
+      "file": "109-1醫學(一).pdf",
+      "anchorPage": 114,
+      "stemPage": 104
+    },
+    {
+      "id": "109-1-醫學二-微生物暨免疫學-Q10",
+      "file": "109-1醫學(二).pdf",
+      "anchorPage": 12,
+      "stemPage": 3
+    },
+    {
+      "id": "109-1-醫學二-藥理學-Q51",
+      "file": "109-1醫學(二).pdf",
+      "anchorPage": 56,
+      "stemPage": 2
+    },
+    {
+      "id": "109-2-醫學一-解剖學-Q20",
+      "file": "109-2醫學(一).pdf",
+      "anchorPage": 44,
+      "stemPage": 25
+    },
+    {
+      "id": "109-2-醫學一-解剖學-Q26",
+      "file": "109-2醫學(一).pdf",
+      "anchorPage": 58,
+      "stemPage": 25
+    },
+    {
+      "id": "109-2-醫學一-生物化學-Q92",
+      "file": "109-2醫學(一).pdf",
+      "anchorPage": 156,
+      "stemPage": 3
+    },
+    {
+      "id": "109-2-醫學二-微生物暨免疫學-Q12",
+      "file": "109-2醫學(二).pdf",
+      "anchorPage": 19,
+      "stemPage": 7
+    },
+    {
+      "id": "109-2-醫學二-微生物暨免疫學-Q15",
+      "file": "109-2醫學(二).pdf",
+      "anchorPage": 22,
+      "stemPage": 7
+    },
+    {
+      "id": "109-2-醫學二-藥理學-Q52",
+      "file": "109-2醫學(二).pdf",
+      "anchorPage": 70,
+      "stemPage": 53
+    },
+    {
+      "id": "110-1-醫學一-解剖學-Q17",
+      "file": "110-1醫學(一).pdf",
+      "anchorPage": 34,
+      "stemPage": 28
+    },
+    {
+      "id": "110-1-醫學一-解剖學-Q22",
+      "file": "110-1醫學(一).pdf",
+      "anchorPage": 46,
+      "stemPage": 5
+    },
+    {
+      "id": "110-1-醫學一-解剖學-Q23",
+      "file": "110-1醫學(一).pdf",
+      "anchorPage": 48,
+      "stemPage": 28
+    },
+    {
+      "id": "110-1-醫學一-解剖學-Q24",
+      "file": "110-1醫學(一).pdf",
+      "anchorPage": 50,
+      "stemPage": 28
+    },
+    {
+      "id": "110-1-醫學一-解剖學-Q26",
+      "file": "110-1醫學(一).pdf",
+      "anchorPage": 52,
+      "stemPage": 28
+    },
+    {
+      "id": "110-1-醫學一-組織學-Q40",
+      "file": "110-1醫學(一).pdf",
+      "anchorPage": 83,
+      "stemPage": 5
+    },
+    {
+      "id": "110-1-醫學二-微生物暨免疫學-Q26",
+      "file": "110-1醫學(二).pdf",
+      "anchorPage": 43,
+      "stemPage": 3
+    },
+    {
+      "id": "110-1-醫學二-公共衛生學-Q43",
+      "file": "110-1醫學(二).pdf",
+      "anchorPage": 72,
+      "stemPage": 62
+    },
+    {
+      "id": "110-1-醫學二-公共衛生學-Q45",
+      "file": "110-1醫學(二).pdf",
+      "anchorPage": 76,
+      "stemPage": 62
+    },
+    {
+      "id": "110-1-醫學二-公共衛生學-Q49",
+      "file": "110-1醫學(二).pdf",
+      "anchorPage": 80,
+      "stemPage": 62
+    },
+    {
+      "id": "110-1-醫學二-公共衛生學-Q50",
+      "file": "110-1醫學(二).pdf",
+      "anchorPage": 81,
+      "stemPage": 62
+    },
+    {
+      "id": "110-1-醫學二-藥理學-Q57",
+      "file": "110-1醫學(二).pdf",
+      "anchorPage": 92,
+      "stemPage": 3
+    },
+    {
+      "id": "111-1-醫學一-組織學-Q45",
+      "file": "111-1醫學(一).pdf",
+      "anchorPage": 71,
+      "stemPage": 36
+    },
+    {
+      "id": "111-1-醫學一-生物化學-Q76",
+      "file": "111-1醫學(一).pdf",
+      "anchorPage": 117,
+      "stemPage": 79
+    },
+    {
+      "id": "111-1-醫學二-藥理學-Q55",
+      "file": "111-1醫學(二).pdf",
+      "anchorPage": 66,
+      "stemPage": 8
+    },
+    {
+      "id": "111-2-醫學一-解剖學-Q22",
+      "file": "111-2醫學一合併檔案.pdf",
+      "anchorPage": 38,
+      "stemPage": 33
+    },
+    {
+      "id": "111-2-醫學一-胚胎學-Q36",
+      "file": "111-2醫學一合併檔案.pdf",
+      "anchorPage": 67,
+      "stemPage": 62
+    },
+    {
+      "id": "111-2-醫學一-生物化學-Q91",
+      "file": "111-2醫學一合併檔案.pdf",
+      "anchorPage": 164,
+      "stemPage": 103
+    },
+    {
+      "id": "111-2-醫學二-寄生蟲學-Q33",
+      "file": "111-2醫學二合併檔案.pdf",
+      "anchorPage": 50,
+      "stemPage": 7
+    },
+    {
+      "id": "111-2-醫學二-病理學-Q90",
+      "file": "111-2醫學二合併檔案.pdf",
+      "anchorPage": 133,
+      "stemPage": 8
+    },
+    {
+      "id": "112-1-醫學一-組織學-Q41",
+      "file": "112-1醫學一 詳解.pdf",
+      "anchorPage": 87,
+      "stemPage": 35
+    },
+    {
+      "id": "112-1-醫學二-微生物暨免疫學-Q8",
+      "file": "112-1醫學二 詳解 (校正).pdf",
+      "anchorPage": 19,
+      "stemPage": 8
+    },
+    {
+      "id": "112-1-醫學二-微生物暨免疫學-Q14",
+      "file": "112-1醫學二 詳解 (校正).pdf",
+      "anchorPage": 33,
+      "stemPage": 8
+    },
+    {
+      "id": "112-1-醫學二-藥理學-Q52",
+      "file": "112-1醫學二 詳解 (校正).pdf",
+      "anchorPage": 120,
+      "stemPage": 87
+    },
+    {
+      "id": "112-1-醫學二-藥理學-Q74",
+      "file": "112-1醫學二 詳解 (校正).pdf",
+      "anchorPage": 179,
+      "stemPage": 44
+    },
+    {
+      "id": "112-2-醫學一-生理學-Q67",
+      "file": "112-2醫學一(全)_merged.pdf",
+      "anchorPage": 122,
+      "stemPage": 9
+    },
+    {
+      "id": "113-1-醫學一-生物化學-Q82",
+      "file": "113-1醫學一（修）.pdf",
+      "anchorPage": 167,
+      "stemPage": 16
+    },
+    {
+      "id": "113-1-醫學二-微生物暨免疫學-Q11",
+      "file": "113-1醫學二.pdf",
+      "anchorPage": 24,
+      "stemPage": 9
+    },
+    {
+      "id": "113-1-醫學二-微生物暨免疫學-Q16",
+      "file": "113-1醫學二.pdf",
+      "anchorPage": 36,
+      "stemPage": 32
+    },
+    {
+      "id": "113-1-醫學二-藥理學-Q57",
+      "file": "113-1醫學二.pdf",
+      "anchorPage": 109,
+      "stemPage": 5
+    },
+    {
+      "id": "113-2-醫學一-生理學-Q54",
+      "file": "113-2_醫學一總檔.pdf",
+      "anchorPage": 113,
+      "stemPage": 115
+    },
+    {
+      "id": "113-2-醫學一-生理學-Q65",
+      "file": "113-2_醫學一總檔.pdf",
+      "anchorPage": 132,
+      "stemPage": 130
+    },
+    {
+      "id": "114-1-醫學一-生理學-Q63",
+      "file": "114-1_醫學一總檔案（修訂版）.pdf",
+      "anchorPage": 86,
+      "stemPage": 79
+    },
+    {
+      "id": "114-1-醫學二-微生物暨免疫學-Q14",
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "anchorPage": 21,
+      "stemPage": 15
+    },
+    {
+      "id": "114-1-醫學二-微生物暨免疫學-Q20",
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "anchorPage": 29,
+      "stemPage": 15
+    },
+    {
+      "id": "114-1-醫學二-藥理學-Q65",
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "anchorPage": 99,
+      "stemPage": 15
+    },
+    {
+      "id": "114-1-醫學二-病理學-Q79",
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "anchorPage": 118,
+      "stemPage": 41
+    },
+    {
+      "id": "114-1-醫學二-病理學-Q89",
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "anchorPage": 132,
+      "stemPage": 34
+    },
+    {
+      "id": "114-1-醫學二-病理學-Q91",
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "anchorPage": 134,
+      "stemPage": 34
+    },
+    {
+      "id": "114-2-醫學一-解剖學-Q26",
+      "file": "114-2醫學一合併總檔.pdf",
+      "anchorPage": 50,
+      "stemPage": 43
+    },
+    {
+      "id": "114-2-醫學二-微生物暨免疫學-Q21",
+      "file": "114-2醫學二合併總檔.pdf",
+      "anchorPage": 36,
+      "stemPage": 6
+    },
+    {
+      "id": "114-2-醫學二-病理學-Q43",
+      "file": "114-2醫學二合併總檔.pdf",
+      "anchorPage": 83,
+      "stemPage": 21
+    },
+    {
+      "id": "114-2-醫學二-病理學-Q90",
+      "file": "114-2醫學二合併總檔.pdf",
+      "anchorPage": 180,
+      "stemPage": 21
+    },
+    {
+      "id": "114-2-醫學二-病理學-Q91",
+      "file": "114-2醫學二合併總檔.pdf",
+      "anchorPage": 183,
+      "stemPage": 21
+    },
+    {
+      "id": "114-2-醫學二-病理學-Q100",
+      "file": "114-2醫學二合併總檔.pdf",
+      "anchorPage": 203,
+      "stemPage": 21
+    }
+  ],
+  "suspects": [
+    {
+      "id": "104-1-醫學一-解剖學-Q5",
+      "file": "104-1醫學(一).pdf",
+      "page": 18,
+      "prevPage": 47,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-1-醫學一-解剖學-Q3",
+      "file": "105-1醫學(一).pdf",
+      "page": 38,
+      "prevPage": 76,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-1-醫學一-解剖學-Q6",
+      "file": "105-1醫學(一).pdf",
+      "page": 35,
+      "prevPage": 76,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-解剖學-Q7",
+      "file": "105-2醫學(一).pdf",
+      "page": 8,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-解剖學-Q13",
+      "file": "105-2醫學(一).pdf",
+      "page": 16,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-解剖學-Q22",
+      "file": "105-2醫學(一).pdf",
+      "page": 29,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-組織學-Q35",
+      "file": "105-2醫學(一).pdf",
+      "page": 40,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-組織學-Q37",
+      "file": "105-2醫學(一).pdf",
+      "page": 43,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-組織學-Q38",
+      "file": "105-2醫學(一).pdf",
+      "page": 44,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-微生物暨免疫學-Q44",
+      "file": "105-2醫學(一).pdf",
+      "page": 49,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-微生物暨免疫學-Q71",
+      "file": "105-2醫學(一).pdf",
+      "page": 78,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-寄生蟲學-Q78",
+      "file": "105-2醫學(一).pdf",
+      "page": 85,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-寄生蟲學-Q81",
+      "file": "105-2醫學(一).pdf",
+      "page": 88,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-寄生蟲學-Q82",
+      "file": "105-2醫學(一).pdf",
+      "page": 88,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-公共衛生學-Q83",
+      "file": "105-2醫學(一).pdf",
+      "page": 89,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-公共衛生學-Q84",
+      "file": "105-2醫學(一).pdf",
+      "page": 89,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "105-2-醫學一-公共衛生學-Q85",
+      "file": "105-2醫學(一).pdf",
+      "page": 90,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "106-2-醫學一-生物化學-Q78",
+      "file": "106-2醫學(一).pdf",
+      "page": 78,
+      "prevPage": 85,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-解剖學-Q14",
+      "file": "107-1醫學(一).pdf",
+      "page": 14,
+      "prevPage": 15,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-解剖學-Q19",
+      "file": "107-1醫學(一).pdf",
+      "page": 19,
+      "prevPage": 21,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-解剖學-Q20",
+      "file": "107-1醫學(一).pdf",
+      "page": 20,
+      "prevPage": 21,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-解剖學-Q22",
+      "file": "107-1醫學(一).pdf",
+      "page": 22,
+      "prevPage": 26,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-解剖學-Q23",
+      "file": "107-1醫學(一).pdf",
+      "page": 23,
+      "prevPage": 26,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-解剖學-Q25",
+      "file": "107-1醫學(一).pdf",
+      "page": 25,
+      "prevPage": 31,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-解剖學-Q27",
+      "file": "107-1醫學(一).pdf",
+      "page": 27,
+      "prevPage": 34,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-組織學-Q39",
+      "file": "107-1醫學(一).pdf",
+      "page": 39,
+      "prevPage": 45,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-組織學-Q40",
+      "file": "107-1醫學(一).pdf",
+      "page": 40,
+      "prevPage": 45,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生理學-Q63",
+      "file": "107-1醫學(一).pdf",
+      "page": 63,
+      "prevPage": 76,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生理學-Q65",
+      "file": "107-1醫學(一).pdf",
+      "page": 65,
+      "prevPage": 78,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生理學-Q67",
+      "file": "107-1醫學(一).pdf",
+      "page": 67,
+      "prevPage": 80,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生物化學-Q69",
+      "file": "107-1醫學(一).pdf",
+      "page": 69,
+      "prevPage": 84,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生理學-Q71",
+      "file": "107-1醫學(一).pdf",
+      "page": 71,
+      "prevPage": 88,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生理學-Q73",
+      "file": "107-1醫學(一).pdf",
+      "page": 73,
+      "prevPage": 91,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生物化學-Q77",
+      "file": "107-1醫學(一).pdf",
+      "page": 77,
+      "prevPage": 97,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生物化學-Q82",
+      "file": "107-1醫學(一).pdf",
+      "page": 82,
+      "prevPage": 104,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生物化學-Q83",
+      "file": "107-1醫學(一).pdf",
+      "page": 83,
+      "prevPage": 104,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生物化學-Q85",
+      "file": "107-1醫學(一).pdf",
+      "page": 85,
+      "prevPage": 110,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生物化學-Q87",
+      "file": "107-1醫學(一).pdf",
+      "page": 87,
+      "prevPage": 112,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學一-生物化學-Q90",
+      "file": "107-1醫學(一).pdf",
+      "page": 90,
+      "prevPage": 117,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q15",
+      "file": "107-1醫學(二).pdf",
+      "page": 15,
+      "prevPage": 17,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q16",
+      "file": "107-1醫學(二).pdf",
+      "page": 16,
+      "prevPage": 17,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q19",
+      "file": "107-1醫學(二).pdf",
+      "page": 19,
+      "prevPage": 22,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q20",
+      "file": "107-1醫學(二).pdf",
+      "page": 20,
+      "prevPage": 22,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-微生物暨免疫學-Q26",
+      "file": "107-1醫學(二).pdf",
+      "page": 26,
+      "prevPage": 31,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-公共衛生學-Q29",
+      "file": "107-1醫學(二).pdf",
+      "page": 29,
+      "prevPage": 34,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-寄生蟲學-Q35",
+      "file": "107-1醫學(二).pdf",
+      "page": 35,
+      "prevPage": 42,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-寄生蟲學-Q37",
+      "file": "107-1醫學(二).pdf",
+      "page": 37,
+      "prevPage": 42,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-寄生蟲學-Q38",
+      "file": "107-1醫學(二).pdf",
+      "page": 38,
+      "prevPage": 42,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q44",
+      "file": "107-1醫學(二).pdf",
+      "page": 44,
+      "prevPage": 56,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q46",
+      "file": "107-1醫學(二).pdf",
+      "page": 46,
+      "prevPage": 59,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q52",
+      "file": "107-1醫學(二).pdf",
+      "page": 52,
+      "prevPage": 66,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q56",
+      "file": "107-1醫學(二).pdf",
+      "page": 56,
+      "prevPage": 70,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q58",
+      "file": "107-1醫學(二).pdf",
+      "page": 58,
+      "prevPage": 72,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q60",
+      "file": "107-1醫學(二).pdf",
+      "page": 60,
+      "prevPage": 74,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q62",
+      "file": "107-1醫學(二).pdf",
+      "page": 62,
+      "prevPage": 76,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q64",
+      "file": "107-1醫學(二).pdf",
+      "page": 64,
+      "prevPage": 78,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q65",
+      "file": "107-1醫學(二).pdf",
+      "page": 65,
+      "prevPage": 78,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q66",
+      "file": "107-1醫學(二).pdf",
+      "page": 66,
+      "prevPage": 78,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q67",
+      "file": "107-1醫學(二).pdf",
+      "page": 67,
+      "prevPage": 78,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q68",
+      "file": "107-1醫學(二).pdf",
+      "page": 68,
+      "prevPage": 78,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q71",
+      "file": "107-1醫學(二).pdf",
+      "page": 71,
+      "prevPage": 85,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-藥理學-Q73",
+      "file": "107-1醫學(二).pdf",
+      "page": 73,
+      "prevPage": 86,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q75",
+      "file": "107-1醫學(二).pdf",
+      "page": 75,
+      "prevPage": 88,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q76",
+      "file": "107-1醫學(二).pdf",
+      "page": 76,
+      "prevPage": 88,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q77",
+      "file": "107-1醫學(二).pdf",
+      "page": 77,
+      "prevPage": 88,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q79",
+      "file": "107-1醫學(二).pdf",
+      "page": 79,
+      "prevPage": 93,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q80",
+      "file": "107-1醫學(二).pdf",
+      "page": 80,
+      "prevPage": 93,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q81",
+      "file": "107-1醫學(二).pdf",
+      "page": 81,
+      "prevPage": 93,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q83",
+      "file": "107-1醫學(二).pdf",
+      "page": 83,
+      "prevPage": 99,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q85",
+      "file": "107-1醫學(二).pdf",
+      "page": 85,
+      "prevPage": 103,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q88",
+      "file": "107-1醫學(二).pdf",
+      "page": 88,
+      "prevPage": 107,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-1-醫學二-病理學-Q98",
+      "file": "107-1醫學(二).pdf",
+      "page": 98,
+      "prevPage": 120,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學一-組織學-Q43",
+      "file": "107-2醫學(一).pdf",
+      "page": 43,
+      "prevPage": 57,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學一-生物化學-Q99",
+      "file": "107-2醫學(一).pdf",
+      "page": 99,
+      "prevPage": 141,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學二-微生物暨免疫學-Q11",
+      "file": "107-2醫學(二).pdf",
+      "page": 11,
+      "prevPage": 14,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學二-微生物暨免疫學-Q27",
+      "file": "107-2醫學(二).pdf",
+      "page": 27,
+      "prevPage": 38,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學二-寄生蟲學-Q33",
+      "file": "107-2醫學(二).pdf",
+      "page": 33,
+      "prevPage": 45,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學二-藥理學-Q73",
+      "file": "107-2醫學(二).pdf",
+      "page": 73,
+      "prevPage": 100,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學二-病理學-Q78",
+      "file": "107-2醫學(二).pdf",
+      "page": 78,
+      "prevPage": 107,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "107-2-醫學二-病理學-Q84",
+      "file": "107-2醫學(二).pdf",
+      "page": 84,
+      "prevPage": 115,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-解剖學-Q18",
+      "file": "108-2醫學(一).pdf",
+      "page": 19,
+      "prevPage": 20,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-解剖學-Q22",
+      "file": "108-2醫學(一).pdf",
+      "page": 23,
+      "prevPage": 24,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-組織學-Q43",
+      "file": "108-2醫學(一).pdf",
+      "page": 44,
+      "prevPage": 50,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-微生物暨免疫學-Q45",
+      "file": "108-2醫學(一).pdf",
+      "page": 46,
+      "prevPage": 52,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-生理學-Q53",
+      "file": "108-2醫學(一).pdf",
+      "page": 54,
+      "prevPage": 63,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-生理學-Q57",
+      "file": "108-2醫學(一).pdf",
+      "page": 58,
+      "prevPage": 69,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-生物化學-Q92",
+      "file": "108-2醫學(一).pdf",
+      "page": 93,
+      "prevPage": 115,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學一-生物化學-Q93",
+      "file": "108-2醫學(一).pdf",
+      "page": 94,
+      "prevPage": 115,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學二-微生物暨免疫學-Q5",
+      "file": "108-2醫學(二).pdf",
+      "page": 6,
+      "prevPage": 8,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學二-公共衛生學-Q37",
+      "file": "108-2醫學(二).pdf",
+      "page": 38,
+      "prevPage": 48,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學二-公共衛生學-Q42",
+      "file": "108-2醫學(二).pdf",
+      "page": 42,
+      "prevPage": 53,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學二-藥理學-Q70",
+      "file": "108-2醫學(二).pdf",
+      "page": 70,
+      "prevPage": 81,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學二-藥理學-Q76",
+      "file": "108-2醫學(二).pdf",
+      "page": 77,
+      "prevPage": 89,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學二-病理學-Q82",
+      "file": "108-2醫學(二).pdf",
+      "page": 83,
+      "prevPage": 95,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "108-2-醫學二-病理學-Q91",
+      "file": "108-2醫學(二).pdf",
+      "page": 92,
+      "prevPage": 108,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "109-2-醫學一-生理學-Q65",
+      "file": "109-2醫學(一).pdf",
+      "page": 65,
+      "prevPage": 107,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "109-2-醫學二-微生物暨免疫學-Q23",
+      "file": "109-2醫學(二).pdf",
+      "page": 24,
+      "prevPage": 32,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "109-2-醫學二-公共衛生學-Q46",
+      "file": "109-2醫學(二).pdf",
+      "page": 47,
+      "prevPage": 62,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "109-2-醫學二-病理學-Q76",
+      "file": "109-2醫學(二).pdf",
+      "page": 77,
+      "prevPage": 108,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "109-2-醫學二-病理學-Q79",
+      "file": "109-2醫學(二).pdf",
+      "page": 80,
+      "prevPage": 116,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-解剖學-Q5",
+      "file": "110-2醫學(一).pdf",
+      "page": 4,
+      "prevPage": 8,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-解剖學-Q30",
+      "file": "110-2醫學(一).pdf",
+      "page": 29,
+      "prevPage": 44,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生理學-Q61",
+      "file": "110-2醫學(一).pdf",
+      "page": 60,
+      "prevPage": 80,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q87",
+      "file": "110-2醫學(一).pdf",
+      "page": 86,
+      "prevPage": 102,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q88",
+      "file": "110-2醫學(一).pdf",
+      "page": 87,
+      "prevPage": 102,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q89",
+      "file": "110-2醫學(一).pdf",
+      "page": 88,
+      "prevPage": 102,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q92",
+      "file": "110-2醫學(一).pdf",
+      "page": 91,
+      "prevPage": 107,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q93",
+      "file": "110-2醫學(一).pdf",
+      "page": 92,
+      "prevPage": 107,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q96",
+      "file": "110-2醫學(一).pdf",
+      "page": 95,
+      "prevPage": 111,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q97",
+      "file": "110-2醫學(一).pdf",
+      "page": 96,
+      "prevPage": 111,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "110-2-醫學一-生物化學-Q99",
+      "file": "110-2醫學(一).pdf",
+      "page": 98,
+      "prevPage": 114,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學一-生理學-Q17",
+      "file": "111-2醫學一合併檔案.pdf",
+      "page": 19,
+      "prevPage": 28,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學一-胚胎學-Q21",
+      "file": "111-2醫學一合併檔案.pdf",
+      "page": 23,
+      "prevPage": 34,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學一-解剖學-Q31",
+      "file": "111-2醫學一合併檔案.pdf",
+      "page": 33,
+      "prevPage": 55,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學一-胚胎學-Q33",
+      "file": "111-2醫學一合併檔案.pdf",
+      "page": 35,
+      "prevPage": 60,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學一-組織學-Q42",
+      "file": "111-2醫學一合併檔案.pdf",
+      "page": 44,
+      "prevPage": 77,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學一-組織學-Q45",
+      "file": "111-2醫學一合併檔案.pdf",
+      "page": 47,
+      "prevPage": 81,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學一-生物化學-Q87",
+      "file": "111-2醫學一合併檔案.pdf",
+      "page": 92,
+      "prevPage": 159,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "111-2-醫學二-病理學-Q97",
+      "file": "111-2醫學二合併檔案.pdf",
+      "page": 102,
+      "prevPage": 151,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學一-生理學-Q35",
+      "file": "112-1醫學一 詳解.pdf",
+      "page": 37,
+      "prevPage": 74,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學一-生理學-Q67",
+      "file": "112-1醫學一 詳解.pdf",
+      "page": 70,
+      "prevPage": 134,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學一-微生物暨免疫學-Q69",
+      "file": "112-1醫學一 詳解.pdf",
+      "page": 72,
+      "prevPage": 139,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學一-生理學-Q71",
+      "file": "112-1醫學一 詳解.pdf",
+      "page": 74,
+      "prevPage": 142,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學一-生物化學-Q89",
+      "file": "112-1醫學一 詳解.pdf",
+      "page": 93,
+      "prevPage": 179,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學一-生物化學-Q91",
+      "file": "112-1醫學一 詳解.pdf",
+      "page": 95,
+      "prevPage": 183,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學一-生物化學-Q93",
+      "file": "112-1醫學一 詳解.pdf",
+      "page": 97,
+      "prevPage": 186,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學二-微生物暨免疫學-Q20",
+      "file": "112-1醫學二 詳解 (校正).pdf",
+      "page": 22,
+      "prevPage": 44,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-1-醫學二-病理學-Q80",
+      "file": "112-1醫學二 詳解 (校正).pdf",
+      "page": 82,
+      "prevPage": 191,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-2-醫學一-胚胎學-Q36",
+      "file": "112-2醫學一(全)_merged.pdf",
+      "page": 37,
+      "prevPage": 66,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-2-醫學二-微生物暨免疫學-Q7",
+      "file": "112-2醫學二(全)_merged.pdf",
+      "page": 8,
+      "prevPage": 11,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-2-醫學二-微生物暨免疫學-Q22",
+      "file": "112-2醫學二(全)_merged.pdf",
+      "page": 23,
+      "prevPage": 37,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-2-醫學二-寄生蟲學-Q35",
+      "file": "112-2醫學二(全)_merged.pdf",
+      "page": 36,
+      "prevPage": 57,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "112-2-醫學二-公共衛生學-Q42",
+      "file": "112-2醫學二(全)_merged.pdf",
+      "page": 43,
+      "prevPage": 67,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-解剖學-Q7",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 9,
+      "prevPage": 13,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-解剖學-Q12",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 14,
+      "prevPage": 23,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-解剖學-Q17",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 19,
+      "prevPage": 36,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-組織學-Q41",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 43,
+      "prevPage": 94,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-組織學-Q47",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 49,
+      "prevPage": 103,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-生理學-Q49",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 51,
+      "prevPage": 106,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-生理學-Q59",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 61,
+      "prevPage": 121,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-生理學-Q61",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 63,
+      "prevPage": 124,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學一-生理學-Q63",
+      "file": "113-2_醫學一總檔.pdf",
+      "page": 65,
+      "prevPage": 128,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學二-寄生蟲學-Q27",
+      "file": "113-2_醫學二總檔.pdf",
+      "page": 29,
+      "prevPage": 59,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學二-微生物暨免疫學-Q29",
+      "file": "113-2_醫學二總檔.pdf",
+      "page": 31,
+      "prevPage": 68,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學二-微生物暨免疫學-Q30",
+      "file": "113-2_醫學二總檔.pdf",
+      "page": 63,
+      "prevPage": 68,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學二-藥理學-Q31",
+      "file": "113-2_醫學二總檔.pdf",
+      "page": 64,
+      "prevPage": 68,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "113-2-醫學二-寄生蟲學-Q33",
+      "file": "113-2_醫學二總檔.pdf",
+      "page": 66,
+      "prevPage": 76,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-1-醫學二-微生物暨免疫學-Q7",
+      "file": "114-1_醫學二總檔案（修訂版）.pdf",
+      "page": 9,
+      "prevPage": 10,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學一-生物化學-Q92",
+      "file": "114-2醫學一合併總檔.pdf",
+      "page": 91,
+      "prevPage": 175,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學一-生物化學-Q98",
+      "file": "114-2醫學一合併總檔.pdf",
+      "page": 97,
+      "prevPage": 184,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學二-微生物暨免疫學-Q15",
+      "file": "114-2醫學二合併總檔.pdf",
+      "page": 14,
+      "prevPage": 21,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學二-微生物暨免疫學-Q24",
+      "file": "114-2醫學二合併總檔.pdf",
+      "page": 23,
+      "prevPage": 40,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學二-微生物暨免疫學-Q25",
+      "file": "114-2醫學二合併總檔.pdf",
+      "page": 24,
+      "prevPage": 40,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學二-病理學-Q47",
+      "file": "114-2醫學二合併總檔.pdf",
+      "page": 46,
+      "prevPage": 87,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學二-藥理學-Q60",
+      "file": "114-2醫學二合併總檔.pdf",
+      "page": 59,
+      "prevPage": 117,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學二-藥理學-Q62",
+      "file": "114-2醫學二合併總檔.pdf",
+      "page": 61,
+      "prevPage": 122,
+      "reason": "non-monotonic"
+    },
+    {
+      "id": "114-2-醫學二-藥理學-Q65",
+      "file": "114-2醫學二合併總檔.pdf",
+      "page": 64,
+      "prevPage": 128,
+      "reason": "non-monotonic"
+    }
+  ]
+}
