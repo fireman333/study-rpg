@@ -13,6 +13,7 @@ import { resolve } from 'node:path'
 import { NEURONS_ACHIEVEMENTS, NEURONS_ACHIEVEMENTS_STATS } from '../src/achievements'
 import { validateNeuronsAchievementCatalog } from '../src/achievement-validator'
 import { FAMILY_NT_BRANCH, FAMILY_COLOR, type NtBranchId } from '../src/families'
+import { rejoinHardWrappedLines } from './rejoin-hard-wraps'
 
 // 一階 corpus source = 考選部-authoritative reconciled artifacts committed under
 // packages/content-neurons-tw/data/medexam-reconciled (see reconcile/README.md).
@@ -309,7 +310,7 @@ function mapPuaGlyphs(ex: string): string {
   return out
 }
 
-function normalizeExplanation(ex: string): string {
+function normalizeExplanation(ex: string, opts: { rejoinWraps?: boolean } = {}): string {
   if (!ex) return ex
   ex = mapPuaGlyphs(ex) // restore lost Wingdings/Symbol glyphs before whitespace pass
   const kept: string[] = []
@@ -333,7 +334,11 @@ function normalizeExplanation(ex: string): string {
       blank = false
     }
   }
-  return collapsed.join('\n').trim()
+  // Rejoin PDF-column hard-wrapped prose lines LAST (after footer-strip +
+  // blank-collapse). Width-guarded + structure-aware; whitespace-only. Skipped
+  // for table-image questions (opts.rejoinWraps === false) — see wireFigure.
+  const joined = collapsed.join('\n')
+  return (opts.rejoinWraps === false ? joined : rejoinHardWrappedLines(joined)).trim()
 }
 
 function main(): void {
@@ -373,11 +378,16 @@ function main(): void {
   let tableImagesWired = 0
   let explFiguresWired = 0
   function wireFigure<T extends MedexamQuestion>(q: T): T {
-    // Clean upstream PDF-extraction whitespace cruft before output (every
-    // question passes through here exactly once).
-    const explanation = normalizeExplanation(q.explanation)
     // 詳解 table-image crops are additive to the explanation (image-crop tier).
     const tableImages = tableImagesByQid[q.id]
+    // Clean upstream PDF-extraction whitespace cruft before output (every
+    // question passes through here exactly once). Questions whose 詳解 is a
+    // flattened table replaced by an image crop SKIP the hard-wrap rejoin —
+    // rejoining table cells produces gibberish; the crop is the real content.
+    // See fix-neurons-explanation-linewrap audit.
+    const explanation = normalizeExplanation(q.explanation, {
+      rejoinWraps: !(tableImages && tableImages.length > 0),
+    })
     const extra: Record<string, unknown> = tableImages?.length
       ? { explanationTableImages: tableImages }
       : {}
