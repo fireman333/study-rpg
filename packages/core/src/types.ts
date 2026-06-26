@@ -70,6 +70,20 @@ export interface ExplanationTableImage {
   caption?: string
 }
 
+/**
+ * A 詳解 figure (hand-drawn diagram / textbook crop) recovered from the original
+ * source PDF as a faithful render-crop of the displayed region — the embedded
+ * figures that extraction dropped (kept only text). Distinct from the bundled
+ * `ExplanationTableImage` tier: these are the broader figure-recovery set, delivered
+ * as lazy-loaded static assets and rendered AFTER the explanation. Build-injected
+ * from the content-package figure manifest (source `questions.json` untouched);
+ * `explanation` / `id` / `answer` / `stem` / `options` are never altered.
+ */
+export interface ExplanationFigure {
+  src: string // relative path under app's /public; prepend BASE_URL at render. lazy-loaded (loading="lazy").
+  caption?: string
+}
+
 export interface Question {
   id: QuestionId
   subject: SubjectId
@@ -79,6 +93,7 @@ export interface Question {
   explanation: string             // markdown allowed; flat fallback when `explanationBlocks` is absent
   explanationBlocks?: ExplanationBlock[] // structured 詳解 (prose + real tables); when present, renderers prefer this over `explanation`
   explanationTableImages?: ExplanationTableImage[] // image-crop tier for 詳解 tables unrecoverable as text; rendered after the explanation (additive)
+  explanationFigures?: ExplanationFigure[] // recovered 詳解 figures (render-crop of source PDF); lazy-loaded, rendered after the explanation (additive, build-injected; source questions.json untouched)
   hasImage?: boolean
   imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
   hasOptionImages?: boolean       // at least one option is an un-renderable image; host apps filter from quiz pools

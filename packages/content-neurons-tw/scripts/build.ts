@@ -53,6 +53,22 @@ const proseByQid: Record<string, string[]> = existsSync(resolve(TABLE_IMAGES_DIR
   ? JSON.parse(readFileSync(resolve(TABLE_IMAGES_DIR, 'prose.json'), 'utf-8'))
   : {}
 
+// 詳解 figures: recovered hand-drawn/textbook diagrams the original extraction dropped.
+// `explanation-figures/manifest.json` maps qid → [{src, provenance, attributionConfidence}];
+// the build attaches the {src} list to the built question (provenance stays in the manifest for
+// CREDITS) and copies the webp like table-images. Source questions.json is untouched.
+// See recover-neurons-explanation-figures.
+const EXPL_FIGURES_DIR = resolve(import.meta.dirname, '..', 'explanation-figures')
+const figuresManifest: Record<
+  string,
+  { src: string; provenance?: unknown; attributionConfidence?: string }[]
+> = existsSync(resolve(EXPL_FIGURES_DIR, 'manifest.json'))
+  ? JSON.parse(readFileSync(resolve(EXPL_FIGURES_DIR, 'manifest.json'), 'utf-8'))
+  : {}
+const figuresByQid: Record<string, { src: string }[]> = Object.fromEntries(
+  Object.entries(figuresManifest).map(([qid, figs]) => [qid, figs.map((f) => ({ src: f.src }))]),
+)
+
 // 簡解 (### Key author tips) restored by restore_jianjie_key.py live at the top of the
 // `explanation` string as `簡解：<key>\n\n<divider>\n\n<詳解>`. For image-tier / prose-tier
 // questions the renderer shows `explanationBlocks` and IGNORES the raw explanation string, so
@@ -355,6 +371,7 @@ function main(): void {
   let figuresWired = 0
   let flaggedNoFigure = 0
   let tableImagesWired = 0
+  let explFiguresWired = 0
   function wireFigure<T extends MedexamQuestion>(q: T): T {
     // Clean upstream PDF-extraction whitespace cruft before output (every
     // question passes through here exactly once).
@@ -365,6 +382,12 @@ function main(): void {
       ? { explanationTableImages: tableImages }
       : {}
     if (tableImages?.length) tableImagesWired += 1
+    // 詳解 figures (recovered diagrams) are additive to the explanation, like table images.
+    const figures = figuresByQid[q.id]
+    if (figures?.length) {
+      extra.explanationFigures = figures
+      explFiguresWired += 1
+    }
     // Clean prose-only blocks (garbled flattened-table text removed) — only when
     // the source has no structured blocks already (these are quarantined questions).
     const prose = proseByQid[q.id]
@@ -510,6 +533,25 @@ function main(): void {
     }
   }
 
+  // Step 6d: Copy recovered 詳解 figures into dist/explanation-figures (→ app public/).
+  // Verify every wired manifest src has a backing asset file (no silent missing-asset).
+  let explFiguresCopied = 0
+  let explFiguresMissing = 0
+  if (existsSync(EXPL_FIGURES_DIR)) {
+    const efOut = resolve(OUT_DIR, 'explanation-figures')
+    mkdirSync(efOut, { recursive: true })
+    for (const f of readdirSync(EXPL_FIGURES_DIR).filter((n) => n.endsWith('.webp'))) {
+      copyFileSync(resolve(EXPL_FIGURES_DIR, f), resolve(efOut, f))
+      explFiguresCopied += 1
+    }
+  }
+  for (const figs of Object.values(figuresByQid)) {
+    for (const f of figs) {
+      const base = f.src.split('/').pop() ?? ''
+      if (!existsSync(resolve(EXPL_FIGURES_DIR, base))) explFiguresMissing += 1
+    }
+  }
+
   // Step 7: Counters
   const ntCount = (br: NtBranchId) => outputSubjects.filter((s) => s.group === br).length
   console.log(`---`)
@@ -528,6 +570,12 @@ function main(): void {
   console.log(
     `table-images: wired ${tableImagesWired} questions / copied ${tableImagesCopied} webp files`,
   )
+  console.log(
+    `explanation-figures: wired ${explFiguresWired} questions / copied ${explFiguresCopied} webp files / missing-asset ${explFiguresMissing}`,
+  )
+  if (explFiguresMissing > 0) {
+    throw new Error(`explanation-figures: ${explFiguresMissing} manifest src(s) have no backing asset file`)
+  }
   const puaUnmappedTotal = [...puaUnmapped.values()].reduce((a, b) => a + b, 0)
   console.log(
     `pua-glyphs: mapped ${puaMappedCount} occurrences (Wingdings → → ↑ ↓ ← ✓ ★ ☺ •) / left-as-is ${puaUnmappedTotal} across ${puaUnmapped.size} unmapped codepoint(s)`,

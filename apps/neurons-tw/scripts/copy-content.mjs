@@ -46,6 +46,18 @@ if (existsSync(TI_SRC)) {
     tableImageCount += 1
   }
 }
+
+// 詳解 figures: copy dist/explanation-figures/*.webp → public/content/neurons-tw/explanation-figures/
+const EF_SRC = resolve(SRC_DIR, 'explanation-figures')
+let explFigureCount = 0
+if (existsSync(EF_SRC)) {
+  const EF_DEST = resolve(DEST_DIR, 'explanation-figures')
+  mkdirSync(EF_DEST, { recursive: true })
+  for (const f of readdirSync(EF_SRC).filter((n) => n.endsWith('.webp'))) {
+    copyFileSync(resolve(EF_SRC, f), resolve(EF_DEST, f))
+    explFigureCount += 1
+  }
+}
 console.log(
-  `✓ Copied content-neurons-tw artifacts (+ ${figureCount} figures, ${tableImageCount} table-images) → ${DEST_DIR}`,
+  `✓ Copied content-neurons-tw artifacts (+ ${figureCount} figures, ${tableImageCount} table-images, ${explFigureCount} explanation-figures) → ${DEST_DIR}`,
 )
