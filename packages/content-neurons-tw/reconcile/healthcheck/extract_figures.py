@@ -69,7 +69,12 @@ def main():
         rows.append((qid, r, expl))
 
     docs = {}
-    manifest = {}
+    # MERGE into the existing manifest (batch-extensible contract: earlier batches'
+    # already-shipped figures MUST be unaffected). The extractor only processes the
+    # --only-filtered rows, so without this load a per-batch run would overwrite the
+    # whole manifest with just this batch — wiping prior batches. Re-extracting an
+    # already-present qid is idempotent (content-hash filenames → identical bytes).
+    manifest = json.load(open(args.manifest, encoding="utf-8")) if os.path.exists(args.manifest) else {}
     preview_rows = []
     n_extract = n_crop = n_skip = 0
     for qid, r, expl in rows:
