@@ -115,3 +115,9 @@ export async function openExplanation(questionId: string): Promise<OpenResult> {
 export function releaseExplanationUrl(url: string): void {
   if (url.startsWith('blob:')) URL.revokeObjectURL(url)
 }
+
+/** Open an external URL in the system browser (desktop: Tauri opener; web: a new tab). */
+export async function openExternalUrl(url: string): Promise<void> {
+  if (DESKTOP) return (await import('./tauriBackend')).openExternalUrl(url)
+  window.open(url, '_blank', 'noopener,noreferrer')
+}

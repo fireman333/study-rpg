@@ -17,6 +17,7 @@ import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import { getSupabase } from '../auth/client'
 import { db } from '../db'
 import { getRecentConsoleErrors } from './console-error-buffer'
+import { isDesktop } from '../../platform'
 
 /** Player-filled fields + optional inline question linkage. */
 export interface NeuronsBugReportInput {
@@ -44,6 +45,7 @@ export interface AutoContextOptOuts {
   viewport?: boolean
   recent_console_errors?: boolean
   sync_metadata?: boolean
+  platform?: boolean
 }
 
 export interface AuthInfo {
@@ -63,6 +65,7 @@ export const AUTO_CONTEXT_FIELDS = [
   'viewport',
   'recent_console_errors',
   'sync_metadata',
+  'platform',
 ] as const
 
 function num(v: string | undefined): number | undefined {
@@ -170,6 +173,8 @@ export async function buildAutoContext(
   if (!optOuts.viewport) ctx.viewport = `${window.innerWidth}×${window.innerHeight}`
   if (!optOuts.recent_console_errors) ctx.recent_console_errors = getRecentConsoleErrors()
   if (!optOuts.sync_metadata) ctx.sync_metadata = buildSyncSnapshot(auth)
+  // Desktop-only: a platform descriptor so desktop/Tauri reports are triageable.
+  if (!optOuts.platform && isDesktop()) ctx.platform = `tauri-desktop · ${navigator.userAgent}`
   return ctx
 }
 

@@ -25,6 +25,7 @@ import { CustomTooltipHost } from './components/CustomTooltipHost'
 import HelpMenu from './components/HelpMenu'
 import { PdfPanelProvider } from './components/PdfPanelProvider'
 import { PdfPanelHost } from './components/PdfPanelHost'
+import { DesktopPdfOnboardingBanner } from './components/DesktopPdfOnboardingBanner'
 import { AuthProvider } from './lib/auth/AuthContext'
 import { AuthGate } from './components/AuthGate'
 import { SyncProvider } from './lib/sync/SyncProvider'
@@ -86,6 +87,7 @@ export default function App(): JSX.Element {
         <PdfPanelHost />
         <div style={viewportStyle}>
         <main style={pageStyle}>
+          <DesktopPdfOnboardingBanner />
           <header style={topBarStyle}>
             <h1 style={appTitleStyle}>神經元 RPG · LTP</h1>
             <nav className="neurons-nav">

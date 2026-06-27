@@ -20,7 +20,7 @@
  * `#page=N` fragment is 1-based, so we emit `page + 1` — the map holds real 1-based
  * page numbers a human (and the viewer) would use. (D3 / off-by-one fix)
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
@@ -121,6 +121,16 @@ const out = { version: 'v1', sourceHash, count: mapped, entries: sortedEntries }
 
 mkdirSync(OUT_DIR, { recursive: true })
 writeFileSync(OUT_FILE, JSON.stringify(out, null, 2) + '\n', 'utf8')
+
+// Copy the committed desktop-guided-download artifacts into the gitignored public/ dir so the
+// app fetches them at runtime, same as the map above (add-neurons-guided-pdf-onboarding).
+// These are COMMITTED sources (built offline from the owner's PDFs / link list) — CI can't
+// regenerate them, so the build only copies; it never rebuilds them.
+for (const name of ['fingerprint-manifest.json', 'booklet-drive-links.json']) {
+  const src = resolve(PKG, 'provenance', name)
+  if (existsSync(src)) copyFileSync(src, resolve(OUT_DIR, name))
+  else console.warn(`[provenance-map] WARN missing committed artifact: ${name}`)
+}
 
 console.log(
   `[provenance-map] mapped ${mapped} (figure ${figures} + text ${text} + residual ${residual} + baseCorr ${baseCorr} + override ${overrides}; ` +

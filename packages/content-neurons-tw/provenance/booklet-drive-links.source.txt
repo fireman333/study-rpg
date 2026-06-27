@@ -1,0 +1,50 @@
+# Official 陽明國考考古題小組 public Google Drive links per booklet (year-session × 醫學一/醫學二).
+# Source: provided by the owner (the credited publisher's own public Drive). The app only LINKS
+# to these — it hosts/mirrors/bundles ZERO copyrighted bytes. Parsed by build-booklet-links.mjs
+# into booklet-drive-links.json. Format: "<year>-<session> <book>：<url>".
+115-1 醫學一：https://drive.google.com/file/d/1MyR2s5Vs7_Vs5GERs0BUB9vWAoS7Hr8i/view?usp=sharing
+115-1 醫學二：https://drive.google.com/file/d/1LX_qh9n9vwEow6NkHoz-3XaffeRp-YtG/view?usp=sharing
+114-2 醫學一：https://drive.google.com/file/d/1N0PgjC-_GINhCPgziw7p2-DHPXcQY_mD/view?usp=drive_link
+114-2 醫學二：https://drive.google.com/file/d/1HZdkQxhlDNuXNywDDp0HLcvHyyLIdsCn/view?usp=drive_link
+114-1 醫學一：https://drive.google.com/file/d/15Uyh0cCOal0BFzLS4uuAMbqua_TOCRnQ/view?usp=drive_link
+114-1 醫學二：https://drive.google.com/file/d/14La0zsG5wQg983miSqKXjPwv_YvjaMo7/view?usp=drive_link
+113-2 醫學一：https://drive.google.com/file/d/13tM2F9fy9nyCozuPm9JUFz063NT9KrAK/view?usp=share_link
+113-2 醫學二：https://drive.google.com/file/d/1pZDF6niUMubhZW8KvG4wUcdABq0RRvcy/view?usp=share_link
+113-1 醫學一：https://drive.google.com/file/d/1Tsi3oDeEuwjHCZaypKKxLhpJDcltSkPj/view?usp=share_link
+113-1 醫學二：https://drive.google.com/file/d/1_lcDDPvoS-lDTfBHoRy_Y4gj3iPrc9AQ/view?usp=share_link
+112-2 醫學一：https://drive.google.com/file/d/1kcyBhEE4jkwm3dwH8uHetI6uSulzTlr2/view?usp=drive_link
+112-2 醫學二：https://drive.google.com/file/d/10XeevnqAw5HYqJs94Muty1bXnmIbQGMn/view?usp=drive_link
+112-1 醫學一：https://drive.google.com/uc?export=view&id=1kSk9tAj37Q6D9rP8YnZvDGOmQPijYU3B
+112-1 醫學二：https://drive.google.com/file/d/1NIiz6cHmxR-LK0rsDKmoi6dHrCr5VtU7/view?usp=drive_link
+111-2 醫學一：https://drive.google.com/uc?export=view&id=1ZjGhFaqZfnMjjzK5GSM06wuYNVM4yEmv
+111-2 醫學二：https://drive.google.com/uc?export=view&id=1kfDeSimvgqKKj20KNTOHgE5NmIXXH-aj
+111-1 醫學一：https://drive.google.com/uc?export=view&id=1mDJcn36dVWCzDgcoJeqbWVlkaRXjd5oP
+111-1 醫學二：https://drive.google.com/uc?export=view&id=1V8MT4Sucn-FNEkXLpqe700Z_OSzQ9Tr7
+110-2 醫學一：https://drive.google.com/uc?export=view&id=1UuKscR1QCuZa00jDc0KB1E0BGMY64rg1
+110-2 醫學二：https://drive.google.com/uc?export=view&id=1A1akmpvkZjP53aBVgZsACFmCtMc3RNoY
+110-1 醫學一：https://drive.google.com/uc?export=view&id=1Une67ukZho8YrYwUAdjJkx6-lM1wt3Wg
+110-1 醫學二：https://drive.google.com/uc?export=view&id=1UG_AZoEemDb5fg16bN22fXtgfsefiuvC
+109-2 醫學一：https://drive.google.com/uc?export=view&id=1LRBKws_QY8RrQT-NoRuT2BBLdZHeddFK
+109-2 醫學二：https://drive.google.com/uc?export=view&id=1LwpAf_fptX1WiEGAG-x2GHT7NfULPmL0
+109-1 醫學一：https://drive.google.com/uc?export=view&id=1UB4S3gDpyQVsch64OlAmmOanhKT9UKSW
+109-1 醫學二：https://drive.google.com/uc?export=view&id=1IsniTwEKU-yWPVEeMzbbe0sVNaJon8jE
+108-2 醫學一：https://drive.google.com/uc?export=view&id=1b25rIm__SgIsVxnIwhPUu_ohzMns31QB
+108-2 醫學二：https://drive.google.com/uc?export=view&id=1NeGJnCJsIx08_DyyLup81k_y28jj0-7G
+108-1 醫學一：https://drive.google.com/uc?export=view&id=10JjwRY5xXLgM9XfZqRJ6TWPYuxvOhUaB
+108-1 醫學二：https://drive.google.com/uc?export=view&id=11zdA010BKxBJiu4JMyrzDg2IU9uqJoOw
+107-2 醫學一：https://drive.google.com/uc?export=view&id=1bEQaA8li6cFSpSdqiwvaFQ5gt0CEyEf0
+107-2 醫學二：https://drive.google.com/uc?export=view&id=1iGlSKvwOS9UJ0-8H-LuoX7bcTRmNfHSS
+107-1 醫學一：https://drive.google.com/uc?export=view&id=1yVW-YzM9boUsizqCOckEdHoZDY_tn998
+107-1 醫學二：https://drive.google.com/uc?export=view&id=1iwdPJAhmhlRGBFZ-BUwc4U4XSSKNGWy5
+106-2 醫學一：https://drive.google.com/uc?export=view&id=1hZ6xO_nrdlAubt_fPg0wd9CNJ1dasVEc
+106-2 醫學二：https://drive.google.com/uc?export=view&id=1tU__Q7mjsBnRydZcKoy1k1yDsKa5wqqy
+106-1 醫學一：https://drive.google.com/uc?export=view&id=1-TpsmT3L0Nj8wWEFvpshRxw2DAfTPHS9
+106-1 醫學二：https://drive.google.com/uc?export=view&id=1-Q1_pV1wyc0YVEwSNwL2cprKXwzyUXUY
+105-2 醫學一：https://drive.google.com/uc?export=view&id=1KpfJRf1jlFhDlLDN6O5j9oA0VoBlCCax
+105-2 醫學二：https://drive.google.com/uc?export=view&id=1y713vmiXq2Tk48-8ip_mTujjDh2iwsv3
+105-1 醫學一：https://drive.google.com/uc?export=view&id=1WFghgzb1FORlxjLGnyfBs73RzLNd8hii
+105-1 醫學二：https://drive.google.com/uc?export=view&id=17zpAtnrZaykRKpgJQD6CgKUFUG3bNZuo
+104-2 醫學一：https://drive.google.com/uc?export=view&id=1WQ1kx6pOP7YKfVfqD4f9sLdbl_6dgmba
+104-2 醫學二：https://drive.google.com/uc?export=view&id=1YUPWrYbdiMCGrOBtgiAb6blET0k19TVk
+104-1 醫學一：https://drive.google.com/uc?export=view&id=1IJYfseAtO_dVhuZzfTNt50GaoK8yk1Ok
+104-1 醫學二：https://drive.google.com/uc?export=view&id=0B1fUmKbhv5stbHJEaS1saEtTQWc&resourcekey=0-vqIS1ZA6_SMcycDAowhO8Q

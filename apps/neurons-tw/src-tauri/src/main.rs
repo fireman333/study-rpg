@@ -48,6 +48,41 @@ fn list_pdf_files(state: State<GrantedFolder>) -> Result<Vec<String>, String> {
     Ok(out)
 }
 
+/// A `*.pdf` directly in the granted folder, with the stat fields the fingerprint cache keys on.
+#[derive(serde::Serialize)]
+struct PdfFileStat {
+    name: String,
+    size: u64,
+    /// Last-modified epoch millis (0 if unavailable) — part of the cache key with size.
+    mtime: u64,
+}
+
+#[tauri::command]
+fn list_pdf_files_with_stat(state: State<GrantedFolder>) -> Result<Vec<PdfFileStat>, String> {
+    let guard = state.0.lock().map_err(|e| e.to_string())?;
+    let root = guard.as_ref().ok_or("no folder granted")?;
+    let mut out = Vec::new();
+    for entry in fs::read_dir(root).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let meta = match entry.metadata() {
+            Ok(m) if m.is_file() => m,
+            _ => continue,
+        };
+        let name = match entry.file_name().to_str() {
+            Some(n) if n.to_lowercase().ends_with(".pdf") => n.to_string(),
+            _ => continue,
+        };
+        let mtime = meta
+            .modified()
+            .ok()
+            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_millis() as u64)
+            .unwrap_or(0);
+        out.push(PdfFileStat { name, size: meta.len(), mtime });
+    }
+    Ok(out)
+}
+
 /// Resolve `<root>/<file>` for a read, rejecting anything that could escape the granted
 /// folder. The security boundary: no separators / `..`, `.pdf` only, and the canonicalized
 /// path must stay within the canonicalized root.
@@ -78,10 +113,12 @@ fn read_pdf_file(file: String, state: State<GrantedFolder>) -> Result<Response, 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .manage(GrantedFolder::default())
         .invoke_handler(tauri::generate_handler![
             set_pdf_folder,
             list_pdf_files,
+            list_pdf_files_with_stat,
             read_pdf_file
         ])
         .run(tauri::generate_context!())

@@ -135,6 +135,9 @@ export function PdfDocumentView({
                   width={pageWidth}
                   renderTextLayer
                   renderAnnotationLayer={false}
+                  // Suppress react-pdf's default per-page "Loading page…" text — the sized
+                  // placeholder div already holds the space, so pages just fade in.
+                  loading={null}
                   onRenderSuccess={() => {
                     const el = slots.current.get(p)
                     if (el) heights.current.set(p, el.getBoundingClientRect().height)

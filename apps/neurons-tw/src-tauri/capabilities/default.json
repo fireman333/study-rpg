@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Default capability for the neurons desktop shell window (custom read-only PDF commands need no permission entry; the folder picker uses the dialog plugin).",
   "windows": ["main"],
-  "permissions": ["core:default", "dialog:default"]
+  "permissions": ["core:default", "dialog:default", "opener:default"]
 }
