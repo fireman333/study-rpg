@@ -1,16 +1,18 @@
 /**
- * DesktopPdfOnboardingBanner — desktop-only first-run card teaching the two-step setup for
- * 「看原始詳解 PDF」: (1) download your PDFs from the publisher's official links, (2) grant the
- * folder for read-only access (add-neurons-guided-pdf-onboarding, task 4). Shows only on the
- * Tauri build while no folder is granted; dismissible; never appears on web.
+ * PdfOnboardingBanner — first-run card teaching the two-step setup for「看原始詳解 PDF」:
+ * (1) download your PDFs from the publisher's official links, (2) grant the folder for read-only
+ * access (add-neurons-guided-pdf-onboarding, task 4 + web enablement). Shows on any platform that
+ * can actually open a local PDF — the Tauri desktop app, OR a Chromium-desktop browser with the
+ * File System Access API — while no folder is granted; dismissible. Hidden where local-PDF is
+ * unsupported (Safari / Firefox / mobile), where granting a folder would be a dead end.
  */
 import { useEffect, useState, type CSSProperties } from 'react'
-import { isDesktop, getStatus, grantFolder, type PlatformStatus } from '../platform'
+import { isLocalPdfSupported, getStatus, grantFolder, type PlatformStatus } from '../platform'
 import { BookletDownloadList } from './BookletDownloadList'
 
 const DISMISS_KEY = 'neurons.desktop.onboardingDismissed.v1'
 
-export function DesktopPdfOnboardingBanner(): JSX.Element | null {
+export function PdfOnboardingBanner(): JSX.Element | null {
   const [status, setStatus] = useState<PlatformStatus | null>(null)
   const [showList, setShowList] = useState(false)
   const [dismissed, setDismissed] = useState<boolean>(() => {
@@ -22,11 +24,11 @@ export function DesktopPdfOnboardingBanner(): JSX.Element | null {
   })
 
   useEffect(() => {
-    if (isDesktop()) getStatus().then(setStatus)
+    if (isLocalPdfSupported()) getStatus().then(setStatus)
   }, [])
 
-  // Web build, already granted, still loading, or dismissed → render nothing.
-  if (!isDesktop() || dismissed || status === null || status === 'ready') return null
+  // Unsupported platform (no FSA / not desktop), already granted, still loading, or dismissed → nothing.
+  if (!isLocalPdfSupported() || dismissed || status === null || status === 'ready') return null
 
   async function onGrant(): Promise<void> {
     setStatus(await grantFolder())
@@ -45,9 +47,9 @@ export function DesktopPdfOnboardingBanner(): JSX.Element | null {
       <button type="button" onClick={onDismiss} style={closeStyle} aria-label="關閉">
         ×
       </button>
-      <strong style={titleStyle}>📄 啟用「看原始詳解 PDF」（桌面版）</strong>
+      <strong style={titleStyle}>📄 啟用「看原始詳解 PDF」</strong>
       <p style={textStyle}>
-        桌面版可以開啟你本機的陽明國考詳解 PDF、跳到該題所在頁。兩個步驟就好：
+        可以開啟你本機的陽明國考詳解 PDF、跳到該題所在頁。兩個步驟就好：
       </p>
       <ol style={listStyle}>
         <li>
@@ -57,14 +59,14 @@ export function DesktopPdfOnboardingBanner(): JSX.Element | null {
           </button>
         </li>
         <li>
-          授權 App 唯讀讀取那個資料夾：
+          授權唯讀讀取那個資料夾：
           <button type="button" style={grantBtnStyle} onClick={onGrant}>
             📂 選擇資料夾
           </button>
         </li>
       </ol>
       {showList && <BookletDownloadList />}
-      <span style={creditStyle}>App 不提供 PDF、只連到官方來源（陽明國考考古題小組）。下載後存到你授權的資料夾即可。</span>
+      <span style={creditStyle}>不提供 PDF、只連到官方來源（陽明國考考古題小組）。下載後存到你授權的資料夾即可。</span>
     </div>
   )
 }

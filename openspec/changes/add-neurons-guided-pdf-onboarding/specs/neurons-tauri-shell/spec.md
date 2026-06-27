@@ -60,15 +60,15 @@ On the desktop build, when a mapped question's booklet cannot be resolved in the
 - **WHEN** the player downloads the booklet to the granted folder and triggers「掃描資料夾」
 - **THEN** the folder is re-fingerprinted and the question's source PDF now opens in the docked panel
 
-### Requirement: Desktop onboarding banner for first-run folder grant
+### Requirement: Onboarding banner for first-run folder grant
 
-On the desktop build, while no folder has been granted (`getStatus()` is not `ready`), the system SHALL show a dismissible onboarding banner that teaches the two-step setup: (1) download your PDFs from the publisher's official links, (2) grant the folder for read-only access. The banner SHALL disappear once a folder is granted. It SHALL NOT appear on the web build.
+On any platform that can open a local source PDF — the desktop build, OR a web build whose browser supports the File System Access API (`isLocalPdfSupported()` is true) — while no folder has been granted (`getStatus()` is not `ready`), the system SHALL show a dismissible onboarding banner that teaches the two-step setup: (1) download your PDFs from the publisher's official links, (2) grant the folder for read-only access. The banner SHALL disappear once a folder is granted. It SHALL NOT appear where opening a local PDF is unsupported (a browser without File System Access — Safari / Firefox / mobile — and not the desktop build).
 
 #### Scenario: Banner shown until folder granted
-- **WHEN** the desktop app runs with no granted folder
+- **WHEN** a local-PDF-capable platform (the desktop app, or an FSA-capable browser) runs with no granted folder
 - **THEN** the onboarding banner is shown with the download + grant steps
 - **AND** after the player grants a folder, the banner no longer appears
 
-#### Scenario: Banner is desktop-only
-- **WHEN** the app runs as the web build
+#### Scenario: Banner hidden where local PDF is unsupported
+- **WHEN** the app runs in a browser without File System Access (Safari / Firefox / mobile) and not as the desktop build
 - **THEN** the onboarding banner is not shown
