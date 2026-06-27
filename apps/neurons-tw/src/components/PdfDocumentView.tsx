@@ -8,15 +8,21 @@
  * Platform-agnostic (just url + page + width), so a Tauri build reuses it by supplying a
  * different url.
  *
- * Scroll model (why it is shaped like this): WKWebView (Tauri desktop) has NO scroll anchoring,
- * so the old "scrollIntoView the target, then re-pin as estimated heights above it reflow"
- * approach produced a visible scroll-through, white-page flashing, and an intermittent 1–2-page
- * miss (the landing depended on the async ordering of IntersectionObserver / render / effect).
- * Instead we keep ONE invariant: the slot list always represents the whole document; on open we
- * mount ONLY the target and pages below it (never above), so the target's offset can be written
- * to scrollTop directly with nothing above it to reflow the landing; and whenever a page whose
- * box sat entirely ABOVE the viewport top changes height, we shift scrollTop by exactly that
- * delta (the manual substitute for overflow-anchor). No scrollIntoView, no re-pin loop.
+ * Scroll model (why it is shaped like this): the old "scrollIntoView the target, then re-pin as
+ * estimated heights above it reflow" approach produced scroll-through, white-page flashing, and an
+ * intermittent 1–2-page miss (the landing raced IntersectionObserver / render / effect ordering).
+ * Now we keep ONE invariant: the slot list always represents the whole document; on open we mount
+ * ONLY the target and pages below it (never above), so the target's offset can be written to
+ * scrollTop with nothing above it to reflow the landing.
+ *
+ * WKWebView (Tauri desktop) needs two extra defenses, neither of which Blink requires:
+ *  1. It ACCEPTS a scrollTop write on a freshly-docked panel (read-back even confirms it) but then
+ *     DISCARDS it a compositing frame later, resetting scrollTop to 0 → the viewport lands on the
+ *     unmounted placeholders above the target ("flash then blank"). So the landing re-asserts the
+ *     offset every frame until it HOLDS for several consecutive frames, with onScroll growth + RO
+ *     compensation frozen (openingRef) the whole time so the transient reset can't grow the window.
+ *  2. It has no scroll anchoring, so when a page whose box sits entirely ABOVE the viewport top
+ *     changes height we shift scrollTop by exactly that delta (the manual overflow-anchor sub).
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
@@ -32,6 +38,8 @@ const EXPAND_STEP = 4 // pages added each time the window grows
 const EXPAND_MARGIN = 900 // px of look-ahead before a window edge before growing it
 const MAX_WINDOW = 16 // cap on simultaneously-mounted pages (bounds memory on long scrolls)
 const PAGE_GAP = 8 // vertical flow gap between page slots (the slot's bottom margin, in px)
+const SETTLE_HOLDS = 3 // consecutive frames the landing must survive before releasing scroll control
+const SETTLE_MAX_FRAMES = 30 // give up re-asserting after ~0.5s (avoid pinning scroll forever)
 
 export function PdfDocumentView({
   url,
@@ -58,7 +66,7 @@ export function PdfDocumentView({
   const winRef = useRef(win)
   winRef.current = win
   const pendingAnchor = useRef<number | null>(null) // page to pin to the top, once the window applies
-  const openingRef = useRef(false) // swallow scroll-driven growth during the open/anchor frame
+  const openingRef = useRef(false) // freeze scroll-driven growth + RO compensation during the landing
   const lastTopRef = useRef(0) // previous scrollTop — to detect upward-scroll intent
   const prevWidthRef = useRef(0)
 
@@ -106,27 +114,50 @@ export function PdfDocumentView({
     setWin({ start: t, end: Math.min(numPages, t + WINDOW_BELOW) })
   }, [pageWidth, numPages, initialPage, clampPage])
 
-  // Deterministic landing: write the target's offset straight to scrollTop. Because win.start ===
-  // target, no <Page> above the target is mounted, so nothing above it can reflow the landing —
-  // this is what removes the WebKit scroll-through / flashing / intermittent miss. Runs once per
-  // pending anchor, after the window state has been applied to the DOM (placeholders give the full
-  // scrollHeight immediately, so we need not wait for any page to render).
+  // Deterministic landing — scroll the target's offset to the viewport top. Because win.start ===
+  // target, no <Page> above the target is mounted, so nothing above it can reflow the landing.
+  // WKWebView accepts the write then discards it a frame later (resetting scrollTop to 0), so a
+  // single write + read-back check lands on blank placeholders. We re-assert every frame until the
+  // offset HOLDS for SETTLE_HOLDS consecutive frames against a fully laid-out container; onScroll
+  // growth + RO compensation stay frozen (openingRef) the whole time so the reset can't grow the
+  // window.
   useLayoutEffect(() => {
     const t = pendingAnchor.current
     if (t == null || !numPages) return
     if (win.start !== clampPage(t, numPages)) return // window not applied yet
-    const cont = scrollRef.current
-    if (!cont) return
+    if (!scrollRef.current) return
     openingRef.current = true
-    const y = prefixOffset(clampPage(t, numPages))
-    cont.scrollTop = y
-    lastTopRef.current = y
     pendingAnchor.current = null
-    const id = requestAnimationFrame(() => {
-      openingRef.current = false
-    })
-    return () => cancelAnimationFrame(id)
-  }, [numPages, win.start, clampPage, prefixOffset])
+    const target = clampPage(t, numPages)
+    const fullSH = prefixOffset(numPages + 1) - estHeight // container is laid out to full height past this
+    let holds = 0
+    let frames = 0
+    let rafId = 0
+    const settle = () => {
+      const c = scrollRef.current
+      if (!c) return
+      void c.scrollHeight // force a layout flush so reads/writes use up-to-date geometry
+      const maxST = Math.max(0, c.scrollHeight - c.clientHeight)
+      const want = Math.min(prefixOffset(target), maxST)
+      const onTarget = Math.abs(c.scrollTop - want) < 2
+      const laidOut = c.scrollHeight >= fullSH
+      if (onTarget && laidOut) {
+        holds += 1 // survived another frame without WebKit discarding the write
+      } else {
+        if (!onTarget) c.scrollTop = want // (re)assert
+        holds = 0
+      }
+      lastTopRef.current = c.scrollTop
+      frames += 1
+      if (holds >= SETTLE_HOLDS || frames >= SETTLE_MAX_FRAMES) {
+        openingRef.current = false
+        return
+      }
+      rafId = requestAnimationFrame(settle)
+    }
+    settle()
+    return () => cancelAnimationFrame(rafId)
+  }, [numPages, win.start, clampPage, prefixOffset, estHeight])
 
   // ResizeObserver is the single height source: react-pdf commits canvas and text layers in
   // separate frames, so onRenderSuccess can fire before the box settles. When a page whose box now
@@ -148,7 +179,8 @@ export function PdfDocumentView({
         const oldH = heights.current.get(p) ?? estHeight
         if (Math.abs(newH - oldH) < 0.5) continue // idempotent: ignore no-op resizes
         heights.current.set(p, newH)
-        if (rect.bottom <= contTop + 0.5) dScroll += newH - oldH // grew entirely above the fold
+        // Frozen during the open-settle so it cannot fight the landing loop.
+        if (!openingRef.current && rect.bottom <= contTop + 0.5) dScroll += newH - oldH
       }
       if (dScroll !== 0) cont.scrollTop += dScroll
       if (entries.length) bumpHeights((v) => v + 1) // re-render placeholders at their new heights
@@ -229,7 +261,15 @@ export function PdfDocumentView({
               key={p}
               data-page={p}
               ref={(el) => setSlot(p, el)}
-              style={{ width: pageWidth, margin: `0 auto ${PAGE_GAP}px`, minHeight: h, overflowAnchor: 'none' }}
+              // Unmounted placeholders use an explicit height (WebKit builds the scroll model more
+              // reliably from explicit block sizes); mounted slots use minHeight so the rendered
+              // page can exceed the estimate.
+              style={{
+                width: pageWidth,
+                margin: `0 auto ${PAGE_GAP}px`,
+                ...(mounted ? { minHeight: h } : { height: h }),
+                overflowAnchor: 'none',
+              }}
             >
               {mounted && (
                 <Page
