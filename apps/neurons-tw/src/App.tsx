@@ -23,6 +23,8 @@ import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import { CustomTooltipHost } from './components/CustomTooltipHost'
 import HelpMenu from './components/HelpMenu'
+import { PdfPanelProvider } from './components/PdfPanelProvider'
+import { PdfPanelHost } from './components/PdfPanelHost'
 import { AuthProvider } from './lib/auth/AuthContext'
 import { AuthGate } from './components/AuthGate'
 import { SyncProvider } from './lib/sync/SyncProvider'
@@ -72,6 +74,7 @@ export default function App(): JSX.Element {
   return (
     <AuthProvider>
       <SyncProvider>
+      <PdfPanelProvider>
       <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
         <ConnectomeToastHost pack={pack} />
         <VariantUnlockModal />
@@ -80,6 +83,8 @@ export default function App(): JSX.Element {
         <DmnQuickReviewToast />
         <CustomTooltipHost />
         <HelpMenu />
+        <PdfPanelHost />
+        <div style={viewportStyle}>
         <main style={pageStyle}>
           <header style={topBarStyle}>
             <h1 style={appTitleStyle}>神經元 RPG · LTP</h1>
@@ -108,7 +113,9 @@ export default function App(): JSX.Element {
           </header>
           <AnimatedRoutes pack={pack} />
         </main>
+        </div>
       </BrowserRouter>
+      </PdfPanelProvider>
       </SyncProvider>
     </AuthProvider>
   )
@@ -215,6 +222,12 @@ const pageStyle: React.CSSProperties = {
   margin: '1.5rem auto',
   padding: '0 1.25rem',
   fontFamily: 'var(--font-pixel-cjk)',
+}
+// Reflows the whole app into the width left of the docked PDF panel (var defaults to 0px →
+// full width when the panel is closed). rework-neurons-pdf-viewer-docked-panel.
+const viewportStyle: React.CSSProperties = {
+  width: 'calc(100vw - var(--pdf-panel-width, 0px))',
+  transition: 'width 0.15s ease',
 }
 
 const topBarStyle: React.CSSProperties = {
