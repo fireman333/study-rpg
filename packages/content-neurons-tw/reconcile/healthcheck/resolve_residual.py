@@ -197,9 +197,12 @@ def main():
             if qid in agent_pages:
                 cand[qid] = (agent_pages[qid], "agent", False)
                 continue
-            if scanned:
-                cand[qid] = (None, "scanned", True)  # need OCR/vision agent
-                continue
+            # NB: a booklet flagged `notext` (here `scanned`) was excluded by the base resolver
+            # only because find_question_starts matched <30 anchors in its layout — it is NOT
+            # necessarily image-only. 4 of the 5 (104-1一/二, 105-1一/二) carry a clean CJK text
+            # layer and resolve fine via stem-run; the 5th (104-2一) is garbled-font like 104-2二.
+            # So we DON'T skip them — they flow through the clean / garbled paths below. A truly
+            # textless page just yields no token hit → worklist (safe), never a guessed page.
             lo = max([kp[q] for q in kp if q < qn], default=0)
             hi = min([kp[q] for q in kp if q > qn], default=npages - 1)
             if garbled:
