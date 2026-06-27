@@ -28,18 +28,21 @@ export function PdfDocumentView({
   const [numPages, setNumPages] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [active, setActive] = useState<Set<number>>(() => new Set())
+  // Bumped whenever a page's real height is recorded, so the scroll-pin effect re-runs as
+  // estimated placeholder heights are replaced by measured ones (drives the WebKit re-pin).
+  const [heightVersion, setHeightVersion] = useState(0)
   const heights = useRef<Map<number, number>>(new Map())
   const slots = useRef<Map<number, HTMLDivElement>>(new Map())
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const ioRef = useRef<IntersectionObserver | null>(null)
-  const didScroll = useRef(false)
+  const didSettle = useRef(false)
 
   const pageWidth = Math.max(280, width - 32)
   const estHeight = Math.round(pageWidth * 1.414) // A4-ish placeholder
 
   const onLoad = useCallback(({ numPages: n }: { numPages: number }) => {
     setError(null)
-    didScroll.current = false
+    didSettle.current = false
     setNumPages(n)
   }, [])
 
@@ -79,15 +82,21 @@ export function PdfDocumentView({
     }
   }, [])
 
-  // Scroll the mapped page into view once its slot exists.
+  // Pin the mapped page to the top, re-pinning as estimated placeholder heights above it are
+  // replaced by measured ones. A single scrollIntoView isn't enough on WebKit (Tauri desktop):
+  // unlike Chrome it has no scroll anchoring, so when pages above the target reflow from
+  // estimate→real height the target drifts out of view (lands a page early). We keep re-pinning
+  // until the target page and every active page above it have measured heights — past that no
+  // reflow can move the target — then release scroll control to the player.
   useEffect(() => {
-    if (!numPages || didScroll.current) return
-    const el = slots.current.get(Math.min(Math.max(1, initialPage), numPages))
-    if (el) {
-      el.scrollIntoView({ block: 'start' })
-      didScroll.current = true
-    }
-  }, [numPages, initialPage, active])
+    if (!numPages || didSettle.current) return
+    const target = Math.min(Math.max(1, initialPage), numPages)
+    const el = slots.current.get(target)
+    if (!el) return
+    el.scrollIntoView({ block: 'start' })
+    const aboveSettled = Array.from(active).every((p) => p >= target || heights.current.has(p))
+    if (heights.current.has(target) && aboveSettled) didSettle.current = true
+  }, [numPages, initialPage, active, heightVersion])
 
   if (error) {
     return (
@@ -129,6 +138,7 @@ export function PdfDocumentView({
                   onRenderSuccess={() => {
                     const el = slots.current.get(p)
                     if (el) heights.current.set(p, el.getBoundingClientRect().height)
+                    setHeightVersion((v) => v + 1)
                   }}
                 />
               )}
