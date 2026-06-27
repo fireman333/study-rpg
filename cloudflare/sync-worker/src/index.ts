@@ -37,6 +37,12 @@ import { corsHeaders, preflightResponse } from "./cors";
 const CRON_BACKUP_DAILY = "0 0 * * *" as const;
 const CRON_LEADERBOARD_30MIN = "0,30 * * * *" as const;
 
+/** Cloudflare Workers Rate Limiting binding (wrangler `ratelimits`). The shipped
+ *  workers-types may not export this yet, so declare the minimal surface used. */
+export interface RateLimiter {
+  limit(opts: { key: string }): Promise<{ success: boolean }>;
+}
+
 export interface Env {
   // R2 bindings
   R2_PRIMARY: R2Bucket;
@@ -45,6 +51,11 @@ export interface Env {
   // D1 + KV bindings (hospital leaderboard)
   LEADERBOARD_DB: D1Database;
   LEADERBOARD_KV: KVNamespace;
+
+  // Rate Limiter binding (add-presign-put-rate-limit) — caps PUT presigns per
+  // (user, bundle) to bound R2 Class-A PutObject cost. Optional so local dev /
+  // older configs without the binding fail open (handled in presign.ts).
+  PRESIGN_PUT_LIMITER?: RateLimiter;
 
   // Secrets (wrangler secret put)
   SUPABASE_JWKS_URL: string;
@@ -57,6 +68,9 @@ export interface Env {
   R2_BUCKET_NAME: string;
   CORS_ALLOWED_ORIGINS: string;
   PRESIGN_TTL_SECONDS: string;
+  // PUT presign ttl (default 45s) — kept < the client's 60s cache margin so
+  // every PUT re-presigns and is therefore rate-limitable. See presign.ts.
+  PRESIGN_PUT_TTL_SECONDS?: string;
 
   // Optional secret (wrangler secret put) — comma-separated Supabase subs allowed
   // to call /shoutouts/:app/admin/*. Unset → admin endpoints return 403.
