@@ -30,6 +30,7 @@ const PKG = resolve(__dirname, '..', '..', '..', 'packages/content-neurons-tw')
 const MANIFEST = resolve(PKG, 'explanation-figures/manifest.json')
 const TEXTMAP = resolve(PKG, 'provenance/question-page-map.json')
 const RESIDUALMAP = resolve(PKG, 'provenance/question-page-map-residual.json')
+const BASECORR = resolve(PKG, 'provenance/base-corrections.json')
 const OVERRIDES = resolve(PKG, 'provenance/verified-overrides.json')
 const OUT_DIR = resolve(__dirname, '..', 'public/provenance')
 const OUT_FILE = resolve(OUT_DIR, 'question-pdf-map.v1.json')
@@ -85,6 +86,19 @@ if (existsSync(RESIDUALMAP)) {
   }
 }
 
+// Base off-by-one corrections: deterministic stem-run re-resolutions for base-resolver errors found
+// by the 44-PDF verification. Wins over base/residual (but below verified-overrides).
+let baseCorr = 0
+if (existsSync(BASECORR)) {
+  const rawCorr = readFileSync(BASECORR, 'utf8')
+  hash.update(rawCorr)
+  for (const [questionId, ent] of Object.entries(JSON.parse(rawCorr))) {
+    if (questionId.startsWith('__') || !ent?.file || ent.page == null) continue
+    entries[questionId] = { file: ent.file, page: ent.page + 1 } // 0-based → 1-based; wins over base/residual
+    baseCorr += 1
+  }
+}
+
 // Verified overrides: human/agent-confirmed pages that bypass the automated gates (image-rendered
 // stems, or 陽明 card order != qNumber). Highest priority — wins over every other source.
 let overrides = 0
@@ -109,6 +123,6 @@ mkdirSync(OUT_DIR, { recursive: true })
 writeFileSync(OUT_FILE, JSON.stringify(out, null, 2) + '\n', 'utf8')
 
 console.log(
-  `[provenance-map] mapped ${mapped} (figure ${figures} + text ${text} + residual ${residual} + override ${overrides}; ` +
+  `[provenance-map] mapped ${mapped} (figure ${figures} + text ${text} + residual ${residual} + baseCorr ${baseCorr} + override ${overrides}; ` +
     `multi-page→min ${multiPage}; src ${sourceHash}) → public/provenance/question-pdf-map.v1.json`,
 )
