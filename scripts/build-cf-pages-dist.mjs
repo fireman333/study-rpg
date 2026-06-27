@@ -41,6 +41,11 @@ const ROUTES = [
 
 const OUTPUT_DIR = 'dist-cf'
 const LANDING_TEMPLATE = 'scripts/cf-landing-template.html'
+// Pixel font for the root landing page. The landing references it with a
+// relative url('Cubic_11.woff2'), so it must sit next to dist-cf/index.html.
+// Source = the same Cubic 11 the neurons app bundles.
+const LANDING_FONT_SRC = 'apps/neurons-tw/src/assets/fonts/Cubic_11.woff2'
+const LANDING_FONT_DEST = 'Cubic_11.woff2'
 
 async function ensureDistExists(relPath) {
   const abs = path.join(repoRoot, relPath)
@@ -122,12 +127,19 @@ async function writeLanding() {
   await fs.writeFile(path.join(repoRoot, OUTPUT_DIR, 'index.html'), tpl, 'utf8')
 }
 
+async function copyLandingFont() {
+  const src = path.join(repoRoot, LANDING_FONT_SRC)
+  const dest = path.join(repoRoot, OUTPUT_DIR, LANDING_FONT_DEST)
+  await fs.cp(src, dest)
+}
+
 async function main() {
   console.log('build-cf-pages-dist: verifying inputs…')
   for (const { src } of ROUTES) {
     await ensureDistExists(src)
   }
   await ensureFileExists(LANDING_TEMPLATE)
+  await ensureFileExists(LANDING_FONT_SRC)
 
   console.log(`build-cf-pages-dist: resetting ${OUTPUT_DIR}/`)
   await resetOutputDir()
@@ -142,6 +154,9 @@ async function main() {
 
   console.log(`build-cf-pages-dist: writing ${OUTPUT_DIR}/index.html from template`)
   await writeLanding()
+
+  console.log(`build-cf-pages-dist: copying ${LANDING_FONT_SRC} → ${OUTPUT_DIR}/${LANDING_FONT_DEST}`)
+  await copyLandingFont()
 
   console.log('build-cf-pages-dist: done.')
 }
