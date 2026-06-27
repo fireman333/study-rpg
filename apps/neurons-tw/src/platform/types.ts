@@ -31,9 +31,14 @@ export interface ProvenanceMapFile {
  */
 export type PlatformStatus = 'unsupported' | 'no-folder' | 'needs-permission' | 'ready'
 
-/** Result of attempting to open a question's source PDF. Never throws into the UI. */
+/**
+ * Result of resolving a question's source PDF. Never throws into the UI.
+ * On success the caller renders `url` (a blob URL on web; a host URL under a future
+ * Tauri backend) in the in-app viewer at `page`; `file` is the matched on-disk
+ * filename (viewer title). A blob URL MUST be revoked by the consumer on close.
+ */
 export type OpenResult =
-  | { ok: true; page: number }
+  | { ok: true; page: number; url: string; file: string }
   | {
       ok: false
       reason: 'unsupported' | 'no-folder' | 'unmapped' | 'file-not-found' | 'permission-denied' | 'error'

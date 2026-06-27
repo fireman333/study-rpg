@@ -61,7 +61,13 @@ export async function hasProvenance(questionId: string): Promise<boolean> {
 /**
  * Open this question's source PDF at its mapped page. Triggers a folder grant if
  * none yet (must be called from a user gesture). Returns a discriminated result;
- * callers surface `file-not-found` etc. as a non-blocking message (No Silent Errors).
+ * on success the caller renders `url` at `page` in the in-app PDF viewer and revokes
+ * the (blob) URL on close. Failures come back as reasons the caller surfaces as a
+ * non-blocking message (No Silent Errors) — never thrown into the UI.
+ *
+ * This is the platform-specific *resolution* half; the viewer that renders the result
+ * is platform-agnostic, so a future Tauri backend fills this same function to return a
+ * host URL for the same `{ url, page, file }` contract and reuses the viewer unchanged.
  */
 export async function openExplanation(questionId: string): Promise<OpenResult> {
   if (!isLocalPdfSupported()) return { ok: false, reason: 'unsupported' }
@@ -89,10 +95,15 @@ export async function openExplanation(questionId: string): Promise<OpenResult> {
     }
     const fileHandle = await handle.getFileHandle(match)
     const file = await fileHandle.getFile()
+    // Resolve the source for the in-app viewer; the caller renders + revokes it.
     const url = URL.createObjectURL(file)
-    window.open(`${url}#page=${entry.page}`, '_blank', 'noopener')
-    return { ok: true, page: entry.page }
+    return { ok: true, page: entry.page, url, file: match }
   } catch (err) {
     return { ok: false, reason: 'error', message: err instanceof Error ? err.message : String(err) }
   }
+}
+
+/** Revoke a resolved source URL when the viewer closes (no-op for non-blob Tauri URLs). */
+export function releaseExplanationUrl(url: string): void {
+  if (url.startsWith('blob:')) URL.revokeObjectURL(url)
 }
