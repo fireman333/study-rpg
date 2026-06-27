@@ -3,9 +3,7 @@
 ## Purpose
 
 The contract for the local-PDF provenance feature: on a supported platform, a player can open their OWN locally-held original 陽明 explanation PDF at the exact page a question's 詳解 came from, giving a "textbook-grade original layout" source without the app distributing any copyrighted bytes. Covers the build-time question→{file, page} map (derived from the existing `explanation-figures` manifest, regenerated as a gitignored build artifact), the platform adapter (Phase 1 = File System Access API; a Tauri desktop backend is a deferred Phase 2 behind the same surface), device-local persistence of the granted folder handle (separate from cloud-synced storage), graceful degradation on unsupported platforms / unmapped questions, the zero-copyrighted-bytes guarantee, and CJK-safe (NFC) filename matching. The inline 詳解 (text + cropped figures/tables) is unchanged and remains the fallback; this is an additive entry point. Created by archiving change `add-neurons-local-pdf-provenance`.
-
 ## Requirements
-
 ### Requirement: Provenance map is generated as a build artifact from manifest
 The system SHALL provide a build-time builder that derives a question-to-PDF-page map `{ questionId: { file, page } }` from five committed sources, in increasing override priority: (1) the `explanation-figures/manifest.json` figure provenance (bbox-precise), (2) a committed `provenance/question-page-map.json` of text-question pages produced by the base deterministic resolver, (3) a committed `provenance/question-page-map-residual.json` of additional pages produced by the second-layer resolver (`resolve_residual.py`), (4) a committed `provenance/base-corrections.json` of deterministic stem-run re-resolutions that correct base-resolver off-by-one errors (wins over base + residual), and (5) a committed `provenance/verified-overrides.json` of human/agent-verified pages (wins over all). The builder SHALL be deterministic, SHALL take the minimum page when a question's figures span multiple pages, SHALL apply the sources in that priority order (base-corrections and verified-overrides winning for any question they list; otherwise an earlier source is not overridden), and SHALL write its output to a gitignored `public/` path that is regenerated on every build and deploy (never hand-committed).
 
@@ -105,3 +103,17 @@ Because source PDF filenames are Chinese and macOS may store them in NFD while t
 #### Scenario: NFD on-disk name matches NFC map name
 - **WHEN** the granted folder holds a PDF whose on-disk name is in NFD form and the map entry's `file` is the NFC form of the same name
 - **THEN** the lookup matches them and opens the file
+
+### Requirement: Cross-booklet mis-files and confirmed-absent explanations are handled correctly
+When 陽明's volunteer 詳解 booklets mis-file a question's explanation — either printing it in the SIBLING booklet of the same exam (e.g. a 醫學一 question's 詳解 typeset inside the 醫學(二) PDF, and vice-versa) or omitting it entirely — the provenance map SHALL reflect the verified reality rather than a 題號-anchored guess. A verified-override entry MAY therefore name a `file` that differs from the question's own nominal booklet, and a question for which verification proves no 詳解 exists in any of its exam's booklets SHALL be left unmapped (its provenance action hidden) rather than retained at an incorrect page.
+
+#### Scenario: Override relocates a question to the sibling booklet
+- **WHEN** a question's 詳解 is confirmed (by reading the rendered card and by a verbatim stem-run found in the sibling booklet's text) to be printed in the OTHER booklet of the same exam sitting than the one its base-map entry assumed
+- **THEN** its `provenance/verified-overrides.json` entry records that sibling booklet's filename and page, and the builder maps the question to it (winning over all other sources)
+- **AND** the entry's `file` is allowed to differ from the question's nominal 醫學一/醫學二 booklet
+
+#### Scenario: Confirmed-absent explanation is removed, not left wrong
+- **WHEN** an end-to-end verification confirms that no 詳解 for a question exists on any page of any of its exam sitting's booklets (the 陽明 volunteers never wrote it), while the base map currently maps it to an incorrect page
+- **THEN** that entry is removed from `provenance/question-page-map.json` so the question becomes unmapped and its provenance action is hidden
+- **AND** the map is NEVER left pointing a confirmed-absent question at a wrong page
+
