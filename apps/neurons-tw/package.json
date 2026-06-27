@@ -7,6 +7,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tauri": "VITE_TARGET=desktop cargo tauri dev",
+    "build:tauri": "VITE_TARGET=desktop cargo tauri build",
     "prebuild": "pnpm --filter @study-rpg/core build && pnpm --filter @study-rpg/content-neurons-tw build && node ./scripts/copy-content.mjs && node ./scripts/build-provenance-map.mjs",
     "predev": "pnpm --filter @study-rpg/core build && pnpm --filter @study-rpg/content-neurons-tw build && node ./scripts/copy-content.mjs && node ./scripts/build-provenance-map.mjs",
     "build:provenance-map": "node ./scripts/build-provenance-map.mjs",
@@ -25,6 +27,9 @@
     "@study-rpg/core": "workspace:*",
     "@study-rpg/theme-pixel-neurons": "workspace:*",
     "@supabase/supabase-js": "^2.105.4",
+    "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-dialog": "^2.4.0",
+    "@tauri-apps/plugin-opener": "^2.5.4",
     "dexie": "^4.0.10",
     "framer-motion": "^11.11.0",
     "pdfjs-dist": "5.4.296",

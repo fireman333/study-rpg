@@ -15,6 +15,7 @@ import {
   type BugReportSeverity,
 } from '@study-rpg/core'
 import { useAuth } from '../lib/auth/AuthContext'
+import { isDesktop } from '../platform'
 import {
   submitBugReport,
   AUTO_CONTEXT_FIELDS,
@@ -32,6 +33,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   'visual-glitch': '🎨 畫面破圖',
   'cloud-sync': '☁️ 雲端同步',
   corpus: '📚 題庫內容',
+  'desktop-app': '🖥 桌面版（Tauri）',
   'feature-request': '💡 功能建議',
   other: '❓ 其他',
 }
@@ -59,6 +61,7 @@ const AUTO_CONTEXT_LABELS: Record<string, string> = {
   viewport: '視窗大小',
   recent_console_errors: '最近的 console 錯誤',
   sync_metadata: '同步診斷快照',
+  platform: '桌面平台資訊',
 }
 
 interface Props {
@@ -143,7 +146,7 @@ export default function BugReportModal({ open, onClose }: Props): JSX.Element | 
           <div style={body}>
             <label style={fieldLabel}>分類</label>
             <div style={chipWrap}>
-              {NEURONS_BUG_REPORT_CATEGORIES.map((c) => (
+              {NEURONS_BUG_REPORT_CATEGORIES.filter((c) => c !== 'desktop-app' || isDesktop()).map((c) => (
                 <button
                   key={c}
                   type="button"
@@ -237,7 +240,7 @@ export default function BugReportModal({ open, onClose }: Props): JSX.Element | 
                 📎 一併附上的診斷資訊（可逐項取消）
               </summary>
               <div style={{ marginTop: '0.5rem' }}>
-                {AUTO_CONTEXT_FIELDS.map((f) => (
+                {AUTO_CONTEXT_FIELDS.filter((f) => f !== 'platform' || isDesktop()).map((f) => (
                   <label key={f} style={checkRow}>
                     <input
                       type="checkbox"

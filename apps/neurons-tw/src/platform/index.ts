@@ -13,13 +13,18 @@ import { loadFolderHandle, saveFolderHandle } from './folderStore'
 
 export type { OpenResult, PlatformStatus, ProvenanceEntry } from './types'
 
-/** True only in a desktop (Tauri) build. Phase 1 web build → always false. */
+// Statically replaced by Vite (define) at build/dev, so the web build constant-folds the
+// desktop branches to `if (false)` and tree-shakes the dynamic import + its @tauri-apps deps.
+const DESKTOP = import.meta.env.VITE_TARGET === 'desktop'
+
+/** True only in a desktop (Tauri) build. Web build → always false. */
 export function isDesktop(): boolean {
-  return import.meta.env.VITE_TARGET === 'desktop'
+  return DESKTOP
 }
 
-/** Whether this platform can open a local source PDF at all (FSA present). */
+/** Whether this platform can open a local source PDF at all (desktop, or web with FSA). */
 export function isLocalPdfSupported(): boolean {
+  if (DESKTOP) return true
   return typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function'
 }
 
@@ -31,6 +36,7 @@ async function ensurePermission(handle: FileSystemDirectoryHandle): Promise<bool
 
 /** Current capability/grant state — never prompts (safe to call during render effects). */
 export async function getStatus(): Promise<PlatformStatus> {
+  if (DESKTOP) return (await import('./tauriBackend')).getStatus()
   if (!isLocalPdfSupported()) return 'unsupported'
   const handle = await loadFolderHandle()
   if (!handle) return 'no-folder'
@@ -40,6 +46,7 @@ export async function getStatus(): Promise<PlatformStatus> {
 
 /** Prompt the player to grant a read-only folder; persists the handle on success. */
 export async function grantFolder(): Promise<PlatformStatus> {
+  if (DESKTOP) return (await import('./tauriBackend')).grantFolder()
   if (!isLocalPdfSupported()) return 'unsupported'
   let handle: FileSystemDirectoryHandle
   try {
@@ -70,6 +77,7 @@ export async function hasProvenance(questionId: string): Promise<boolean> {
  * host URL for the same `{ url, page, file }` contract and reuses the viewer unchanged.
  */
 export async function openExplanation(questionId: string): Promise<OpenResult> {
+  if (DESKTOP) return (await import('./tauriBackend')).openExplanation(questionId)
   if (!isLocalPdfSupported()) return { ok: false, reason: 'unsupported' }
 
   const entry = lookupEntry(await loadProvenanceMap(), questionId)
@@ -106,4 +114,10 @@ export async function openExplanation(questionId: string): Promise<OpenResult> {
 /** Revoke a resolved source URL when the viewer closes (no-op for non-blob Tauri URLs). */
 export function releaseExplanationUrl(url: string): void {
   if (url.startsWith('blob:')) URL.revokeObjectURL(url)
+}
+
+/** Open an external URL in the system browser (desktop: Tauri opener; web: a new tab). */
+export async function openExternalUrl(url: string): Promise<void> {
+  if (DESKTOP) return (await import('./tauriBackend')).openExternalUrl(url)
+  window.open(url, '_blank', 'noopener,noreferrer')
 }

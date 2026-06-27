@@ -148,6 +148,31 @@ export async function handlePresign(
 
   const key = bundleKey(userSub, bundle);
 
+  // Server-side cost cap (add-presign-put-rate-limit): rate-limit PUT presigns
+  // per (user, bundle). Combined with the short PUT presign TTL below — which
+  // defeats the client's ~240s URL cache and forces a fresh presign per PUT —
+  // this bounds R2 Class-A PutObject volume regardless of client bundle
+  // version. It is the durable backstop for a stuck old-bundle tab we cannot
+  // reach client-side (the iOS-Safari deferred-dirty visibility-flush storm).
+  // Placed BEFORE the R2 HEAD so a throttled request costs no R2 op.
+  if (op === "put" && env.PRESIGN_PUT_LIMITER) {
+    try {
+      const { success } = await env.PRESIGN_PUT_LIMITER.limit({ key: `${userSub}:${bundle}` });
+      if (!success) {
+        // Fires ONLY when throttling — doubles as the §0 attribution probe for
+        // eliminate-cross-device-r2-412-storm (which user + bundle storms).
+        console.log(JSON.stringify({ rl: "throttled", bundle, u: userSub.slice(0, 8) }));
+        return new Response(JSON.stringify({ error: "rate_limited", bundle }), {
+          status: 429,
+          headers: { ...headers, "Content-Type": "application/json", "Retry-After": "10" },
+        });
+      }
+    } catch (err) {
+      // Fail-open: a limiter hiccup must not break legitimate sync. Log + allow.
+      console.error("[presign] rate-limiter error, failing open", { err: String(err) });
+    }
+  }
+
   // SV downgrade enforcement — PUT op with SV declared.
   if (op === "put" && schemaVersion !== null) {
     let existingSV: number;
@@ -178,8 +203,16 @@ export async function handlePresign(
     }
   }
 
-  // Presign via S3 API
-  const ttlSeconds = Number(env.PRESIGN_TTL_SECONDS) || 300;
+  // Presign via S3 API.
+  // PUT presigns use a SHORT ttl (default 45s) deliberately: the client reuses
+  // a cached presigned URL only while `expiresAt - 60_000 > now` (client.ts),
+  // so any PUT ttl < 60s forces a fresh presign on every PUT — which is what
+  // routes every PUT attempt back through PRESIGN_PUT_LIMITER above. GET keeps
+  // the long ttl (reads are cheap Class-B and benefit from client URL caching).
+  const ttlSeconds =
+    op === "put"
+      ? Number(env.PRESIGN_PUT_TTL_SECONDS) || 45
+      : Number(env.PRESIGN_TTL_SECONDS) || 300;
   const r2Url = `${env.R2_S3_ENDPOINT}/${env.R2_BUCKET_NAME}/${key}`;
 
   const aws = new AwsClient({

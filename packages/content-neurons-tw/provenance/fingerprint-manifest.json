@@ -1,0 +1,887 @@
+{
+  "version": "fp-v1",
+  "sourceHash": "ddd6f787bd07",
+  "count": 44,
+  "entries": [
+    {
+      "bookletId": "104-1-醫學一",
+      "canonicalFile": "104-1醫學(一).pdf",
+      "pageCount": 89,
+      "samplePages": [
+        1,
+        2,
+        89
+      ],
+      "fingerprints": [
+        "c916bf89115775ac2b488025f645434ef7e98a4701e65e4f622c7abf99fb338c",
+        "c6a6ab947042a726d4b2ecc6a7508b9f2c5011f2e0e33ff7c8f221ba467c1fce",
+        "bc2d15de5eef7def61312b451b0d04d2e00e3db91d662d911b0d45dec5b33c67"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        1969180,
+        12307375
+      ]
+    },
+    {
+      "bookletId": "104-1-醫學二",
+      "canonicalFile": "104-1醫學(二).pdf",
+      "pageCount": 98,
+      "samplePages": [
+        1,
+        2,
+        98
+      ],
+      "fingerprints": [
+        "1303a79e7ed0d206da0eba26f4532adadc94a2f0cdf84a1649af933e77f22bf0",
+        "468e84f7b71a0791780acb36113112062da0d9e73463127732bb7c5fc085d2b5",
+        "0f3552b2ecddfc3b44f2c678e736965c23b9113af94b7a01eacd55a89bd578cb"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        1775612,
+        11097578
+      ]
+    },
+    {
+      "bookletId": "104-2-醫學一",
+      "canonicalFile": "104-2醫學(一).pdf",
+      "pageCount": 101,
+      "samplePages": [
+        1,
+        2,
+        101
+      ],
+      "fingerprints": [
+        "cfa5af85ed77085ffe709c422fd60dd7f0ee9c0409750ebe9dd1dc1bb6d0fe21",
+        "7d49919ecb1e8386904d79ee59669de386263a089bd5cb8f277dd0c0a4283646",
+        "125152a2b71ccc4eba3026a04108bc190f1d233ca6c7580a59360a320813dee7"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3114935,
+        19468345
+      ]
+    },
+    {
+      "bookletId": "104-2-醫學二",
+      "canonicalFile": "104-2醫學(二).pdf",
+      "pageCount": 113,
+      "samplePages": [
+        1,
+        2,
+        113
+      ],
+      "fingerprints": [
+        "b7878dc415041bdfb058c554e497b3842d3eef7b2cf3eaaeee8fee2837360f05",
+        "05f2b70feabe35cb87d211410c7255b0ba7f216e3cbd12abdc5047cc2ff27786",
+        "27b46b03ce758c59787be93f91ba2ff7cbe1a7937c55f9865a45b6acdb8b8c18"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2904408,
+        18152553
+      ]
+    },
+    {
+      "bookletId": "105-1-醫學一",
+      "canonicalFile": "105-1醫學(一).pdf",
+      "pageCount": 130,
+      "samplePages": [
+        1,
+        2,
+        130
+      ],
+      "fingerprints": [
+        "7991889ef3c49d72d49899e2233c8d7e51687d8316bf7e29d0ee50f504c82bfa",
+        "0b4f1b031f9453e9fc1a2d5ff522daaa9602f0e58f2531f0263e76f83721c875",
+        "13e11d38bd3d7e1db577dc25bc80d61669417d00f43b8aee22fd1c5f7abae619"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2999653,
+        18747835
+      ]
+    },
+    {
+      "bookletId": "105-1-醫學二",
+      "canonicalFile": "105-1醫學(二).pdf",
+      "pageCount": 127,
+      "samplePages": [
+        1,
+        2,
+        127
+      ],
+      "fingerprints": [
+        "7991889ef3c49d72d49899e2233c8d7e51687d8316bf7e29d0ee50f504c82bfa",
+        "31bd82e974b21fdcfb5d19bfbf32f665f2171ce0af6e554302b2050c06331326",
+        "40634c880d2cf83b5d4e5f72ae415613f40557cc4929f7559390f9469fd9631a"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2093415,
+        13083848
+      ]
+    },
+    {
+      "bookletId": "105-2-醫學一",
+      "canonicalFile": "105-2醫學(一).pdf",
+      "pageCount": 105,
+      "samplePages": [
+        1,
+        2,
+        105
+      ],
+      "fingerprints": [
+        "948f05f0d814b09cb7f93f03ee60cbb5336148eb7c24fef489eaa66944466319",
+        "48571d49f4b562c0ca12fd8fa2096855a4bc572845d652cc1bc8f8f6d9aab0ad",
+        "f6333004541319b4ea10d149c441e24df9a912fc063880e0221545671d59c645"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2763214,
+        17270093
+      ]
+    },
+    {
+      "bookletId": "105-2-醫學二",
+      "canonicalFile": "105-2醫學(二).pdf",
+      "pageCount": 122,
+      "samplePages": [
+        1,
+        2,
+        122
+      ],
+      "fingerprints": [
+        "e3c95ecb891b0e248233583b3d3c443aec9aef437ced992d514013ff02203c14",
+        "13bddf3230a1d061e66894bb2c3052559b5b518c8dec94491028c9266c70b346",
+        "50eba0d0baf8e194713b174bd21d87daf4315b0c0517361d3ae590bf2b967712"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2593330,
+        16208313
+      ]
+    },
+    {
+      "bookletId": "106-1-醫學一",
+      "canonicalFile": "106-1醫學(一).pdf",
+      "pageCount": 96,
+      "samplePages": [
+        1,
+        2,
+        96
+      ],
+      "fingerprints": [
+        "51d1a0380b5e3e99bbe4ce17ae743b410de2298807f06e8473acddeb3014fbc4",
+        "11cd71ba944e7c33d0378a8fd437ebd5e4a8f5c181da276d06b51717369d1e0d",
+        "2fb8688a43896e842cc2f8b63436635d59e11f0a5fa57b9fa9de061b051067ea"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        4487602,
+        28047515
+      ]
+    },
+    {
+      "bookletId": "106-1-醫學二",
+      "canonicalFile": "106-1醫學(二).pdf",
+      "pageCount": 87,
+      "samplePages": [
+        1,
+        2,
+        87
+      ],
+      "fingerprints": [
+        "5132064a45c40e7c32daa53183734e80f481bc134d3eac98a8fee80937c5c91f",
+        "401b0126d6fe7d6ecae349bf75fac49b0822a8afde1ac638f39c6bbc491a11d2",
+        "86e2c77887b72bc314396a43d0653dc48588bd6721847b6801e847fcd1746c2a"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3980980,
+        24881125
+      ]
+    },
+    {
+      "bookletId": "106-2-醫學一",
+      "canonicalFile": "106-2醫學(一).pdf",
+      "pageCount": 114,
+      "samplePages": [
+        1,
+        2,
+        114
+      ],
+      "fingerprints": [
+        "0da1238794fc70a40244d1dbae2f907d9645ae1c28e3bc26e3cbb3920643c460",
+        "386168f290a8a8450042097a329290f90670b9dec8a3481a1166fdd039575791",
+        "c00f2970ff3993a438e4dd22133f59ec6f3b9f3aa14ea91b85af987a26642193"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3726364,
+        23289778
+      ]
+    },
+    {
+      "bookletId": "106-2-醫學二",
+      "canonicalFile": "106-2醫學(二).pdf",
+      "pageCount": 103,
+      "samplePages": [
+        1,
+        2,
+        103
+      ],
+      "fingerprints": [
+        "503faafd6fe8dec0ceecb2b05d8829361e62cff603fbf0250019660456dbe880",
+        "386168f290a8a8450042097a329290f90670b9dec8a3481a1166fdd039575791",
+        "608dfabf18b38b5b462d491c4b60ecfe9eb32090cf4dce323302f11acc397d45"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2732887,
+        17080545
+      ]
+    },
+    {
+      "bookletId": "107-1-醫學一",
+      "canonicalFile": "107-1醫學(一).pdf",
+      "pageCount": 133,
+      "samplePages": [
+        1,
+        2,
+        133
+      ],
+      "fingerprints": [
+        "71556af8fee487ec09b7999c9cd1cfa917c74b62b19672475c9a96a8ba6d471a",
+        "498842e32b7c9268b06e595611c53b3e0cc20bedb4033844869fa5059d86464d",
+        "0ad35a93d921c15d323381eace6959952725b9627254c7f96abbedc368e3a9f6"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2128235,
+        13301470
+      ]
+    },
+    {
+      "bookletId": "107-1-醫學二",
+      "canonicalFile": "107-1醫學(二).pdf",
+      "pageCount": 125,
+      "samplePages": [
+        1,
+        2,
+        125
+      ],
+      "fingerprints": [
+        "efb7c1a01281e8a38e7f0fc9be92b9b2956a4ac6a02609b7cd15b0a1282cb941",
+        "33a375158d9bfd4ad8a4b0d1c306452f187797a6fbbf0fded7a1fb9a0f511052",
+        "8180b1e34f0a821b1a9db11c8c1f4b49265aae1391d3abedadd980912378b27f"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        5189867,
+        32436673
+      ]
+    },
+    {
+      "bookletId": "107-2-醫學一",
+      "canonicalFile": "107-2醫學(一).pdf",
+      "pageCount": 145,
+      "samplePages": [
+        1,
+        2,
+        145
+      ],
+      "fingerprints": [
+        "240a86c83641315273ec0063f8f00ddf3b8ae88bb173e63e26915ceafd19992b",
+        "713650cd817e47f65a6420e3459d1ee921f3fb5636fbbc027099e34191fc2fb6",
+        "36c7b9346d4a9898002f093be3a0b2310698fdd79e5f7803fc2d2e98652433ff"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3885679,
+        24285495
+      ]
+    },
+    {
+      "bookletId": "107-2-醫學二",
+      "canonicalFile": "107-2醫學(二).pdf",
+      "pageCount": 140,
+      "samplePages": [
+        1,
+        2,
+        140
+      ],
+      "fingerprints": [
+        "32bc7d2dce0a5fad20f9bffc439c37f85f78a7492e60aa5ad235f41aa519e3bf",
+        "713650cd817e47f65a6420e3459d1ee921f3fb5636fbbc027099e34191fc2fb6",
+        "fdd5b43698e0ddf81b825906b9c93ad02fa1c08fdba69fedeb121bad1b6d451a"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        1707065,
+        10669158
+      ]
+    },
+    {
+      "bookletId": "108-1-醫學一",
+      "canonicalFile": "108-1醫學(一).pdf",
+      "pageCount": 154,
+      "samplePages": [
+        1,
+        2,
+        154
+      ],
+      "fingerprints": [
+        "5effdaf0543c39d14f1bd9512037d35c48a5e150706ff3ec7ae0eb058288bf09",
+        "5effdaf0543c39d14f1bd9512037d35c48a5e150706ff3ec7ae0eb058288bf09",
+        "ea2a7a36f516e5ced29c8069ab5311ffbbc15252ec12deb8846514b733dbb14a"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3992900,
+        24955628
+      ]
+    },
+    {
+      "bookletId": "108-1-醫學二",
+      "canonicalFile": "108-1醫學(二).pdf",
+      "pageCount": 143,
+      "samplePages": [
+        1,
+        2,
+        143
+      ],
+      "fingerprints": [
+        "47dd6b611541fd2f95127fc8d1bd678a88e1c871ed12ab757f36a87570a64a3a",
+        "47dd6b611541fd2f95127fc8d1bd678a88e1c871ed12ab757f36a87570a64a3a",
+        "e90d5b9a24cfb2902beb2a37e7c9241b75334513fea375eb26a3bdb4e679e963"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3400279,
+        21251745
+      ]
+    },
+    {
+      "bookletId": "108-2-醫學一",
+      "canonicalFile": "108-2醫學(一).pdf",
+      "pageCount": 127,
+      "samplePages": [
+        1,
+        2,
+        127
+      ],
+      "fingerprints": [
+        "f65769eaa1cbf1d711b9518650a284f3c03c3a8d77e1541e6224acf0ddc06012",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "13f20e6689fa74cbefbfb109533a88ee911bec8f967242cb1981d64e5f9c0f0c"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3276422,
+        20477638
+      ]
+    },
+    {
+      "bookletId": "108-2-醫學二",
+      "canonicalFile": "108-2醫學(二).pdf",
+      "pageCount": 121,
+      "samplePages": [
+        1,
+        2,
+        121
+      ],
+      "fingerprints": [
+        "cddeb898119dd092bf2e53d54bf4c95cf671b8f74039bd22dd18c87ac035ce4c",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "a34afe7fd5da865274f9126909cba84cf6bf95c7688208aa40cf6708a8e37528"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2772195,
+        17326223
+      ]
+    },
+    {
+      "bookletId": "109-1-醫學一",
+      "canonicalFile": "109-1醫學(一).pdf",
+      "pageCount": 124,
+      "samplePages": [
+        1,
+        2,
+        124
+      ],
+      "fingerprints": [
+        "122c20590e3f8c8466f8568dd94f5558cc43582d04143614b735ecae5bf44c12",
+        "181192cf7a88dd5a2d3471ab6dc4f3565d74820750ac5eb53def967cc3e916fa",
+        "79e2b3c240cef37404b71715e646c0d46b6f16aac728c96297915214dd737769"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        4110491,
+        25690570
+      ]
+    },
+    {
+      "bookletId": "109-1-醫學二",
+      "canonicalFile": "109-1醫學(二).pdf",
+      "pageCount": 124,
+      "samplePages": [
+        1,
+        2,
+        124
+      ],
+      "fingerprints": [
+        "b7c0e167f82748ec9245a2ed8767f3435effe79d191b68707a06a26d0b4acb97",
+        "8cffb9ce5513a720e25847d8d991a446db5b43aa18c3691493ef621808811fbe",
+        "3a09488baa5f840b9e580483acdedc7d28aeabf20e7e255cb653b5a0b7dc3002"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        3043524,
+        19022028
+      ]
+    },
+    {
+      "bookletId": "109-2-醫學一",
+      "canonicalFile": "109-2醫學(一).pdf",
+      "pageCount": 179,
+      "samplePages": [
+        1,
+        2,
+        179
+      ],
+      "fingerprints": [
+        "e79641a0b4d715a1b80069894f3697faa2919897904da37cf9c4daf92e6d0932",
+        "c4dbecb301b5c549dc7202dd6d1f1f4427ae8b76fe5df645e69d3e09bb60fe8f",
+        "2e546636687e8b09ae926955922a3964db6c5c42d357c566311746317cc3c51d"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        6389777,
+        39936108
+      ]
+    },
+    {
+      "bookletId": "109-2-醫學二",
+      "canonicalFile": "109-2醫學(二).pdf",
+      "pageCount": 149,
+      "samplePages": [
+        1,
+        2,
+        149
+      ],
+      "fingerprints": [
+        "0b66be72f4fba5684defd2c0d2d0ea73543a4f3c8375a67e0a3c8de649cb06a2",
+        "f97dd8552bd49605cfedff91c461a1760cfa0a8a90950c5423875d67a5e5ff4d",
+        "a3b0facd7035d5116fb4249fc4c0ca73780522cde59478666fa6a5f5069de921"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2963177,
+        18519860
+      ]
+    },
+    {
+      "bookletId": "110-1-醫學一",
+      "canonicalFile": "110-1醫學(一).pdf",
+      "pageCount": 178,
+      "samplePages": [
+        1,
+        2,
+        178
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "f1278e89153e1232656212a3d876a18537fa8cd4f3b61af413b98a94a49418aa",
+        "5044db6e4534003b93084dff7f0cfec821a63d13e79c0228530443a23d49b28b"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        7134949,
+        44593435
+      ]
+    },
+    {
+      "bookletId": "110-1-醫學二",
+      "canonicalFile": "110-1醫學(二).pdf",
+      "pageCount": 164,
+      "samplePages": [
+        1,
+        2,
+        164
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "f1278e89153e1232656212a3d876a18537fa8cd4f3b61af413b98a94a49418aa",
+        "64fe7c052321b61f4df38eb0fc79ea4328b3097a11623ec2293eb020451081bd"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        6040714,
+        37754468
+      ]
+    },
+    {
+      "bookletId": "110-2-醫學一",
+      "canonicalFile": "110-2醫學(一).pdf",
+      "pageCount": 117,
+      "samplePages": [
+        1,
+        2,
+        117
+      ],
+      "fingerprints": [
+        "959463838a114d6ea0f1a38caa2b57955c0427788386b074afae739d08b75472",
+        "c3e697c2582bc7c58e54b11bbe7827bdc9ca2be3220367151ef1a4050604fff0",
+        "06dc59661e0702aff0d7cde2017cc4f6b1aca03ca3e09252db14bc8f12920411"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        4326824,
+        27042655
+      ]
+    },
+    {
+      "bookletId": "110-2-醫學二",
+      "canonicalFile": "110-2醫學(二).pdf",
+      "pageCount": 104,
+      "samplePages": [
+        1,
+        2,
+        104
+      ],
+      "fingerprints": [
+        "6cfa60fd8b69117ffee1de3ee371a60873f8422b5ba9a55edb24016237a5a348",
+        "f888ec100fb79bfefbdbf24c53fc519a78c7b63c1b9bb85dbc0c7378294e5736",
+        "2c582221d1eac4a375f84fe3f60dba85d0188f96fa78220037a51eb2fba5a3d7"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        2848260,
+        17801630
+      ]
+    },
+    {
+      "bookletId": "111-1-醫學一",
+      "canonicalFile": "111-1醫學(一).pdf",
+      "pageCount": 147,
+      "samplePages": [
+        1,
+        2,
+        147
+      ],
+      "fingerprints": [
+        "b9039117a7269fc69c010bd411f470f7b007ba6e345eb464c016e4d10390289a",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "67f27d1cc77891e7de55f9429670d99ef0acfac30223d46fff0162d126315cac"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        6327554,
+        39547218
+      ]
+    },
+    {
+      "bookletId": "111-1-醫學二",
+      "canonicalFile": "111-1醫學(二).pdf",
+      "pageCount": 131,
+      "samplePages": [
+        1,
+        2,
+        131
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "a11d829ee8af76c68e31e2e20cd841ae98c98d817438b66e6ce974b07b969e59",
+        "6022b101ded37650fa2ef63f9aa4ef0ccc11e3246e0638518b3b8b2818f85a6c"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        4441437,
+        27758983
+      ]
+    },
+    {
+      "bookletId": "111-2-醫學一",
+      "canonicalFile": "111-2醫學一合併檔案.pdf",
+      "pageCount": 183,
+      "samplePages": [
+        1,
+        2,
+        183
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "acfd60d42b29ba41506fa5b834fef266b8939a71d4dea40ba81288c8f803f425"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        7044942,
+        44030888
+      ]
+    },
+    {
+      "bookletId": "111-2-醫學二",
+      "canonicalFile": "111-2醫學二合併檔案.pdf",
+      "pageCount": 160,
+      "samplePages": [
+        1,
+        2,
+        160
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "d744b78a8bbe9748b3e4ed6830420d194932b34e93dacdfa9d873dd35091fda3"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        5388160,
+        33676000
+      ]
+    },
+    {
+      "bookletId": "112-1-醫學一",
+      "canonicalFile": "112-1醫學一 詳解.pdf",
+      "pageCount": 197,
+      "samplePages": [
+        1,
+        2,
+        197
+      ],
+      "fingerprints": [
+        "d51299150561ffa3cc1ed2ec30361433e92862845dcc2f241c9634f26735fba3",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "d5080a2fe9221e0026f79e1c5971b9d79b7e50ba6eaab17c61e18ae70a04fe40"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        9537724,
+        59610775
+      ]
+    },
+    {
+      "bookletId": "112-1-醫學二",
+      "canonicalFile": "112-1醫學二 詳解 (校正).pdf",
+      "pageCount": 233,
+      "samplePages": [
+        1,
+        2,
+        233
+      ],
+      "fingerprints": [
+        "cb0b6da4de872b49688d80d0b9fc80656d2cc0ed1edffd151b3028397f30fb4a",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "85d57ebce538c5e1727c76404904fb1e66a2f460fa711d50a304a81c45611a83"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        5637657,
+        35235360
+      ]
+    },
+    {
+      "bookletId": "112-2-醫學一",
+      "canonicalFile": "112-2醫學一(全)_merged.pdf",
+      "pageCount": 174,
+      "samplePages": [
+        1,
+        2,
+        174
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "b8eed45f5c30dcac01a2dfe358c1132850a5db5ee6c97d349c8f1ad1c971a59a"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        16544048,
+        103400305
+      ]
+    },
+    {
+      "bookletId": "112-2-醫學二",
+      "canonicalFile": "112-2醫學二(全)_merged.pdf",
+      "pageCount": 165,
+      "samplePages": [
+        1,
+        2,
+        165
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "fade2388933fd48bc71203241c29e6ca2d5200d9b9b237c0204708b45748f85b"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        16235850,
+        101474065
+      ]
+    },
+    {
+      "bookletId": "113-1-醫學一",
+      "canonicalFile": "113-1醫學一（修）.pdf",
+      "pageCount": 203,
+      "samplePages": [
+        1,
+        2,
+        203
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "3646f983a4c05604c7112d371b2141ae7e6b0c35fc9ab8e534ca2b09a0385934"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        8685268,
+        54282925
+      ]
+    },
+    {
+      "bookletId": "113-1-醫學二",
+      "canonicalFile": "113-1醫學二.pdf",
+      "pageCount": 233,
+      "samplePages": [
+        1,
+        2,
+        233
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "2c5621469a0885ff9ad858eb95005a9039ed4c48638792d117ab11bc4b89b1ef"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        8949309,
+        55933185
+      ]
+    },
+    {
+      "bookletId": "113-2-醫學一",
+      "canonicalFile": "113-2_醫學一總檔.pdf",
+      "pageCount": 198,
+      "samplePages": [
+        1,
+        2,
+        198
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "2c050ea39c4fe5e1e197fd4cbc40af8d5f6332fb91a5d51ccca27cfe8678339c"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        19727579,
+        123297373
+      ]
+    },
+    {
+      "bookletId": "113-2-醫學二",
+      "canonicalFile": "113-2_醫學二總檔.pdf",
+      "pageCount": 201,
+      "samplePages": [
+        1,
+        2,
+        201
+      ],
+      "fingerprints": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      ],
+      "textFingerprintable": false,
+      "expectedSizeRange": [
+        18570592,
+        116066200
+      ]
+    },
+    {
+      "bookletId": "114-1-醫學一",
+      "canonicalFile": "114-1_醫學一總檔案（修訂版）.pdf",
+      "pageCount": 147,
+      "samplePages": [
+        1,
+        2,
+        147
+      ],
+      "fingerprints": [
+        "4a980d162a9be88fdf275ddf8b993d3db760d1b21e3645b5542e7ebe3925ff8d",
+        "ff8447b145fea18145e151afdb34003080d05ec737c4c94ae045b59f6cbafac8",
+        "8a2d47979fbd795c53c38bf11fba85923f3c8b5d465a624629e6bff47086bdbb"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        5589907,
+        34936920
+      ]
+    },
+    {
+      "bookletId": "114-1-醫學二",
+      "canonicalFile": "114-1_醫學二總檔案（修訂版）.pdf",
+      "pageCount": 148,
+      "samplePages": [
+        1,
+        2,
+        148
+      ],
+      "fingerprints": [
+        "4a980d162a9be88fdf275ddf8b993d3db760d1b21e3645b5542e7ebe3925ff8d",
+        "89985d803e529795e24cb825b8ea7268aa26e2c3481e96029157cd6488adb81c",
+        "725c470139f987f1e0c44afe9d1e45a05e3bee2dd3f6262d488ce8de28744949"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        7718458,
+        48240363
+      ]
+    },
+    {
+      "bookletId": "114-2-醫學一",
+      "canonicalFile": "114-2醫學一合併總檔.pdf",
+      "pageCount": 190,
+      "samplePages": [
+        1,
+        2,
+        190
+      ],
+      "fingerprints": [
+        "fa92627bb5aa9aeff7cfc8c86c4575e015620cd06a07fbc056e3db6f23fa1dd9",
+        "b0e13b50877d18be2c06dec1c1bcccebdb2274e374b4fec8ccf6aac8a7ef29d8",
+        "ec78ae2aa0fcc21b9efcb541581962b063933dca6f8e2d6177fbc55b1d53b997"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        6809175,
+        42557345
+      ]
+    },
+    {
+      "bookletId": "114-2-醫學二",
+      "canonicalFile": "114-2醫學二合併總檔.pdf",
+      "pageCount": 204,
+      "samplePages": [
+        1,
+        2,
+        204
+      ],
+      "fingerprints": [
+        "55d9df8ec7404fc39755a42e97d1451334eebb3db0a432a40ed29e772edcc895",
+        "57b6decf1598917299edcd0dcab4967ffbf5dfa9167397efa92e4f05df1de5c7",
+        "7db8b77e9d68ae324923a1d7b4f01f44e99db36ebb415a05d3ce2d1c384dbeb5"
+      ],
+      "textFingerprintable": true,
+      "expectedSizeRange": [
+        5438630,
+        33991440
+      ]
+    }
+  ]
+}

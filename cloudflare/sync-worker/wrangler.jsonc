@@ -88,6 +88,23 @@
 	"vars": {
 		"R2_BUCKET_NAME": "study-rpg-saves",
 		"CORS_ALLOWED_ORIGINS": "https://fireman333.github.io,https://med-study-rpg.com,http://localhost:5173,http://localhost:4173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179",
-		"PRESIGN_TTL_SECONDS": "300"
-	}
+		"PRESIGN_TTL_SECONDS": "300",
+		// PUT presigns expire fast so every PUT re-presigns through the rate limiter.
+		// Must be < (60s client cache margin − worst client clock skew): a client
+		// whose clock runs ~30s+ behind still cached a 45s URL (expiresAt-60000 >
+		// its slow now) and reused it for ~277 failed (412) PUTs/min, bypassing the
+		// limiter. 10s defeats skew up to ~50s. add-presign-put-rate-limit.
+		"PRESIGN_PUT_TTL_SECONDS": "10"
+	},
+	// Rate Limiting binding (add-presign-put-rate-limit) — caps PUT presigns per
+	// (user, bundle) at 10 / 60s to bound R2 Class-A PutObject cost against a
+	// stuck old-bundle client that bypasses the client-side storm fixes.
+	// `namespace_id` is an arbitrary unique id within the account; `period` ∈ {10,60}.
+	"ratelimits": [
+		{
+			"name": "PRESIGN_PUT_LIMITER",
+			"namespace_id": "1001",
+			"simple": { "limit": 10, "period": 60 }
+		}
+	]
 }

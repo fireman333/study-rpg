@@ -38,9 +38,19 @@ export type PlatformStatus = 'unsupported' | 'no-folder' | 'needs-permission' | 
  * filename (viewer title). A blob URL MUST be revoked by the consumer on close.
  */
 export type OpenResult =
-  | { ok: true; page: number; url: string; file: string }
+  | {
+      ok: true
+      page: number
+      url: string
+      file: string
+      /** Desktop fingerprint-match strength; `low` = page-count-only (UI should flag it). */
+      confidence?: 'strong' | 'weak' | 'low'
+    }
   | {
       ok: false
       reason: 'unsupported' | 'no-folder' | 'unmapped' | 'file-not-found' | 'permission-denied' | 'error'
       message?: string
+      /** On desktop 'file-not-found': the booklet needed + its official download link (guided download). */
+      bookletId?: string
+      driveUrl?: string
     }

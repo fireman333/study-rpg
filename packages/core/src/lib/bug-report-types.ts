@@ -46,6 +46,7 @@ export const NEURONS_BUG_REPORT_CATEGORIES = [
   'visual-glitch',
   'cloud-sync',
   'corpus',
+  'desktop-app',
   'feature-request',
   'other',
 ] as const
@@ -148,6 +149,8 @@ export interface BugReportAutoContext {
   recent_console_errors?: ConsoleErrorEntry[]
   /** Sync engine diagnostic (fix-sync-sign-in-lifecycle M3). */
   sync_metadata?: SyncDiagnosticSnapshot
+  /** Desktop (Tauri) platform descriptor — desktop build only (add-neurons-guided-pdf-onboarding). */
+  platform?: string
 }
 
 /** Final DB row shape — everything combined. */

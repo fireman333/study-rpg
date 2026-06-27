@@ -26,6 +26,18 @@ const migrationSql = readFileSync(
   'utf8',
 )
 
+// The category CHECK is re-created (with 'desktop-app' added) by migration 0018, so the
+// authoritative category list to check the canonical set against is 0018, not 0017.
+const categoryMigrationSql = readFileSync(
+  fileURLToPath(
+    new URL(
+      '../../../../supabase/migrations/0018_neurons_desktop_bug_category.sql',
+      import.meta.url,
+    ),
+  ),
+  'utf8',
+)
+
 /** Extract the quoted values inside a `<name> CHECK (<col> IN ( ... ))` block. */
 function checkValues(sql: string, constraintName: string): Set<string> {
   const marker = `${constraintName} CHECK (`
@@ -40,7 +52,7 @@ function checkValues(sql: string, constraintName: string): Set<string> {
 }
 
 describe('bug_reports migration 0017 canonical form', () => {
-  const categoryCheck = checkValues(migrationSql, 'bug_reports_category_check')
+  const categoryCheck = checkValues(categoryMigrationSql, 'bug_reports_category_check')
   const appCheck = checkValues(migrationSql, 'bug_reports_app_check')
 
   it('every neurons form category is present in the category CHECK', () => {
