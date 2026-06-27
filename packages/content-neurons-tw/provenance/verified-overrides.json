@@ -1,7 +1,39 @@
 {
   "__doc__": "Human/agent-VERIFIED question→page overrides that bypass the automated resolver gates (stem-run + monotonicity). Used for cards the automated pipeline can't gate correctly: stems rendered as embedded IMAGES (no extractable text), or 陽明 booklets whose physical card order != 考選部 qNumber (breaks the monotonicity heuristic). Each entry was confirmed by reading the actual rendered card (題號 + stem + options + 答案). Pages are 0-based (builder adds +1). Highest-priority source in build-provenance-map.mjs.",
-  "106-1-醫學二-生物化學-Q37": { "file": "106-1醫學(二).pdf", "page": 33 },
-  "104-2-醫學一-解剖學-Q8": { "file": "104-2醫學(一).pdf", "page": 11 },
-  "104-2-醫學一-微生物暨免疫學-Q51": { "file": "104-2醫學(一).pdf", "page": 60 },
-  "104-2-醫學一-微生物暨免疫學-Q53": { "file": "104-2醫學(一).pdf", "page": 61 }
+  "106-1-醫學二-生物化學-Q37": {
+    "file": "106-1醫學(二).pdf",
+    "page": 33
+  },
+  "104-2-醫學一-解剖學-Q8": {
+    "file": "104-2醫學(一).pdf",
+    "page": 11
+  },
+  "104-2-醫學一-微生物暨免疫學-Q51": {
+    "file": "104-2醫學(一).pdf",
+    "page": 60
+  },
+  "104-2-醫學一-微生物暨免疫學-Q53": {
+    "file": "104-2醫學(一).pdf",
+    "page": 61
+  },
+  "106-1-醫學一-公共衛生學-Q93": {
+    "file": "106-1醫學(二).pdf",
+    "page": 82
+  },
+  "106-1-醫學一-公共衛生學-Q94": {
+    "file": "106-1醫學(二).pdf",
+    "page": 82
+  },
+  "106-1-醫學一-公共衛生學-Q96": {
+    "file": "106-1醫學(二).pdf",
+    "page": 83
+  },
+  "106-1-醫學二-病理學-Q93": {
+    "file": "106-1醫學(一).pdf",
+    "page": 88
+  },
+  "106-1-醫學二-病理學-Q94": {
+    "file": "106-1醫學(一).pdf",
+    "page": 88
+  }
 }
