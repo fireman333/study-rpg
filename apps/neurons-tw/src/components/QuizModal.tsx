@@ -23,6 +23,7 @@ import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { Explanation } from './Explanation'
 import { LocalPdfButton } from './LocalPdfButton'
+import { useLocalPdfAvailable } from './useLocalPdfAvailable'
 import { EmojiIcon } from './EmojiIcon'
 import SquadCelebration from './SquadCelebration'
 import MazeExpedition from './MazeExpedition'
@@ -295,6 +296,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   }, [onClose, onComplete, sessionPool.length, practice])
 
   const q: Question | undefined = sessionPool[idx]
+  // When the local-PDF action is available, default the inline 詳解 collapsed (PDF is richer).
+  const pdfAvailable = useLocalPdfAvailable(q?.id ?? '')
   const exhausted = idx >= sessionPool.length
   // Featured correct-reaction upgrades to the slot-5 傳奇 showpiece when owned.
   const ownsLegendary = useOwnsLegendarySlot(q?.subject)
@@ -723,7 +726,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
               {q.explanation && (
                 <>
                   <LocalPdfButton questionId={q.id} />
-                  <details style={explanationStyle} open>
+                  <details style={explanationStyle} open={!pdfAvailable}>
                     <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 詳解</summary>
                     <Explanation question={q} textStyle={explanationBodyStyle} />
                     {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
@@ -1046,7 +1049,11 @@ const bugTargetActive: CSSProperties = {
 
 const backdropStyle: React.CSSProperties = {
   position: 'fixed',
-  inset: 0,
+  // Reflow beside the docked PDF panel; var defaults to 0px → full-screen when panel closed.
+  top: 0,
+  left: 0,
+  bottom: 0,
+  right: 'var(--pdf-panel-width, 0px)',
   background: 'rgba(20, 12, 30, 0.55)',
   display: 'flex',
   alignItems: 'center',

@@ -22,6 +22,7 @@ import { submitBugReport } from '../lib/services/bug-report'
 import { QuizModal } from '../components/QuizModal'
 import { Explanation } from '../components/Explanation'
 import { LocalPdfButton } from '../components/LocalPdfButton'
+import { useLocalPdfAvailable } from '../components/useLocalPdfAvailable'
 import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
 import {
@@ -566,6 +567,8 @@ function ChipGroup({
 function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): JSX.Element {
   const year = qYear(q)
   const session = qSession(q)
+  // When the local-PDF action is available, default the inline 詳解 collapsed (PDF is richer).
+  const pdfAvailable = useLocalPdfAvailable(q.id)
   return (
     <li style={entryStyle}>
       <div style={entryHeadStyle}>
@@ -594,7 +597,7 @@ function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): 
       {q.explanation && (
         <>
           <LocalPdfButton questionId={q.id} />
-          <details style={explanationStyle} open>
+          <details style={explanationStyle} open={!pdfAvailable}>
             <summary style={explanationSummaryStyle}>📖 詳解</summary>
             <Explanation question={q} textStyle={explanationBodyStyle} />
             {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (

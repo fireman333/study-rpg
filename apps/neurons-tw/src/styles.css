@@ -29,6 +29,10 @@
 }
 
 :root {
+  /* Docked PDF panel width (rework-neurons-pdf-viewer-docked-panel). 0px = closed → the app
+   * shell + full-screen modals stay full width; PdfPanelProvider sets it to the panel width
+   * while open so those surfaces reflow into the remaining space. */
+  --pdf-panel-width: 0px;
   /* Pixel "RPG chrome" font stacks — single source of truth (mirror the sibling
    * 二階 study-rpg-2nd token system). Components reference these, never a raw
    * 'Cubic 11' / 'VT323' literal. The app default body font is pixel (set in

@@ -68,3 +68,18 @@ describe('releaseExplanationUrl — revoke lifecycle', () => {
     expect(g.URL.revokeObjectURL).not.toHaveBeenCalled()
   })
 })
+
+describe('clampPanelWidth — docked panel width bounds', () => {
+  it('clamps to [360, min(900, 70vw)]', async () => {
+    g.window = { ...g.window, innerWidth: 1600 } // 70vw = 1120 → cap is min(900,1120)=900
+    const { clampPanelWidth } = await import('../components/PdfPanelProvider')
+    expect(clampPanelWidth(100)).toBe(360) // below min
+    expect(clampPanelWidth(520)).toBe(520) // in range
+    expect(clampPanelWidth(5000)).toBe(900) // above max (900 cap)
+  })
+  it('caps at 70vw on a narrow viewport', async () => {
+    g.window = { ...g.window, innerWidth: 1000 } // 70vw = 700 → cap is min(900,700)=700
+    const { clampPanelWidth } = await import('../components/PdfPanelProvider')
+    expect(clampPanelWidth(5000)).toBe(700)
+  })
+})

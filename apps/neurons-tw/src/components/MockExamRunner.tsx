@@ -22,6 +22,7 @@ import { submitMockVariantRoll, type MockRollResult } from '../lib/services/mock
 import { MockVariantRevealBadge } from './MockVariantRevealBadge'
 import { Explanation } from './Explanation'
 import { LocalPdfButton } from './LocalPdfButton'
+import { useLocalPdfAvailable } from './useLocalPdfAvailable'
 import { PrecedingContext } from './PrecedingContext'
 import { QuestionFigure } from './QuestionFigure'
 import { QuestionJumpGrid } from './QuestionJumpGrid'
@@ -85,6 +86,8 @@ export function MockExamRunner({
   const stemRef = useRef<HTMLParagraphElement>(null)
 
   const q = sessionPool[state.index]
+  // When the local-PDF action is available, default the inline 詳解 collapsed (PDF is richer).
+  const pdfAvailable = useLocalPdfAvailable(q?.id ?? '')
   const score = useMemo(() => scoreMockExam(sessionPool, state.answers), [sessionPool, state.answers])
   const cellStates = useMemo(() => navigatorCellStates(sessionPool, state), [sessionPool, state])
   const hasProgress = state.answers.some((a) => a !== null)
@@ -258,7 +261,7 @@ export function MockExamRunner({
               {state.submitted && q.explanation && (
                 <>
                   <LocalPdfButton questionId={q.id} />
-                  <details style={explanationStyle} open>
+                  <details style={explanationStyle} open={!pdfAvailable}>
                     <summary style={explanationSummaryStyle}>
                       <EmojiIcon char="📖" size={15} /> 詳解
                     </summary>
@@ -398,7 +401,11 @@ function ConfirmPanel({
 
 const backdropStyle: React.CSSProperties = {
   position: 'fixed',
-  inset: 0,
+  // Reflow beside the docked PDF panel; var defaults to 0px → full-screen when panel closed.
+  top: 0,
+  left: 0,
+  bottom: 0,
+  right: 'var(--pdf-panel-width, 0px)',
   background: 'rgba(0,0,0,0.45)',
   display: 'flex',
   alignItems: 'center',
