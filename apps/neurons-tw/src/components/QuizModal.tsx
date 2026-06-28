@@ -24,6 +24,7 @@ import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { Explanation } from './Explanation'
 import { LocalPdfButton } from './LocalPdfButton'
 import { useLocalPdfAvailable } from './useLocalPdfAvailable'
+import { SHOW_INLINE_EXPLANATION } from '../lib/feature-flags'
 import { EmojiIcon } from './EmojiIcon'
 import SquadCelebration from './SquadCelebration'
 import MazeExpedition from './MazeExpedition'
@@ -726,13 +727,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
               {q.explanation && (
                 <>
                   <LocalPdfButton questionId={q.id} />
-                  <details style={explanationStyle} open={!pdfAvailable}>
-                    <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 詳解</summary>
-                    <Explanation question={q} textStyle={explanationBodyStyle} />
-                    {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
-                      <p style={aiNoteStyle}>🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
-                    )}
-                  </details>
+                  {SHOW_INLINE_EXPLANATION && (
+                    <details style={explanationStyle} open={!pdfAvailable}>
+                      <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 詳解</summary>
+                      <Explanation question={q} textStyle={explanationBodyStyle} />
+                      {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
+                        <p style={aiNoteStyle}>🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
+                      )}
+                    </details>
+                  )}
                 </>
               )}
               <p style={questionIdStyle}>題號 {q.id}</p>
