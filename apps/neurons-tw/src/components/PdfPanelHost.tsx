@@ -42,16 +42,11 @@ export function PdfPanelHost(): JSX.Element | null {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, closePdf])
 
-  // Lock background scroll while the full-screen overlay is up (narrow only); restore on close /
-  // when it reverts to the docked desktop layout (where content beside it stays scrollable).
-  useEffect(() => {
-    if (!narrow) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
-    }
-  }, [narrow])
+  // NO body scroll-lock: toggling `document.body.style.overflow='hidden'` bricks one-finger
+  // scrolling on iOS Safari (page then needs two fingers, and the broken state persists across
+  // all SPA routes since <body> is never recreated). The narrow panel is an opaque, full-screen,
+  // position:fixed overlay (zIndex 9000) that already covers the content, and the PDF scrolls in
+  // its own overflow container — so a background lock is unnecessary. (Codex-confirmed iOS fix.)
 
   // Measure the body container → renderWidth (single source; covers desktop drag + narrow + rotate).
   useLayoutEffect(() => {
