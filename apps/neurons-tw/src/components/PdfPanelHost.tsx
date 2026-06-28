@@ -48,26 +48,41 @@ export function PdfPanelHost(): JSX.Element | null {
   // position:fixed overlay (zIndex 9000) that already covers the content, and the PDF scrolls in
   // its own overflow container — so a background lock is unnecessary. (Codex-confirmed iOS fix.)
 
-  // Measure the body container → renderWidth (single source; covers desktop drag + narrow + rotate).
+  // Width fed to the renderer. On the narrow full-screen overlay use the VISUAL viewport width:
+  // iOS Safari's layout viewport can exceed the visible (visual) viewport, so a DOM measure makes
+  // the page render wider than the screen → horizontal overflow → the user pinch-zooms out to fit,
+  // which at min page-scale triggers Safari's Tab Overview. Measuring the visual viewport keeps the
+  // page truly fit-to-screen. Desktop docked keeps its measured body width. Re-measured on resize /
+  // orientation / visualViewport change. (Codex-reviewed.)
   useLayoutEffect(() => {
-    const el = bodyRef.current
-    if (!el || typeof ResizeObserver === 'undefined') return
     const measure = (): void => {
-      const w = Math.round(el.getBoundingClientRect().width)
+      let w = 0
+      if (narrow) {
+        w = Math.round(window.visualViewport?.width ?? window.innerWidth)
+      } else {
+        const el = bodyRef.current
+        w = el ? Math.round(el.getBoundingClientRect().width) : 0
+      }
       if (w > 0) setRenderWidth(w)
     }
     measure()
     let timer: ReturnType<typeof setTimeout> | undefined
-    const ro = new ResizeObserver(() => {
+    const onChange = (): void => {
       clearTimeout(timer)
       timer = setTimeout(measure, 150)
-    })
-    ro.observe(el)
+    }
+    const el = bodyRef.current
+    const ro = el && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onChange) : null
+    if (el && ro) ro.observe(el)
+    window.visualViewport?.addEventListener('resize', onChange)
+    window.addEventListener('orientationchange', onChange)
     return () => {
       clearTimeout(timer)
-      ro.disconnect()
+      ro?.disconnect()
+      window.visualViewport?.removeEventListener('resize', onChange)
+      window.removeEventListener('orientationchange', onChange)
     }
-  }, [])
+  }, [narrow])
 
   const onDragStart = useCallback(
     (e: ReactPointerEvent) => {

@@ -40,6 +40,9 @@ const MAX_WINDOW = 16 // cap on simultaneously-mounted pages (bounds memory on l
 const PAGE_GAP = 8 // vertical flow gap between page slots (the slot's bottom margin, in px)
 const SETTLE_HOLDS = 3 // consecutive frames the landing must survive before releasing scroll control
 const SETTLE_MAX_FRAMES = 30 // give up re-asserting after ~0.5s (avoid pinning scroll forever)
+const MIN_ZOOM = 1 // 1 = fit-to-width (smallest useful; page already fills the surface)
+const MAX_ZOOM = 2.5 // dense exam pages stay readable up to ~2.5×
+const ZOOM_STEP = 0.25
 
 export function PdfDocumentView({
   url,
@@ -70,8 +73,16 @@ export function PdfDocumentView({
   const lastTopRef = useRef(0) // previous scrollTop — to detect upward-scroll intent
   const prevWidthRef = useRef(0)
 
-  const pageWidth = Math.max(280, width - 32)
+  // In-app zoom (add-neurons-pdf-mobile-zoom): dense A4 exam pages are tiny at fit-width on a phone,
+  // and native pinch-zoom-out is hijacked by Safari's Tab Overview — so zoom is APP STATE, applied
+  // by re-rasterizing react-pdf at a larger width (crisp, unlike a CSS transform). 1 = fit-to-width.
+  const [zoom, setZoom] = useState(1)
+  const fitWidth = Math.max(280, width - 32)
+  const pageWidth = Math.round(fitWidth * zoom)
   const estHeight = Math.round(pageWidth * 1.414) // A4-ish placeholder before a page is measured
+  const zoomOut = useCallback(() => setZoom((z) => Math.max(MIN_ZOOM, Math.round((z - ZOOM_STEP) * 100) / 100)), [])
+  const zoomIn = useCallback(() => setZoom((z) => Math.min(MAX_ZOOM, Math.round((z + ZOOM_STEP) * 100) / 100)), [])
+  const zoomFit = useCallback(() => setZoom(1), [])
 
   const clampPage = useCallback((p: number, n: number) => Math.min(Math.max(1, p), n), [])
 
@@ -242,10 +253,12 @@ export function PdfDocumentView({
   }
 
   return (
-    // Scroll container is the OUTER element so it inherits a bounded height from the flex panel
-    // body; react-pdf's <Document> wrapper has no height and would otherwise break a height:100%
-    // chain. overflow-anchor:none keeps Blink from ALSO native-anchoring (we anchor manually).
-    <div ref={scrollRef} style={scrollStyle} onScroll={onScroll}>
+    // Relative flex column so the zoom toolbar floats over the scroller. The inner div is the
+    // scroll container (bounded height from the flex panel body; react-pdf's <Document> wrapper has
+    // no height and would otherwise break a height:100% chain). overflow-anchor:none keeps Blink
+    // from ALSO native-anchoring (we anchor manually).
+    <div style={viewerWrapStyle}>
+      <div ref={scrollRef} style={scrollStyle} onScroll={onScroll}>
       <Document
         file={url}
         onLoadSuccess={onLoad}
@@ -286,10 +299,72 @@ export function PdfDocumentView({
           )
         })}
       </Document>
+      </div>
+      <div style={zoomBarStyle} role="group" aria-label="PDF 縮放">
+        <button type="button" onClick={zoomOut} disabled={zoom <= MIN_ZOOM} style={zoomBtnStyle} aria-label="縮小">
+          －
+        </button>
+        <button type="button" onClick={zoomFit} style={zoomLabelStyle} aria-label="符合寬度（重設縮放）">
+          {Math.round(zoom * 100)}%
+        </button>
+        <button type="button" onClick={zoomIn} disabled={zoom >= MAX_ZOOM} style={zoomBtnStyle} aria-label="放大">
+          ＋
+        </button>
+      </div>
     </div>
   )
 }
 
+const viewerWrapStyle: CSSProperties = {
+  position: 'relative',
+  flex: 1,
+  minHeight: 0,
+  display: 'flex',
+  flexDirection: 'column',
+}
+// Floating zoom toolbar — bottom-center, thumb-reachable, clear of the iPhone home indicator.
+const zoomBarStyle: CSSProperties = {
+  position: 'absolute',
+  bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '2px',
+  padding: '3px',
+  borderRadius: 999,
+  background: 'rgba(58, 42, 26, 0.88)',
+  boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+  zIndex: 2,
+}
+const zoomBtnStyle: CSSProperties = {
+  cursor: 'pointer',
+  border: 'none',
+  borderRadius: 999,
+  background: 'transparent',
+  color: '#f6efe0',
+  fontSize: '1.1rem',
+  fontWeight: 700,
+  lineHeight: 1,
+  width: 38,
+  height: 38,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+const zoomLabelStyle: CSSProperties = {
+  cursor: 'pointer',
+  border: 'none',
+  borderRadius: 999,
+  background: 'transparent',
+  color: '#f6efe0',
+  fontFamily: 'var(--font-legible)',
+  fontSize: '0.78rem',
+  fontWeight: 700,
+  minWidth: 52,
+  height: 38,
+  padding: '0 4px',
+}
 const scrollStyle: CSSProperties = {
   flex: 1,
   minHeight: 0,
