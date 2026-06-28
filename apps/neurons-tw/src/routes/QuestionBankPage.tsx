@@ -22,7 +22,6 @@ import { submitBugReport } from '../lib/services/bug-report'
 import { QuizModal } from '../components/QuizModal'
 import { Explanation } from '../components/Explanation'
 import { LocalPdfButton } from '../components/LocalPdfButton'
-import { useLocalPdfAvailable } from '../components/useLocalPdfAvailable'
 import { SHOW_INLINE_EXPLANATION } from '../lib/feature-flags'
 import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
@@ -568,8 +567,6 @@ function ChipGroup({
 function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): JSX.Element {
   const year = qYear(q)
   const session = qSession(q)
-  // When the local-PDF action is available, default the inline 詳解 collapsed (PDF is richer).
-  const pdfAvailable = useLocalPdfAvailable(q.id)
   return (
     <li style={entryStyle}>
       <div style={entryHeadStyle}>
@@ -598,12 +595,12 @@ function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): 
       {q.explanation && (
         <>
           <LocalPdfButton questionId={q.id} />
-          {SHOW_INLINE_EXPLANATION && (
-            <details style={explanationStyle} open={!pdfAvailable}>
-              <summary style={explanationSummaryStyle}>📖 詳解</summary>
+          {SHOW_INLINE_EXPLANATION && q.optionExplanations && (
+            <details style={explanationStyle} open>
+              <summary style={explanationSummaryStyle}>📖 簡答</summary>
               <Explanation question={q} textStyle={explanationBodyStyle} />
               {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
-                <p style={aiNoteStyle}>※ 本題詳解由 AI 生成，僅供參考。</p>
+                <p style={aiNoteStyle}>※ 本題原始詳解由 AI 生成，僅供參考。</p>
               )}
             </details>
           )}

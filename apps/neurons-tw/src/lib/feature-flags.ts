@@ -3,14 +3,14 @@
  */
 
 /**
- * Whether to show the expandable inline 詳解 (the AI / 陽明 text explanation) under each answered
- * question, on every surface (QuestionBankPage / QuizModal / MockExamRunner).
+ * Whether to show the inline explanation under each answered question, on every surface
+ * (QuestionBankPage / QuizModal / MockExamRunner).
  *
- * Temporarily OFF: the current inline explanations have quality issues (PDF-flatten 跑版 +
- * AI-generated drift) and are being replaced by AI-agent-produced simplified answers. Until that
- * lands, players still get the 正解 + the authoritative 「看原始詳解 PDF」 source button — only the
- * unreliable text 詳解 is hidden. Flip back to `true` (or repoint the surfaces to the new
- * simplified-explanation field) once the cleaned content ships. The render code is kept intact
- * behind this flag so re-enabling is a one-line change.
+ * ON: the inline slot now renders the per-option 簡答 (neurons-simplified-explanations) — a short
+ * line per option (correct = why right, others = why wrong), condensed from the authoritative 詳解
+ * by the offline Haiku pipeline and QA-gated. The old unreliable prose/table/figure 詳解 (PDF-flatten
+ * 跑版 + AI drift) was retired from inline display; the authoritative source stays one tap away via
+ * the 「看原始詳解 PDF」 button. A question with no 簡答 (un-generated / QA-failed) renders nothing
+ * inline — so flipping this on never shows the old noisy text.
  */
-export const SHOW_INLINE_EXPLANATION: boolean = false
+export const SHOW_INLINE_EXPLANATION: boolean = true

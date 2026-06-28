@@ -94,6 +94,7 @@ export interface Question {
   explanationBlocks?: ExplanationBlock[] // structured 詳解 (prose + real tables); when present, renderers prefer this over `explanation`
   explanationTableImages?: ExplanationTableImage[] // image-crop tier for 詳解 tables unrecoverable as text; rendered after the explanation (additive)
   explanationFigures?: ExplanationFigure[] // recovered 詳解 figures (render-crop of source PDF); lazy-loaded, rendered after the explanation (additive, build-injected; source questions.json untouched)
+  optionExplanations?: Record<string, string> // per-option 簡答: one short line per option key (correct = why right, others = why wrong), condensed from the authoritative 詳解; build-injected from a QA-passed sidecar, never alters id/answer/options/stem/explanation. See neurons-simplified-explanations.
   hasImage?: boolean
   imagePath?: string | null       // relative path under app's /public; prepend BASE_URL at render
   hasOptionImages?: boolean       // at least one option is an un-renderable image; host apps filter from quiz pools

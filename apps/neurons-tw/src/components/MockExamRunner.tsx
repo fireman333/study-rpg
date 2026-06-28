@@ -22,7 +22,6 @@ import { submitMockVariantRoll, type MockRollResult } from '../lib/services/mock
 import { MockVariantRevealBadge } from './MockVariantRevealBadge'
 import { Explanation } from './Explanation'
 import { LocalPdfButton } from './LocalPdfButton'
-import { useLocalPdfAvailable } from './useLocalPdfAvailable'
 import { SHOW_INLINE_EXPLANATION } from '../lib/feature-flags'
 import { PrecedingContext } from './PrecedingContext'
 import { QuestionFigure } from './QuestionFigure'
@@ -87,8 +86,6 @@ export function MockExamRunner({
   const stemRef = useRef<HTMLParagraphElement>(null)
 
   const q = sessionPool[state.index]
-  // When the local-PDF action is available, default the inline 詳解 collapsed (PDF is richer).
-  const pdfAvailable = useLocalPdfAvailable(q?.id ?? '')
   const score = useMemo(() => scoreMockExam(sessionPool, state.answers), [sessionPool, state.answers])
   const cellStates = useMemo(() => navigatorCellStates(sessionPool, state), [sessionPool, state])
   const hasProgress = state.answers.some((a) => a !== null)
@@ -262,14 +259,14 @@ export function MockExamRunner({
               {state.submitted && q.explanation && (
                 <>
                   <LocalPdfButton questionId={q.id} />
-                  {SHOW_INLINE_EXPLANATION && (
-                    <details style={explanationStyle} open={!pdfAvailable}>
+                  {SHOW_INLINE_EXPLANATION && q.optionExplanations && (
+                    <details style={explanationStyle} open>
                       <summary style={explanationSummaryStyle}>
-                        <EmojiIcon char="📖" size={15} /> 詳解
+                        <EmojiIcon char="📖" size={15} /> 簡答
                       </summary>
                       <Explanation question={q} textStyle={explanationBodyStyle} />
                       {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
-                        <p style={aiNoteStyle}>🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
+                        <p style={aiNoteStyle}>🤖 此題原始詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
                       )}
                     </details>
                   )}

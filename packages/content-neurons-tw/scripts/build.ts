@@ -70,6 +70,22 @@ const figuresByQid: Record<string, { src: string }[]> = Object.fromEntries(
   Object.entries(figuresManifest).map(([qid, figs]) => [qid, figs.map((f) => ({ src: f.src }))]),
 )
 
+// 簡答 (per-option simplified explanations): a QA-passed sidecar maps qid → per-option short
+// lines, condensed from the authoritative 詳解 by the offline Haiku pipeline. The build attaches
+// only the `optionExplanations` map to the built question (run metadata stays in the sidecar);
+// source questions.json + answer/options/explanation are untouched. A question with no sidecar
+// entry is baked without the field. See neurons-simplified-explanations.
+const PROVENANCE_DIR = resolve(import.meta.dirname, '..', 'provenance')
+const optionExplanationsSidecar: Record<string, { optionExplanations?: Record<string, string> }> =
+  existsSync(resolve(PROVENANCE_DIR, 'option-explanations.generated.json'))
+    ? JSON.parse(readFileSync(resolve(PROVENANCE_DIR, 'option-explanations.generated.json'), 'utf-8'))
+    : {}
+const optionExplanationsByQid: Record<string, Record<string, string>> = Object.fromEntries(
+  Object.entries(optionExplanationsSidecar)
+    .filter(([, v]) => v?.optionExplanations && Object.keys(v.optionExplanations).length > 0)
+    .map(([qid, v]) => [qid, v.optionExplanations as Record<string, string>]),
+)
+
 // 簡解 (### Key author tips) restored by restore_jianjie_key.py live at the top of the
 // `explanation` string as `簡解：<key>\n\n<divider>\n\n<詳解>`. For image-tier / prose-tier
 // questions the renderer shows `explanationBlocks` and IGNORES the raw explanation string, so
@@ -377,6 +393,7 @@ function main(): void {
   let flaggedNoFigure = 0
   let tableImagesWired = 0
   let explFiguresWired = 0
+  let optionExplWired = 0
   function wireFigure<T extends MedexamQuestion>(q: T): T {
     // 詳解 table-image crops are additive to the explanation (image-crop tier).
     const tableImages = tableImagesByQid[q.id]
@@ -406,6 +423,12 @@ function main(): void {
       const texts =
         jianjie && !prose[0].startsWith(JIANJIE_SENTINEL) ? [jianjie, ...prose] : prose
       extra.explanationBlocks = texts.map((text) => ({ type: 'prose', text }))
+    }
+    // Per-option 簡答 (additive; only QA-passed entries are in the sidecar).
+    const optionExpl = optionExplanationsByQid[q.id]
+    if (optionExpl) {
+      extra.optionExplanations = optionExpl
+      optionExplWired += 1
     }
     if (FALSE_POSITIVE_HASIMAGE.has(q.id)) {
       return { ...q, explanation, hasImage: false, imagePath: null, ...extra }
@@ -582,6 +605,9 @@ function main(): void {
   )
   console.log(
     `explanation-figures: wired ${explFiguresWired} questions / copied ${explFiguresCopied} webp files / missing-asset ${explFiguresMissing}`,
+  )
+  console.log(
+    `option-explanations: merged ${optionExplWired} / without 簡答 ${outputQuestions.length - optionExplWired} / total ${outputQuestions.length}`,
   )
   if (explFiguresMissing > 0) {
     throw new Error(`explanation-figures: ${explFiguresMissing} manifest src(s) have no backing asset file`)
