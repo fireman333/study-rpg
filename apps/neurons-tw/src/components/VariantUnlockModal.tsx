@@ -183,7 +183,12 @@ export default function VariantUnlockModal(): JSX.Element {
 
 const overlayStyle: React.CSSProperties = {
   position: 'fixed',
-  inset: 0,
+  // Confine to the left of the docked 原始詳解 PDF panel (mirrors QuizModal/MockExamRunner)
+  // so this center-screen popup isn't hidden behind it. 0px when the panel is closed.
+  top: 0,
+  left: 0,
+  bottom: 0,
+  right: 'var(--pdf-panel-width, 0px)',
   background: 'rgba(0, 0, 0, 0.6)',
   display: 'flex',
   alignItems: 'center',
