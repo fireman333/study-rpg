@@ -23,6 +23,7 @@ import { QuizModal } from '../components/QuizModal'
 import { Explanation } from '../components/Explanation'
 import { LocalPdfButton } from '../components/LocalPdfButton'
 import { useLocalPdfAvailable } from '../components/useLocalPdfAvailable'
+import { SHOW_INLINE_EXPLANATION } from '../lib/feature-flags'
 import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
 import {
@@ -597,13 +598,15 @@ function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): 
       {q.explanation && (
         <>
           <LocalPdfButton questionId={q.id} />
-          <details style={explanationStyle} open={!pdfAvailable}>
-            <summary style={explanationSummaryStyle}>📖 詳解</summary>
-            <Explanation question={q} textStyle={explanationBodyStyle} />
-            {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
-              <p style={aiNoteStyle}>※ 本題詳解由 AI 生成，僅供參考。</p>
-            )}
-          </details>
+          {SHOW_INLINE_EXPLANATION && (
+            <details style={explanationStyle} open={!pdfAvailable}>
+              <summary style={explanationSummaryStyle}>📖 詳解</summary>
+              <Explanation question={q} textStyle={explanationBodyStyle} />
+              {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
+                <p style={aiNoteStyle}>※ 本題詳解由 AI 生成，僅供參考。</p>
+              )}
+            </details>
+          )}
         </>
       )}
     </li>
