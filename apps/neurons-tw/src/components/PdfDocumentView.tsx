@@ -295,6 +295,11 @@ const scrollStyle: CSSProperties = {
   minHeight: 0,
   overflow: 'auto',
   overflowAnchor: 'none',
+  // Keep PDF scroll inside this container (no chaining to the page behind the overlay) +
+  // momentum scroll on iOS. Secondary guard now that the body scroll-lock is gone (it bricked
+  // one-finger scroll on iOS Safari).
+  overscrollBehavior: 'contain',
+  WebkitOverflowScrolling: 'touch',
   background: '#e9dcc0',
   padding: '1rem 0',
 }
