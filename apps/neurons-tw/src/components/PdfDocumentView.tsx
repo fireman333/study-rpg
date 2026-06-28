@@ -40,7 +40,12 @@ const MAX_WINDOW = 16 // cap on simultaneously-mounted pages (bounds memory on l
 const PAGE_GAP = 8 // vertical flow gap between page slots (the slot's bottom margin, in px)
 const SETTLE_HOLDS = 3 // consecutive frames the landing must survive before releasing scroll control
 const SETTLE_MAX_FRAMES = 30 // give up re-asserting after ~0.5s (avoid pinning scroll forever)
-const MIN_ZOOM = 1 // 1 = fit-to-width (smallest useful; page already fills the surface)
+// Zoom range. 1.0 = fit-to-width (the 符合寬度 reset). The floor is BELOW 1 on purpose: when the
+// docked panel is dragged wide (up to 70% of the viewport) the fit-width page is huge, and on a
+// phone a layout-vs-visual-viewport mismatch can render fit-width wider than the screen — in both
+// cases the player needs to shrink the page back down without re-dragging the panel. A floor of 1
+// ("100% lock") made an over-sized page un-shrinkable; 0.5 gives a usable shrink range either way.
+const MIN_ZOOM = 0.5
 const MAX_ZOOM = 2.5 // dense exam pages stay readable up to ~2.5×
 const ZOOM_STEP = 0.25
 
