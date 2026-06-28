@@ -33,6 +33,26 @@
    * shell + full-screen modals stay full width; PdfPanelProvider sets it to the panel width
    * while open so those surfaces reflow into the remaining space. */
   --pdf-panel-width: 0px;
+}
+
+/* Mobile PDF viewer (add-neurons-pdf-drive-autofetch): below the docked breakpoint the panel is a
+ * full-screen overlay. The breakpoint lives in JS (PdfPanelProvider `narrow`) — this class is
+ * toggled by the host, so the cutoff is defined exactly once. The panel is only rendered while
+ * open, so this never covers a closed panel. height: 100vh first as a fallback before 100dvh
+ * (so the mobile URL bar doesn't clip the viewer); safe-area insets keep the close button clear
+ * of the notch / home indicator. */
+.pdf-panel--full {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pdf-panel--full .pdf-panel__handle {
+  display: none; /* no edge-drag resize on touch */
+}
+
+:root {
   /* Pixel "RPG chrome" font stacks — single source of truth (mirror the sibling
    * 二階 study-rpg-2nd token system). Components reference these, never a raw
    * 'Cubic 11' / 'VT323' literal. The app default body font is pixel (set in

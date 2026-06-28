@@ -6,6 +6,11 @@
  * closed) so the app shell + full-screen modals reflow beside the (non-modal) panel, and it
  * persists the player's chosen width. Keeping docking/width here (vs the renderer) keeps the
  * future Tauri reuse clean: platform code resolves a URL → openPdf renders + docks it.
+ *
+ * Responsive (add-neurons-pdf-drive-autofetch): below MOBILE_MQ the panel becomes a full-screen
+ * overlay instead of a docked side panel — so the reflow var stays 0 (content is covered, not
+ * crushed). `narrow` is the SINGLE breakpoint source of truth (a JS matchMedia flag); the host's
+ * CSS class + the reflow var both key off it, so the breakpoint is defined exactly once.
  */
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { releaseExplanationUrl } from '../platform'
@@ -13,6 +18,15 @@ import { releaseExplanationUrl } from '../platform'
 const WIDTH_KEY = 'neurons.pdfPanel.width.v1'
 const MIN_W = 360
 const DEFAULT_W = 520
+// Below this the docked side-by-side layout has no room → full-screen overlay (matches the
+// project's mobile cutoff). 767.98 so it never overlaps a 768px tablet width.
+const MOBILE_MQ = '(max-width: 767.98px)'
+
+function matchNarrow(): boolean {
+  return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    ? window.matchMedia(MOBILE_MQ).matches
+    : false
+}
 
 function maxW(): number {
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1200
@@ -44,6 +58,8 @@ interface PanelState {
 }
 interface PdfPanelCtx extends PanelState {
   width: number
+  /** True on narrow (phone) viewports → host renders a full-screen overlay, no content reflow. */
+  narrow: boolean
   openPdf: (s: { url: string; page: number; file: string }) => void
   closePdf: () => void
   setWidth: (w: number) => void
@@ -60,14 +76,26 @@ export function usePdfPanel(): PdfPanelCtx {
 export function PdfPanelProvider({ children }: { children: ReactNode }): JSX.Element {
   const [state, setState] = useState<PanelState>({ open: false, url: null, page: 1, file: '' })
   const [width, setWidthState] = useState<number>(() => (typeof window !== 'undefined' ? loadWidth() : DEFAULT_W))
+  const [narrow, setNarrow] = useState<boolean>(matchNarrow)
   const urlRef = useRef<string | null>(null)
   urlRef.current = state.url
 
-  // Keep the CSS variable in sync with open/width so other surfaces reflow.
+  // Track the mobile breakpoint (also fires on orientation change crossing it).
   useEffect(() => {
-    setVar(state.open ? width : 0)
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+    const mql = window.matchMedia(MOBILE_MQ)
+    const onChange = (): void => setNarrow(mql.matches)
+    onChange()
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+
+  // Reflow var: push content beside the panel only when DOCKED (desktop). On narrow it's a
+  // full-screen overlay → keep 0 so content/quiz/mock surfaces stay full-width (just covered).
+  useEffect(() => {
+    setVar(state.open && !narrow ? width : 0)
     return () => setVar(0)
-  }, [state.open, width])
+  }, [state.open, width, narrow])
 
   const openPdf = useCallback((s: { url: string; page: number; file: string }) => {
     setState((prev) => {
@@ -108,6 +136,6 @@ export function PdfPanelProvider({ children }: { children: ReactNode }): JSX.Ele
   }, [openPdf, closePdf, setWidth])
 
   return (
-    <Ctx.Provider value={{ ...state, width, openPdf, closePdf, setWidth }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ ...state, width, narrow, openPdf, closePdf, setWidth }}>{children}</Ctx.Provider>
   )
 }

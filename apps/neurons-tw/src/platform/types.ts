@@ -8,10 +8,16 @@
 
 /** One question's source-PDF location, baked by scripts/build-provenance-map.mjs. */
 export interface ProvenanceEntry {
-  /** Real on-disk PDF filename (verbatim from the manifest's `sourcePdf`). */
+  /** PDF filename — display/debug only; NOT the identity boundary (D4). */
   file: string
   /** 1-based page; min page when a question's figures span several pages. */
   page: number
+  /** Stable booklet identity (e.g. "104-1-醫學二"). Present once the builder resolves it. */
+  bookletKey?: string
+  /** Publisher Drive file id — the web runtime fetches the booklet by this. */
+  driveFileId?: string
+  /** Drive resourceKey for legacy 0B… files (adds the X-Goog-Drive-Resource-Keys header). */
+  resourceKey?: string
 }
 
 /** Shape of public/provenance/question-pdf-map.v1.json (lazy-fetched at runtime). */
@@ -48,9 +54,22 @@ export type OpenResult =
     }
   | {
       ok: false
-      reason: 'unsupported' | 'no-folder' | 'unmapped' | 'file-not-found' | 'permission-denied' | 'error'
+      reason:
+        // Web (Drive auto-fetch) failures:
+        | 'unmapped'
+        | 'offline'
+        | 'quota'
+        | 'not-found'
+        | 'config'
+        | 'error'
+        // Desktop (Tauri / FSA) failures, retained for that out-of-scope path:
+        | 'unsupported'
+        | 'no-folder'
+        | 'file-not-found'
+        | 'permission-denied'
       message?: string
-      /** On desktop 'file-not-found': the booklet needed + its official download link (guided download). */
+      /** The booklet involved (web: bookletKey; desktop: booklet id) — for the fallback message. */
       bookletId?: string
+      /** Official Drive link, surfaced as the non-blocking fallback when bytes can't be obtained. */
       driveUrl?: string
     }
