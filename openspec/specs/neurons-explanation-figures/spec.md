@@ -68,20 +68,6 @@ Recovered explanation figures SHALL be delivered as static asset **files** (web 
 - **WHEN** the built `questions.json` is produced
 - **THEN** it SHALL carry the figure `src` references (build-injected `explanationFigures`) but SHALL NOT embed figure image bytes; the source `questions.json` SHALL carry no `explanationFigures` field
 
-### Requirement: Inline figure render with no silent drop
-
-The shared explanation renderer (`Explanation.tsx`) SHALL render a question's recovered figures inline after the explanation text, SHALL show a loading affordance while a figure asset is fetching, and — if a referenced asset is missing or fails to load — SHALL fall back gracefully (existing flat-text explanation / visible placeholder) and MUST NOT silently drop a referenced figure.
-
-#### Scenario: Figure renders after the explanation text
-
-- **WHEN** a question with a recovered explanation figure is displayed
-- **THEN** the figure SHALL render inline after the explanation text
-
-#### Scenario: Missing asset falls back, never silently dropped
-
-- **WHEN** a manifest references a figure asset that cannot be loaded
-- **THEN** the renderer SHALL surface a placeholder / retain the flat-text explanation and SHALL NOT render nothing without indication
-
 ### Requirement: Multi-figure attribution verification
 
 For questions whose explanation has more than one candidate figure (the multi-figure subset), the attribution of each crop to its question SHALL be verified before the figure is shipped. The verification SHALL emit a structured per-crop record `{qid, asset, verdict: accept | reject | uncertain, reason}`; only `accept` crops SHALL ship, `uncertain` SHALL NOT ship, and the verifier (including any agent) SHALL NOT edit the manifest directly — it produces verdict records that a deterministic step applies. A crop found to depict a neighbouring question's explanation SHALL be set aside for the question it actually belongs to. For single-figure questions, the geometry gate alone is NOT sufficient evidence of correct attribution: the owner SHALL review a full debug-preview sheet covering EVERY pilot single-figure question (feasible at pilot scale), and any discovered mis-attribution SHALL trigger a fail-stop that escalates that booklet/decision-path to 100% review. A question whose page or figure cannot be located SHALL ship no figure and retain its flat-text explanation.

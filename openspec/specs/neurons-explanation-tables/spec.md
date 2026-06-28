@@ -6,29 +6,6 @@ How the neurons app renders a question's 詳解 when its original PDF table was 
 
 ## Requirements
 
-### Requirement: Explanations SHALL render structured blocks as real tables, with a flat-string fallback
-
-The neurons app SHALL render a question's 詳解 through one shared component used by all three
-surfaces that show it (`QuizModal`, `MockExamRunner`, and `QuestionBankPage` at `/bank`). When
-the question carries `explanationBlocks`, the component SHALL render them: a `prose` block as
-text (preserving line breaks), and a `table` block as a genuine HTML `<table>` (header row from
-`columns`, body from `rows`). When `explanationBlocks` is absent or empty, the component SHALL
-render the flat `explanation` string exactly as before (the fallback). Block order SHALL be
-preserved (prose before a table stays before it; prose after stays after).
-
-#### Scenario: A reconstructed question renders real tables
-
-- **GIVEN** a question whose `explanationBlocks` contains prose and table blocks
-- **WHEN** its 詳解 is shown on any of the three surfaces
-- **THEN** each table block SHALL render as an HTML `<table>` with the given columns and rows
-- **AND** the surrounding prose SHALL render in its original reading-order position
-
-#### Scenario: A non-reconstructed question is unchanged
-
-- **GIVEN** a question with no `explanationBlocks`
-- **WHEN** its 詳解 is shown
-- **THEN** the flat `explanation` string SHALL render exactly as before this change
-
 ### Requirement: Reconstructed tables SHALL be horizontally scrollable on narrow screens
 
 A rendered table block SHALL sit in a horizontally scrollable container (`overflow-x: auto`) so
