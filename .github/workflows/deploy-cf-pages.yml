@@ -69,6 +69,12 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_CLOUD_SYNC_ENABLED: 'true'
           VITE_SYNC_WORKER_URL: https://api.med-study-rpg.com
+          # 「看原始詳解 PDF」 browser-direct Google Drive auto-fetch
+          # (add-neurons-pdf-drive-autofetch). Referrer-restricted NON-secret key;
+          # MUST be baked at build time or the prod bundle 403s "key missing". The
+          # repo secret VITE_GDRIVE_API_KEY must exist or this bakes empty (gitignored
+          # .env.local only covers a local `pnpm deploy:cf`, NOT this CI build).
+          VITE_GDRIVE_API_KEY: ${{ secrets.VITE_GDRIVE_API_KEY }}
           # Scaffold has 免疫學 subject with zero questions assigned —
           # content-neurons-tw build script normally errors on orphan subjects
           # but supports the same MEDEXAM_ALLOW_SKIPS=1 escape as
