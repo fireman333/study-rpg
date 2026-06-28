@@ -24,6 +24,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync } from
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
+import { resolveBooklet } from './booklet-identity.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = resolve(__dirname, '..', '..', '..', 'packages/content-neurons-tw')
@@ -32,6 +33,7 @@ const TEXTMAP = resolve(PKG, 'provenance/question-page-map.json')
 const RESIDUALMAP = resolve(PKG, 'provenance/question-page-map-residual.json')
 const BASECORR = resolve(PKG, 'provenance/base-corrections.json')
 const OVERRIDES = resolve(PKG, 'provenance/verified-overrides.json')
+const LINKS = resolve(PKG, 'provenance/booklet-drive-links.json')
 const OUT_DIR = resolve(__dirname, '..', 'public/provenance')
 const OUT_FILE = resolve(OUT_DIR, 'question-pdf-map.v1.json')
 
@@ -112,6 +114,36 @@ if (existsSync(OVERRIDES)) {
   }
 }
 
+// Booklet identity: resolve each entry's filename → stable bookletKey + Drive file id, so the
+// web runtime fetches by Drive ID (the filename stays display/debug only). The links file feeds
+// the sourceHash too, so a changed Drive id retraces the map. (add-neurons-pdf-drive-autofetch D4)
+const links = {}
+if (existsSync(LINKS)) {
+  const rawLinks = readFileSync(LINKS, 'utf8')
+  hash.update(rawLinks)
+  Object.assign(links, JSON.parse(rawLinks))
+} else {
+  console.warn('[provenance-map] WARN missing booklet-drive-links.json — entries will carry no Drive id')
+}
+
+let resolvedIds = 0
+const unresolvedFiles = new Set()
+for (const ent of Object.values(entries)) {
+  const b = resolveBooklet(ent.file, links)
+  if (!b) {
+    unresolvedFiles.add(ent.file)
+    continue
+  }
+  ent.bookletKey = b.bookletKey
+  ent.driveFileId = b.driveFileId
+  if (b.resourceKey) ent.resourceKey = b.resourceKey
+  resolvedIds += 1
+}
+if (unresolvedFiles.size) {
+  console.warn(`[provenance-map] WARN ${unresolvedFiles.size} filename(s) did not resolve to a Drive booklet id:`)
+  for (const f of [...unresolvedFiles].sort()) console.warn(`  - ${f}`)
+}
+
 const sourceHash = hash.digest('hex').slice(0, 16)
 const mapped = Object.keys(entries).length
 // Stable key order + 2-space indent → deterministic bytes across builds.
@@ -134,5 +166,6 @@ for (const name of ['fingerprint-manifest.json', 'booklet-drive-links.json']) {
 
 console.log(
   `[provenance-map] mapped ${mapped} (figure ${figures} + text ${text} + residual ${residual} + baseCorr ${baseCorr} + override ${overrides}; ` +
-    `multi-page→min ${multiPage}; src ${sourceHash}) → public/provenance/question-pdf-map.v1.json`,
+    `multi-page→min ${multiPage}; driveId ${resolvedIds}/${mapped} resolved, ${unresolvedFiles.size} unresolved file(s); ` +
+    `src ${sourceHash}) → public/provenance/question-pdf-map.v1.json`,
 )

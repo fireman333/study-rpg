@@ -1,15 +1,19 @@
 /**
- * Platform adapter for local-PDF provenance (add-neurons-local-pdf-provenance).
+ * Platform adapter for source-PDF provenance.
  *
- * Public surface: isDesktop / getStatus / grantFolder / openExplanation / hasProvenance.
- * Phase 1 implements the web (File System Access) path; Phase 2 (gated) swaps a
- * Tauri/Rust backend behind this same surface via VITE_TARGET. Nothing here throws
- * into the UI — failures come back as OpenResult / PlatformStatus so the caller
- * degrades to the inline explanation.
+ * WEB (add-neurons-pdf-drive-autofetch): the booklet bytes are fetched on demand straight from the
+ * publisher's official Google Drive (Drive REST API, referrer-restricted public key) and cached in a
+ * device-local byte-store (Cache API v1). No folder grant, no manual download, no File System Access —
+ * so it works on desktop AND mobile / Safari. The app's own infra is never in the byte path.
+ *
+ * DESKTOP (Tauri) is delegated to tauriBackend behind this same surface via VITE_TARGET; it is being
+ * removed in a separate follow-up change. Nothing here throws into the UI — failures come back as
+ * OpenResult / PlatformStatus so the caller degrades to the inline explanation + the official link.
  */
-import type { OpenResult, PlatformStatus } from './types'
-import { loadProvenanceMap, lookupEntry, findByNfcName } from './provenance'
-import { loadFolderHandle, saveFolderHandle } from './folderStore'
+import type { OpenResult, PlatformStatus, ProvenanceEntry } from './types'
+import { loadProvenanceMap, lookupEntry } from './provenance'
+import { byteStore as defaultByteStore, type ByteStore } from './byteStore'
+import { fetchBooklet, officialDriveUrl } from './driveFetch'
 
 export type { OpenResult, PlatformStatus, ProvenanceEntry } from './types'
 
@@ -22,93 +26,96 @@ export function isDesktop(): boolean {
   return DESKTOP
 }
 
-/** Whether this platform can open a local source PDF at all (desktop, or web with FSA). */
+/**
+ * Whether this platform can open a source PDF at all. Web can always fetch + render (the action
+ * is gated only on whether the question is mapped), so this is true on every evergreen browser
+ * incl. mobile / Safari — NOT gated on the File System Access API.
+ */
 export function isLocalPdfSupported(): boolean {
-  if (DESKTOP) return true
-  return typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function'
+  return true
 }
 
-async function ensurePermission(handle: FileSystemDirectoryHandle): Promise<boolean> {
-  const opts = { mode: 'read' as const }
-  if ((await handle.queryPermission?.(opts)) === 'granted') return true
-  return (await handle.requestPermission?.(opts)) === 'granted'
-}
-
-/** Current capability/grant state — never prompts (safe to call during render effects). */
+/** Current capability/grant state. Web needs no grant → always 'ready'; desktop delegates. */
 export async function getStatus(): Promise<PlatformStatus> {
   if (DESKTOP) return (await import('./tauriBackend')).getStatus()
-  if (!isLocalPdfSupported()) return 'unsupported'
-  const handle = await loadFolderHandle()
-  if (!handle) return 'no-folder'
-  const p = await handle.queryPermission?.({ mode: 'read' })
-  return p === 'granted' ? 'ready' : 'needs-permission'
-}
-
-/** Prompt the player to grant a read-only folder; persists the handle on success. */
-export async function grantFolder(): Promise<PlatformStatus> {
-  if (DESKTOP) return (await import('./tauriBackend')).grantFolder()
-  if (!isLocalPdfSupported()) return 'unsupported'
-  let handle: FileSystemDirectoryHandle
-  try {
-    handle = await window.showDirectoryPicker!({ mode: 'read' })
-  } catch {
-    // User cancelled the picker — leave state unchanged.
-    return getStatus()
-  }
-  if (!(await ensurePermission(handle))) return 'needs-permission'
-  await saveFolderHandle(handle)
   return 'ready'
 }
 
-/** True if this question has a source-PDF mapping (gates whether to show the action). */
+/** Desktop folder grant; web needs none (auto-fetch), so this is a no-op returning 'ready'. */
+export async function grantFolder(): Promise<PlatformStatus> {
+  if (DESKTOP) return (await import('./tauriBackend')).grantFolder()
+  return 'ready'
+}
+
+/** True if this question has a usable source mapping (gates whether to show the action). */
 export async function hasProvenance(questionId: string): Promise<boolean> {
-  return !!lookupEntry(await loadProvenanceMap(), questionId)
+  const entry = lookupEntry(await loadProvenanceMap(), questionId)
+  if (!entry) return false
+  // Desktop resolves by content fingerprint; web needs a Drive file id to fetch.
+  return DESKTOP ? true : !!entry.driveFileId
+}
+
+/** Injectable seams so the web fetch+cache path is unit-testable (all default to production). */
+export interface WebOpenDeps {
+  byteStore?: ByteStore
+  fetchImpl?: typeof fetch
+  apiKey?: string
+  isOnline?: () => boolean
+  createUrl?: (blob: Blob) => string
 }
 
 /**
- * Open this question's source PDF at its mapped page. Triggers a folder grant if
- * none yet (must be called from a user gesture). Returns a discriminated result;
- * on success the caller renders `url` at `page` in the in-app PDF viewer and revokes
- * the (blob) URL on close. Failures come back as reasons the caller surfaces as a
- * non-blocking message (No Silent Errors) — never thrown into the UI.
+ * Open this question's source PDF at its mapped page.
  *
- * This is the platform-specific *resolution* half; the viewer that renders the result
- * is platform-agnostic, so a future Tauri backend fills this same function to return a
- * host URL for the same `{ url, page, file }` contract and reuses the viewer unchanged.
+ * Web: resolve the booklet's Drive id from the map → serve from the byte-cache if present, else
+ * fetch it from Drive and cache it → return a blob URL for the docked viewer at `page`. On any
+ * fetch failure return a non-blocking reason + the official Drive link as fallback (No Silent
+ * Errors); the inline 詳解 always remains. Desktop delegates to the Tauri backend.
  */
-export async function openExplanation(questionId: string): Promise<OpenResult> {
+export async function openExplanation(questionId: string, deps: WebOpenDeps = {}): Promise<OpenResult> {
   if (DESKTOP) return (await import('./tauriBackend')).openExplanation(questionId)
-  if (!isLocalPdfSupported()) return { ok: false, reason: 'unsupported' }
 
   const entry = lookupEntry(await loadProvenanceMap(), questionId)
   if (!entry) return { ok: false, reason: 'unmapped' }
+  if (!entry.driveFileId || !entry.bookletKey) return { ok: false, reason: 'unmapped' }
+  return openWebBooklet(entry, deps)
+}
 
-  let handle = await loadFolderHandle()
-  if (!handle) {
-    if ((await grantFolder()) !== 'ready') return { ok: false, reason: 'no-folder' }
-    handle = await loadFolderHandle()
-    if (!handle) return { ok: false, reason: 'no-folder' }
-  }
-  if (!(await ensurePermission(handle))) return { ok: false, reason: 'permission-denied' }
+async function openWebBooklet(entry: ProvenanceEntry, deps: WebOpenDeps): Promise<OpenResult> {
+  const store = deps.byteStore ?? defaultByteStore
+  const createUrl = deps.createUrl ?? ((b: Blob) => URL.createObjectURL(b))
+  const bookletKey = entry.bookletKey!
+  const driveFileId = entry.driveFileId!
+  const driveUrl = officialDriveUrl(driveFileId, entry.resourceKey)
 
+  // Cache hit → serve from the device cache (no network).
   try {
-    // Enumerate actual on-disk names, NFC-match the target (D9: macOS NFD vs map NFC).
-    const names: string[] = []
-    for await (const [name, child] of handle.entries()) {
-      if (child.kind === 'file' && name.toLowerCase().endsWith('.pdf')) names.push(name)
+    const cached = await store.get(bookletKey)
+    if (cached) {
+      const blob = await cached.blob()
+      return { ok: true, page: entry.page, url: createUrl(blob), file: entry.file }
     }
-    const match = findByNfcName(names, entry.file)
-    if (!match) {
-      return { ok: false, reason: 'file-not-found', message: `在資料夾中找不到「${entry.file}」` }
-    }
-    const fileHandle = await handle.getFileHandle(match)
-    const file = await fileHandle.getFile()
-    // Resolve the source for the in-app viewer; the caller renders + revokes it.
-    const url = URL.createObjectURL(file)
-    return { ok: true, page: entry.page, url, file: match }
-  } catch (err) {
-    return { ok: false, reason: 'error', message: err instanceof Error ? err.message : String(err) }
+  } catch {
+    // Cache read failure is non-fatal — fall through to a fresh fetch.
   }
+
+  const res = await fetchBooklet(driveFileId, entry.resourceKey, {
+    fetchImpl: deps.fetchImpl,
+    apiKey: deps.apiKey,
+    isOnline: deps.isOnline,
+  })
+  if (!res.ok) {
+    return { ok: false, reason: res.reason, message: res.message, bookletId: bookletKey, driveUrl }
+  }
+
+  const blob = await res.response.blob()
+  // Cache for next time (best-effort; a clean Response avoids Cache.put Vary/206 pitfalls).
+  try {
+    await store.put(bookletKey, new Response(blob, { headers: { 'content-type': 'application/pdf' } }))
+  } catch {
+    // Cache write failure is non-fatal — the open still succeeds.
+  }
+  return { ok: true, page: entry.page, url: createUrl(blob), file: entry.file }
 }
 
 /** Revoke a resolved source URL when the viewer closes (no-op for non-blob Tauri URLs). */
@@ -120,4 +127,21 @@ export function releaseExplanationUrl(url: string): void {
 export async function openExternalUrl(url: string): Promise<void> {
   if (DESKTOP) return (await import('./tauriBackend')).openExternalUrl(url)
   window.open(url, '_blank', 'noopener,noreferrer')
+}
+
+/**
+ * One-time cleanup of the now-dead File System Access folder-handle store (the web feature no longer
+ * grants a folder). Guarded by a localStorage flag so it runs at most once per device. Best-effort —
+ * any failure is ignored (the store going unused is already harmless).
+ */
+export function cleanupLegacyPdfStorage(): void {
+  if (DESKTOP || typeof indexedDB === 'undefined') return
+  const FLAG = 'neurons.pdf.legacyFolderStoreCleaned.v1'
+  try {
+    if (localStorage.getItem(FLAG) === '1') return
+    indexedDB.deleteDatabase('neurons-local-pdf')
+    localStorage.setItem(FLAG, '1')
+  } catch {
+    /* ignore — cleanup is opportunistic */
+  }
 }

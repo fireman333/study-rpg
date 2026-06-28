@@ -10,6 +10,9 @@ import {
   lazy,
   useCallback,
   useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
@@ -23,7 +26,12 @@ const PdfDocumentView = lazy(() =>
 )
 
 export function PdfPanelHost(): JSX.Element | null {
-  const { open, url, page, file, width, setWidth, closePdf } = usePdfPanel()
+  const { open, url, page, file, width, narrow, setWidth, closePdf } = usePdfPanel()
+  const bodyRef = useRef<HTMLDivElement | null>(null)
+  // Width fed to the renderer = the panel BODY's measured width (docked panel width on desktop,
+  // viewport width on the narrow overlay), so pages fill the surface in both modes and re-fit on
+  // rotation / resize. Debounced so a drag / URL-bar wobble doesn't re-rasterize on every frame.
+  const [renderWidth, setRenderWidth] = useState(width)
 
   useEffect(() => {
     if (!open) return
@@ -33,6 +41,38 @@ export function PdfPanelHost(): JSX.Element | null {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, closePdf])
+
+  // Lock background scroll while the full-screen overlay is up (narrow only); restore on close /
+  // when it reverts to the docked desktop layout (where content beside it stays scrollable).
+  useEffect(() => {
+    if (!narrow) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [narrow])
+
+  // Measure the body container → renderWidth (single source; covers desktop drag + narrow + rotate).
+  useLayoutEffect(() => {
+    const el = bodyRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const measure = (): void => {
+      const w = Math.round(el.getBoundingClientRect().width)
+      if (w > 0) setRenderWidth(w)
+    }
+    measure()
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const ro = new ResizeObserver(() => {
+      clearTimeout(timer)
+      timer = setTimeout(measure, 150)
+    })
+    ro.observe(el)
+    return () => {
+      clearTimeout(timer)
+      ro.disconnect()
+    }
+  }, [])
 
   const onDragStart = useCallback(
     (e: ReactPointerEvent) => {
@@ -56,8 +96,17 @@ export function PdfPanelHost(): JSX.Element | null {
   if (!open || !url) return null
 
   return createPortal(
-    <aside style={panelStyle} role="complementary" aria-label={`原始詳解 PDF：${file}`}>
-      <div style={handleStyle} onPointerDown={onDragStart} title="拖曳調整寬度" />
+    // Docked panel on desktop (width/height inline, from the reflow var); on narrow the
+    // `.pdf-panel--full` class makes it a 100vw × 100dvh overlay (so the inline width/height are
+    // omitted to avoid an !important fight). The panel is never rendered while closed, so the
+    // full-screen class can never cover a closed panel.
+    <aside
+      className={narrow ? 'pdf-panel pdf-panel--full' : 'pdf-panel'}
+      style={narrow ? panelBaseStyle : panelDockedStyle}
+      role="complementary"
+      aria-label={`原始詳解 PDF：${file}`}
+    >
+      <div className="pdf-panel__handle" style={handleStyle} onPointerDown={onDragStart} title="拖曳調整寬度" />
       <header style={headerStyle}>
         <span style={titleStyle} title={file}>
           📄 {file}
@@ -66,9 +115,9 @@ export function PdfPanelHost(): JSX.Element | null {
           ✕
         </button>
       </header>
-      <div style={bodyStyle}>
+      <div ref={bodyRef} style={bodyStyle}>
         <Suspense fallback={<div style={loadingStyle}>載入檢視器…</div>}>
-          <PdfDocumentView url={url} initialPage={page} width={width} />
+          <PdfDocumentView url={url} initialPage={page} width={renderWidth} />
         </Suspense>
       </div>
     </aside>,
@@ -76,18 +125,23 @@ export function PdfPanelHost(): JSX.Element | null {
   )
 }
 
-const panelStyle: CSSProperties = {
+const panelBaseStyle: CSSProperties = {
   position: 'fixed',
   top: 0,
   right: 0,
-  height: '100vh',
-  width: 'var(--pdf-panel-width)',
   background: '#f6efe0',
   borderLeft: '2px solid #c9ad7f',
   boxShadow: '-6px 0 24px rgba(0,0,0,0.25)',
   display: 'flex',
   flexDirection: 'column',
   zIndex: 9000,
+}
+// Desktop: docked width from the reflow var, full viewport height. Narrow omits these so the
+// `.pdf-panel--full` CSS rule (100vw × 100dvh) wins without needing !important.
+const panelDockedStyle: CSSProperties = {
+  ...panelBaseStyle,
+  height: '100vh',
+  width: 'var(--pdf-panel-width)',
 }
 const handleStyle: CSSProperties = {
   position: 'absolute',

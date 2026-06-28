@@ -25,7 +25,7 @@ import { CustomTooltipHost } from './components/CustomTooltipHost'
 import HelpMenu from './components/HelpMenu'
 import { PdfPanelProvider } from './components/PdfPanelProvider'
 import { PdfPanelHost } from './components/PdfPanelHost'
-import { PdfOnboardingBanner } from './components/PdfOnboardingBanner'
+import { cleanupLegacyPdfStorage } from './platform'
 import { AuthProvider } from './lib/auth/AuthContext'
 import { AuthGate } from './components/AuthGate'
 import { SyncProvider } from './lib/sync/SyncProvider'
@@ -42,6 +42,8 @@ export default function App(): JSX.Element {
   useEffect(() => {
     // Capture runtime errors early so bug reports can attach the recent ring.
     installConsoleErrorCapture()
+    // Drop the dead FSA folder-handle store (web now auto-fetches from Drive) — once per device.
+    cleanupLegacyPdfStorage()
     const root = document.documentElement
     for (const [k, v] of Object.entries(THEME_PIXEL_NEURONS.cssVars)) {
       root.style.setProperty(k, v)
@@ -87,7 +89,6 @@ export default function App(): JSX.Element {
         <PdfPanelHost />
         <div style={viewportStyle}>
         <main style={pageStyle}>
-          <PdfOnboardingBanner />
           <header style={topBarStyle}>
             <h1 style={appTitleStyle}>神經元 RPG · LTP</h1>
             <nav className="neurons-nav">

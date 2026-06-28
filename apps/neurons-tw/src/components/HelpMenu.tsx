@@ -23,8 +23,7 @@ import { getExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-
 import { requestReplayGuided, onReplayGuided } from '../lib/services/onboarding'
 import { useAuth } from '../lib/auth/AuthContext'
 import { resetNeuronsAccountData } from '../lib/services/account-reset'
-import { isDesktop } from '../platform'
-import { BookletDownloadList } from './BookletDownloadList'
+import { OfflineAllPdfControl } from './OfflineAllPdfControl'
 
 interface Section {
   id: string
@@ -282,23 +281,17 @@ function GuidedReplayControl(): JSX.Element {
   )
 }
 
-/** Body of the「原始詳解 PDF」help section — desktop shows the official download list. */
+/** Body of the「原始詳解 PDF」help section — web auto-fetches each booklet from the official Drive. */
 function SourcePdfHelpBody(): JSX.Element {
-  if (!isDesktop()) {
-    return (
-      <p>
-        在支援的桌面 / Chromium 環境，答題詳解下方會出現「📄 看原始詳解 PDF」，開啟你本機的陽明國考詳解 PDF
-        並跳到該題所在頁。本 App 不提供 PDF、只連到官方來源（陽明國考考古題小組）。
-      </p>
-    )
-  }
   return (
     <>
       <p>
-        桌面版用「內容比對」認出你資料夾裡的 PDF（不靠檔名），所以從官方下載後直接放進你授權的資料夾即可，
-        檔名取什麼都行。需要先授權一個唯讀資料夾（在題目詳解處第一次點「看原始詳解 PDF」時會請你選）。
+        答題詳解下方會出現「📄 看原始詳解 PDF」，會自動從陽明官方 Google Drive 載入該題所在頁，
+        手機 / Safari 也能用 —— 不用下載、不用授權資料夾。第一次開某份會稍等載入，之後就會直接從本機快取開啟。
+        本 App 不提供 PDF、只連到官方來源（陽明國考考古題小組）。
       </p>
-      <BookletDownloadList />
+      <p>想離線也能看？可一次把全部詳解下載到本機：</p>
+      <OfflineAllPdfControl />
     </>
   )
 }
