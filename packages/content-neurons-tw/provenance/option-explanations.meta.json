@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-06-28T14:45:27.109Z",
+  "model": "claude-haiku-4-5",
+  "promptVersion": "full-v1",
+  "total": 4588,
+  "shipped": 4508,
+  "manualReview": 80,
+  "breakdown": {
+    "notGenerated": 0,
+    "deterministicFail": 26,
+    "qaMajorFail": 54,
+    "qaMinorFlagged": 9
+  },
+  "riskyTotal": 604,
+  "qaVerdicts": 598
+}

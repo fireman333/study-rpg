@@ -96,27 +96,6 @@ faithful to the source (no invented or paraphrased content).
   original PDF (e.g. fixing an OCR garble such as `SOz`→`SO₂` or `乙烯膽鹼`→`乙醯膽鹼`); no content SHALL be
   invented, paraphrased, or re-added as machine-typed table text
 
-### Requirement: Inline image-table rendering
-
-The shared explanation renderer SHALL display each attached table image inline, lazy-loaded, inside a
-horizontally scrollable framed container with a caption (the table's source title, defaulting to
-「原始詳解表格」) and descriptive alternative text. Rendering image tables SHALL NOT alter how text-table
-reconstructions or plain prose explanations are rendered.
-
-#### Scenario: Image table renders with frame, caption, and lazy loading
-
-- **WHEN** a question with attached table image(s) is shown in any explanation surface (QuizModal,
-  MockExamRunner, QuestionBankPage)
-- **THEN** each image SHALL render lazily inside an `overflow-x:auto` framed container with a caption and
-  descriptive alt text, without causing horizontal page overflow on a narrow screen
-- **AND** questions without table images SHALL render exactly as before (text-table blocks or flat prose)
-
-#### Scenario: Moderate quality and file size
-
-- **WHEN** a table image asset is produced for shipping
-- **THEN** it SHALL be encoded in a web format chosen for legible CJK text at small size (WebP), and a typical
-  single-table crop SHALL be on the order of tens of kilobytes
-
 ### Requirement: Block-rendered questions SHALL surface a restored 簡解 above the clean prose
 
 Block-rendered questions (those that emit `explanationBlocks` — the image-crop tier and the text-recover tier) SHALL surface a restored 簡解 (### Key), when present at the top of the question's `explanation` string, as the first prose block so the block renderer does not hide it. The `explanation` string remains the single source of the 簡解 and `prose.json` stays clean-詳解-only (no 簡解 duplication).

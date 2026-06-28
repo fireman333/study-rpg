@@ -23,7 +23,6 @@ import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { Explanation } from './Explanation'
 import { LocalPdfButton } from './LocalPdfButton'
-import { useLocalPdfAvailable } from './useLocalPdfAvailable'
 import { SHOW_INLINE_EXPLANATION } from '../lib/feature-flags'
 import { EmojiIcon } from './EmojiIcon'
 import SquadCelebration from './SquadCelebration'
@@ -297,8 +296,6 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   }, [onClose, onComplete, sessionPool.length, practice])
 
   const q: Question | undefined = sessionPool[idx]
-  // When the local-PDF action is available, default the inline 詳解 collapsed (PDF is richer).
-  const pdfAvailable = useLocalPdfAvailable(q?.id ?? '')
   const exhausted = idx >= sessionPool.length
   // Featured correct-reaction upgrades to the slot-5 傳奇 showpiece when owned.
   const ownsLegendary = useOwnsLegendarySlot(q?.subject)
@@ -727,12 +724,12 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
               {q.explanation && (
                 <>
                   <LocalPdfButton questionId={q.id} />
-                  {SHOW_INLINE_EXPLANATION && (
-                    <details style={explanationStyle} open={!pdfAvailable}>
-                      <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 詳解</summary>
+                  {SHOW_INLINE_EXPLANATION && q.optionExplanations && (
+                    <details style={explanationStyle} open>
+                      <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 簡答</summary>
                       <Explanation question={q} textStyle={explanationBodyStyle} />
                       {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
-                        <p style={aiNoteStyle}>🤖 此詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
+                        <p style={aiNoteStyle}>🤖 此題原始詳解由 AI 生成，未經陽明國考小組審定，僅供參考</p>
                       )}
                     </details>
                   )}
