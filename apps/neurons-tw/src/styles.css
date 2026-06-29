@@ -147,7 +147,7 @@ body:has(.modal-backdrop) {
  * only sibling DockHeader / chip-rail opacity+translateY one-shot fades animate.
  *
  * DESKTOP (≥768px): non-detail (overview) = STACKED single column mirroring mobile — the global maze
- * full-width ABOVE the family-card grid, below the year-filter chips (stack-neurons-homepage-maze-desktop;
+ * full-width ABOVE the year-filter chips + family-card grid (stack-neurons-homepage-maze-desktop;
  * no side column, no sticky panel). Detail mode (`is-detail`, == a family is selected) = FULL-WIDTH
  * single column — a DockHeader (the enlarged selected card) above the maze, the card grid `display:none`
  * (stays MOUNTED so its liveQuery chip counts stay warm), and a single-row FamilyChipRail below for
@@ -232,7 +232,7 @@ body:has(.modal-backdrop) {
 
 @media (min-width: 768px) {
   /* Non-detail (overview) = STACKED single column mirroring mobile (stack-neurons-homepage-maze-desktop):
-   * the GLOBAL maze renders full-width ABOVE the family-card grid and BELOW the year-filter chips, in
+   * the GLOBAL maze renders full-width ABOVE the year-filter chips + family-card grid, in
    * plain block flow (DOM order is detail-first — no grid placement, no sticky side column). The stage
    * drops its 1:1 square for a wide viewport-bounded band — a SNAP change (no transition; canvas
    * invariant above). Collapsed → same block flow (thin teaser on top, cards full width). */

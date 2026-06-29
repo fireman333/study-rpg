@@ -20,9 +20,7 @@ import {
 import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { QuizModal } from '../components/QuizModal'
-import { Explanation } from '../components/Explanation'
-import { LocalPdfButton } from '../components/LocalPdfButton'
-import { SHOW_INLINE_EXPLANATION } from '../lib/feature-flags'
+import { QuestionReviewCard } from '../components/QuestionReviewCard'
 import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
 import {
@@ -567,8 +565,11 @@ function ChipGroup({
 function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): JSX.Element {
   const year = qYear(q)
   const session = qSession(q)
-  return (
-    <li style={entryStyle}>
+  // 題庫-specific chrome (題號 + 🐞 回報 + 年/次/科 tags) is the header; the FULL read-only
+  // question body (承上題 + stem + figure + options + 正解 + 看原始詳解 PDF + 簡答) is the shared
+  // <QuestionReviewCard>, identical to the 收藏 review surface.
+  const header = (
+    <>
       <div style={entryHeadStyle}>
         <span style={entryIdStyle}>{q.id}</span>
         <button type="button" style={reportBtnStyle} onClick={onReport} aria-label="回報這題" title="回報這題">
@@ -580,32 +581,11 @@ function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): 
         {session != null && <span style={tagStyle}>{sessionLabel(session)}</span>}
         <span style={tagStyle}>{q.subject}</span>
       </div>
-      <p style={stemStyle}>{q.stem}</p>
-      <ul style={optionsStyle}>
-        {Object.entries(q.options).map(([key, text]) => (
-          <li key={key} style={optionItemStyle}>
-            <span style={optionKeyStyle}>({key})</span> {text}
-          </li>
-        ))}
-      </ul>
-      <p style={answerStyle}>
-        <strong>正解：</strong>
-        {(q as { disputed?: boolean }).disputed ? '⚖ 送分題（考選部判定全部給分）' : `(${q.answer})`}
-      </p>
-      {q.explanation && (
-        <>
-          <LocalPdfButton questionId={q.id} />
-          {SHOW_INLINE_EXPLANATION && q.optionExplanations && (
-            <details style={explanationStyle} open>
-              <summary style={explanationSummaryStyle}>📖 簡答</summary>
-              <Explanation question={q} textStyle={explanationBodyStyle} />
-              {(q as { explanationSource?: string }).explanationSource === 'ai-generated' && (
-                <p style={aiNoteStyle}>※ 本題原始詳解由 AI 生成，僅供參考。</p>
-              )}
-            </details>
-          )}
-        </>
-      )}
+    </>
+  )
+  return (
+    <li style={entryStyle}>
+      <QuestionReviewCard question={q} header={header} showFigure />
     </li>
   )
 }
@@ -890,17 +870,9 @@ const tagStyle: React.CSSProperties = {
   borderRadius: '999px',
   padding: '0.05rem 0.5rem',
 }
-// Exam content (stem / option text / answer / 詳解 body / AI note) — legible, never
-// pixel (opt out of the global pixel default). Filter chips + count stay pixel chrome.
-const stemStyle: React.CSSProperties = { fontSize: '0.95rem', color: '#2a2118', lineHeight: 1.6, margin: '0.4rem 0', fontFamily: 'var(--font-legible)', overflowWrap: 'anywhere' }
-const optionsStyle: React.CSSProperties = { listStyle: 'none', padding: 0, margin: '0.3rem 0', display: 'flex', flexDirection: 'column', gap: '0.25rem' }
-const optionItemStyle: React.CSSProperties = { fontSize: '0.9rem', color: '#3a2a1a', lineHeight: 1.5, fontFamily: 'var(--font-legible)', overflowWrap: 'anywhere' }
-const optionKeyStyle: React.CSSProperties = { fontWeight: 700, color: '#8c6d4a' }
-const answerStyle: React.CSSProperties = { fontSize: '0.9rem', color: '#4d8c4d', fontWeight: 600, margin: '0.5rem 0 0.3rem', fontFamily: 'var(--font-legible)' }
-const explanationStyle: React.CSSProperties = { marginTop: '0.4rem', background: '#f4ecd8', border: '1px solid #c9ad7f', borderRadius: '4px', padding: '0.4rem 0.6rem' }
-const explanationSummaryStyle: React.CSSProperties = { fontWeight: 700, color: '#8c6d4a', cursor: 'pointer', fontSize: '0.86rem' }
-const explanationBodyStyle: React.CSSProperties = { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontSize: '0.86rem', color: '#3a2a1a', lineHeight: 1.65, marginTop: '0.4rem', fontFamily: 'var(--font-legible)' }
-const aiNoteStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#a07a3a', marginTop: '0.4rem', fontStyle: 'italic', fontFamily: 'var(--font-legible)' }
+// Exam content (stem / option text / answer / 簡答 body) styles now live in the shared
+// <QuestionReviewCard> (read-only question body). 題庫-specific chrome (tags / pager / sheet)
+// stays here.
 const pagerStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', margin: '1rem 0' }
 const pagerBtnStyle: React.CSSProperties = {
   padding: '0.25rem 0.8rem',
