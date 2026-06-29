@@ -114,15 +114,10 @@ export function FamilyPicker({
         </span>
       </header>
 
-      {/* Exam-year filter scopes the per-family quiz pool (relocated here from the
-          old CTA toolbar by redesign-neurons-homepage-cta; reads global
-          quiz.yearFilter meta, no props needed). */}
-      <YearFilterBar />
-
       {/* Master-detail INSIDE this box (reposition-neurons-maze-master-detail → C′ desktop / A2 mobile;
           overview stacking per stack-neurons-homepage-maze-desktop).
           OVERVIEW (no family selected, all viewports): block flow — the GLOBAL maze full-width ABOVE the
-          card grid, below the YearFilterBar chips (desktop mirrors the mobile stacking; no side column).
+          year-filter chips + card grid (desktop mirrors the mobile stacking; no side column).
           DESKTOP detail mode (is-detail): the detail region expands FULL-WIDTH with a DockHeader (the
           enlarged selected card) above the ONE maze, the card grid is display:none (stays MOUNTED so
           its liveQuery chips stay warm), and a FamilyChipRail renders below for one-tap family switching.
@@ -146,6 +141,12 @@ export function FamilyPicker({
             {mazeSlot}
           </div>
         )}
+
+        {/* Exam-year filter — below the brain map, above the 醫學一 card grid (owner request).
+            Scopes the per-family quiz pool; reads global quiz.yearFilter meta, no props needed
+            (relocated from above the maze by redesign-neurons-homepage-cta). */}
+        <YearFilterBar />
+
         <div className="neurons-md__master">
           {groupSubjectsByPaper(pack.subjects).map((group) => (
             <div key={group.id} style={paperGroupStyle}>

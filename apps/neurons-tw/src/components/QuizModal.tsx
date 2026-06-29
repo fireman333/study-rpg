@@ -624,6 +624,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         )}
 
         <div style={bodyStyle} ref={scrollContainerRef}>
+          <p style={questionIdTopStyle}>題號 {q.id}</p>
           <PrecedingContext question={q} />
           <p style={stemStyle}>{q.stem}</p>
           <QuestionFigure key={q.id} q={q} />
@@ -744,7 +745,6 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   )}
                 </>
               )}
-              <p style={questionIdStyle}>題號 {q.id}</p>
             </div>
           )}
         </div>
@@ -1239,8 +1239,9 @@ const aiNoteStyle: React.CSSProperties = {
   fontFamily: 'var(--font-legible)',
 }
 
-const questionIdStyle: React.CSSProperties = {
-  marginTop: '0.6rem',
+// 題號 shown as a small monospace header above the question stem (moved from below the 詳解).
+const questionIdTopStyle: React.CSSProperties = {
+  margin: '0 0 0.5rem',
   fontSize: '0.72rem',
   letterSpacing: '0.02em',
   color: '#9b8c70',

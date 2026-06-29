@@ -1,20 +1,22 @@
 /**
  * BookmarksPage — `/bookmarks` route, a three-tab review hub:
- *   • 手動收藏    — all ⭐ bookmarked questions (replay + un-bookmark actions)
+ *   • 手動收藏    — all ⭐ bookmarked questions (un-bookmark action)
  *   • 目前未答對  — questionHistory rows where lastResult === 'wrong'
  *   • 歷史曾錯    — questionHistory rows where everWrong === true (never leaves)
  *
- * The two wrong-answer lists are live derived views of `questionHistory` —
- * no separate store. Rows there are display-only (per spec). A single shared
- * filter bar (科目 family + 年份 year + ✨/🤔 標記) applies across all three tabs.
+ * The two wrong-answer lists are live derived views of `questionHistory` — no separate store.
+ * Every row renders the FULL question via the shared read-only <QuestionReviewCard> (stem +
+ * figure + options + 正解 + 看原始詳解 PDF + 簡答); the 手動收藏 list appends an un-bookmark
+ * footer. A single shared filter bar (科目 family + 年份 year + ✨/🤔 標記) applies across all
+ * three tabs.
  *
  * Spec: openspec/specs/neurons-wrong-answer-list/spec.md
  */
 
 import { useMemo, useState } from 'react'
 import type { ContentPack, Question } from '@study-rpg/core'
-import { QuizModal } from '../components/QuizModal'
 import { EmojiIcon } from '../components/EmojiIcon'
+import { QuestionReviewCard } from '../components/QuestionReviewCard'
 import { useAllBookmarks, removeBookmark } from '../lib/services/bookmarks'
 import { useAllFlags } from '../lib/services/question-flags'
 import { useQuestionHistory } from '../lib/services/question-history'
@@ -32,8 +34,9 @@ interface Props {
 type TabKey = 'manual' | 'currentWrong' | 'historyWrong'
 
 const MAX_RENDER = 200
-const STEM_TRUNCATE_LEN = 100
 const YEAR_CHIP_COLOR = '#6a7b8c'
+// Accent for the「全部」select-all chip (matches the homepage YearFilterBar active gold).
+const ALL_CHIP_COLOR = '#d4a04d'
 
 export default function BookmarksPage({ pack }: Props): JSX.Element {
   const bookmarks = useAllBookmarks()
@@ -47,7 +50,6 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
   const [excludedYears, setExcludedYears] = useState<Set<string>>(new Set())
   const [filterEasyOnly, setFilterEasyOnly] = useState<boolean>(false)
   const [filterGuessedOnly, setFilterGuessedOnly] = useState<boolean>(false)
-  const [replayQuestion, setReplayQuestion] = useState<Question | null>(null)
 
   // Lookup map: questionId → flag row (or undefined if no flags set)
   const flagMap = useMemo(() => {
@@ -64,19 +66,6 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
     for (const q of pack.questions) m.set(q.id, q)
     return m
   }, [pack.questions])
-
-  // Family display name + color lookup.
-  const familyMap = useMemo(() => {
-    const m = new Map<string, { displayName: string; color: string; group: string }>()
-    for (const s of pack.subjects) {
-      m.set(s.id, {
-        displayName: s.displayName,
-        color: s.color ?? '#8c6d4a',
-        group: s.group ?? 'DA',
-      })
-    }
-    return m
-  }, [pack.subjects])
 
   // Distinct exam years for the chip set → stable, descending. `history` is the
   // superset of both wrong-answer tabs; `bookmarks` is scanned separately
@@ -126,11 +115,6 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
   const toggleFamilyChip = makeToggleChip(setExcludedFamilies)
   const toggleYearChip = makeToggleChip(setExcludedYears)
 
-  function handleReplay(questionId: string): void {
-    const q = questionMap.get(questionId)
-    if (q) setReplayQuestion(q)
-  }
-
   function handleRemove(questionId: string): void {
     void removeBookmark(questionId)
   }
@@ -153,31 +137,31 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
     )
   }
 
-  // Shared row content (badge group + year + flags + time + truncated stem),
-  // used by both the manual-bookmark list and the two wrong-answer lists. The
-  // manual list appends its own action footer; wrong rows are display-only.
-  function renderRowHeadAndStem(questionId: string, familyId: string, timeTs: number): JSX.Element {
+  // Shared row content — the 題號 head + flags + time, then the FULL question via the shared
+  // read-only <QuestionReviewCard> (stem + figure + options + 正解 + 看原始詳解 PDF + 簡答).
+  // Used by all three tabs; the 手動收藏 list appends its own un-bookmark footer. The 題號 itself
+  // already encodes 年-次-冊-科目-題號 (e.g. 104-1-醫學一-解剖學-Q5), so it replaces the old
+  // separate 科目 / 年份 badges.
+  function renderQuestionContent(questionId: string, timeTs: number): JSX.Element {
     const q = questionMap.get(questionId)
-    const family = familyMap.get(familyId)
-    return (
-      <>
-        <header style={rowHeaderStyle}>
-          <div style={badgeGroupStyle}>
-            <span style={familyBadgeStyle(family?.color ?? '#8c6d4a')} title={family?.displayName ?? familyId}>
-              {familyId}
-            </span>
-            <span style={yearBadgeStyle} title="考試年度（民國）">
-              {parseExamYear(questionId)}年
-            </span>
-            {renderFlagChips(questionId)}
-          </div>
-          <span style={timeStyle}>{relativeTime(timeTs)}</span>
-        </header>
-        <p style={stemStyle}>
-          {q ? truncate(q.stem, STEM_TRUNCATE_LEN) : '（題目資料缺失 — 可能是 content pack 已更新）'}
-        </p>
-      </>
+    const header = (
+      <header style={rowHeaderStyle}>
+        <div style={badgeGroupStyle}>
+          <span style={qidStyle}>題號 {questionId}</span>
+          {renderFlagChips(questionId)}
+        </div>
+        <span style={timeStyle}>{relativeTime(timeTs)}</span>
+      </header>
     )
+    if (!q) {
+      return (
+        <>
+          {header}
+          <p style={missingStyle}>（題目資料缺失 — 可能是 content pack 已更新）</p>
+        </>
+      )
+    }
+    return <QuestionReviewCard question={q} header={header} showFigure />
   }
 
   function renderWrongList(rows: QuestionHistoryRow[], hasAny: boolean, emptyText: string): JSX.Element {
@@ -193,7 +177,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
       <ul style={listStyle} role="list">
         {rows.slice(0, MAX_RENDER).map((row) => (
           <li key={row.questionId} style={rowStyle}>
-            {renderRowHeadAndStem(row.questionId, row.family, row.lastAnsweredAt)}
+            {renderQuestionContent(row.questionId, row.lastAnsweredAt)}
           </li>
         ))}
       </ul>
@@ -246,17 +230,22 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         </div>
       </section>
 
-      {/* Family filter — flat chip row, click toggles exclusion. */}
+      {/* Family filter — flat chip row, click toggles exclusion. Leads with a「全部」select-all
+          chip (mirrors the homepage YearFilterBar / dex FamilyFilterChips). */}
       <section style={filterBarStyle} aria-label="科目篩選">
         <div style={filterHeaderStyle}>
           <span style={filterLabelStyle}><EmojiIcon char="📚" size={14} /> 依科目篩選</span>
-          {excludedFamilies.size > 0 && (
-            <button type="button" style={resetBtnStyle} onClick={() => setExcludedFamilies(new Set())}>
-              重置（顯示全部）
-            </button>
-          )}
         </div>
         <div style={chipRowStyle}>
+          <button
+            type="button"
+            onClick={() => setExcludedFamilies(new Set())}
+            style={excludedFamilies.size === 0 ? chipIncludedStyle(ALL_CHIP_COLOR) : chipExcludedStyle(ALL_CHIP_COLOR)}
+            aria-pressed={excludedFamilies.size === 0}
+            title="顯示全部科目"
+          >
+            全部
+          </button>
           {pack.subjects.map((s) => {
             const excluded = excludedFamilies.has(s.id)
             const color = s.color ?? '#8c6d4a'
@@ -281,13 +270,17 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         <section style={filterBarStyle} aria-label="年份篩選">
           <div style={filterHeaderStyle}>
             <span style={filterLabelStyle}>📅 依年份篩選</span>
-            {excludedYears.size > 0 && (
-              <button type="button" style={resetBtnStyle} onClick={() => setExcludedYears(new Set())}>
-                重置（顯示全部）
-              </button>
-            )}
           </div>
           <div style={chipRowStyle}>
+            <button
+              type="button"
+              onClick={() => setExcludedYears(new Set())}
+              style={excludedYears.size === 0 ? chipIncludedStyle(ALL_CHIP_COLOR) : chipExcludedStyle(ALL_CHIP_COLOR)}
+              aria-pressed={excludedYears.size === 0}
+              title="顯示全部年份"
+            >
+              全部
+            </button>
             {yearOptions.map((year) => {
               const excluded = excludedYears.has(year)
               const label = year === 'unknown' ? '其他' : `${year}年`
@@ -347,28 +340,16 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
           <p style={noMatchStyle}>目前篩選下沒有收藏題目。調整上方的科目 / 年份 / 標記篩選把題目找回來。</p>
         ) : (
           <ul style={listStyle} role="list">
-            {filteredBookmarks.slice(0, MAX_RENDER).map((b) => {
-              const inPack = questionMap.has(b.questionId)
-              return (
-                <li key={b.questionId} style={rowStyle}>
-                  {renderRowHeadAndStem(b.questionId, b.family, b.addedAt)}
-                  <div style={rowActionsStyle}>
-                    <button
-                      type="button"
-                      style={replayBtnStyle}
-                      onClick={() => handleReplay(b.questionId)}
-                      disabled={!inPack}
-                      title={inPack ? '重新作答這一題' : '題目不在當前 content pack'}
-                    >
-                      <EmojiIcon char="🎯" size={14} /> 重新作答
-                    </button>
-                    <button type="button" style={unbookmarkBtnStyle} onClick={() => handleRemove(b.questionId)} aria-label="取消收藏">
-                      ★ 取消
-                    </button>
-                  </div>
-                </li>
-              )
-            })}
+            {filteredBookmarks.slice(0, MAX_RENDER).map((b) => (
+              <li key={b.questionId} style={rowStyle}>
+                {renderQuestionContent(b.questionId, b.addedAt)}
+                <div style={rowActionsStyle}>
+                  <button type="button" style={unbookmarkBtnStyle} onClick={() => handleRemove(b.questionId)} aria-label="取消收藏">
+                    ★ 取消收藏
+                  </button>
+                </div>
+              </li>
+            ))}
           </ul>
         ))}
 
@@ -385,8 +366,6 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
           hasAnyHistoryWrong,
           '目前沒有曾經答錯的題目。只要答錯過一次，題目就會永久留在這裡供複習。',
         )}
-
-      {replayQuestion && <QuizModal pool={[replayQuestion]} onClose={() => setReplayQuestion(null)} />}
     </>
   )
 }
@@ -408,11 +387,6 @@ function BookmarksEmptyState(): JSX.Element {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function truncate(text: string, max: number): string {
-  if (text.length <= max) return text
-  return text.slice(0, max).trimEnd() + '…'
-}
 
 function relativeTime(ts: number): string {
   const diff = Date.now() - ts
@@ -553,12 +527,14 @@ const tabActiveStyle: React.CSSProperties = {
   border: '2px solid #6e5436',
 }
 
+// Single column — each row now renders the FULL question (stem + figure + options + 詳解),
+// which needs the full content width to read comfortably (no multi-column card grid).
 const listStyle: React.CSSProperties = {
   listStyle: 'none',
   margin: 0,
   padding: 0,
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
+  display: 'flex',
+  flexDirection: 'column',
   gap: '0.7rem',
 }
 
@@ -580,25 +556,14 @@ const rowHeaderStyle: React.CSSProperties = {
   gap: '0.5rem',
 }
 
-function familyBadgeStyle(color: string): React.CSSProperties {
-  return {
-    padding: '0.15rem 0.5rem',
-    background: color,
-    color: '#fff',
-    borderRadius: '4px',
-    fontSize: '0.78rem',
-    fontWeight: 700,
-  }
-}
-
-const yearBadgeStyle: React.CSSProperties = {
-  padding: '0.15rem 0.45rem',
-  background: '#fdf6e3',
-  color: YEAR_CHIP_COLOR,
-  border: `1px solid ${YEAR_CHIP_COLOR}`,
-  borderRadius: '4px',
+// 題號 head — small monospace label encoding 年-次-冊-科目-題號 (replaces the old 科目 / 年份 badges,
+// matching the QuizModal 題號 header).
+const qidStyle: React.CSSProperties = {
   fontSize: '0.74rem',
+  letterSpacing: '0.02em',
+  color: '#7a6038',
   fontWeight: 700,
+  fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
 }
 
 const badgeGroupStyle: React.CSSProperties = {
@@ -650,14 +615,11 @@ const timeStyle: React.CSSProperties = {
   color: '#8c6d4a',
 }
 
-const stemStyle: React.CSSProperties = {
-  margin: 0,
+// Fallback when a bookmarked / wrong-answer question id is no longer in the content pack.
+const missingStyle: React.CSSProperties = {
+  margin: '0.4rem 0',
   fontSize: '0.9rem',
-  lineHeight: 1.5,
-  color: '#3a2a1a',
-  whiteSpace: 'pre-wrap',
-  overflowWrap: 'anywhere',
-  // Exam content (truncated question stem preview) — legible, never pixel.
+  color: '#8a7a5a',
   fontFamily: 'var(--font-legible)',
 }
 
@@ -665,19 +627,6 @@ const rowActionsStyle: React.CSSProperties = {
   display: 'flex',
   gap: '0.5rem',
   marginTop: 'auto',
-}
-
-const replayBtnStyle: React.CSSProperties = {
-  flex: 1,
-  padding: '0.4rem 0.6rem',
-  background: '#d4a04d',
-  color: '#fff',
-  border: '1px solid #b8893a',
-  borderRadius: '4px',
-  fontSize: '0.85rem',
-  fontWeight: 700,
-  fontFamily: 'inherit',
-  cursor: 'pointer',
 }
 
 const unbookmarkBtnStyle: React.CSSProperties = {
