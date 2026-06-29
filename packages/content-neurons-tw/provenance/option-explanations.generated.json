@@ -59927,5 +59927,173 @@
   "pdfFile": "106-1醫學(一).pdf",
   "pdfPage": 79,
   "pdfScale": 2.5
+ },
+ "106-1-醫學二-生物化學-Q38": {
+  "sourceHash": "0d7c9f9e76905c647bf76bad726dd1c436c51282189da15f0321e54a67971ac5",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.968Z",
+  "optionExplanations": {
+   "A": "脂肪酸經β氧化產生乙醯輔酶A，無法淨生成草醯乙酸，故不能作為糖質新生的前驅物，為正確答案。",
+   "B": "胺基酸代謝產生的α酮酸可進入糖質新生途徑，屬於有效前驅物，故非正確答案。",
+   "C": "甘油可進入糖質新生途徑，屬於有效前驅物，故非正確答案。",
+   "D": "草醯乙酸本身即為糖質新生途徑的中間物，可直接用於合成葡萄糖，故非正確答案。"
+  },
+  "flags": [],
+  "source": "text-from-recovered-詳解"
+ },
+ "106-1-醫學二-生物化學-Q45": {
+  "sourceHash": "8813677e19fb0c2f895bf511feafa95061cbdaf032170b9e27d256ba9961ad89",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.969Z",
+  "optionExplanations": {
+   "A": "胺甲醯麩胺酸並非尿素循環的直接中間產物，其藥理作用並非直接作為代謝底物參與循環。",
+   "B": "胺甲醯麩胺酸為醋醯麩胺酸的結構類似物，可作為胺甲醯磷酸合成酶I的異位活化劑，活化尿素循環限速步驟，為正確答案。",
+   "C": "與甘胺酸和麩胺醯胺結合形成衍生物排出體外，是苯甲酸鈉及苯丁酸鈉等氮掃除劑的藥理作用，而非胺甲醯麩胺酸的作用。",
+   "D": "補充或促進精胺酸合成是精胺酸本身的補充治療作用，而非胺甲醯麩胺酸的藥理作用。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "106-1-醫學二-生物化學-Q46": {
+  "sourceHash": "6d59a068d55c6e50494ef051a9252d65d3945dd5c5e712aff81451c5f1942798",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.969Z",
+  "optionExplanations": {
+   "A": "正確。細胞色素含有血基質，活性中心為鐵離子（Fe2+/Fe3+），藉由氧化還原轉換傳遞電子。",
+   "B": "Mg2+是葉綠素的核心離子，在人體為激酶等酵素的輔因子，不屬於細胞色素的金屬離子。",
+   "C": "Co2+是維生素B12（cobalamin）的核心離子，與造血及神經功能相關，不屬於細胞色素的金屬離子。",
+   "D": "Ni2+主要存在於微生物或植物的尿素酶等酵素中，並非細胞色素的金屬離子。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "106-1-醫學二-生物化學-Q48": {
+  "sourceHash": "5d90dda953f9ede20e644d9bab45415d5bff98fbb0da149abd4f9a77cf710929",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.969Z",
+  "optionExplanations": {
+   "A": "cAMP與蛋白激酶A的結合為非共價鍵的可逆結合，並非共價鍵結合，且結合效果是活化而非抑制。",
+   "B": "cAMP與蛋白激酶A的結合為非共價鍵結合，且生理效果是活化酵素而非抑制酵素。",
+   "C": "cAMP與調節次單元上的異位性結合位結合，促使調節與催化次單元解離，釋出具活性的催化次單元，是正確的活化機制。",
+   "D": "cAMP是蛋白激酶A的異位活化劑，透過結構改變活化酵素，並非競爭性抑制。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "107-1-醫學二-寄生蟲學-Q34": {
+  "sourceHash": "1bff4f0dec2adb92f7e73cc8354c96bda36353b55641ec1d444055a9ae4917a5",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.970Z",
+  "optionExplanations": {
+   "A": "萊姆病由伯氏疏螺旋體引起，經硬蜱屬蜱蟲叮咬傳播，屬於蜱媒介人畜共通感染症。",
+   "B": "西尼羅病毒症由家蚊屬蚊子叮咬傳播，非蜱蟲媒介，故不屬於蜱媒介人畜共通感染症，為正解。",
+   "C": "巴貝氏原蟲症由巴貝氏原蟲引起，經硬蜱屬蜱蟲叮咬傳播，屬於蜱媒介人畜共通感染症。",
+   "D": "落磯山斑疹熱由立克次體引起，經革蜱屬等蜱蟲叮咬傳播，屬於蜱媒介人畜共通感染症。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "107-1-醫學二-寄生蟲學-Q35": {
+  "sourceHash": "dc8ffe46c0756048499f279fa07a44a361869858c44fadb8edb9ebe0a2c1149b",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.970Z",
+  "optionExplanations": {
+   "A": "正確答案，流行性斑疹傷寒病原體為普氏立克次體，經由體蝨傳播。",
+   "B": "地方性斑疹傷寒病原體為莫氏立克次體，經由鼠蚤傳播，非體蝨。",
+   "C": "落磯山斑疹熱病原體為立氏立克次體，經由蜱蟲傳播，非體蝨。",
+   "D": "恙蟲病病原體為恙蟲東方體，經由恙蟎傳播，非體蝨。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "107-1-醫學二-寄生蟲學-Q36": {
+  "sourceHash": "64528ba68e75d2245444c6d0cc3af1aa5b5159d94038482bb2c84c781dd8aea8",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.970Z",
+  "optionExplanations": {
+   "A": "以界定明確的群體為對象，不以單一暴露篩選，因此可在追蹤過程中同時收集並評估多個暴露因子，為此取樣方法最大優點。",
+   "B": "追蹤整個界定明確的群體通常需要較大樣本數與更長追蹤時間，研究成本通常較高而非降低。",
+   "C": "此方法需長期追蹤群體以觀察疾病發生，需花費較長時間，無法較快完成研究。",
+   "D": "世代研究為觀察性研究，雖可透過統計調整控制部分干擾因素，但無法像隨機對照試驗那樣完全解決所有干擾因素的影響。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "111-1-醫學一-生理學-Q74": {
+  "sourceHash": "1f352293dd05c735f46160e33e565f5b3a24e0bc45483900136c48c370713d07",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.971Z",
+  "optionExplanations": {
+   "A": "當受質濃度遠大於KM時，酵素活性中心完全飽和，反應速率達Vmax且固定，不隨受質濃度改變，故近似零級反應，為正確答案。",
+   "B": "一級反應速率與受質濃度成正比，此情形只在受質濃度遠小於KM時出現，非受質濃度遠大於KM的情況。",
+   "C": "二級反應速率與濃度平方或兩種反應物濃度乘積成正比，但受質濃度遠大於KM時速率已飽和為定值，與濃度無關，不符。",
+   "D": "三級反應速率與濃度三次方成正比，但受質濃度遠大於KM時速率已達飽和定值，與濃度無關，不符。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "111-1-醫學一-生理學-Q75": {
+  "sourceHash": "d8b232ae5f5a32a78f69d84ac2f8db070495f828ec6bdaec920ef74988115d33",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.971Z",
+  "optionExplanations": {
+   "A": "酵素僅降低活化能，不改變反應的吉布斯自由能變化，催化的反應可以是放熱或吸熱反應。",
+   "B": "酵素能同時加速正向與逆向反應，使反應更快達到化學平衡，但不改變平衡常數與平衡點。",
+   "C": "酵素作為生物催化劑，反應完成後恢復原狀，反應前後總量與化學性質皆不改變，此選項正確。",
+   "D": "酵素催化的反應在熱力學上本就可行，無酵素時反應仍會發生，只是速率極慢。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "112-2-醫學二-藥理學-Q75": {
+  "sourceHash": "f6f04f0b1fcdb9f695c16c9b0d7ac7537e516bd0c9525e4c585f640f88b64785",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.971Z",
+  "optionExplanations": {
+   "A": "dimercaprol主要用於急性砷、汞、金中毒，與鐵結合的複合物具腎毒性，不用於鐵中毒。",
+   "B": "penicillamine主要用於銅中毒（威爾森氏症）及類風濕性關節炎，並非鐵中毒的治療藥物。",
+   "C": "melarsoprol是含砷的有機化合物，用於晚期非洲錐蟲病，不具螯合鐵離子功能，不用於鐵中毒。",
+   "D": "deferoxamine是專一性鐵螯合劑，與三價鐵結合形成無毒螯合物並排出，為急性鐵中毒首選藥物。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "106-1-醫學二-生物化學-Q37": {
+  "sourceHash": "57c7d6d96fc4bab4aff849af8beac83b5c8eb2881661fd4847ffc116516644d4",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.967Z",
+  "optionExplanations": {
+   "A": "IgG由兩條light chain與兩條heavy chain共四條鏈組成，此敘述正確。",
+   "B": "IgG的抗原結合位位於N端variable region，每個IgG共有兩個結合位，敘述正確。",
+   "C": "IgG的抗原結合位即N端variable region，可專一性結合抗原，敘述正確。",
+   "D": "免疫球蛋白L、H chain各domain以β sheet為主、構成β barrel，而非α-helix，故此敘述錯誤。"
+  },
+  "flags": [],
+  "source": "text-from-recovered-詳解"
+ },
+ "106-1-醫學二-生物化學-Q47": {
+  "sourceHash": "62bf86a430068a7ab95686988991edb11464f96c790137a640e10e5c6ef664db",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "jianda-from-詳解-v1",
+  "generatedAt": "2026-06-29T02:58:15.969Z",
+  "optionExplanations": {
+   "A": "succinate dehydrogenase即複合體II、位於粒線體內膜，催化succinate氧化並直接參與電子傳遞鏈，為唯一符合者。",
+   "B": "isocitrate dehydrogenase位於粒線體基質、產生NADH，不在內膜上，亦不直接參與電子傳遞鏈。",
+   "C": "α-ketoglutarate dehydrogenase位於粒線體基質、產NADH與succinyl-CoA，不在內膜亦不參與電子傳遞鏈。",
+   "D": "malate dehydrogenase位於粒線體基質、催化malate氧化產NADH，不在內膜亦不參與電子傳遞鏈。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
  }
 }
