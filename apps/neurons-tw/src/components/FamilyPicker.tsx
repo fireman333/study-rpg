@@ -15,8 +15,11 @@ import type { ContentPack, Subject } from '@study-rpg/core'
 import { EXAM_PAPER_ORDER, FAMILY_EXAM_PAPER, type ExamPaper } from '@study-rpg/content-neurons-tw'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
 import type { FamilyModeCounts, QuizMode } from '../lib/services/srs-scheduler'
+import { useRepresentativeRows } from '../lib/services/representatives'
+import type { NeuronVariantRow } from '../lib/db'
 import MasteryChip from './MasteryChip'
 import VariantCollectionChip from './VariantCollectionChip'
+import VariantSprite from './VariantSprite'
 import { EmojiIcon } from './EmojiIcon'
 import { YearFilterBar } from './YearFilterBar'
 
@@ -89,6 +92,10 @@ export function FamilyPicker({
   mazeExpanded,
   mazeHintByFamily,
 }: Props): JSX.Element {
+  // Each family card's header sprite shows that family's REPRESENTATIVE variant (the one the player
+  // picked in 圖鑑), kept in sync via the shared `representativeVariants` meta key; falls back to the
+  // generic subject sprite when no representative is set.
+  const repByFamily = useRepresentativeRows()
   const focusedSubject =
     focusedFamilyId != null ? pack.subjects.find((s) => s.id === focusedFamilyId) ?? null : null
   const accent = focusedSubject?.color ?? '#8c6d4a'
@@ -136,6 +143,7 @@ export function FamilyPicker({
                   <FamilyCard
                     key={s.id}
                     family={s}
+                    repRow={repByFamily.get(s.id)}
                     accrual={accrualByFamily?.get(s.id)}
                     counts={modeCountsByFamily?.get(s.id)}
                     mazeHint={mazeHintByFamily?.get(s.id)}
@@ -193,6 +201,7 @@ function groupSubjectsByPaper(subjects: Subject[]): PaperGroup[] {
 
 function FamilyCard({
   family,
+  repRow,
   accrual,
   counts,
   mazeHint,
@@ -205,6 +214,8 @@ function FamilyCard({
   isDockAnchor,
 }: {
   family: Subject
+  /** This family's representative variant (picked in 圖鑑) → header sprite, kept in sync with /collection. */
+  repRow?: NeuronVariantRow
   accrual?: FamilyAccrual
   counts?: FamilyModeCounts
   mazeHint?: MazeFamilyHint
@@ -236,11 +247,13 @@ function FamilyCard({
       aria-current={focused ? 'true' : undefined}
       aria-label={`${family.id} · ${family.displayName}`}
     >
-      {/* Header is presentational only — focusing the maze is the explicit 🔍 聚焦 button (right),
-          NOT a hidden click on the whole header (redesign-neurons-homepage-squad-and-maze-focus). */}
+      {/* Header is presentational only — the name gets the full width (the 🔍 聚焦 trigger moved down to
+          the AP row so it no longer squeezes the subject name into an ellipsis). */}
       <header style={cardHeaderStyle}>
         <div style={spriteFrameStyle(accent)}>
-          {spriteUrl ? (
+          {repRow ? (
+            <VariantSprite row={repRow} size={48} />
+          ) : spriteUrl ? (
             <img src={spriteUrl} alt="" width={48} height={48} className="neuron-sprite--alive" style={spriteStyle} />
           ) : (
             <EmojiIcon char="🧬" size={22} decorative />
@@ -253,18 +266,6 @@ function FamilyCard({
           </div>
           <div style={personaNameStyle}>{family.displayName}</div>
         </div>
-        {onFocus && (
-          <button
-            type="button"
-            onClick={onFocus}
-            style={focused ? focusBtnActiveStyle(accent) : focusBtnStyle(accent)}
-            aria-pressed={!!focused}
-            title={`在腦圖上聚焦 ${family.id}`}
-          >
-            <span aria-hidden>🔍</span>
-            <span className="neurons-focus-label" style={focusBtnLabelStyle}>聚焦</span>
-          </button>
-        )}
       </header>
 
       {/* Derived axon node-track (deep card↔maze integration): the card's slice of the maze —
@@ -274,8 +275,23 @@ function FamilyCard({
         <AxonProgressStrip hint={mazeHint} accent={accent} familyId={family.id} />
       )}
 
+      {/* AP + 🔍 聚焦 on one row, right below the X/20 axon bar (owner): the 聚焦 button sits opposite
+          the AP readout so it never steals header width from the subject name. */}
       <div style={apLineStyle}>
-        AP <strong style={{ color: accent }}>{ap}</strong>
+        <span>AP <strong style={{ color: accent }}>{ap}</strong></span>
+        {onFocus && (
+          <button
+            type="button"
+            onClick={onFocus}
+            style={focused ? focusBtnActiveStyle(accent) : focusBtnStyle(accent)}
+            aria-pressed={!!focused}
+            aria-label={`在腦圖上聚焦 ${family.id}`}
+            title={`在腦圖上聚焦 ${family.id}`}
+          >
+            <span aria-hidden>🔍</span>
+            <span className="neurons-focus-label" style={focusBtnLabelStyle}>聚焦</span>
+          </button>
+        )}
       </div>
 
       <div style={chipRowStyle}>
@@ -513,6 +529,10 @@ const personaNameStyle: React.CSSProperties = {
 }
 
 const apLineStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.5rem',
   fontSize: '0.72rem',
   color: '#5a3f29',
   letterSpacing: '0.01em',
@@ -617,7 +637,6 @@ function readingChipActiveStyle(accent: string): React.CSSProperties {
 function focusBtnStyle(accent: string): React.CSSProperties {
   return {
     flex: '0 0 auto',
-    alignSelf: 'flex-start',
     display: 'inline-flex',
     alignItems: 'center',
     gap: '0.2rem',

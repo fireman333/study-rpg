@@ -16,7 +16,9 @@
  * Capability spec: openspec/specs/neurons-variant-collection-view/spec.md
  */
 
-import { db } from '../db'
+import { useEffect, useState } from 'react'
+import { liveQuery } from 'dexie'
+import { db, type NeuronVariantRow } from '../db'
 
 export const REPRESENTATIVES_META_KEY = 'representativeVariants'
 
@@ -116,4 +118,40 @@ export function pickRepresentativeLWW(
   const incoming = parseRepresentativeEnvelope(incomingRaw)
   if (incoming.updatedAt > local.updatedAt) return JSON.stringify(incoming)
   return null
+}
+
+/**
+ * Reactive hook — `familyId → the collected NeuronVariantRow chosen as that
+ * family's representative` (in the /collection dex). Stale entries (a stored
+ * representative whose variant is no longer collected) are dropped. Lets the
+ * homepage family cards render the SAME representative sprite the player picked
+ * in 圖鑑, kept in sync via the shared `representativeVariants` meta key. Empty
+ * map when no representatives are set.
+ */
+export function useRepresentativeRows(): Map<string, NeuronVariantRow> {
+  const [rows, setRows] = useState<Map<string, NeuronVariantRow>>(new Map())
+  useEffect(() => {
+    const sub = liveQuery(async () => {
+      const [metaRow, variants] = await Promise.all([
+        db.meta.get(REPRESENTATIVES_META_KEY),
+        db.neuronVariants.toArray(),
+      ])
+      const map = parseRepresentativeEnvelope(metaRow?.value).map
+      const byKey = new Map(variants.map((v) => [`${v.familyId}:${v.slotIndex}`, v]))
+      const out = new Map<string, NeuronVariantRow>()
+      for (const [familyId, slotIndex] of Object.entries(map)) {
+        const row = byKey.get(`${familyId}:${slotIndex}`)
+        if (row) out.set(familyId, row) // drop stale (uncollected) representatives
+      }
+      return out
+    }).subscribe({
+      next: (val) => setRows(val),
+      error: (err) => {
+        console.warn('[representatives] live query failed:', err)
+        setRows(new Map())
+      },
+    })
+    return () => sub.unsubscribe()
+  }, [])
+  return rows
 }
