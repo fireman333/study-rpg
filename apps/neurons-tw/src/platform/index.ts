@@ -13,7 +13,8 @@
 import type { OpenResult, PlatformStatus, ProvenanceEntry } from './types'
 import { loadProvenanceMap, lookupEntry } from './provenance'
 import { byteStore as defaultByteStore, type ByteStore } from './byteStore'
-import { fetchBooklet, officialDriveUrl } from './driveFetch'
+import { fetchBooklet, officialDriveUrl, isSuspectedEdgeThrottle } from './driveFetch'
+import { noteDriveSuccess } from './pdfCooldown'
 
 export type { OpenResult, PlatformStatus, ProvenanceEntry } from './types'
 
@@ -105,10 +106,19 @@ async function openWebBooklet(entry: ProvenanceEntry, deps: WebOpenDeps): Promis
     isOnline: deps.isOnline,
   })
   if (!res.ok) {
-    return { ok: false, reason: res.reason, message: res.message, bookletId: bookletKey, driveUrl }
+    // Single-open SOFT-respects the edge throttle (fix-neurons-pdf-edge-throttle): it still attempted
+    // (one request rarely trips the throttle), but if THIS failure looks like the throttle, surface
+    // throttle-aware copy + the official link. It does NOT record a strike or hard-block — only the
+    // bulk run drives the cooldown.
+    const message = (await isSuspectedEdgeThrottle(res, { fetchImpl: deps.fetchImpl }))
+      ? 'Google Drive 暫時限制大量下載，請稍後再試（可改用下方官方連結開啟）'
+      : res.message
+    return { ok: false, reason: res.reason, message, bookletId: bookletKey, driveUrl }
   }
 
   const blob = await res.response.blob()
+  // A successful Drive fetch counts toward clearing any active edge-throttle cooldown.
+  void noteDriveSuccess()
   // Cache for next time (best-effort; a clean Response avoids Cache.put Vary/206 pitfalls).
   try {
     await store.put(bookletKey, new Response(blob, { headers: { 'content-type': 'application/pdf' } }))

@@ -114,13 +114,17 @@ The app's own infrastructure SHALL NOT bundle, host, mirror, cache on app-owned 
 ### Requirement: Booklet is auto-fetched on demand and cached, with an offline-all option
 The web platform adapter SHALL fetch a booklet's PDF bytes from the publisher's Drive **on demand** — only when the player opens a mapped question whose booklet is not yet cached — and SHALL store the response in a device-local cache so subsequent opens of any question in that booklet are served from cache without a network request. The system SHALL also provide a Settings control 「全部下載供離線」 that fetches and caches every booklet in the committed manifest in one action. No folder grant, picker, or manual download SHALL be required.
 
-The offline-all action SHALL skip booklets that are already cached (no re-fetch) and SHALL fetch the rest **sequentially**. Before fetching it SHALL make a **best-effort** request for persistent storage (so the browser is less likely to evict the cache); this request makes **no persistence guarantee** (consistent with the byte-store eviction stance) and SHALL NOT block or fail the action if denied or unsupported. While running and on completion the action SHALL report progress that **distinguishes** booklets newly **downloaded**, booklets **skipped** because already cached, and booklets that **failed** — it SHALL NOT present a single undifferentiated counter that makes a fast cache-skip indistinguishable from a slow re-fetch. A failure caused by **insufficient device storage** (a quota error) SHALL be classified and surfaced **distinctly** from a network/fetch failure, with a non-blocking message that names the out-of-space condition (and the remaining-space estimate when the browser exposes one). After caching a booklet the action SHALL **verify the write landed**; a write that cannot be confirmed SHALL be counted as a failure rather than silently treated as success.
+Each booklet SHALL be fetched as a **single whole-file request** (`GET …?alt=media`); the adapter SHALL NOT split a booklet into multiple client-side `Range` requests. This keeps the number of Drive requests per booklet at one, so the bulk action does not amplify into the per-IP request burst that triggers Google's edge abuse throttle.
 
-The action SHALL cache each booklet by buffering the fetched body into a **Blob** wrapped in a clean `200` `application/pdf` response, NOT by handing a `206` or a JS-constructed `ReadableStream` body to the cache (WebKit's `Cache.put` rejects a `206` and can reject a constructed-stream body). When any booklet fails, the action SHALL record and surface the **first failure's stage** (fetch / slice-assembly / cache-write / out-of-space) together with its **underlying cause** (the HTTP status, or a thrown error's name and message), so a device-specific failure that cannot be reproduced or remotely inspected can be diagnosed from the UI alone.
+The offline-all action SHALL skip booklets that are already cached (no re-fetch) and SHALL fetch the rest **sequentially, one at a time**, and SHALL wait a short **paced delay with jitter** between consecutive booklet fetches so a full run does not present a burst of requests to one egress IP. Before fetching it SHALL make a **best-effort** request for persistent storage (so the browser is less likely to evict the cache); this request makes **no persistence guarantee** (consistent with the byte-store eviction stance) and SHALL NOT block or fail the action if denied or unsupported. While running and on completion the action SHALL report progress that **distinguishes** booklets newly **downloaded**, booklets **skipped** because already cached, and booklets that **failed** — it SHALL NOT present a single undifferentiated counter that makes a fast cache-skip indistinguishable from a slow re-fetch. A failure caused by **insufficient device storage** (a quota error) SHALL be classified and surfaced **distinctly** from a network/fetch failure, with a non-blocking message that names the out-of-space condition (and the remaining-space estimate when the browser exposes one). After caching a booklet the action SHALL **verify the write landed**; a write that cannot be confirmed SHALL be counted as a failure rather than silently treated as success.
+
+When the action detects a **suspected Drive edge throttle** (per the graceful-degradation requirement) it SHALL **stop the remaining queue immediately** rather than continuing to issue Drive requests that will be throttled, SHALL persist a cooldown, and SHALL surface a non-blocking message that the download was paused, that already-cached booklets are kept, and that it can be resumed later (re-running skips the cached ones).
+
+The action SHALL cache each booklet by storing a clean `application/pdf` response — preferring a cloned response and otherwise a buffered **Blob** wrapped in a clean `200` response — and SHALL NOT hand a JS-constructed `ReadableStream` body to the cache (WebKit's `Cache.put` can reject a constructed-stream body). When any booklet fails, the action SHALL record and surface the **first failure's stage** (fetch / cache-write / out-of-space) together with its **underlying cause** (the HTTP status, or a thrown error's name and message), so a device-specific failure that cannot be reproduced or remotely inspected can be diagnosed from the UI alone.
 
 #### Scenario: First open of a booklet fetches; later opens hit cache
 - **WHEN** the player opens a mapped question in a booklet that is not yet cached
-- **THEN** the adapter fetches that booklet from Drive, caches it, and renders the page
+- **THEN** the adapter fetches that booklet from Drive as a single whole-file request, caches it, and renders the page
 - **AND** opening another mapped question in the SAME booklet afterwards renders from cache with no network fetch
 
 #### Scenario: Offline-all caches uncached booklets and skips cached ones
@@ -128,6 +132,17 @@ The action SHALL cache each booklet by buffering the fetched body into a **Blob*
 - **THEN** the system fetches and caches every not-yet-cached booklet in the manifest and skips the already-cached ones without re-fetching them
 - **AND** its completion state is derivable from the cached-booklet list versus the manifest (no separate schema table required)
 - **AND** the progress reported to the player distinguishes how many were downloaded this run from how many were skipped-because-cached
+
+#### Scenario: Bulk run paces requests between booklets
+- **WHEN** the offline-all run fetches consecutive uncached booklets
+- **THEN** it fetches them one at a time and waits a short jittered delay between booklets
+- **AND** each booklet is fetched as a single whole-file request, not multiple Range requests
+
+#### Scenario: Suspected throttle stops the queue and persists a cooldown
+- **WHEN** a booklet fetch fails in a way classified as a suspected Drive edge throttle during the offline-all run
+- **THEN** the system stops the remaining queue immediately (issues no further Drive requests for this run) and persists a cooldown
+- **AND** it surfaces a non-blocking message that the download is paused, already-cached booklets are kept, and it can be resumed later
+- **AND** a subsequent offline-all activation while still within the cooldown is refused with a message naming roughly when to retry, instead of issuing more requests
 
 #### Scenario: Best-effort persistent storage requested before bulk download
 - **WHEN** the player activates 「全部下載供離線」
@@ -146,8 +161,8 @@ The action SHALL cache each booklet by buffering the fetched body into a **Blob*
 
 #### Scenario: First failure's stage and cause are surfaced for diagnosis
 - **WHEN** at least one booklet fails during the offline-all run
-- **THEN** the result surfaces the first failure's stage (fetch / assembly / cache-write / out-of-space) and its underlying cause (HTTP status or thrown-error name and message)
-- **AND** a buffered Blob with a clean `200` response is used for the cache write (a `206` or JS-constructed stream body is never handed to `Cache.put`)
+- **THEN** the result surfaces the first failure's stage (fetch / cache-write / out-of-space) and its underlying cause (HTTP status or thrown-error name and message)
+- **AND** the cache write uses a clean `application/pdf` response (a JS-constructed stream body is never handed to `Cache.put`)
 
 ### Requirement: Cached PDF bytes use a swappable byte-store, never IndexedDB blobs
 The cache SHALL be accessed through a small swappable byte-store interface (get / put / delete / list). The v1 implementation SHALL use the Cache API. The system SHALL NOT store 20–96 MB PDF blobs in IndexedDB / Dexie, and SHALL NOT introduce a new Dexie schema version for PDF caching. The cached-state queries ("is this booklet cached?", "list cached booklets") SHALL be answered by the byte-store itself; any user preference (e.g. the offline-all toggle) SHALL ride the existing key-value meta store. Because the cache is a pure optimization (the source is always re-fetchable), the system SHALL treat browser eviction as a harmless re-fetch and SHALL NOT claim a persistence guarantee.
@@ -174,7 +189,9 @@ The provenance map SHALL identify a question's source booklet by a stable `bookl
 - **AND** booklets without a `resourceKey` are fetched without that header
 
 ### Requirement: Fetch errors and offline degrade gracefully with the official link
-On a fetch attempt the system SHALL distinguish transient from terminal failures and SHALL never fail silently. It SHALL retry transient `5xx` responses with backoff; it SHALL surface `403/429` (quota) and `404` / link-rot as a non-blocking message that includes the official Drive link for that booklet; and when the player is offline with the booklet uncached it SHALL show a non-blocking "not available offline" message. In every failure case the inline explanation SHALL remain available and the quiz flow SHALL continue.
+On a fetch attempt the system SHALL distinguish transient, terminal, and **edge-throttle** failures and SHALL never fail silently. It SHALL retry transient `5xx` responses with backoff; it SHALL surface `403/429` (quota) and `404` / link-rot as a non-blocking message that includes the official Drive link for that booklet; and when the player is offline with the booklet uncached it SHALL show a non-blocking "not available offline" message. In every failure case the inline explanation SHALL remain available and the quiz flow SHALL continue.
+
+Because Google's edge can reject bursty per-IP Drive traffic with a CORS-less `403` that the browser surfaces as an opaque `TypeError` (no readable status), the system SHALL detect a **suspected Drive edge throttle**: when a booklet fetch throws a `TypeError`-class error, the system SHALL run one **same-origin** connectivity probe; if that same-origin probe succeeds and `navigator.onLine` is not `false`, the failure SHALL be classified as a suspected edge throttle rather than a generic network error. On such a classification the system SHALL persist a **progressive cooldown** (escalating with repeated strikes, up to a daily cap; reset after repeated successful Drive fetches). The **bulk** action SHALL hard-respect the cooldown (refuse to start while active). A **single-open** SHALL only soft-respect the cooldown (it MAY still attempt one fetch and a success SHALL clear/relax the cooldown). A throttle failure SHALL surface throttle-aware copy (that Drive is temporarily limiting downloads and the action is paused / can be retried later), and SHALL NOT immediately retry the Drive request.
 
 #### Scenario: Transient server error is retried then falls back
 - **WHEN** a booklet fetch returns a transient `5xx`
@@ -190,23 +207,15 @@ On a fetch attempt the system SHALL distinguish transient from terminal failures
 - **WHEN** the player activates the action while offline and the booklet is not cached
 - **THEN** the system shows a non-blocking "not available offline" message and keeps the inline explanation available
 
-### Requirement: Booklets are fetched in bounded Range slices for mobile-Safari reliability
-The web platform adapter SHALL fetch a booklet's bytes from the publisher's Drive in **bounded `Range` slices** rather than as a single whole-file request, because iOS / mobile Safari (WebKit) drops a large in-flight cross-origin response mid-transfer (surfaced to JS as a network `TypeError`), making large booklets persistently un-fetchable as one request even though the same URL succeeds via `curl` and on desktop. Each network request SHALL be bounded (≤ a few MiB) so WebKit never sees a large in-flight response. The slices SHALL be assembled into one body that is consumed with back-pressure (one slice request at a time), so the whole PDF is NOT held in JS memory; the assembled body streams to the byte-store (bulk) or is read once (single-open). This SHALL preserve the zero-app-hosted-bytes invariant — every slice is fetched by the player's browser directly from the publisher's Drive, with no app-owned server, Worker, or bucket in the byte path. Each request SHALL have an abort timeout and SHALL retry transient `5xx` / network failures (including the iOS network-lost error) with backoff. When the file fits in the first slice, or the server does not honor `Range` (responds `200` with the whole body), the adapter SHALL fall back to the existing single-shot path. Terminal failures (403/429 quota, 404 link-rot, offline) and the official-Drive-link fallback are unchanged.
+#### Scenario: CORS-masked edge throttle is classified via a same-origin probe
+- **WHEN** a booklet fetch throws a `TypeError`-class error, a same-origin probe then succeeds, and `navigator.onLine` is not `false`
+- **THEN** the system classifies the failure as a suspected Drive edge throttle (not a generic network error) and persists a progressive cooldown
+- **AND** it surfaces throttle-aware copy and does not immediately retry the Drive request
 
-#### Scenario: A large booklet is fetched as multiple Range slices
-- **WHEN** a booklet larger than one slice is fetched (the server returns `206 Partial Content` with a `Content-Range` total)
-- **THEN** the adapter fetches it as a sequence of bounded `Range` requests and assembles them into the booklet's bytes
-- **AND** no single network request carries the whole large file, so iOS / mobile Safari does not drop it mid-transfer
-- **AND** the bytes are byte-for-byte the same file as a whole-file fetch would have produced
-
-#### Scenario: Small file or no Range support takes the single-shot path
-- **WHEN** the booklet fits within the first slice, or the server ignores `Range` and responds `200` with the whole body
-- **THEN** the adapter uses the single response as-is (no behavior change for small booklets)
-
-#### Scenario: A failed slice does not yield a partial/corrupt cache entry
-- **WHEN** a slice request fails terminally (e.g. link-rot) part-way through assembling a booklet
-- **THEN** the assembly surfaces the error to the consumer (no silent truncation), so the booklet is counted as failed and is not stored as a partial entry
-- **AND** the inline explanation and the official Drive link remain available
+#### Scenario: Bulk hard-respects, single-open soft-respects the cooldown
+- **WHEN** a cooldown is active
+- **THEN** the bulk offline-all action refuses to start and tells the player roughly when to retry
+- **AND** a single 「看原始詳解 PDF」 open MAY still attempt one fetch, and a success clears or relaxes the cooldown
 
 ### Requirement: Booklet requests set an explicit referrer + CORS policy
 Because the Drive API key is HTTP-referrer-restricted, every booklet request (on-demand, bulk, and diagnostic) SHALL set `referrerPolicy: 'origin'` (force the app origin as `Referer` regardless of any page `Referrer-Policy`), `credentials: 'omit'` (no cookies sent cross-origin), and `mode: 'cors'`. It SHALL NOT attempt to set the `Referer` header manually (a browser-controlled forbidden header).

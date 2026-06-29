@@ -48,22 +48,17 @@ export interface DriveFetchOptions {
   sleep?: (ms: number) => Promise<void>
   /** Per-request abort timeout in ms (guards an indefinitely-hung request). */
   timeoutMs?: number
-  /** Range slice size in bytes. Small enough that iOS Safari never sees a large in-flight response. */
-  chunkSize?: number
 }
 
 const DEFAULT_KEY = import.meta.env.VITE_GDRIVE_API_KEY as string | undefined
 const ENDPOINT = 'https://www.googleapis.com/drive/v3/files'
-const DEFAULT_CHUNK = 4 * 1024 * 1024 // 4 MiB — empirically below iOS Safari's large-response cliff
-const DEFAULT_TIMEOUT = 30_000
-
-/** Parse the total length out of a `Content-Range: bytes <start>-<end>/<total>` header, or null. */
-function parseContentRangeTotal(header: string | null): number | null {
-  const m = /\/(\d+)\s*$/.exec(header ?? '')
-  if (!m) return null
-  const n = Number(m[1])
-  return Number.isFinite(n) && n > 0 ? n : null
-}
+// One whole-file request per booklet (fix-neurons-pdf-edge-throttle). Range chunking was REMOVED: it
+// amplified one booklet into ~31 requests and a 46-booklet bulk run into hundreds–thousands of rapid
+// requests from one IP, which trips Google's per-IP edge abuse throttle (a CORS-less "Sorry" 403 that
+// the browser surfaces as `TypeError: Load failed`). A single request is fewer requests AND less code;
+// the "iOS drops large responses" theory that motivated chunking was disproven (a tiny 4 MiB request
+// fails too). 180s because a whole 123 MB fetch on a mobile network legitimately exceeds the old 30s.
+const DEFAULT_TIMEOUT = 180_000
 
 /**
  * One request with an AbortController timeout, retrying transient 5xx + network errors with backoff.
@@ -108,8 +103,10 @@ async function fetchWithRetry(
 }
 
 /**
- * Fetch a booklet's PDF bytes from Drive by file id, in Range slices. Includes the
- * `X-Goog-Drive-Resource-Keys` header ONLY when the (legacy 0B…) file carries a resourceKey.
+ * Fetch a booklet's PDF bytes from Drive by file id as a SINGLE whole-file request
+ * (fix-neurons-pdf-edge-throttle — no client-side Range chunking; one request per booklet keeps the
+ * bulk run from amplifying into the per-IP burst that trips Google's edge abuse throttle). Includes
+ * the `X-Goog-Drive-Resource-Keys` header ONLY when the (legacy 0B…) file carries a resourceKey.
  */
 export async function fetchBooklet(
   driveFileId: string,
@@ -127,98 +124,106 @@ export async function fetchBooklet(
   const delayMs = opts.delayMs ?? 500
   const sleep = opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)))
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT
-  const chunkSize = Math.max(1, opts.chunkSize ?? DEFAULT_CHUNK)
 
   const url = `${ENDPOINT}/${driveFileId}?alt=media&key=${encodeURIComponent(apiKey)}`
-  const baseHeaders: Record<string, string> = {}
-  if (resourceKey) baseHeaders['X-Goog-Drive-Resource-Keys'] = `${driveFileId}/${resourceKey}`
-  const rangeHeaders = (start: number, end: number): Record<string, string> => ({
-    ...baseHeaders,
-    Range: `bytes=${start}-${end}`,
-  })
+  const headers: Record<string, string> = {}
+  if (resourceKey) headers['X-Goog-Drive-Resource-Keys'] = `${driveFileId}/${resourceKey}`
 
-  // First slice doubles as the probe (and is the whole file for a small booklet).
-  let first: Response
+  let res: Response
   try {
-    first = await fetchWithRetry(fetchImpl, url, rangeHeaders(0, chunkSize - 1), sleep, retries, delayMs, timeoutMs)
+    res = await fetchWithRetry(fetchImpl, url, headers, sleep, retries, delayMs, timeoutMs)
   } catch (err) {
+    // A thrown error is most often a CORS-masked rejection (the edge "Sorry" 403 surfaces as a
+    // TypeError with no readable status) or a dropped connection. The caller classifies a suspected
+    // edge throttle via `isCorsMaskedError(detail)` + `sameOriginProbe()`.
     return { ok: false, reason: 'error', message: '網路連線失敗，請稍後再試', detail: errDetail(err) }
   }
 
-  if (first.status === 403 || first.status === 429) {
+  if (res.status === 403 || res.status === 429) {
     return {
       ok: false,
       reason: 'quota',
-      status: first.status,
+      status: res.status,
       message: 'Google Drive 暫時忙線（配額），請稍後再試',
-      detail: `HTTP ${first.status}`,
+      detail: `HTTP ${res.status}`,
     }
   }
-  if (first.status === 404) {
+  if (res.status === 404) {
     return { ok: false, reason: 'not-found', status: 404, message: '官方雲端找不到這份 PDF（連結可能已更動）', detail: 'HTTP 404' }
   }
-  // 200 = the server ignored the Range and sent the whole body (small file / no range support) — use
-  // it as-is (legacy single-shot path; harmless for the small files that don't hit the iOS cliff).
-  if (first.status === 200) return { ok: true, response: first }
-  if (first.status !== 206) {
-    return { ok: false, reason: 'error', status: first.status, message: `載入失敗（${first.status}）`, detail: `HTTP ${first.status}` }
+  if (!res.ok) {
+    return { ok: false, reason: 'error', status: res.status, message: `載入失敗（${res.status}）`, detail: `HTTP ${res.status}` }
   }
+  return { ok: true, response: res }
+}
 
-  // 206 Partial Content → assemble the rest in further Range slices.
-  const total = parseContentRangeTotal(first.headers.get('content-range'))
-  if (total == null) {
-    // No usable length → fall back to a single full GET (legacy path).
-    try {
-      const full = await fetchWithRetry(fetchImpl, url, baseHeaders, sleep, retries, delayMs, timeoutMs)
-      if (!full.ok) return { ok: false, reason: 'error', status: full.status, message: `載入失敗（${full.status}）`, detail: `HTTP ${full.status}` }
-      return { ok: true, response: full }
-    } catch (err) {
-      return { ok: false, reason: 'error', message: '網路連線失敗，請稍後再試', detail: errDetail(err) }
-    }
-  }
-  if (total <= chunkSize) {
-    // Whole file fit in the first slice. Re-wrap to a clean 200 response — `Cache.put` rejects a 206
-    // per the Service Worker spec, so a caller that puts this directly must not see the probe's 206.
-    return { ok: true, response: new Response(first.body, { headers: { 'content-type': 'application/pdf' } }) }
-  }
+/**
+ * True if a fetch failure (an Error, or a `DriveFetchResult.detail` string) looks like a CORS-masked
+ * network rejection — a thrown `TypeError` / "Load failed" / "Failed to fetch" / "NetworkError". The
+ * browser hides the status of a CORS-rejected response, so Google's edge "Sorry" 403 throttle arrives
+ * here indistinguishably from a genuine dropped connection; the caller disambiguates with a
+ * same-origin probe (a real network outage also fails that probe; an edge throttle does not).
+ */
+export function isCorsMaskedError(errOrDetail: unknown): boolean {
+  const s =
+    errOrDetail instanceof Error
+      ? `${errOrDetail.name}: ${errOrDetail.message}`
+      : typeof errOrDetail === 'string'
+        ? errOrDetail
+        : String(errOrDetail ?? '')
+  const m = s.toLowerCase()
+  return (
+    m.includes('typeerror') ||
+    m.includes('load failed') ||
+    m.includes('failed to fetch') ||
+    m.includes('networkerror')
+  )
+}
 
-  // Stream slice 0, then pull slices 1..N. Each network request stays ≤ chunkSize, so iOS Safari
-  // never sees a large in-flight response; Cache.put / blob() drains this with back-pressure (one
-  // 4 MiB request at a time), so the whole PDF is never held in JS memory.
-  const firstBuf = new Uint8Array(await first.arrayBuffer())
-  let offset = firstBuf.byteLength
-  const stream = new ReadableStream<Uint8Array>({
-    start(controller) {
-      controller.enqueue(firstBuf)
-    },
-    async pull(controller) {
-      if (offset >= total) {
-        controller.close()
-        return
-      }
-      const end = Math.min(offset + chunkSize, total) - 1
-      let res: Response
-      try {
-        res = await fetchWithRetry(fetchImpl, url, rangeHeaders(offset, end), sleep, retries, delayMs, timeoutMs)
-      } catch (err) {
-        controller.error(err)
-        return
-      }
-      if (res.status !== 206 && res.status !== 200) {
-        controller.error(new Error(`Range slice at ${offset} failed (${res.status})`))
-        return
-      }
-      const buf = new Uint8Array(await res.arrayBuffer())
-      if (buf.byteLength === 0) {
-        // Defensive: a zero-length slice would loop forever — treat as a failed transfer.
-        controller.error(new Error(`Empty Range slice at ${offset}`))
-        return
-      }
-      controller.enqueue(buf)
-      offset += buf.byteLength
-    },
-  })
-  return { ok: true, response: new Response(stream, { headers: { 'content-type': 'application/pdf' } }) }
+/**
+ * Probe whether the player's OWN origin is reachable (a lightweight same-origin request), to
+ * disambiguate a CORS-masked Drive failure: if this SUCCEEDS while Drive threw, the network is up and
+ * Drive specifically was rejected → a suspected edge throttle. Same-origin only — a cross-origin probe
+ * (e.g. httpbin) adds its own failure modes (adblock / captive portal / DNS) and would give a false
+ * signal. Any resolved response (even 404/405) means the origin is reachable.
+ */
+export async function sameOriginProbe(
+  opts: { fetchImpl?: typeof fetch; url?: string; timeoutMs?: number } = {},
+): Promise<boolean> {
+  const fetchImpl = opts.fetchImpl ?? fetch
+  const base = (import.meta.env.BASE_URL as string | undefined) || '/'
+  const url = opts.url ?? `${base}favicon.png?probe=${Date.now()}`
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null
+  const timer = controller ? setTimeout(() => controller.abort(), opts.timeoutMs ?? 8000) : null
+  try {
+    await fetchImpl(url, {
+      method: 'HEAD',
+      cache: 'no-store',
+      ...(controller ? { signal: controller.signal } : {}),
+    })
+    return true
+  } catch {
+    return false
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
+}
+
+/**
+ * Whether a FAILED booklet fetch looks like Google's per-IP edge throttle: the failure is CORS-masked
+ * (a thrown TypeError, no readable status) AND the player's own origin is still reachable (so it's not
+ * a real outage). The single classifier shared by the bulk download and single-open paths — each
+ * caller layers its own policy on top (the bulk run gates this behind a strike count to avoid the
+ * probe + a cooldown from one transient blip; single-open always asks). Returns false for any ok /
+ * non-error / non-CORS-masked / genuinely-offline result.
+ */
+export async function isSuspectedEdgeThrottle(
+  res: DriveFetchResult,
+  opts: { fetchImpl?: typeof fetch } = {},
+): Promise<boolean> {
+  if (res.ok || res.reason !== 'error' || !isCorsMaskedError(res.detail)) return false
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return false
+  return sameOriginProbe({ fetchImpl: opts.fetchImpl })
 }
 
 /**
