@@ -63,8 +63,8 @@ const FULL_DIMS: BandDims = {
   gap: 22, near: 96, far: 78, maxW: 760, opacity: 1,
 }
 const COMPACT_DIMS: BandDims = {
-  h: 92, groundH: 60, skyTile: 184, groundTile: 120, particleTile: 70,
-  gap: 12, near: 54, far: 44, maxW: '100%', opacity: 0.5,
+  h: 72, groundH: 46, skyTile: 184, groundTile: 120, particleTile: 70,
+  gap: 12, near: 44, far: 36, maxW: '100%', opacity: 0.62,
 }
 
 function rarityRank(r: NeuronVariantRow['rarity']): number {
@@ -195,15 +195,21 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
   const members = [...squadMembers, ...companionMembers]
 
   const wrapStyle: CSSProperties = {
-    position: compact ? 'absolute' : 'relative',
-    ...(compact ? { left: 0, right: 0, top: 0 } : {}),
+    // Compact (QuizModal) used to be an `absolute` overlay pinned to the modal top,
+    // which painted (translucent) OVER the header + the first line of the question stem
+    // (fix-neurons-quiz-expedition-band-overlap). It is now an in-flow strip — it sits in
+    // the modal's flex column between the title bar and the question, so it can never
+    // overlap the content on any viewport.
+    position: 'relative',
     width: '100%',
     maxWidth: d.maxW,
     height: d.h,
+    flexShrink: 0,
     margin: compact ? 0 : '0.75rem auto 0',
     borderRadius: compact ? 0 : 12,
+    borderBottom: compact ? '1px solid #e2d2b4' : undefined,
     overflow: 'hidden',
-    background: compact ? 'transparent' : '#0a0820',
+    background: compact ? '#171433' : '#0a0820',
     boxShadow: compact ? 'none' : '0 0 0 1px #1d1b3a, 0 8px 30px #0008',
     opacity: d.opacity,
     pointerEvents: compact ? 'none' : 'auto',
