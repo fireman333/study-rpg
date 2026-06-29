@@ -83,7 +83,12 @@ async function fetchWithRetry(
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null
     const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null
     try {
-      const res = await fetchImpl(url, controller ? { headers, signal: controller.signal } : { headers })
+      // Explicit referrerPolicy 'origin' forces the app origin as Referer (the API key is
+      // referrer-restricted) regardless of any page Referrer-Policy; credentials 'omit' = no cookies
+      // to Drive. Defensive against a referrer-strip causing a CORS-masked 403 (fix discussion).
+      const init: RequestInit = { headers, referrerPolicy: 'origin', credentials: 'omit', mode: 'cors' }
+      if (controller) init.signal = controller.signal
+      const res = await fetchImpl(url, init)
       if (res.status >= 500 && attempt < retries) {
         await sleep(delayMs * (attempt + 1))
         continue
@@ -214,6 +219,58 @@ export async function fetchBooklet(
     },
   })
   return { ok: true, response: new Response(stream, { headers: { 'content-type': 'application/pdf' } }) }
+}
+
+/**
+ * Connectivity diagnostic (fix discussion — the iPad bug is unreproducible and CORS errors are
+ * opaque to JS, so we probe a MATRIX of request shapes and report each outcome). The PATTERN of
+ * which probes fail is decisive even when individual error strings are not:
+ *  - A fails → the device blocks/breaks ALL cross-origin (content blocker / VPN / Private Relay).
+ *  - A ok, B fails → Drive/googleapis specifically blocked (referrer / CORS / network reject).
+ *  - B ok, C fails → only the `X-Goog-Drive-Resource-Keys` custom-header (preflight) path fails.
+ *  - all ok → the fetch path works; the bug is downstream (cache write / bulk logic).
+ */
+export async function diagnoseDrive(
+  sample: { plainFileId?: string; rkFileId?: string; resourceKey?: string },
+  opts: { fetchImpl?: typeof fetch; apiKey?: string } = {},
+): Promise<string[]> {
+  const apiKey = opts.apiKey ?? DEFAULT_KEY
+  const fetchImpl = opts.fetchImpl ?? fetch
+  const out: string[] = []
+  const probe = async (label: string, url: string, headers?: Record<string, string>): Promise<void> => {
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null
+    const timer = controller ? setTimeout(() => controller.abort(), 15_000) : null
+    try {
+      const init: RequestInit = { referrerPolicy: 'origin', credentials: 'omit', mode: 'cors' }
+      if (headers) init.headers = headers
+      if (controller) init.signal = controller.signal
+      const res = await fetchImpl(url, init)
+      // status + whether the 302→googleusercontent redirect was followed + the CORS response type
+      // (a cors fetch that survives the redirect is type 'cors'; a blocked one throws instead).
+      out.push(`${label}：HTTP ${res.status}${res.redirected ? ' 轉址' : ''} [${res.type}]`)
+    } catch (err) {
+      out.push(`${label}：✗ ${errDetail(err)}`)
+    } finally {
+      if (timer) clearTimeout(timer)
+    }
+  }
+  // A — non-Google cross-origin (is ANY cross-origin fetch reaching the network from this device?)
+  await probe('A 非Google跨域', 'https://httpbin.org/status/200')
+  // B — Drive, small Range, NO custom header (CORS-safelisted, no preflight)
+  if (apiKey && sample.plainFileId) {
+    await probe('B Drive小範圍', `${ENDPOINT}/${sample.plainFileId}?alt=media&key=${encodeURIComponent(apiKey)}`, {
+      Range: 'bytes=0-1023',
+    })
+  }
+  // C — Drive with the X-Goog-Drive-Resource-Keys custom header (triggers a CORS preflight)
+  if (apiKey && sample.rkFileId && sample.resourceKey) {
+    await probe('C Drive+RK標頭', `${ENDPOINT}/${sample.rkFileId}?alt=media&key=${encodeURIComponent(apiKey)}`, {
+      'X-Goog-Drive-Resource-Keys': `${sample.rkFileId}/${sample.resourceKey}`,
+      Range: 'bytes=0-1023',
+    })
+  }
+  if (!apiKey) out.push('（缺 Drive 金鑰，B/C 跳過）')
+  return out
 }
 
 /** Official Drive 「view」 URL for a booklet — the non-blocking fallback link on any fetch failure. */
