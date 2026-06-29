@@ -21,7 +21,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { loadBookletLinks, type BookletLinkMap } from '../platform/manifest'
 import { byteStore } from '../platform/byteStore'
-import { fetchBooklet, parseResourceKey } from '../platform/driveFetch'
+import { fetchBooklet, parseResourceKey, diagnoseDrive } from '../platform/driveFetch'
 import { db } from '../lib/db'
 
 const META_KEY = 'pdfOfflineAll'
@@ -84,6 +84,12 @@ export function OfflineAllPdfControl(): JSX.Element {
   const [progress, setProgress] = useState<LiveProgress | null>(null)
   const [result, setResult] = useState<RunResult | null>(null)
   const [remaining, setRemaining] = useState<number | null>(null)
+  // First failure surfaced LIVE during the run — the completion summary can be minutes away when
+  // every booklet fails, so the player must be able to see the cause without waiting for the end.
+  const [liveError, setLiveError] = useState('')
+  // Connectivity diagnostic matrix (the iPad bug is unreproducible + CORS errors are opaque).
+  const [diag, setDiag] = useState<string[] | null>(null)
+  const [diagBusy, setDiagBusy] = useState(false)
 
   async function refreshCachedCount(map: BookletLinkMap): Promise<void> {
     try {
@@ -117,6 +123,7 @@ export function OfflineAllPdfControl(): JSX.Element {
     if (!links) return
     setBusy(true)
     setResult(null)
+    setLiveError('')
     // User-gesture-triggered: ask the browser to keep these PDFs from being evicted.
     await requestPersistentStorage()
     try {
@@ -135,6 +142,7 @@ export function OfflineAllPdfControl(): JSX.Element {
       const name = err instanceof Error ? err.name || 'Error' : ''
       const msg = err instanceof Error ? err.message : err != null ? String(err) : ''
       firstError = `${stage}${name ? ` ${name}` : ''}${msg ? `: ${msg}` : ''}`.slice(0, 90)
+      setLiveError(firstError) // surface it immediately, mid-run
     }
     for (let i = 0; i < keys.length; i++) {
       setProgress({ checked: i, total: keys.length, downloaded, skipped })
@@ -196,6 +204,26 @@ export function OfflineAllPdfControl(): JSX.Element {
     setRemaining(await estimateRemaining())
   }
 
+  async function runDiag(): Promise<void> {
+    if (!links) return
+    setDiagBusy(true)
+    setDiag(null)
+    const entries = Object.entries(links)
+    const plain = entries.find(([, v]) => !/resourcekey=/.test(v.viewUrl))
+    const rk = entries.find(([, v]) => /resourcekey=/.test(v.viewUrl))
+    try {
+      const out = await diagnoseDrive({
+        plainFileId: plain?.[1].driveFileId,
+        rkFileId: rk?.[1].driveFileId,
+        resourceKey: rk ? parseResourceKey(rk[1].viewUrl) : undefined,
+      })
+      setDiag(out)
+    } catch (e) {
+      setDiag([`診斷執行失敗：${String(e)}`])
+    }
+    setDiagBusy(false)
+  }
+
   return (
     <div style={wrapStyle}>
       <button type="button" style={btnStyle} onClick={downloadAll} disabled={busy}>
@@ -206,6 +234,7 @@ export function OfflineAllPdfControl(): JSX.Element {
           ? `檢查 ${progress.checked}/${progress.total} · 本次下載 ${progress.downloaded}・略過已快取 ${progress.skipped}`
           : `已快取 ${cached} / ${total} 份`}
       </span>
+      {busy && liveError && <span style={warnStyle}>首個失敗：{liveError}</span>}
       {!busy && result && (result.failedSpace > 0 || result.failedNet > 0) && (
         <span style={warnStyle}>
           {result.failedSpace > 0
@@ -219,6 +248,22 @@ export function OfflineAllPdfControl(): JSX.Element {
       {!busy && !result && !allCached && (
         <span style={hintStyle}>全部約需數百 MB 至 1 GB；手機空間有限時可能無法全部存下，仍可在開啟單份時即時載入。</span>
       )}
+      {/* Connectivity diagnostic — load-bearing for the (unreproducible) iPad "won't download" bug. */}
+      <div style={{ flexBasis: '100%', marginTop: '0.3rem' }}>
+        <button type="button" style={diagBtnStyle} onClick={runDiag} disabled={diagBusy || busy}>
+          {diagBusy ? '診斷中…' : '🔍 診斷連線（下載一直失敗時點這）'}
+        </button>
+        {diag && (
+          <div style={diagBoxStyle}>
+            {diag.map((line, i) => (
+              <div key={i}>{line}</div>
+            ))}
+            <div style={{ marginTop: '0.3rem', color: '#6a5a45' }}>
+              A=非Google跨域 · B=Drive小範圍 · C=Drive+特殊標頭。把這幾行截圖回報即可定位。
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -244,3 +289,26 @@ const warnStyle: CSSProperties = {
   lineHeight: 1.5,
 }
 const hintStyle: CSSProperties = { fontSize: '0.78rem', color: '#6a5a45', fontFamily: 'var(--font-legible)', lineHeight: 1.5 }
+const diagBtnStyle: CSSProperties = {
+  cursor: 'pointer',
+  border: '1px dashed #b7a07f',
+  borderRadius: '4px',
+  background: '#f3ece0',
+  color: '#5a4a35',
+  fontFamily: 'var(--font-legible)',
+  fontSize: '0.78rem',
+  padding: '0.25rem 0.5rem',
+}
+const diagBoxStyle: CSSProperties = {
+  marginTop: '0.4rem',
+  padding: '0.5rem 0.6rem',
+  background: '#fbf7ee',
+  border: '1px solid #d8c8a8',
+  borderRadius: '4px',
+  fontFamily: 'ui-monospace, monospace',
+  fontSize: '0.76rem',
+  lineHeight: 1.7,
+  color: '#3a2a1a',
+  whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
+}
