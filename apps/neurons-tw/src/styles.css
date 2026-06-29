@@ -139,21 +139,18 @@ body:has(.modal-backdrop) {
   }
 }
 
-/* ── Family-grid + embedded-maze master-detail (reposition-neurons-maze-master-detail → C′ desktop /
- * A2 mobile). The ONE maze canvas always lives in `.neurons-md__detail`; EVERY layout state change is
- * a class-toggle + grid-template change only — the canvas is NEVER re-parented/remounted. ALL
- * canvas-container size changes SNAP (no transitions on `.neurons-md*` / `.maze-stage` — a width/height
- * transition would fire the ResizeObserver every frame → backing-store realloc + full reblit → iOS OOM);
- * only sibling DockHeader / chip-rail opacity+translateY one-shot fades animate.
+/* ── Family-grid + embedded-maze (redesign-neurons-homepage-squad-and-maze-focus). The ONE maze canvas
+ * always lives in `.neurons-md__detail`; EVERY layout state change is a class-toggle only — the canvas
+ * is NEVER re-parented/remounted. ALL canvas-container size changes SNAP (no transitions on
+ * `.neurons-md*` / `.maze-stage` — a width/height transition would fire the ResizeObserver every frame
+ * → backing-store realloc + full reblit → iOS OOM).
  *
- * DESKTOP (≥768px): non-detail (overview) = STACKED single column mirroring mobile — the global maze
- * full-width ABOVE the year-filter chips + family-card grid (stack-neurons-homepage-maze-desktop;
- * no side column, no sticky panel). Detail mode (`is-detail`, == a family is selected) = FULL-WIDTH
- * single column — a DockHeader (the enlarged selected card) above the maze, the card grid `display:none`
- * (stays MOUNTED so its liveQuery chip counts stay warm), and a single-row FamilyChipRail below for
- * no-返回 family switching.
- * MOBILE (<768px): cards stack; tapping a card CSS-docks the detail under it (`is-docked`, absolute).
- * The DockHeader + chip rail are hidden on mobile (the card itself is the affordance + switch surface). */
+ * Focusing a family is a MAZE-CAMERA operation only — there is NO detail mode: the card grid NEVER
+ * collapses, there is no DockHeader and no chip rail. DESKTOP (≥768px) + collapsed/expanded: STACKED
+ * single column — the global maze full-width ABOVE the year-filter chips + family-card grid
+ * (stack-neurons-homepage-maze-desktop; no side column, no sticky panel).
+ * MOBILE (<768px): cards stack; tapping a card's 🔍 聚焦 CSS-docks the detail under it (`is-docked`,
+ * absolute), with that card's quiz chips staying on screen. */
 .neurons-md { display: block; position: relative; }
 .neurons-md__detail { margin: 0 0 0.7rem; }
 
@@ -177,84 +174,27 @@ body:has(.modal-backdrop) {
   padding: 5px;
   box-shadow: inset 0 1px 5px rgba(60, 42, 26, 0.3);
 }
-.neurons-md.is-detail .neurons-md__detail {
-  border-color: color-mix(in srgb, var(--family-accent, #8c6d4a) 55%, #8c6d4a);
-}
 .neurons-md.is-expanded .neurons-md__detail .maze-panel {
   background: radial-gradient(120% 90% at 50% 0%, #221c3f 0%, #0b0a1f 55%);
   border: 1.5px solid #8c6d4a;
   box-shadow: inset 0 0 0 1px rgba(124, 112, 196, 0.22), 0 2px 12px rgba(20, 14, 38, 0.5);
 }
-.neurons-md.is-detail .neurons-md__detail .maze-panel {
-  border-color: color-mix(in srgb, var(--family-accent, #8c6d4a) 60%, #3a2f63);
-}
 
-/* DockHeader (C′) + chip rail one-shot fade-in. These are SIBLINGS of the canvas container, so
- * animating them never resizes the stage. Re-runs only on mount (entering detail), not on family
- * switch (the element persists → content swaps with no re-fade → zero layout shift). */
-.neurons-md__dock-header,
-.neurons-md__rail {
-  animation: maze-dock-fade-in 240ms ease-out 1 both;
-}
-@keyframes maze-dock-fade-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Chip rail = single horizontal row of all 11 family chips below the maze (醫學一/醫學二 flattened to
- * a thin divider). Wraps rather than scrolls if a viewport is unusually narrow for ≥768px. */
-.neurons-md__rail {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  margin-top: 0.6rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid #c4a878;
-}
-.neurons-md__rail-divider {
-  width: 1px;
-  align-self: stretch;
-  min-height: 22px;
-  background: #c4a878;
-  margin: 0 0.15rem;
-}
-
-/* On mobile the DockHeader + chip rail are NOT used — the card stays on-screen above the docked maze. */
+/* The 🔍 聚焦 button label is icon-only on phones (icon + 「聚焦」label on ≥768px). */
 @media (max-width: 767px) {
-  .neurons-md__dock-header,
-  .neurons-md__rail { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .neurons-md__dock-header,
-  .neurons-md__rail { animation: none; }
+  .neurons-focus-label { display: none; }
 }
 
 @media (min-width: 768px) {
-  /* Non-detail (overview) = STACKED single column mirroring mobile (stack-neurons-homepage-maze-desktop):
-   * the GLOBAL maze renders full-width ABOVE the year-filter chips + family-card grid, in
-   * plain block flow (DOM order is detail-first — no grid placement, no sticky side column). The stage
-   * drops its 1:1 square for a wide viewport-bounded band — a SNAP change (no transition; canvas
-   * invariant above). Collapsed → same block flow (thin teaser on top, cards full width). */
-  .neurons-md.is-expanded:not(.is-detail) .neurons-md__detail .maze-stage {
+  /* Overview = STACKED single column mirroring mobile (stack-neurons-homepage-maze-desktop): the GLOBAL
+   * maze renders full-width ABOVE the year-filter chips + family-card grid, in plain block flow (no grid
+   * placement, no sticky side column). The stage drops its 1:1 square for a wide viewport-bounded band —
+   * a SNAP change (no transition; canvas invariant above). Focusing a family is camera-only; the grid is
+   * NEVER hidden (no detail mode — redesign-neurons-homepage-squad-and-maze-focus). */
+  .neurons-md.is-expanded .neurons-md__detail .maze-stage {
     max-width: none;
     aspect-ratio: auto;
     height: clamp(320px, 48vh, 540px);
-    margin: 0.4rem auto 0;
-  }
-
-  /* Detail mode (C′): full-width single column. The card grid is hidden (stays MOUNTED); the stage
-   * drops its 1:1/max-width and takes a tall fixed height — a SNAP change (no transition). */
-  .neurons-md.is-expanded.is-detail {
-    display: block;
-  }
-  .neurons-md.is-expanded.is-detail .neurons-md__master {
-    display: none;
-  }
-  .neurons-md.is-expanded.is-detail .neurons-md__detail .maze-stage {
-    max-width: none;
-    aspect-ratio: auto;
-    height: clamp(380px, 62vh, 640px);
     margin: 0.4rem auto 0;
   }
 }

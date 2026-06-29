@@ -1569,6 +1569,13 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
 
   const legend = useMemo(() => view.families.map((f) => f.familyId), [view.families])
 
+  // Status-pill state (redesign-neurons-homepage-squad-and-maze-focus): the focused family + whether
+  // its tract is fully lit (no frontier node left to explore → 「目前沒有可探索節點」).
+  const focusedFam = emphasisFamilyId
+    ? view.families.find((f) => f.familyId === emphasisFamilyId) ?? null
+    : null
+  const focusHasNoNode = focusedFam ? focusedFam.target === null : false
+
   return (
     <section className="maze-panel" style={panelStyle} aria-label="腦內迷宮（互動）">
       <div className="maze-topbar" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -1582,15 +1589,20 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
         >
           <EmojiIcon char="🔗" size={15} /> {synapseOverlayOn ? '隱藏連結' : '顯示連結'}
         </button>
-        {emphasisFamilyId && (
+        {/* Focus status pill: unfocused →「腦圖全覽」(label); focused →「聚焦：<科>｜全覽」(click =
+            camera reset). A fully-lit focused family reads「目前沒有可探索節點」(redesign-neurons-
+            homepage-squad-and-maze-focus). */}
+        {emphasisFamilyId ? (
           <button
             type="button"
             onClick={() => emitMazeRecenter()}
             style={spotlightChipStyle(FAMILY_ENC[emphasisFamilyId]?.color ?? '#9b8cff')}
             title={`聚焦中：${emphasisFamilyId} — 點擊還原全圖`}
           >
-            🎯 {emphasisFamilyId} ✕
+            🎯 聚焦：{emphasisFamilyId}{focusHasNoNode ? '｜目前沒有可探索節點' : '｜全覽 ✕'}
           </button>
+        ) : (
+          <span style={overviewPillStyle}>🔭 腦圖全覽</span>
         )}
       </div>
 
@@ -1949,6 +1961,15 @@ const spotlightChipStyle = (accent: string): CSSProperties => ({
   cursor: 'pointer',
   fontFamily: 'inherit',
 })
+// Unfocused status pill —「腦圖全覽」 label (non-interactive; the 🔭 button does the reset).
+const overviewPillStyle: CSSProperties = {
+  border: '1px solid #2a2750',
+  background: '#15132e',
+  color: '#cfcae8',
+  borderRadius: 999,
+  padding: '4px 12px',
+  fontSize: '0.85rem',
+}
 const chipToggleStyle = (on: boolean, accent: string): CSSProperties => ({
   border: `1px solid ${on ? accent : '#2a2750'}`,
   background: on ? `${accent}22` : '#120f29',

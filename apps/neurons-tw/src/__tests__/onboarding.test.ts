@@ -209,10 +209,10 @@ describe('resolveTourAnchor graceful degrade', () => {
 })
 
 // --- Visible-first DOM anchor resolution ---------------------------------------
-// The C′ DockHeader duplicates [data-tutorial="reading"] BEFORE the family cards
-// in DOM order but is display:none on mobile (<768px) — visible-first scanning
-// must skip the hidden duplicate and land on the visible 📖 button, instead of
-// nulling out the selector and degrading to the whole-card fallback.
+// A general safeguard: if a [data-tutorial="…"] anchor has a display:none / zero-
+// size DOM-first duplicate, visible-first scanning must skip the hidden one and
+// land on the visible element, instead of nulling out the selector and degrading
+// to the whole-card fallback.
 
 interface FakeRect {
   left: number
