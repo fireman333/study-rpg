@@ -185,6 +185,20 @@ body:has(.modal-backdrop) {
   .neurons-focus-label { display: none; }
 }
 
+/* SquadManager: the 5 squad slots evenly split the container width (so member names fit on one line
+   instead of wrapping). Drops to 3 then 2 columns on narrower viewports — no horizontal scroll. */
+.neurons-squad-slots {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+@media (max-width: 767px) {
+  .neurons-squad-slots { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 430px) {
+  .neurons-squad-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (min-width: 768px) {
   /* Overview = STACKED single column mirroring mobile (stack-neurons-homepage-maze-desktop): the GLOBAL
    * maze renders full-width ABOVE the year-filter chips + family-card grid, in plain block flow (no grid

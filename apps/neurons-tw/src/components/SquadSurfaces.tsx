@@ -81,7 +81,7 @@ export function SquadManager(): JSX.Element {
           {squad.length} / {MAX_SQUAD_SIZE}
         </span>
       </div>
-      <div style={slotRowStyle}>
+      <div className="neurons-squad-slots">
         {slots.map((row, i) =>
           row ? (
             <div
@@ -247,11 +247,6 @@ const managerCountStyle: React.CSSProperties = {
   color: '#8c6d4a',
 }
 
-const slotRowStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '0.5rem',
-}
 
 function filledSlotStyle(accent: string): React.CSSProperties {
   return {
@@ -260,7 +255,7 @@ function filledSlotStyle(accent: string): React.CSSProperties {
     flexDirection: 'column',
     alignItems: 'center',
     gap: '0.2rem',
-    width: 'clamp(96px, 18vw, 120px)',
+    minWidth: 0,
     padding: '0.45rem 0.4rem 0.5rem',
     background: '#fff',
     border: `2px solid ${accent}`,
@@ -313,7 +308,7 @@ const emptySlotStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   gap: '0.2rem',
-  width: 'clamp(96px, 18vw, 120px)',
+  minWidth: 0,
   minHeight: 96,
   padding: '0.45rem',
   background: 'rgba(255, 255, 255, 0.35)',
