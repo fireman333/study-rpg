@@ -88,6 +88,82 @@ describe('fetchBooklet — error classification (No Silent Errors)', () => {
   })
 })
 
+describe('fetchBooklet — Range-chunked assembly (fix-neurons-ipad-large-pdf-fetch)', () => {
+  // Serve `data` in Range slices like Drive does: 206 + Content-Range with the total.
+  const body = (u: Uint8Array): BodyInit => u as unknown as BodyInit
+  const rangeServer = (data: Uint8Array) =>
+    vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      const range = ((init?.headers ?? {}) as Record<string, string>)['Range']
+      const m = /bytes=(\d+)-(\d+)/.exec(range ?? '')
+      if (!m) return new Response(body(data), { status: 200 })
+      const start = Number(m[1])
+      const end = Math.min(Number(m[2]), data.length - 1)
+      const slice = data.slice(start, end + 1)
+      return new Response(body(slice), {
+        status: 206,
+        headers: { 'Content-Range': `bytes ${start}-${end}/${data.length}` },
+      })
+    })
+
+  it('assembles a multi-slice file from Range requests, bytes intact', async () => {
+    const data = new Uint8Array(Array.from({ length: 10 }, (_, i) => i))
+    const fetchImpl = rangeServer(data)
+    const r = await fetchBooklet('FID', undefined, {
+      apiKey: KEY,
+      isOnline: online,
+      fetchImpl,
+      sleep: noSleep,
+      chunkSize: 4,
+    })
+    expect(r.ok).toBe(true)
+    const got = new Uint8Array(await (r as { response: Response }).response.arrayBuffer())
+    expect([...got]).toEqual([...data])
+    expect(fetchImpl).toHaveBeenCalledTimes(3) // ceil(10/4): probe(0-3) + 4-7 + 8-9
+  })
+
+  it('a single-slice (small) file makes exactly one request', async () => {
+    const data = new Uint8Array([1, 2, 3])
+    const fetchImpl = rangeServer(data)
+    const r = await fetchBooklet('FID', undefined, {
+      apiKey: KEY,
+      isOnline: online,
+      fetchImpl,
+      sleep: noSleep,
+      chunkSize: 4,
+    })
+    expect(r.ok).toBe(true)
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    const got = new Uint8Array(await (r as { response: Response }).response.arrayBuffer())
+    expect([...got]).toEqual([1, 2, 3])
+  })
+
+  it('a slice that 404s mid-stream surfaces as a read error (no partial cache)', async () => {
+    const data = new Uint8Array(Array.from({ length: 10 }, (_, i) => i))
+    let call = 0
+    const fetchImpl = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      call += 1
+      const range = ((init?.headers ?? {}) as Record<string, string>)['Range']
+      const m = /bytes=(\d+)-(\d+)/.exec(range ?? '')!
+      const start = Number(m[1])
+      if (call >= 2) return new Response('', { status: 404 }) // second slice fails
+      const end = Math.min(Number(m[2]), data.length - 1)
+      return new Response(data.slice(start, end + 1) as unknown as BodyInit, {
+        status: 206,
+        headers: { 'Content-Range': `bytes ${start}-${end}/${data.length}` },
+      })
+    })
+    const r = await fetchBooklet('FID', undefined, {
+      apiKey: KEY,
+      isOnline: online,
+      fetchImpl,
+      sleep: noSleep,
+      chunkSize: 4,
+    })
+    expect(r.ok).toBe(true) // the probe succeeded; the failure is deferred to body consumption
+    await expect((r as { response: Response }).response.arrayBuffer()).rejects.toThrow()
+  })
+})
+
 describe('helpers', () => {
   it('officialDriveUrl appends resourcekey only when present', () => {
     expect(officialDriveUrl('FID')).toBe('https://drive.google.com/file/d/FID/view')
