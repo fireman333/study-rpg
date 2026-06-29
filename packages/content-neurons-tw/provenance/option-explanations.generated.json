@@ -1404,7 +1404,7 @@
   "flags": []
  },
  "104-1-醫學二-生物化學-Q36": {
-  "sourceHash": "3d7b2a31274f62cc713e596d42faa81b6db482685c683f42ee9fb3ad90028f4f",
+  "sourceHash": "cc5a3e5f7cacf00af04754959c1b5205673614db909cb28489c76dcc2956c2a9",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
@@ -1495,7 +1495,7 @@
   "flags": []
  },
  "104-1-醫學二-生物化學-Q43": {
-  "sourceHash": "1e9656dca03a51029f5281a5ada67ede513295b59df824ef629348185e6b574e",
+  "sourceHash": "d110e6db662011da047554489abe0864d154a85bfaa0f5783fcd8cc71fbf9708",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
@@ -1508,7 +1508,7 @@
   "flags": []
  },
  "104-1-醫學二-生物化學-Q44": {
-  "sourceHash": "a593441a8c6dd2aecc7de2e4e4811e0122c2388d9667de419ea96c6e5626b538",
+  "sourceHash": "76cc987e1a1428b873274463054b1d710af4286108ca6356b08956dd76d23c69",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
@@ -1625,17 +1625,18 @@
   "flags": []
  },
  "104-1-醫學二-生理學-Q11": {
-  "sourceHash": "70e58da49fc001f63d5811974ce6878316269b8065881ade9b92b3f959381597",
+  "sourceHash": "f7e84ea0d6a7a40a15b0b87712f5e25b5ad2256f1e08d7c91544e972d1e884c4",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
   "optionExplanations": {
-   "A": "選項A為空白，無法評估。",
+   "A": "代入DBP=70得MAP=(150+2×70)/3≈97 mmHg，與CO×SVR算得之110 mmHg不符，故偏低非正解。",
    "B": "計算結果不符；依MAP公式(SBP+2×DBP)/3與CO×SVR=MAP，應得約90 mmHg。",
    "C": "由CO×SVR=110 mmHg(平均動脈壓)與MAP公式(150+2×DBP)/3=110，可解出DBP=90。",
    "D": "計算結果偏高；過度低估了舒張壓對平均動脈壓的權重。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-resync-fix"
  },
  "104-1-醫學二-生理學-Q12": {
   "sourceHash": "265c90daa876e77ce1678a75dc599a61900dee760e026e9973e54e3b83c7fecc",
@@ -1794,7 +1795,7 @@
   "flags": []
  },
  "104-1-醫學二-生理學-Q24": {
-  "sourceHash": "da15d35c4763c6326c4b0494f1034603752a4dfb3616056664899319a3a31869",
+  "sourceHash": "98c0ad73d6b0364ccb8e25ea798d6111a2c94702f2c30dc1375ceedbdf60e164",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.010Z",
@@ -2158,7 +2159,7 @@
   "flags": []
  },
  "104-1-醫學二-病理學-Q94": {
-  "sourceHash": "90854e012178e1a2b1b6fc9c6252616a07cb00a26f952f44b03575900800cc03",
+  "sourceHash": "d30ed2f48ad6d5ccf0581768ce352dc399da6bcc2bf183e0a94603926612b042",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2249,7 +2250,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q53": {
-  "sourceHash": "d43b49f98a66414ca4f0b0b3afb29f736b3b55d1092fafdda52ae77d865a8b90",
+  "sourceHash": "a7461920bd02e95964410afca3360e3d4515ebeaad712b6e4a4386d79eaf4878",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2262,7 +2263,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q54": {
-  "sourceHash": "902204b25396986d18260230a9ce4284d3ce6206d13e7d5b73d03f0b5c6c688a",
+  "sourceHash": "2f5d7bd3c92c775dd9b82743268ed5e9b2067fb0098990b352415c89c83ca63a",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2275,7 +2276,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q55": {
-  "sourceHash": "10357b82a783fda82e3c323ef89615c4075a6e3174ee4b712b2117631f2ef680",
+  "sourceHash": "f70b0b874da836cac9654101b05c88db73171c24f2bcd17fccb8d0b47c4a8d43",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2301,7 +2302,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q57": {
-  "sourceHash": "55b75be9081ce5f4e058c2ee3d2b8927506a52eb9c09cd62cd2202c3b80bcc0d",
+  "sourceHash": "6691ecad7f99589836df390a68a2131f76a7d46857e61756545fb36ccbd66e91",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2327,7 +2328,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q59": {
-  "sourceHash": "5df114cdf688fa43a757d91ecdf9c0e3d9b1c440910daa9b20270ad0b9b45b8b",
+  "sourceHash": "d7189393bab902a1a589cf3bf3f911913407abb88bd59b4fba9eda4837cfe926",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2353,7 +2354,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q61": {
-  "sourceHash": "f29f8112f35d4672f47cb4e2866bdc8c07a2596880168e06f8864fe0e26249cc",
+  "sourceHash": "3b13f25806dfbac9f3bbc5be059bca994e9091d8be5a75372acec91c5a93e532",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2431,7 +2432,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q68": {
-  "sourceHash": "4603b60ecc4a7ac2f0503ffd6fed5e3ae3269cfee4d9f6a8ecabc9b5c16bbc5b",
+  "sourceHash": "eb953f02c40ffadf48dbf00d3cfc9d75a0f41ee4245df24e9d01540874e5c249",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2444,7 +2445,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q69": {
-  "sourceHash": "61af5eb5a92514a4d1633f1e1ca06faad70e735a13f8117a255b1b80882a3e06",
+  "sourceHash": "e54e895d1d895a09cf5503508cb5e6e9fd29a9ec2464e6cb00763f9f7cf6ca67",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2496,7 +2497,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q73": {
-  "sourceHash": "3f100789515004d9ca9f79dcb954386ef589390be4e235ebb32db30824c68a95",
+  "sourceHash": "3e86bfa2b9cb2187181d276778167efbdab2d8a0191da1e28920af13750604f0",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.012Z",
@@ -2509,7 +2510,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q75": {
-  "sourceHash": "5e9045c94b96b5e08ed8e4882554d27c682c71bc76d836e52ad6a65d5cb60231",
+  "sourceHash": "b23ac9ee318328c2b21b74223ca227fa0eedf35001f3d19b6ef0f2fa96d0cbcd",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.012Z",
@@ -58620,5 +58621,1311 @@
    "D": "銀杏具抗氧化及抑制血小板活化因子作用；用於末梢循環或認知功能，不調節T細胞活性。"
   },
   "flags": []
+ },
+ "104-1-醫學一-公共衛生學-Q88": {
+  "sourceHash": "8fd60fc417239b0d301512391b54ea8fdc77ebd9e036084fa9e0bfd3e50baf61",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.730Z",
+  "optionExplanations": {
+   "A": "配對t檢定用於「同一個體」前後測量的比較，此題兩組為不同受試者（病例vs對照），故非最佳選擇，但血壓差值亦可視為連續變項而被接受。",
+   "B": "單一樣本Z檢定用於將一個樣本平均值與已知母體值比較，此題有兩組獨立樣本，不適用。",
+   "C": "Pearson卡方檢定適用於類別資料的比較，血壓差值為連續變項，不適用卡方檢定。",
+   "D": "病例對照兩組為互相獨立的樣本，比較兩組連續變項（血壓差值）應使用獨立樣本t檢定，為本題最佳答案。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-1醫學(一).pdf",
+  "pdfPage": 80,
+  "pdfScale": 2.5
+ },
+ "104-1-醫學一-微生物暨免疫學-Q60": {
+  "sourceHash": "70a1f79af45c47332e74bac5f9a9d7fa6494e0a534fb576e2b1250b1444f4d8a",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.731Z",
+  "optionExplanations": {
+   "A": "Pneumocystis jirovecii 過去曾被誤分類為原蟲，但基因定序後確認屬於真菌，現已重新分類。",
+   "B": "依分子系統分類，屬於子囊菌門中較早期分支的 Archiascomycetes，此為正確分類。",
+   "C": "雖為重要致病菌，但目前所有在人工培養基上分離、培養及繁殖此菌的嘗試均告失敗，無法體外培養。",
+   "D": "P. jirovecii 主要感染免疫功能低下的病人（如 AIDS），而非肺結核病人。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-1醫學(一).pdf",
+  "pdfPage": 59,
+  "pdfScale": 2.5
+ },
+ "104-1-醫學二-生理學-Q21": {
+  "sourceHash": "d024d1caad91da792949bb5ee430aa0b739210d2f49f380d351720b748f9e25e",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.731Z",
+  "optionExplanations": {
+   "A": "LH由腦垂體前葉分泌，並非下視丘直接分泌",
+   "B": "TSH由腦垂體前葉分泌，下視丘分泌的是TRH來調控TSH",
+   "C": "Dopamine屬於下視丘直接分泌的物質之一（另有somatostatin等），故為正確答案",
+   "D": "Vasopressin（ADH）由下視丘supraoptic nucleus合成後儲存於腦垂體後葉，實為下視丘分泌，後來亦列為正確答案"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-1醫學(二).pdf",
+  "pdfPage": 18,
+  "pdfScale": 2.5
+ },
+ "104-1-醫學二-藥理學-Q52": {
+  "sourceHash": "bb117d080115a03224ec42cd8f0e2804ea09c377e568031a9279e5fda4bae05d",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.732Z",
+  "optionExplanations": {
+   "A": "Griseofulvin 為 CYP 誘導劑，會加強 warfarin 代謝，使其抗凝血效果降低，此敘述正確。",
+   "B": "Phenytoin 雖為 CYP3A4 誘導劑，但其加強 alprazolam 代謝的交互作用並不確切，故此敘述有誤，為本題答案。",
+   "C": "Ritonavir 為 CYP3A4 的強效抑制劑（inhibitor），會抑制而非加強 midazolam 代謝，故此敘述亦有誤。",
+   "D": "Carbamazepine 為 CYP 誘導劑，會加強 itraconazole 代謝，使其血中濃度降低，此敘述正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-1醫學(二).pdf",
+  "pdfPage": 49,
+  "pdfScale": 2.5
+ },
+ "104-1-醫學二-藥理學-Q65": {
+  "sourceHash": "c53dd6d487346b6ee4b0126691b63e6b33dd5beedea9c2f0bcd695e97c754af2",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.732Z",
+  "optionExplanations": {
+   "A": "Minoxidil為直接作用血管擴張劑，藉開啟K+通道使血管平滑肌過極化而舒張，不透過cGMP途徑。",
+   "B": "Nifedipine為二氫吡啶類鈣離子通道阻斷劑，抑制Ca2+內流使血管舒張，與cGMP機制無關。",
+   "C": "Prazosin為alpha-1腎上腺素受體阻斷劑，阻斷交感神經縮血管作用，不透過cGMP途徑。",
+   "D": "Sodium nitroprusside在體內釋放NO，活化guanylate cyclase使細胞內cGMP濃度上升，導致動靜脈血管舒張。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-1醫學(二).pdf",
+  "pdfPage": 60,
+  "pdfScale": 2.5
+ },
+ "104-2-醫學二-藥理學-Q74": {
+  "sourceHash": "01cdcf92951a508c135b6e53badc9a6c615db748423a40c1240e5b34b62429d7",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.733Z",
+  "optionExplanations": {
+   "A": "Craving for drugs（渴求藥物）是amphetamine禁斷現象之一，屬於戒斷症狀，故此選項屬於禁斷現象。",
+   "B": "Lassitude（疲倦）是amphetamine戒斷後因中樞抑制反彈出現的症狀，屬於禁斷現象。",
+   "C": "Hyperphagia（過食症）是amphetamine戒斷後因食慾抑制解除而出現的反彈症狀，屬於禁斷現象。",
+   "D": "Amphetamine戒斷通常出現嗜睡（hypersomnia）而非失眠，失眠是使用amphetamine期間的症狀，故失眠症不屬於禁斷現象。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-2醫學(二).pdf",
+  "pdfPage": 88,
+  "pdfScale": 2.5
+ },
+ "105-1-醫學一-胚胎學-Q29": {
+  "sourceHash": "d8e6626fc29f51be261bd3b2609ef03cae3c04305581c5ab3c5c149a6980ace8",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.733Z",
+  "optionExplanations": {
+   "A": "骶尾畸胎瘤包含三個胚層（外、中、內胚層）的細胞，並非僅由外胚層和中胚層組成。",
+   "B": "骶尾畸胎瘤是由原條的殘留部分衍生而來，原條閉鎖不全導致多能細胞殘留於骶尾部形成此腫瘤。",
+   "C": "骶尾畸胎瘤病灶大，產前超音波在妊娠中期即可偵測，是最常被產前診斷發現的胎兒腫瘤。",
+   "D": "骶尾畸胎瘤好發於女性，男女比約1:3至1:4，女多於男。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-1醫學(一).pdf",
+  "pdfPage": 42,
+  "pdfScale": 2.5
+ },
+ "105-1-醫學二-生物化學-Q28": {
+  "sourceHash": "7c3471fc88f3caa362c510beda48e88f693a2df0903a3b0939411d0ffc708468",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.733Z",
+  "optionExplanations": {
+   "A": "pH低於pI時溶液偏酸，H+濃度高，胺基酸-COO-被質子化為-COOH，淨電荷為正而非負。",
+   "B": "pH低於pI時H+濃度高於等電點，-COO-質子化成-COOH、-NH₂質子化成-NH₃+，使胺基酸呈淨正電荷。",
+   "C": "淨電荷為零（電中性）僅在pH等於pI（等電點）時成立，pH低於pI時不成立。",
+   "D": "正負電荷等量即淨電荷為零，此為等電點(pI)時的狀態，不是pH低於pI的情形。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-1醫學(二).pdf",
+  "pdfPage": 30,
+  "pdfScale": 2.5
+ },
+ "105-1-醫學二-生物化學-Q47": {
+  "sourceHash": "ce734f37c6f55584c924711cf5afdd99daddb3127ed9b38d697f214038130557",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.733Z",
+  "optionExplanations": {
+   "A": "Cytochrome c 與其他細胞色素不同，屬高度水溶性（highly water-soluble），並非脂溶性電子傳遞者",
+   "B": "NADH 屬高度水溶性，所有形式均為白色吸濕性無定形粉末，不具脂溶性",
+   "C": "FADH2 完全還原型具高極性，為水溶性輔酶，不屬脂溶性電子傳遞者",
+   "D": "Coenzyme Q（CoQ10）為脂溶性物質，結構類似維生素，存在於大多數真核細胞中，是電子傳遞鏈中唯一的脂溶性電子傳遞者"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-1醫學(二).pdf",
+  "pdfPage": 62,
+  "pdfScale": 2.5
+ },
+ "105-2-醫學一-微生物暨免疫學-Q50": {
+  "sourceHash": "974431fa34d6835153f0510847e0226b68e5d899196f18c0c1d88513cc73268a",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.734Z",
+  "optionExplanations": {
+   "A": "培養需用BCYE瓊脂並添加L-cysteine，此為正確敘述，並非錯誤選項。",
+   "B": "退伍軍人桿菌為兼性胞內寄生菌，可在巨噬細胞內繁殖，此為正確敘述。",
+   "C": "退伍軍人症（肺炎型）死亡率遠高於龐地克熱（輕微自限性流感樣症狀，幾乎不致死），兩者死亡率敘述顛倒，故此為錯誤選項。",
+   "D": "詳解指出含退伍軍人桿菌的氣膠主要經中央空調水系統傳播是常見說法，但詳解亦提及吸入含菌氣膠其實並不常見，故此一敘述亦可能有誤。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-2醫學(一).pdf",
+  "pdfPage": 53,
+  "pdfScale": 2.5
+ },
+ "105-2-醫學一-組織學-Q38": {
+  "sourceHash": "71861601cf7b39ce0709b20ac72735eb9814f411a7b33854fe0e32001ba418fd",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.734Z",
+  "optionExplanations": {
+   "A": "耳下腺確為純漿液腺，頜下腺與舌下腺均為混合腺，敘述正確。",
+   "B": "耳下腺的閏管在三大唾液腺中最長，此為正確敘述。",
+   "C": "此敘述錯誤，頜下腺以漿液性腺泡為主（混合性），舌下腺才以黏液性腺泡為主，選項中兩者主次描述相反。",
+   "D": "唾液腺葉間泌管上皮確以偽複層柱狀上皮或複層立方上皮為主，敘述正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-2醫學(一).pdf",
+  "pdfPage": 44,
+  "pdfScale": 2.5
+ },
+ "105-2-醫學二-藥理學-Q58": {
+  "sourceHash": "cb4da38acf12e7c84ef432f20e8aeba99468bbabf89f4e45d3b1c25ec44acd3c",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.735Z",
+  "optionExplanations": {
+   "A": "Methimazole主要透過抑制甲狀腺過氧化物酶及碘有機化，來抑制T3和T4的合成，此描述正確。",
+   "B": "Methimazole不會抑制週邊組織的脫碘作用（此為PTU的特性），故本選項描述錯誤。",
+   "C": "Methimazole影響的是甲狀腺素的合成而非釋放，藥效起始通常需3至4週，並非快速產生治療效果，故此選項描述錯誤。",
+   "D": "使用Methimazole最常見的副作用確為斑丘疹搔癢皮疹，此描述正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-2醫學(二).pdf",
+  "pdfPage": 70,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學一-公共衛生學-Q88": {
+  "sourceHash": "a468828e5da7f56ce86d22e51cfb526fa68c48770dc3b328c487d965c6b3fd94",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.735Z",
+  "optionExplanations": {
+   "A": "右偏分布時眾數在左側最低，平均數被右尾拉高，順序應為平均數＞中位數＞眾數，故眾數＞中位數＞平均數的排列錯誤。",
+   "B": "右偏分布中中位數介於眾數與平均數之間，平均數大於中位數，此選項排列不符合實際順序。",
+   "C": "右偏分布中眾數位於分布頂峰最左側，中位數在眾數右方，平均數因右尾極端值而更靠右，故眾數不大於中位數。",
+   "D": "右偏分布時右尾有極端大值將平均數拉高，故平均數＞中位數＞眾數，此排列正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-1醫學(一).pdf",
+  "pdfPage": 80,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學一-組織學-Q35": {
+  "sourceHash": "cba464302a3744891407603d1a4b10ff2af2a9e8a4702e2a1c4ed29ad1ef5079",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.735Z",
+  "optionExplanations": {
+   "A": "巴金森氏症確實由大腦黑質及基底核中神經元的多巴胺分泌不足所造成，敘述正確，非錯誤選項",
+   "B": "退化神經元中確實含有由神經絲與特定蛋白質（如NFL、NFM、NFH、α-synuclein、ubiquitin等）交織而成的Lewy bodies，敘述正確",
+   "C": "多巴胺無法通過血腦屏障，因此不能直接口服或注射多巴胺治療，臨床上改用前驅物levodopa，此為錯誤敘述故為答案",
+   "D": "腦神經元退化後，通常會有明顯的神經膠樣變性（gliosis），由astrocytes、microglia及oligodendrocytes增生形成，敘述正確"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-1醫學(一).pdf",
+  "pdfPage": 32,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學一-解剖學-Q22": {
+  "sourceHash": "7452fcb5bf6efaab13789acabb1666952894ffdd67dfe2ef3b6258df04a6ddb8",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.735Z",
+  "optionExplanations": {
+   "A": "SA node主要由右冠狀動脈供應，AV node由右冠狀動脈供應，並非左迴旋支供應AV node。",
+   "B": "SA node由右冠狀動脈（及左迴旋支）供應，AV node由右冠狀動脈供應，兩者主要血源均為右冠狀動脈，故此配對正確。",
+   "C": "AV node由右冠狀動脈供應，非左前降支；左前降支主要供應心室前壁。",
+   "D": "SA node主要由右冠狀動脈供應，非左迴旋支；AV node亦非左前降支供應。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-1醫學(一).pdf",
+  "pdfPage": 20,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學二-生物化學-Q40": {
+  "sourceHash": "09f651ec2ddd378ffac1f0c97bbda68e8faf246909009b66451d0355457659c9",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.736Z",
+  "optionExplanations": {
+   "A": "[AMP]/[ATP]高代表細胞能量不足，會促進 acetyl-CoA 進入檸檬酸循環以產生更多 ATP，故進入量不減少",
+   "B": "[ATP]/[ADP]高表示細胞能量充足，負回饋抑制檸檬酸循環，使 acetyl-CoA 進入量減少",
+   "C": "[NAD+]/[NADH]高代表電子接受體充裕，有利循環繼續進行，不會減少 acetyl-CoA 進入",
+   "D": "OAA 濃度高時可能反映循環下游已飽和、循環速率降低，導致 acetyl-CoA 進入量減少"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-1醫學(二).pdf",
+  "pdfPage": 36,
+  "pdfScale": 2.5
+ },
+ "106-2-醫學一-生理學-Q72": {
+  "sourceHash": "64cf87811cf2b258e7b30f090551e3abdf2b5fad2ce29c52561510354323f5ae",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.736Z",
+  "optionExplanations": {
+   "A": "黃體存活時間遠超1天，未受孕時約存活14天。",
+   "B": "黃體存活時間遠超5天，未受孕時約存活14天。",
+   "C": "未受孕時黃體約存活14天，構成月經週期第14至28天的luteal phase，之後萎縮。",
+   "D": "28天為整個月經週期長度，非黃體單獨存活期。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "106-2-醫學一-解剖學-Q29": {
+  "sourceHash": "63924655e8c886ce31ca535dcb046279d521203b78b77fcfbe110aa3c8b2d621",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.737Z",
+  "optionExplanations": {
+   "A": "弓狀動脈位於足背，不參與分支足底深弓動脈。",
+   "B": "足背動脈深支穿入足底形成足底深弓內側部分，亦為官方接受答案之一。",
+   "C": "足底內側動脈供應足底內側，不直接形成足底深弓。",
+   "D": "足底外側動脈為足底深弓的主要來源，形成其外側弓部，為官方主要正解。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "106-2-醫學二-公共衛生學-Q36": {
+  "sourceHash": "7531a1251ae9b7d9ce70ccaaafeb66de58811565f479851e228e7eb3a0c47b3c",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.737Z",
+  "optionExplanations": {
+   "A": "費雪恰當檢定適用於樣本數小或期望值過小時的2個類別變項比較，2×2卡方檢定的期望值中有小於5者應使用此法。",
+   "B": "獨立樣本t檢定用於比較2組獨立樣本的連續變項平均數，此題為類別變項資料，不適用。",
+   "C": "卡方檢定用於比較2個類別變項，但要求相互獨立的2×2樣本的期望值均不過小，此題樣本太小不符合條件。",
+   "D": "McNemar檢定用於比較2個相依配對樣本的類別變項，此題兩組為獨立（非前後比較），不適用。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-2醫學(二).pdf",
+  "pdfPage": 38,
+  "pdfScale": 2.5
+ },
+ "106-2-醫學二-微生物暨免疫學-Q22": {
+  "sourceHash": "0cfd2dfdcdcece76629e21494fd38db78305685b582206a00d008483b9e8cfa9",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.737Z",
+  "optionExplanations": {
+   "A": "共生菌不同於致病菌，不會利用毒性因子破壞上皮細胞或誘發發炎細胞激素，此敘述正確。",
+   "B": "與共生菌接觸的上皮細胞確實分泌TGF-β等細胞激素，促進調節性T細胞分化並維持免疫耐受，此敘述正確。",
+   "C": "此為錯誤敘述，IgA為非發炎性抗體，與共生菌結合後並不會活化補體，而是包覆共生菌以維持腸道共生關係而非清除之。",
+   "D": "腸道上皮細胞在與共生菌接觸面確實低表現TLR及CD14，使其對共生菌的辨識能力降低而不易引發發炎，此敘述具爭議但普遍認為正確。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "106-2-醫學二-微生物暨免疫學-Q23": {
+  "sourceHash": "3a2c460ab9782af5a6d9d846ad51cc75cbc3703f5eff00cf3fea7f4061b7ba50",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.738Z",
+  "optionExplanations": {
+   "A": "TH1分泌IFN-γ，可抑制TH2分化，間接減少IL-4、IL-5、IL-13，與治療效果有一定關聯。",
+   "B": "TR1為調節性T細胞，分泌IL-10抑制TH2反應，可降低IgE及相關細胞激素。",
+   "C": "TH17主要分泌IL-17，與氣喘TH2路徑（IL-4、IL-5、IL-13、IgE）無直接關聯，最不可能參與此治療效果。",
+   "D": "CD4+CD25+ T細胞（Treg）可抑制TH2反應，有助降低抗原特異性IgE及細胞激素。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "106-2-醫學二-微生物暨免疫學-Q4": {
+  "sourceHash": "8b45bc9d73e2dbf52805e1ec6dffaf0bd89bf3f85a74840a64e9c6203c688dc4",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.738Z",
+  "optionExplanations": {
+   "A": "貝氏考克斯菌的相改變是 LPS 抗原性質改變，與鞭毛基因突變無關",
+   "B": "第一相（phase I）細胞壁含有完整 LPS 1（含 O 抗原醣），第二相才缺少 O 抗原醣",
+   "C": "抑制吞噬體與溶小體融合是結核菌與退伍軍人桿菌的特性，尚未在貝氏考克斯菌上被發現",
+   "D": "急性期時 phase II 抗體高於 phase I 抗體，故患者體內 IgM 及 IgG 主要對抗第二相抗原"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-2醫學(二).pdf",
+  "pdfPage": 4,
+  "pdfScale": 2.5
+ },
+ "106-2-醫學二-病理學-Q100": {
+  "sourceHash": "9dbfdbf6534c6f510dd404dbb58d3421122d95438669ef230e603be14194442b",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.738Z",
+  "optionExplanations": {
+   "A": "Alzheimer氏病屬神經退化性疾病，腦組織萎縮可導致代償性水腦症。",
+   "B": "Huntington氏舞蹈症屬神經退化性疾病，腦萎縮後可出現代償性水腦症。",
+   "C": "此為爭議題：腦挫傷屬頭部損傷，多本教科書指出頭部外傷亦可引起代償性水腦症，故此選項是否「不會」有代償性水腦症具爭議。",
+   "D": "全身輕性麻痺由晚期梅毒引起慢性腦膜腦炎，屬慢性感染性疾病，可導致腦萎縮及代償性水腦症。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-2醫學(二).pdf",
+  "pdfPage": 101,
+  "pdfScale": 2.5
+ },
+ "106-2-醫學二-藥理學-Q51": {
+  "sourceHash": "db548f94ff87b3ce1cd7144a066682edf6970376f52beb972c1665b72941826f",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.739Z",
+  "optionExplanations": {
+   "A": "Acyclovir為guanosine衍生物，非adenosine衍生物。",
+   "B": "須被病毒細胞之thymidine kinase加入第一個磷酸根後才易被活化，非宿主細胞。",
+   "C": "官方公布為正確選項；需病毒的thymidine kinase活化，故選擇性作用於受感染細胞。",
+   "D": "Acyclovir主要用於HSV及VZV感染，不用於治療HIV感染相關疾病。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "106-2-醫學二-藥理學-Q71": {
+  "sourceHash": "ef24d998d0fd6deb9a5a49a6d0176bf4d930a120a761034451659cafbffd4146",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.740Z",
+  "optionExplanations": {
+   "A": "Weak COX inhibitor，可緩解輕微頭痛並具抗發炎作用，為偏頭痛輕中度症狀的可用第一線藥物之一。",
+   "B": "Allopurinol 為抑制 xanthine oxidase 的藥物，用於減少尿酸合成治療痛風，與偏頭痛治療無關。",
+   "C": "Celecoxib 為 selective COX-2 inhibitor，雖具消炎止痛效果，但詳解未將其列為偏頭痛第一線用藥。",
+   "D": "Naproxen 屬 NSAID（抑制 COX），可緩解偏頭痛從輕度到中度的頭痛，為第一線治療選項，也用於風濕性關節炎等。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-2醫學(二).pdf",
+  "pdfPage": 75,
+  "pdfScale": 2.5
+ },
+ "107-1-醫學二-微生物暨免疫學-Q14": {
+  "sourceHash": "4bfddb462471e50bad48802d1247933f9e4f70012e3bacf3ecc54d0d9d9c701a",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.740Z",
+  "optionExplanations": {
+   "A": "EBV利用B細胞表面CD21受器進行感染，此配對正確，故非錯誤選項。",
+   "B": "流感病毒確實透過唾液酸（sialic acid）與宿主細胞結合，此配對正確，本題為送分選項之一。",
+   "C": "B19病毒（parvovirus B19）實際利用紅血球P抗原為受器，非M抗原，此配對錯誤。",
+   "D": "鼻病毒確實利用ICAM-1作為細胞受器，此配對正確，本題為送分選項之一。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "107-2-醫學一-生理學-Q50": {
+  "sourceHash": "217697244cc4d6a95fff02758f242f8f7e4de9769621609c31355492fd294a18",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.740Z",
+  "optionExplanations": {
+   "A": "Alpha rhythm 出現於閉眼清醒狀態，頻率約 8–12 Hz，專注作答時眼睛睜開、高度警覺，不會呈現此節律。",
+   "B": "Beta rhythm 為睜眼清醒、高度警覺時的腦波，頻率大於 12 Hz，正是考生專注答題時額葉的典型腦電節律。",
+   "C": "Theta rhythm 出現於昏昏欲睡、介於清醒與入睡之間的狀態，頻率約 4–8 Hz，與專注作答不符。",
+   "D": "Delta rhythm 為熟睡時的腦波，頻率小於 4 Hz、振幅最大，出現於深度睡眠而非清醒專注狀態。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "107-2醫學(一).pdf",
+  "pdfPage": 66,
+  "pdfScale": 2.5
+ },
+ "107-2-醫學一-生理學-Q65": {
+  "sourceHash": "797148ff30b54d34570b9e52072176ce15c9ce995f24cc014963a6edeb79b0ed",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.740Z",
+  "optionExplanations": {
+   "A": "酮酸中毒時腎臟大量排H⁺，尿液pH值確實會較正常人低，故此變化會發生。",
+   "B": "酸中毒時腎臟利用氨緩衝系統排除過多H⁺，NH₄⁺排出量確實會增加，故此變化會發生。",
+   "C": "血糖高達380 mg/dL造成滲透性利尿，24小時尿液排出量確實會增多，故此變化會發生。",
+   "D": "代謝性酸中毒時腎臟會完全再吸收HCO₃⁻以對抗酸中毒，尿液中HCO₃⁻排出量不會增多，此為正確答案。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "107-2醫學(一).pdf",
+  "pdfPage": 83,
+  "pdfScale": 2.5
+ },
+ "107-2-醫學一-解剖學-Q29": {
+  "sourceHash": "c228c834956c99127fda29577f663436aa146a865b8ae2a2f0fbaf29ab422c3e",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.741Z",
+  "optionExplanations": {
+   "A": "閉孔動脈確為內收肌群的血管來源之一，閉孔神經亦支配大多數內收肌，故為可接受答案之一。",
+   "B": "內收肌群神經支配為閉孔神經而非股神經，股神經支配大腿前側伸肌群。",
+   "C": "深股動脈（包括穿透動脈）是內收肌群的主要血液供應，神經支配為閉孔神經，為本題標準答案。",
+   "D": "深股動脈為內收肌血管來源正確，但股神經不支配內收肌群，故此組合錯誤。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "107-2醫學(一).pdf",
+  "pdfPage": 39,
+  "pdfScale": 2.5
+ },
+ "107-2-醫學二-微生物暨免疫學-Q15": {
+  "sourceHash": "c64b9be46f256342cdb53079a60ed8022a74d0d6ba39f7317e2a534d72d8673d",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.741Z",
+  "optionExplanations": {
+   "A": "具外套膜的病毒因脂質雙層易被脂溶劑破壞，對環境抗性較低，此敘述正確。",
+   "B": "RNA病毒之複製大部分在細胞質中進行，此敘述正確。",
+   "C": "RNA病毒複製仍需借助宿主細胞的核糖體等酵素，並非完全不需要，此為錯誤敘述之一。",
+   "D": "具外套膜的病毒主要以出芽（budding）方式釋出胞外，而非細胞溶解（lysis），故此敘述錯誤。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "107-2醫學(二).pdf",
+  "pdfPage": 20,
+  "pdfScale": 2.5
+ },
+ "107-2-醫學二-病理學-Q85": {
+  "sourceHash": "48a104b2735cb2becd6d3fc6b726beeb44894735c0bffc0eae93ce7bf3df6623",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.741Z",
+  "optionExplanations": {
+   "A": "詳解指出 USMLE 課本雖未特別強調矽肺症盛行率最高，但 Robbins 明確說明矽肺症是目前全球最普遍的職業性塵肺症，故此選項有爭議但非最明確的錯誤敘述。",
+   "B": "矽肺症的特性之一是即使患者停止接觸二氧化矽，疾病仍可持續進展，此敘述正確。",
+   "C": "矽肺症患者感染結核病的機率比一般人高出許多，並非相近，此敘述錯誤為本題答案。",
+   "D": "矽肺症晚期可見 progressive massive fibrosis，此敘述正確，詳解亦確認此為矽肺症的病理特徵。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "107-2醫學(二).pdf",
+  "pdfPage": 120,
+  "pdfScale": 2.5
+ },
+ "108-1-醫學二-微生物暨免疫學-Q20": {
+  "sourceHash": "52e458b91abb2051a61f66108b2223b87a61dd83208b64e4369a0f4905568db3",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.742Z",
+  "optionExplanations": {
+   "A": "含④正選擇，但正選擇篩選辨識外來抗原的淋巴球，非自我耐受機制，故錯。",
+   "B": "①AIRE促自體抗原呈現；②CTLA-4抑T細胞過度活化；③Fas促凋亡；⑤負選擇消除自體反應淋巴球；⑥調控性T細胞抑自體免疫，六者皆直接促成自我耐受。",
+   "C": "缺①AIRE，AIRE控制胸腺自體抗原呈現，與自我耐受直接相關，不可省略。",
+   "D": "缺⑥調控性T細胞，其表現FOXP3並抑制自體免疫，與自我耐受直接相關，不可省略。"
+  },
+  "flags": [],
+  "source": "text-compress",
+  "pdfFile": "108-1醫學(二).pdf",
+  "pdfPage": 28,
+  "pdfScale": 2.5
+ },
+ "108-2-醫學二-公共衛生學-Q41": {
+  "sourceHash": "f9c8f1bcbf45e7d50b48eda6eb3f37f13d342c64bc25c91f4b4bd4cc57eac85a",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.742Z",
+  "optionExplanations": {
+   "A": "各年齡別死亡率相同不代表粗死亡率相同，粗死亡率受各地年齡組成（人口結構）影響，故不一定相同。",
+   "B": "年齡標準化死亡率是以相同標準人口加權各年齡別死亡率，若各年齡別死亡率完全相同則標準化死亡率必定相同，此為正確答案。",
+   "C": "若甲地人口較乙地老化，老年人占比高而老年死亡率亦高，故甲地粗死亡率會大於（而非小於）乙地。",
+   "D": "若各年齡別死亡率完全相同，無論選用哪個標準人口，兩地標準化死亡率之差異恆為零，不隨標準人口組成而改變，故此敘述正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "108-2醫學(二).pdf",
+  "pdfPage": 53,
+  "pdfScale": 2.5
+ },
+ "109-1-醫學一-生物化學-Q78": {
+  "sourceHash": "08a4872986bdaa3aac2525126df08fe1889bb7577c3d41ee0f54b98d35cf91cc",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.743Z",
+  "optionExplanations": {
+   "A": "轉氨基反應以Vitamin B6為輔酶，與Biotin無關。",
+   "B": "磷酸化反應依賴ATP與激酶，與Biotin無關。",
+   "C": "Biotin為Pyruvate carboxylase等酶的輔酶，缺乏時羧化反應無法進行。",
+   "D": "甲基化反應以SAM為甲基供體，與Biotin無關。"
+  },
+  "flags": [],
+  "source": "text-compress",
+  "pdfFile": "109-1醫學(一).pdf",
+  "pdfPage": 98,
+  "pdfScale": 2.5
+ },
+ "109-2-醫學一-生物化學-Q98": {
+  "sourceHash": "5f17f2fb9d064bf7c045be77b02351db86d0c436e93a4cd07376c6f07ba0bd09",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.743Z",
+  "optionExplanations": {
+   "A": "細胞質中大部分鈣離子與蛋白質結合（結合型10μM遠高於游離型100nM）",
+   "B": "內質網鈣離子濃度高於細胞外液，形成濃度梯度",
+   "C": "鈣與攜鈣素結合激活MLCK，調節肌肉收縮等多重細胞功能",
+   "D": "鈣離子與DAG皆正向調節PKC活性，兩者作用方向相同而非相反"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "109-2-醫學二-公共衛生學-Q36": {
+  "sourceHash": "13a39fcd4a975b506f53a46778cfd1a6145928e617a15450a38e32094b7b49df",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.743Z",
+  "optionExplanations": {
+   "A": "卡方檢定要求各細格期望值足夠大，細格期望值小於5時不適合直接使用。",
+   "B": "2x2列聯表中有細格期望值小於5時，應使用Fisher's exact test，以精確計算概率而非近似。",
+   "C": "Yates校正卡方適用於2x2表格以修正連續性誤差，但細格期望值小於5時仍應優先選Fisher's exact test。",
+   "D": "McNemar檢定用於兩組相關樣本（如前後測）的比較，不適用於獨立樣本的2x2列聯表分析。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "109-2醫學(二).pdf",
+  "pdfPage": 52,
+  "pdfScale": 2.5
+ },
+ "110-1-醫學一-生理學-Q69": {
+  "sourceHash": "52d4345cd8335ef47ade90ddd2f425fd8059445aacb6588f7595c4aa6cfeffe4",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.744Z",
+  "optionExplanations": {
+   "A": "鈣吸收效率約35%，磷約70%，磷的吸收效率反而優於鈣",
+   "B": "體內磷約80~85%在骨骼，血液中不足1%，遠非99%",
+   "C": "血中鈣大部分與蛋白質結合，游離態僅約50%，不足95%",
+   "D": "活化態維生素D直接促進十二指腸吸收鈣與磷，為主要調控機制"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "110-1-醫學二-微生物暨免疫學-Q6": {
+  "sourceHash": "4015304cb737347846a9d0091eaf0d007529098faea4b482526dc331bec6a1bf",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.744Z",
+  "optionExplanations": {
+   "A": "細胞壁含黴菌酸形成厚脂質層，使其抗酸性染色呈陽性",
+   "B": "G+C含量高代表基因穩定，結核菌此值高於大腸桿菌",
+   "C": "黴菌酸位於細胞壁脂質層中，為抗結核藥異煙肼的作用標的",
+   "D": "結核桿菌主要引起Th-1免疫反應，敘述為Th-2故錯誤"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "110-2-醫學一-生理學-Q64": {
+  "sourceHash": "5cdfc5dc026dd6b6d384f5fce4649cc68ac3a3150cb59887150749033f52d500",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.744Z",
+  "optionExplanations": {
+   "A": "申覆後亦被接受；組織間液側的Kir4.1/5.1鉀離子回收通道可建立細胞內外鉀離子濃度差，間接維持NCC運作所需的鈉濃度梯度。",
+   "B": "組織間液側氯離子通道與Kir4.1/5.1共同調控，可確立NCC所需的管腔側鈉氯濃度梯度，為NCC運作最直接的搭配通道，故為正解。",
+   "C": "鈉離子通道位於靠管腔側（如集尿管），而非組織間液側，不是搭配遠曲小管NCC運作的關鍵通道。",
+   "D": "水通道（aquaporin）負責水分再吸收，與NCC對鈉氯離子之同向運輸調控無直接關係。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "110-2-醫學一-解剖學-Q16": {
+  "sourceHash": "8171281988935ec620169730fa3980fc9c3b7c7504f42a2fe3e6a9b177342aa5",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.745Z",
+  "optionExplanations": {
+   "A": "詳解未明確說明此選項錯因",
+   "B": "詳解未明確說明此選項錯因",
+   "C": "動眼神經麻痺後，滑車神經使眼球往外下轉，外旋神經使眼球往外轉，兩者合力使瞳孔偏向外下方。",
+   "D": "詳解未明確說明此選項錯因"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "110-2醫學(一).pdf",
+  "pdfPage": 23,
+  "pdfScale": 2.5
+ },
+ "110-2-醫學一-解剖學-Q17": {
+  "sourceHash": "bf528cddb46248426f1fb45cf8f647637927a475be0c856c5c95d31d69510efe",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.745Z",
+  "optionExplanations": {
+   "A": "詳解未明確說明此選項錯因",
+   "B": "詳解未明確說明此選項錯因",
+   "C": "氣管及食道最上端起自第六頸椎（C6）高度，對應環狀軟骨下緣位置",
+   "D": "詳解未明確說明此選項錯因"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "110-2-醫學二-公共衛生學-Q36": {
+  "sourceHash": "1e994a22e9cf113258dd4afccbb7605329312a59cd95e34f0bb7df4478e885bf",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.745Z",
+  "optionExplanations": {
+   "A": "線性迴歸用於探討連續變數間的趨勢或預測關係，本題比較的是類別變項（有無併發症），不適用。",
+   "B": "對數等級檢定（Log rank test）用於比較兩組存活曲線，本題無存活時間資料，不適用。",
+   "C": "卡方檢定雖可檢視兩類別變項之關聯，但要求 2×2 表格每格期望值須大於 5，本研究樣本數小（1、2 人發生併發症），期望值不足，不符合使用條件。",
+   "D": "費雪精確檢定適用於檢視兩類別變項之關聯，且特別用於 2×2 表格每格期望值小於 5 的小樣本情況，本題手術人數少、發生併發症人數僅 1–2 人，為最適方法。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "110-2醫學(二).pdf",
+  "pdfPage": 38,
+  "pdfScale": 2.5
+ },
+ "110-2-醫學二-公共衛生學-Q42": {
+  "sourceHash": "f2b24db379e7584dc181de9b48e6ef65424728fe9712e5ca5ea0931969632494",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.745Z",
+  "optionExplanations": {
+   "A": "SO2為燃燒含硫燃料的一次污染物，不是光化學煙霧的主成份，故非其主要原因。",
+   "B": "PM2.5為懸浮微粒，並非光化學煙霧的主要成份或生成原因。",
+   "C": "O3（臭氧）常被視為光化學煙霧的代表性污染物，雖嚴格而言是HC與NOx在紫外線下反應後的次級產物，本題一律給分。",
+   "D": "Pb（鉛）為重金屬污染物，與光化學煙霧的形成無直接關聯。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "110-2醫學(二).pdf",
+  "pdfPage": 41,
+  "pdfScale": 2.5
+ },
+ "111-1-醫學一-解剖學-Q20": {
+  "sourceHash": "59ed2887c63fdcbd1b0b401619e409d7dd2d4cecff6e3c577db4ac12fae7d64e",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.746Z",
+  "optionExplanations": {
+   "A": "右性腺靜脈才匯入下腔靜脈，左側因解剖不對稱，不直接匯入下腔靜脈",
+   "B": "左性腺靜脈直接匯入左腎靜脈，此為左右不對稱的解剖特點（右側才入下腔靜脈）",
+   "C": "詳解未明確說明此選項錯因",
+   "D": "詳解未明確說明此選項錯因"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-1醫學(一).pdf",
+  "pdfPage": 33,
+  "pdfScale": 2.5
+ },
+ "111-1-醫學一-解剖學-Q22": {
+  "sourceHash": "073625593a2d8e789a1ad7e5b090c98e61250e4feaa8a4410b0bd2f5ca85675d",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.746Z",
+  "optionExplanations": {
+   "A": "總膽管與肝門靜脈同屬 portal triad，位於網膜孔前方的肝十二指腸韌帶內，並非後方，故此敘述錯誤為答案。",
+   "B": "肝門靜脈屬 portal triad，位於肝十二指腸韌帶內，構成網膜孔的前界，在其前方正確。",
+   "C": "肝臟位於網膜孔上方，此敘述正確。",
+   "D": "十二指腸（第一部）位於網膜孔下方，此敘述正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-1醫學(一).pdf",
+  "pdfPage": 35,
+  "pdfScale": 2.5
+ },
+ "111-1-醫學二-公共衛生學-Q40": {
+  "sourceHash": "fb965c55a75d0ef07ec264863ac33860082c4f6cb0ae885ea683341d47455dbc",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.746Z",
+  "optionExplanations": {
+   "A": "氣候變遷確實可能改變病媒（如蚊蟲）及病原微生物的地理分布與繁殖條件，敘述正確。",
+   "B": "此為最不恰當的敘述；高氣溫會加速大氣中的光化學反應，進而促進臭氧等二次空氣污染物濃度升高，並非「不會增加」。",
+   "C": "全球暖化確實可能改變降雨型態及其地區分布，敘述正確。",
+   "D": "二次空氣污染物（如臭氧、PM2.5）濃度上升，確實與呼吸道及心血管疾病住院風險增加有關，敘述正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-1醫學(二).pdf",
+  "pdfPage": 53,
+  "pdfScale": 2.5
+ },
+ "111-1-醫學二-公共衛生學-Q47": {
+  "sourceHash": "86606b43065359499c5690d7f49a66ebbc780fb0674044828ff7533fb522a8ea",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.746Z",
+  "optionExplanations": {
+   "A": "物質使用疾患自然史的起始點是初次物質使用或暴露，而非已達「濫用或依賴」診斷階段，故本敘述最不恰當",
+   "B": "降低藥物或物質的可近性（availability）可減少暴露機會，從而預防物質使用相關疾患的發生",
+   "C": "overdose等傷害可透過降低物質可近性或改變制約情境（conditioned cues）來緩解，此為減害策略的應用",
+   "D": "物質使用疾患的診斷需考量較長時間的使用型態與功能影響，而非以單次使用作為判斷依據"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-1醫學(二).pdf",
+  "pdfPage": 59,
+  "pdfScale": 2.5
+ },
+ "111-1-醫學二-微生物暨免疫學-Q10": {
+  "sourceHash": "dbb7c3fcd8c0534ab9f7ca3abbc60f4b9e667139f13d99957b34f55ef40380e7",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.746Z",
+  "optionExplanations": {
+   "A": "病毒抗體與第二型過敏反應有關，而非第四型過敏及發炎反應，故不符合題意。",
+   "B": "干擾素屬於細胞激素，具抗病毒作用，可活化NK細胞及CTL，也參與第四型免疫反應。",
+   "C": "多形核白血球（嗜中性球）在第四型過敏的發炎反應中被招募至局部造成組織損傷，是最直接的致炎因子。",
+   "D": "細胞激素（如IL-1、IL-6、TNF-α、IFN-γ等）介導第四型過敏反應中的發炎訊號傳遞，亦為重要因子。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-1醫學(二).pdf",
+  "pdfPage": 10,
+  "pdfScale": 2.5
+ },
+ "111-2-醫學一-生理學-Q65": {
+  "sourceHash": "70e94e477d76d3cd0819a59340337167873d336eedcfe7bd4d9f36e0166e7c7c",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.747Z",
+  "optionExplanations": {
+   "A": "近端腎小管以再吸收HCO₃⁻為主要功能（約80-90%），遠端腎小管則以分泌H⁺完成酸鹼調節，為教科書標準描述。",
+   "B": "兩者功能描述顛倒，近端腎小管主要再吸收HCO₃⁻而非分泌H⁺，遠端腎小管亦分泌H⁺而非單純再吸收HCO₃⁻。",
+   "C": "詳解指出此題有爭議，生理上近端與遠端腎小管確實均可再吸收HCO₃⁻，但題目以A為正確答案，強調近端以再吸收、遠端以分泌H⁺為主要特徵。",
+   "D": "生理上近端與遠端腎小管均可分泌H⁺，此選項在生理上並非完全錯誤，但題目選A，因近端小管的主要功能定位為再吸收HCO₃⁻而非分泌H⁺。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-2醫學一合併檔案.pdf",
+  "pdfPage": 115,
+  "pdfScale": 2.5
+ },
+ "112-1-醫學一-生理學-Q66": {
+  "sourceHash": "6d9e51a00fcdd32ca95f7ad1c4b13adb6d057f974f2d7971e3f8dc4cea8bf8f3",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.747Z",
+  "optionExplanations": {
+   "A": "ADH主要調控集尿管對水的通透性，並非決定遠端腎小管鉀離子分泌的主要因素",
+   "B": "管腔內帶正電荷離子影響電化學梯度，依申覆引用Guyton教科書，此亦為鉀離子分泌的影響因素之一",
+   "C": "近端腎小管流速不直接決定遠端腎小管的鉀離子分泌，兩者無直接因果關係",
+   "D": "正確，ROMK（renal outer medullary potassium channel）是遠端腎小管鉀離子分泌的主要特定通道"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "112-1-醫學二-病理學-Q96": {
+  "sourceHash": "10551e625c67207bea2036b22e6101b45bb4046af72c45e9787cf221678c1c62",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.748Z",
+  "optionExplanations": {
+   "A": "卵巢上皮癌主要組織型包括漿液性、黏液性及子宮內膜樣性，此敘述正確",
+   "B": "漿液性癌雙側侵犯比例約70%，遠高於題目所稱的20%，此敘述錯誤故為答案",
+   "C": "卵巢漿液性癌可依惡性度分為高惡性度與低惡性度兩型，此敘述正確",
+   "D": "子宮內膜樣癌為卵巢上皮癌中第二常見組織型，此敘述正確"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "113-1-醫學一-組織學-Q43": {
+  "sourceHash": "5f07fad88ca21bf777e098c10c4dd96639abad8e6235bfd240f285aad8f45060",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.748Z",
+  "optionExplanations": {
+   "A": "膽囊固有層需大量吸收水分，fenestrated capillary 有助於高效率水分吸收，故存在於此層是合理的。",
+   "B": "固有層中既有微血管，伴隨出現小靜脈（venule）是正常血管構造，故存在合理。",
+   "C": "此題爭議（disputed），官方答案為淋巴管；但 Wheater's 教科書指出膽囊固有層有淋巴管將水分導出，實際上淋巴管在此層存在，為本題爭議所在。",
+   "D": "膽囊發炎時黏膜可出現黏液腺，固有層中黏液腺並非不可能出現。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "113-1醫學一（修）.pdf",
+  "pdfPage": 99,
+  "pdfScale": 2.5
+ },
+ "113-1-醫學二-病理學-Q85": {
+  "sourceHash": "b713a05ccb0a52208c29eb990c84aa077713e3b7094271ce26d589a60692e0fe",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.748Z",
+  "optionExplanations": {
+   "A": "原發性骨髓纖維化以閉塞性骨髓纖維化為主，表現為骨髓外造血、淚滴型RBC及血球減少，骨髓母細胞比例不達AML標準。",
+   "B": "慢性骨髓性白血病常見費城染色體（BCR-ABL基因），以脾臟腫大及骨髓外造血為特徵，骨髓母細胞比例通常未達20%。",
+   "C": "骨髓或周遭血中myeloblast超過20%即符合急性骨髓性白血病（AML）的診斷標準，本題占25%故診斷為AML。",
+   "D": "骨髓化生不良症候群骨髓母細胞占比未達20%，若超過20%則已升格為AML，故不符合本題情境。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "113-1醫學二.pdf",
+  "pdfPage": 180,
+  "pdfScale": 2.5
+ },
+ "113-1-醫學二-藥理學-Q64": {
+  "sourceHash": "871601574829b068fd459f33779a336deba491686152a56bd966bb64b98153d7",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.749Z",
+  "optionExplanations": {
+   "A": "adenosine不抑制K+通道，而是活化A1受體促進K+外流（開啟通道），機制與抑制K+通道相反，故為正確答案。",
+   "B": "amiodarone屬第Ⅲ類抗心律不整藥，會抑制K+通道（IKr/IKs）延長動作電位，故非正確答案。",
+   "C": "disopyramide屬第Ⅰa類抗心律不整藥，同時抑制Na+與K+通道並延長QT間期，故非正確答案。",
+   "D": "dofetilide屬第Ⅲ類抗心律不整藥，選擇性抑制IKr（K+通道），故非正確答案。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "113-2-醫學二-寄生蟲學-Q34": {
+  "sourceHash": "19a61841a818d7c23b3664b458618e59629ff25952779ca94f73f460c1d2eb2f",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.749Z",
+  "optionExplanations": {
+   "A": "人隱孢子蟲（C. hominis）與小隱孢子蟲（C. parvum）確實是最常感染人類的兩個種，此敘述正確。",
+   "B": "隱孢子蟲在宿主腸道上皮刷狀緣完成生活史，並非「僅」存在於此處，卵囊亦可見於糞便中，故「僅」字使此選項有疑義。",
+   "C": "隱孢子蟲症主要經由被卵囊污染的水源傳播，此敘述正確。",
+   "D": "腹瀉患者糞便中找到的是具傳染性的卵囊（oocysts），而非活動體（trophozoites），此敘述錯誤。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "113-2_醫學二總檔.pdf",
+  "pdfPage": 78,
+  "pdfScale": 2.5
+ },
+ "113-2-醫學二-微生物暨免疫學-Q5": {
+  "sourceHash": "d61281132866a393d727db741e45ccbe33d52169f4a09ebbee2291c460348452",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.749Z",
+  "optionExplanations": {
+   "A": "內毒素是G(-)菌細胞壁的組成成分，對熱穩定，短暫100℃加熱不易使其失活。",
+   "B": "TSST-1對熱及消化酶均穩定，能耐受胰蛋白酶與消化酶的處理，故不易因加熱而失活。",
+   "C": "破傷風痙攣毒素屬熱不穩定毒素，在60℃以上即迅速失活，故短暫100℃加熱後較易失去活性。",
+   "D": "脂寡糖與脂多糖結構相似，同屬G(-)菌的內毒素成分，對熱穩定，加熱不易破壞其活性。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "113-2_醫學二總檔.pdf",
+  "pdfPage": 8,
+  "pdfScale": 2.5
+ },
+ "115-1-醫學二-公共衛生學-Q36": {
+  "sourceHash": "b6469ffb092b330ad4bcb9d0fe0f595eaf43a1bd86d4484d3235b0b09ae9ba8c",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.750Z",
+  "optionExplanations": {
+   "A": "隨機對照試驗需隨機分配受試者並給予介入措施，本研究為觀察性研究，未人為干預暴露，故不符合。",
+   "B": "世代研究從1980年追蹤3,000名員工，定期記錄油漆暴露後肝癌發生情形，為前瞻性追蹤暴露至結果的設計，符合題幹。",
+   "C": "病例對照研究依有無疾病分組後回溯暴露史，但本研究是從健康人群往前追蹤，屬前瞻性設計，故不符合。",
+   "D": "橫斷性研究僅於單一時間點測量，無法確立因果時序，本研究具每三年一次的長期追蹤，故不符合。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "115-1-醫學二-病理學-Q91": {
+  "sourceHash": "d3780b41a972ea1d830685e2965f103400b45ee8240c8b0d38aa6f9e5a7310e0",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.750Z",
+  "optionExplanations": {
+   "A": "細菌性肺炎依分布可表現為斑點狀的支氣管肺炎或整葉受侵的大葉性肺炎，敘述正確。",
+   "B": "大葉性肺炎分期順序應為充血期→紅色肝變期→灰色肝變期→消解期，選項將紅灰順序顛倒，故為錯誤敘述。",
+   "C": "肺炎鏈球菌、流感嗜血桿菌、卡他莫拉菌與金黃色葡萄球菌均為社區型肺炎常見致病菌，敘述正確。",
+   "D": "綠膿桿菌為院內感染肺炎常見病原，具高度抗藥性，常見於免疫低下或使用呼吸器病患，敘述正確。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "104-2-醫學二-生理學-Q2": {
+  "sourceHash": "64b96970dc98c949f6694ce8015eef5b3cdab79222356a0524251b71b6e56c2b",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.732Z",
+  "optionExplanations": {
+   "A": "norepinephrine由locus coeruleus釋出，清醒時活性高；減少時傾向睡眠而非清醒，故非答案。",
+   "B": "serotonin由raphe nucleus釋出，清醒及慢波睡眠時活性較高，其減少與促清醒關聯不明確。",
+   "C": "此題有爭議（disputed）；考選部答案為C。pontine cholinergic cells在清醒與REM期活性高，釋出減少對應慢波睡眠，機制具爭議。",
+   "D": "histamine由tuberomammillary nucleus釋出，為促清醒傳導物；減少時反而促進睡眠，故非答案。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-2醫學(二).pdf",
+  "pdfPage": 2,
+  "pdfScale": 2.5
+ },
+ "105-1-醫學二-生理學-Q23": {
+  "sourceHash": "2e93cbad9f7a517410c36e5208b43254242f078d9ee153745df47996380658e6",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.734Z",
+  "optionExplanations": {
+   "A": "本題官方亦接受此選項為送分答案，詳解未提供生長激素影響胎兒腦發育的明確機轉說明。",
+   "B": "甲狀腺素是促進胎兒中樞神經系統發育的關鍵激素，缺乏時可導致不可逆的神經發育障礙。",
+   "C": "詳解未明確說明此選項錯因",
+   "D": "詳解未明確說明此選項錯因"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-1醫學(二).pdf",
+  "pdfPage": 125,
+  "pdfScale": 2.5
+ },
+ "105-2-醫學一-公共衛生學-Q90": {
+  "sourceHash": "9dc0de8a3f51c83c969558b5b8c86e7c7243e590d325db9757f02023f9dbfa82",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.734Z",
+  "optionExplanations": {
+   "A": "一氧化氮（NO）與一氧化二氮（N₂O）廣義上均屬氮氧化物，本題官方亦給分。",
+   "B": "空氣污染中氮氧化物（NOx）狹義上指一氧化氮（NO）與二氧化氮（NO₂），為主要空污成分，最典型定義。",
+   "C": "氨氣（NH₃）雖含氮但並非氮氧化物，不屬NOx範疇，為錯誤選項。",
+   "D": "二氧化氮（NO₂）與一氧化二氮（N₂O）同屬含氮氧化物，廣義定義下本題官方亦給分。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "105-2醫學(一).pdf",
+  "pdfPage": 95,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學二-生理學-Q16": {
+  "sourceHash": "55f92aedd9485b914aae18a9b7372c1866bee61bf5bb6f2164f9102dfa4e9a74",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.736Z",
+  "optionExplanations": {
+   "A": "SGLT1 位於小腸上皮，負責吸收 glucose 與 galactose；缺乏時兩者皆無法吸收，可引起嚴重下痢。",
+   "B": "CFTR 為氯離子通道蛋白，缺乏會造成囊性纖維化，主要影響肺部及消化道黏液分泌，不以嚴重下痢為主要表現。",
+   "C": "Aquaporin 為腸道水分子通道；缺乏時腸道水分吸收受阻，可引起嚴重下痢，亦為本題送分答案之一。",
+   "D": "SGLT2 主要位於腎臟近端曲小管，負責腎小管葡萄糖再吸收，缺乏導致糖尿，不造成腸道吸收障礙引起下痢。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-1醫學(二).pdf",
+  "pdfPage": 11,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學二-藥理學-Q51": {
+  "sourceHash": "a44cd0bf53360ee77d08bb48339902a42844a17cc6ef53be5996303b1c64eff3",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.736Z",
+  "optionExplanations": {
+   "A": "葡萄柚汁含naringenin等黃酮類抑制腸內CYP3A4，使triazolam血中濃度升高，抑制代謝敘述正確。",
+   "B": "此為爭議題；詳解指cimetidine可抑制propranolol肝臟代謝，官方答案仍列本選項為錯誤敘述。",
+   "C": "Nortriptyline會增加antipyrine的analgesic作用，詳解列為正確敘述，非錯誤選項。",
+   "D": "Spironolactone會增加digoxin血中濃度，詳解列為正確敘述，非錯誤選項。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-1醫學(二).pdf",
+  "pdfPage": 45,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學二-藥理學-Q67": {
+  "sourceHash": "a08eab88eb206b5ffe1f6fd6893c6ae012637ecfecdaa3554aca20d209ae470f",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.736Z",
+  "optionExplanations": {
+   "A": "endothelin 會使血管收縮升壓，endothelin antagonist 抑制此作用使血管舒張，可用於治療肺高壓",
+   "B": "PDE-5 抑制劑增加 cGMP 使肺血管平滑肌放鬆，sildenafil 等已核准用於肺動脈高壓，本題列為正確選項",
+   "C": "soluble guanylyl cyclase activator 可增加 cGMP 濃度使血管平滑肌放鬆，ANP 和 NO 均可活化此酶，可用於治療肺高壓",
+   "D": "CGRP 是強效血管擴張劑，其拮抗劑反而使血管收縮加劇肺高壓，不屬於治療肺高壓的機轉，為正確答案"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-1醫學(二).pdf",
+  "pdfPage": 56,
+  "pdfScale": 2.5
+ },
+ "106-2-醫學一-組織學-Q43": {
+  "sourceHash": "5b7dc996f1e1f5ff6bd36c72e2a51800c64f11bd50ff387adc526fb0be4d44ba",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.737Z",
+  "optionExplanations": {
+   "A": "囊腫性纖維化為CFTR基因缺陷所致的遺傳性慢性阻塞呼吸疾病，好發於小孩與年輕人，此敘述正確，亦給分。",
+   "B": "肺泡巨噬細胞雖可吞噬結核桿菌，但無法將其分解殺滅；結核桿菌能在吞噬體內存活並繁殖，因此「吞噬並分解」的說法錯誤，此為答案。",
+   "C": "終末支氣管以後氣腔的永久性擴張（permanent enlargement）正是肺氣腫的定義，此敘述正確。",
+   "D": "慢性支氣管炎或支氣管擴張時，反覆刺激可使呼吸上皮發生鱗狀上皮化生，轉化為複層扁平上皮，此敘述正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-2醫學(一).pdf",
+  "pdfPage": 50,
+  "pdfScale": 2.5
+ },
+ "106-2-醫學二-藥理學-Q70": {
+  "sourceHash": "5b3294c14aae04551a3c87f11d54e92ae2b074d14083b8611d4432df2d54dddf",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.739Z",
+  "optionExplanations": {
+   "A": "Salbutamol屬短效型β2 agonist，作用持續4至8小時，用於急性氣喘發作緩解，非長效型。",
+   "B": "Salmeterol屬長效型β2 agonist，作用持續逾12小時，用於長期控制而非急性緩解，不得用於急性氣喘發作。",
+   "C": "Terbutaline屬短效型β2 agonist，作用持續4至8小時，用於急性緩解，非長效型。",
+   "D": "Metaproterenol屬短效型β2 agonist，作用持續4至8小時，用於急性緩解，非長效型。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "106-2醫學(二).pdf",
+  "pdfPage": 74,
+  "pdfScale": 2.5
+ },
+ "107-2-醫學一-解剖學-Q27": {
+  "sourceHash": "9a777a4b7bf65657be8a97cc180f2cd1abe622024d4f947ca140c012709daa67",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.740Z",
+  "optionExplanations": {
+   "A": "陰莖頭與陰蒂頭均源自生殖結節，為同源構造，此配對正確，非答案。",
+   "B": "因題目用詞有翻譯歧義，考選部亦接受B為正確答案（送分），B與D均為可接受答案。",
+   "C": "陰囊與大陰唇均源自陰唇陰囊隆起，為同源構造，此配對正確，非答案。",
+   "D": "前列腺的女性同源構造為尿道旁腺（Skene腺），而非前庭腺（Bartholin腺），故此配對並非同源，為本題主要答案。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "107-2醫學(一).pdf",
+  "pdfPage": 37,
+  "pdfScale": 2.5
+ },
+ "108-2-醫學二-公共衛生學-Q40": {
+  "sourceHash": "ce2a311137888ab636c8652797b0454450c5377e0bf59486fb0533248841408b",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.742Z",
+  "optionExplanations": {
+   "A": "獨立t檢定用於比較兩組連續變數的平均值，吸菸與疾病皆為類別變數，不適用",
+   "B": "配對t檢定用於連續變數的配對比較，本題為獨立樣本的類別資料，不適用",
+   "C": "McNemar卡方檢定用於配對資料（如病例對照配對設計），本題列聯表為非配對設計，不適用",
+   "D": "本題為2×2列聯表且對照組吸菸僅3人（格子數小於5），母群體非常態分布，應使用費雪恰當檢定"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "108-2醫學(二).pdf",
+  "pdfPage": 52,
+  "pdfScale": 2.5
+ },
+ "108-2-醫學二-病理學-Q98": {
+  "sourceHash": "2516cbe77cdaf1522e24cf2ff1d58d1f1704c7166d226b323825f66922986165",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.742Z",
+  "optionExplanations": {
+   "A": "發育不良痣通常大於5mm，並非較一般痣小。",
+   "B": "發育不良痣可出現於任何部位，男性好發於軀幹，女性好發於小腿，並非只見於曬到陽光的皮膚。",
+   "C": "皮內痣是痣僅位於真皮層的類型，與發育不良痣屬不同分類，後者並非以皮內痣為典型組織形態。",
+   "D": "雖然發育不良痣轉變為黑色素瘤的風險高於一般痣，但絕大部分的發育不良痣最終不會轉變成黑色素瘤。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "108-2醫學(二).pdf",
+  "pdfPage": 118,
+  "pdfScale": 2.5
+ },
+ "109-2-醫學二-病理學-Q100": {
+  "sourceHash": "030f1681861cbdaca2c1249e6bc0aeb1cb207b548b07afe1d53bc37e50d38602",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.743Z",
+  "optionExplanations": {
+   "A": "JC polyomavirus 特異性感染 oligodendrocyte，破壞髓鞘形成細胞，導致進行性多灶性白質腦病（PML），為正確答案。",
+   "B": "Astrocyte 亦可受 JC virus 感染，本題亦為正確答案之一。",
+   "C": "詳解未明確說明此選項錯因",
+   "D": "詳解未明確說明此選項錯因"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "109-2醫學(二).pdf",
+  "pdfPage": 147,
+  "pdfScale": 2.5
+ },
+ "109-2-醫學二-藥理學-Q74": {
+  "sourceHash": "d358a8ade548cd06e8bb6dfb94069a5a1747e47f055b63c91819c40f53f3279b",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.744Z",
+  "optionExplanations": {
+   "A": "錯誤：nitrous oxide的MAC遠大於100%，而halothane約0.75%，故nitrous oxide的MAC遠比halothane大，非小。",
+   "B": "正確：MAC越高表示麻醉強度越低，nitrous oxide的MAC遠大於halothane，故其麻醉強度確實比halothane弱。",
+   "C": "正確：nitrous oxide的血液／氣體分配係數小於halothane，表示其溶解於血液中的量較少。",
+   "D": "正確：血液／氣體分配係數小，藥物較快達到肺泡與血液平衡，故nitrous oxide誘導及恢復速度均比halothane快。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "109-2醫學(二).pdf",
+  "pdfPage": 107,
+  "pdfScale": 2.5
+ },
+ "110-2-醫學二-病理學-Q91": {
+  "sourceHash": "27ad3593d855af3eee21ee5f8abd9ce1191116dff945c4bac85a497f365225a4",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.745Z",
+  "optionExplanations": {
+   "A": "洋蔥皮樣膽管纖維化（onion skin fibrosis）是原發性硬化性膽管炎（PSC）的病理特徵，而非PBC的特色，故此選項描述錯誤",
+   "B": "PBC病理切片下可見膽小管增生（ductular reaction）及小膽管消失（loss of small bile ducts），為正確描述",
+   "C": "PBC好發於中年婦女，女性發生率高於男性，此描述正確",
+   "D": "PBC常伴隨Sjögren syndrome、Hashimoto's thyroiditis、scleroderma等自體免疫疾病，此描述正確"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "110-2醫學(二).pdf",
+  "pdfPage": 93,
+  "pdfScale": 2.5
+ },
+ "111-2-醫學一-生理學-Q66": {
+  "sourceHash": "158b8c2f07fc5fe319c761ee10fd8c750a896ad25b085154f965d243cd08ba1b",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.747Z",
+  "optionExplanations": {
+   "A": "飲用大量純水後血漿與尿液osmolality皆下降，Uosm/Posm接近1，C_H2O趨近零而非負值。",
+   "B": "腎小球濾過率增加使濾液量增多，但不會造成Uosm顯著超過Posm，無法使C_H2O成為負值。",
+   "C": "ADH增加促進腎小管保留水分，尿液滲透壓升高超過血漿滲透壓，V小於Cosm，使純水清除率成為負值。",
+   "D": "Cosm減少時依公式C_H2O = V − Cosm，Cosm變小反使C_H2O數值變大（更正），不會使其成為負值。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-2醫學一合併檔案.pdf",
+  "pdfPage": 118,
+  "pdfScale": 2.5
+ },
+ "111-2-醫學二-病理學-Q96": {
+  "sourceHash": "9900ed310545b5ed1f0f590cd38cf1628742b47cdc0f110c25ffbec7903414ca",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.747Z",
+  "optionExplanations": {
+   "A": "尖狀濕疣由low-risk HPV（第6、11型）引起，為良性生殖器疣，通常不被視為癌前期病灶，但此題亦列為可接受答案。",
+   "B": "尖狀濕疣與人類乳突狀病毒（HPV）感染密切相關，為正確敘述。",
+   "C": "根據Robbins教科書，尖狀濕疣病灶可為單個，但多個病灶情形更為常見，為正確敘述。",
+   "D": "koilocytic atypia出現在上皮表面層而非基底層，題幹所述部位錯誤，故此選項不正確。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "111-2醫學二合併檔案.pdf",
+  "pdfPage": 151,
+  "pdfScale": 2.5
+ },
+ "113-1-醫學一-生理學-Q62": {
+  "sourceHash": "80efec94e0f21e7f812097c57a130245b407c195107788fa1fa8abad792bdb0c",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.748Z",
+  "optionExplanations": {
+   "A": "吸入大於肺泡大於呼出，但肺泡氧分壓應低於呼出氣，此排序錯誤",
+   "B": "吸入最高，呼出次之，肺泡最低；解剖無效腔使呼出氣介於兩者間",
+   "C": "吸入與肺泡氧分壓不相等，肺泡應低於吸入，此排序錯誤",
+   "D": "肺泡與呼出氣氧分壓不相等，肺泡應更低，此排序錯誤"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "114-1-醫學二-公共衛生學-Q47": {
+  "sourceHash": "aad9e5625928cf5e78d1f729a3975574f69c80f016546510a7b2df262b36c8ef",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.749Z",
+  "optionExplanations": {
+   "A": "第一級預防屬第一段，著重健康促進與特別防護，不涵蓋篩檢。",
+   "B": "第二級預防屬第一段特別防護，如疫苗接種，與篩檢的早期診斷性質不同。",
+   "C": "新生兒篩檢屬三段五級中的二段三級（早期診斷早期治療），即第三級預防，為正確答案。",
+   "D": "新生兒篩檢屬第三級預防，第四級為積極治療，兩者功能不同，故不選。"
+  },
+  "flags": [],
+  "source": "text-strong-regen"
+ },
+ "114-1-醫學二-病理學-Q95": {
+  "sourceHash": "888887026f40b4ad74ff6dd9bf598fc5371797d6fa66628c107a9ebe6a3e181e",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.750Z",
+  "optionExplanations": {
+   "A": "MED12突變常見於良性平滑肌瘤（約70%），在平滑肌肉瘤中仍有9.7至20%出現，良惡性皆可，故鑑別能力最低。",
+   "B": "有絲分裂數量是重要鑑別標準：良性通常低於5個每10個高倍視野，惡性常超過10個，差異顯著。",
+   "C": "腫瘤壞死具鑑別意義，良性平滑肌瘤通常無壞死，惡性平滑肌肉瘤常見瀰漫性壞死且邊界不規則。",
+   "D": "非典型細胞核在惡性平滑肌肉瘤中常見，良性平滑肌瘤中罕見，是重要的組織學鑑別特徵。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "114-1_醫學二總檔案（修訂版）.pdf",
+  "pdfPage": 141,
+  "pdfScale": 2.5
+ },
+ "108-1-醫學二-微生物暨免疫學-Q16": {
+  "sourceHash": "d0450a9cbaee2b5b837e71e2f1a1b9585dff0e3df796c3b6eaed8a8830c4b960",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.741Z",
+  "optionExplanations": {
+   "A": "37℃早期雖先呈高度分枝絲狀菌並生關節孢子，最終才轉為酵母菌，故單稱「37℃呈絲狀菌」描述不完整而錯誤",
+   "B": "此菌37℃早期形成高度分枝之單核絲狀菌並產生關節孢子（arthroconidia），故敘述正確，為正解之一",
+   "C": "馬爾尼菲青黴菌在37℃下最終確實會轉變為類酵母菌形態，故「不會呈現yeast-like型態」之說法錯誤。",
+   "D": "主要感染途徑為呼吸道，孢子吸入後在體內37℃環境下生長，此為正確敘述，為本題正確答案之一。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "108-1醫學(二).pdf",
+  "pdfPage": 24,
+  "pdfScale": 2.5
+ },
+ "104-1-醫學二-藥理學-Q74": {
+  "sourceHash": "8cd7c4b5d76b5580fc8fa38adc1fd280ce29c401014a17a3bb3c6b340d096b8a",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.732Z",
+  "optionExplanations": {
+   "A": "Oxazepam半衰期約5至15小時，相對短效，停藥後禁斷現象較快且較明顯，故非最輕者。",
+   "B": "Prazepam作用時間最長（半衰期超過21小時），停藥後禁斷現象最輕微且最慢發生，為正解。",
+   "C": "Alprazolam半衰期約10至15小時，屬短中效，停藥後禁斷現象相對明顯，非最輕者。",
+   "D": "Lorazepam半衰期約10至20小時，作用時間短於Prazepam，禁斷現象較其明顯。"
+  },
+  "flags": [],
+  "source": "pdf-page-vision",
+  "pdfFile": "104-1醫學(二).pdf",
+  "pdfPage": 69,
+  "pdfScale": 2.5
+ },
+ "106-1-醫學一-公共衛生學-Q86": {
+  "sourceHash": "f1d5eed517cc9920f7452f1b6a22b1d81c6a1bfef08302f14f09daf787073e0a",
+  "model": "claude-sonnet-4-6",
+  "promptVersion": "backfill-v1",
+  "generatedAt": "2026-06-29T01:44:09.735Z",
+  "optionExplanations": {
+   "A": "0.1為媽媽感染的邊際機率，未以爸爸感染為條件，並非所求之條件機率。",
+   "B": "未套用條件機率（交集0.02除以爸爸感染0.10＝0.2），0.002為誤算結果。",
+   "C": "條件機率＝交集機率0.02除以爸爸感染機率0.10＝0.2，符合定義，為正解。",
+   "D": "0.005不符條件機率（0.02除以0.10＝0.2）之計算結果，為誤答。"
+  },
+  "flags": [],
+  "source": "manual-resync-fix",
+  "pdfFile": "106-1醫學(一).pdf",
+  "pdfPage": 79,
+  "pdfScale": 2.5
  }
 }

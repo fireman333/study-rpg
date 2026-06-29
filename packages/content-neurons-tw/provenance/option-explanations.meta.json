@@ -3,8 +3,8 @@
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "total": 4588,
-  "shipped": 4508,
-  "manualReview": 80,
+  "shipped": 4588,
+  "manualReview": 0,
   "breakdown": {
     "notGenerated": 0,
     "deterministicFail": 26,
@@ -12,5 +12,20 @@
     "qaMinorFlagged": 9
   },
   "riskyTotal": 604,
-  "qaVerdicts": 598
+  "qaVerdicts": 598,
+  "backfill": {
+    "finalizedAt": "2026-06-29T01:44:09.761Z",
+    "model": "claude-sonnet-4-6",
+    "promptVersion": "backfill-v1",
+    "attempted": 80,
+    "shipped": 80,
+    "remaining": 0,
+    "bySource": {
+      "pdf-page-vision": 59,
+      "manual-resync-fix": 1,
+      "text-strong-regen": 18,
+      "text-compress": 2
+    },
+    "qaMinorFlagged": 0
+  }
 }

@@ -20,6 +20,9 @@ packages/theme-pixel-medical/sprites.v1-backup/
 # codex imagegen intermediate alpha PNGs (working artifacts)
 packages/theme-pixel-medical/tmp/
 
+# Python bytecode cache (offline content scripts, e.g. render-backfill-pages.py)
+__pycache__/
+
 # local-only dev dashboard (regenerate via `pnpm gen-status`)
 docs/status.html
 

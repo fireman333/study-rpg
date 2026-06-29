@@ -25,6 +25,9 @@ export interface OptionExplanationEntry {
   generatedAt?: string
   optionExplanations: Record<string, string>
   flags?: string[]
+  /** How this 簡答 was generated (backfill provenance; absent on the original Haiku full run).
+   *  e.g. 'pdf-page-vision' | 'text-strong-regen' | 'text-compress'. Optional/ignored by build + verify. */
+  source?: string
 }
 
 export type QuestionForValidation = HashableQuestion & {
