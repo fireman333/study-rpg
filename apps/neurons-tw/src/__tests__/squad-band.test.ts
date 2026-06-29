@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest'
 import { resolveBandSquad } from '../components/MazeExpedition'
-import { getExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-visibility'
+import {
+  getExpeditionHidden,
+  setExpeditionHiddenPref,
+  subscribeExpeditionHidden,
+} from '../lib/expedition-visibility'
 import type { NeuronVariantRow } from '../lib/db'
 
 /**
@@ -63,5 +67,16 @@ describe('expedition-visibility preference (opt-out hide)', () => {
     expect(getExpeditionHidden()).toBe(true)
     setExpeditionHiddenPref(false)
     expect(getExpeditionHidden()).toBe(false)
+  })
+
+  it('notifies subscribers on change so mounted bands update live (polish-neurons-quiz-hide)', () => {
+    const seen: boolean[] = []
+    const unsub = subscribeExpeditionHidden(() => seen.push(getExpeditionHidden()))
+    setExpeditionHiddenPref(true)
+    setExpeditionHiddenPref(false)
+    expect(seen).toEqual([true, false])
+    unsub()
+    setExpeditionHiddenPref(true)
+    expect(seen).toEqual([true, false]) // no callback after unsubscribe
   })
 })

@@ -26,10 +26,10 @@ import { LocalPdfButton } from './LocalPdfButton'
 import { SHOW_INLINE_EXPLANATION } from '../lib/feature-flags'
 import { EmojiIcon } from './EmojiIcon'
 import SquadCelebration from './SquadCelebration'
-import MazeExpedition from './MazeExpedition'
+import MazeExpedition, { ExpeditionRestoreStub } from './MazeExpedition'
 import { QuestionFigure } from './QuestionFigure'
 import { PrecedingContext } from './PrecedingContext'
-import { getExpeditionHidden } from '../lib/expedition-visibility'
+import { useExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-visibility'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { liveQuery } from 'dexie'
 import { db } from '../lib/db'
@@ -235,8 +235,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   const [busy, setBusy] = useState(false)
   // Inline 🐞 report sheet — holds the question id being reported (null = closed).
   const [bugForQuestionId, setBugForQuestionId] = useState<string | null>(null)
-  // 神經元遠征隊 band visibility — shares the homepage opt-out preference (read once).
-  const [bandHidden] = useState(getExpeditionHidden)
+  // 神經元遠征隊 band visibility — shares the homepage opt-out preference, read live so
+  // an on-band × hide here (or a Help-menu restore) updates the open quiz immediately.
+  const bandHidden = useExpeditionHidden()
   const [flash, setFlash] = useState<{ outcome: 'correct' | 'incorrect'; nonce: number } | null>(null)
   // Quiz-time maze-energy feedback (add-neurons-maze-zoom-and-focus): set on a correct
   // answer; `advanced` means this answer crossed a node-settle threshold → the strip
@@ -606,8 +607,14 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
 
         {/* 神經元遠征隊 compact band — an in-flow animated strip between the title bar
             and the question (fix-neurons-quiz-expedition-band-overlap): reserves its own
-            space so it never overlaps the stem; honors the homepage hide preference. */}
-        {!bandHidden && <MazeExpedition compact />}
+            space so it never overlaps the stem; honors the homepage hide preference and
+            carries its own on-band − collapse control. When collapsed it leaves a slim
+            ＋ 展開 restore handle in place, so the player can bring it back while answering. */}
+        {bandHidden ? (
+          <ExpeditionRestoreStub compact onShow={() => setExpeditionHiddenPref(false)} />
+        ) : (
+          <MazeExpedition compact onHide={() => setExpeditionHiddenPref(true)} />
+        )}
 
         {bugForQuestionId && (
           <QuizBugReportSheet
