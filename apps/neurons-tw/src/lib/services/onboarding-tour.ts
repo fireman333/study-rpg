@@ -131,13 +131,12 @@ export type AnchorQuery = (selector: string) => AnchorBox | null
 
 /**
  * First VISIBLE (positive-size) element matching `selector`, scanning ALL
- * matches in document order — NOT just the first. This matters on mobile: the
- * C′ DockHeader duplicates `[data-tutorial="reading"]` BEFORE the family cards
- * in DOM order but is `display:none` < 768px (styles.css), so a plain
- * querySelector would hit the hidden button, read a zero-size rect, and wrongly
- * null out the whole selector even though a perfectly visible 📖 button exists
- * further down. Returns null when nothing visible matches, the selector throws,
- * or there is no `document` (node test env). NEVER throws.
+ * matches in document order — NOT just the first. A general safeguard against any
+ * `display:none` / zero-size DOM-first duplicate of a `[data-tutorial="…"]` anchor
+ * (a plain querySelector would hit the hidden one, read a zero-size rect, and
+ * wrongly null out the whole selector even though a visible match exists further
+ * down). Returns null when nothing visible matches, the selector throws, or there
+ * is no `document` (node test env). NEVER throws.
  */
 export function domVisibleElement(selector: string): HTMLElement | null {
   try {

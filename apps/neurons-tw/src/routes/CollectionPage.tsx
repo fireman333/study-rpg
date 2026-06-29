@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { liveQuery } from 'dexie'
 import type { ContentPack, Subject } from '@study-rpg/core'
 import {
@@ -45,6 +46,14 @@ import ConnectorSection from '../components/ConnectorSection'
 import MockVariantSection from '../components/MockVariantSection'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { useAuth } from '../lib/auth/AuthContext'
+import { SquadManager, SquadCardAction } from '../components/SquadSurfaces'
+import {
+  useActiveSquad,
+  addSquadMember,
+  removeSquadMember,
+  variantKey,
+  MAX_SQUAD_SIZE,
+} from '../lib/services/study-squad'
 
 const RARITY_LABEL: Record<VariantRarity, string> = {
   P0: 'P0 始源',
@@ -174,6 +183,40 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   const [promoting, setPromoting] = useState<string | null>(null)
   const nicknames = useInstanceNicknames()
 
+  // ── Active-squad editing (redesign-neurons-homepage-squad-and-maze-focus): the squad picker lives
+  // here now (the dex cards ARE the picker). Membership set + cap drive each card's toggle.
+  const squad = useActiveSquad()
+  const squadKeys = useMemo(
+    () => new Set(squad.map((r) => variantKey(r.familyId, r.slotIndex))),
+    [squad],
+  )
+  const squadFull = squad.length >= MAX_SQUAD_SIZE
+  const [squadToast, setSquadToast] = useState<string | null>(null)
+  useEffect(() => {
+    if (!squadToast) return
+    const t = setTimeout(() => setSquadToast(null), 2200)
+    return () => clearTimeout(t)
+  }, [squadToast])
+  const onToggleSquad = (familyId: string, slotIndex: number): void => {
+    const k = variantKey(familyId, slotIndex)
+    if (squadKeys.has(k)) {
+      void removeSquadMember(familyId, slotIndex)
+    } else if (squadFull) {
+      setSquadToast(`遠征隊最多 ${MAX_SQUAD_SIZE} 隻，先移除一隻再加入`)
+    } else {
+      void addSquadMember(familyId, slotIndex)
+    }
+  }
+
+  // ?squad=1 deep-link (from the homepage SquadPreview) → scroll the squad manager into view.
+  const [searchParams] = useSearchParams()
+  useEffect(() => {
+    if (searchParams.get('squad') !== '1') return
+    requestAnimationFrame(() =>
+      document.getElementById('squad-manager')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    )
+  }, [searchParams])
+
   const resolveName = useMemo(() => {
     const byId = new Map(pack.subjects.map((s) => [s.id, s.displayName]))
     return (id: string): string => byId.get(id) ?? id
@@ -291,6 +334,15 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
         userId={user?.id ?? null}
       />
 
+      {/* Squad editor (redesign-neurons-homepage-squad-and-maze-focus): the 遠征隊 manager sits at the
+          top of the dex; each card below is the picker via SquadCardAction. */}
+      <SquadManager />
+      {squadToast && (
+        <div role="status" aria-live="polite" style={squadToastStyle}>
+          {squadToast}
+        </div>
+      )}
+
       <FamilyFilterChips
         families={families}
         visible={visible}
@@ -388,6 +440,9 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                             onSetRepresentative={() =>
                               void setRepresentative(subject.id, row.slotIndex)
                             }
+                            inSquad={squadKeys.has(variantKey(subject.id, row.slotIndex))}
+                            squadFull={squadFull}
+                            onToggleSquad={() => onToggleSquad(subject.id, row.slotIndex)}
                           />
                         ))}
                       </div>
@@ -436,6 +491,9 @@ function VariantSlotCard({
   description,
   isRepresentative,
   onSetRepresentative,
+  inSquad,
+  squadFull,
+  onToggleSquad,
 }: {
   row: NeuronVariantRow
   instances: NeuronInstanceRow[]
@@ -443,6 +501,11 @@ function VariantSlotCard({
   description: string
   isRepresentative: boolean
   onSetRepresentative: () => void
+  /** Whether this variant is in the active squad (drives the top-right squad toggle). */
+  inSquad: boolean
+  /** Squad is at MAX_SQUAD_SIZE (the toggle reads「隊伍已滿」for non-members). */
+  squadFull: boolean
+  onToggleSquad: () => void
 }): JSX.Element {
   const color = RARITY_COLOR[row.rarity]
   const caption = variantBirthCaption(row)
@@ -467,6 +530,11 @@ function VariantSlotCard({
   }
   return (
     <div style={cardWrapStyle}>
+      {/* Global cross-family squad toggle (top-right), kept visually distinct from the per-family
+          「設為代表」selection (the card button itself). redesign-neurons-homepage-squad-and-maze-focus. */}
+      <div style={squadActionWrapStyle}>
+        <SquadCardAction inSquad={inSquad} full={squadFull && !inSquad} onToggle={onToggleSquad} />
+      </div>
       <button
         type="button"
         onClick={onSetRepresentative}
@@ -828,9 +896,35 @@ const promoteBtnDisabledStyle: React.CSSProperties = {
 }
 
 const cardWrapStyle: React.CSSProperties = {
+  position: 'relative',
   display: 'flex',
   flexDirection: 'column',
   gap: '0.25rem',
+}
+
+// Squad toggle sits in the card's top-right corner, above the representative-select button.
+const squadActionWrapStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: 4,
+  right: 4,
+  zIndex: 2,
+}
+
+// 「隊伍已滿」hint toast (top, transient).
+const squadToastStyle: React.CSSProperties = {
+  position: 'fixed',
+  top: 12,
+  left: '50%',
+  transform: 'translateX(-50%)',
+  zIndex: 1100,
+  padding: '0.5rem 0.9rem',
+  borderRadius: '999px',
+  background: 'rgba(40, 28, 16, 0.92)',
+  color: '#fdf6e3',
+  fontSize: '0.85rem',
+  fontWeight: 600,
+  boxShadow: '0 4px 14px rgba(20, 14, 38, 0.4)',
+  pointerEvents: 'none',
 }
 
 const expandBtnStyle: React.CSSProperties = {

@@ -11,7 +11,6 @@
  * the active quiz pool and is the action surface itself.
  */
 
-import { Fragment } from 'react'
 import type { ContentPack, Subject } from '@study-rpg/core'
 import { EXAM_PAPER_ORDER, FAMILY_EXAM_PAPER, type ExamPaper } from '@study-rpg/content-neurons-tw'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
@@ -49,7 +48,8 @@ interface Props {
   accrualByFamily?: Map<string, FamilyAccrual>
   /** Per-family 新題 (unseen) + 錯題 (due) counts for the two mode-chip badges. */
   modeCountsByFamily?: Map<string, FamilyModeCounts>
-  /** Tapping a family card focuses the maze camera on that family (add-neurons-maze-zoom-and-focus). */
+  /** The card's explicit 🔍 聚焦 button flies the maze camera to that family (camera-only; the grid
+   * never collapses — redesign-neurons-homepage-squad-and-maze-focus). */
   onFocusFamily?: (familyId: string) => void
   /** The per-family 📖 閱讀 entry toggles that subject's reading session. */
   onToggleReading?: (familyId: string) => void
@@ -57,10 +57,9 @@ interface Props {
   readingFamilyId?: string | null
   /** Dynamic label for the actively-reading card (status / pause-reason feedback). */
   readingActiveLabel?: string
-  /** Master-detail selection: the family whose card is currently focused on the embedded maze.
-   * On desktop (≥768px) a non-null value puts the box into FULL-WIDTH detail mode (C′): DockHeader +
-   * maze, the 2-col grid hidden, a FamilyChipRail below. */
-  selectedFamilyId?: string | null
+  /** The family currently focused on the embedded maze camera. Drives ONLY the focused-card highlight
+   * (the maze camera state lives in MazeGrid). It does NOT collapse the grid or enter a detail mode. */
+  focusedFamilyId?: string | null
   /** Mobile-only (A2) dock anchor: which card the maze panel is CSS-docked under. Drives the
    * `is-docked` class on the detail + the `is-dock-anchor` margin on the tapped card. Ephemeral. */
   dockFamilyId?: string | null
@@ -84,26 +83,20 @@ export function FamilyPicker({
   onToggleReading,
   readingFamilyId,
   readingActiveLabel,
-  selectedFamilyId,
+  focusedFamilyId,
   dockFamilyId,
   mazeSlot,
   mazeExpanded,
   mazeHintByFamily,
 }: Props): JSX.Element {
-  const selectedSubject =
-    selectedFamilyId != null ? pack.subjects.find((s) => s.id === selectedFamilyId) ?? null : null
-  const accent = selectedSubject?.color ?? '#8c6d4a'
-  // .neurons-md modifier classes: is-expanded (maze open) + is-detail (DESKTOP full-width detail mode,
-  // C′ — driven by selectedFamilyId). is-docked on the detail (MOBILE A2). The accent custom prop
-  // drives the family-tinted observation-well seam.
-  const mdClass = [
-    'neurons-md',
-    mazeExpanded ? 'is-expanded' : '',
-    selectedFamilyId != null ? 'is-detail' : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
-  const mdStyle = selectedSubject ? ({ ['--family-accent' as string]: accent } as React.CSSProperties) : undefined
+  const focusedSubject =
+    focusedFamilyId != null ? pack.subjects.find((s) => s.id === focusedFamilyId) ?? null : null
+  const accent = focusedSubject?.color ?? '#8c6d4a'
+  // .neurons-md modifier classes: is-expanded (maze open). There is NO detail mode — focusing a family
+  // only moves the maze camera + highlights the card; the grid never collapses. is-docked on the detail
+  // is the MOBILE A2 accordion. The accent custom prop tints the observation-well seam when focused.
+  const mdClass = ['neurons-md', mazeExpanded ? 'is-expanded' : ''].filter(Boolean).join(' ')
+  const mdStyle = focusedSubject ? ({ ['--family-accent' as string]: accent } as React.CSSProperties) : undefined
 
   return (
     <section style={pickerSectionStyle} aria-label="選 family 直接答題">
@@ -114,30 +107,14 @@ export function FamilyPicker({
         </span>
       </header>
 
-      {/* Master-detail INSIDE this box (reposition-neurons-maze-master-detail → C′ desktop / A2 mobile;
-          overview stacking per stack-neurons-homepage-maze-desktop).
-          OVERVIEW (no family selected, all viewports): block flow — the GLOBAL maze full-width ABOVE the
-          year-filter chips + card grid (desktop mirrors the mobile stacking; no side column).
-          DESKTOP detail mode (is-detail): the detail region expands FULL-WIDTH with a DockHeader (the
-          enlarged selected card) above the ONE maze, the card grid is display:none (stays MOUNTED so
-          its liveQuery chips stay warm), and a FamilyChipRail renders below for one-tap family switching.
-          MOBILE (A2): the detail CSS-docks under the tapped card (is-docked). The canvas NEVER leaves
-          .neurons-md__detail — every layout change is class-toggle + grid-template only, no re-parent. */}
+      {/* The ONE embedded maze stacks ABOVE the year-filter chips + card grid on ALL viewports
+          (redesign-neurons-homepage-squad-and-maze-focus). Focusing a family is camera-only: the
+          card grid NEVER collapses, there is NO DockHeader / chip rail / detail mode. MOBILE (A2):
+          the detail CSS-docks under the tapped card (is-docked). The canvas NEVER leaves
+          .neurons-md__detail — every layout change is a class-toggle only, no re-parent/remount. */}
       <div className={mdClass} style={mdStyle}>
         {mazeSlot != null && (
           <div className={dockFamilyId != null ? 'neurons-md__detail is-docked' : 'neurons-md__detail'}>
-            {selectedSubject && (
-              <DockHeader
-                family={selectedSubject}
-                accrual={accrualByFamily?.get(selectedSubject.id)}
-                counts={modeCountsByFamily?.get(selectedSubject.id)}
-                mazeHint={mazeHintByFamily?.get(selectedSubject.id)}
-                onStartQuiz={(mode) => onStartQuiz(selectedSubject.id, mode)}
-                onToggleReading={onToggleReading ? () => onToggleReading(selectedSubject.id) : undefined}
-                isReading={readingFamilyId === selectedSubject.id}
-                readingActiveLabel={readingFamilyId === selectedSubject.id ? readingActiveLabel : undefined}
-              />
-            )}
             {mazeSlot}
           </div>
         )}
@@ -167,7 +144,7 @@ export function FamilyPicker({
                     onToggleReading={onToggleReading ? () => onToggleReading(s.id) : undefined}
                     isReading={readingFamilyId === s.id}
                     readingActiveLabel={readingFamilyId === s.id ? readingActiveLabel : undefined}
-                    selected={selectedFamilyId === s.id}
+                    focused={focusedFamilyId === s.id}
                     isDockAnchor={dockFamilyId === s.id}
                   />
                 ))}
@@ -175,181 +152,8 @@ export function FamilyPicker({
             </div>
           ))}
         </div>
-        {/* Single-row family switcher (C′ desktop): only in detail mode, CSS-hidden on mobile (the
-            cards stay the switch surface there). Reuses onFocusFamily → zero-layout-shift switch. */}
-        {selectedSubject && onFocusFamily && (
-          <FamilyChipRail
-            subjects={pack.subjects}
-            selectedFamilyId={selectedFamilyId ?? null}
-            modeCountsByFamily={modeCountsByFamily}
-            onSelect={onFocusFamily}
-          />
-        )}
       </div>
     </section>
-  )
-}
-
-/**
- * DockHeader — the C′ desktop detail-mode banner: the FULL enlarged selected card duplicated as a
- * horizontal header above the embedded maze, so practice-entry (🆕/🔄/📖) stays intact when the 2-col
- * grid is collapsed. Mirrors `FamilyCard`'s affordances + reuses the same callbacks; CSS-hidden on
- * mobile (where the card itself stays on-screen above the docked maze). Plain DOM — no canvas.
- */
-function DockHeader({
-  family,
-  accrual,
-  counts,
-  mazeHint,
-  onStartQuiz,
-  onToggleReading,
-  isReading,
-  readingActiveLabel,
-}: {
-  family: Subject
-  accrual?: FamilyAccrual
-  counts?: FamilyModeCounts
-  mazeHint?: MazeFamilyHint
-  onStartQuiz: (mode: QuizMode) => void
-  onToggleReading?: () => void
-  isReading?: boolean
-  readingActiveLabel?: string
-}): JSX.Element {
-  const accent = family.color ?? '#8c6d4a'
-  const spriteUrl = SPRITE_MAP[`subject:${family.id}`] ?? ''
-  const isEmpty = family.totalQuestions === 0
-  const ap = accrual?.ap ?? 0
-  const freshCount = counts?.fresh ?? (isEmpty ? 0 : family.totalQuestions)
-  const dueCount = counts?.due ?? 0
-  const freshDisabled = isEmpty || freshCount === 0
-  const reviewDisabled = dueCount === 0
-  return (
-    <div className="neurons-md__dock-header" style={dockHeaderStyle(accent)}>
-      <div style={dockIdentityStyle}>
-        <div style={spriteFrameStyle(accent)}>
-          {spriteUrl ? (
-            <img src={spriteUrl} alt="" width={48} height={48} className="neuron-sprite--alive" style={spriteStyle} />
-          ) : (
-            <EmojiIcon char="🧬" size={22} decorative />
-          )}
-        </div>
-        <div style={cardHeadTextStyle}>
-          <div style={primaryNameStyle(accent)}>
-            {accrual?.firedToday && <span title="今日已激發" aria-label="今日已激發">🔥 </span>}
-            {family.id}
-          </div>
-          <div style={personaNameStyle}>{family.displayName}</div>
-        </div>
-      </div>
-
-      <div style={dockBodyStyle}>
-        {mazeHint && mazeHint.total > 0 && (
-          <AxonProgressStrip hint={mazeHint} accent={accent} familyId={family.id} />
-        )}
-        <div style={dockMetaRowStyle}>
-          <span style={apLineStyle}>
-            AP <strong style={{ color: accent }}>{ap}</strong>
-          </span>
-          <MasteryChip familyId={family.id} displayName={family.displayName} />
-          <VariantCollectionChip familyId={family.id} />
-          <span style={countChipStyle(accent)}>{family.totalQuestions} 題</span>
-        </div>
-        <div style={dockActionRowStyle}>
-          <button
-            type="button"
-            onClick={() => onStartQuiz('fresh')}
-            disabled={freshDisabled}
-            style={{ ...(freshDisabled ? modeChipDisabledStyle : modeChipFreshStyle(accent)), flex: '1 1 130px' }}
-            title={
-              isEmpty
-                ? '本 family 目前無題目'
-                : freshCount === 0
-                  ? '本 family 已全部答過'
-                  : `從 ${family.id} 出沒答過的新題（${freshCount} 題）`
-            }
-          >
-            🆕 新題
-            <span style={modeChipBadgeStyle}>{freshCount === 0 && !isEmpty ? '全部答過' : freshCount}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onStartQuiz('review')}
-            disabled={reviewDisabled}
-            style={{ ...(reviewDisabled ? modeChipDisabledStyle : modeChipReviewStyle(accent)), flex: '1 1 130px' }}
-            title={reviewDisabled ? '今日沒有到期的複習題' : `複習 ${family.id} 今日到期的 ${dueCount} 題`}
-          >
-            🔄 錯題
-            <span style={modeChipBadgeStyle}>{reviewDisabled ? '今日無到期' : dueCount}</span>
-          </button>
-          {onToggleReading && (
-            <button
-              type="button"
-              onClick={onToggleReading}
-              aria-pressed={!!isReading}
-              data-tutorial="reading"
-              style={{ ...(isReading ? readingChipActiveStyle(accent) : readingChipStyle(accent)), width: 'auto', flex: '1 1 100%' }}
-              title={isReading ? `結束 ${family.id} 的閱讀` : `開始閱讀 ${family.id}（能量全進此科）`}
-            >
-              {isReading ? (readingActiveLabel ?? '🟢 閱讀中 · 點擊結束') : '📖 閱讀此科'}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/**
- * FamilyChipRail — the single horizontal row of all 11 family chips below the maze in C′ detail mode.
- * One tap switches the focused family with NO 返回 step and (taps 2..n) zero layout shift. The
- * 醫學一/醫學二 grouping is flattened to a thin divider. CSS-hidden on mobile.
- */
-function FamilyChipRail({
-  subjects,
-  selectedFamilyId,
-  modeCountsByFamily,
-  onSelect,
-}: {
-  subjects: Subject[]
-  selectedFamilyId: string | null
-  modeCountsByFamily?: Map<string, FamilyModeCounts>
-  onSelect: (familyId: string) => void
-}): JSX.Element {
-  const groups = groupSubjectsByPaper(subjects)
-  return (
-    <div className="neurons-md__rail" role="tablist" aria-label="切換科目">
-      {groups.map((group, gi) => (
-        <Fragment key={group.id}>
-          {gi > 0 && <span className="neurons-md__rail-divider" aria-hidden />}
-          {group.subjects.map((s) => {
-            const chipAccent = s.color ?? '#8c6d4a'
-            const spriteUrl = SPRITE_MAP[`subject:${s.id}`] ?? ''
-            const fresh = modeCountsByFamily?.get(s.id)?.fresh ?? 0
-            const selected = selectedFamilyId === s.id
-            return (
-              <button
-                key={s.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => onSelect(s.id)}
-                className="neurons-md__rail-chip"
-                style={railChipStyle(chipAccent, selected)}
-                title={`${s.id} · ${s.displayName}`}
-              >
-                {spriteUrl ? (
-                  <img src={spriteUrl} alt="" width={22} height={22} style={railChipSpriteStyle} />
-                ) : (
-                  <EmojiIcon char="🧬" size={16} decorative />
-                )}
-                <span style={railChipNameStyle}>{s.id}</span>
-                {fresh > 0 && <span style={railChipBadgeStyle(chipAccent)}>🆕{fresh}</span>}
-              </button>
-            )
-          })}
-        </Fragment>
-      ))}
-    </div>
   )
 }
 
@@ -397,7 +201,7 @@ function FamilyCard({
   onToggleReading,
   isReading,
   readingActiveLabel,
-  selected,
+  focused,
   isDockAnchor,
 }: {
   family: Subject
@@ -405,11 +209,13 @@ function FamilyCard({
   counts?: FamilyModeCounts
   mazeHint?: MazeFamilyHint
   onStartQuiz: (mode: QuizMode) => void
+  /** The explicit 🔍 聚焦 button's handler — flies the maze camera to this family (camera-only). */
   onFocus?: () => void
   onToggleReading?: () => void
   isReading?: boolean
   readingActiveLabel?: string
-  selected?: boolean
+  /** This card's family is the currently-focused maze camera target → accent-ring highlight. */
+  focused?: boolean
   /** Mobile A2: this card is the maze dock anchor — opens a margin gap for the absolutely-positioned
    * panel (rule lives in the `@media (max-width:767px)` block; no-op on desktop). */
   isDockAnchor?: boolean
@@ -426,27 +232,13 @@ function FamilyCard({
     <article
       id={`family-card-${family.id}`}
       className={isDockAnchor ? 'is-dock-anchor' : undefined}
-      style={selected ? { ...familyCardStyle(accent), boxShadow: `0 0 0 2px ${accent}, 0 2px 10px rgba(0,0,0,0.18)` } : familyCardStyle(accent)}
-      aria-current={selected ? 'true' : undefined}
+      style={focused ? { ...familyCardStyle(accent), boxShadow: `0 0 0 2px ${accent}, 0 2px 10px rgba(0,0,0,0.18)` } : familyCardStyle(accent)}
+      aria-current={focused ? 'true' : undefined}
       aria-label={`${family.id} · ${family.displayName}`}
     >
-      <header
-        style={onFocus ? { ...cardHeaderStyle, cursor: 'pointer' } : cardHeaderStyle}
-        onClick={onFocus}
-        onKeyDown={
-          onFocus
-            ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  onFocus()
-                }
-              }
-            : undefined
-        }
-        role={onFocus ? 'button' : undefined}
-        tabIndex={onFocus ? 0 : undefined}
-        title={onFocus ? `在腦圖上聚焦 ${family.id}` : undefined}
-      >
+      {/* Header is presentational only — focusing the maze is the explicit 🔍 聚焦 button (right),
+          NOT a hidden click on the whole header (redesign-neurons-homepage-squad-and-maze-focus). */}
+      <header style={cardHeaderStyle}>
         <div style={spriteFrameStyle(accent)}>
           {spriteUrl ? (
             <img src={spriteUrl} alt="" width={48} height={48} className="neuron-sprite--alive" style={spriteStyle} />
@@ -461,12 +253,25 @@ function FamilyCard({
           </div>
           <div style={personaNameStyle}>{family.displayName}</div>
         </div>
+        {onFocus && (
+          <button
+            type="button"
+            onClick={onFocus}
+            style={focused ? focusBtnActiveStyle(accent) : focusBtnStyle(accent)}
+            aria-pressed={!!focused}
+            title={`在腦圖上聚焦 ${family.id}`}
+          >
+            <span aria-hidden>🔍</span>
+            <span className="neurons-focus-label" style={focusBtnLabelStyle}>聚焦</span>
+          </button>
+        )}
       </header>
 
       {/* Derived axon node-track (deep card↔maze integration): the card's slice of the maze —
-          this family's tract progress in its own accent colour. Tap = same focus as the header. */}
+          this family's tract progress in its own accent colour. Non-interactive (focus is the
+          explicit 🔍 聚焦 button above). */}
       {mazeHint && mazeHint.total > 0 && (
-        <AxonProgressStrip hint={mazeHint} accent={accent} familyId={family.id} onFocus={onFocus} />
+        <AxonProgressStrip hint={mazeHint} accent={accent} familyId={family.id} />
       )}
 
       <div style={apLineStyle}>
@@ -513,8 +318,8 @@ function FamilyCard({
           type="button"
           onClick={onToggleReading}
           aria-pressed={!!isReading}
-          // data-tutorial="reading": onboarding-spotlight anchor (on every family card's 📖 entry +
-          // the DockHeader's — the tutorial agent targets the first match).
+          // data-tutorial="reading": onboarding-spotlight anchor (on every family card's 📖 entry —
+          // the tutorial agent targets the first match).
           data-tutorial="reading"
           style={isReading ? readingChipActiveStyle(accent) : readingChipStyle(accent)}
           title={isReading ? `結束 ${family.id} 的閱讀` : `開始閱讀 ${family.id}（能量全進此科）`}
@@ -805,92 +610,36 @@ function readingChipActiveStyle(accent: string): React.CSSProperties {
   }
 }
 
-// ─── C′ DockHeader styles (desktop full-width detail-mode banner) ───────────────
+// ─── 🔍 聚焦 button (explicit per-card maze-camera focus; secondary action) ──────
+// Sits at the right of the card header; pushed right by the flex:1 name block. The「聚焦」label is
+// hidden < 768px (icon-only on phones) via `.neurons-focus-label` in styles.css.
 
-function dockHeaderStyle(accent: string): React.CSSProperties {
+function focusBtnStyle(accent: string): React.CSSProperties {
   return {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '0.75rem',
-    flexWrap: 'wrap',
-    padding: '0.6rem 0.7rem',
-    background: '#fff',
-    border: `2px solid ${accent}`,
-    borderRadius: '8px',
-    marginBottom: '0.55rem',
-  }
-}
-
-const dockIdentityStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.55rem',
-  flex: '0 0 auto',
-}
-
-const dockBodyStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.45rem',
-  flex: '1 1 280px',
-  minWidth: 0,
-}
-
-const dockMetaRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  flexWrap: 'wrap',
-}
-
-const dockActionRowStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'stretch',
-  gap: '0.45rem',
-  flexWrap: 'wrap',
-}
-
-// ─── C′ FamilyChipRail styles (single horizontal switcher below the maze) ───────
-
-function railChipStyle(accent: string, selected: boolean): React.CSSProperties {
-  return {
+    flex: '0 0 auto',
+    alignSelf: 'flex-start',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '0.3rem',
-    flex: '0 0 auto',
-    padding: '0.28rem 0.5rem',
-    borderRadius: '999px',
-    background: selected ? accent : '#fff',
-    color: selected ? '#fff' : '#5a3f29',
-    border: `1.5px solid ${accent}`,
-    fontFamily: 'inherit',
-    fontSize: '0.74rem',
+    gap: '0.2rem',
+    padding: '0.18rem 0.4rem',
+    borderRadius: '6px',
+    border: `1px solid ${accent}`,
+    background: '#fdf6e3',
+    color: accent,
+    fontSize: '0.72rem',
     fontWeight: 700,
+    fontFamily: 'inherit',
     cursor: 'pointer',
-    boxShadow: selected ? `0 0 0 2px ${accent}55` : 'none',
-    whiteSpace: 'nowrap',
+    lineHeight: 1.1,
   }
 }
 
-const railChipSpriteStyle: React.CSSProperties = {
-  imageRendering: 'pixelated',
-  width: 22,
-  height: 22,
-  flexShrink: 0,
+function focusBtnActiveStyle(accent: string): React.CSSProperties {
+  return { ...focusBtnStyle(accent), background: accent, color: '#fff' }
 }
 
-const railChipNameStyle: React.CSSProperties = {
+const focusBtnLabelStyle: React.CSSProperties = {
+  // class handles the < 768px hide; this keeps the label from wrapping when shown.
   whiteSpace: 'nowrap',
 }
 
-function railChipBadgeStyle(accent: string): React.CSSProperties {
-  return {
-    fontSize: '0.64rem',
-    fontWeight: 700,
-    padding: '0 0.25rem',
-    borderRadius: '999px',
-    background: '#fdf6e3',
-    color: accent,
-    border: `1px solid ${accent}`,
-  }
-}

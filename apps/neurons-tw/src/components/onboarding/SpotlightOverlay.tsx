@@ -150,8 +150,8 @@ export function SpotlightOverlay({
     const scrollNow = (): void => {
       if (cancelled) return
       // Same visible-first resolution the spotlight box uses, so the element
-      // scrolled to is exactly the one framed (hidden DOM-first duplicates —
-      // e.g. the mobile-hidden DockHeader 📖 — are skipped).
+      // scrolled to is exactly the one framed (any hidden / zero-size DOM-first
+      // duplicate of the anchor is skipped).
       const el = resolveTourAnchorElement(anchors)
       if (!el) return
       const r = el.getBoundingClientRect()
