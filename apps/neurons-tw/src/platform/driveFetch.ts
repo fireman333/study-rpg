@@ -24,7 +24,14 @@ export type DriveFetchReason = 'offline' | 'quota' | 'not-found' | 'config' | 'e
 
 export type DriveFetchResult =
   | { ok: true; response: Response }
-  | { ok: false; reason: DriveFetchReason; status?: number; message: string }
+  | { ok: false; reason: DriveFetchReason; status?: number; message: string; detail?: string }
+
+/** Short diagnostic string for a thrown fetch — distinguishes e.g. a CORS-masked quota response
+ * ("Load failed" / "Failed to fetch") from a dropped large response ("network connection lost"). */
+function errDetail(err: unknown): string {
+  if (err instanceof Error) return `${err.name}: ${err.message}`.slice(0, 80)
+  return String(err).slice(0, 80)
+}
 
 export interface DriveFetchOptions {
   /** Injectable for tests; defaults to global fetch. */
@@ -129,21 +136,27 @@ export async function fetchBooklet(
   let first: Response
   try {
     first = await fetchWithRetry(fetchImpl, url, rangeHeaders(0, chunkSize - 1), sleep, retries, delayMs, timeoutMs)
-  } catch {
-    return { ok: false, reason: 'error', message: '網路連線失敗，請稍後再試' }
+  } catch (err) {
+    return { ok: false, reason: 'error', message: '網路連線失敗，請稍後再試', detail: errDetail(err) }
   }
 
   if (first.status === 403 || first.status === 429) {
-    return { ok: false, reason: 'quota', status: first.status, message: 'Google Drive 暫時忙線（配額），請稍後再試' }
+    return {
+      ok: false,
+      reason: 'quota',
+      status: first.status,
+      message: 'Google Drive 暫時忙線（配額），請稍後再試',
+      detail: `HTTP ${first.status}`,
+    }
   }
   if (first.status === 404) {
-    return { ok: false, reason: 'not-found', status: 404, message: '官方雲端找不到這份 PDF（連結可能已更動）' }
+    return { ok: false, reason: 'not-found', status: 404, message: '官方雲端找不到這份 PDF（連結可能已更動）', detail: 'HTTP 404' }
   }
   // 200 = the server ignored the Range and sent the whole body (small file / no range support) — use
   // it as-is (legacy single-shot path; harmless for the small files that don't hit the iOS cliff).
   if (first.status === 200) return { ok: true, response: first }
   if (first.status !== 206) {
-    return { ok: false, reason: 'error', status: first.status, message: `載入失敗（${first.status}）` }
+    return { ok: false, reason: 'error', status: first.status, message: `載入失敗（${first.status}）`, detail: `HTTP ${first.status}` }
   }
 
   // 206 Partial Content → assemble the rest in further Range slices.
@@ -152,15 +165,16 @@ export async function fetchBooklet(
     // No usable length → fall back to a single full GET (legacy path).
     try {
       const full = await fetchWithRetry(fetchImpl, url, baseHeaders, sleep, retries, delayMs, timeoutMs)
-      if (!full.ok) return { ok: false, reason: 'error', status: full.status, message: `載入失敗（${full.status}）` }
+      if (!full.ok) return { ok: false, reason: 'error', status: full.status, message: `載入失敗（${full.status}）`, detail: `HTTP ${full.status}` }
       return { ok: true, response: full }
-    } catch {
-      return { ok: false, reason: 'error', message: '網路連線失敗，請稍後再試' }
+    } catch (err) {
+      return { ok: false, reason: 'error', message: '網路連線失敗，請稍後再試', detail: errDetail(err) }
     }
   }
   if (total <= chunkSize) {
-    // Whole file fit in the first slice.
-    return { ok: true, response: first }
+    // Whole file fit in the first slice. Re-wrap to a clean 200 response — `Cache.put` rejects a 206
+    // per the Service Worker spec, so a caller that puts this directly must not see the probe's 206.
+    return { ok: true, response: new Response(first.body, { headers: { 'content-type': 'application/pdf' } }) }
   }
 
   // Stream slice 0, then pull slices 1..N. Each network request stays ≤ chunkSize, so iOS Safari

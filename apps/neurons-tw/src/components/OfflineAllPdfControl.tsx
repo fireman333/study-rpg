@@ -37,6 +37,8 @@ interface RunResult {
   skipped: number
   failedNet: number
   failedSpace: number
+  /** First failure's stage + error, surfaced so a stuck device can be diagnosed from a screenshot. */
+  firstError?: string
 }
 
 /** Best-effort: ask the browser to keep this origin's storage from being evicted. Harmless if denied
@@ -127,6 +129,13 @@ export function OfflineAllPdfControl(): JSX.Element {
     let skipped = 0
     let failedNet = 0
     let failedSpace = 0
+    let firstError = ''
+    const note = (stage: string, err?: unknown): void => {
+      if (firstError) return
+      const name = err instanceof Error ? err.name || 'Error' : ''
+      const msg = err instanceof Error ? err.message : err != null ? String(err) : ''
+      firstError = `${stage}${name ? ` ${name}` : ''}${msg ? `: ${msg}` : ''}`.slice(0, 90)
+    }
     for (let i = 0; i < keys.length; i++) {
       setProgress({ checked: i, total: keys.length, downloaded, skipped })
       const key = keys[i]
@@ -143,22 +152,45 @@ export function OfflineAllPdfControl(): JSX.Element {
       const res = await fetchBooklet(link.driveFileId, parseResourceKey(link.viewUrl))
       if (!res.ok) {
         failedNet += 1
+        // `抓取 <reason> <detail>` — the detail distinguishes a CORS-masked Drive quota
+        // ("Load failed"/"Failed to fetch") from a dropped large response ("connection lost").
+        note(`抓取 ${res.reason}${res.detail ? ` ${res.detail}` : ''}`)
+        continue
+      }
+      // Buffer the Range-chunked body into a Blob, THEN cache.put a Blob-backed Response. WebKit's
+      // Cache.put can reject a JS-constructed ReadableStream body (the single-open path already
+      // buffers to a Blob — the proven pattern). The NETWORK is still chunked by fetchBooklet's
+      // Range slices, so only this one booklet is held briefly in memory. The blob() and the put are
+      // split so the surfaced failure stage (組裝 vs 寫入快取) pinpoints which step broke.
+      let blob: Blob
+      try {
+        blob = await res.response.blob()
+      } catch (err) {
+        failedNet += 1
+        note('組裝', err)
         continue
       }
       try {
-        // Stream the body straight to the cache — never materialize the whole PDF in JS.
-        await byteStore.put(key, new Response(res.response.body, { headers: { 'content-type': 'application/pdf' } }))
+        await byteStore.put(key, new Response(blob, { headers: { 'content-type': 'application/pdf' } }))
         // Verify it actually landed — on iOS a large booklet can fail to persist without a thrown
         // error; without this it would silently re-download every run.
         if (await byteStore.get(key)) downloaded += 1
-        else failedSpace += 1
+        else {
+          failedSpace += 1
+          note('寫入快取未落地')
+        }
       } catch (err) {
-        if (isQuotaError(err)) failedSpace += 1
-        else failedNet += 1
+        if (isQuotaError(err)) {
+          failedSpace += 1
+          note('空間不足', err)
+        } else {
+          failedNet += 1
+          note('寫入快取', err)
+        }
       }
     }
     setProgress({ checked: keys.length, total: keys.length, downloaded, skipped })
-    setResult({ downloaded, skipped, failedNet, failedSpace })
+    setResult({ downloaded, skipped, failedNet, failedSpace, firstError: firstError || undefined })
     setBusy(false)
     await refreshCachedCount(links)
     setRemaining(await estimateRemaining())
@@ -181,6 +213,7 @@ export function OfflineAllPdfControl(): JSX.Element {
                 remaining != null ? `目前約剩 ${formatBytes(remaining)}。` : ''
               }可改用桌機瀏覽器，或清出空間後再試；已下載的 ${result.downloaded + result.skipped} 份仍可離線看。`
             : `${result.failedNet} 份下載失敗，稍後可再試。`}
+          {result.firstError ? `（首個失敗：${result.firstError}）` : ''}
         </span>
       )}
       {!busy && !result && !allCached && (
