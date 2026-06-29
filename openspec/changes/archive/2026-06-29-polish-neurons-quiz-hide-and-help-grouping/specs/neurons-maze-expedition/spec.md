@@ -1,8 +1,5 @@
-# neurons-maze-expedition Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change add-neurons-maze-expedition. Update Purpose after archive.
-## Requirements
 ### Requirement: Decorative expedition animation band
 
 The system SHALL render a cosmetic side-scrolling "expedition" animation band composed of three independently-scrolling parallax layers — a far brain-sulci sky (slowest), a neural-tissue ground, and fast foreground synapse particles — that loop seamlessly to simulate the squad marching deeper into the brain. The band SHALL render in two contexts: a full-size band on the maze homepage, and a **compact** band in `QuizModal` during a quiz session. The band SHALL be purely decorative and MUST NOT read from or mutate any maze game state. The compact quiz band SHALL be non-interactive (`pointer-events: none`) **EXCEPT for a single on-band minimize control (`−`), which SHALL be interactive (`pointer-events: auto`) and keyboard-focusable** so the player can hide the band while answering; the rest of the band SHALL continue to not intercept clicks. The compact band SHALL be rendered as an **in-flow strip that reserves its own vertical space between the title bar and the question body** — NOT as an out-of-flow translucent overlay positioned over the content — so neither the band nor its `−` control can ever obscure or intercept the answer UI on any viewport.
@@ -19,26 +16,6 @@ The system SHALL render a cosmetic side-scrolling "expedition" animation band co
 - **WHEN** the compact band renders in the QuizModal
 - **THEN** every part of the band EXCEPT the on-band `−` control is non-interactive (does not intercept clicks) and occupies its own strip of vertical space between the title bar and the question body
 - **AND** the question stem and options sit entirely below the band and are never overlapped by it (nor by the `−` control), on both desktop and mobile viewports
-
-### Requirement: Foreground squad derived from collected variants
-
-The marchers in the foreground SHALL be derived live from the player's **active squad「神經元遠征隊」** (`useActiveSquad`), rendered as clean transparent sprites (without the per-variant context-art decor used on dex cards), so the band matches the squad shown in the correct-answer celebration. When the active squad is empty, the band SHALL fall back to the five rarest collected variants (P0 first); when the player has no collected variants at all, the band SHALL fall back to growth-cone marchers so it still reads.
-
-#### Scenario: Band shows the active squad
-- **WHEN** the player has a non-empty active squad and the band is shown
-- **THEN** the squad members render as clean transparent sprite marchers, bobbing with staggered phase, matching the squad shown in the celebration
-
-#### Scenario: Empty squad falls back to rarest collected variants
-- **WHEN** the active squad is empty but the player has collected variants and the band is shown
-- **THEN** up to five marchers appear, ordered by rarity (P0 first), each using the variant's own sprite as a clean transparent image
-
-#### Scenario: Empty collection falls back to growth cones
-- **WHEN** the player has zero collected variants and the band is shown
-- **THEN** growth-cone glyph marchers are rendered instead, so the band is never empty
-
-#### Scenario: Band updates as the squad changes
-- **WHEN** the player edits their active squad (or collects a new variant while the squad is empty) with the band shown
-- **THEN** the marchers re-derive without a page reload
 
 ### Requirement: Opt-in, persisted show/hide
 
@@ -72,32 +49,3 @@ The expedition band SHALL play automatically during active-study moments rather 
 - **GIVEN** the band is collapsed and the player has a QuizModal open (or the homepage band mounted)
 - **WHEN** the player clicks the in-place `＋ 展開遠征動畫` restore handle (or the Help-menu restore control)
 - **THEN** the compact QuizModal band (and the homepage band, if mounted) SHALL reappear immediately, without a remount or page reload
-
-### Requirement: Reduced-motion and performance constraints
-
-The animation SHALL be implemented with CSS transforms / `background-position` only (no `<canvas>`, no `requestAnimationFrame` loop) so it stays 60fps and is not throttled in backgrounded tabs. When the operating system requests reduced motion (`prefers-reduced-motion: reduce`), all layer and squad animations SHALL freeze to a static scene.
-
-#### Scenario: Reduced-motion freezes the animation
-
-- **WHEN** the OS `prefers-reduced-motion` setting is `reduce` and the band is shown
-- **THEN** the parallax layers and the squad bob are static (no motion), while the scene remains visible
-
-### Requirement: Owned living companions SHALL march with the expedition squad
-
-The expedition animation band SHALL append the player's owned living-cell glial companions (per `neurons-living-companion`) as additional marchers at the back of the squad parade. Companion marchers SHALL inherit the band's existing treatment — bob animation, depth-stagger, paused/hidden state, and reduced-motion/performance behavior — exactly as the variant marchers do. When the player owns no companion, the parade SHALL be the squad alone (unchanged). Companion marchers SHALL appear in every context the band renders (the homepage band and the compact QuizModal band).
-
-#### Scenario: companions append to the parade
-
-- **WHEN** the band renders and the player owns ≥ 1 living companion
-- **THEN** each owned companion SHALL appear as a marcher after the squad members, sharing the band's bob + depth-stagger treatment
-
-#### Scenario: no companions owned leaves the squad unchanged
-
-- **WHEN** the player owns no living companion
-- **THEN** the band SHALL render only the squad (or its growth-cone fallback), with no companion marcher
-
-#### Scenario: companions ride the band's hidden/paused state
-
-- **WHEN** the expedition band is hidden (opt-out) or paused (reading not active)
-- **THEN** the companion marchers SHALL follow the same hidden/paused behavior as the rest of the parade (no separate visibility path)
-

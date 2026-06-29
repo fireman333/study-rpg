@@ -32,7 +32,7 @@ import { FAMILY_IDS, FAMILY_COLOR, CONNECTOME_CONDUCTION_EPOCH } from '@study-rp
 import VariantSprite from '../VariantSprite'
 import { EmojiIcon } from '../EmojiIcon'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
-import MazeExpedition from '../MazeExpedition'
+import MazeExpedition, { ExpeditionRestoreStub } from '../MazeExpedition'
 import { db, type SynapseState } from '../../lib/db'
 import { decodePairKey, subscribeConnectomeEvents } from '../../lib/services/connectome'
 import { subscribeVariantGachaEvents } from '../../lib/services/variant-gacha'
@@ -40,7 +40,7 @@ import {
   affordableSettles, getWireConductionStatuses, walkerFraction, type WireConductionStatus,
 } from '../../lib/maze/economy'
 import { useReadingTimer } from '../../lib/hooks/useReadingTimer'
-import { getExpeditionHidden, setExpeditionHiddenPref } from '../../lib/expedition-visibility'
+import { useExpeditionHidden, setExpeditionHiddenPref } from '../../lib/expedition-visibility'
 import {
   GRID_W, GRID_H, GRID_CENTER, CELL_KINDS, CELL_WALL, CELL_PATH,
   synapseCell, walkerCell, type Cell,
@@ -575,9 +575,10 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
   const reading = useReadingTimer()
   const [synapseOverlayOn, setSynapseOverlayOn] = useState(true)
   const [pings, setPings] = useState<MazePing[]>([]) // §3/§4 transient reveal/pulse overlays
-  const [expeditionHidden, setExpeditionHidden] = useState(getExpeditionHidden)
+  // Read live so a Help-menu restore (or an on-band × hide) updates the homepage band
+  // immediately, even while it is mounted (polish-neurons-quiz-hide).
+  const expeditionHidden = useExpeditionHidden()
   const setExpeditionHide = (hidden: boolean) => {
-    setExpeditionHidden(hidden)
     setExpeditionHiddenPref(hidden)
   }
   // DEV design-language switcher selection (which WALL/PATH/BG/NODE style is active).
@@ -1663,7 +1664,9 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
       </div>
 
       <div className="maze-expedition-band">
-        {!expeditionHidden && (
+        {expeditionHidden ? (
+          <ExpeditionRestoreStub onShow={() => setExpeditionHide(false)} />
+        ) : (
           <MazeExpedition onHide={() => setExpeditionHide(true)} paused={reading.status !== 'reading'} />
         )}
       </div>

@@ -59,8 +59,9 @@ function ExpeditionAnimationHelpControl(): JSX.Element {
   }
   return (
     <p>
-      <strong>遠征動畫</strong>：出征 + 閱讀時，腦圖上方會有一條神經元小隊行進的裝飾動畫，自動播放。
-      覺得干擾可點動畫右上角的 ×，或在這裡關閉／恢復：{' '}
+      <strong>遠征動畫</strong>：閱讀與答題時，腦圖／答題視窗上方會有一條神經元小隊行進的裝飾動畫，自動播放。
+      覺得干擾，可點動畫右上角的 − 收合（閱讀和答題時都有）；收合後原處會留一顆「＋ 展開遠征動畫」可隨時展開回來。
+      也可以用這顆按鈕收合／恢復（即時生效）：{' '}
       <button
         type="button"
         onClick={toggle}
@@ -650,6 +651,51 @@ const SECTIONS: Section[] = [
   },
 ]
 
+/** Fast lookup so categories can reference sections by stable id. */
+const SECTION_BY_ID = new Map(SECTIONS.map((s) => [s.id, s]))
+
+/**
+ * Presentational grouping of the flat SECTIONS into labeled categories
+ * (polish-neurons-quiz-hide-and-help-grouping). Ordering follows a「使用者旅程」
+ * progression (Codex gpt-5.5): 開始使用 → 題目與複習 → 出征 loop → 收集 → 強化/社交 →
+ * 帳號/危險操作. Every section id belongs to exactly one category; grouping does NOT
+ * change section ids, bodies, links, or the single-expand-one-section behavior.
+ */
+interface HelpCategory {
+  id: string
+  icon: string
+  label: string
+  sectionIds: string[]
+}
+const CATEGORIES: HelpCategory[] = [
+  { id: 'getting-started', icon: '🧭', label: '開始使用', sectionIds: ['onboarding', 'hotkeys'] },
+  {
+    id: 'questions-review',
+    icon: '📚',
+    label: '題目與複習',
+    sectionIds: ['question-bank', 'bookmark', 'wrong-review', 'source-pdf'],
+  },
+  {
+    id: 'expedition-repair',
+    icon: '⚔️',
+    label: '出征與地圖修復',
+    sectionIds: ['expedition', 'synapse-formation', 'connector-neuron'],
+  },
+  {
+    id: 'collection-gacha',
+    icon: '🧬',
+    label: '收集與抽卡',
+    sectionIds: ['variant-unlock', 'first-pull-second-lap', 'dmn-draws'],
+  },
+  {
+    id: 'growth-progress',
+    icon: '⚡',
+    label: '強化與進度',
+    sectionIds: ['acceleration', 'companion', 'achievements', 'leaderboard'],
+  },
+  { id: 'account-support', icon: '🩺', label: '帳號與支援', sectionIds: ['bug-report', 'account-reset'] },
+]
+
 export default function HelpMenu(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -757,6 +803,24 @@ export default function HelpMenu(): JSX.Element {
           border-radius: 3px;
         }
 
+        .neurons-help-category {
+          border-bottom: 2px solid #e2cba0;
+        }
+        .neurons-help-category:last-child {
+          border-bottom: none;
+        }
+        .neurons-help-category-label {
+          margin: 0;
+          padding: 0.55rem 1rem 0.4rem;
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+          font-size: 0.78rem;
+          font-weight: 700;
+          letter-spacing: 0.03em;
+          color: #9a7b4a;
+          background: #f7eede;
+        }
         .neurons-help-sections {
           list-style: none;
           margin: 0;
@@ -906,50 +970,62 @@ export default function HelpMenu(): JSX.Element {
                 ✕
               </button>
             </header>
-            <ul className="neurons-help-sections" role="list">
-              {SECTIONS.map((section) => {
-                const expanded = expandedId === section.id
-                return (
-                  <li key={section.id} className="neurons-help-section">
-                    <details
-                      open={expanded}
-                      onToggle={(e) => {
-                        const opened = (e.target as HTMLDetailsElement).open
-                        if (opened) setExpandedId(section.id)
-                        else if (expandedId === section.id) setExpandedId(null)
-                      }}
-                    >
-                      <summary
-                        onClick={(e) => {
-                          // Control accordion via React state so single-expand works
-                          // across siblings. Prevent default native toggle to avoid
-                          // race with the onToggle handler above.
-                          e.preventDefault()
-                          toggleSection(section.id)
-                        }}
-                      >
-                        <span className="neurons-help-section-icon" aria-hidden="true">
-                          <EmojiIcon char={section.icon} size={20} decorative />
-                        </span>
-                        <span>{section.title}</span>
-                      </summary>
-                      <div className="neurons-help-body">
-                        {section.body}
-                        {section.id === 'bug-report' && (
-                          <button
-                            type="button"
-                            className="neurons-help-bugreport-btn"
-                            onClick={() => setBugOpen(true)}
+            <div className="neurons-help-categories">
+              {CATEGORIES.map((cat) => (
+                <section key={cat.id} className="neurons-help-category">
+                  <h3 className="neurons-help-category-label">
+                    <EmojiIcon char={cat.icon} size={15} decorative />
+                    <span>{cat.label}</span>
+                  </h3>
+                  <ul className="neurons-help-sections" role="list">
+                    {cat.sectionIds.map((sid) => {
+                      const section = SECTION_BY_ID.get(sid)
+                      if (!section) return null
+                      const expanded = expandedId === section.id
+                      return (
+                        <li key={section.id} className="neurons-help-section">
+                          <details
+                            open={expanded}
+                            onToggle={(e) => {
+                              const opened = (e.target as HTMLDetailsElement).open
+                              if (opened) setExpandedId(section.id)
+                              else if (expandedId === section.id) setExpandedId(null)
+                            }}
                           >
-                            <EmojiIcon char="🩺" size={15} decorative /> 開啟回報表單
-                          </button>
-                        )}
-                      </div>
-                    </details>
-                  </li>
-                )
-              })}
-            </ul>
+                            <summary
+                              onClick={(e) => {
+                                // Control accordion via React state so single-expand works
+                                // across siblings (and across categories). Prevent default
+                                // native toggle to avoid a race with onToggle above.
+                                e.preventDefault()
+                                toggleSection(section.id)
+                              }}
+                            >
+                              <span className="neurons-help-section-icon" aria-hidden="true">
+                                <EmojiIcon char={section.icon} size={20} decorative />
+                              </span>
+                              <span>{section.title}</span>
+                            </summary>
+                            <div className="neurons-help-body">
+                              {section.body}
+                              {section.id === 'bug-report' && (
+                                <button
+                                  type="button"
+                                  className="neurons-help-bugreport-btn"
+                                  onClick={() => setBugOpen(true)}
+                                >
+                                  <EmojiIcon char="🩺" size={15} decorative /> 開啟回報表單
+                                </button>
+                              )}
+                            </div>
+                          </details>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </section>
+              ))}
+            </div>
           </div>
         </>
       )}

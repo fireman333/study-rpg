@@ -228,18 +228,20 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
       style={wrapStyle}
       className={paused ? 'exp-paused' : undefined}
       aria-label="神經元遠征隊動畫"
-      aria-hidden={compact ? true : undefined}
     >
       <style>{KEYFRAMES}</style>
 
+      {/* Decorative parallax layers + marchers are aria-hidden (the band's purpose is
+          conveyed by the wrapper aria-label); only the on-band × control is exposed to
+          assistive tech, so it stays reachable even in the compact (quiz) band. */}
       {/* 1. far sky — rolling brain sulci, slowest */}
-      <div className="exp-sky" />
+      <div className="exp-sky" aria-hidden />
       {/* 2. tissue ground — pastel neural floor, medium */}
-      <div className="exp-ground" />
+      <div className="exp-ground" aria-hidden />
       {/* 3. foreground synapse particles — fastest */}
-      <div className="exp-particles" />
+      <div className="exp-particles" aria-hidden />
       {/* vignette — soft edge depth */}
-      <div className="exp-vignette" />
+      <div className="exp-vignette" aria-hidden />
 
       {/* one-shot synapse-decay dim on a wrong answer (neurons-juice-animations);
           duration reuses SYNAPSE_TIMINGS.decay. Skipped under reduced-motion. */}
@@ -253,7 +255,7 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
       )}
 
       {/* squad — bobbing marchers, spread + front-to-back staggered */}
-      <div className="exp-squad">
+      <div className="exp-squad" aria-hidden>
         {members.map((m) => {
           const near = m.i % 2 === 0
           const size = near ? d.near : d.far
@@ -318,19 +320,76 @@ export default function MazeExpedition({ onHide, compact = false, paused = false
         </span>
       )}
 
-      {/* quick-hide — kill the animation when it distracts from reading / answering.
-          Restore path is the ❓ Help menu (the on-maze toggle chip was removed). */}
-      {onHide && !compact && (
+      {/* quick-collapse — minimize the animation when it distracts from reading /
+          answering. The glyph is a minimize `−` (NOT a close `×`) so it reads as a
+          restorable collapse, not a permanent dismiss. Renders in BOTH contexts
+          (homepage band AND compact quiz band) so the player can collapse it while
+          answering; on the compact band it is the single interactive element
+          (`pointer-events: auto` via .exp-hide) while the rest of the band stays
+          non-interactive. Restore path is the ❓ Help menu. */}
+      {onHide && (
         <button
           type="button"
           className="exp-hide"
           onClick={onHide}
-          aria-label="隱藏遠征動畫"
-          title="隱藏遠征動畫（旅程仍持續；可於說明選單 ❓ 恢復）"
+          aria-label="收合遠征動畫"
+          title="收合遠征動畫（旅程仍持續；可於說明選單 ❓ 恢復）"
         >
           −
         </button>
       )}
+    </div>
+  )
+}
+
+/**
+ * Slim in-place restore handle shown WHERE the band was, once the player collapses it
+ * via the on-band `−` (polish-neurons-quiz-hide). Clicking re-shows the band live. It
+ * renders in BOTH contexts (homepage band + compact quiz band) so a collapse is always
+ * reversible on-screen — the player never has to open the ❓ Help menu to bring it back.
+ * The `＋` mirrors the band's `−`, reading as a minimize/restore pair.
+ */
+export function ExpeditionRestoreStub({
+  compact = false,
+  onShow,
+}: {
+  compact?: boolean
+  onShow: () => void
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        width: '100%',
+        maxWidth: compact ? '100%' : 760,
+        margin: compact ? 0 : '0.75rem auto 0',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: compact ? '4px 0' : 0,
+        borderBottom: compact ? '1px solid #e2d2b4' : undefined,
+        flexShrink: 0,
+      }}
+    >
+      <button
+        type="button"
+        onClick={onShow}
+        aria-label="展開遠征動畫"
+        title="展開遠征動畫"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '3px 12px',
+          fontSize: '0.72rem',
+          fontFamily: 'var(--font-pixel-cjk)',
+          color: '#6b5436',
+          background: '#f4ecd8',
+          border: '1px solid #b8893a',
+          borderRadius: 999,
+          cursor: 'pointer',
+        }}
+      >
+        ＋ 展開遠征動畫
+      </button>
     </div>
   )
 }
@@ -406,6 +465,8 @@ const KEYFRAMES = `
   background: rgba(10,8,30,0.55); color: #cfc8ff;
   font-size: 1rem; font-weight: 700; cursor: pointer;
   font-family: var(--font-pixel-cjk);
+  /* Stay clickable even inside the compact band's pointer-events:none wrapper. */
+  pointer-events: auto;
 }
 .exp-hide:hover { background: rgba(40,30,70,0.85); color: #fff; }
 
