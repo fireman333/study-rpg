@@ -571,9 +571,6 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
       aria-label="答題中"
     >
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-        {/* 神經元遠征隊 compact band — translucent, non-interactive, behind the
-            content in the upper background; honors the homepage hide preference. */}
-        {!bandHidden && <MazeExpedition compact />}
         {flash && (
           <AnswerFeedbackFlash
             key={flash.nonce}
@@ -606,6 +603,11 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
             </button>
           </span>
         </header>
+
+        {/* 神經元遠征隊 compact band — an in-flow animated strip between the title bar
+            and the question (fix-neurons-quiz-expedition-band-overlap): reserves its own
+            space so it never overlaps the stem; honors the homepage hide preference. */}
+        {!bandHidden && <MazeExpedition compact />}
 
         {bugForQuestionId && (
           <QuizBugReportSheet
