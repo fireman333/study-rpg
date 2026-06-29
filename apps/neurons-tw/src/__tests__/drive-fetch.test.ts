@@ -1,5 +1,13 @@
 import { describe, it, expect, vi } from 'vitest'
-import { fetchBooklet, officialDriveUrl, parseResourceKey } from '../platform/driveFetch'
+import {
+  fetchBooklet,
+  officialDriveUrl,
+  parseResourceKey,
+  isCorsMaskedError,
+  sameOriginProbe,
+  isSuspectedEdgeThrottle,
+  type DriveFetchResult,
+} from '../platform/driveFetch'
 
 const KEY = 'TEST_KEY'
 const online = () => true
@@ -88,79 +96,71 @@ describe('fetchBooklet — error classification (No Silent Errors)', () => {
   })
 })
 
-describe('fetchBooklet — Range-chunked assembly (fix-neurons-ipad-large-pdf-fetch)', () => {
-  // Serve `data` in Range slices like Drive does: 206 + Content-Range with the total.
-  const body = (u: Uint8Array): BodyInit => u as unknown as BodyInit
-  const rangeServer = (data: Uint8Array) =>
-    vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
-      const range = ((init?.headers ?? {}) as Record<string, string>)['Range']
-      const m = /bytes=(\d+)-(\d+)/.exec(range ?? '')
-      if (!m) return new Response(body(data), { status: 200 })
-      const start = Number(m[1])
-      const end = Math.min(Number(m[2]), data.length - 1)
-      const slice = data.slice(start, end + 1)
-      return new Response(body(slice), {
-        status: 206,
-        headers: { 'Content-Range': `bytes ${start}-${end}/${data.length}` },
-      })
-    })
-
-  it('assembles a multi-slice file from Range requests, bytes intact', async () => {
-    const data = new Uint8Array(Array.from({ length: 10 }, (_, i) => i))
-    const fetchImpl = rangeServer(data)
-    const r = await fetchBooklet('FID', undefined, {
-      apiKey: KEY,
-      isOnline: online,
-      fetchImpl,
-      sleep: noSleep,
-      chunkSize: 4,
-    })
-    expect(r.ok).toBe(true)
-    const got = new Uint8Array(await (r as { response: Response }).response.arrayBuffer())
-    expect([...got]).toEqual([...data])
-    expect(fetchImpl).toHaveBeenCalledTimes(3) // ceil(10/4): probe(0-3) + 4-7 + 8-9
-  })
-
-  it('a single-slice (small) file makes exactly one request', async () => {
-    const data = new Uint8Array([1, 2, 3])
-    const fetchImpl = rangeServer(data)
-    const r = await fetchBooklet('FID', undefined, {
-      apiKey: KEY,
-      isOnline: online,
-      fetchImpl,
-      sleep: noSleep,
-      chunkSize: 4,
-    })
+describe('fetchBooklet — single whole-file request (fix-neurons-pdf-edge-throttle)', () => {
+  it('fetches the booklet in ONE request, no Range header, returns the response', async () => {
+    const data = new Uint8Array([1, 2, 3, 4, 5])
+    const fetchImpl = vi.fn().mockResolvedValue(new Response(data as unknown as BodyInit, { status: 200 }))
+    const r = await fetchBooklet('FID', undefined, { apiKey: KEY, isOnline: online, fetchImpl, sleep: noSleep })
     expect(r.ok).toBe(true)
     expect(fetchImpl).toHaveBeenCalledTimes(1)
+    const init = fetchImpl.mock.calls[0][1] as RequestInit
+    expect((init.headers as Record<string, string>)['Range']).toBeUndefined()
     const got = new Uint8Array(await (r as { response: Response }).response.arrayBuffer())
-    expect([...got]).toEqual([1, 2, 3])
+    expect([...got]).toEqual([1, 2, 3, 4, 5])
   })
 
-  it('a slice that 404s mid-stream surfaces as a read error (no partial cache)', async () => {
-    const data = new Uint8Array(Array.from({ length: 10 }, (_, i) => i))
-    let call = 0
-    const fetchImpl = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
-      call += 1
-      const range = ((init?.headers ?? {}) as Record<string, string>)['Range']
-      const m = /bytes=(\d+)-(\d+)/.exec(range ?? '')!
-      const start = Number(m[1])
-      if (call >= 2) return new Response('', { status: 404 }) // second slice fails
-      const end = Math.min(Number(m[2]), data.length - 1)
-      return new Response(data.slice(start, end + 1) as unknown as BodyInit, {
-        status: 206,
-        headers: { 'Content-Range': `bytes ${start}-${end}/${data.length}` },
-      })
-    })
-    const r = await fetchBooklet('FID', undefined, {
-      apiKey: KEY,
-      isOnline: online,
-      fetchImpl,
-      sleep: noSleep,
-      chunkSize: 4,
-    })
-    expect(r.ok).toBe(true) // the probe succeeded; the failure is deferred to body consumption
-    await expect((r as { response: Response }).response.arrayBuffer()).rejects.toThrow()
+  it('a 206 (server-initiated partial) is still treated as ok (res.ok covers 2xx)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('partial', { status: 206 }))
+    const r = await fetchBooklet('FID', undefined, { apiKey: KEY, isOnline: online, fetchImpl, sleep: noSleep })
+    expect(r.ok).toBe(true)
+  })
+})
+
+describe('isCorsMaskedError', () => {
+  it('is true for TypeError / Load failed / Failed to fetch / NetworkError (string or Error)', () => {
+    expect(isCorsMaskedError(new TypeError('Load failed'))).toBe(true)
+    expect(isCorsMaskedError('TypeError: Load failed')).toBe(true)
+    expect(isCorsMaskedError('Failed to fetch')).toBe(true)
+    expect(isCorsMaskedError('NetworkError when attempting to fetch resource.')).toBe(true)
+  })
+  it('is false for readable HTTP-status details and unrelated errors', () => {
+    expect(isCorsMaskedError('HTTP 403')).toBe(false)
+    expect(isCorsMaskedError('HTTP 404')).toBe(false)
+    expect(isCorsMaskedError(new Error('boom'))).toBe(false)
+    expect(isCorsMaskedError(undefined)).toBe(false)
+  })
+})
+
+describe('sameOriginProbe', () => {
+  it('true when the probe fetch resolves (origin reachable, even a 404)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('', { status: 404 }))
+    expect(await sameOriginProbe({ fetchImpl, url: '/x' })).toBe(true)
+  })
+  it('false when the probe fetch throws (origin unreachable)', async () => {
+    const fetchImpl = vi.fn().mockRejectedValue(new TypeError('Load failed'))
+    expect(await sameOriginProbe({ fetchImpl, url: '/x' })).toBe(false)
+  })
+})
+
+describe('isSuspectedEdgeThrottle', () => {
+  const probeOk = vi.fn().mockResolvedValue(new Response('', { status: 200 }))
+  const probeDown = vi.fn().mockRejectedValue(new TypeError('Load failed'))
+
+  it('true: CORS-masked error + origin reachable', async () => {
+    const res: DriveFetchResult = { ok: false, reason: 'error', message: 'x', detail: 'TypeError: Load failed' }
+    expect(await isSuspectedEdgeThrottle(res, { fetchImpl: probeOk })).toBe(true)
+  })
+  it('false: CORS-masked error but origin ALSO unreachable (real outage)', async () => {
+    const res: DriveFetchResult = { ok: false, reason: 'error', message: 'x', detail: 'TypeError: Load failed' }
+    expect(await isSuspectedEdgeThrottle(res, { fetchImpl: probeDown })).toBe(false)
+  })
+  it('false: a readable quota 403 is NOT the CORS-masked throttle', async () => {
+    const res: DriveFetchResult = { ok: false, reason: 'quota', status: 403, message: 'x', detail: 'HTTP 403' }
+    expect(await isSuspectedEdgeThrottle(res, { fetchImpl: probeOk })).toBe(false)
+  })
+  it('false: an ok result is never a throttle', async () => {
+    const res: DriveFetchResult = { ok: true, response: new Response('ok') }
+    expect(await isSuspectedEdgeThrottle(res, { fetchImpl: probeOk })).toBe(false)
   })
 })
 

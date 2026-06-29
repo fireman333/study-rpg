@@ -6,25 +6,39 @@
  *
  * Failures never block: a per-booklet error is counted and surfaced; the rest still cache.
  *
+ * Edge-throttle hardening (fix-neurons-pdf-edge-throttle): booklets are now fetched as ONE whole-file
+ * request each (no Range chunking — that amplified the per-IP request burst that trips Google's edge
+ * abuse throttle). The bulk run paces between booklets, and when it detects a SUSPECTED edge throttle
+ * (a CORS-masked Drive failure while the player's own origin is still reachable) it stops the queue
+ * and persists a progressive cooldown instead of hammering Drive. Already-cached booklets are kept, so
+ * re-running later resumes (skips the cached ones).
+ *
  * Mobile-Safari durability (fix-neurons-offline-pdf-progress): the full set is ~250 MB–1.5 GB (one
- * booklet is 123 MB), and the Cache API is best-effort, evictable storage. Two things made the
- * feature confusing on iOS:
- *  1. The progress counter was the loop index, so a fast cache-hit skip and a slow real re-fetch
- *     looked identical — the player couldn't tell "re-downloading everything" from "skipping the
- *     cached ones". WebKit also evicts the cache whole-origin (7-day ITP / storage pressure), so the
- *     same button genuinely behaves differently between sessions/devices. We now tally downloaded vs
- *     skipped vs failed separately and show them.
- *  2. A `QuotaExceededError` on a large booklet was swallowed into a generic "失敗" count, so the big
- *     PDFs appeared to fail forever. We now classify out-of-space distinctly and request persistent
- *     storage up front to reduce eviction.
+ * booklet is 123 MB), and the Cache API is best-effort, evictable storage. The progress counter
+ * distinguishes downloaded vs skipped vs failed, and an out-of-space (quota) failure is classified
+ * distinctly; persistent storage is requested up front to reduce eviction.
  */
 import { useEffect, useState, type CSSProperties } from 'react'
 import { loadBookletLinks, type BookletLinkMap } from '../platform/manifest'
 import { byteStore } from '../platform/byteStore'
-import { fetchBooklet, parseResourceKey, diagnoseDrive } from '../platform/driveFetch'
+import { fetchBooklet, parseResourceKey, diagnoseDrive, isCorsMaskedError, isSuspectedEdgeThrottle } from '../platform/driveFetch'
+import { getCooldownUntil, recordThrottleStrike, noteDriveSuccess } from '../platform/pdfCooldown'
 import { db } from '../lib/db'
 
 const META_KEY = 'pdfOfflineAll'
+/** Inter-booklet spacing so a full run never bursts at one egress IP (each file is now ONE request). */
+const PACE_BASE_MS = 4000
+const PACE_JITTER_MS = 2000
+
+const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
+const paceMs = (): number => PACE_BASE_MS + Math.floor(Math.random() * PACE_JITTER_MS)
+function formatClock(until: number): string {
+  try {
+    return new Date(until).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return ''
+  }
+}
 
 interface LiveProgress {
   checked: number
@@ -37,6 +51,8 @@ interface RunResult {
   skipped: number
   failedNet: number
   failedSpace: number
+  /** True when the run stopped early because a Drive edge throttle was suspected. */
+  throttled?: boolean
   /** First failure's stage + error, surfaced so a stuck device can be diagnosed from a screenshot. */
   firstError?: string
 }
@@ -71,6 +87,18 @@ function isQuotaError(err: unknown): boolean {
   )
 }
 
+/** Cache one response + verify it landed. Classifies the outcome so the bulk loop stays flat. */
+type PutOutcome = { r: 'landed' | 'space' | 'unconfirmed' | 'error'; err?: unknown }
+async function tryPut(key: string, response: Response): Promise<PutOutcome> {
+  try {
+    await byteStore.put(key, response)
+    // Verify the write landed — on iOS a large booklet can fail to persist without a thrown error.
+    return { r: (await byteStore.get(key)) ? 'landed' : 'unconfirmed' }
+  } catch (err) {
+    return { r: isQuotaError(err) ? 'space' : 'error', err }
+  }
+}
+
 function formatBytes(n: number): string {
   if (n >= 1e9) return `${(n / 1e9).toFixed(1)} GB`
   if (n >= 1e6) return `${Math.round(n / 1e6)} MB`
@@ -84,10 +112,12 @@ export function OfflineAllPdfControl(): JSX.Element {
   const [progress, setProgress] = useState<LiveProgress | null>(null)
   const [result, setResult] = useState<RunResult | null>(null)
   const [remaining, setRemaining] = useState<number | null>(null)
+  // Active edge-throttle cooldown end (epoch ms), or 0. Bulk hard-respects it.
+  const [cooldownUntil, setCooldownUntil] = useState<number>(0)
   // First failure surfaced LIVE during the run — the completion summary can be minutes away when
   // every booklet fails, so the player must be able to see the cause without waiting for the end.
   const [liveError, setLiveError] = useState('')
-  // Connectivity diagnostic matrix (the iPad bug is unreproducible + CORS errors are opaque).
+  // Connectivity diagnostic matrix — demoted to a secondary affordance shown only on failure.
   const [diag, setDiag] = useState<string[] | null>(null)
   const [diagBusy, setDiagBusy] = useState(false)
 
@@ -110,6 +140,9 @@ export function OfflineAllPdfControl(): JSX.Element {
     void estimateRemaining().then((r) => {
       if (alive) setRemaining(r)
     })
+    void getCooldownUntil().then((u) => {
+      if (alive) setCooldownUntil(u)
+    })
     return () => {
       alive = false
     }
@@ -118,9 +151,19 @@ export function OfflineAllPdfControl(): JSX.Element {
   if (!links) return <p style={hintStyle}>載入清單中…</p>
   const total = Object.keys(links).length
   const allCached = total > 0 && cached >= total
+  const coolingDown = cooldownUntil > Date.now()
 
   async function downloadAll(): Promise<void> {
     if (!links) return
+    // Bulk HARD-respects an active edge-throttle cooldown — don't issue any Drive request.
+    const until = await getCooldownUntil()
+    if (until > Date.now()) {
+      setCooldownUntil(until)
+      setResult(null)
+      setLiveError('')
+      return
+    }
+    setCooldownUntil(0)
     setBusy(true)
     setResult(null)
     setLiveError('')
@@ -136,6 +179,9 @@ export function OfflineAllPdfControl(): JSX.Element {
     let skipped = 0
     let failedNet = 0
     let failedSpace = 0
+    let throttled = false
+    let networkFetches = 0
+    let corsMaskedFailures = 0
     let firstError = ''
     const note = (stage: string, err?: unknown): void => {
       if (firstError) return
@@ -157,48 +203,56 @@ export function OfflineAllPdfControl(): JSX.Element {
       } catch {
         /* treat as uncached → re-fetch */
       }
+      // Pace between consecutive NETWORK fetches (cache-skips above don't count).
+      if (networkFetches > 0) await sleep(paceMs())
+      networkFetches += 1
       const res = await fetchBooklet(link.driveFileId, parseResourceKey(link.viewUrl))
       if (!res.ok) {
+        // Suspected Google per-IP edge throttle? Gate the (origin-probing) classifier behind a strike
+        // count so one transient blip doesn't trigger a cooldown: only after a prior success this run,
+        // or a 2nd CORS-masked failure. If confirmed → stop the queue + persist a cooldown, no retry.
+        if (res.reason === 'error' && isCorsMaskedError(res.detail)) {
+          corsMaskedFailures += 1
+          if ((downloaded > 0 || corsMaskedFailures >= 2) && (await isSuspectedEdgeThrottle(res))) {
+            const cd = await recordThrottleStrike()
+            throttled = true
+            setCooldownUntil(cd)
+            break
+          }
+        }
         failedNet += 1
-        // `抓取 <reason> <detail>` — the detail distinguishes a CORS-masked Drive quota
-        // ("Load failed"/"Failed to fetch") from a dropped large response ("connection lost").
+        // `抓取 <reason> <detail>` — the detail distinguishes a CORS-masked throttle ("Load failed")
+        // from a quota 403 ("HTTP 403") or link-rot ("HTTP 404").
         note(`抓取 ${res.reason}${res.detail ? ` ${res.detail}` : ''}`)
         continue
       }
-      // Buffer the Range-chunked body into a Blob, THEN cache.put a Blob-backed Response. WebKit's
-      // Cache.put can reject a JS-constructed ReadableStream body (the single-open path already
-      // buffers to a Blob — the proven pattern). The NETWORK is still chunked by fetchBooklet's
-      // Range slices, so only this one booklet is held briefly in memory. The blob() and the put are
-      // split so the surfaced failure stage (組裝 vs 寫入快取) pinpoints which step broke.
-      let blob: Blob
-      try {
-        blob = await res.response.blob()
-      } catch (err) {
-        failedNet += 1
-        note('組裝', err)
-        continue
+      // Cache the real response — clone keeps memory low (a whole 123 MB .blob() pressures iOS); fall
+      // back to a buffered clean-200 Blob only if the direct put fails non-terminally.
+      let put = await tryPut(key, res.response.clone())
+      if (put.r === 'error' || put.r === 'unconfirmed') {
+        try {
+          const blob = await res.response.blob()
+          put = await tryPut(key, new Response(blob, { headers: { 'content-type': 'application/pdf' } }))
+        } catch (err) {
+          put = { r: isQuotaError(err) ? 'space' : 'error', err }
+        }
       }
-      try {
-        await byteStore.put(key, new Response(blob, { headers: { 'content-type': 'application/pdf' } }))
-        // Verify it actually landed — on iOS a large booklet can fail to persist without a thrown
-        // error; without this it would silently re-download every run.
-        if (await byteStore.get(key)) downloaded += 1
-        else {
-          failedSpace += 1
-          note('寫入快取未落地')
-        }
-      } catch (err) {
-        if (isQuotaError(err)) {
-          failedSpace += 1
-          note('空間不足', err)
-        } else {
-          failedNet += 1
-          note('寫入快取', err)
-        }
+      if (put.r === 'landed') {
+        downloaded += 1
+        void noteDriveSuccess()
+      } else if (put.r === 'space') {
+        failedSpace += 1
+        note('空間不足', put.err)
+      } else if (put.r === 'unconfirmed') {
+        failedSpace += 1
+        note('寫入快取未落地')
+      } else {
+        failedNet += 1
+        note('寫入快取', put.err)
       }
     }
     setProgress({ checked: keys.length, total: keys.length, downloaded, skipped })
-    setResult({ downloaded, skipped, failedNet, failedSpace, firstError: firstError || undefined })
+    setResult({ downloaded, skipped, failedNet, failedSpace, throttled, firstError: firstError || undefined })
     setBusy(false)
     await refreshCachedCount(links)
     setRemaining(await estimateRemaining())
@@ -224,10 +278,14 @@ export function OfflineAllPdfControl(): JSX.Element {
     setDiagBusy(false)
   }
 
+  // Demote the connectivity diagnostic to a secondary affordance: only offer it once a download has
+  // actually failed / been throttled (it served its first-diagnosis purpose; not a standing control).
+  const showDiag = !busy && (coolingDown || (result != null && (result.failedNet > 0 || result.throttled)))
+
   return (
     <div style={wrapStyle}>
-      <button type="button" style={btnStyle} onClick={downloadAll} disabled={busy}>
-        {busy ? '下載中…' : allCached ? '✓ 已全部下載' : '⬇ 全部下載供離線'}
+      <button type="button" style={btnStyle} onClick={downloadAll} disabled={busy || coolingDown}>
+        {busy ? '下載中…' : allCached ? '✓ 已全部下載' : coolingDown ? '⏸ 已暫停（Drive 限流）' : '⬇ 全部下載供離線'}
       </button>
       <span style={statusStyle}>
         {busy && progress
@@ -235,7 +293,12 @@ export function OfflineAllPdfControl(): JSX.Element {
           : `已快取 ${cached} / ${total} 份`}
       </span>
       {busy && liveError && <span style={warnStyle}>首個失敗：{liveError}</span>}
-      {!busy && result && (result.failedSpace > 0 || result.failedNet > 0) && (
+      {coolingDown && (
+        <span style={warnStyle}>
+          Google Drive 暫時限制大量下載，已暫停；已完成的 {cached} 份仍可離線看。約 {formatClock(cooldownUntil)} 後可再按「全部下載供離線」續跑（會自動跳過已下載的）。也可改用單份開啟時的官方連結。
+        </span>
+      )}
+      {!busy && result && !result.throttled && (result.failedSpace > 0 || result.failedNet > 0) && (
         <span style={warnStyle}>
           {result.failedSpace > 0
             ? `儲存空間不足，${result.failedSpace} 份未能快取——手機 / Safari 對網頁可用空間有限。${
@@ -245,25 +308,27 @@ export function OfflineAllPdfControl(): JSX.Element {
           {result.firstError ? `（首個失敗：${result.firstError}）` : ''}
         </span>
       )}
-      {!busy && !result && !allCached && (
+      {!busy && !result && !allCached && !coolingDown && (
         <span style={hintStyle}>全部約需數百 MB 至 1 GB；手機空間有限時可能無法全部存下，仍可在開啟單份時即時載入。</span>
       )}
-      {/* Connectivity diagnostic — load-bearing for the (unreproducible) iPad "won't download" bug. */}
-      <div style={{ flexBasis: '100%', marginTop: '0.3rem' }}>
-        <button type="button" style={diagBtnStyle} onClick={runDiag} disabled={diagBusy || busy}>
-          {diagBusy ? '診斷中…' : '🔍 診斷連線（下載一直失敗時點這）'}
-        </button>
-        {diag && (
-          <div style={diagBoxStyle}>
-            {diag.map((line, i) => (
-              <div key={i}>{line}</div>
-            ))}
-            <div style={{ marginTop: '0.3rem', color: '#6a5a45' }}>
-              A=非Google跨域 · B=Drive小範圍 · C=Drive+特殊標頭。把這幾行截圖回報即可定位。
+      {/* Connectivity diagnostic — demoted: only offered after a failure / throttle. */}
+      {showDiag && (
+        <div style={{ flexBasis: '100%', marginTop: '0.3rem' }}>
+          <button type="button" style={diagBtnStyle} onClick={runDiag} disabled={diagBusy || busy}>
+            {diagBusy ? '診斷中…' : '🔍 診斷連線（下載一直失敗時點這）'}
+          </button>
+          {diag && (
+            <div style={diagBoxStyle}>
+              {diag.map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+              <div style={{ marginTop: '0.3rem', color: '#6a5a45' }}>
+                A=非Google跨域 · B=Drive小範圍 · C=Drive+特殊標頭。把這幾行截圖回報即可定位。
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
