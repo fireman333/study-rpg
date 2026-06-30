@@ -13,7 +13,7 @@
  * (welcome backdrop + spotlight dim are pointer-events:none), and every step
  * offers 跳過引導 (spotlight steps also offer 下一步).
  */
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { CelebrationHalo, ParticleBurst } from '../../lib/motion'
 import { EmojiIcon } from '../EmojiIcon'
 import { onAnswerCorrect } from '../../lib/maze/answer-feedback'
@@ -40,10 +40,33 @@ export interface GuidedTourProps {
 
 export function GuidedTour({ reduced, onExit }: GuidedTourProps): JSX.Element | null {
   const [step, setStep] = useState<TourStepId>('welcome')
+  const welcomeStartRef = useRef<HTMLButtonElement | null>(null)
 
   const dispatch = (event: TourAdvanceEvent): void => {
     setStep((s) => advanceTourStep(s, event))
   }
+
+  // A11y: Escape skips the tour from any active step (welcome / spotlight steps / extract wait
+  // strip). The tour-active step also covers the spotlight steps, so SpotlightOverlay below is NOT
+  // given its own onEscape (would double-fire). NOT a focus trap — the page stays interactive.
+  useEffect(() => {
+    if (step === 'done') return
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onExit(false)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [step, onExit])
+
+  // A11y: on the welcome card, move initial focus to its primary control (開始引導).
+  useEffect(() => {
+    if (step !== 'welcome') return
+    const raf = requestAnimationFrame(() => welcomeStartRef.current?.focus({ preventScroll: true }))
+    return () => cancelAnimationFrame(raf)
+  }, [step])
 
   // Observe existing gameplay events while the tour is active (not done).
   useEffect(() => {
@@ -92,7 +115,7 @@ export function GuidedTour({ reduced, onExit }: GuidedTourProps): JSX.Element | 
   if (step === 'welcome') {
     return (
       <div style={welcomeWrapStyle}>
-        <div role="region" aria-label="新手引導：歡迎" aria-live="polite" style={welcomeCardStyle}>
+        <div role="dialog" aria-label="新手引導：歡迎" aria-live="polite" style={welcomeCardStyle}>
           <strong style={welcomeTitleStyle}>
             <EmojiIcon char="👋" size={18} /> {TOUR_STEPS.welcome.lead}
           </strong>
@@ -107,7 +130,12 @@ export function GuidedTour({ reduced, onExit }: GuidedTourProps): JSX.Element | 
             <button type="button" onClick={skip} style={ghostBtnStyle} aria-label="跳過新手引導">
               跳過
             </button>
-            <button type="button" onClick={() => dispatch('next')} style={primaryBtnStyle}>
+            <button
+              ref={welcomeStartRef}
+              type="button"
+              onClick={() => dispatch('next')}
+              style={primaryBtnStyle}
+            >
               {TOUR_STEPS.welcome.nextLabel}
             </button>
           </div>

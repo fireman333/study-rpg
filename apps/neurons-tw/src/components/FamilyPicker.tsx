@@ -287,6 +287,9 @@ function FamilyCard({
             aria-pressed={!!focused}
             aria-label={`在腦圖上聚焦 ${family.id}`}
             title={`在腦圖上聚焦 ${family.id}`}
+            // data-tutorial="maze-focus": onboarding-spotlight anchor for the guided tour's 🔍 聚焦 step
+            // (on every family card's 聚焦 entry — the tour targets the first visible match).
+            data-tutorial="maze-focus"
           >
             <span aria-hidden>🔍</span>
             <span className="neurons-focus-label" style={focusBtnLabelStyle}>聚焦</span>
@@ -305,6 +308,10 @@ function FamilyCard({
           onClick={() => onStartQuiz('fresh')}
           disabled={freshDisabled}
           style={freshDisabled ? modeChipDisabledStyle : modeChipFreshStyle(accent)}
+          // data-tutorial="quiz-start": onboarding-spotlight anchor for the guided tour's 答題 step
+          // when the quiz modal is closed (frames the 🆕 新題 answer-opening entry; the in-modal
+          // [data-tutorial="quiz-answer"] grid takes priority once the modal is open).
+          data-tutorial="quiz-start"
           title={
             isEmpty
               ? '本 family 目前無題目'

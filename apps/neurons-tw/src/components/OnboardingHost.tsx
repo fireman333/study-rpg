@@ -31,12 +31,44 @@ import {
   getExpeditionSpotlightSeen,
   setExpeditionSpotlightSeen,
   maybeAutoCompleteForExistingPlayer,
+  cleanupLegacyOnboardingKeys,
   onReplayGuided,
 } from '../lib/services/onboarding'
+import { resolveTourAnchorElement } from '../lib/services/onboarding-tour'
 import { GuidedTour } from './onboarding/GuidedTour'
 import { SpotlightOverlay } from './onboarding/SpotlightOverlay'
 
 type Phase = 'loading' | 'tour' | 'idle'
+
+// Hoisted so the spotlight's `[anchors]` effect identity is stable across OnboardingHost renders
+// (a fresh array literal per render would re-run the overlay's measure/scroll effects needlessly).
+const EXPEDITION_ANCHORS = ['[data-tutorial="expedition"]'] as const
+
+/**
+ * Wait (bounded) for the ⚔️ expedition anchor to mount before showing its spotlight. The
+ * `emitAnswerWrong` event fires BEFORE the `questionHistory.everWrong` write that mounts the
+ * `[data-tutorial="expedition"]` button, so the anchor is briefly absent on the first wrong answer —
+ * showing immediately would render a centered card and then snap to the button (a visible flash).
+ * Polls a few times, then resolves regardless so the centered-card fallback still teaches the
+ * benefit if the anchor never appears.
+ */
+function waitForExpeditionAnchor(timeoutMs = 800): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve()
+      return
+    }
+    const start = Date.now()
+    const tick = (): void => {
+      if (resolveTourAnchorElement(EXPEDITION_ANCHORS) || Date.now() - start >= timeoutMs) {
+        resolve()
+        return
+      }
+      window.setTimeout(tick, 60)
+    }
+    tick()
+  })
+}
 
 export function OnboardingHost(): JSX.Element | null {
   const reduced = useRespectsReducedMotion()
@@ -49,9 +81,11 @@ export function OnboardingHost(): JSX.Element | null {
   // spotlight is deferred until the tour completes/skips (no overlay collision).
   const pendingSpotlightRef = useRef(false)
 
-  // Re-reads the persisted one-shot flag before showing (seen guard).
+  // Re-reads the persisted one-shot flag before showing (seen guard), then waits for the ⚔️ anchor
+  // to mount so the spotlight frames the button on first paint (no centered flash).
   async function showSpotlightIfUnseen(): Promise<void> {
     if (await getExpeditionSpotlightSeen()) return
+    await waitForExpeditionAnchor()
     setSpotlight(true)
   }
 
@@ -59,6 +93,7 @@ export function OnboardingHost(): JSX.Element | null {
   useEffect(() => {
     let alive = true
     void (async () => {
+      void cleanupLegacyOnboardingKeys() // best-effort orphan-key sweep; never blocks boot
       await maybeAutoCompleteForExistingPlayer()
       const complete = await getGuidedComplete()
       if (alive) setPhase(complete ? 'idle' : 'tour')
@@ -132,9 +167,10 @@ function ExpeditionSpotlight({
 }): JSX.Element {
   return (
     <SpotlightOverlay
-      anchors={['[data-tutorial="expedition"]']}
+      anchors={EXPEDITION_ANCHORS}
       reduced={reduced}
       ariaLabel="錯題出征解鎖"
+      onEscape={onClose}
     >
       <strong style={spotlightTitleStyle}>
         <EmojiIcon char="⚔️" size={18} /> 解鎖了：錯題出征

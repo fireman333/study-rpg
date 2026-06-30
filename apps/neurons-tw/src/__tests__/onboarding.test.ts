@@ -7,9 +7,11 @@ import {
   getExpeditionSpotlightSeen,
   setExpeditionSpotlightSeen,
   maybeAutoCompleteForExistingPlayer,
+  cleanupLegacyOnboardingKeys,
   onReplayGuided,
   requestReplayGuided,
   ONBOARDING_KEYS,
+  ONBOARDING_LEGACY_KEYS,
 } from '../lib/services/onboarding'
 import {
   advanceTourStep,
@@ -94,6 +96,27 @@ describe('account reset clears onboarding flags (resetConnectomeForDebug pattern
   })
 })
 
+describe('legacy onboarding key cleanup (orphaned expeditionRevealed)', () => {
+  it('deletes orphaned legacy keys on the best-effort startup pass', async () => {
+    for (const key of ONBOARDING_LEGACY_KEYS) await db.meta.put({ key, value: 'true' })
+    await cleanupLegacyOnboardingKeys()
+    for (const key of ONBOARDING_LEGACY_KEYS) {
+      expect(await db.meta.get(key)).toBeUndefined()
+    }
+  })
+
+  it('is a no-op (no throw) when the legacy keys are already absent', async () => {
+    await expect(cleanupLegacyOnboardingKeys()).resolves.toBeUndefined()
+  })
+
+  it('does not touch the current onboarding flags', async () => {
+    await setGuidedComplete()
+    for (const key of ONBOARDING_LEGACY_KEYS) await db.meta.put({ key, value: 'true' })
+    await cleanupLegacyOnboardingKeys()
+    expect(await getGuidedComplete()).toBe(true)
+  })
+})
+
 describe('replay bus (HelpMenu 重看新手引導)', () => {
   it('requestReplayGuided notifies subscribers; unsubscribe stops it', () => {
     const listener = vi.fn()
@@ -109,7 +132,7 @@ describe('replay bus (HelpMenu 重看新手引導)', () => {
 // --- Guided-tour step machine (pure) ------------------------------------------
 
 describe('guided tour step machine', () => {
-  it('walks the happy path: welcome → reading → quiz → maze → dashboard → extract → done', () => {
+  it('walks the happy path: welcome → reading → quiz → maze → focus → dashboard → extract → done', () => {
     let s: TourStepId = 'welcome'
     s = advanceTourStep(s, 'next') // 開始引導
     expect(s).toBe('reading')
@@ -117,6 +140,8 @@ describe('guided tour step machine', () => {
     expect(s).toBe('quiz')
     s = advanceTourStep(s, 'answerCorrect') // first correct answer
     expect(s).toBe('maze')
+    s = advanceTourStep(s, 'next')
+    expect(s).toBe('focus') // 🔍 聚焦 step (added by polish-neurons-onboarding-quiz-focus-a11y)
     s = advanceTourStep(s, 'next')
     expect(s).toBe('dashboard')
     s = advanceTourStep(s, 'next')
@@ -128,8 +153,19 @@ describe('guided tour step machine', () => {
   it('every spotlight step also advances via the manual 下一步 (player never trapped)', () => {
     expect(advanceTourStep('reading', 'next')).toBe('quiz')
     expect(advanceTourStep('quiz', 'next')).toBe('maze')
-    expect(advanceTourStep('maze', 'next')).toBe('dashboard')
+    expect(advanceTourStep('maze', 'next')).toBe('focus')
+    expect(advanceTourStep('focus', 'next')).toBe('dashboard')
     expect(advanceTourStep('dashboard', 'next')).toBe('extract')
+  })
+
+  it('focus step (🔍 聚焦) is manual-advance and terminates on extraction like every step', () => {
+    // focus has no gameplay advance event — only 下一步 / variantSlotUnlocked / skip.
+    expect(advanceTourStep('focus', 'answerCorrect')).toBe('focus')
+    expect(advanceTourStep('focus', 'readingStarted')).toBe('focus')
+    expect(advanceTourStep('focus', 'variantSlotUnlocked')).toBe('done')
+    expect(TOUR_ORDER).toContain('focus')
+    expect(TOUR_ORDER.indexOf('focus')).toBe(TOUR_ORDER.indexOf('maze') + 1)
+    expect(TOUR_ORDER.indexOf('focus')).toBe(TOUR_ORDER.indexOf('dashboard') - 1)
   })
 
   it('variantSlotUnlocked jumps to the terminal celebration from ANY active step', () => {
@@ -156,9 +192,14 @@ describe('guided tour step machine', () => {
   it('step definitions consume the data-tutorial anchor contract with family-card fallback', () => {
     expect(TOUR_STEPS.reading.anchors[0]).toBe('[data-tutorial="reading"]')
     expect(TOUR_STEPS.reading.anchors).toContain('[id^="family-card-"]')
-    expect(TOUR_STEPS.quiz.anchors[0]).toBe('[data-tutorial="quiz-answer"]')
-    expect(TOUR_STEPS.quiz.anchors).toContain('[id^="family-card-"]')
+    // quiz: 3-tier — answer grid (modal open) → 🆕 新題 entry (modal closed) → card last resort.
+    expect(TOUR_STEPS.quiz.anchors).toEqual([
+      '[data-tutorial="quiz-answer"]',
+      '[data-tutorial="quiz-start"]',
+      '[id^="family-card-"]',
+    ])
     expect(TOUR_STEPS.maze.anchors).toEqual(['[data-tutorial="maze"]'])
+    expect(TOUR_STEPS.focus.anchors).toEqual(['[data-tutorial="maze-focus"]'])
     expect(TOUR_STEPS.dashboard.anchors).toEqual(['[data-tutorial="connectome-status"]'])
     // welcome + extract are intentionally anchor-free (centered card / wait strip).
     expect(TOUR_STEPS.welcome.anchors).toEqual([])
@@ -187,6 +228,25 @@ describe('resolveTourAnchor graceful degrade', () => {
     expect(resolveTourAnchor(['[data-tutorial="reading"]', '[id^="family-card-"]'], query)).toEqual(
       box,
     )
+  })
+
+  it('quiz step resolves 3-tier: answer grid → 🆕 新題 entry → card', () => {
+    const answer: AnchorBox = { left: 1, top: 1, width: 10, height: 10 }
+    const start: AnchorBox = { left: 2, top: 2, width: 20, height: 20 }
+    const card: AnchorBox = { left: 3, top: 3, width: 30, height: 30 }
+    const anchors = TOUR_STEPS.quiz.anchors
+    // modal open → answer grid wins
+    expect(
+      resolveTourAnchor(anchors, (s) =>
+        s === '[data-tutorial="quiz-answer"]' ? answer : s === '[data-tutorial="quiz-start"]' ? start : card,
+      ),
+    ).toEqual(answer)
+    // modal closed → 🆕 新題 entry frames the answer-opening control
+    expect(
+      resolveTourAnchor(anchors, (s) => (s === '[data-tutorial="quiz-start"]' ? start : s === '[id^="family-card-"]' ? card : null)),
+    ).toEqual(start)
+    // neither present → whole-card last resort
+    expect(resolveTourAnchor(anchors, (s) => (s === '[id^="family-card-"]' ? card : null))).toEqual(card)
   })
 
   it('returns null when NO anchor resolves (centered-card fallback, no crash)', () => {
