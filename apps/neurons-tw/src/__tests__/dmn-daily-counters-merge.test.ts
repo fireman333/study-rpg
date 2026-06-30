@@ -4,17 +4,22 @@ import { db } from '../lib/db'
 import { backfillDmnDailyCounters } from '../lib/sync/backfill/dmn-daily'
 
 /**
- * Locks the date-gated MAX merge for DMN daily-entitlement meta keys per
- * `tighten-neurons-dmn-entitlement-semantics`. DO NOT relax to plain LWW
- * (the meta adapter's missing-only insert fallback) — that's the silent
- * race this pass neutralizes.
+ * Locks the cross-device merge for DMN daily-entitlement meta keys.
+ * DO NOT relax to plain LWW (the meta adapter's missing-only insert fallback).
  *
  * Invariants:
- *   - dmnLastDailyResetDate: lexicographic MAX (YYYY-MM-DD sorts).
+ *   - dmnLastDailyResetDate: lexicographic MAX (YYYY-MM-DD sorts) — per
+ *     `tighten-neurons-dmn-entitlement-semantics`.
  *   - Per-day counters reset to 0 if local date advanced; incoming counter
  *     from a stale date is ignored; same-date entries merge by MAX.
- *   - dmnDrawsAvailable: simple MAX. Documented limitation — two concurrent
- *     consumes can collapse into one (player-favoring refund, never overdraft).
+ *   - Entitlement pool is a DERIVED projection
+ *     (fix-neurons-dmn-draw-entitlement-resurrection): dmnGrantsTotal and
+ *     dmnLifetimeDrawsConsumed each MAX-merge, dmnDrawsAvailable is RE-DERIVED =
+ *     clamp(grants − consumes, ≥0). A raw MAX of the bidirectional pool (the old
+ *     code) resurrected spent draws — that regression must never return. A side
+ *     that predates dmnGrantsTotal SEEDS it from available+consumes (never 0).
+ *     Accepted limitation: two devices consuming from the same base collapse to
+ *     one consume (player-favoring refund, never overdraft).
  */
 
 const PER_DAY = [
@@ -107,37 +112,88 @@ describe('backfillDmnDailyCounters — date-gated MAX semantics', () => {
     expect(await readMeta('dmnTimeAxisDrawsConsumedToday')).toBe('1')
   })
 
-  it('dmnDrawsAvailable simple MAX merge', async () => {
+  it('a spent draw stays spent after a racing pull reads a stale-higher cloud value (the fix)', async () => {
+    // Local already spent 1 of 11 (grants=11, consumes=1, derived=10).
     await seedMeta({
-      dmnLastDailyResetDate: '2026-06-08',
-      dmnDrawsAvailable: '3',
+      dmnDrawsAvailable: '10',
+      dmnGrantsTotal: '11',
+      dmnLifetimeDrawsConsumed: '1',
     })
+    // Incoming is the still-stale cloud bundle from BEFORE the spend (available=11).
     await backfillDmnDailyCounters(db, {
-      dmnLastDailyResetDate: '2026-06-08',
-      dmnDrawsAvailable: '5',
+      dmnDrawsAvailable: '11',
+      dmnGrantsTotal: '11',
+      dmnLifetimeDrawsConsumed: '0',
     })
-    expect(await readMeta('dmnDrawsAvailable')).toBe('5')
+    // grants MAX(11,11)=11, consumes MAX(1,0)=1, derived = 10 — NOT resurrected to 11.
+    expect(await readMeta('dmnGrantsTotal')).toBe('11')
+    expect(await readMeta('dmnLifetimeDrawsConsumed')).toBe('1')
+    expect(await readMeta('dmnDrawsAvailable')).toBe('10')
   })
 
-  it('dmnDrawsAvailable MAX is date-independent (entitlement persists across days)', async () => {
+  it('fresh device pulling a pre-23 bundle (no dmnGrantsTotal) seeds grants from available+consumes — tickets preserved', async () => {
+    // Local empty (fresh device). Incoming v22 carries available=11, no grants.
+    await backfillDmnDailyCounters(db, {
+      dmnDrawsAvailable: '11',
+      dmnLifetimeDrawsConsumed: '0',
+      // dmnGrantsTotal intentionally ABSENT
+    })
+    // Incoming grants seeded = 11 + 0; derived = 11 (NOT wiped to 0).
+    expect(await readMeta('dmnGrantsTotal')).toBe('11')
+    expect(await readMeta('dmnDrawsAvailable')).toBe('11')
+  })
+
+  it('a v23 bundle whose consumes advanced beats a stale higher pre-migration local available', async () => {
+    // Local pre-migration: shows available=11, no grants key (seeds grants=11, consumes=0).
+    await seedMeta({
+      dmnDrawsAvailable: '11',
+      dmnLifetimeDrawsConsumed: '0',
+    })
+    // Incoming v23: the other device spent all 11.
+    await backfillDmnDailyCounters(db, {
+      dmnGrantsTotal: '11',
+      dmnLifetimeDrawsConsumed: '11',
+      dmnDrawsAvailable: '0',
+    })
+    // grants MAX(11,11)=11, consumes MAX(0,11)=11, derived = 0.
+    expect(await readMeta('dmnGrantsTotal')).toBe('11')
+    expect(await readMeta('dmnLifetimeDrawsConsumed')).toBe('11')
+    expect(await readMeta('dmnDrawsAvailable')).toBe('0')
+  })
+
+  it('entitlement pool persists across days (derived projection is date-independent)', async () => {
     await seedMeta({
       dmnLastDailyResetDate: '2026-06-08',
       dmnDrawsAvailable: '4',
+      dmnGrantsTotal: '4',
+      dmnLifetimeDrawsConsumed: '0',
     })
-    // Incoming has advanced date with same draws — entitlement preserved.
+    // Advanced date, same entitlement — preserved.
     await backfillDmnDailyCounters(db, {
       dmnLastDailyResetDate: '2026-06-09',
       dmnDrawsAvailable: '4',
+      dmnGrantsTotal: '4',
+      dmnLifetimeDrawsConsumed: '0',
     })
     expect(await readMeta('dmnDrawsAvailable')).toBe('4')
   })
 
-  it('documented limitation: two concurrent consumes can collapse to one', async () => {
-    // Both devices saw 3, each consumed locally to 2.
-    await seedMeta({ dmnDrawsAvailable: '2' })
-    await backfillDmnDailyCounters(db, { dmnDrawsAvailable: '2' })
-    // MAX(2,2)=2. The two consumes collapse — one consume's effect is lost.
-    // This is the documented limitation (player-favoring refund).
+  it('accepted limitation: two concurrent same-base spends collapse to one (player-favoring refund)', async () => {
+    // Base both devices: grants=5, consumes=2, available=3. Each spends one.
+    // Local = device A after its spend (consumes=3, available=2).
+    await seedMeta({
+      dmnGrantsTotal: '5',
+      dmnLifetimeDrawsConsumed: '3',
+      dmnDrawsAvailable: '2',
+    })
+    // Incoming = device B after its spend (consumes=3, available=2).
+    await backfillDmnDailyCounters(db, {
+      dmnGrantsTotal: '5',
+      dmnLifetimeDrawsConsumed: '3',
+      dmnDrawsAvailable: '2',
+    })
+    // consumes MAX(3,3)=3 — one of the two spends is refunded; derived = 2. Never an overdraft.
+    expect(await readMeta('dmnLifetimeDrawsConsumed')).toBe('3')
     expect(await readMeta('dmnDrawsAvailable')).toBe('2')
   })
 
@@ -148,6 +204,8 @@ describe('backfillDmnDailyCounters — date-gated MAX semantics', () => {
       dmnBehaviorAxisDrawsConsumedToday: '3',
       dmnTimeAxisMinutesAccrued: '22',
       dmnDrawsAvailable: '4',
+      dmnGrantsTotal: '6',
+      dmnLifetimeDrawsConsumed: '2',
     }
     await seedMeta({
       dmnLastDailyResetDate: '2026-06-08',
@@ -155,23 +213,26 @@ describe('backfillDmnDailyCounters — date-gated MAX semantics', () => {
       dmnBehaviorAxisDrawsConsumedToday: '0',
       dmnTimeAxisMinutesAccrued: '0',
       dmnDrawsAvailable: '0',
+      dmnGrantsTotal: '0',
+      dmnLifetimeDrawsConsumed: '0',
+    })
+    const snapshot = async () => ({
+      d: await readMeta('dmnLastDailyResetDate'),
+      t: await readMeta('dmnTimeAxisDrawsConsumedToday'),
+      b: await readMeta('dmnBehaviorAxisDrawsConsumedToday'),
+      m: await readMeta('dmnTimeAxisMinutesAccrued'),
+      a: await readMeta('dmnDrawsAvailable'),
+      g: await readMeta('dmnGrantsTotal'),
+      c: await readMeta('dmnLifetimeDrawsConsumed'),
     })
     await backfillDmnDailyCounters(db, incoming)
-    const after1 = {
-      d: await readMeta('dmnLastDailyResetDate'),
-      t: await readMeta('dmnTimeAxisDrawsConsumedToday'),
-      b: await readMeta('dmnBehaviorAxisDrawsConsumedToday'),
-      m: await readMeta('dmnTimeAxisMinutesAccrued'),
-      a: await readMeta('dmnDrawsAvailable'),
-    }
+    const after1 = await snapshot()
     await backfillDmnDailyCounters(db, incoming)
-    const after2 = {
-      d: await readMeta('dmnLastDailyResetDate'),
-      t: await readMeta('dmnTimeAxisDrawsConsumedToday'),
-      b: await readMeta('dmnBehaviorAxisDrawsConsumedToday'),
-      m: await readMeta('dmnTimeAxisMinutesAccrued'),
-      a: await readMeta('dmnDrawsAvailable'),
-    }
+    const after2 = await snapshot()
     expect(after2).toEqual(after1)
+    // grants MAX(0,6)=6, consumes MAX(0,2)=2, derived = 4.
+    expect(after1.g).toBe('6')
+    expect(after1.c).toBe('2')
+    expect(after1.a).toBe('4')
   })
 })
