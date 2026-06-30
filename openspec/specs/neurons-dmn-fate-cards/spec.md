@@ -244,24 +244,36 @@ The `DmnEventKind` enum SHALL include exactly these six consumable kinds. Drawin
 
 When `dmnDrawsAvailable >= 1` and the player triggers a draw, the system SHALL:
 
-1. Check pool-exhaustion preconditions. If `dmnCards.length === 22` AND every equipment id in the catalog is owned, the draw SHALL be a no-op: `dmnDrawsAvailable` SHALL NOT decrement, no `dmnCards` / `inventory` / `equipment` / `dmnEventLog` row SHALL be written, and the engine SHALL return a `pools_exhausted` result. The UI SHALL prevent the draw from being invoked in this state by disabling the draw button (see exhausted-state scenario below); this engine guard exists only as a defensive layer for stale clients.
-2. Otherwise decrement `dmnDrawsAvailable` by 1.
-3. Roll `EQUIPMENT_DRAW_RATE` against the unowned equipment pool (`neurons-acceleration-system`). On a hit with a non-empty pool → award one unowned equipment (rarity-rolled) and STOP (no consumable for this draw).
-4. Otherwise (equipment roll missed OR equipment pool empty) select one consumable card by remaining rarity weights from the **unowned** consumable subset (rerolling within-tier if needed, falling through tiers if the tier is exhausted). Insert a `dmnCards` row (collection record) and increment the matching `inventory` backpack count.
-   - If the consumable subset is empty (all 22 owned) AND the equipment pool is non-empty, the draw SHALL re-roll on the equipment pool until it lands (a guaranteed equipment grant, since by precondition not both pools are exhausted).
-5. Append `(cardId | equipmentId, dispatchedAt)` to `dmnEventLog`.
-6. Display the reveal UI (equipment vs consumable form).
+1. Spend one draw entitlement: within the draw transaction, re-check `dmnDrawsAvailable >= 1` (derived from `dmnGrantsTotal − dmnLifetimeDrawsConsumed`); if it has fallen to 0 the draw SHALL be a no-op returning null. Otherwise increment `dmnLifetimeDrawsConsumed` by 1 and re-derive `dmnDrawsAvailable = clamp(dmnGrantsTotal − dmnLifetimeDrawsConsumed, ≥ 0)`.
+2. Roll `EQUIPMENT_DRAW_RATE` against the unowned equipment pool (`neurons-acceleration-system`) ONLY when at least one equipment id is unowned. On a hit with unowned equipment remaining → award one unowned equipment (rarity-rolled) and STOP (no consumable for this draw).
+3. Otherwise (equipment roll missed, OR no unowned equipment remains) select one consumable card by rarity weights across the **full** 22-card catalog (NOT the unowned subset — consumables are repeatable). This card MAY already be in the dex.
+   - Increment the matching `inventory` backpack count by 1 (stock is unbounded).
+   - If the card is NOT yet in `dmnCards` (first-seen): insert a `dmnCards` collection row AND append `(cardId, dispatchedAt, deviceId)` to `dmnEventLog`.
+   - If the card IS already in `dmnCards` (duplicate): the engine SHALL NOT write `dmnCards` (preserving the first-seen `obtainedAt`) and SHALL NOT write `dmnEventLog` (preserving the at-most-once provenance row). The draw still succeeds and returns a result flagged `duplicate: true`.
+4. Display the reveal UI distinguishing equipment vs first-seen consumable vs duplicate consumable (`已在圖鑑 · 庫存 +1`).
 
-If `dmnDrawsAvailable === 0`, the draw button SHALL be disabled with a tooltip explaining how to earn draws.
+Consumables are NEVER exhausted — a draw with `dmnDrawsAvailable >= 1` SHALL always produce a result (equipment or consumable). There SHALL be no both-pools-exhausted no-op state and no "consumable dex full forces equipment" path. If `dmnDrawsAvailable === 0`, the draw button SHALL be disabled with a tooltip explaining how to earn draws.
 
-#### Scenario: Consumable draw records collection + backpack stock
+#### Scenario: First-seen consumable draw records collection + backpack stock
 
-- **GIVEN** `dmnDrawsAvailable = 3` and the equipment roll misses
-- **WHEN** the player draws and a consumable is rolled
+- **GIVEN** `dmnDrawsAvailable = 3`, the equipment roll misses, and the rolled card is NOT yet in the dex
+- **WHEN** the player draws
 - **THEN** `dmnDrawsAvailable` SHALL become 2
 - **AND** the `dmnCards` table SHALL gain exactly 1 new collection row
 - **AND** the matching `inventory` count SHALL increment by 1
+- **AND** the result SHALL be flagged `duplicate: false`
 - **AND** the consumable's effect SHALL NOT fire automatically
+
+#### Scenario: Duplicate consumable draw succeeds and only increments stock
+
+- **GIVEN** `dmnDrawsAvailable = 3` and the rolled consumable is already in the dex
+- **WHEN** the player draws
+- **THEN** `dmnDrawsAvailable` SHALL become 2
+- **AND** `dmnLifetimeDrawsConsumed` SHALL increment by 1
+- **AND** the matching `inventory` count SHALL increment by 1
+- **AND** the `dmnCards` row count SHALL be unchanged and the existing row's `obtainedAt` SHALL be preserved
+- **AND** no new `dmnEventLog` row SHALL be written for that `cardId`
+- **AND** the result SHALL be flagged `duplicate: true`
 
 #### Scenario: Equipment draw awards a permanent and skips the consumable
 
@@ -270,34 +282,13 @@ If `dmnDrawsAvailable === 0`, the draw button SHALL be disabled with a tooltip e
 - **THEN** exactly one new `equipment` row SHALL be inserted
 - **AND** no `dmnCards` or `inventory` change SHALL occur for that draw
 
-#### Scenario: Both pools exhausted disables the draw button and the engine refuses to decrement
+#### Scenario: Draw with all equipment owned still yields consumable stock (never inert)
 
-- **GIVEN** the player has `dmnCards.length === 22` (consumable dex complete) AND every equipment id in the catalog is owned
-- **WHEN** the player opens the DMN draw modal with `dmnDrawsAvailable = 4`
-- **THEN** the draw button SHALL be disabled with a tooltip explaining that both collections are complete
-- **AND** if a stale client somehow invokes `drawDmnCard()` directly, the engine SHALL return a `pools_exhausted` no-op result
-- **AND** `dmnDrawsAvailable` SHALL remain at 4
-- **AND** no `dmnCards` / `inventory` / `equipment` / `dmnEventLog` row SHALL be written
-
-#### Scenario: Consumable dex full but equipment unowned guarantees equipment grant
-
-- **GIVEN** `dmnCards.length === 22` (consumable dex complete) AND at least one equipment id is unowned AND `dmnDrawsAvailable = 1`
+- **GIVEN** the player owns every equipment id AND has the full 22-card dex AND `dmnDrawsAvailable = 1`
 - **WHEN** the player draws
 - **THEN** `dmnDrawsAvailable` SHALL become 0
-- **AND** exactly one new `equipment` row SHALL be inserted (the equipment roll is repeated until a hit since the consumable fallback is unavailable)
-- **AND** no `dmnCards` or `inventory` change SHALL occur
-
-### Requirement: Consumable catalog SHALL be closed-cap — collection completes at 22 cards
-
-When the player has drawn all 22 consumable cards (`dmnCards.length === 22`), the consumable draw path SHALL be considered complete: the dex SHALL show "DMN 圖鑑已完整", and draws SHALL only ever roll equipment (until that pool is also exhausted). The catalog SHALL NOT reset or allow re-drawing owned consumables.
-
-#### Scenario: 22nd consumable marks the consumable dex complete
-
-- **GIVEN** the player has 21 consumable cards owned
-- **WHEN** the player draws the 22nd
-- **THEN** `dmnCards.length` SHALL become 22
-- **AND** the consumable dex SHALL render complete
-- **AND** further draws SHALL only roll equipment (or be inert if equipment is also fully owned)
+- **AND** the matching `inventory` count SHALL increment by 1 (a duplicate consumable)
+- **AND** the draw SHALL NOT return a no-op / `pools_exhausted` result
 
 ### Requirement: DMN event log SHALL be idempotent and use monotonic-union merge for cross-device sync
 
@@ -485,3 +476,26 @@ This requirement supersedes the original placeholder mapping for DMN sprite keys
 - **WHEN** the developer reads `SPRITE_MAP['cosmetic-head-soma-newcomer-halo']` or similar non-card, non-equipment key
 - **THEN** the resolved URL MAY still be the transparent-PNG placeholder
 - **AND** this is acceptable until the respective consumer capability ships its own asset-generation change
+
+### Requirement: Consumable draws SHALL be repeatable with a first-seen dex and unbounded stock
+
+The consumable draw path SHALL be repeatable. `dmnCards` SHALL hold at most one row per `cardId` — a first-seen collection log that completes at 22 unique faces and never resets. `inventory` SHALL accrue unbounded per-`eventKind` stock. A draw that yields an already-collected consumable SHALL still spend one draw entitlement and increment `inventory`, and SHALL NOT reset, re-order, duplicate, or re-stamp `dmnCards` rows.
+
+#### Scenario: Drawing past a complete dex keeps adding stock
+
+- **GIVEN** the player has all 22 consumable faces in the dex and `dmnDrawsAvailable = 5`
+- **WHEN** the player draws and a consumable is rolled
+- **THEN** the draw SHALL succeed (not be refused as "complete")
+- **AND** `dmnCards` SHALL remain at 22 rows
+- **AND** the rolled consumable's `inventory` count SHALL increment by 1
+
+### Requirement: DMN collection progress SHALL total 34 (consumable dex + equipment)
+
+The DMN collection progress indicator SHALL count `dmnCards` owned (0–22 consumable faces) PLUS owned equipment (0–12) against a total of **34**. The homepage stat card and the draw modal SHALL both render this `(owned / 34)` total. The draw action SHALL be gated solely by `dmnDrawsAvailable >= 1`; there SHALL be no separate "collection complete" disabled state, because consumables are never exhausted.
+
+#### Scenario: Collection chip and modal show owned / 34
+
+- **GIVEN** the player owns 22 consumable faces and 4 of 12 equipment
+- **WHEN** the homepage stat card and the draw modal render the DMN collection progress
+- **THEN** both SHALL display `26 / 34`
+- **AND** the draw button SHALL be enabled iff `dmnDrawsAvailable >= 1`
