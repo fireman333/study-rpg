@@ -167,12 +167,23 @@
 //        presign (cannot resurrect pre-reset data or strip the marker) while pull
 //        stays reader-tolerant; an SPA reload recovers them. NO new adapter / meta
 //        key / Dexie bump. Worker is bundle-opaque (no Worker change).
+//   v23 — fix-neurons-dmn-draw-entitlement-resurrection 2026-06-30: adds the
+//        `dmnGrantsTotal` synced meta key. The DMN entitlement pool
+//        `dmnDrawsAvailable` becomes a DERIVED display value = clamp(
+//        dmnGrantsTotal − dmnLifetimeDrawsConsumed, ≥ 0); both counters are
+//        monotonic-MAX-merged in backfill/dmn-daily.ts (replaces the old raw-MAX
+//        of the bidirectional pool that resurrected spent draws). Additive +
+//        reader-tolerant: a v22 client reading a v23 bundle drops the unknown
+//        `dmnGrantsTotal`; a v23 client reading a v22 bundle (no grants key) SEEDS
+//        grants from `available + consumes` (NEVER 0 — would wipe unspent draws).
+//        NO new adapter / Dexie bump (rides existing `meta`). Worker is
+//        bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 import { readAckResetAt, readLastSyncedUserId } from '../account-guard'
 
-export const SCHEMA_VERSION = 22
+export const SCHEMA_VERSION = 23
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

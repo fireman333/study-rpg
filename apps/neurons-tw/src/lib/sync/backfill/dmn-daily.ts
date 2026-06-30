@@ -15,20 +15,28 @@
 //    local counters reset to 0 first (one-shot lazy reset). An incoming
 //    counter from an older date is treated as 0 (stale, ignored). Same-date
 //    incoming and local merge by MAX.
-// 3. `dmnDrawsAvailable` → simple MAX, regardless of date. Acknowledged
-//    limitation (documented in spec): two concurrent consumes can collapse
-//    into one (the loser's consume is lost — player-favoring refund, never
-//    overdraft). An op-log upgrade (`dmnGrantsTotal` + `dmnConsumesTotal`
-//    MAX projection) is permitted as a future enhancement; this pass takes
-//    the simpler path.
+// 3. The entitlement pool is now a DERIVED projection of two monotonic-MAX
+//    counters (fix-neurons-dmn-draw-entitlement-resurrection):
+//      dmnGrantsTotal   (lifetime granted)  → MAX
+//      dmnConsumesTotal (= dmnLifetimeDrawsConsumed, lifetime spent) → MAX
+//      dmnDrawsAvailable = clamp(grants − consumes, ≥ 0)  → re-derived, NOT merged
+//    A raw MAX of the bidirectional `dmnDrawsAvailable` (the old code) could not
+//    represent the consume direction, so a spent draw was resurrected whenever a
+//    pull read a stale-higher cloud value. Reader-tolerance: a side that predates
+//    `dmnGrantsTotal` seeds it from `available + consumes` (NEVER 0). Accepted
+//    limitation: two devices consuming from the same base collapse to one consume
+//    (player-favoring refund, never overdraft).
 //
 // Hooked into `runOnPullComplete` as Step 1e after the
 // counters / representatives / active-squad / first-pull passes.
 
 import type { NeuronsDB } from '../../db'
+import { deriveDrawsAvailable, seedGrantsTotal } from '../../services/dmn-entitlement'
 
 const KEY_DATE = 'dmnLastDailyResetDate'
 const KEY_DRAWS = 'dmnDrawsAvailable'
+const KEY_GRANTS = 'dmnGrantsTotal'
+const KEY_CONSUMES = 'dmnLifetimeDrawsConsumed'
 const PER_DAY_KEYS: ReadonlyArray<string> = [
   'dmnTimeAxisDrawsConsumedToday',
   'dmnBehaviorAxisDrawsConsumedToday',
@@ -87,17 +95,45 @@ export async function backfillDmnDailyCounters(
       updated++
     }
 
-    // dmnDrawsAvailable: simple MAX, date-independent.
-    const drawsLocalRow = await db.meta.get(KEY_DRAWS)
-    const drawsLocal = parseNum(drawsLocalRow?.value)
-    const drawsIncoming = parseNum(bundleMeta[KEY_DRAWS])
-    const drawsMerged = Math.max(drawsLocal, drawsIncoming)
-    const drawsMergedStr = String(drawsMerged)
-    if (drawsLocalRow?.value === drawsMergedStr) {
-      skipped++
-    } else {
-      await db.meta.put({ key: KEY_DRAWS, value: drawsMergedStr })
-      updated++
+    // Entitlement projection: merge grants/consumes by monotonic MAX (seeding
+    // grants from available+consumes on any side that predates the counter),
+    // then RE-DERIVE dmnDrawsAvailable. Never raw-MAX the bidirectional pool.
+    const localAvailRow = await db.meta.get(KEY_DRAWS)
+    const localAvail = parseNum(localAvailRow?.value)
+    const localConsumesRow = await db.meta.get(KEY_CONSUMES)
+    const localConsumes = parseNum(localConsumesRow?.value)
+    const localGrantsRow = await db.meta.get(KEY_GRANTS)
+    const localGrants = seedGrantsTotal({
+      grantsTotal: localGrantsRow ? parseNum(localGrantsRow.value) : null,
+      drawsAvailable: localAvail,
+      consumesTotal: localConsumes,
+    })
+
+    const incomingAvail = parseNum(bundleMeta[KEY_DRAWS])
+    const incomingConsumes = parseNum(bundleMeta[KEY_CONSUMES])
+    const incomingGrantsRaw = bundleMeta[KEY_GRANTS]
+    const incomingGrants = seedGrantsTotal({
+      grantsTotal: incomingGrantsRaw == null ? null : parseNum(incomingGrantsRaw),
+      drawsAvailable: incomingAvail,
+      consumesTotal: incomingConsumes,
+    })
+
+    const mergedGrants = Math.max(localGrants, incomingGrants)
+    const mergedConsumes = Math.max(localConsumes, incomingConsumes)
+    const mergedAvail = deriveDrawsAvailable(mergedGrants, mergedConsumes)
+
+    for (const [key, row, value] of [
+      [KEY_GRANTS, localGrantsRow, mergedGrants],
+      [KEY_CONSUMES, localConsumesRow, mergedConsumes],
+      [KEY_DRAWS, localAvailRow, mergedAvail],
+    ] as const) {
+      const valueStr = String(value)
+      if (row?.value === valueStr) {
+        skipped++
+      } else {
+        await db.meta.put({ key, value: valueStr })
+        updated++
+      }
     }
   })
 

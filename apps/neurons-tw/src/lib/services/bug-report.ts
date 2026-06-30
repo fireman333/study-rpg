@@ -102,7 +102,11 @@ async function buildGameStateSnapshot(): Promise<Record<string, unknown>> {
     'totalStudyMinutes',
     'currentQuizCorrectStreak',
     'maxQuizCorrectStreak',
+    // DMN entitlement: derived pool + its two canonical source counters
+    // (fix-neurons-dmn-draw-entitlement-resurrection) for triage.
     'dmnDrawsAvailable',
+    'dmnGrantsTotal',
+    'dmnLifetimeDrawsConsumed',
     'neuralEnergyEarned',
     'neuralEnergySpent',
     'firstPullFamilies',

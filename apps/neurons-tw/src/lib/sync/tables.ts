@@ -421,9 +421,15 @@ export const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   'expeditionStreak',
   'expeditionLastCompleteDate',
   // DMN fate-card trigger counters (per add-neurons-dmn-fate-card spec).
-  // Counter-style (drawsAvailable / lifetime) → first-write-wins below; daily
-  // axis counters reset at midnight so brief sync of stale values is OK.
+  // The entitlement pool is a DERIVED projection of two monotonic counters
+  // (fix-neurons-dmn-draw-entitlement-resurrection): `dmnGrantsTotal` (granted)
+  // and `dmnLifetimeDrawsConsumed` (spent) MAX-merge in backfill/dmn-daily.ts,
+  // and `dmnDrawsAvailable` is RE-DERIVED there = clamp(grants − consumes, ≥0).
+  // It rides this allowlist as a persisted display value (so a reader sees it),
+  // but it is NOT merged by the first-write-wins below — dmn-daily.ts overwrites.
+  // Daily axis counters reset at midnight so brief sync of stale values is OK.
   'dmnDrawsAvailable',
+  'dmnGrantsTotal',
   'dmnLifetimeDrawsConsumed',
   'dmnTimeAxisMinutesAccrued',
   'dmnTimeAxisDrawsConsumedToday',

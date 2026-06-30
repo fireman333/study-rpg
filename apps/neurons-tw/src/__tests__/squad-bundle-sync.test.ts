@@ -21,8 +21,8 @@ beforeEach(async () => {
 })
 
 describe('activeSquad bundle sync', () => {
-  it('bundle SCHEMA_VERSION is 22', () => {
-    expect(SCHEMA_VERSION).toBe(22)
+  it('bundle SCHEMA_VERSION is 23', () => {
+    expect(SCHEMA_VERSION).toBe(23)
   })
 
   it('snapshots the activeSquad meta key into the bundle', async () => {
@@ -30,7 +30,7 @@ describe('activeSquad bundle sync', () => {
     await db.meta.put({ key: ACTIVE_SQUAD_META_KEY, value })
 
     const bundle = await buildBundleSnapshot(db)
-    expect(bundle.meta.schema_version).toBe(22)
+    expect(bundle.meta.schema_version).toBe(23)
     const metaRows = bundle.data.meta as { key: string; value: string }[]
     const squadRow = metaRows.find((r) => r.key === ACTIVE_SQUAD_META_KEY)
     expect(squadRow).toBeDefined()

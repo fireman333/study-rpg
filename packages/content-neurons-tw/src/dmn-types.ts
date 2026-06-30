@@ -143,11 +143,25 @@ export interface DmnMetaSnapshot {
   dmnTimeAxisDrawsConsumedToday: number
   /** Counter — behavior-axis draws already credited today. Capped at 3. */
   dmnBehaviorAxisDrawsConsumedToday: number
-  /** Monotonic across days — currently-available unconsumed draws. */
+  /**
+   * DERIVED display value — currently-available unconsumed draws =
+   * clamp(dmnGrantsTotal − dmnLifetimeDrawsConsumed, ≥ 0). Persisted to `meta`
+   * so UI readers need no change, but the canonical source of truth is the
+   * grants/consumes pair (fix-neurons-dmn-draw-entitlement-resurrection).
+   */
   dmnDrawsAvailable: number
+  /**
+   * Lifetime monotonic count of draw entitlements GRANTED (never decrements).
+   * Canonical numerator of the derived pool; monotonic-MAX cross-device.
+   */
+  dmnGrantsTotal: number
   /** ISO local date of last daily reset (YYYY-MM-DD). */
   dmnLastDailyResetDate: string
-  /** Lifetime total dispatched draws (telemetry; never decrements). */
+  /**
+   * Lifetime monotonic count of draws SPENT (never decrements). Canonical
+   * denominator of the derived pool (`dmnConsumesTotal`); monotonic-MAX
+   * cross-device.
+   */
   dmnLifetimeDrawsConsumed: number
 }
 

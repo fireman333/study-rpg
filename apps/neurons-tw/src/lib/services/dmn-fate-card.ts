@@ -39,8 +39,11 @@ import {
 
 import { db } from '../db'
 import { getClientId } from '../sync/r2/bundles'
+import { deriveDrawsAvailable } from './dmn-entitlement'
+import { readSeededGrantsTotal } from './dmn-trigger'
 
 const META_KEY_DRAWS = 'dmnDrawsAvailable'
+const META_KEY_GRANTS = 'dmnGrantsTotal'
 const META_KEY_LIFETIME = 'dmnLifetimeDrawsConsumed'
 
 function parseIntSafe(v: string | undefined): number {
@@ -197,13 +200,16 @@ async function drawEquipment_(
 
   let consumed = false
   await db.transaction('rw', db.meta, db.equipment, async () => {
-    const available = parseIntSafe((await db.meta.get(META_KEY_DRAWS))?.value)
-    if (available < 1) return
+    // Entitlement = derived pool (grants − consumes); re-check race-safe in-tx.
+    const grants = await readSeededGrantsTotal()
+    const consumes = parseIntSafe((await db.meta.get(META_KEY_LIFETIME))?.value)
+    if (deriveDrawsAvailable(grants, consumes) < 1) return
     if ((await db.equipment.get(def.equipmentId)) !== undefined) return // race-safe
     await db.equipment.put(row)
-    await db.meta.put({ key: META_KEY_DRAWS, value: String(available - 1) })
-    const lifetime = parseIntSafe((await db.meta.get(META_KEY_LIFETIME))?.value)
-    await db.meta.put({ key: META_KEY_LIFETIME, value: String(lifetime + 1) })
+    const newConsumes = consumes + 1
+    await db.meta.put({ key: META_KEY_LIFETIME, value: String(newConsumes) })
+    await db.meta.put({ key: META_KEY_GRANTS, value: String(grants) }) // materialize counter
+    await db.meta.put({ key: META_KEY_DRAWS, value: String(deriveDrawsAvailable(grants, newConsumes)) })
     consumed = true
   })
 
@@ -233,13 +239,16 @@ async function drawConsumable_(
 
   let consumed = false
   await db.transaction('rw', db.meta, db.dmnCards, db.inventory, async () => {
-    const available = parseIntSafe((await db.meta.get(META_KEY_DRAWS))?.value)
-    if (available < 1) return // race-safe re-check
+    // Entitlement = derived pool (grants − consumes); re-check race-safe in-tx.
+    const grants = await readSeededGrantsTotal()
+    const consumes = parseIntSafe((await db.meta.get(META_KEY_LIFETIME))?.value)
+    if (deriveDrawsAvailable(grants, consumes) < 1) return // race-safe re-check
     if ((await db.dmnCards.get(cardRow.cardId)) !== undefined) return // race-safe
     await db.dmnCards.put(cardRow)
-    await db.meta.put({ key: META_KEY_DRAWS, value: String(available - 1) })
-    const lifetime = parseIntSafe((await db.meta.get(META_KEY_LIFETIME))?.value)
-    await db.meta.put({ key: META_KEY_LIFETIME, value: String(lifetime + 1) })
+    const newConsumes = consumes + 1
+    await db.meta.put({ key: META_KEY_LIFETIME, value: String(newConsumes) })
+    await db.meta.put({ key: META_KEY_GRANTS, value: String(grants) }) // materialize counter
+    await db.meta.put({ key: META_KEY_DRAWS, value: String(deriveDrawsAvailable(grants, newConsumes)) })
     // Deposit stock to the backpack (manual-activate; NO auto-fire).
     const existing = await db.inventory.get(catalogEntry.eventKind)
     await db.inventory.put({
