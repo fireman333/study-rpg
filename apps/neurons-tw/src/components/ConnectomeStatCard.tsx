@@ -34,7 +34,6 @@ interface Props {
   onExpedition: () => void
   /** Total-collection chips folded into the card (🧬 collected / 💎 DMN owned / 📖 reading min). */
   variants: number
-  dmnOwned: number
   totalStudyMin: number
 }
 
@@ -44,7 +43,6 @@ export function ConnectomeStatCard({
   wrongCount,
   onExpedition,
   variants,
-  dmnOwned,
   totalStudyMin,
 }: Props): JSX.Element {
   const todayCompleted = status?.todayCompleted ?? false
@@ -55,11 +53,11 @@ export function ConnectomeStatCard({
   const todayConductionEnergy = status?.todayConductionEnergy ?? 0
 
   // DMN draw action, relocated from the retired top-nav DmnDrawButton into this card's DMN stage
-  // (consolidate-neurons-dmn-draw-surface). Same entitlement semantics: enabled iff a draw is
-  // available AND not both-pools-exhausted (the tighten-neurons-dmn-entitlement-semantics no-op guard).
+  // (consolidate-neurons-dmn-draw-surface). Consumables are repeatable
+  // (make-neurons-dmn-consumables-repeatable) → enabled iff a draw ticket is available.
   const dmn = useDmnStatus()
   const [dmnModalOpen, setDmnModalOpen] = useState(false)
-  const canDraw = dmn.drawsAvailable >= 1 && !dmn.bothPoolsExhausted
+  const canDraw = dmn.drawsAvailable >= 1
 
   return (
     // data-tutorial="connectome-status": stable onboarding-spotlight anchor (tutorial agent contract).
@@ -125,10 +123,6 @@ export function ConnectomeStatCard({
             >
               ▶ 抽 {dmn.drawsAvailable} 張 DMN
             </button>
-          ) : dmn.bothPoolsExhausted ? (
-            <span style={dmnExhaustedStyle} title="DMN 圖鑑與裝備皆已蒐集完整">
-              DMN 圖鑑完整
-            </span>
           ) : null}
         </div>
       </div>
@@ -153,7 +147,7 @@ export function ConnectomeStatCard({
           🧬 變體 <b style={collectionValStyle}>{variants}</b> 隻
         </span>
         <span style={collectionChipStyle}>
-          💎 DMN <b style={collectionValStyle}>{dmnOwned}</b> / 20
+          💎 DMN <b style={collectionValStyle}>{dmn.collectionOwned}</b> / {dmn.collectionTotal}
         </span>
         <span style={collectionChipStyle}>
           📖 累積閱讀 <b style={collectionValStyle}>{totalStudyMin}</b> min
@@ -269,13 +263,6 @@ const dmnDrawCtaStyle: React.CSSProperties = {
   fontWeight: 700,
   letterSpacing: '0.03em',
   cursor: 'pointer',
-}
-
-const dmnExhaustedStyle: React.CSSProperties = {
-  marginTop: '0.1rem',
-  fontSize: '0.75rem',
-  fontWeight: 600,
-  color: '#8c6d4a',
 }
 
 // Stage visuals only; flex/direction/wrap + the per-stage basis are driven by the

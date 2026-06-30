@@ -4,18 +4,20 @@
  * Each draw yields ONE of two forms (single acquisition channel, design D1):
  *  - low-probability PERMANENT equipment (EQUIPMENT_DRAW_RATE ≈ 5% vs the
  *    unowned equipment pool) → rarity-weighted P1–P5 → `equipment` table
- *  - else a CONSUMABLE card → `dmnCards` dex row + `inventory` backpack stock
- *    (NO auto-fire; the player activates from the backpack later)
+ *  - else a REPEATABLE CONSUMABLE card → `inventory` backpack stock (+ a `dmnCards`
+ *    dex row on first-seen only). NO auto-fire; activated from the backpack later.
  *
- * Algorithm:
- * 1. Pre-check draws ≥ 1 + load owned consumable + owned equipment sets
- * 2. Roll equipment branch: rng() < EQUIPMENT_DRAW_RATE AND unowned equipment
- *    pool non-empty → award equipment; else consumable. If the chosen branch's
- *    pool is empty, fall through to the other; if BOTH empty → null (no entitlement
- *    consumed).
- * 3. Inside one tx: re-check entitlement, persist the award, decrement
- *    dmnDrawsAvailable, bump the lifetime counter (+ deposit consumable stock)
- * 4. Consumable: append a dmnEventLog provenance row post-commit (NO dispatch)
+ * Algorithm (make-neurons-dmn-consumables-repeatable):
+ * 1. Roll equipment branch ONLY when unowned equipment remains: rng() <
+ *    EQUIPMENT_DRAW_RATE AND unowned equipment pool non-empty → award equipment.
+ * 2. Otherwise a consumable (selected across the FULL catalog — duplicates allowed).
+ *    Consumables NEVER exhaust, so a draw with a ticket always produces something.
+ * 3. Inside one tx: re-check entitlement (derived grants − consumes), bump consumes,
+ *    re-derive dmnDrawsAvailable, deposit +1 backpack stock; write the dmnCards dex
+ *    row ONLY when first-seen.
+ * 4. Consumable first-seen: append a dmnEventLog provenance row post-commit (NO
+ *    dispatch). A duplicate returns { duplicate: true } and skips dex + provenance.
+ * 5. Returns null ONLY when no entitlement (consumables never exhaust).
  *
  * Capability spec: openspec/specs/neurons-dmn-fate-cards/spec.md
  *                  openspec/specs/neurons-acceleration-system/spec.md
@@ -70,15 +72,12 @@ function rarityOrder(r: DmnRarity): number {
   return { P1: 1, P2: 2, P3: 3, P4: 4 }[r]
 }
 
-function selectCardFromPool(
-  ownedCardIds: Set<string>,
-  rng: () => number = Math.random,
-): DmnCardDef | null {
-  const unowned = DMN_CARD_CATALOG.filter((c) => !ownedCardIds.has(c.cardId))
-  if (unowned.length === 0) return null
-
+// Consumables are REPEATABLE (make-neurons-dmn-consumables-repeatable): select
+// across the FULL 22-card catalog weighted by rarity — drawing a card already in
+// the dex is allowed and just adds backpack stock. Always returns a card.
+function selectCardFromPool(rng: () => number = Math.random): DmnCardDef {
   const byRarity: Record<DmnRarity, DmnCardDef[]> = { P1: [], P2: [], P3: [], P4: [] }
-  for (const card of unowned) byRarity[card.rarity].push(card)
+  for (const card of DMN_CARD_CATALOG) byRarity[card.rarity].push(card)
 
   const target = pickRarity(rng)
   if (byRarity[target].length > 0) {
@@ -86,7 +85,8 @@ function selectCardFromPool(
     return byRarity[target][idx]!
   }
 
-  // Fallback: walk rarity ladder, nearest tier first.
+  // Fallback: walk rarity ladder, nearest tier first (defensive — every tier is
+  // populated in the 22-card catalog, so the direct pick above normally returns).
   const ranked = [...DMN_RARITIES].sort(
     (a, b) =>
       Math.abs(rarityOrder(a) - rarityOrder(target)) -
@@ -98,7 +98,7 @@ function selectCardFromPool(
       return byRarity[candidate][idx]!
     }
   }
-  return null
+  return DMN_CARD_CATALOG[0]!
 }
 
 // ─── Permanent equipment selection (weighted by P1–P5 rarity) ───────────────
@@ -149,38 +149,30 @@ function selectEquipmentFromPool(
 // ─── Draw result ────────────────────────────────────────────────────────────
 
 export type DrawDmnCardResult =
-  | { kind: 'consumable'; card: DmnCardRow; catalog: DmnCardDef }
+  | { kind: 'consumable'; card: DmnCardRow; catalog: DmnCardDef; duplicate: boolean }
   | { kind: 'equipment'; equipment: OwnedEquipmentRow; def: EquipmentDef }
 
 /**
- * Pull a draw from `dmnDrawsAvailable`. Yields either a permanent equipment or a
- * consumable (deposited to the backpack — NO auto-fire). Returns null if no
- * draws available or BOTH pools are fully owned. `rng` is injectable for tests.
+ * Pull a draw from `dmnDrawsAvailable`. Yields either a permanent owned-once
+ * equipment (low probability) or a REPEATABLE consumable (deposited to the
+ * backpack — NO auto-fire; a duplicate just adds stock). Returns null ONLY when
+ * no draws are available (consumables never exhaust). `rng` is injectable.
  */
 export async function drawDmnCard(
   rng: () => number = Math.random,
 ): Promise<DrawDmnCardResult | null> {
-  const ownedCardRows = await db.dmnCards.toArray()
   const ownedEquipRows = await db.equipment.toArray()
-  const ownedCardSet = new Set(ownedCardRows.map((r) => r.cardId))
   const ownedEquipSet = new Set(ownedEquipRows.map((r) => r.equipmentId))
-
   const unownedEquipCount = EQUIPMENT_CATALOG.length - ownedEquipSet.size
-  const unownedCardCount = DMN_CARD_CATALOG.length - ownedCardSet.size
-  if (unownedEquipCount === 0 && unownedCardCount === 0) {
-    console.info('[dmn] all consumables + equipment owned — no further draws possible')
-    return null
-  }
 
-  // Branch: low-prob equipment vs consumable. Fall through to the other pool if
-  // the chosen one is exhausted.
+  // Equipment is a low-probability owned-once branch, rolled ONLY when unowned
+  // equipment remains. Otherwise a (possibly duplicate) consumable — consumables
+  // are repeatable, so a draw with a ticket always produces something.
   const wantEquipment = rng() < EQUIPMENT_DRAW_RATE && unownedEquipCount > 0
-  const drawEquipment = wantEquipment || unownedCardCount === 0
-
-  if (drawEquipment) {
+  if (wantEquipment) {
     return await drawEquipment_(ownedEquipSet, rng)
   }
-  return await drawConsumable_(ownedCardSet, rng)
+  return await drawConsumable_(rng)
 }
 
 async function drawEquipment_(
@@ -221,11 +213,9 @@ async function drawEquipment_(
 }
 
 async function drawConsumable_(
-  ownedCardSet: Set<string>,
   rng: () => number,
 ): Promise<DrawDmnCardResult | null> {
-  const catalogEntry = selectCardFromPool(ownedCardSet, rng)
-  if (catalogEntry === null) return null
+  const catalogEntry = selectCardFromPool(rng)
 
   const obtainedAt = Date.now()
   const cardRow: DmnCardRow = {
@@ -238,18 +228,21 @@ async function drawConsumable_(
   }
 
   let consumed = false
+  let isNew = false
   await db.transaction('rw', db.meta, db.dmnCards, db.inventory, async () => {
     // Entitlement = derived pool (grants − consumes); re-check race-safe in-tx.
     const grants = await readSeededGrantsTotal()
     const consumes = parseIntSafe((await db.meta.get(META_KEY_LIFETIME))?.value)
-    if (deriveDrawsAvailable(grants, consumes) < 1) return // race-safe re-check
-    if ((await db.dmnCards.get(cardRow.cardId)) !== undefined) return // race-safe
-    await db.dmnCards.put(cardRow)
+    if (deriveDrawsAvailable(grants, consumes) < 1) return // no entitlement
+    // REPEATABLE: a duplicate consumable still spends a ticket + adds stock, but
+    // does NOT re-write the dex row (preserve the first-seen obtainedAt).
+    isNew = (await db.dmnCards.get(cardRow.cardId)) === undefined
+    if (isNew) await db.dmnCards.put(cardRow)
     const newConsumes = consumes + 1
     await db.meta.put({ key: META_KEY_LIFETIME, value: String(newConsumes) })
     await db.meta.put({ key: META_KEY_GRANTS, value: String(grants) }) // materialize counter
     await db.meta.put({ key: META_KEY_DRAWS, value: String(deriveDrawsAvailable(grants, newConsumes)) })
-    // Deposit stock to the backpack (manual-activate; NO auto-fire).
+    // Deposit stock to the backpack (manual-activate; NO auto-fire). Unbounded.
     const existing = await db.inventory.get(catalogEntry.eventKind)
     await db.inventory.put({
       kind: catalogEntry.eventKind,
@@ -260,21 +253,23 @@ async function drawConsumable_(
   })
 
   if (!consumed) {
-    console.info('[dmn] draw aborted (no entitlement or race-loss); returning null')
+    console.info('[dmn] draw aborted (no entitlement); returning null')
     return null
   }
 
-  // Post-commit provenance log (synced, monotonic-union; NO effect dispatch —
-  // the effect fires on backpack activation).
-  try {
-    await db.dmnEventLog.put({
-      cardId: cardRow.cardId,
-      dispatchedAt: obtainedAt,
-      deviceId: getClientId(),
-    })
-  } catch (err) {
-    console.error('[dmn] post-commit eventLog write failed (card persisted):', err)
+  // Post-commit provenance log ONLY for a first-seen card (synced, monotonic-union;
+  // NO effect dispatch). A duplicate draw preserves the at-most-once provenance row.
+  if (isNew) {
+    try {
+      await db.dmnEventLog.put({
+        cardId: cardRow.cardId,
+        dispatchedAt: obtainedAt,
+        deviceId: getClientId(),
+      })
+    } catch (err) {
+      console.error('[dmn] post-commit eventLog write failed (card persisted):', err)
+    }
   }
 
-  return { kind: 'consumable', card: cardRow, catalog: catalogEntry }
+  return { kind: 'consumable', card: cardRow, catalog: catalogEntry, duplicate: !isNew }
 }

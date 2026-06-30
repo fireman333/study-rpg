@@ -5,29 +5,35 @@ import { db } from '../db'
 
 export interface DmnStatus {
   drawsAvailable: number
+  /** Consumable dex faces collected (0–22). */
   ownedCount: number
+  /** Consumable catalog size (22). */
   catalogSize: number
-  /** True when both consumable dex AND equipment dex are fully owned. */
-  bothPoolsExhausted: boolean
+  /** Total collection owned = consumable dex faces + owned equipment (0–34). */
+  collectionOwned: number
+  /** Total collectibles = consumable faces + equipment (34). */
+  collectionTotal: number
 }
 
 /**
  * Hook that returns current DMN draw availability + collection progress.
  * Uses Dexie liveQuery so it auto-updates when counters change.
  *
- * `bothPoolsExhausted` is the canonical「all draws would be no-ops」 signal
- * per `tighten-neurons-dmn-entitlement-semantics`: when true, the draw
- * button SHALL be disabled (even if `drawsAvailable > 0`), mirroring the
- * engine guard in `drawDmnCard()` that returns null without decrementing.
+ * Consumables are repeatable (make-neurons-dmn-consumables-repeatable), so a
+ * draw is never a no-op when `drawsAvailable >= 1` — there is no
+ * "both pools exhausted" disabled state. `collectionOwned / collectionTotal`
+ * (consumable dex + equipment, out of 34) drives the progress chip.
  */
 export function useDmnStatus(): DmnStatus {
   const catalogSize = DMN_CARD_CATALOG.length
   const equipmentSize = EQUIPMENT_CATALOG.length
+  const collectionTotal = catalogSize + equipmentSize
   const [status, setStatus] = useState<DmnStatus>({
     drawsAvailable: 0,
     ownedCount: 0,
     catalogSize,
-    bothPoolsExhausted: false,
+    collectionOwned: 0,
+    collectionTotal,
   })
 
   useEffect(() => {
@@ -38,15 +44,19 @@ export function useDmnStatus(): DmnStatus {
         db.equipment.count(),
       ])
       const drawsAvailable = parseInt(metaRow?.value ?? '0', 10) || 0
-      const bothPoolsExhausted =
-        ownedCount >= catalogSize && ownedEquipmentCount >= equipmentSize
-      return { drawsAvailable, ownedCount, catalogSize, bothPoolsExhausted }
+      return {
+        drawsAvailable,
+        ownedCount,
+        catalogSize,
+        collectionOwned: ownedCount + ownedEquipmentCount,
+        collectionTotal,
+      }
     }).subscribe({
       next: (val) => setStatus(val),
       error: (err) => console.error('[useDmnStatus] liveQuery error:', err),
     })
     return () => sub.unsubscribe()
-  }, [catalogSize, equipmentSize])
+  }, [catalogSize, equipmentSize, collectionTotal])
 
   return status
 }

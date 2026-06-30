@@ -69,27 +69,32 @@ describe('drawDmnCard — consumable branch', () => {
     expect(await db.dmnActiveBuffs.count()).toBe(0)
   })
 
-  it('never re-draws an already-owned consumable (pool-removal), 22 unique', async () => {
-    await setDraws(22)
-    const drawnIds = new Set<string>()
-    for (let i = 0; i < 22; i += 1) {
-      const result = await drawDmnCard(noEquip)
-      expect(result).not.toBeNull()
-      expect(result!.kind).toBe('consumable')
-      if (result!.kind === 'consumable') {
-        expect(drawnIds.has(result!.card.cardId)).toBe(false)
-        drawnIds.add(result!.card.cardId)
-      }
+  it('repeatable: a duplicate consumable adds stock + consume but NOT a new dex/provenance row', async () => {
+    // noEquip rng is deterministic → both draws pick the SAME consumable card.
+    await setDraws(2)
+    const first = await drawDmnCard(noEquip)
+    expect(first!.kind).toBe('consumable')
+    if (first!.kind === 'consumable') expect(first!.duplicate).toBe(false)
+
+    const second = await drawDmnCard(noEquip)
+    expect(second!.kind).toBe('consumable')
+    if (second!.kind === 'consumable') {
+      expect(second!.duplicate).toBe(true)
+      // Dex unchanged (still 1 unique face); stock accrued to 2; both draws consumed.
+      expect(await db.dmnCards.count()).toBe(1)
+      expect((await db.inventory.get(second!.card.eventKind))?.count).toBe(2)
     }
-    expect(drawnIds.size).toBe(22)
-    expect(await db.dmnCards.count()).toBe(22)
+    expect((await db.meta.get('dmnLifetimeDrawsConsumed'))?.value).toBe('2')
+    // Provenance log keeps the at-most-once row (no duplicate provenance).
+    expect(await db.dmnEventLog.count()).toBe(1)
   })
 
-  it('writes a dmnEventLog provenance row per consumable draw', async () => {
-    await setDraws(3)
-    await drawDmnCard(noEquip)
-    await drawDmnCard(noEquip)
-    expect(await db.dmnEventLog.count()).toBe(2)
+  it('first-seen consumable writes exactly one provenance row', async () => {
+    await setDraws(1)
+    const r = await drawDmnCard(noEquip)
+    expect(r!.kind).toBe('consumable')
+    if (r!.kind === 'consumable') expect(r!.duplicate).toBe(false)
+    expect(await db.dmnEventLog.count()).toBe(1)
   })
 
   it('increments dmnLifetimeDrawsConsumed counter', async () => {
@@ -134,8 +139,8 @@ describe('drawDmnCard — equipment branch', () => {
   })
 })
 
-describe('drawDmnCard — both pools complete', () => {
-  it('returns null when all consumables AND all equipment are owned', async () => {
+describe('drawDmnCard — all pools owned still yields repeatable consumable stock', () => {
+  async function ownEverything(): Promise<void> {
     const now = Date.now()
     await db.dmnCards.bulkPut(
       DMN_CARD_CATALOG.map((c) => ({
@@ -155,34 +160,28 @@ describe('drawDmnCard — both pools complete', () => {
         updatedAt: now,
       })),
     )
+  }
+
+  it('all equipment + full dex → a draw still yields a (duplicate) consumable, never null', async () => {
+    await ownEverything()
     await setDraws(5)
-    expect(await drawDmnCard(noEquip)).toBeNull()
+    const r = await drawDmnCard(noEquip)
+    expect(r).not.toBeNull()
+    expect(r!.kind).toBe('consumable')
+    if (r!.kind === 'consumable') expect(r!.duplicate).toBe(true)
+    expect(await db.dmnCards.count()).toBe(DMN_CARD_CATALOG.length) // dex unchanged
   })
 
-  it('all-pools-owned null draw does NOT increment dmnLifetimeDrawsConsumed', async () => {
-    const now = Date.now()
-    await db.dmnCards.bulkPut(
-      DMN_CARD_CATALOG.map((c) => ({
-        cardId: c.cardId,
-        rarity: c.rarity,
-        eventKind: c.eventKind,
-        artworkId: c.artworkId,
-        displayName: c.displayName,
-        obtainedAt: now,
-      })),
-    )
-    await db.equipment.bulkPut(
-      EQUIPMENT_CATALOG.map((e) => ({
-        equipmentId: e.equipmentId,
-        rarity: e.rarity,
-        obtainedAt: now,
-        updatedAt: now,
-      })),
-    )
+  it('all-pools-owned draw DOES increment consumes + adds stock (repeatable)', async () => {
+    await ownEverything()
     await db.meta.put({ key: 'dmnLifetimeDrawsConsumed', value: '7' })
     await setDraws(5)
-    expect(await drawDmnCard(noEquip)).toBeNull()
-    expect((await db.meta.get('dmnLifetimeDrawsConsumed'))?.value).toBe('7') // unchanged
+    const r = await drawDmnCard(noEquip)
+    expect(r!.kind).toBe('consumable')
+    expect((await db.meta.get('dmnLifetimeDrawsConsumed'))?.value).toBe('8') // 7 → 8
+    if (r!.kind === 'consumable') {
+      expect((await db.inventory.get(r!.card.eventKind))?.count).toBe(1)
+    }
   })
 })
 
@@ -234,5 +233,13 @@ describe('schema / synced-key allowlist', () => {
     expect(SYNCED_META_KEYS.has('dmnGrantsTotal')).toBe(true)
     expect(SYNCED_META_KEYS.has('dmnLifetimeDrawsConsumed')).toBe(true)
     expect(SYNCED_META_KEYS.has('dmnDrawsAvailable')).toBe(true)
+  })
+})
+
+describe('DMN collection total (make-neurons-dmn-consumables-repeatable)', () => {
+  it('consumable faces + equipment = 34', () => {
+    expect(DMN_CARD_CATALOG.length).toBe(22)
+    expect(EQUIPMENT_CATALOG.length).toBe(12)
+    expect(DMN_CARD_CATALOG.length + EQUIPMENT_CATALOG.length).toBe(34)
   })
 })
