@@ -49,7 +49,6 @@ interface Props {
 
 interface ProgressStats {
   variants: number
-  dmnOwned: number
 }
 
 // QuizModal entry state. `undefined` = modal 未開；object = 特定 family + mode
@@ -109,7 +108,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     return () => clearTimeout(t)
   }, [ritual])
   const [totalStudyMin, setTotalStudyMin] = useState(0)
-  const [stats, setStats] = useState<ProgressStats>({ variants: 0, dmnOwned: 0 })
+  const [stats, setStats] = useState<ProgressStats>({ variants: 0 })
   const [accrualByFamily, setAccrualByFamily] = useState<Map<string, FamilyAccrual>>(new Map())
   const timer = useReadingTimer()
 
@@ -227,9 +226,8 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     // Dexie forbids writes in a querier; the reset is owned by the mount effect
     // above + recordCorrectAnswer).
     const sub = liveQuery(async () => {
-      const [variants, dmn, familyAccrual] = await Promise.all([
+      const [variants, familyAccrual] = await Promise.all([
         ownedSlotCount(db),
-        db.dmnCards.count(),
         db.familyAccrual.toArray(),
       ])
       const accrual = new Map<string, FamilyAccrual>(
@@ -238,7 +236,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           { ap: r.ap, unlockedSlots: r.unlockedSlots, firedToday: r.firedToday },
         ]),
       )
-      return { stats: { variants, dmnOwned: dmn }, accrual }
+      return { stats: { variants }, accrual }
     }).subscribe({
       next: (val) => {
         setStats(val.stats)
@@ -573,7 +571,6 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         wrongCount={wrongCount}
         onExpedition={openExpedition}
         variants={stats.variants}
-        dmnOwned={stats.dmnOwned}
         totalStudyMin={totalStudyMin}
       />
 

@@ -80,7 +80,7 @@ export default function DmnDrawModal({ onClose }: Props): JSX.Element {
       await new Promise((resolve) => setTimeout(resolve, reduced ? 300 : 900))
       const drawn = await drawDmnCard()
       if (!drawn) {
-        setError('抽卡失敗 — 沒有可用次數或卡池已空')
+        setError('抽卡失敗 — 沒有可用次數')
         setPhase('pre')
         return
       }
@@ -125,7 +125,7 @@ export default function DmnDrawModal({ onClose }: Props): JSX.Element {
               </p>
               <p style={hintStyle}>
                 可用次數：<strong>{status.drawsAvailable}</strong> / 已蒐集：
-                <strong>{status.ownedCount}</strong> / {status.catalogSize}
+                <strong>{status.collectionOwned}</strong> / {status.collectionTotal}
               </p>
               {error && <p style={errorStyle}>{error}</p>}
               <div style={buttonRowStyle}>
@@ -183,7 +183,7 @@ function DmnRevealCard({
     return <EquipmentRevealCard equipment={result.equipment} def={result.def} onClose={onClose} reduced={reduced} />
   }
 
-  const { card, catalog } = result
+  const { card, catalog, duplicate } = result
   const color = RARITY_COLOR[card.rarity]
   const spriteUrl = SPRITE_MAP[card.artworkId] ?? SPRITE_MAP['variant:default'] ?? ''
   const timing = RARITY_TIMINGS[card.rarity]
@@ -215,6 +215,7 @@ function DmnRevealCard({
       <div style={cardNameStyle}>{card.displayName}</div>
       <p style={descStyle}>{catalog.description}</p>
       <div style={eventChipStyle}>✦ {EVENT_LABEL[card.eventKind]}</div>
+      {duplicate && <div style={dupNoteStyle}>已在圖鑑 · 庫存 +1</div>}
       <p style={backpackNoteStyle}>已放入背包 — 在「圖鑑 → DMN」的背包區手動啟用</p>
       <button type="button" onClick={onClose} style={primaryBtnStyle}>
         收下 ✓
@@ -429,4 +430,11 @@ const backpackNoteStyle: React.CSSProperties = {
   fontSize: '0.72rem',
   color: '#8fa8c4',
   textAlign: 'center',
+}
+
+const dupNoteStyle: React.CSSProperties = {
+  fontSize: '0.74rem',
+  fontWeight: 600,
+  color: '#d4a04d',
+  letterSpacing: '0.02em',
 }
