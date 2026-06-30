@@ -34,6 +34,26 @@ export const ONBOARDING_KEYS = [
   ONBOARDING_EXPEDITION_SPOTLIGHT_SEEN_KEY,
 ] as const
 
+/**
+ * Legacy onboarding meta keys left behind by an earlier implementation
+ * (`improve-neurons-onboarding`). No current code reads these — the ⚔️ expedition reveal now
+ * derives from the monotonic `questionHistory.everWrong` signal — so they are orphaned. Deleted on
+ * a best-effort one-time startup pass (`cleanupLegacyOnboardingKeys`) and on account reset so no
+ * stale onboarding key persists. Kept out of `SYNCED_META_KEYS` (device-local; never synced).
+ */
+export const ONBOARDING_LEGACY_KEYS = ['neurons:onboarding:expeditionRevealed'] as const
+
+/** Best-effort deletion of orphaned onboarding keys. Never throws / never blocks boot. */
+export async function cleanupLegacyOnboardingKeys(): Promise<void> {
+  for (const key of ONBOARDING_LEGACY_KEYS) {
+    try {
+      await db.meta.delete(key)
+    } catch (err) {
+      console.warn(`[onboarding] legacy key cleanup ${key} failed:`, err)
+    }
+  }
+}
+
 async function getFlag(key: string): Promise<boolean> {
   try {
     return (await db.meta.get(key))?.value === 'true'

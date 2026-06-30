@@ -31,7 +31,7 @@ import { incrementCurrentStreak, resetCurrentStreak } from './streak'
 import { buildAchievementStats, triggerAchievementCheck } from './achievement'
 import { energyAccel } from './acceleration'
 import { emitAnswerCorrect, emitAnswerWrong } from '../maze/answer-feedback'
-import { ONBOARDING_KEYS } from './onboarding'
+import { ONBOARDING_KEYS, ONBOARDING_LEGACY_KEYS } from './onboarding'
 import type { ContentPack } from '@study-rpg/core'
 
 export const events = new ConnectomeEventEmitter()
@@ -655,6 +655,8 @@ export async function resetConnectomeForDebug(): Promise<void> {
     // (improve-neurons-onboarding).
     await db.meta.delete(HOMEPAGE_ONBOARDING_DISMISSED_KEY)
     for (const key of ONBOARDING_KEYS) await db.meta.delete(key)
+    // Also drop any orphaned legacy onboarding keys so a reset save carries none.
+    for (const key of ONBOARDING_LEGACY_KEYS) await db.meta.delete(key)
     // Re-arm the per-family first-pull (add-neurons-first-pull-path-rep) so a
     // reset player's next answer per family grants a fresh P5 representative.
     await db.meta.delete('firstPullFamilies')

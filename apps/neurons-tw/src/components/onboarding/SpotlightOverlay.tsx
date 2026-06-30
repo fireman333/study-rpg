@@ -105,6 +105,8 @@ export interface SpotlightOverlayProps {
   reduced: boolean
   /** Accessible label for the instruction card region. */
   ariaLabel: string
+  /** Escape key handler (the step's skip/dismiss action). Keyboard users are never trapped. */
+  onEscape?: () => void
 }
 
 export function SpotlightOverlay({
@@ -112,6 +114,7 @@ export function SpotlightOverlay({
   children,
   reduced,
   ariaLabel,
+  onEscape,
 }: SpotlightOverlayProps): JSX.Element {
   const box = useAnchorBox(anchors)
 
@@ -169,11 +172,40 @@ export function SpotlightOverlay({
     }
   }, [anchors])
 
+  // A11y: move initial focus to the card's PRIMARY control (the last button — 開始引導 / 下一步 /
+  // 知道了 sit at the row's end) on each step entry, so keyboard / screen-reader users land on the
+  // instruction and can act. preventScroll: the overlay already scrolls the anchor into view; we
+  // must not fight it. Keyed on `anchors` (changes exactly on step change), not every re-measure.
+  useEffect(() => {
+    const card = cardRef.current
+    if (!card) return
+    const raf = requestAnimationFrame(() => {
+      const buttons = card.querySelectorAll<HTMLButtonElement>('button')
+      const primary = buttons[buttons.length - 1]
+      primary?.focus({ preventScroll: true })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [anchors])
+
+  // A11y: Escape = the step's skip/dismiss action. NOT a focus trap — the dim/hole layer stays
+  // pointer-events:none so the page behind the card remains interactive (frictionless play).
+  useEffect(() => {
+    if (!onEscape) return
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onEscape()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onEscape])
+
   if (box === null) {
     // Graceful degrade: centered card, no dim hole, page fully interactive.
     return (
       <div style={centeredWrapStyle}>
-        <div ref={cardRef} role="region" aria-label={ariaLabel} aria-live="polite" style={cardStyle}>
+        <div ref={cardRef} role="dialog" aria-label={ariaLabel} aria-live="polite" style={cardStyle}>
           {children}
         </div>
       </div>
@@ -213,7 +245,7 @@ export function SpotlightOverlay({
       {!reduced && <style>{pulseKeyframes}</style>}
       <div
         ref={cardRef}
-        role="region"
+        role="dialog"
         aria-label={ariaLabel}
         aria-live="polite"
         style={{

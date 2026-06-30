@@ -18,7 +18,15 @@
  *     spotlight over nothing, never a crash).
  */
 
-export type TourStepId = 'welcome' | 'reading' | 'quiz' | 'maze' | 'dashboard' | 'extract' | 'done'
+export type TourStepId =
+  | 'welcome'
+  | 'reading'
+  | 'quiz'
+  | 'maze'
+  | 'focus'
+  | 'dashboard'
+  | 'extract'
+  | 'done'
 
 /** Events that can advance the tour. 'next' = the manual 「下一步」 button. */
 export type TourAdvanceEvent = 'next' | 'readingStarted' | 'answerCorrect' | 'variantSlotUnlocked'
@@ -43,7 +51,7 @@ export interface TourStepDef {
 }
 
 /** Linear step order; 'done' (terminal celebration) is reached by transition only. */
-export const TOUR_ORDER = ['welcome', 'reading', 'quiz', 'maze', 'dashboard', 'extract'] as const
+export const TOUR_ORDER = ['welcome', 'reading', 'quiz', 'maze', 'focus', 'dashboard', 'extract'] as const
 
 export const TOUR_STEPS: Record<Exclude<TourStepId, 'done'>, TourStepDef> = {
   welcome: {
@@ -64,9 +72,12 @@ export const TOUR_STEPS: Record<Exclude<TourStepId, 'done'>, TourStepDef> = {
   },
   quiz: {
     id: 'quiz',
-    anchors: ['[data-tutorial="quiz-answer"]', '[id^="family-card-"]'],
+    // quiz-answer wins once the modal is open (frames the option grid); otherwise the spotlight
+    // frames the 🆕 新題 entry that OPENS a question, then the card as a last resort. The body copy
+    // reads correctly in BOTH states (點 🆕 新題 開一題 → 選一個答案).
+    anchors: ['[data-tutorial="quiz-answer"]', '[data-tutorial="quiz-start"]', '[id^="family-card-"]'],
     lead: '第二步：答一題試試',
-    body: '從科目卡開始答題（打 boss）。答對會餵能量 — 選一個答案吧！',
+    body: '點科目卡的 🆕 新題 開一題（打 boss），選一個答案就會餵能量 — 答對的能量推著神經元前進。',
     nextLabel: '下一步',
     advanceOn: ['answerCorrect'],
   },
@@ -75,6 +86,14 @@ export const TOUR_STEPS: Record<Exclude<TourStepId, 'done'>, TourStepDef> = {
     anchors: ['[data-tutorial="maze"]'],
     lead: '能量推著神經元前進',
     body: '閱讀＋答對的能量，讓你的神經元在腦圖上走。走到腦區節點，就會抽出神經元。',
+    nextLabel: '下一步',
+    advanceOn: [],
+  },
+  focus: {
+    id: 'focus',
+    anchors: ['[data-tutorial="maze-focus"]'],
+    lead: '聚焦你想探索的科',
+    body: '點科目卡的 🔍 聚焦，腦圖鏡頭會飛到那一科 — 科目卡不會消失，隨時能繼續答題。',
     nextLabel: '下一步',
     advanceOn: [],
   },
