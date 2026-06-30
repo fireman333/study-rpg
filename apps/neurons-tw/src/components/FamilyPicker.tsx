@@ -297,7 +297,6 @@ function FamilyCard({
       <div style={chipRowStyle}>
         <MasteryChip familyId={family.id} displayName={family.displayName} />
         <VariantCollectionChip familyId={family.id} />
-        <span style={countChipStyle(accent)}>{family.totalQuestions} 題</span>
       </div>
 
       <div style={modeChipRowStyle}>
@@ -315,7 +314,9 @@ function FamilyCard({
           }
         >
           🆕 新題
-          <span style={modeChipBadgeStyle}>{freshCount === 0 && !isEmpty ? '全部答過' : freshCount}</span>
+          <span style={modeChipBadgeStyle}>
+            {isEmpty ? '—' : freshCount === 0 ? '全部答過' : `${freshCount}/${family.totalQuestions}`}
+          </span>
         </button>
         <button
           type="button"
@@ -541,20 +542,8 @@ const apLineStyle: React.CSSProperties = {
 const chipRowStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: '0.35rem',
+  gap: '0.3rem',
   flexWrap: 'wrap',
-}
-
-function countChipStyle(accent: string): React.CSSProperties {
-  return {
-    fontSize: '0.7rem',
-    padding: '0.1rem 0.45rem',
-    borderRadius: '999px',
-    background: '#fdf6e3',
-    color: accent,
-    border: `1px solid ${accent}`,
-    fontWeight: 600,
-  }
 }
 
 const modeChipRowStyle: React.CSSProperties = {

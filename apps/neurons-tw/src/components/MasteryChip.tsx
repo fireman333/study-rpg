@@ -63,29 +63,32 @@ export default function MasteryChip({ familyId, displayName }: Props): JSX.Eleme
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '0.4rem',
-        padding: '0.15rem 0.5rem',
+        gap: '0.28rem',
+        padding: '0.15rem 0.38rem',
         border: `1.5px solid ${TIER_COLORS[tier]}`,
         borderRadius: '3px',
         background: '#fdf6e3',
         fontSize: '0.78rem',
         fontFamily: 'inherit',
+        whiteSpace: 'nowrap',
       }}
-      title={displayName ? `${displayName} 熟練度` : '熟練度'}
+      title={
+        // The compact chip shows only the tier CODE + count (+ ⚡ boost); the full tier label and the
+        // accuracy % live here in the tooltip so the chip row no longer wraps the「X 隻」pill
+        // (compact-neurons-family-card-mastery-and-fresh-badge).
+        `${displayName ? `${displayName} ` : ''}熟練度 · ${TIER_LABELS[tier]} · 正確率 ${accuracy !== null ? `${accuracy}%` : '—'}${energyBoostPct > 0 ? ` · 能量 +${energyBoostPct}%` : ''}`
+      }
     >
-      <strong style={{ color: TIER_COLORS[tier] }}>{TIER_LABELS[tier]}</strong>
+      <strong style={{ color: TIER_COLORS[tier] }}>{tier === 'none' ? '—' : tier}</strong>
       <span style={{ color: '#5a3f29' }}>
         <NumberTickUp from={prevCorrect} to={correct} durationMs={500} />/{total}
       </span>
-      <span style={{ color: '#8c6d4a' }}>
-        {accuracy !== null ? `${accuracy}%` : '—'}
-      </span>
       {energyBoostPct > 0 && (
         <span
-          style={{ color: TIER_COLORS[tier], fontWeight: 600 }}
+          style={{ color: TIER_COLORS[tier], fontWeight: 600, display: 'inline-flex', alignItems: 'center' }}
           title="熟練度加速能量獲取"
         >
-          <EmojiIcon char="⚡" size={13} />+{energyBoostPct}%
+          <EmojiIcon char="⚡" size={12} />{energyBoostPct}%
         </span>
       )}
     </span>
