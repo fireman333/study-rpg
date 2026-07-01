@@ -18,10 +18,10 @@ export function parseExamYear(questionId: string): string {
 }
 
 export interface WrongAnswerFilterState {
-  /** Families the user has toggled OFF (exclusion model, mirrors family chips). */
-  excludedFamilies: Set<string>
-  /** Exam years toggled OFF (exclusion model). Empty = all years shown. */
-  excludedYears: Set<string>
+  /** Families the user has toggled ON (inclusion model, mirrors 題庫 chips). Empty = all families shown. */
+  selectedFamilies: Set<string>
+  /** Exam years toggled ON (inclusion model). Empty = all years shown. */
+  selectedYears: Set<string>
   /** Show only questions flagged ✨ 太簡單. */
   easyOnly: boolean
   /** Show only questions flagged 🤔 我亂猜的. */
@@ -38,8 +38,8 @@ export function matchesWrongAnswerFilter(
   filter: WrongAnswerFilterState,
   flag: { easyMarked: boolean; guessedMarked: boolean } | undefined,
 ): boolean {
-  if (filter.excludedFamilies.has(item.family)) return false
-  if (filter.excludedYears.has(parseExamYear(item.questionId))) return false
+  if (filter.selectedFamilies.size > 0 && !filter.selectedFamilies.has(item.family)) return false
+  if (filter.selectedYears.size > 0 && !filter.selectedYears.has(parseExamYear(item.questionId))) return false
   if (filter.easyOnly && !flag?.easyMarked) return false
   if (filter.guessedOnly && !flag?.guessedMarked) return false
   return true

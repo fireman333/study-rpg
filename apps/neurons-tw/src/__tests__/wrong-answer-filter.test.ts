@@ -17,8 +17,8 @@ describe('parseExamYear', () => {
 })
 
 const empty: WrongAnswerFilterState = {
-  excludedFamilies: new Set(),
-  excludedYears: new Set(),
+  selectedFamilies: new Set(),
+  selectedYears: new Set(),
   easyOnly: false,
   guessedOnly: false,
 }
@@ -26,23 +26,26 @@ const empty: WrongAnswerFilterState = {
 describe('matchesWrongAnswerFilter', () => {
   const item = { family: '解剖學', questionId: '106-1-醫學一-解剖學-Q1' }
 
-  it('passes everything with an empty filter', () => {
+  it('passes everything with an empty filter (全部)', () => {
     expect(matchesWrongAnswerFilter(item, empty, undefined)).toBe(true)
   })
 
-  it('excludes by family', () => {
+  it('includes only selected families', () => {
     expect(
-      matchesWrongAnswerFilter(item, { ...empty, excludedFamilies: new Set(['解剖學']) }, undefined),
+      matchesWrongAnswerFilter(item, { ...empty, selectedFamilies: new Set(['解剖學']) }, undefined),
+    ).toBe(true)
+    expect(
+      matchesWrongAnswerFilter(item, { ...empty, selectedFamilies: new Set(['生理學']) }, undefined),
     ).toBe(false)
   })
 
-  it('excludes by year', () => {
+  it('includes only selected years', () => {
     expect(
-      matchesWrongAnswerFilter(item, { ...empty, excludedYears: new Set(['106']) }, undefined),
-    ).toBe(false)
-    expect(
-      matchesWrongAnswerFilter(item, { ...empty, excludedYears: new Set(['108']) }, undefined),
+      matchesWrongAnswerFilter(item, { ...empty, selectedYears: new Set(['106']) }, undefined),
     ).toBe(true)
+    expect(
+      matchesWrongAnswerFilter(item, { ...empty, selectedYears: new Set(['108']) }, undefined),
+    ).toBe(false)
   })
 
   it('easyOnly requires the easy flag', () => {
@@ -61,11 +64,15 @@ describe('matchesWrongAnswerFilter', () => {
 
   it('combines family + year + flag', () => {
     const f: WrongAnswerFilterState = {
-      excludedFamilies: new Set(['生理學']),
-      excludedYears: new Set(['107']),
+      selectedFamilies: new Set(['解剖學']),
+      selectedYears: new Set(['106']),
       easyOnly: true,
       guessedOnly: false,
     }
     expect(matchesWrongAnswerFilter(item, f, { easyMarked: true, guessedMarked: false })).toBe(true)
+    // Same item but selecting a different family → excluded.
+    expect(
+      matchesWrongAnswerFilter(item, { ...f, selectedFamilies: new Set(['生理學']) }, { easyMarked: true, guessedMarked: false }),
+    ).toBe(false)
   })
 })
