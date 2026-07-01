@@ -64,7 +64,11 @@ A v12→v13 upgrade fixture SHALL exist (per `docs/DEXIE_UPGRADE_FIXTURE_RULE.md
 
 ### Requirement: Player SHALL be able to tier-promote by consuming K same-rarity surplus individuals
 
-The system SHALL offer an opt-in **tier-promote** action: consume K held (`consumedAt == null`) individuals of the same `rarity` tier `T` within one family → mint one new individual of the next-rarer tier `T−1` in that same family. K SHALL be a single tunable constant (default `3`). The promote SHALL prefer an **unowned** `T−1` slot in the family; if every `T−1` slot is already owned, it SHALL mint a new individual of an already-owned `T−1` slot (a valid dupe individual under open-collection). Promotion of the rarest tier (P0) SHALL be unavailable (no `T−1`). The promote SHALL NOT spend neural energy and SHALL NOT introduce any new currency.
+The system SHALL offer an opt-in **tier-promote** action: consume K held (`consumedAt == null`) individuals of the same `rarity` tier `T` within one family → mint one new individual of the next-rarer tier `T−1` in that same family. K SHALL be a single tunable constant (default `3`). The **fusable pool for a tier `T` SHALL be every held individual at tier `T` in that family** — there is NO per-slot「keep one」 reservation, so a family holding ≥ K individuals of tier `T` can always promote regardless of how those individuals are spread across the tier's slots. The count surfaced to the player (the fusion button numerator) SHALL be this total held pool, so it equals the sum of that tier's card `×N` badges.
+
+To preserve collection breadth by default without a hard gate, the consume order SHALL drain **duplicates first** — every slot's copies beyond its oldest one — and only dip into a slot's sole/oldest copy when K exceeds the duplicate pool (oldest individual first within each band, deterministic). A promote MAY therefore empty a slot (consume its last held individual); the resulting `neuronVariants` row becomes a「ghost slot」 (`copies` unchanged, 0 held) that the `ownedSlotCount` projection already excludes from every distinct-owned count.
+
+The promote SHALL prefer an **unowned** `T−1` slot in the family; if every `T−1` slot is already owned, it SHALL mint a new individual of an already-owned `T−1` slot (a valid dupe individual under open-collection). Promotion of the rarest tier (P0) SHALL be unavailable (no `T−1`). The promote SHALL NOT spend neural energy and SHALL NOT introduce any new currency.
 
 Consuming an individual SHALL set its `consumedAt` (soft-delete) rather than deleting the row; `neuronVariants.copies` SHALL NOT be decremented (it is a lifetime-mint count). The minted higher-tier individual SHALL go through the existing mint path (emit `variantRolled` reveal, stamp provenance, fire achievement / leaderboard / connectome hooks).
 
@@ -75,6 +79,20 @@ Consuming an individual SHALL set its `consumedAt` (soft-delete) rather than del
 - **THEN** exactly 3 of those P4 individuals SHALL have `consumedAt` set
 - **AND** one new P3 individual SHALL be minted for a previously-unowned P3 slot in that family, `consumedAt = null`
 - **AND** the reveal modal/toast SHALL fire for the minted P3
+
+#### Scenario: K individuals spread one-per-slot are fusable
+
+- **GIVEN** a family holds exactly K held P4 individuals, each in a DISTINCT P4 slot
+- **WHEN** the player views the P4 tier
+- **THEN** the promote action SHALL be enabled (the whole held pool is fusable — no per-slot reservation blocks it)
+- **AND** promoting SHALL set `consumedAt` on all K of them and mint one T−1 individual
+
+#### Scenario: Consume order drains duplicates before a slot's sole copy
+
+- **GIVEN** a family holds one P4 individual at slot a and three P4 individuals at slot b, and K = 3
+- **WHEN** the player promotes at the P4 tier
+- **THEN** the two DUPLICATE individuals of slot b SHALL be consumed first
+- **AND** the third consumed individual SHALL be a sole/oldest copy (slot a's or slot b's oldest), leaving exactly one held P4 individual in the family
 
 #### Scenario: Promote target falls back to a dupe individual when the tier is full
 
@@ -88,36 +106,11 @@ Consuming an individual SHALL set its `consumedAt` (soft-delete) rather than del
 - **WHEN** the player views promote options at the P0 tier
 - **THEN** no promote action SHALL be offered for P0
 
-### Requirement: Last-copy protection SHALL keep at least one individual per owned slot
-
-A promote SHALL only consume individuals that are **surplus** — for every `(familyId, slotIndex)` the system SHALL keep at least one held individual. The eligible-to-consume pool for a tier `T` SHALL be the held individuals at tier `T` minus the protected first individual of each `T` slot. The default SHALL be to keep all individuals; promotion SHALL be entirely player-initiated.
-
-**Cross-device limitation (acknowledged).** Last-copy protection is enforced per-device at promote time. Two devices starting from the same `(2 held individuals at one slot)` snapshot can each promote-consume one individual (each device locally thinking the other individual is the kept one). After the consumed monotonic-OR merge in the R2 bundle (per the existing fusion sync requirement), the slot can converge to **0 held individuals while the `neuronVariants` row still exists with monotonic `copies ≥ 2`** — a「ghost slot」. The cross-device race cannot be cheaply prevented without a synchronous claim protocol; instead, every downstream「distinct-owned」 consumer (chip / achievement / leaderboard) SHALL read through the canonical `ownedSlotCount` projection (this capability) so a ghost slot does NOT inflate any user-visible or cloud-visible count.
-
-The system SHALL NOT auto-purge ghost slot `neuronVariants` rows. The lifetime `copies` field intentionally retains its monotonic semantics for catalog-history purposes; the row stays as a「once held, currently empty」 marker. A future change MAY surface a「ghost slot」 indicator in the collection view; this capability does NOT require one.
-
-#### Scenario: The sole individual of a slot is never consumable
-
-- **GIVEN** a family with exactly one held P4 individual at slot a and two held P4 individuals at slot b
-- **WHEN** the eligible-to-consume P4 pool is computed
-- **THEN** it SHALL contain exactly one individual (the surplus copy of slot b)
-- **AND** the sole individual of slot a SHALL NOT be eligible
-
-#### Scenario: Cross-device promote race produces a ghost slot but no inflated count
-
-- **GIVEN** both devices share starting state for slot `(藥理學, 2)`: 2 held P4 individuals `I1` and `I2`, with `neuronVariants.copies = 2`
-- **WHEN** device A promotes consuming `I1` (locally `I2` is the kept individual) and device B promotes consuming `I2` (locally `I1` is the kept individual) before either pushes
-- **AND** both bundles round-trip through the consumed monotonic-OR merge
-- **THEN** both `I1.consumedAt` and `I2.consumedAt` SHALL be set (the slot is a ghost slot)
-- **AND** the `neuronVariants` row SHALL remain with `copies = 2` (monotonic lifetime count unchanged)
-- **AND** `ownedSlotCount(db)` SHALL exclude this ghost slot from its return value
-- **AND** the chip / achievement-stat `variantCount` / leaderboard `variant_count` SHALL all reflect the ghost-corrected count after next sync push, ticking down by exactly 1 from the pre-race value
-
 #### Scenario: Promote is unavailable below the K threshold
 
-- **GIVEN** a family whose surplus pool at a tier holds fewer than K individuals
+- **GIVEN** a family whose held pool at a tier holds fewer than K individuals
 - **WHEN** the player views that tier
-- **THEN** the promote action SHALL be disabled with a reason indicating insufficient surplus
+- **THEN** the promote action SHALL be disabled with a reason indicating insufficient held individuals
 
 ### Requirement: `ownedSlotCount` SHALL be the single canonical「distinct-owned」 projection
 
@@ -182,13 +175,20 @@ The lifetime mint counter `neuronVariants.copies` is unchanged by this requireme
 
 ### Requirement: Collection view SHALL render individuals with per-instance context-art
 
-The collection view SHALL render held individuals (`consumedAt == null`), grouped by family then slot, with each slot collapsible; each individual SHALL render its own context-art via `variantContextArt` computed from that individual's `provenance` + `rolledAt`. The pure-count `🧬 X 隻` chip SHALL retain its existing **distinct-slot** semantics (X = number of owned `neuronVariants` slots), with the total-individual count available as a secondary display. No denominator and no full-collection celebratory state SHALL be introduced (open-collection is preserved).
+The collection view SHALL render held individuals (`consumedAt == null`), grouped by family then slot, with each slot collapsible; each individual SHALL render its own context-art via `variantContextArt` computed from that individual's `provenance` + `rolledAt`. A **ghost slot** — a `neuronVariants` row with zero held individuals (every individual fused away) — SHALL NOT render a card, so the rendered cards match the family's distinct-owned `X 隻` chip. The `neuronVariants` row persists in the DB as catalog history; it simply stops rendering once nothing is held. The pure-count `🧬 X 隻` chip SHALL retain its existing **distinct-slot** semantics (X = number of owned `neuronVariants` slots with ≥ 1 held individual), with the total-individual count available as a secondary display. No denominator and no full-collection celebratory state SHALL be introduced (open-collection is preserved).
 
 #### Scenario: Two individuals of one slot render distinct context-art
 
 - **GIVEN** a slot with two held individuals minted at different times of day
 - **WHEN** the slot is expanded in the collection view
 - **THEN** both individuals SHALL render, each with its own brainwave-band letter / decor field
+
+#### Scenario: A fully-fused-away slot stops rendering a card
+
+- **GIVEN** a family slot whose every individual has been consumed by fusion (0 held, `neuronVariants` row still present)
+- **WHEN** the family section renders
+- **THEN** that slot SHALL NOT render a card
+- **AND** the family's `🧬 X 隻` chip and the rendered card count SHALL agree
 
 #### Scenario: The count chip stays distinct-slot
 

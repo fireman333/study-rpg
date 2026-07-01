@@ -80,8 +80,8 @@ held individuals), and SHALL NOT be hard-deleted (avoiding a delete-vs-LWW resur
 so it simply becomes inert data referencing a monotonically-consumed individual.
 
 #### Scenario: Fusion behavior unchanged by nicknames
-- **WHEN** a family has surplus individuals of a rarity tier, some of which carry nicknames
-- **THEN** `eligibleSurplusByTier` and `promoteTier` behave exactly as before (oldest-held-per-slot protected, surplus consumed)
+- **WHEN** a family has held individuals of a rarity tier, some of which carry nicknames
+- **THEN** `eligibleForTier` and `promoteTier` ignore nicknames entirely — the fusable pool (the tier's full held set) and the dupes-first consume order are computed from `neuronInstances` only
 
 #### Scenario: Consumed individual's nickname is inert
 - **WHEN** a named individual is consumed by a tier-promote (its `consumedAt` is set)
