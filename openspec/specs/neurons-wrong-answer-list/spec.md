@@ -98,7 +98,7 @@ Every row in all three tabs SHALL render the FULL question via the shared read-o
 
 ### Requirement: The three tabs SHALL share one filter bar — family + year + exam-year chips
 
-The `/bookmarks` page SHALL render a single shared filter bar above the tab strip that applies to all three sub-tabs: the existing family (科目) chips, the existing 標記 chips (✨ 太簡單 / 🤔 我亂猜的), and a NEW exam-year chip set. Exam year SHALL be derived from the question id prefix (e.g. `106-1-醫學一-解剖學-Q1` → `106`); a non-numeric prefix SHALL fall into an `unknown` bucket. The year chip set SHALL list the distinct years present in the currently-relevant rows. The 科目 and 年份 chip sets SHALL each lead with a 「全部」 select-all chip (mirroring the homepage `YearFilterBar`): the chip SHALL render active when nothing in that set is excluded, and clicking it SHALL clear that set's exclusions (show all). No separate 「重置（顯示全部）」 button SHALL be shown for the 科目 / 年份 sets.
+The `/bookmarks` page SHALL render a single shared filter bar above the tab strip that applies to all three sub-tabs: the existing family (科目) chips, the existing 標記 chips (✨ 太簡單 / 🤔 我亂猜的), and a NEW exam-year chip set. Exam year SHALL be derived from the question id prefix (e.g. `106-1-醫學一-解剖學-Q1` → `106`); a non-numeric prefix SHALL fall into an `unknown` bucket. The year chip set SHALL list the distinct years present in the currently-relevant rows. The 科目 and 年份 chip sets SHALL each use an inclusion model that mirrors the 題庫 tab, leading with a 「全部」 select-all chip: by default only the 「全部」 chip SHALL render active and every individual chip inactive (all rows shown). Clicking an individual chip SHALL add it to that set's selection (and deactivate 「全部」), filtering to only the selected 科目 / 年份 (multiple selections within a set combine as a union). Clicking the 「全部」 chip SHALL clear that set's selection (deactivating every individual chip) and show all rows. The 「全部」 chip SHALL render active exactly when that set's selection is empty. No separate 「重置（顯示全部）」 button SHALL be shown for the 科目 / 年份 sets.
 
 #### Scenario: Year is parsed from the question id prefix
 
@@ -107,15 +107,24 @@ The `/bookmarks` page SHALL render a single shared filter bar above the tab stri
 
 #### Scenario: Filter applies across all three tabs
 
-- **GIVEN** the player excludes family `解剖學` and selects only year `106` in the shared filter bar
+- **GIVEN** the player selects only family `解剖學` and only year `106` in the shared filter bar
 - **WHEN** the player switches between 手動收藏 / 目前未答對 / 歷史曾錯
-- **THEN** every visible list SHALL exclude `解剖學` rows and show only `106` rows
+- **THEN** every visible list SHALL show only rows matching a selected 科目 (`解剖學`) AND a selected 年份 (`106`)
 
-#### Scenario: 全部 select-all chip restores a filter set
+#### Scenario: 科目 / 年份 chips default to 「全部」, then single- then multi-select
 
-- **GIVEN** the player has excluded one or more 科目 chips (so the 科目 「全部」 chip renders inactive)
+- **GIVEN** the player has not touched the 科目 filter
+- **THEN** only the 科目 「全部」 chip SHALL render active and every individual 科目 chip inactive (all 科目 shown)
+- **WHEN** the player clicks one 科目 chip
+- **THEN** the 「全部」 chip SHALL become inactive, that 科目 chip active, and the lists SHALL show only that 科目
+- **AND WHEN** the player then clicks another 科目 chip
+- **THEN** both 科目 chips SHALL render active and the lists SHALL show rows from either 科目 (union)
+
+#### Scenario: 全部 select-all chip clears a filter set
+
+- **GIVEN** the player has selected one or more 科目 chips (so the 科目 「全部」 chip renders inactive)
 - **WHEN** the player clicks the 科目 「全部」 chip
-- **THEN** all 科目 exclusions SHALL be cleared (every 科目 shown) and the 「全部」 chip SHALL render active
+- **THEN** the 科目 selection SHALL be cleared (every 科目 shown, every individual chip inactive) and the 「全部」 chip SHALL render active
 
 ### Requirement: questionHistory SHALL sync via the R2 neurons bundle with a schema_version bump and backward tolerance
 

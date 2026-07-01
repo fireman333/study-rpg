@@ -46,8 +46,9 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
   const history = useQuestionHistory()
 
   const [tab, setTab] = useState<TabKey>('manual')
-  const [excludedFamilies, setExcludedFamilies] = useState<Set<string>>(new Set())
-  const [excludedYears, setExcludedYears] = useState<Set<string>>(new Set())
+  // Inclusion model (mirrors 題庫 tab): empty Set = 全部 shown, otherwise only the selected chips.
+  const [selectedFamilies, setSelectedFamilies] = useState<Set<string>>(new Set())
+  const [selectedYears, setSelectedYears] = useState<Set<string>>(new Set())
   const [filterEasyOnly, setFilterEasyOnly] = useState<boolean>(false)
   const [filterGuessedOnly, setFilterGuessedOnly] = useState<boolean>(false)
 
@@ -79,8 +80,8 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
   }, [bookmarks, history])
 
   const filter: WrongAnswerFilterState = useMemo(
-    () => ({ excludedFamilies, excludedYears, easyOnly: filterEasyOnly, guessedOnly: filterGuessedOnly }),
-    [excludedFamilies, excludedYears, filterEasyOnly, filterGuessedOnly],
+    () => ({ selectedFamilies, selectedYears, easyOnly: filterEasyOnly, guessedOnly: filterGuessedOnly }),
+    [selectedFamilies, selectedYears, filterEasyOnly, filterGuessedOnly],
   )
 
   const passesFilter = (item: { family: string; questionId: string }): boolean =>
@@ -112,8 +113,8 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         return next
       })
     }
-  const toggleFamilyChip = makeToggleChip(setExcludedFamilies)
-  const toggleYearChip = makeToggleChip(setExcludedYears)
+  const toggleFamilyChip = makeToggleChip(setSelectedFamilies)
+  const toggleYearChip = makeToggleChip(setSelectedYears)
 
   function handleRemove(questionId: string): void {
     void removeBookmark(questionId)
@@ -230,8 +231,9 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         </div>
       </section>
 
-      {/* Family filter — flat chip row, click toggles exclusion. Leads with a「全部」select-all
-          chip (mirrors the homepage YearFilterBar / dex FamilyFilterChips). */}
+      {/* Family filter — flat chip row, click toggles selection (inclusion model, mirrors 題庫 tab).
+          Leads with a「全部」select-all chip: default only「全部」is on; clicking a subject clears
+          「全部」and selects just that subject, further clicks multi-select. */}
       <section style={filterBarStyle} aria-label="科目篩選">
         <div style={filterHeaderStyle}>
           <span style={filterLabelStyle}><EmojiIcon char="📚" size={14} /> 依科目篩選</span>
@@ -239,24 +241,24 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         <div style={chipRowStyle}>
           <button
             type="button"
-            onClick={() => setExcludedFamilies(new Set())}
-            style={excludedFamilies.size === 0 ? chipIncludedStyle(ALL_CHIP_COLOR) : chipExcludedStyle(ALL_CHIP_COLOR)}
-            aria-pressed={excludedFamilies.size === 0}
+            onClick={() => setSelectedFamilies(new Set())}
+            style={selectedFamilies.size === 0 ? chipIncludedStyle(ALL_CHIP_COLOR) : chipExcludedStyle(ALL_CHIP_COLOR)}
+            aria-pressed={selectedFamilies.size === 0}
             title="顯示全部科目"
           >
             全部
           </button>
           {pack.subjects.map((s) => {
-            const excluded = excludedFamilies.has(s.id)
+            const selected = selectedFamilies.has(s.id)
             const color = s.color ?? '#8c6d4a'
             return (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => toggleFamilyChip(s.id)}
-                style={excluded ? chipExcludedStyle(color) : chipIncludedStyle(color)}
-                aria-pressed={!excluded}
-                title={excluded ? `加入 ${s.id}` : `排除 ${s.id}`}
+                style={selected ? chipIncludedStyle(color) : chipExcludedStyle(color)}
+                aria-pressed={selected}
+                title={selected ? `取消只看 ${s.id}` : `只看 ${s.id}`}
               >
                 {s.id}
               </button>
@@ -265,7 +267,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         </div>
       </section>
 
-      {/* Year filter — chips per 民國 exam year, click toggles exclusion. */}
+      {/* Year filter — chips per 民國 exam year, click toggles selection (inclusion model). */}
       {yearOptions.length > 0 && (
         <section style={filterBarStyle} aria-label="年份篩選">
           <div style={filterHeaderStyle}>
@@ -274,24 +276,24 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
           <div style={chipRowStyle}>
             <button
               type="button"
-              onClick={() => setExcludedYears(new Set())}
-              style={excludedYears.size === 0 ? chipIncludedStyle(ALL_CHIP_COLOR) : chipExcludedStyle(ALL_CHIP_COLOR)}
-              aria-pressed={excludedYears.size === 0}
+              onClick={() => setSelectedYears(new Set())}
+              style={selectedYears.size === 0 ? chipIncludedStyle(ALL_CHIP_COLOR) : chipExcludedStyle(ALL_CHIP_COLOR)}
+              aria-pressed={selectedYears.size === 0}
               title="顯示全部年份"
             >
               全部
             </button>
             {yearOptions.map((year) => {
-              const excluded = excludedYears.has(year)
+              const selected = selectedYears.has(year)
               const label = year === 'unknown' ? '其他' : `${year}年`
               return (
                 <button
                   key={year}
                   type="button"
                   onClick={() => toggleYearChip(year)}
-                  style={excluded ? chipExcludedStyle(YEAR_CHIP_COLOR) : chipIncludedStyle(YEAR_CHIP_COLOR)}
-                  aria-pressed={!excluded}
-                  title={excluded ? `加入 ${label}` : `排除 ${label}`}
+                  style={selected ? chipIncludedStyle(YEAR_CHIP_COLOR) : chipExcludedStyle(YEAR_CHIP_COLOR)}
+                  aria-pressed={selected}
+                  title={selected ? `取消只看 ${label}` : `只看 ${label}`}
                 >
                   {label}
                 </button>
