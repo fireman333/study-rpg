@@ -3,17 +3,17 @@ import 'fake-indexeddb/auto'
 import { db } from '../lib/db'
 import type { NeuronInstanceRow } from '../lib/db'
 import {
-  eligibleForTier,
+  eligibleSurplusByTier,
   getPromoteState,
   promoteTier,
 } from '../lib/services/variant-fusion'
 import { NEURON_VARIANT_CATALOG, PROMOTE_COST_K } from '@study-rpg/content-neurons-tw'
 
 /**
- * Lock the tier-promote core (add-neurons-dupe-fusion +
- * relax-neurons-fusion-last-copy-protection): the fusable pool is ALL held
- * individuals of a tier (no per-slot last-copy gate), the dupes-first consume
- * order, the P0 guard, the K threshold, and the consume-K → mint-T−1 flow.
+ * Lock the tier-promote core (add-neurons-dupe-fusion + rework-neurons-fusion-
+ * dupes-only): fusion eats ONLY duplicates (last-copy protection keeps the oldest
+ * held individual of each slot), K-threshold gating, the P0 guard, and the
+ * consume-K → mint-T−1 flow.
  */
 
 // Pick a real family that has ≥ 2 P4 slots and ≥ 1 P3 slot (pyramid guarantees it).
@@ -51,29 +51,27 @@ afterEach(async () => {
   await db.neuronVariants.clear()
 })
 
-describe('tier-promote eligibility (no per-slot last-copy protection)', () => {
-  it('makes every held individual of a tier eligible (incl. a slot sole copy)', async () => {
+describe('tier-promote eligibility (duplicates only, last-copy protected)', () => {
+  it('protects the sole/oldest individual of a slot (last-copy)', async () => {
     await db.neuronInstances.bulkPut([
-      seed(FAMILY.p4[0], 'P4'), // slot A: 1
-      seed(FAMILY.p4[1], 'P4'), // slot B: 3
+      seed(FAMILY.p4[0], 'P4'), // slot A: 1 only → protected, 0 surplus
+      seed(FAMILY.p4[1], 'P4'), // slot B: 3 → 1 protected, 2 surplus
       seed(FAMILY.p4[1], 'P4'),
       seed(FAMILY.p4[1], 'P4'),
     ])
-    const eligible = await eligibleForTier(FAMILY.fam, 'P4')
-    expect(eligible).toHaveLength(4) // all 4 held (was 2 under the old per-slot gate)
+    const surplus = await eligibleSurplusByTier(FAMILY.fam, 'P4')
+    expect(surplus).toHaveLength(2)
+    expect(surplus.every((s) => s.slotIndex === FAMILY.p4[1])).toBe(true)
   })
 
-  it('orders dupes before a slot sole copy (breadth-preserving consume order)', async () => {
-    // slot A: 1 (sole), slot B: 3 → first 2 consumed SHALL be slot B dupes.
-    const a0 = seed(FAMILY.p4[0], 'P4')
-    const b0 = seed(FAMILY.p4[1], 'P4')
-    const b1 = seed(FAMILY.p4[1], 'P4')
-    const b2 = seed(FAMILY.p4[1], 'P4')
-    await db.neuronInstances.bulkPut([a0, b0, b1, b2])
-    const eligible = await eligibleForTier(FAMILY.fam, 'P4')
-    // The two dupes of slot B (b1, b2) come first; the sole/oldest copies last.
-    expect(eligible.slice(0, 2).every((r) => r.slotIndex === FAMILY.p4[1])).toBe(true)
-    expect(eligible.slice(0, 2).map((r) => r.instanceId).sort()).toEqual([b1.instanceId, b2.instanceId].sort())
+  it('a tier spread one-per-slot has ZERO surplus (only dupes fuse)', async () => {
+    // Two distinct P4 slots, one individual each → both protected → nothing fusable.
+    await db.neuronInstances.bulkPut([seed(FAMILY.p4[0], 'P4'), seed(FAMILY.p4[1], 'P4')])
+    const surplus = await eligibleSurplusByTier(FAMILY.fam, 'P4')
+    expect(surplus).toHaveLength(0)
+    const state = await getPromoteState(FAMILY.fam, 'P4')
+    expect(state.surplusCount).toBe(0)
+    expect(state.canPromote).toBe(false)
   })
 
   it('P0 is never promotable', async () => {
@@ -83,40 +81,26 @@ describe('tier-promote eligibility (no per-slot last-copy protection)', () => {
     expect(state.targetRarity).toBeNull()
   })
 
-  it('disabled below the K threshold; heldCount reports the whole pool', async () => {
-    await db.neuronInstances.bulkPut([seed(FAMILY.p4[0], 'P4'), seed(FAMILY.p4[0], 'P4')]) // 2 held
+  it('disabled below the K threshold; surplusCount reports duplicates only', async () => {
+    await db.neuronInstances.bulkPut([seed(FAMILY.p4[0], 'P4'), seed(FAMILY.p4[0], 'P4')]) // 1 surplus
     const state = await getPromoteState(FAMILY.fam, 'P4')
-    expect(state.heldCount).toBe(2)
-    expect(state.canPromote).toBe(PROMOTE_COST_K <= 2)
-    if (PROMOTE_COST_K > 2) expect(state.reason).toBe('insufficient')
-  })
-
-  it('fuses K held individuals spread across distinct slots (previously blocked)', async () => {
-    // The reported bug: K individuals spread 1-per-slot were all last-copy-protected
-    // → surplus 0 → could never fuse. Now the whole pool is fusable.
-    const seeds: NeuronInstanceRow[] = []
-    for (let i = 0; i < PROMOTE_COST_K; i++) seeds.push(seed(FAMILY.p4[i % FAMILY.p4.length], 'P4'))
-    await db.neuronInstances.bulkPut(seeds)
-    const state = await getPromoteState(FAMILY.fam, 'P4')
-    expect(state.heldCount).toBe(PROMOTE_COST_K)
-    expect(state.canPromote).toBe(true)
-    const res = await promoteTier(FAMILY.fam, 'P4', (f) => f)
-    expect(res.ok).toBe(true)
-    expect(res.targetRarity).toBe('P3')
-    const consumed = (await db.neuronInstances.where('familyId').equals(FAMILY.fam).toArray()).filter(
-      (r) => r.rarity === 'P4' && r.consumedAt !== null,
-    )
-    expect(consumed).toHaveLength(PROMOTE_COST_K)
+    expect(state.surplusCount).toBe(1)
+    expect(state.costK).toBe(PROMOTE_COST_K)
+    expect(state.canPromote).toBe(PROMOTE_COST_K <= 1)
+    if (PROMOTE_COST_K > 1) expect(state.reason).toBe('insufficient')
   })
 })
 
 describe('tier-promote execution', () => {
-  it('consumes K P4 individuals and mints a P3 individual', async () => {
+  it('consumes K surplus P4 individuals and mints a P3 individual', async () => {
+    // slot A: K+1 instances (K surplus) → ≥ K surplus without touching slot A's last copy
     const rows: NeuronInstanceRow[] = []
-    for (let i = 0; i < PROMOTE_COST_K; i++) rows.push(seed(FAMILY.p4[0], 'P4'))
-    rows.push(seed(FAMILY.p4[1], 'P4'))
-    rows.push(seed(FAMILY.p4[1], 'P4'))
+    for (let i = 0; i < PROMOTE_COST_K + 1; i++) rows.push(seed(FAMILY.p4[0], 'P4'))
+    rows.push(seed(FAMILY.p4[1], 'P4')) // slot B sole copy (protected)
     await db.neuronInstances.bulkPut(rows)
+
+    const before = await eligibleSurplusByTier(FAMILY.fam, 'P4')
+    expect(before.length).toBeGreaterThanOrEqual(PROMOTE_COST_K)
 
     const res = await promoteTier(FAMILY.fam, 'P4', (f) => f)
     expect(res.ok).toBe(true)
@@ -127,6 +111,8 @@ describe('tier-promote execution', () => {
       (r) => r.consumedAt !== null,
     )
     expect(consumed).toHaveLength(PROMOTE_COST_K)
+    // All consumed came from the duplicate-rich slot A — slot B's sole copy is untouched
+    expect(consumed.every((r) => r.slotIndex === FAMILY.p4[0])).toBe(true)
 
     // One new held P3 individual minted + its slot-ownership row created
     const p3Held = (await db.neuronInstances.where('familyId').equals(FAMILY.fam).toArray()).filter(
@@ -141,9 +127,7 @@ describe('tier-promote execution', () => {
     await db.meta.put({ key: 'neuralEnergyEarned', value: '140' })
     await db.meta.put({ key: 'neuralEnergySpent', value: '60' })
     const rows: NeuronInstanceRow[] = []
-    for (let i = 0; i < PROMOTE_COST_K; i++) rows.push(seed(FAMILY.p4[0], 'P4'))
-    rows.push(seed(FAMILY.p4[1], 'P4'))
-    rows.push(seed(FAMILY.p4[1], 'P4'))
+    for (let i = 0; i < PROMOTE_COST_K + 1; i++) rows.push(seed(FAMILY.p4[0], 'P4'))
     await db.neuronInstances.bulkPut(rows)
     await promoteTier(FAMILY.fam, 'P4', (f) => f)
     expect((await db.meta.get('neuralEnergyEarned'))?.value).toBe('140')

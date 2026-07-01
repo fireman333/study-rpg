@@ -88,9 +88,11 @@ export const P1_PITY_RAMP = 0.06
 export const PULL_COST = 20
 
 /**
- * Tier-promote cost (add-neurons-dupe-fusion): number of held SURPLUS individuals
- * of the same rarity tier consumed to mint one individual of the next-rarer tier.
- * Single dogfood-tunable source of truth. `neuron-variant-fusion` spec.
+ * Tier-promote cost (add-neurons-dupe-fusion): number of held SURPLUS (duplicate)
+ * individuals of the same rarity tier consumed to mint one individual of the
+ * next-rarer tier. Fusion only ever eats DUPLICATES (the oldest held individual of
+ * each slot is protected). Single dogfood-tunable source of truth.
+ * `neuron-variant-fusion` spec.
  */
 export const PROMOTE_COST_K = 3
 

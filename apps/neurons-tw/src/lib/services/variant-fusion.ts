@@ -1,8 +1,10 @@
 /**
  * Tier-promote (add-neurons-dupe-fusion) — the dupe sink. Consume K held SURPLUS
- * individuals of one rarity tier within a family → mint one individual of the
- * next-rarer tier. No energy, no new currency, no rarity-weight change (loot
- * product principle). Reuses the mint reveal / provenance / achievement flow.
+ * (DUPLICATE) individuals of one rarity tier within a family → mint one individual
+ * of the next-rarer tier. Fusion only ever eats DUPLICATES: at least one held
+ * individual per owned slot is protected (last-copy protection). No energy, no new
+ * currency, no rarity-weight change (loot product principle). Reuses the mint
+ * reveal / provenance / achievement flow.
  *
  * Capability spec: openspec/specs/neuron-variant-fusion/spec.md
  */
@@ -44,44 +46,35 @@ function familyDefsByRarity(familyId: string, rarity: Rarity): NeuronVariantDef[
 }
 
 /**
- * Held individuals of `rarity` in `familyId` eligible to consume, IN CONSUME
- * ORDER. Fusion consumes any K held individuals of the tier — there is no hard
- * per-slot「keep one」 gate (relax-neurons-fusion-last-copy-protection: the whole
- * tier's held pool is the fusable pool, so the fusion count matches the sum of the
- * tier's card ×N badges). To still preserve collection breadth by DEFAULT, the
- * order drains DUPES first (every slot's copies beyond its oldest one) and only
- * dips into a slot's sole oldest copy when K exceeds the dupe pool. Oldest
- * individual first within each band (deterministic).
+ * Held individuals of `rarity` in `familyId` eligible to consume — the SURPLUS
+ * (duplicates) beyond the protected first-held-per-slot (last-copy protection).
+ * Fusion only eats duplicates: the oldest held individual of each slot is the
+ * protected copy (deterministic) and is never returned. Oldest-first order.
  */
-export async function eligibleForTier(
+export async function eligibleSurplusByTier(
   familyId: string,
   rarity: Rarity,
 ): Promise<NeuronInstanceRow[]> {
-  const held = (await db.neuronInstances.where('familyId').equals(familyId).toArray()).filter(
-    (r) => r.consumedAt === null && r.rarity === rarity,
-  )
-  const bySlot = new Map<number, NeuronInstanceRow[]>()
+  const held = (await db.neuronInstances.where('familyId').equals(familyId).toArray())
+    .filter((r) => r.consumedAt === null && r.rarity === rarity)
+    .sort((a, b) => a.rolledAt - b.rolledAt)
+  const seenSlot = new Set<number>()
+  const surplus: NeuronInstanceRow[] = []
   for (const inst of held) {
-    const arr = bySlot.get(inst.slotIndex) ?? bySlot.set(inst.slotIndex, []).get(inst.slotIndex)!
-    arr.push(inst)
+    if (!seenSlot.has(inst.slotIndex)) {
+      seenSlot.add(inst.slotIndex) // protect the oldest held per slot (last-copy)
+      continue
+    }
+    surplus.push(inst)
   }
-  const firstCopies: NeuronInstanceRow[] = []
-  const dupes: NeuronInstanceRow[] = []
-  for (const arr of bySlot.values()) {
-    arr.sort((a, b) => a.rolledAt - b.rolledAt)
-    firstCopies.push(arr[0]) // the slot's sole/oldest copy — consumed last
-    dupes.push(...arr.slice(1)) // extra copies — drained first (preserve breadth)
-  }
-  dupes.sort((a, b) => a.rolledAt - b.rolledAt)
-  firstCopies.sort((a, b) => a.rolledAt - b.rolledAt)
-  return [...dupes, ...firstCopies]
+  return surplus
 }
 
 export interface PromoteState {
   rarity: Rarity
   targetRarity: Rarity | null
-  /** Total held individuals of this tier — the fusable pool (matches card ×N sum). */
-  heldCount: number
+  /** Surplus (duplicate) individuals of this tier — the fusable pool. */
+  surplusCount: number
   costK: number
   canPromote: boolean
   reason?: 'p0' | 'insufficient'
@@ -90,14 +83,14 @@ export interface PromoteState {
 export async function getPromoteState(familyId: string, rarity: Rarity): Promise<PromoteState> {
   const targetRarity = nextRarerTier(rarity)
   if (targetRarity === null) {
-    return { rarity, targetRarity: null, heldCount: 0, costK: PROMOTE_COST_K, canPromote: false, reason: 'p0' }
+    return { rarity, targetRarity: null, surplusCount: 0, costK: PROMOTE_COST_K, canPromote: false, reason: 'p0' }
   }
-  const eligible = await eligibleForTier(familyId, rarity)
-  const canPromote = eligible.length >= PROMOTE_COST_K
+  const surplus = await eligibleSurplusByTier(familyId, rarity)
+  const canPromote = surplus.length >= PROMOTE_COST_K
   return {
     rarity,
     targetRarity,
-    heldCount: eligible.length,
+    surplusCount: surplus.length,
     costK: PROMOTE_COST_K,
     canPromote,
     reason: canPromote ? undefined : 'insufficient',
@@ -125,11 +118,11 @@ async function recordRarestRank(rank: number): Promise<void> {
 }
 
 /**
- * Promote one tier in a family. Consumes any K held individuals of `rarity` (in
- * dupes-first consume order — see `eligibleForTier`) and mints one individual of
- * the next-rarer tier (prefers an unowned target slot, else mints a dupe
- * individual of an owned slot). Never throws — returns a structured result.
- * SHALL NOT touch neural energy or rarity weights.
+ * Promote one tier in a family. Consumes K SURPLUS (duplicate) individuals of
+ * `rarity` — never a slot's protected last copy — and mints one individual of the
+ * next-rarer tier (prefers an unowned target slot, else mints a dupe individual of
+ * an owned slot). Never throws — returns a structured result. SHALL NOT touch
+ * neural energy or rarity weights.
  */
 export async function promoteTier(
   familyId: string,
@@ -147,11 +140,11 @@ export async function promoteTier(
       'rw',
       [db.neuronInstances, db.neuronVariants, db.meta],
       async () => {
-        const eligible = await eligibleForTier(familyId, rarity)
-        if (eligible.length < PROMOTE_COST_K) return null
+        const surplus = await eligibleSurplusByTier(familyId, rarity)
+        if (surplus.length < PROMOTE_COST_K) return null
 
         const now = Date.now()
-        for (const inst of eligible.slice(0, PROMOTE_COST_K)) {
+        for (const inst of surplus.slice(0, PROMOTE_COST_K)) {
           await db.neuronInstances.update(inst.instanceId, { consumedAt: now })
         }
 
@@ -246,7 +239,7 @@ export async function promoteTier(
 /* DEV-only debug handle for manual smoke tests. */
 if (import.meta.env.DEV) {
   ;(globalThis as unknown as { __variantFusion?: unknown }).__variantFusion = {
-    eligible: eligibleForTier,
+    surplus: eligibleSurplusByTier,
     state: getPromoteState,
     promote: (familyId: string, rarity: Rarity) =>
       promoteTier(familyId, rarity, (f) => f),

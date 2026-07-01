@@ -85,15 +85,24 @@ const NEXT_RARER: Record<VariantRarity, VariantRarity | null> = {
 }
 
 /**
- * Total held individuals per rarity tier — the fusable pool (mirror of the
- * service's `eligibleForTier`). Fusion consumes any K held individuals of a tier
- * (relax-neurons-fusion-last-copy-protection), so this equals the sum of that
- * tier's card ×N badges — the button count and the cards now agree. Pure — drives
- * the promote buttons.
+ * Surplus (duplicate) held individuals per rarity tier — the fusable pool (mirror
+ * of the service's `eligibleSurplusByTier`). Fusion only eats DUPLICATES: group
+ * held individuals by slot, surplus = Σ max(0, count_in_slot − 1) per rarity (the
+ * oldest held individual of each slot is the protected last copy). Pure — drives
+ * the promote buttons. rework-neurons-fusion-dupes-only-escalating-cost.
  */
-function heldCountByTier(instances: NeuronInstanceRow[]): Record<string, number> {
+function surplusByTier(instances: NeuronInstanceRow[]): Record<string, number> {
+  const bySlot = new Map<string, { rarity: VariantRarity; count: number }>()
+  for (const inst of instances) {
+    const k = `${inst.rarity}:${inst.slotIndex}`
+    const e = bySlot.get(k) ?? { rarity: inst.rarity, count: 0 }
+    e.count++
+    bySlot.set(k, e)
+  }
   const out: Record<string, number> = {}
-  for (const inst of instances) out[inst.rarity] = (out[inst.rarity] ?? 0) + 1
+  for (const { rarity, count } of bySlot.values()) {
+    out[rarity] = (out[rarity] ?? 0) + Math.max(0, count - 1)
+  }
   return out
 }
 
@@ -380,10 +389,10 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                 // Canonical per-family distinct-owned count (ghost slots excluded) —
                 // NOT familyRows.length, which counts raw neuronVariants rows.
                 const ownedInFamily = state.ownedSlotCountByFamily.get(subject.id) ?? 0
-                const heldByRarity = heldCountByTier(held)
-                // Show a tier's fusion button once the player holds a pair (≥ 2) — it
-                // communicates progress toward K and enables at ≥ K.
-                const promoteTiers = PROMOTABLE_TIERS.filter((t) => (heldByRarity[t] ?? 0) >= 2)
+                const surplus = surplusByTier(held)
+                // Fusion only eats duplicates, so a tier's button shows once the
+                // player has ≥ 1 surplus (duplicate) of it and enables at ≥ cost.
+                const promoteTiers = PROMOTABLE_TIERS.filter((t) => (surplus[t] ?? 0) > 0)
                 return (
                   <section key={subject.id} style={familySectionStyle} aria-label={familyLabel}>
                     <div style={familyHeaderRowStyle}>
@@ -401,33 +410,41 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                         )}
                       </h3>
                     </div>
-                    {/* Tier-promote (add-neurons-dupe-fusion; relax-neurons-fusion-
-                        last-copy-protection): consume any K held individuals of a tier
-                        → mint one rarer individual. Shows once you hold a pair; enables
-                        at ≥ K. The count matches the tier's card ×N sum. */}
+                    {/* Tier-promote (add-neurons-dupe-fusion; rework-neurons-fusion-
+                        dupes-only): consume K SURPLUS (duplicate) individuals of a tier
+                        → mint one rarer individual. Only DUPLICATES are eaten — the
+                        first copy of each variant is always kept — surfaced by the
+                        prominent hint below. Shows once you have ≥ 1 surplus; enables at
+                        ≥ K. The count is the duplicate surplus, NOT total held. */}
                     {promoteTiers.length > 0 && (
-                      <div style={promoteRowStyle}>
-                        <span style={promoteLabelStyle}><EmojiIcon char="🧬" size={14} /> 融合</span>
-                        {promoteTiers.map((t) => {
-                          const target = NEXT_RARER[t]
-                          if (!target) return null
-                          const have = heldByRarity[t] ?? 0
-                          const key = `${subject.id}:${t}`
-                          const busy = promoting === key
-                          const ready = have >= PROMOTE_COST_K && !promoting
-                          return (
-                            <button
-                              key={t}
-                              type="button"
-                              disabled={!ready}
-                              onClick={() => void handlePromote(subject.id, t)}
-                              style={ready ? promoteBtnStyle : promoteBtnDisabledStyle}
-                              title={`消耗 ${PROMOTE_COST_K} 隻 ${t} → 一隻 ${target}`}
-                            >
-                              {busy ? '融合中…' : `${t}→${target}（${have}/${PROMOTE_COST_K}）`}
-                            </button>
-                          )
-                        })}
+                      <div style={promoteBlockStyle}>
+                        <p style={promoteHintStyle}>
+                          <EmojiIcon char="🧬" size={14} /> 融合
+                          <span style={promoteHintEmphasisStyle}>只吃「重複」的神經元</span>
+                          — 每種各保留 1 隻，多出來的重複個體才能拿去融合。
+                        </p>
+                        <div style={promoteRowStyle}>
+                          {promoteTiers.map((t) => {
+                            const target = NEXT_RARER[t]
+                            if (!target) return null
+                            const have = surplus[t] ?? 0
+                            const key = `${subject.id}:${t}`
+                            const busy = promoting === key
+                            const ready = have >= PROMOTE_COST_K && !promoting
+                            return (
+                              <button
+                                key={t}
+                                type="button"
+                                disabled={!ready}
+                                onClick={() => void handlePromote(subject.id, t)}
+                                style={ready ? promoteBtnStyle : promoteBtnDisabledStyle}
+                                title={`消耗 ${PROMOTE_COST_K} 隻重複的 ${t} → 一隻 ${target}（每種各留 1 隻）`}
+                              >
+                                {busy ? '融合中…' : `${t}→${target}（重複 ${have}/${PROMOTE_COST_K}）`}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     )}
                     {familyRows.length > 0 && (
@@ -861,18 +878,42 @@ const individualCountStyle: React.CSSProperties = {
   color: '#a89074',
 }
 
+// Fusion block: a prominent「only duplicates fuse」callout above the tier buttons
+// (rework-neurons-fusion-dupes-only).
+const promoteBlockStyle: React.CSSProperties = {
+  margin: '0 0 0.7rem',
+  padding: '0.4rem 0.6rem',
+  background: '#eef3e4',
+  border: '1px solid #b7cd94',
+  borderLeft: '4px solid #6a8c3f',
+  borderRadius: '6px',
+}
+
+const promoteHintStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  gap: '0.3rem',
+  margin: '0 0 0.45rem',
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  color: '#4f6a2f',
+  lineHeight: 1.4,
+}
+
+const promoteHintEmphasisStyle: React.CSSProperties = {
+  fontWeight: 800,
+  color: '#3f5a1f',
+  background: '#dce8c6',
+  borderRadius: '4px',
+  padding: '0 0.3rem',
+}
+
 const promoteRowStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   flexWrap: 'wrap',
   gap: '0.4rem',
-  margin: '0 0 0.7rem',
-}
-
-const promoteLabelStyle: React.CSSProperties = {
-  fontSize: '0.74rem',
-  fontWeight: 700,
-  color: '#6a8c3f',
 }
 
 const promoteBtnStyle: React.CSSProperties = {
