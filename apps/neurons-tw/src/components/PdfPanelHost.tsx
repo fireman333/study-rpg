@@ -127,7 +127,16 @@ export function PdfPanelHost(): JSX.Element | null {
       </header>
       <div ref={bodyRef} style={bodyStyle}>
         <Suspense fallback={<div style={loadingStyle}>載入檢視器…</div>}>
-          <PdfDocumentView url={url} initialPage={page} width={renderWidth} />
+          {/* key={url}: switching to another question's PDF while the panel stays open changes
+              only props (this instance is never unmounted — PdfPanelHost only unmounts everything
+              on close). PdfDocumentView's virtualizer (numPages/win/heights/slots/error/scrollTop)
+              is mount-scoped and does not fully reset on a props-only url change — confirmed live
+              (prod DOM inspection): numPages/win correctly re-point at the new document's target
+              pages, but the scroll-landing effect never re-fires, so scrollTop stays at 0 while the
+              mounted pages sit thousands of px below the viewport (looks blank though the canvases
+              are correctly rendered). Forcing a remount here gives every url the same clean-slate
+              guarantee as close-then-reopen (Codex-confirmed root cause + fix, fix-neurons-pdf-panel-switch-blank). */}
+          <PdfDocumentView key={url} url={url} initialPage={page} width={renderWidth} />
         </Suspense>
       </div>
     </aside>,
