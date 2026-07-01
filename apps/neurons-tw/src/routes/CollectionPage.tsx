@@ -85,22 +85,15 @@ const NEXT_RARER: Record<VariantRarity, VariantRarity | null> = {
 }
 
 /**
- * Surplus held individuals per rarity tier (last-copy protection mirror of
- * `eligibleSurplusByTier`): group held individuals by slot, surplus =
- * Σ max(0, count_in_slot − 1) per rarity. Pure — drives the promote buttons.
+ * Total held individuals per rarity tier — the fusable pool (mirror of the
+ * service's `eligibleForTier`). Fusion consumes any K held individuals of a tier
+ * (relax-neurons-fusion-last-copy-protection), so this equals the sum of that
+ * tier's card ×N badges — the button count and the cards now agree. Pure — drives
+ * the promote buttons.
  */
-function surplusByTier(instances: NeuronInstanceRow[]): Record<string, number> {
-  const bySlot = new Map<string, { rarity: VariantRarity; count: number }>()
-  for (const inst of instances) {
-    const k = `${inst.rarity}:${inst.slotIndex}`
-    const e = bySlot.get(k) ?? { rarity: inst.rarity, count: 0 }
-    e.count++
-    bySlot.set(k, e)
-  }
+function heldCountByTier(instances: NeuronInstanceRow[]): Record<string, number> {
   const out: Record<string, number> = {}
-  for (const { rarity, count } of bySlot.values()) {
-    out[rarity] = (out[rarity] ?? 0) + Math.max(0, count - 1)
-  }
+  for (const inst of instances) out[inst.rarity] = (out[inst.rarity] ?? 0) + 1
   return out
 }
 
@@ -369,19 +362,28 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                 const repSlot = state.representatives[subject.id]
                 const repRow =
                   repSlot != null ? state.collected.get(slotKey(subject.id, repSlot)) : undefined
-                // Open collection: render ONLY collected rows for this family, sorted by
-                // slot index (P0 apex first). No silhouettes, no catalog slot grid, no
-                // denominator — the catalog total stays hidden from the player.
+                // Open collection: render ONLY currently-HELD slots for this family,
+                // sorted by slot index (P0 apex first). A ghost slot (every individual
+                // fused away → 0 held) is excluded so the cards match the distinct-owned
+                // count chip; fusion can now empty a slot single-device (relax-neurons-
+                // fusion-last-copy-protection), so this filter is load-bearing, not just
+                // for the rare cross-device race. The `neuronVariants` row persists in the
+                // DB as catalog history; it simply stops rendering once nothing is held.
                 const familyRows = [...state.collected.values()]
                   .filter((r) => r.familyId === subject.id)
+                  .filter(
+                    (r) => (state.instancesBySlot.get(slotKey(subject.id, r.slotIndex))?.length ?? 0) > 0,
+                  )
                   .sort((a, b) => a.slotIndex - b.slotIndex)
                 const held = state.heldByFamily.get(subject.id) ?? []
                 const totalIndividuals = held.length
                 // Canonical per-family distinct-owned count (ghost slots excluded) —
                 // NOT familyRows.length, which counts raw neuronVariants rows.
                 const ownedInFamily = state.ownedSlotCountByFamily.get(subject.id) ?? 0
-                const surplus = surplusByTier(held)
-                const promoteTiers = PROMOTABLE_TIERS.filter((t) => (surplus[t] ?? 0) > 0)
+                const heldByRarity = heldCountByTier(held)
+                // Show a tier's fusion button once the player holds a pair (≥ 2) — it
+                // communicates progress toward K and enables at ≥ K.
+                const promoteTiers = PROMOTABLE_TIERS.filter((t) => (heldByRarity[t] ?? 0) >= 2)
                 return (
                   <section key={subject.id} style={familySectionStyle} aria-label={familyLabel}>
                     <div style={familyHeaderRowStyle}>
@@ -399,16 +401,17 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                         )}
                       </h3>
                     </div>
-                    {/* Tier-promote (add-neurons-dupe-fusion): consume K surplus dupes
-                        of a tier → mint one rarer individual. Only tiers with surplus
-                        show; disabled below K. */}
+                    {/* Tier-promote (add-neurons-dupe-fusion; relax-neurons-fusion-
+                        last-copy-protection): consume any K held individuals of a tier
+                        → mint one rarer individual. Shows once you hold a pair; enables
+                        at ≥ K. The count matches the tier's card ×N sum. */}
                     {promoteTiers.length > 0 && (
                       <div style={promoteRowStyle}>
                         <span style={promoteLabelStyle}><EmojiIcon char="🧬" size={14} /> 融合</span>
                         {promoteTiers.map((t) => {
                           const target = NEXT_RARER[t]
                           if (!target) return null
-                          const have = surplus[t] ?? 0
+                          const have = heldByRarity[t] ?? 0
                           const key = `${subject.id}:${t}`
                           const busy = promoting === key
                           const ready = have >= PROMOTE_COST_K && !promoting
@@ -419,7 +422,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                               disabled={!ready}
                               onClick={() => void handlePromote(subject.id, t)}
                               style={ready ? promoteBtnStyle : promoteBtnDisabledStyle}
-                              title={`消耗 ${PROMOTE_COST_K} 隻重複 ${t} → 一隻 ${target}（保留每槽第一隻）`}
+                              title={`消耗 ${PROMOTE_COST_K} 隻 ${t} → 一隻 ${target}`}
                             >
                               {busy ? '融合中…' : `${t}→${target}（${have}/${PROMOTE_COST_K}）`}
                             </button>
