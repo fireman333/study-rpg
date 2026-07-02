@@ -49,6 +49,8 @@ const MIN_ZOOM = 0.5
 const MAX_ZOOM = 2.5 // dense exam pages stay readable up to ~2.5×
 const ZOOM_STEP = 0.25
 
+const clampNum = (v: number, lo: number, hi: number): number => Math.min(Math.max(v, lo), hi)
+
 export function PdfDocumentView({
   url,
   initialPage,
@@ -77,11 +79,19 @@ export function PdfDocumentView({
   const openingRef = useRef(false) // freeze scroll-driven growth + RO compensation during the landing
   const lastTopRef = useRef(0) // previous scrollTop — to detect upward-scroll intent
   const prevWidthRef = useRef(0)
+  const pinchingRef = useRef(false) // freeze scroll-driven growth + RO compensation during a pinch
+  const landedRef = useRef(false) // false until the first open-settle lands (initial target = initialPage)
+  // The top-visible page, tracked in onScroll while scrollTop + pageWidth are CONSISTENT. A
+  // zoom / drag-resize re-pins to this page number (space-independent), so the width-repin effect
+  // never has to derive a page from a stale scrollTop against the new page offsets.
+  const topPageRef = useRef(1)
 
   // In-app zoom (add-neurons-pdf-mobile-zoom): dense A4 exam pages are tiny at fit-width on a phone,
   // and native pinch-zoom-out is hijacked by Safari's Tab Overview — so zoom is APP STATE, applied
   // by re-rasterizing react-pdf at a larger width (crisp, unlike a CSS transform). 1 = fit-to-width.
   const [zoom, setZoom] = useState(1)
+  const zoomRef = useRef(zoom) // latest zoom for the (mount-stable) pinch handlers
+  zoomRef.current = zoom
   const fitWidth = Math.max(280, width - 32)
   const pageWidth = Math.round(fitWidth * zoom)
   const estHeight = Math.round(pageWidth * 1.414) // A4-ish placeholder before a page is measured
@@ -104,6 +114,19 @@ export function PdfDocumentView({
     [estHeight],
   )
 
+  // The page occupying the viewport top (highest page whose slot top ≤ scrollTop). Re-pins zoom /
+  // drag-resize at the player's current place. Reads the same measured-or-estimated heights as
+  // prefixOffset, so it stays self-consistent even with stale above-anchor measurements.
+  const topVisiblePage = useCallback((): number => {
+    const c = scrollRef.current
+    if (!c || !numPages) return clampPage(initialPage, numPages)
+    const st = c.scrollTop + 1
+    for (let p = numPages; p >= 1; p--) {
+      if (prefixOffset(p) <= st) return clampPage(p, numPages)
+    }
+    return 1
+  }, [numPages, initialPage, clampPage, prefixOffset])
+
   const onLoad = useCallback(({ numPages: n }: { numPages: number }) => {
     setError(null)
     setNumPages(n)
@@ -115,6 +138,7 @@ export function PdfDocumentView({
   useEffect(() => {
     if (!numPages) return
     const t = clampPage(initialPage, numPages)
+    landedRef.current = false // a fresh open / question → land on initialPage, not the prior view
     pendingAnchor.current = t
     setWin({ start: t, end: Math.min(numPages, t + WINDOW_BELOW) })
   }, [url, initialPage, numPages, clampPage])
@@ -125,7 +149,12 @@ export function PdfDocumentView({
     if (prevWidthRef.current === pageWidth) return
     prevWidthRef.current = pageWidth
     if (!numPages) return
-    const t = clampPage(initialPage, numPages)
+    // Re-pin at the last consistently-tracked top-visible page so zoom / drag-resize keeps the
+    // player's place — except before the first open-settle has landed, when the intended target is
+    // still initialPage (landedRef guards that pre-land window regardless of measure / load
+    // ordering). Using the tracked page NUMBER (not a live derivation) avoids reading the old
+    // scrollTop against the new page offsets.
+    const t = landedRef.current ? clampPage(topPageRef.current, numPages) : clampPage(initialPage, numPages)
     pendingAnchor.current = t
     setWin({ start: t, end: Math.min(numPages, t + WINDOW_BELOW) })
   }, [pageWidth, numPages, initialPage, clampPage])
@@ -167,6 +196,8 @@ export function PdfDocumentView({
       frames += 1
       if (holds >= SETTLE_HOLDS || frames >= SETTLE_MAX_FRAMES) {
         openingRef.current = false
+        landedRef.current = true // subsequent zoom / resize re-pins the current view, not initialPage
+        topPageRef.current = target // seed the tracker so a zoom before any scroll re-pins here
         return
       }
       rafId = requestAnimationFrame(settle)
@@ -196,7 +227,8 @@ export function PdfDocumentView({
         if (Math.abs(newH - oldH) < 0.5) continue // idempotent: ignore no-op resizes
         heights.current.set(p, newH)
         // Frozen during the open-settle so it cannot fight the landing loop.
-        if (!openingRef.current && rect.bottom <= contTop + 0.5) dScroll += newH - oldH
+        if (!openingRef.current && !pinchingRef.current && rect.bottom <= contTop + 0.5)
+          dScroll += newH - oldH
       }
       if (dScroll !== 0) cont.scrollTop += dScroll
       if (entries.length) bumpHeights((v) => v + 1) // re-render placeholders at their new heights
@@ -208,6 +240,73 @@ export function PdfDocumentView({
       roRef.current = null
     }
   }, [estHeight])
+
+  // Pinch-to-zoom (phone / tablet, add-neurons-pdf-pinch-zoom). Two-finger distance drives a LIVE
+  // CSS transform preview on the <Document> wrapper (compositor-only, zero React state), committed
+  // ONCE to app-state `zoom` on release — so the re-raster + the hard-won scroll-landing loop run
+  // exactly once, not per frame. pinchingRef freezes onScroll growth + RO compensation; the
+  // transform origin is the pinch centroid (in content space) so that point stays under the fingers.
+  // Suppressing WebKit `gesturestart`/`gesturechange` is what actually stops Safari's Tab-Overview
+  // pinch hijack (touch-action alone does not). Handlers read refs only, so mount-stable [] deps.
+  useEffect(() => {
+    const cont = scrollRef.current
+    if (!cont) return
+    const twoFingerDist = (t: TouchList): number =>
+      Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+    let g: { startDist: number; startZoom: number; docEl: HTMLElement; live: number } | null = null
+
+    const onStart = (e: TouchEvent): void => {
+      if (e.touches.length !== 2 || openingRef.current) return
+      const docEl = cont.firstElementChild as HTMLElement | null
+      if (!docEl) return
+      e.preventDefault()
+      pinchingRef.current = true
+      const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2
+      const originY = cont.scrollTop + (cy - cont.getBoundingClientRect().top)
+      docEl.style.transformOrigin = `50% ${originY}px`
+      docEl.style.willChange = 'transform'
+      g = { startDist: twoFingerDist(e.touches), startZoom: zoomRef.current, docEl, live: 1 }
+    }
+    const onMove = (e: TouchEvent): void => {
+      if (!g || e.touches.length !== 2) return
+      e.preventDefault()
+      const target = clampNum((g.startZoom * twoFingerDist(e.touches)) / g.startDist, MIN_ZOOM, MAX_ZOOM)
+      g.live = target / g.startZoom
+      g.docEl.style.transform = `scale(${g.live})`
+    }
+    const commit = (): void => {
+      if (!g) return
+      // Continuous zoom rounded to 0.05 (snapping to the 0.25 button ladder jumps away from the
+      // fingers). The re-raster rides the existing width-repin → settle path (now anchored to the
+      // top-visible page), so no second landing mechanism is invented.
+      const finalZoom = Math.round(clampNum(g.startZoom * g.live, MIN_ZOOM, MAX_ZOOM) * 20) / 20
+      g.docEl.style.transform = ''
+      g.docEl.style.transformOrigin = ''
+      g.docEl.style.willChange = ''
+      g = null
+      pinchingRef.current = false
+      setZoom(finalZoom)
+    }
+    const onEnd = (e: TouchEvent): void => {
+      if (g && e.touches.length < 2) commit()
+    }
+    const preventGesture = (e: Event): void => e.preventDefault()
+
+    cont.addEventListener('touchstart', onStart, { passive: false })
+    cont.addEventListener('touchmove', onMove, { passive: false })
+    cont.addEventListener('touchend', onEnd)
+    cont.addEventListener('touchcancel', onEnd)
+    cont.addEventListener('gesturestart', preventGesture as EventListener, { passive: false })
+    cont.addEventListener('gesturechange', preventGesture as EventListener, { passive: false })
+    return () => {
+      cont.removeEventListener('touchstart', onStart)
+      cont.removeEventListener('touchmove', onMove)
+      cont.removeEventListener('touchend', onEnd)
+      cont.removeEventListener('touchcancel', onEnd)
+      cont.removeEventListener('gesturestart', preventGesture as EventListener)
+      cont.removeEventListener('gesturechange', preventGesture as EventListener)
+    }
+  }, [])
 
   const setSlot = useCallback((p: number, el: HTMLDivElement | null) => {
     const prev = slots.current.get(p)
@@ -224,13 +323,14 @@ export function PdfDocumentView({
   // (natural reading direction), upward ONLY while actively scrolling up toward the window start —
   // so opening never pulls in above-target pages.
   const onScroll = useCallback(() => {
-    if (openingRef.current) return
+    if (openingRef.current || pinchingRef.current) return
     const cont = scrollRef.current
     if (!cont || !numPages) return
     const st = cont.scrollTop
     const vh = cont.clientHeight
     const goingUp = st < lastTopRef.current - 0.5
     lastTopRef.current = st
+    topPageRef.current = topVisiblePage() // consistent space → safe anchor for a later zoom / resize
     const { start, end } = winRef.current
     let nextStart = start
     let nextEnd = end
@@ -246,7 +346,7 @@ export function PdfDocumentView({
     if (nextEnd > end) nextStart = Math.max(nextStart, nextEnd - MAX_WINDOW + 1)
     if (nextStart < start) nextEnd = Math.min(nextEnd, nextStart + MAX_WINDOW - 1)
     if (nextStart !== start || nextEnd !== end) setWin({ start: nextStart, end: nextEnd })
-  }, [numPages, prefixOffset])
+  }, [numPages, prefixOffset, topVisiblePage])
 
   if (error) {
     return (
@@ -380,6 +480,9 @@ const scrollStyle: CSSProperties = {
   // one-finger scroll on iOS Safari).
   overscrollBehavior: 'contain',
   WebkitOverflowScrolling: 'touch',
+  // Allow 1-finger pan on both axes (a zoomed page can exceed viewport width); pinch-zoom is ours
+  // (touch-event tracking + a CSS-transform preview) so it is intentionally NOT in this list.
+  touchAction: 'pan-x pan-y',
   background: '#e9dcc0',
   padding: '1rem 0',
 }

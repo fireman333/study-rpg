@@ -33,7 +33,11 @@ import {
 } from '../lib/services/representatives'
 import { promoteTier } from '../lib/services/variant-fusion'
 import { computeOwnedSlotCount, computeOwnedSlotCountByFamily } from '../lib/services/variant-ownership'
-import { FamilyFilterChips, type FamilyChipOption } from '../components/FamilyFilterChips'
+import {
+  FamilyFilterChips,
+  type FamilyChipOption,
+  type TierChipOption,
+} from '../components/FamilyFilterChips'
 import { variantBirthCaption } from '../lib/variant-caption'
 import VariantSprite from '../components/VariantSprite'
 import {
@@ -72,6 +76,11 @@ const RARITY_COLOR: Record<VariantRarity, string> = {
   P4: '#6a9bc4',
   P5: '#9b9b9b',
 }
+
+/** Rarity filter chips for the dex (P0 apex → P5), tier-colored (inclusion model). */
+const TIER_CHIP_OPTIONS: TierChipOption[] = (
+  ['P0', 'P1', 'P2', 'P3', 'P4', 'P5'] as VariantRarity[]
+).map((r) => ({ id: r, label: RARITY_LABEL[r], color: RARITY_COLOR[r] }))
 
 /** Tiers that can be promoted (each → one rarer); P0 has no rarer target. */
 const PROMOTABLE_TIERS: VariantRarity[] = ['P5', 'P4', 'P3', 'P2', 'P1']
@@ -283,7 +292,7 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
   // Filter chips: compact subject-only label (科目中文) in exam-paper order. The
   // full 科目（cell-type） label is shown on each family section header below.
   const families: FamilyChipOption[] = useMemo(
-    () => orderedSubjects.map((s) => ({ id: s.id, label: s.id })),
+    () => orderedSubjects.map((s) => ({ id: s.id, label: s.id, color: s.color })),
     [orderedSubjects],
   )
 
@@ -298,23 +307,49 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
     return map
   }, [])
 
-  const [visible, setVisible] = useState<Set<string>>(() => new Set())
-  useEffect(() => {
-    setVisible(new Set(families.map((f) => f.id)))
-  }, [families])
+  // Inclusion model (mirrors 收藏 / 題庫): empty set = 全部 shown, otherwise only the
+  // selected 科目 / 稀有度. Both narrow additively — they never hide everything by default.
+  const [selectedFamilies, setSelectedFamilies] = useState<Set<string>>(() => new Set())
+  const [selectedTiers, setSelectedTiers] = useState<Set<string>>(() => new Set())
+  const toggleChip =
+    (setState: React.Dispatch<React.SetStateAction<Set<string>>>) =>
+    (value: string): void => {
+      setState((prev) => {
+        const next = new Set(prev)
+        if (next.has(value)) next.delete(value)
+        else next.add(value)
+        return next
+      })
+    }
+  const toggleFamily = toggleChip(setSelectedFamilies)
+  const toggleTier = toggleChip(setSelectedTiers)
 
-  const toggleFamily = (familyId: string): void => {
-    setVisible((prev) => {
-      const next = new Set(prev)
-      if (next.has(familyId)) next.delete(familyId)
-      else next.add(familyId)
-      return next
-    })
-  }
-  const selectAll = (): void => setVisible(new Set(families.map((f) => f.id)))
+  // Per-family filtered view: which families render + their tier-filtered collected
+  // rows. A family passes the 科目 filter when nothing is selected or it is selected.
+  // Its cards are then narrowed by the 稀有度 filter. With a tier filter active we hide
+  // families that have zero matching cards (no empty headers); with no tier filter we
+  // keep the existing「empty family renders its header」behaviour (per the dex spec).
+  const familyView = useMemo(() => {
+    const anyTier = selectedTiers.size === 0
+    const m = new Map<string, { rows: NeuronVariantRow[]; render: boolean }>()
+    for (const subject of orderedSubjects) {
+      const passFamily = selectedFamilies.size === 0 || selectedFamilies.has(subject.id)
+      if (!passFamily) {
+        m.set(subject.id, { rows: [], render: false })
+        continue
+      }
+      const rows = [...state.collected.values()]
+        .filter((r) => r.familyId === subject.id)
+        .filter((r) => (state.instancesBySlot.get(slotKey(subject.id, r.slotIndex))?.length ?? 0) > 0)
+        .filter((r) => anyTier || selectedTiers.has(r.rarity))
+        .sort((a, b) => a.slotIndex - b.slotIndex)
+      m.set(subject.id, { rows, render: anyTier ? true : rows.length > 0 })
+    }
+    return m
+  }, [orderedSubjects, state.collected, state.instancesBySlot, selectedFamilies, selectedTiers])
 
   const collectedCount = state.ownedSlotCount
-  const shownFamilies = families.filter((f) => visible.has(f.id))
+  const nothingRenders = ![...familyView.values()].some((v) => v.render)
 
   return (
     <section style={pageStyle}>
@@ -347,17 +382,21 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
 
       <FamilyFilterChips
         families={families}
-        visible={visible}
-        onToggle={toggleFamily}
-        onSelectAll={selectAll}
+        selectedFamilies={selectedFamilies}
+        onToggleFamily={toggleFamily}
+        onClearFamilies={() => setSelectedFamilies(new Set())}
+        tiers={TIER_CHIP_OPTIONS}
+        selectedTiers={selectedTiers}
+        onToggleTier={toggleTier}
+        onClearTiers={() => setSelectedTiers(new Set())}
       />
 
-      {shownFamilies.length === 0 ? (
-        <p style={emptyHintStyle}>（已隱藏所有科別，點「全部」恢復顯示）</p>
+      {nothingRenders ? (
+        <p style={emptyHintStyle}>（目前篩選下沒有符合的神經元，調整上方的科目 / 稀有度篩選把牠們找回來）</p>
       ) : (
         paperGroups.map((group) => {
-          // A paper divider only renders when ≥1 of its families is chip-visible.
-          const groupSubjects = group.subjects.filter((s) => visible.has(s.id))
+          // A paper divider only renders when ≥1 of its families passes the current filters.
+          const groupSubjects = group.subjects.filter((s) => familyView.get(s.id)?.render)
           if (groupSubjects.length === 0) return null
           return (
             <div key={group.id}>
@@ -372,18 +411,14 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                 const repRow =
                   repSlot != null ? state.collected.get(slotKey(subject.id, repSlot)) : undefined
                 // Open collection: render ONLY currently-HELD slots for this family,
-                // sorted by slot index (P0 apex first). A ghost slot (every individual
-                // fused away → 0 held) is excluded so the cards match the distinct-owned
+                // narrowed by the 稀有度 filter and sorted by slot index (P0 apex first) —
+                // precomputed in `familyView`. A ghost slot (every individual fused away →
+                // 0 held) is already excluded there so the cards match the distinct-owned
                 // count chip; fusion can now empty a slot single-device (relax-neurons-
-                // fusion-last-copy-protection), so this filter is load-bearing, not just
+                // fusion-last-copy-protection), so that filter is load-bearing, not just
                 // for the rare cross-device race. The `neuronVariants` row persists in the
                 // DB as catalog history; it simply stops rendering once nothing is held.
-                const familyRows = [...state.collected.values()]
-                  .filter((r) => r.familyId === subject.id)
-                  .filter(
-                    (r) => (state.instancesBySlot.get(slotKey(subject.id, r.slotIndex))?.length ?? 0) > 0,
-                  )
-                  .sort((a, b) => a.slotIndex - b.slotIndex)
+                const familyRows = familyView.get(subject.id)?.rows ?? []
                 const held = state.heldByFamily.get(subject.id) ?? []
                 const totalIndividuals = held.length
                 // Canonical per-family distinct-owned count (ghost slots excluded) —
@@ -391,8 +426,11 @@ export default function CollectionPage({ pack }: { pack: ContentPack }): JSX.Ele
                 const ownedInFamily = state.ownedSlotCountByFamily.get(subject.id) ?? 0
                 const surplus = surplusByTier(held)
                 // Fusion only eats duplicates, so a tier's button shows once the
-                // player has ≥ 1 surplus (duplicate) of it and enables at ≥ cost.
-                const promoteTiers = PROMOTABLE_TIERS.filter((t) => (surplus[t] ?? 0) > 0)
+                // player has ≥ 1 surplus (duplicate) of it and enables at ≥ cost. When a
+                // 稀有度 filter is active, only surface the fusion buttons for shown tiers.
+                const promoteTiers = PROMOTABLE_TIERS.filter(
+                  (t) => (surplus[t] ?? 0) > 0 && (selectedTiers.size === 0 || selectedTiers.has(t)),
+                )
                 return (
                   <section key={subject.id} style={familySectionStyle} aria-label={familyLabel}>
                     <div style={familyHeaderRowStyle}>
