@@ -266,7 +266,7 @@ The rendered PDF SHALL support **in-app zoom** as application state (re-rasteriz
 
 The viewer SHALL NOT implement its own two-finger pinch gesture and SHALL NOT suppress the browser's native pinch behaviors over the panel (no pinch-blocking `touch-action` on the PDF scroll surface, no `gesturestart`/`gesturechange` interception): a two-finger pinch over the PDF — as anywhere else in the app — performs the **browser's native viewport zoom**. The app SHALL NOT declare a viewport meta that disables user scaling. One-finger scrolling of the PDF stays native and unaffected. A residual native browser pinch-zoom is the player's own zoom (pinch out / double-tap to reset, as on any website); the app does not fight it. (Native viewport zoom scales the already-rasterized pixels; the ± buttons remain the crisp re-raster path.)
 
-The render width SHALL be **purely layout-viewport-derived** and SHALL NOT read the visual viewport at all — neither via listeners (`visualViewport.resize` / any continuous signal) nor as a one-shot fit input: a native pinch, which by definition shrinks the visual viewport, SHALL NOT re-rasterize, reflow, or re-anchor the document during or after the gesture (the zoom is purely the browser compositor scaling the existing raster). Rotation, split-view, and the panel drag-resize remain the only render-width-change triggers, all layout-viewport-derived.
+The render width SHALL be measured from the panel's **layout width** (the docked panel width on desktop; the full-screen overlay width on narrow), **re-measured whenever the panel opens** — not only when the breakpoint changes — so a fresh mobile open never falls back to a stale docked default width, and **clamped to the physical screen width** (`screen.width`, orientation-aware) so the rendered page can never exceed the visible screen even if the layout viewport is inflated. It SHALL NOT read the visual viewport at all — neither via listeners (`visualViewport.resize` / any continuous signal) nor as a one-shot fit input (the `screen.width` clamp is a physical-screen bound, stable under native pinch, and is NOT the visual viewport): a native pinch, which by definition shrinks the visual viewport, SHALL NOT re-rasterize, reflow, or re-anchor the document during or after the gesture (the zoom is purely the browser compositor scaling the existing raster). Panel open, rotation, split-view, and the panel drag-resize are the render-width-change triggers, all layout-derived and screen-clamped.
 
 After the initial open has landed, ANY page-width change — the ± buttons or a panel drag-resize — SHALL re-anchor the view to the page the player is **currently looking at** (the top-visible page, tracked while scroll position and page offsets are in a consistent coordinate space), NOT back to the originally-opened question's page. A fresh open or a jump to another question SHALL still land on that question's mapped page.
 
@@ -286,6 +286,13 @@ After the initial open has landed, ANY page-width change — the ± buttons or a
 - **WHEN** a player opens a PDF (or taps the ％ reset) at the normal native 1× zoom
 - **THEN** the page renders at the panel's layout fit-width (100% = the page fills the panel width) with no manual adjustment, on every open
 - **AND** the app performs no visual-viewport read to alter that fit
+
+#### Scenario: Fresh mobile open fits the screen width
+
+- **GIVEN** a fresh mobile session (no persisted panel width) opening the full-screen PDF panel
+- **WHEN** the panel opens
+- **THEN** the render width is measured from the opened panel body and clamped to the physical screen width, so the page fits within the visible screen (no right-edge clipping)
+- **AND** it SHALL NOT render at the docked default width
 
 #### Scenario: Button zoom re-rasterizes crisply
 
