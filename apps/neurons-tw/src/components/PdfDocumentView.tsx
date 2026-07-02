@@ -33,10 +33,23 @@ import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
 
-const WINDOW_BELOW = 6 // pages below the target mounted on open
+// Coarse-pointer (touch) devices get tighter memory bounds: iPhone Safari jetsams the whole tab
+// when canvas memory runs away (a DPR-3 fit-width page canvas is ~6.5 MB; the maze bake + the
+// pdf.js worker already occupy a large share), and the owner reproduced crash-reloads after a few
+// open+read cycles (fix-neurons-pdf-iphone-fit-and-memory). jsdom has no matchMedia → guarded.
+const IS_COARSE =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(pointer: coarse)').matches
+const WINDOW_BELOW = IS_COARSE ? 4 : 6 // pages below the target mounted on open
 const EXPAND_STEP = 4 // pages added each time the window grows
 const EXPAND_MARGIN = 900 // px of look-ahead before a window edge before growing it
-const MAX_WINDOW = 16 // cap on simultaneously-mounted pages (bounds memory on long scrolls)
+const MAX_WINDOW = IS_COARSE ? 8 : 16 // cap on simultaneously-mounted pages (bounds memory on long scrolls)
+// Touch-device cap on a page canvas's bitmap WIDTH in device px: bounds per-page canvas memory at
+// high button-zoom (fit-width is untouched — e.g. 358 CSS px × DPR 3 ≈ 1074 ≪ cap; the cap only
+// engages once pageWidth × DPR exceeds it, i.e. roughly zoom ≥ 1.9 on a DPR-3 phone).
+const COARSE_CANVAS_CAP = 2048
+const DPR = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1
 const PAGE_GAP = 8 // vertical flow gap between page slots (the slot's bottom margin, in px)
 const SETTLE_HOLDS = 3 // consecutive frames the landing must survive before releasing scroll control
 const SETTLE_MAX_FRAMES = 30 // give up re-asserting after ~0.5s (avoid pinning scroll forever)
@@ -87,13 +100,26 @@ export function PdfDocumentView({
   // so the ± buttons drive APP-STATE zoom, applied by re-rasterizing react-pdf at a larger width
   // (crisp, unlike a CSS transform). 1 = fit-to-width. Two-finger pinch is deliberately NOT handled
   // here — it stays the browser's native viewport zoom (rework-neurons-pdf-zoom-native-viewport).
-  const [zoom, setZoom] = useState(1)
   const fitWidth = Math.max(280, width - 32)
+  // Fit-to-VISIBLE zoom (fix-neurons-pdf-iphone-fit-and-memory): on the full-screen (narrow)
+  // panel「符合寬度」means the width the player can actually SEE. With native pinch zoom, a
+  // residual browser zoom (visualViewport.scale > 1) shrinks the visible width below the layout
+  // width, so a layout-width page at 100% overflows the screen. ONE-SHOT visualViewport reads at
+  // panel open and at ％-press only — NEVER a visualViewport listener (that feedback loop was the
+  // flicker/crash bug, fix-neurons-pdf-pinch-width-churn). Desktop docked (panel ≠ viewport width)
+  // and the no-residual-zoom case keep plain 1.
+  const visualFitZoom = useCallback((): number => {
+    const vv = window.visualViewport
+    const fullScreen = width >= document.documentElement.clientWidth - 2
+    if (!vv || !fullScreen || !(vv.scale > 1.01) || !(vv.width > 0)) return 1
+    return Math.min(1, Math.max(MIN_ZOOM, Math.round(((vv.width - 32) / fitWidth) * 20) / 20))
+  }, [width, fitWidth])
+  const [zoom, setZoom] = useState<number>(visualFitZoom)
   const pageWidth = Math.round(fitWidth * zoom)
   const estHeight = Math.round(pageWidth * 1.414) // A4-ish placeholder before a page is measured
   const zoomOut = useCallback(() => setZoom((z) => Math.max(MIN_ZOOM, Math.round((z - ZOOM_STEP) * 100) / 100)), [])
   const zoomIn = useCallback(() => setZoom((z) => Math.min(MAX_ZOOM, Math.round((z + ZOOM_STEP) * 100) / 100)), [])
-  const zoomFit = useCallback(() => setZoom(1), [])
+  const zoomFit = useCallback(() => setZoom(visualFitZoom()), [visualFitZoom])
 
   const clampPage = useCallback((p: number, n: number) => Math.min(Math.max(1, p), n), [])
 
@@ -321,6 +347,12 @@ export function PdfDocumentView({
                 <Page
                   pageNumber={p}
                   width={pageWidth}
+                  // Touch devices: cap the canvas bitmap width at COARSE_CANVAS_CAP device px so
+                  // high button-zoom cannot balloon per-page canvas memory (iOS jetsam guard);
+                  // fit-width renders at the full native DPR (the cap doesn't engage there).
+                  devicePixelRatio={
+                    IS_COARSE ? Math.max(1, Math.min(DPR, COARSE_CANVAS_CAP / pageWidth)) : undefined
+                  }
                   renderTextLayer
                   renderAnnotationLayer={false}
                   // Suppress react-pdf's default "Loading page…" text — the sized placeholder div
