@@ -48,21 +48,20 @@ export function PdfPanelHost(): JSX.Element | null {
   // position:fixed overlay (zIndex 9000) that already covers the content, and the PDF scrolls in
   // its own overflow container — so a background lock is unnecessary. (Codex-confirmed iOS fix.)
 
-  // Width fed to the renderer. On the narrow full-screen overlay use the VISUAL viewport width:
-  // iOS Safari's layout viewport can exceed the visible (visual) viewport, so a DOM measure makes
-  // the page render wider than the screen → horizontal overflow → the user pinch-zooms out to fit,
-  // which at min page-scale triggers Safari's Tab Overview. Measuring the visual viewport keeps the
-  // page truly fit-to-screen. Desktop docked keeps its measured body width. Re-measured on resize /
-  // orientation / visualViewport change. (Codex-reviewed.)
+  // Width fed to the renderer = the panel body's measured LAYOUT width in BOTH modes (the docked
+  // panel width on desktop; the full-screen overlay — i.e. the layout viewport — on narrow).
+  // Deliberately NOT visualViewport.width and NO visualViewport.resize listener: with native pinch
+  // zoom as the official zoom mechanism (rework-neurons-pdf-zoom-native-viewport), the visual
+  // viewport shrinks on every pinch — feeding it back into renderWidth re-rasterized the whole
+  // document mid-pinch (visible flicker, the page "fighting" the fingers) and churned DPR-3
+  // canvases until iOS Safari killed the tab (fix-neurons-pdf-pinch-width-churn). Layout measures
+  // are pinch-stable; they only change on rotation / split-view / drag commit, all covered by the
+  // ResizeObserver (+ orientationchange belt-and-braces). Debounced so a drag / rotation wobble
+  // doesn't re-rasterize on every frame.
   useLayoutEffect(() => {
     const measure = (): void => {
-      let w = 0
-      if (narrow) {
-        w = Math.round(window.visualViewport?.width ?? window.innerWidth)
-      } else {
-        const el = bodyRef.current
-        w = el ? Math.round(el.getBoundingClientRect().width) : 0
-      }
+      const el = bodyRef.current
+      const w = el ? Math.round(el.getBoundingClientRect().width) : 0
       if (w > 0) setRenderWidth(w)
     }
     measure()
@@ -74,12 +73,10 @@ export function PdfPanelHost(): JSX.Element | null {
     const el = bodyRef.current
     const ro = el && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onChange) : null
     if (el && ro) ro.observe(el)
-    window.visualViewport?.addEventListener('resize', onChange)
     window.addEventListener('orientationchange', onChange)
     return () => {
       clearTimeout(timer)
       ro?.disconnect()
-      window.visualViewport?.removeEventListener('resize', onChange)
       window.removeEventListener('orientationchange', onChange)
     }
   }, [narrow])
