@@ -25,13 +25,32 @@ const PdfDocumentView = lazy(() =>
   import('./PdfDocumentView').then((m) => ({ default: m.PdfDocumentView })),
 )
 
+// Orientation-aware physical screen width in CSS px. Stable under native pinch and NOT inflated by
+// any in-page horizontal overflow (unlike `100vw` / `documentElement.clientWidth`). Used ONLY as an
+// upper CLAMP on the measured panel width — never as a `visualViewport` / `innerWidth` substitute
+// (those track the pinch-zoomed visual viewport; banned as a width source per
+// fix-neurons-pdf-pinch-width-churn). Returns Infinity when unavailable so the clamp is a no-op.
+function screenCssWidth(): number {
+  if (typeof window === 'undefined' || !window.screen) return Infinity
+  const sw = window.screen.width
+  const sh = window.screen.height
+  if (!sw || !sh) return Infinity
+  const landscape =
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(orientation: landscape)').matches
+      : sw > sh
+  return Math.round(landscape ? Math.max(sw, sh) : Math.min(sw, sh))
+}
+
 export function PdfPanelHost(): JSX.Element | null {
   const { open, url, page, file, width, narrow, setWidth, closePdf } = usePdfPanel()
   const bodyRef = useRef<HTMLDivElement | null>(null)
   // Width fed to the renderer = the panel BODY's measured width (docked panel width on desktop,
   // viewport width on the narrow overlay), so pages fill the surface in both modes and re-fit on
   // rotation / resize. Debounced so a drag / URL-bar wobble doesn't re-rasterize on every frame.
-  const [renderWidth, setRenderWidth] = useState(width)
+  // Seed narrow (full-screen) at the physical screen width, not the docked default (DEFAULT_W 520),
+  // so the very first paint after open is never an over-wide page (the measure below then confirms).
+  const [renderWidth, setRenderWidth] = useState(() => (narrow ? Math.min(width, screenCssWidth()) : width))
 
   useEffect(() => {
     if (!open) return
@@ -48,21 +67,26 @@ export function PdfPanelHost(): JSX.Element | null {
   // position:fixed overlay (zIndex 9000) that already covers the content, and the PDF scrolls in
   // its own overflow container — so a background lock is unnecessary. (Codex-confirmed iOS fix.)
 
-  // Width fed to the renderer = the panel body's measured LAYOUT width in BOTH modes (the docked
-  // panel width on desktop; the full-screen overlay — i.e. the layout viewport — on narrow).
+  // Width fed to the renderer = the panel body's measured LAYOUT width, CLAMPED to the physical
+  // screen width. MUST re-run when the panel OPENS (`open` in deps): PdfPanelHost is mounted once at
+  // app root and returns null while closed, so `bodyRef` is null at that first mount — measuring
+  // only on `[narrow]` left renderWidth stuck at the docked default (520) on a fresh mobile open,
+  // rendering the page wider than the screen (fix-neurons-pdf-mobile-fit-width). The screen-width
+  // clamp also defends against any residual `100vw` / layout-viewport inflation.
+  //
   // Deliberately NOT visualViewport.width and NO visualViewport.resize listener: with native pinch
   // zoom as the official zoom mechanism (rework-neurons-pdf-zoom-native-viewport), the visual
   // viewport shrinks on every pinch — feeding it back into renderWidth re-rasterized the whole
-  // document mid-pinch (visible flicker, the page "fighting" the fingers) and churned DPR-3
-  // canvases until iOS Safari killed the tab (fix-neurons-pdf-pinch-width-churn). Layout measures
-  // are pinch-stable; they only change on rotation / split-view / drag commit, all covered by the
-  // ResizeObserver (+ orientationchange belt-and-braces). Debounced so a drag / rotation wobble
-  // doesn't re-rasterize on every frame.
+  // document mid-pinch (flicker, the page "fighting" the fingers) and churned DPR-3 canvases until
+  // iOS Safari killed the tab (fix-neurons-pdf-pinch-width-churn). Layout measures are pinch-stable;
+  // they only change on rotation / split-view / drag commit, covered by the ResizeObserver (+
+  // orientationchange belt-and-braces). Debounced so a drag / rotation wobble doesn't re-raster.
   useLayoutEffect(() => {
+    if (!open) return
     const measure = (): void => {
       const el = bodyRef.current
-      const w = el ? Math.round(el.getBoundingClientRect().width) : 0
-      if (w > 0) setRenderWidth(w)
+      const rect = el ? Math.round(el.getBoundingClientRect().width) : 0
+      if (rect > 0) setRenderWidth(Math.min(rect, screenCssWidth()))
     }
     measure()
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -79,7 +103,7 @@ export function PdfPanelHost(): JSX.Element | null {
       ro?.disconnect()
       window.removeEventListener('orientationchange', onChange)
     }
-  }, [narrow])
+  }, [narrow, open])
 
   const onDragStart = useCallback(
     (e: ReactPointerEvent) => {
