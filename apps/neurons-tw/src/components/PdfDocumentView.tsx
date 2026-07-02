@@ -98,28 +98,25 @@ export function PdfDocumentView({
 
   // In-app zoom (add-neurons-pdf-mobile-zoom): dense A4 exam pages are tiny at fit-width on a phone,
   // so the ± buttons drive APP-STATE zoom, applied by re-rasterizing react-pdf at a larger width
-  // (crisp, unlike a CSS transform). 1 = fit-to-width. Two-finger pinch is deliberately NOT handled
-  // here — it stays the browser's native viewport zoom (rework-neurons-pdf-zoom-native-viewport).
+  // (crisp, unlike a CSS transform). Two-finger pinch is deliberately NOT handled here — it stays
+  // the browser's native viewport zoom (rework-neurons-pdf-zoom-native-viewport).
+  //
+  // Default = 1 = fit the panel LAYOUT width, ALWAYS, on every open — so at the normal native 1×
+  // zoom (how a PDF is opened unless the player has deliberately pinched) the page fills the screen
+  // width with no manual adjustment (fix-neurons-pdf-default-fit-page-width). We do NOT read the
+  // visual viewport to compensate for a residual browser pinch-zoom: on iOS Safari native zoom
+  // scales the position:fixed panel (and its page) too, so any layout-px width we pick is then
+  // re-scaled by the browser — a render-width tweak can't achieve a true visible-fit, it only lands
+  // the default on an unpredictable fractional zoom (the「點進去還要調整」complaint). If the player
+  // has residually pinched the browser, that is their own native zoom (pinch out / double-tap to
+  // reset — same as any website); the app default stays a clean 100% = page width.
   const fitWidth = Math.max(280, width - 32)
-  // Fit-to-VISIBLE zoom (fix-neurons-pdf-iphone-fit-and-memory): on the full-screen (narrow)
-  // panel「符合寬度」means the width the player can actually SEE. With native pinch zoom, a
-  // residual browser zoom (visualViewport.scale > 1) shrinks the visible width below the layout
-  // width, so a layout-width page at 100% overflows the screen. ONE-SHOT visualViewport reads at
-  // panel open and at ％-press only — NEVER a visualViewport listener (that feedback loop was the
-  // flicker/crash bug, fix-neurons-pdf-pinch-width-churn). Desktop docked (panel ≠ viewport width)
-  // and the no-residual-zoom case keep plain 1.
-  const visualFitZoom = useCallback((): number => {
-    const vv = window.visualViewport
-    const fullScreen = width >= document.documentElement.clientWidth - 2
-    if (!vv || !fullScreen || !(vv.scale > 1.01) || !(vv.width > 0)) return 1
-    return Math.min(1, Math.max(MIN_ZOOM, Math.round(((vv.width - 32) / fitWidth) * 20) / 20))
-  }, [width, fitWidth])
-  const [zoom, setZoom] = useState<number>(visualFitZoom)
+  const [zoom, setZoom] = useState(1)
   const pageWidth = Math.round(fitWidth * zoom)
   const estHeight = Math.round(pageWidth * 1.414) // A4-ish placeholder before a page is measured
   const zoomOut = useCallback(() => setZoom((z) => Math.max(MIN_ZOOM, Math.round((z - ZOOM_STEP) * 100) / 100)), [])
   const zoomIn = useCallback(() => setZoom((z) => Math.min(MAX_ZOOM, Math.round((z + ZOOM_STEP) * 100) / 100)), [])
-  const zoomFit = useCallback(() => setZoom(visualFitZoom()), [visualFitZoom])
+  const zoomFit = useCallback(() => setZoom(1), [])
 
   const clampPage = useCallback((p: number, n: number) => Math.min(Math.max(1, p), n), [])
 
