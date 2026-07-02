@@ -266,12 +266,20 @@ The rendered PDF SHALL support **in-app zoom** as application state (re-rasteriz
 
 The viewer SHALL NOT implement its own two-finger pinch gesture and SHALL NOT suppress the browser's native pinch behaviors over the panel (no pinch-blocking `touch-action` on the PDF scroll surface, no `gesturestart`/`gesturechange` interception): a two-finger pinch over the PDF — as anywhere else in the app — performs the **browser's native viewport zoom**. The app SHALL NOT declare a viewport meta that disables user scaling. One-finger scrolling of the PDF stays native and unaffected. (Native viewport zoom scales the already-rasterized pixels; the ± buttons remain the crisp re-raster path.)
 
+The render width fed to the rasterizer SHALL derive from **layout-viewport measures** (the panel body's layout size) — never from the visual viewport (`visualViewport.width` or iOS's visual-viewport-tracking `innerWidth`) — so that a native pinch, which by definition shrinks the visual viewport, cannot feed back into the document: pinching SHALL NOT re-rasterize, reflow, or re-anchor the document during or after the gesture (the zoom is purely the browser compositor scaling the existing raster). Rotation, split-view, and the panel drag-resize remain the only render-width-change triggers.
+
 After the initial open has landed, ANY page-width change — the ± buttons or a panel drag-resize — SHALL re-anchor the view to the page the player is **currently looking at** (the top-visible page, tracked while scroll position and page offsets are in a consistent coordinate space), NOT back to the originally-opened question's page. A fresh open or a jump to another question SHALL still land on that question's mapped page.
 
 #### Scenario: Pinch performs the browser's native zoom
 
 - **WHEN** the player pinches with two fingers over the open PDF panel on a touch device
 - **THEN** the browser's native viewport zoom occurs (the viewer does not intercept or suppress the gesture)
+
+#### Scenario: Pinch does not re-rasterize the document
+
+- **WHEN** the player pinch-zooms over the open PDF panel on a phone
+- **THEN** the rendered page width and the mounted page window stay unchanged — no re-rasterization, reflow, or scroll re-anchor occurs during or after the gesture
+- **AND** only the browser's compositor scales the already-rendered raster
 
 #### Scenario: Button zoom re-rasterizes crisply
 
