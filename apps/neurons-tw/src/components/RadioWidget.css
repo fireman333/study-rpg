@@ -7,7 +7,7 @@
   --nr-btn-face: #efe6d6; --nr-btn-sh: #8f8271; --nr-red: #e0533a; --nr-teal: #4bb7a8;
   --nr-chip-off-bg: #2a2119; --nr-chip-off-fg: #6b5a49; --nr-knob: #c9bca8;
   --nr-en: var(--font-pixel-en); --nr-cjk: var(--font-pixel-cjk);
-  max-width: 680px; margin: 1.4rem auto 0; font-family: var(--nr-cjk); color: #efe6d6;
+  max-width: 100%; margin: 1.4rem auto 0; font-family: var(--nr-cjk); color: #efe6d6;
 }
 .nradio * { box-sizing: border-box; }
 .nradio .radio { background: linear-gradient(#4a3d32, #3a2f27); border: 4px solid var(--nr-bezel); border-radius: 12px;
