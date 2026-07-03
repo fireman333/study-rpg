@@ -52,8 +52,8 @@ export default function RadioWidget(): JSX.Element {
               <div className="dials">
                 <div className="lab">▚ 選台 TUNE</div>
                 <div className="knobrow">
-                  <div className={`knob${spin?.dir === 'l' ? ' turn-l' : ''}`} key={`l${spin?.dir === 'l' ? spin.n : ''}`} onClick={tuneL}><span className="kl">◀</span></div>
-                  <div className={`knob${spin?.dir === 'r' ? ' turn-r' : ''}`} key={`r${spin?.dir === 'r' ? spin.n : ''}`} onClick={tuneR}><span className="kl">▶</span></div>
+                  <div className={`knob${spin?.dir === 'l' ? ' turn-l' : ''}`} key={`l${spin?.dir === 'l' ? spin.n : ''}`} onClick={tuneL}><span className="kl">◄</span></div>
+                  <div className={`knob${spin?.dir === 'r' ? ' turn-r' : ''}`} key={`r${spin?.dir === 'r' ? spin.n : ''}`} onClick={tuneR}><span className="kl">►</span></div>
                 </div>
               </div>
               <div className="lcd">
@@ -63,13 +63,13 @@ export default function RadioWidget(): JSX.Element {
                   <span className="zh">{mode === 'RANDOM' ? '混合' : zh}</span>
                   <div className="vu" ref={vuRef}>{Array.from({ length: VU_BARS }, (_, i) => <i key={i} />)}</div>
                 </div>
-                <div className="now">{mode === 'OFF' ? '轉左邊旋鈕選台 ▶' : trackId ? `♪ ${trackId}` : '…'}</div>
+                <div className="now">{mode === 'OFF' ? '轉左邊旋鈕選台 ►' : trackId ? `♪ ${trackId}` : '…'}</div>
               </div>
               <div className="transport">
                 <div className="tbtns">
-                  <button className="pb" title="上一首" onClick={() => radio.prev()}>⏮</button>
-                  <button className="pb play" title="播放/暫停" onClick={() => radio.togglePlay()}>{on && trackId ? '❚❚' : '▶'}</button>
-                  <button className="pb" title="下一首" onClick={() => radio.next()}>⏭</button>
+                  <button className="pb" title="上一首" onClick={() => radio.prev()}>|◄</button>
+                  <button className="pb play" title="播放/暫停" onClick={() => radio.togglePlay()}>{on && trackId ? '❚❚' : '►'}</button>
+                  <button className="pb" title="下一首" onClick={() => radio.next()}>►|</button>
                 </div>
                 <div className="vol"><span>VOL</span><input type="range" min={0} max={1} step={0.01} value={volume} onChange={(e) => radio.setVolume(parseFloat(e.target.value))} /></div>
               </div>
