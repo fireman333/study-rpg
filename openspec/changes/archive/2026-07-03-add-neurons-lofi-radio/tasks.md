@@ -35,19 +35,19 @@
 
 - [x] 5.1 `wrangler` 查現況：既有 R2 buckets / custom domain（決定用既有或新建 public bucket）
 - [x] 5.2 upload 137 oggs：`wrangler r2 object put`（或 batch script）到 bgm bucket
-- [ ] 5.3 綁 custom domain（如 `bgm.med-study-rpg.com`）+ 確認 CDN 快取 header（Class B 讀取可 cache）
+- [x] 5.3 綁 custom domain（如 `bgm.med-study-rpg.com`）+ 確認 CDN 快取 header（Class B 讀取可 cache）
 - [x] 5.4 `VITE_BGM_BASE_URL` 寫進 **dev worktree** `apps/neurons-tw/.env.local`
 - [x] 5.5 `VITE_BGM_BASE_URL` 寫進 **deploy worktree** `~/coding-scratch/study-rpg/apps/neurons-tw/.env.local`（per-app + per-worktree 陷阱）
 
 ## 6. Deploy + prod 驗證
 
-- [ ] 6.1 `pnpm deploy:cf`（build neurons + wrangler deploy）
-- [ ] 6.2 build 後 grep bundle 確認含 R2 域名字串（env baked）
-- [ ] 6.3 prod Chrome MCP：`med-study-rpg.com/neurons/` 展開電台 → 播放 → 確認 fetch R2 200（Performance API 看 cross-origin GET）+ 實際出聲 + CDN cache header
-- [ ] 6.4 `gh run list --branch main --limit 5` 確認 deploy workflow 綠
+- [x] 6.1 `pnpm deploy:cf`（build neurons + wrangler deploy）
+- [x] 6.2 build 後 grep bundle 確認含 R2 域名字串（env baked）
+- [x] 6.3 prod Chrome MCP：`med-study-rpg.com/neurons/` 展開電台 → 播放 → 確認 fetch R2 200（Performance API 看 cross-origin GET）+ 實際出聲 + CDN cache header
+- [x] 6.4 `gh run list --branch main --limit 5` 確認 deploy workflow 綠
 
 ## 7. 收尾
 
-- [ ] 7.1 `/verify`（web app end-to-end）
-- [ ] 7.2 `/opsx:verify` → `/opsx:archive`
-- [ ] 7.3 commit（explicit per-file `git add`，不碰其他 session 的 `eliminate-cross-device-r2-412-storm/tasks.md`）
+- [x] 7.1 `/verify`（web app end-to-end）
+- [x] 7.2 `/opsx:verify` → `/opsx:archive`
+- [x] 7.3 commit（explicit per-file `git add`，不碰其他 session 的 `eliminate-cross-device-r2-412-storm/tasks.md`）
