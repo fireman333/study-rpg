@@ -16,6 +16,7 @@ import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncement
 import { QuizModal } from '../components/QuizModal'
 import { FamilyPicker, type FamilyAccrual, type MazeFamilyHint } from '../components/FamilyPicker'
 import MazeGrid from '../components/maze/MazeGrid'
+import RadioWidget from '../components/RadioWidget'
 import { MazeCompletionCelebration } from '../components/MazeCompletionCelebration'
 import { ExpeditionRitualCelebration } from '../components/ExpeditionRitualCelebration'
 import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
@@ -603,6 +604,9 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         mazeSlot={mazeSlot}
         mazeHintByFamily={mazeHintByFamily}
       />
+
+      {/* Lofi 電台 — 收合式、OFF-by-default 彩蛋，塞在迷宮/科目格下方 (add-neurons-lofi-radio) */}
+      <RadioWidget />
 
       {quizEntry !== undefined && expeditionOpen === false && (
         <QuizModal

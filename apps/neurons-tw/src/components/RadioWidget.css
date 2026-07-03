@@ -1,0 +1,63 @@
+/* Lofi radio widget — ported from music-lab/radio-mockup.html.
+ * All selectors scoped under .nradio; uses the app's self-hosted pixel font
+ * (var(--font-pixel-*), Cubic 11) instead of the mockup's external Press Start 2P. */
+.nradio {
+  --nr-body: #3a2f27; --nr-body2: #4a3d32; --nr-bezel: #221a14;
+  --nr-screen-bg: #171006; --nr-screen-fg: #ffb347; --nr-screen-dim: #7a5a2a; --nr-screen-glow: #ff9a2e;
+  --nr-btn-face: #efe6d6; --nr-btn-sh: #8f8271; --nr-red: #e0533a; --nr-teal: #4bb7a8;
+  --nr-chip-off-bg: #2a2119; --nr-chip-off-fg: #6b5a49; --nr-knob: #c9bca8;
+  --nr-en: var(--font-pixel-en); --nr-cjk: var(--font-pixel-cjk);
+  max-width: 680px; margin: 1.4rem auto 0; font-family: var(--nr-cjk); color: #efe6d6;
+}
+.nradio * { box-sizing: border-box; }
+.nradio .radio { background: linear-gradient(#4a3d32, #3a2f27); border: 4px solid var(--nr-bezel); border-radius: 12px;
+  box-shadow: 0 8px 0 #1a140f, 0 10px 20px rgba(0,0,0,.45), inset 0 2px 0 #5c4c3d; overflow: hidden; }
+.nradio .handle { display: flex; align-items: center; justify-content: space-between; padding: 9px 13px; cursor: pointer;
+  font-family: var(--nr-cjk); font-size: 13px; color: #d8c3a0; user-select: none; }
+.nradio .handle .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #3a2410; margin-right: 8px; vertical-align: middle; }
+.nradio .handle.on .dot { background: var(--nr-red); box-shadow: 0 0 8px var(--nr-red); }
+.nradio .handle .caret { color: #8a7a66; font-size: 12px; }
+.nradio .body { padding: 0 12px 12px; }
+.nradio .bar { display: flex; align-items: stretch; gap: 12px; }
+.nradio .dials { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 4px; }
+.nradio .dials .lab { font-family: var(--nr-cjk); font-size: 11px; color: #8a7a66; }
+.nradio .knobrow { display: flex; gap: 10px; }
+.nradio .knob { width: 42px; height: 42px; border-radius: 50%; cursor: pointer; position: relative; border: 3px solid #1a140f;
+  background: radial-gradient(circle at 38% 32%, #e6dccb 0 18%, var(--nr-knob) 20% 55%, #7a6c58 90%);
+  box-shadow: 0 2px 0 #000, inset 0 1px 2px rgba(255,255,255,.4); transition: transform .12s; }
+.nradio .knob::after { content: ''; position: absolute; left: 50%; top: 5px; width: 3px; height: 12px; background: #2a2119; transform: translateX(-50%); border-radius: 2px; }
+.nradio .knob:active { transform: scale(.94); }
+.nradio .knob.turn-l { animation: nr-tl .25s; } .nradio .knob.turn-r { animation: nr-tr .25s; }
+@keyframes nr-tl { 50% { transform: rotate(-28deg); } } @keyframes nr-tr { 50% { transform: rotate(28deg); } }
+.nradio .knob .kl { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #8a7a66; }
+.nradio .lcd { flex: 1; min-width: 0; background: var(--nr-screen-bg); border: 3px solid #0c0803; border-radius: 8px; padding: 8px 12px;
+  box-shadow: inset 0 0 18px rgba(0,0,0,.9), inset 0 0 6px var(--nr-screen-glow); position: relative; overflow: hidden; }
+.nradio .lcd::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); }
+.nradio .lcd-top { display: flex; justify-content: space-between; font-family: var(--nr-en); font-size: 10px; color: var(--nr-screen-dim); }
+.nradio .lcd-mid { display: flex; align-items: center; gap: 12px; margin: 6px 0 4px; }
+.nradio .mode { font-family: var(--nr-en); font-size: 18px; color: var(--nr-screen-fg); text-shadow: 0 0 8px var(--nr-screen-glow); letter-spacing: 1px; white-space: nowrap; }
+.nradio .mode.off { color: var(--nr-screen-dim); text-shadow: none; }
+.nradio .zh { font-family: var(--nr-cjk); font-size: 12px; color: var(--nr-screen-dim); }
+.nradio .vu { display: flex; align-items: flex-end; gap: 2px; height: 20px; flex: 1; min-width: 40px; }
+.nradio .vu i { flex: 1; background: linear-gradient(var(--nr-screen-fg), var(--nr-screen-dim)); height: 6%; border-radius: 1px; transition: height .06s linear; }
+.nradio .now { font-family: var(--nr-en); font-size: 10px; color: var(--nr-screen-fg); opacity: .65; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nradio .transport { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 2px; }
+.nradio .tbtns { display: flex; gap: 6px; }
+.nradio button.pb { font-family: var(--nr-en); font-size: 12px; color: #2a2119; background: var(--nr-btn-face); border: none;
+  border-bottom: 4px solid var(--nr-btn-sh); border-radius: 6px; padding: 9px; cursor: pointer; box-shadow: 0 2px 0 #000; transition: transform .04s, border-width .04s; min-width: 40px; }
+.nradio button.pb:active { transform: translateY(2px); border-bottom-width: 2px; }
+.nradio button.pb.play { background: var(--nr-red); color: #fff; border-bottom-color: #a33; }
+.nradio .vol { display: flex; align-items: center; gap: 6px; }
+.nradio .vol span { font-family: var(--nr-en); font-size: 10px; color: #8a7a66; }
+.nradio input[type=range] { width: 96px; -webkit-appearance: none; appearance: none; height: 7px; background: #221a14; border-radius: 6px; outline: none; }
+.nradio input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 18px; background: var(--nr-btn-face); border: 2px solid #1a140f; border-radius: 3px; cursor: pointer; }
+.nradio .subbar { display: flex; gap: 8px; margin-top: 11px; flex-wrap: wrap; }
+.nradio .subtog { font-family: var(--nr-cjk); font-size: 12px; color: #d8c3a0; background: #2a2119; border: 2px solid #1a140f; border-radius: 6px; padding: 7px 10px; cursor: pointer; }
+.nradio .subtog.active { background: var(--nr-teal); color: #0c1a17; border-color: #7fe0d2; }
+.nradio .panel { margin-top: 8px; padding: 11px; background: #221a14; border-radius: 8px; font-family: var(--nr-cjk); font-size: 12px; line-height: 1.7; color: #b7a894; }
+.nradio .panel h4 { font-family: var(--nr-cjk); font-size: 12px; color: var(--nr-teal); margin: 0 0 8px; }
+.nradio .chiprow { display: flex; flex-wrap: wrap; gap: 6px; }
+.nradio .chip { font-family: var(--nr-en); font-size: 11px; padding: 7px 9px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+  background: var(--nr-chip-off-bg); color: var(--nr-chip-off-fg); border: 2px solid #3a2f27; opacity: .72; }
+.nradio .chip.on { background: var(--nr-teal); color: #0c1a17; border-color: #eafffb; opacity: 1; box-shadow: 0 0 10px rgba(75,183,168,.5); }
+@media (max-width: 560px) { .nradio .bar { flex-wrap: wrap; } .nradio .lcd { order: -1; flex-basis: 100%; } }
