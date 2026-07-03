@@ -477,8 +477,15 @@ export interface ConnectomeStatus {
   weeklyCount: number
   /** Strong VALIDATED synapses (legacy 早期連線 excluded — design D12). */
   stableLinks: number
-  /** pairKey of the strongest/most-recent validated pair, or null. */
-  strongestPair: string | null
+  /**
+   * The player's established cross-subject connections — weak(弱連結) + strong(強
+   * 連結) ONLY. 'dormant'(早期連線) is excluded: it is not yet a real link. Ranked
+   * strong→weak then most-recent. Drives the homepage「神經連結」list so every link
+   * shows its true tier — a merely-'weak' link is not misread as a maxed-out
+   * connection that already earned its 連結神經元 (connectors only spawn on the
+   * weak→strong transition).
+   */
+  connections: Array<{ pairKey: string; state: 'weak' | 'strong' }>
   /** Total conduction energy received today across all wires. */
   todayConductionEnergy: number
 }
@@ -500,13 +507,14 @@ export async function getConnectomeStatus(): Promise<ConnectomeStatus> {
   ])
   const validated = synapses.filter((s) => s.lastCoFireDate >= CONNECTOME_CONDUCTION_EPOCH)
   const stableLinks = validated.filter((s) => s.state === 'strong').length
-  const ranked = validated
-    .filter((s) => s.state !== 'dormant')
+  const connections = validated
+    .filter((s) => s.state !== 'dormant') // 早期連線 excluded — not yet a real link
     .sort((a, b) => {
-      const rank = (st: string): number => (st === 'strong' ? 0 : 1)
+      const rank = (st: SynapseState): number => (st === 'strong' ? 0 : 1)
       if (rank(a.state) !== rank(b.state)) return rank(a.state) - rank(b.state)
       return a.lastCoFireDate < b.lastCoFireDate ? 1 : -1 // most recent first
     })
+    .map((s) => ({ pairKey: s.pairKey, state: s.state as 'weak' | 'strong' }))
   const dates: string[] = datesRow?.value ? JSON.parse(datesRow.value) : []
   const weeklyCount = dates.filter((d) => daysBetweenISO(d, today) < 7).length
   let todayConductionEnergy = 0
@@ -521,7 +529,7 @@ export async function getConnectomeStatus(): Promise<ConnectomeStatus> {
     streak: Number(streakRow?.value ?? '0') || 0,
     weeklyCount,
     stableLinks,
-    strongestPair: ranked[0]?.pairKey ?? null,
+    connections,
     todayConductionEnergy,
   }
 }
