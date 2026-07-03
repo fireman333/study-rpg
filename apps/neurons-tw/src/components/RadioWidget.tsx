@@ -52,8 +52,8 @@ export default function RadioWidget(): JSX.Element {
               <div className="dials">
                 <div className="lab">▚ 選台 TUNE</div>
                 <div className="knobrow">
-                  <div className={`knob${spin?.dir === 'l' ? ' turn-l' : ''}`} key={`l${spin?.dir === 'l' ? spin.n : ''}`} onClick={tuneL}><span className="kl">◄</span></div>
-                  <div className={`knob${spin?.dir === 'r' ? ' turn-r' : ''}`} key={`r${spin?.dir === 'r' ? spin.n : ''}`} onClick={tuneR}><span className="kl">►</span></div>
+                  <div className={`knob${spin?.dir === 'l' ? ' turn-l' : ''}`} key={`l${spin?.dir === 'l' ? spin.n : ''}`} onClick={tuneL} />
+                  <div className={`knob${spin?.dir === 'r' ? ' turn-r' : ''}`} key={`r${spin?.dir === 'r' ? spin.n : ''}`} onClick={tuneR} />
                 </div>
               </div>
               <div className="lcd">
