@@ -51,3 +51,9 @@ packages/content-neurons-tw/reconcile/healthcheck/figure-preview/
 # Tauri 2 desktop shell build artifacts (add-neurons-tauri-shell)
 apps/neurons-tw/src-tauri/target/
 apps/neurons-tw/src-tauri/gen/
+
+# lofi radio audio (hosted on R2, not committed)
+apps/neurons-tw/public/bgm/
+
+# wrangler local state
+.wrangler/
