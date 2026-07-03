@@ -23,6 +23,10 @@ import { EmojiIcon } from './EmojiIcon'
 import { useDmnStatus } from '../lib/hooks/useDmnStatus'
 import DmnDrawModal from './DmnDrawModal'
 
+// Cap the「神經連結」list so a power player with many links doesn't flood the card;
+// connections arrive strong→weak ranked, so the strongest survive the slice.
+const MAX_CONNECTIONS_SHOWN = 6
+
 interface Props {
   /** Engine-computed connectome status; null while loading (renders zeroed). */
   status: ConnectomeStatus | null
@@ -49,7 +53,7 @@ export function ConnectomeStatCard({
   const streak = status?.streak ?? 0
   const stableLinks = status?.stableLinks ?? 0
   const weeklyCount = status?.weeklyCount ?? 0
-  const strongestPair = status?.strongestPair ?? null
+  const connections = status?.connections ?? []
   const todayConductionEnergy = status?.todayConductionEnergy ?? 0
 
   // DMN draw action, relocated from the retired top-nav DmnDrawButton into this card's DMN stage
@@ -127,16 +131,44 @@ export function ConnectomeStatCard({
         </div>
       </div>
 
-      {hasEverAnsweredWrong && stableLinks === 0 && (
+      {hasEverAnsweredWrong && connections.length === 0 && (
         <p style={emptyHintStyle}>
           還沒有跨科連線——出征修復錯題滿門檻，就會在腦圖長出第一條突觸連線。
         </p>
       )}
 
-      {(strongestPair || todayConductionEnergy > 0) && (
+      {/* 神經連結：列出玩家已建立的跨科連線（弱連結 / 強連結；dormant 早期連線不列）與其
+          真實層級。目的是讓玩家看清每條連線離「連結神經元」還差多遠——weak 連線不會被誤讀成
+          已達頂點卻沒拿到 connector（bug report 2026-07-03）。連結神經元只在連線升到「強連結」
+          時長出；升級是逐日 gated（弱→強＝再完成一次合格共同出征），非題數累積，故不用 X/Y 進度。 */}
+      {connections.length > 0 && (
+        <div style={connectionsBlockStyle}>
+          <span style={connectionsLabelStyle}>
+            <EmojiIcon char="🔗" size={13} /> 神經連結
+          </span>
+          <span style={connectionsListStyle}>
+            {connections.slice(0, MAX_CONNECTIONS_SHOWN).map((c) => (
+              <span key={c.pairKey} style={connChipStyle(c.state)}>
+                {c.pairKey.replace('|', '–')}（{c.state === 'strong' ? '強連結 ✓' : '弱連結'}）
+              </span>
+            ))}
+            {connections.length > MAX_CONNECTIONS_SHOWN && (
+              <span style={connMoreStyle}>＋{connections.length - MAX_CONNECTIONS_SHOWN} 條</span>
+            )}
+          </span>
+        </div>
+      )}
+
+      {/* 只要還有 weak 連線就提示解鎖路徑（強連結 → 長出連結神經元）；全 strong 時不再提示。 */}
+      {connections.some((c) => c.state === 'weak') && (
+        <p style={emptyHintStyle}>
+          弱連結：兩科再一起出征、當天各修 ≥2 題升級一次 → 強連結，就會長出這兩科的連結神經元。
+        </p>
+      )}
+
+      {todayConductionEnergy > 0 && (
         <div style={detailRowStyle}>
-          {strongestPair && <span>最強 {strongestPair.replace('|', '–')}</span>}
-          {todayConductionEnergy > 0 && <span>⚡ 今日連線 +{todayConductionEnergy}</span>}
+          <span>⚡ 今日連線 +{todayConductionEnergy}</span>
         </div>
       )}
 
@@ -307,6 +339,50 @@ const detailRowStyle: React.CSSProperties = {
   gap: '0.3rem',
   fontSize: '0.8rem',
   color: '#6b5640',
+}
+
+// ── 神經連結 list (wire-connections tier chips) ──
+const connectionsBlockStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.3rem',
+}
+
+const connectionsLabelStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.25rem',
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  color: '#5a3f29',
+}
+
+const connectionsListStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '0.3rem',
+}
+
+// weak = neutral cream chip; strong = terracotta accent (matches the card's earned-state palette).
+const connChipStyle = (state: 'weak' | 'strong'): React.CSSProperties => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '0.12rem 0.5rem',
+  borderRadius: '999px',
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  whiteSpace: 'nowrap',
+  border: state === 'strong' ? '1px solid #c98a4a' : '1px solid #ddccae',
+  background: state === 'strong' ? '#f6e3cd' : '#fffdf8',
+  color: state === 'strong' ? '#8a4a2a' : '#6b5640',
+})
+
+const connMoreStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  fontSize: '0.76rem',
+  color: '#9a7c56',
+  fontWeight: 600,
 }
 
 // Total-collection chips folded into the card (cream theme, wraps on narrow).

@@ -1756,12 +1756,12 @@
   "flags": []
  },
  "104-1-醫學二-生理學-Q20": {
-  "sourceHash": "8273b1a4bfcb67d60a4018c0113b87275b3289197d34b398eabb974648f2f05f",
+  "sourceHash": "26d6218458ea1212864c7d5283c2323957cf4e1744d48fd620bfd8a2d7021dd6",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.010Z",
   "optionExplanations": {
-   "A": "腎上腺素與RAAS系統無關，不會促進鈉離子排泄。",
+   "A": "醛固酮(aldosterone)為RAAS系統末端，促進腎小管再吸收鈉離子而非排泄。",
    "B": "腎素為RAAS系統起點，啟動系統保留鈉離子，不促進排泄。",
    "C": "心房排鈉素(ANP)抑制RAAS並促進腎臟排出鈉離子，增加鈉離子排泄。",
    "D": "血管升壓素屬RAAS系統核心，促進鈉離子再吸收而非排泄。"
