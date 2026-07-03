@@ -69,6 +69,11 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_CLOUD_SYNC_ENABLED: 'true'
           VITE_SYNC_WORKER_URL: https://api.med-study-rpg.com
+          # Lofi 電台 BGM base — R2 custom domain (add-neurons-lofi-radio). NON-secret
+          # public URL; MUST be baked here or the CI build falls back to /neurons/bgm/
+          # (gitignored, not deployed) and the radio 404s. gitignored .env.local only
+          # covers a local `pnpm deploy:cf`, NOT this CI build.
+          VITE_BGM_BASE_URL: https://radio.med-study-rpg.com/
           # 「看原始詳解 PDF」 browser-direct Google Drive auto-fetch
           # (add-neurons-pdf-drive-autofetch). Referrer-restricted NON-secret key;
           # MUST be baked at build time or the prod bundle 403s "key missing". The
