@@ -92,7 +92,7 @@ export default function RadioWidget(): JSX.Element {
             )}
             {showHint && (
               <div className="panel">
-                左邊旋鈕 = 選台（RANDOM · 7 風格 · POP · Off）。右邊 = ⏮ 上一首 / ▶ 播放暫停 / ⏭ 下一首。<br />
+                左邊旋鈕 = 選台（RANDOM · 7 風格 · POP · Off）。右邊 = |◄ 上一首 / ► 播放暫停 / ►| 下一首。<br />
                 曲間可開 crossfade；每首約 3 分自動換。各風格音量已自動平衡。預設 OFF · 收合，塞在迷宮下方當彩蛋。
               </div>
             )}
