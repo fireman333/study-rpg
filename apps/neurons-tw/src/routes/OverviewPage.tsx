@@ -21,6 +21,14 @@ import { MazeCompletionCelebration } from '../components/MazeCompletionCelebrati
 import { ExpeditionRitualCelebration } from '../components/ExpeditionRitualCelebration'
 import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
 import { ConnectomeStatCard } from '../components/ConnectomeStatCard'
+import { DailyPrescriptionCard } from '../components/DailyPrescriptionCard'
+import { LightsOutRitual } from '../components/LightsOutRitual'
+import { usePrescriptionStatus } from '../lib/hooks/usePrescriptionStatus'
+import {
+  isLightsOutToday,
+  setLightsOutToday,
+  clearLightsOutToday,
+} from '../lib/services/prescription'
 import { OnboardingHost } from '../components/OnboardingHost'
 import { SquadPreview } from '../components/SquadSurfaces'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
@@ -315,6 +323,71 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     void db.meta.get('maze:homeExpanded').then((r) => { if (alive && r?.value === '0') setMazeExpanded(false) })
     return () => { alive = false }
   }, [])
+
+  // ── 今日處方箋 (add-neurons-daily-prescription): the topmost homepage surface. The
+  // reactive hook ensures today's frozen plan exists once, then liveQuery-tracks
+  // line progress + NG-0717 maturation. Collapse pref is device-local (meta key,
+  // NOT synced), mirroring maze:homeExpanded; default = expanded.
+  const prescription = usePrescriptionStatus(pack)
+  const [prescriptionCollapsed, setPrescriptionCollapsed] = useState(false)
+  useEffect(() => {
+    let alive = true
+    void db.meta
+      .get('prescription:homeCollapsed')
+      .then((r) => { if (alive && r?.value === '1') setPrescriptionCollapsed(true) })
+    return () => { alive = false }
+  }, [])
+  const togglePrescriptionCollapse = (): void => {
+    setPrescriptionCollapsed((c) => {
+      const next = !c
+      void db.meta.put({ key: 'prescription:homeCollapsed', value: next ? '1' : '0' })
+      return next
+    })
+  }
+  // Single-CTA routing: next incomplete line → wrong-pool 出征, else 盲區 family fresh.
+  const startPrescription = (): void => {
+    const t = prescription?.nextTarget
+    if (t === 'wrong') {
+      openExpedition()
+    } else if (t === 'breadth') {
+      const famId = prescription?.plan?.breadthFamilyId
+      if (famId) openFamilyQuiz(famId, 'fresh')
+    }
+    // both complete (t === null) → completed state, no route.
+  }
+
+  // ── 熄燈儀式 (neurons-lights-out): always-available "今天到此為止". Persists device-
+  // local for the day (service key, NOT synced), clears at midnight. While active
+  // the homepage enters a CALM state that quiets the push CTAs — NOT a hard lock;
+  // 「還是想再讀一下」restores the normal homepage.
+  const [lightsOut, setLightsOut] = useState(false)
+  const [ritualOpen, setRitualOpen] = useState(false)
+  useEffect(() => {
+    let alive = true
+    void isLightsOutToday().then((on) => { if (alive) setLightsOut(on) })
+    return () => { alive = false }
+  }, [])
+  // Qualitative "touched today" families (firedToday OR sameDayCorrect>0) → display
+  // labels only. NO metrics surfaced.
+  const touchedFamilyLabels = useMemo(() => {
+    const labels: string[] = []
+    for (const [famId, a] of accrualByFamily) {
+      const rawTouched = a.firedToday
+      if (rawTouched) {
+        labels.push(pack.subjects.find((s) => s.id === famId)?.displayName ?? famId)
+      }
+    }
+    return labels
+  }, [accrualByFamily, pack.subjects])
+  const activateLightsOut = (): void => {
+    setLightsOut(true)
+    setRitualOpen(true)
+    void setLightsOutToday()
+  }
+  const reopenStudy = (): void => {
+    setLightsOut(false)
+    void clearLightsOutToday()
+  }
   const isMobileMaze = (): boolean =>
     typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
   const prefersReduced = (): boolean =>
@@ -562,18 +635,45 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         </div>
       </header>
 
+      {/* 今日處方箋 = the homepage's TOPMOST surface (add-neurons-daily-prescription):
+          two small lines + one CTA that routes to the next incomplete line, plus the
+          NG-0717 collectible + ambient exam countdown. Collapsible slim strip (device-
+          local pref). While lights-out is active it is quieted (calm end-of-day state):
+          the push CTA is hidden and only a summary strip remains, so the app stops
+          prompting more work — NOT a hard lock (「還是想再讀一下」below restores it). */}
+      {!lightsOut && (
+        <DailyPrescriptionCard
+          status={prescription}
+          collapsed={prescriptionCollapsed}
+          onToggleCollapse={togglePrescriptionCollapse}
+          onStartPrescription={startPrescription}
+        />
+      )}
+
       {/* Merged daily-loop stat card = the homepage's top dashboard, ABOVE the maze
           (redesign-neurons-homepage-cta + fix-neurons-dashboard-card-rwd): ⚔️ 錯題出征
           primary CTA + connectome status (responsive causal chain) + DMN bar + the
-          total-collection chips (🧬/💎/📖) folded in. Standalone strips are gone. */}
-      <ConnectomeStatCard
-        status={connStatus}
-        hasEverAnsweredWrong={hasEverAnsweredWrong}
-        wrongCount={wrongCount}
-        onExpedition={openExpedition}
-        variants={stats.variants}
-        totalStudyMin={totalStudyMin}
-      />
+          total-collection chips (🧬/💎/📖) folded in. Standalone strips are gone.
+          Hidden while lights-out is active so the ⚔️ push CTA also stops prompting. */}
+      {!lightsOut ? (
+        <ConnectomeStatCard
+          status={connStatus}
+          hasEverAnsweredWrong={hasEverAnsweredWrong}
+          wrongCount={wrongCount}
+          onExpedition={openExpedition}
+          variants={stats.variants}
+          totalStudyMin={totalStudyMin}
+        />
+      ) : (
+        // Calm end-of-day state: no metrics, no "you stopped early" framing — just a
+        // gentle acknowledgement + a low-key opt-back-in affordance.
+        <section style={calmStateStyle} aria-label="收工中">
+          <p style={calmLeadStyle}>🌙 今天已收工 · 好好休息</p>
+          <button type="button" style={reopenBtnStyle} onClick={reopenStudy}>
+            還是想再讀一下
+          </button>
+        </section>
+      )}
 
       {/* ── Read-only squad preview (redesign-neurons-homepage-squad-and-maze-focus): the editable
             picker moved to the 圖鑑 (/collection) tab; the homepage keeps only this read-only entry. ── */}
@@ -692,6 +792,25 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             </button>
           </div>
         </div>
+      )}
+
+      {/* 今天到此為止 (neurons-lights-out): always-available closure control. Hidden
+          only while already lit-out (the calm-state「還是想再讀一下」handles re-entry). */}
+      {!lightsOut && (
+        <div style={lightsOutBarStyle}>
+          <button type="button" style={lightsOutBtnStyle} onClick={activateLightsOut}>
+            🌙 今天到此為止
+          </button>
+        </div>
+      )}
+
+      {/* Closure ritual overlay — plays once on activation; the lights-out state
+          itself persists for the day after the overlay is dismissed. */}
+      {ritualOpen && (
+        <LightsOutRitual
+          touchedFamilyLabels={touchedFamilyLabels}
+          onClose={() => setRitualOpen(false)}
+        />
       )}
 
       <footer style={{ marginTop: '2rem', fontSize: '0.8em', color: '#5a3f29' }}>
@@ -813,6 +932,57 @@ const quizCtaHintStyle: React.CSSProperties = {
 
 // Offscreen-focus nudge (D7): a brief top toast when 聚焦 fires while the maze band is scrolled
 // fully above the viewport — feedback without a jump-to-top.
+// Calm end-of-day state shown in place of the stat card after lights-out.
+const calmStateStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '0.5rem',
+  padding: '1.1rem 1rem',
+  marginBottom: '1rem',
+  background: 'linear-gradient(135deg, #eceaf2 0%, #e3e1ee 100%)',
+  border: '2px solid #c4bfd6',
+  borderRadius: '8px',
+}
+
+const calmLeadStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '0.95rem',
+  fontWeight: 600,
+  color: '#544a6a',
+}
+
+const reopenBtnStyle: React.CSSProperties = {
+  padding: '0.45rem 1.1rem',
+  borderRadius: '999px',
+  border: '1px solid #b2aacb',
+  background: '#fff',
+  color: '#6a5f8a',
+  fontFamily: 'inherit',
+  fontSize: '0.85rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+}
+
+// Always-available「今天到此為止」bar near the bottom of the homepage.
+const lightsOutBarStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  marginTop: '1.5rem',
+}
+
+const lightsOutBtnStyle: React.CSSProperties = {
+  padding: '0.55rem 1.4rem',
+  borderRadius: '999px',
+  border: '1px solid #b2aacb',
+  background: 'linear-gradient(135deg, #4a4a72 0%, #363658 100%)',
+  color: '#eef0fb',
+  fontFamily: 'inherit',
+  fontSize: '0.88rem',
+  fontWeight: 700,
+  cursor: 'pointer',
+}
+
 const focusToastStyle: React.CSSProperties = {
   position: 'fixed',
   top: 12,
