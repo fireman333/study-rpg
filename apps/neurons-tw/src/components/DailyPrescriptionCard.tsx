@@ -74,6 +74,11 @@ export function DailyPrescriptionCard({
   } = status
   const wrongAutoSatisfied = plan.wrongTarget <= 0
   const breadthLabel = plan.breadthFamilyLabel ?? '盲區科目'
+  // Show the academic subject (breadthFamilyId, e.g. 微生物學) alongside the neuron
+  // persona so the player knows which 科目 the 盲區 line targets.
+  const breadthTitle = plan.breadthFamilyId
+    ? `${plan.breadthFamilyId} · ${breadthLabel}`
+    : breadthLabel
 
   // Ambient exam countdown chrome (never gates progress).
   const days = daysUntilExam(todayISO())
@@ -138,7 +143,7 @@ export function DailyPrescriptionCard({
         </div>
         <div style={lineRowStyle}>
           <span style={lineLabelStyle}>
-            <EmojiIcon char="🔍" size={14} /> 開發盲區 · {breadthLabel}
+            <EmojiIcon char="🔍" size={14} /> 開發盲區：{breadthTitle}
           </span>
           <span style={breadthDone >= plan.breadthTarget ? lineDoneStyle : lineProgStyle}>
             {breadthDone}/{plan.breadthTarget}
