@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
+import { recordPrescriptionAnswer } from '../lib/services/prescription'
 import { flushFirstPullReveals } from '../lib/services/first-pull-reveal'
 import {
   scheduleSrsForAnswer,
@@ -369,6 +370,14 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           await recordQuestionResult(q.id, q.subject, isCorrect)
         } catch (err) {
           console.error('[question-history] failed to record result', err)
+        }
+        // 今日處方箋 progress — this is the single shared answer-resolution point,
+        // so it fires for BOTH the 出征 expedition and family 🆕新題 answers.
+        // Best-effort + no-op when today's plan doesn't exist; never break the flow.
+        try {
+          await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
+        } catch (err) {
+          console.error('[prescription] failed to record answer', err)
         }
         // Update the SRS schedule for this question — runs on EVERY answer
         // regardless of mode (二階 skipSrs semantics). Best-effort, own channel.
