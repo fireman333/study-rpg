@@ -24,10 +24,32 @@ import {
   type PrescriptionPlan,
   type BlindSpotCandidate,
 } from '../lib/services/prescription'
+import { ALL_YEARS, setYearFilter } from '../lib/services/year-filter'
 
 // ── helpers ──────────────────────────────────────────────────────────────
-const q = (id: string, subject: string): Question =>
-  ({ id, subject, stem: '', options: [], answer: 0, explanation: '' }) as unknown as Question
+const q = (id: string, subject: string, year?: number): Question =>
+  ({
+    id,
+    subject,
+    stem: '',
+    options: [],
+    answer: 0,
+    explanation: '',
+    ...(year != null ? { meta: { year } } : {}),
+  }) as unknown as Question
+
+/** buildPlan opts with all-years / no-flags defaults; override per test. */
+const mkOpts = (
+  over: Partial<Parameters<typeof buildPlan>[3]> = {},
+): Parameters<typeof buildPlan>[3] => ({
+  date: 'd',
+  recentBlindSpotFamilyIds: [],
+  localSeed: 's',
+  now: 1,
+  flagsByQuestion: new Map(),
+  yearSet: new Set(ALL_YEARS),
+  ...over,
+})
 
 const hist = (
   questionId: string,
@@ -64,6 +86,7 @@ async function putPlan(p: Partial<PrescriptionPlan>): Promise<void> {
     breadthFamilyLabel: null,
     wrongEligibleQuestionIds: [],
     breadthEligibleQuestionIds: [],
+    yearScope: null,
     ...p,
   }
   await db.meta.put({ key: `prescription:v1:plan:${todayISO()}`, value: JSON.stringify(plan) })
@@ -172,12 +195,7 @@ describe('buildPlan', () => {
 
   it('snapshots wrong ids and keeps total ≤ 12', () => {
     const history = [hist('anat-0', 'anat', 'wrong'), hist('anat-1', 'anat', 'wrong')]
-    const plan = buildPlan(pool, history, subjects, {
-      date: '2026-07-04',
-      recentBlindSpotFamilyIds: [],
-      localSeed: 's',
-      now: 1,
-    })
+    const plan = buildPlan(pool, history, subjects, mkOpts({ date: '2026-07-04' }))
     expect(plan.wrongEligibleQuestionIds.sort()).toEqual(['anat-0', 'anat-1'])
     expect(plan.wrongTarget).toBe(2)
     expect(plan.wrongTarget + plan.breadthTarget).toBeLessThanOrEqual(DAILY_TOTAL_CAP)
@@ -186,7 +204,7 @@ describe('buildPlan', () => {
   })
 
   it('empty wrong-pool → N=0, M=10', () => {
-    const plan = buildPlan(pool, [], subjects, { date: 'd', recentBlindSpotFamilyIds: [], localSeed: 's', now: 1 })
+    const plan = buildPlan(pool, [], subjects, mkOpts())
     expect(plan.wrongTarget).toBe(0)
     expect(plan.breadthTarget).toBe(10)
   })
@@ -194,10 +212,102 @@ describe('buildPlan', () => {
   it('breadth snapshot captures ALL unseen ids of the chosen family (not a truncated subset)', () => {
     // Regression: the fresh quiz does not serve in snapshot order, so a truncated
     // snapshot leaves most served questions uncounted. The snapshot must be full.
-    const plan = buildPlan(pool, [], subjects, { date: 'd', recentBlindSpotFamilyIds: [], localSeed: 's', now: 1 })
+    const plan = buildPlan(pool, [], subjects, mkOpts())
     const fam = plan.breadthFamilyId!
     const unseenInFam = pool.filter((x) => x.subject === fam).length
     expect(plan.breadthEligibleQuestionIds.length).toBe(unseenInFam)
+  })
+})
+
+// ── pure: buildPlan repair-pool (wrong ∪ guessed − easy) + year-scope ─────────
+describe('buildPlan repair pool & year-scope', () => {
+  const subjects = [
+    { id: 'anat', displayName: '解剖' },
+    { id: 'phys', displayName: '生理' },
+  ]
+  const flags = (
+    entries: Array<[string, { easyMarked?: boolean; guessedMarked?: boolean }]>,
+  ) =>
+    new Map(
+      entries.map(([id, f]) => [
+        id,
+        { easyMarked: f.easyMarked ?? false, guessedMarked: f.guessedMarked ?? false },
+      ]),
+    )
+
+  it('repair pool = (wrong ∪ guessed) − easy', () => {
+    const pool = Array.from({ length: 40 }, (_, i) => q(`anat-${i}`, 'anat'))
+    // wrong: a-0, a-1 ; guessed-correct: a-2 (hidden weakness) ; easy overrides a-1
+    const history = [
+      hist('anat-0', 'anat', 'wrong'),
+      hist('anat-1', 'anat', 'wrong'),
+      hist('anat-2', 'anat', 'correct'),
+    ]
+    const plan = buildPlan(
+      pool,
+      history,
+      subjects,
+      mkOpts({ flagsByQuestion: flags([['anat-2', { guessedMarked: true }], ['anat-1', { easyMarked: true }]]) }),
+    )
+    expect(plan.wrongEligibleQuestionIds.sort()).toEqual(['anat-0', 'anat-2'])
+    expect(plan.wrongTarget).toBe(2) // pool size 2 → N=2
+  })
+
+  it('excludes easy-marked questions from the unseen (開發新連結) pool', () => {
+    const pool = [q('anat-0', 'anat'), q('anat-1', 'anat')]
+    const plan = buildPlan(
+      pool,
+      [],
+      [{ id: 'anat', displayName: '解剖' }],
+      mkOpts({ flagsByQuestion: flags([['anat-0', { easyMarked: true }]]) }),
+    )
+    // anat-0 is easy → only anat-1 is an unseen new connection
+    expect(plan.breadthEligibleQuestionIds).toEqual(['anat-1'])
+  })
+
+  it('blind-spot unseen/total is computed only within the year scope', () => {
+    const pool = [
+      ...Array.from({ length: 10 }, (_, i) => q(`anat-114-${i}`, 'anat', 114)),
+      ...Array.from({ length: 90 }, (_, i) => q(`phys-108-${i}`, 'phys', 108)),
+    ]
+    // Scope to 114 only → phys (all 108) is out of scope, anat (114) is the only eligible family
+    const plan = buildPlan(pool, [], subjects, mkOpts({ yearSet: new Set([114]) }))
+    expect(plan.breadthFamilyId).toBe('anat')
+    expect(plan.breadthEligibleQuestionIds).toHaveLength(10)
+    expect(plan.yearScope).toEqual([114])
+  })
+
+  it('repair line is scoped-first, then falls back to all years when scoped-empty', () => {
+    const pool = [q('anat-0', 'anat', 108), q('anat-1', 'anat', 114)]
+    // Only the 108 question is wrong; scope to 114 → scoped repair empty → fallback to all-years
+    const plan = buildPlan(
+      pool,
+      [hist('anat-0', 'anat', 'wrong')],
+      subjects,
+      mkOpts({ yearSet: new Set([114]) }),
+    )
+    // anat-0 is year 108 (out of the [114] scope) yet appears in the repair pool
+    // → the scoped repair pool was empty and the line fell back to all years.
+    expect(plan.wrongEligibleQuestionIds).toEqual(['anat-0'])
+  })
+
+  it('yearScope snapshot is null when all years are selected', () => {
+    const pool = [q('anat-0', 'anat', 114)]
+    const plan = buildPlan(pool, [], subjects, mkOpts())
+    expect(plan.yearScope).toBeNull()
+  })
+
+  it('starvation: no eligible new-connection family in scope → breadthTarget 0', () => {
+    // All in-scope questions already answered → no unseen family; breadth line satisfied.
+    const pool = [q('anat-0', 'anat', 114)]
+    const plan = buildPlan(
+      pool,
+      [hist('anat-0', 'anat', 'correct')],
+      subjects,
+      mkOpts({ yearSet: new Set([114]) }),
+    )
+    expect(plan.breadthFamilyId).toBeNull()
+    expect(plan.breadthTarget).toBe(0)
   })
 })
 
@@ -206,6 +316,7 @@ describe('deriveStatus', () => {
   const plan: PrescriptionPlan = {
     date: 'd', createdAt: 1, seed: 's', wrongTarget: 2, breadthTarget: 3,
     breadthFamilyId: 'anat', breadthFamilyLabel: '解剖', wrongEligibleQuestionIds: [], breadthEligibleQuestionIds: [],
+    yearScope: null,
   }
   it('routes CTA to wrong first, then breadth, then null', () => {
     expect(deriveStatus(plan, 0, 0, 0).nextTarget).toBe('wrong')
@@ -265,6 +376,27 @@ describe('prescription meta layer', () => {
     await recordPrescriptionAnswer('nope', 'anat', true) // outside snapshot
     s = await getPrescriptionStatus()
     expect(s.wrongDone).toBe(1)
+  })
+
+  it('reports repair consolidation only on the first correct repair (for the 連結已固化 note)', async () => {
+    await putPlan({ wrongTarget: 2, breadthTarget: 99, wrongEligibleQuestionIds: ['w1', 'w2'] })
+    expect((await recordPrescriptionAnswer('w1', 'anat', true)).repairConsolidated).toBe(true)
+    expect((await recordPrescriptionAnswer('w1', 'anat', true)).repairConsolidated).toBe(false) // dedup
+    expect((await recordPrescriptionAnswer('w2', 'anat', false)).repairConsolidated).toBe(false) // wrong answer
+    expect((await recordPrescriptionAnswer('out', 'anat', true)).repairConsolidated).toBe(false) // outside snapshot
+  })
+
+  it('getOrCreateTodayPlan applies the persisted year filter to the pool', async () => {
+    const subjects = [{ id: 'anat', displayName: '解剖' }, { id: 'phys', displayName: '生理' }]
+    const pool = [
+      ...Array.from({ length: 5 }, (_, i) => q(`anat-114-${i}`, 'anat', 114)),
+      ...Array.from({ length: 5 }, (_, i) => q(`phys-108-${i}`, 'phys', 108)),
+    ]
+    await setYearFilter([114])
+    const p = await getOrCreateTodayPlan({ questions: pool, subjects })
+    expect(p.yearScope).toEqual([114])
+    expect(p.breadthFamilyId).toBe('anat') // phys (108) is out of scope
+    expect(p.breadthEligibleQuestionIds).toHaveLength(5)
   })
 
   it('counts a breadth question on first answer regardless of correctness, deduped', async () => {
