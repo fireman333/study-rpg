@@ -4,17 +4,23 @@
 //   "In-place account reset wipes cloud, local, and leaderboard while
 //    preserving the signed-in identity"
 //
-// Ordering discipline (mirrors 二階 safeResetAccountData):
+// Ordering discipline (wipe-then-ack — mirrors the pull-side gate
+// honorResetMarker in account-guard.ts):
 //   1. leaderboard row delete — BEST-EFFORT (a Worker outage must not block
 //      the reset; the row can be re-deleted by re-running the reset)
 //   2. reset-bundle push — MUST succeed or the whole reset aborts; local data
 //      is untouched at this point so a retry is always safe
-//   3. ack the reset instant (so this device's own next pull skips the gate)
-//   4. wipe local synced data (account-guard helper — device-local meta and
+//   3. wipe local synced data (account-guard helper — device-local meta and
 //      the ownership marker survive; the user stays signed in)
+//   4. ack the reset instant, written ONLY after the wipe succeeds (so this
+//      device's own next pull skips the gate). Ack-after-wipe is the invariant:
+//      if the wipe throws, no ack is persisted, so this device's next pull sees
+//      reset_at still > its ack and re-runs the idempotent (already-empty) wipe
+//      gate — rather than leaving the gate disarmed against un-wiped data, which
+//      would let the next push silently resurrect the just-reset account.
 //
 // Steps 2–4 run inside ONE per-user push lock (port-neurons-r2-single-flight-push
-// D6). The cloud wipe, the ack, AND the local wipe must all complete before any
+// D6). The cloud wipe, the local wipe, AND the ack must all complete before any
 // debounced/manual push can acquire the lock — otherwise a push queued behind the
 // reset would slot in right after the empty bundle lands, read the still-unwiped
 // Dexie data, and resurrect the just-reset account. We call the LOW-LEVEL
@@ -60,9 +66,12 @@ export async function resetNeuronsAccountData(): Promise<void> {
     await pushBundle(supabase, db, userId, {
       snapshotOverride: () => buildResetSnapshot(resetAt),
     })
-    // (3) Ack our own reset so this device's next pull doesn't re-trigger the gate.
-    writeAckResetAt(userId, resetAt)
-    // (4) Local wipe — signed-in identity and device-local meta survive.
+    // (3) Local wipe — signed-in identity and device-local meta survive.
     await clearLocalSyncedData(db)
+    // (4) Ack our own reset so this device's next pull doesn't re-trigger the
+    // gate — written ONLY after the wipe above succeeds. If clearLocalSyncedData
+    // throws, this line is skipped: no ack is persisted, so the next pull re-runs
+    // the idempotent (already-empty) wipe gate instead of resurrecting the account.
+    writeAckResetAt(userId, resetAt)
   })
 }

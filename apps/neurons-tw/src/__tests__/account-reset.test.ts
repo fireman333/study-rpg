@@ -9,7 +9,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import 'fake-indexeddb/auto'
-import { db } from '../lib/db'
+import { db, type NeuronsDB } from '../lib/db'
 import {
   honorResetMarker,
   readAckResetAt,
@@ -47,6 +47,24 @@ vi.mock('../lib/services/neurons-leaderboard', () => ({
   deleteLeaderboardRow: (...args: unknown[]) => deleteLeaderboardRowMock(...args),
   getLeaderboardProfile: (...args: unknown[]) => getLeaderboardProfileMock(...args),
 }))
+
+// account-guard is partially mocked so the local-wipe-failure ordering test can
+// force clearLocalSyncedData to throw. By DEFAULT the mock delegates to the real
+// implementation (captured via importOriginal), so every other test keeps the
+// real Dexie wipe; only the failure test overrides with mockRejectedValueOnce.
+// The ack helpers (readAckResetAt / writeAckResetAt / writeLastSyncedUserId) and
+// honorResetMarker stay real via the spread. vi.hoisted because account-guard is
+// imported at the top of this file, so its mock factory runs before a plain const
+// would initialize.
+const clearLocalSyncedDataMock = vi.hoisted(() => vi.fn())
+vi.mock('../lib/sync/account-guard', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../lib/sync/account-guard')>()
+  clearLocalSyncedDataMock.mockImplementation(actual.clearLocalSyncedData)
+  return {
+    ...actual,
+    clearLocalSyncedData: (database: NeuronsDB) => clearLocalSyncedDataMock(database),
+  }
+})
 
 // resetNeuronsAccountData must be imported AFTER the vi.mock declarations.
 import { resetNeuronsAccountData } from '../lib/services/account-reset'
@@ -224,6 +242,30 @@ describe('resetNeuronsAccountData', () => {
 
     expect(await db.questionHistory.count()).toBe(1)
     expect(readAckResetAt(USER_A)).toBe(0)
+  })
+
+  it('local-wipe failure leaves NO acknowledgement (pull gate stays armed)', async () => {
+    writeLastSyncedUserId(USER_A)
+    await seedSomeData()
+    // Cloud wipe succeeds (default pushBundleMock), but the local Dexie wipe throws.
+    clearLocalSyncedDataMock.mockRejectedValueOnce(new Error('idb_wipe_failed'))
+
+    await expect(resetNeuronsAccountData()).rejects.toThrow('idb_wipe_failed')
+
+    // Cloud was emptied, but the ack was NOT written — because it is written only
+    // AFTER the local wipe succeeds. So this device never claims the reset is done.
+    expect(pushBundleMock).toHaveBeenCalledTimes(1)
+    expect(readAckResetAt(USER_A)).toBe(0)
+    // Local data survives the failed wipe (would otherwise be re-uploaded)...
+    expect(await db.questionHistory.count()).toBe(1)
+
+    // ...and because reset_at (> 0) still exceeds the un-written ack, the next
+    // pull's honorResetMarker fires the idempotent wipe rather than resurrecting.
+    const resetAt = (
+      pushBundleMock.mock.calls[0][3] as { snapshotOverride: () => BundleSnapshot }
+    ).snapshotOverride().meta.reset_at as number
+    expect(await honorResetMarker(db, resetAt)).toBe(true)
+    expect(await db.questionHistory.count()).toBe(0)
   })
 
   it('leaderboard failure does not block the reset', async () => {
