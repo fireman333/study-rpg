@@ -338,7 +338,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     const byId = new Map(pack.subjects.map((s) => [s.id, s]))
     return rawImprints.map((im) => {
       const s = byId.get(im.subjectId)
-      return { ...im, color: s?.color ?? '#c9a86a', displayName: s?.displayName ?? im.subjectId }
+      return {
+        ...im,
+        color: s?.color ?? '#c9a86a',
+        displayName: s?.displayName ?? im.subjectId,
+        group: s?.group ?? '',
+      }
     })
   }, [rawImprints, pack.subjects])
   const [prescriptionCollapsed, setPrescriptionCollapsed] = useState(false)

@@ -22,10 +22,44 @@ import { imprintStage } from '../lib/services/prescription'
 import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
 import budSprite from '../assets/ng0717/bud.png'
 
-/** Imprint enriched with its subject's display colour + label (built by the caller). */
+/** Imprint enriched with its subject's display colour + label + NT branch (built by the caller). */
 export interface EnrichedImprint extends Ng0717Imprint {
   color: string
   displayName: string
+  /** Neurotransmitter branch (`DA` / `5HT` / `GABA` / `Glu`) — drives the accent motif. */
+  group: string
+}
+
+// Per-NT-branch accent motif — a purely-decorative glyph layered on a grown bud to
+// deepen its identity (the neurotransmitter family of that subject). Programmatic (no
+// sprite); renders ONLY on grown buds; introduces NO legend / tally /完整集 implication.
+type AccentKind = 'spark' | 'dot' | 'bar' | 'triangle'
+const BRANCH_ACCENT: Record<string, AccentKind> = {
+  DA: 'spark', // 多巴胺 — vesicle-release spark
+  '5HT': 'dot', // 血清素 — soma dot
+  GABA: 'bar', // GABA — inhibitory bar
+  Glu: 'triangle', // 麩胺酸 — excitatory up-tick
+}
+
+/** Pure map from NT branch → accent motif kind (null for an unknown branch → no accent). */
+export function branchAccentKind(group: string): AccentKind | null {
+  return BRANCH_ACCENT[group] ?? null
+}
+
+const ACCENT_FILL = '#fff6e0'
+const ACCENT_EDGE = '#3a2a1a'
+function accentGlyph(kind: AccentKind): JSX.Element {
+  const p = { fill: ACCENT_FILL, stroke: ACCENT_EDGE, strokeWidth: 0.9, strokeLinejoin: 'round' as const }
+  switch (kind) {
+    case 'spark':
+      return <path d="M6 0.6 L7.1 4.9 L11.4 6 L7.1 7.1 L6 11.4 L4.9 7.1 L0.6 6 L4.9 4.9 Z" {...p} />
+    case 'dot':
+      return <circle cx="6" cy="6" r="3" {...p} />
+    case 'bar':
+      return <rect x="1.6" y="4.6" width="8.8" height="2.8" rx="1.3" {...p} />
+    case 'triangle':
+      return <path d="M6 1.8 L10.6 9.6 L1.4 9.6 Z" {...p} />
+  }
 }
 
 const STAGE_WORD: Record<Exclude<ImprintStage, 'absent'>, string> = {
@@ -102,6 +136,9 @@ function Bud({
   const stage = imprintStage(imprint.touches) as Exclude<ImprintStage, 'absent'>
   const { scale, glow, opacity } = STAGE_STYLE[stage]
   const px = Math.round(size * scale)
+  const accentKind = branchAccentKind(imprint.group)
+  const accentPx = Math.max(7, Math.round(px * 0.44))
+  const accentInset = Math.round(px * 0.06)
   return (
     <span
       title={`${imprint.subjectId}（${STAGE_WORD[stage]}）`}
@@ -147,6 +184,18 @@ function Bud({
           maskPosition: 'center',
         }}
       />
+      {/* Per-NT-branch accent motif (top-right) — decorative branch identity only. */}
+      {accentKind && (
+        <svg
+          viewBox="0 0 12 12"
+          width={accentPx}
+          height={accentPx}
+          aria-hidden
+          style={{ position: 'absolute', top: -accentInset, right: -accentInset }}
+        >
+          {accentGlyph(accentKind)}
+        </svg>
+      )}
     </span>
   )
 }
