@@ -4,10 +4,14 @@
  * (an adult-born dentate granule cell) that matures by rolling completed days.
  *
  * Design: reduce cram anxiety, never add pressure/guilt. Progress is monotonic;
- * a missed day is neutral. ZERO Dexie schema / R2 sync change — all state lives
- * in the existing `meta` key-value table under the `prescription:v1:` namespace,
- * keyed by local ISO date, as write-once keys (absent → truthy, never deleted) so
- * derived `completedDayCount` is monotonic and cross-device LWW is safe.
+ * a missed day is neutral. NO Dexie schema change — all state lives in the existing
+ * `meta` key-value table under the `prescription:v1:` namespace, keyed by local ISO
+ * date, as write-once keys (absent → truthy, never deleted) so derived counters are
+ * monotonic and cross-device merges are safe. The daily-quest keys (plan / wrong /
+ * breadth / completed / reward / lightsOut / localSeed) are LOCAL-ONLY. The one
+ * exception is the NG-0717 lineage-imprint keys (`${IMPRINT_PREFIX}<subj>:<date>`),
+ * which sync cross-device as a keepsake via the prefix (add-neurons-imprint-keepsake-sync;
+ * additive R2 SCHEMA_VERSION, first-write-wins UNION over write-once presence keys).
  *
  * Capability spec: openspec/specs/neurons-daily-prescription/spec.md
  */
@@ -53,7 +57,12 @@ export const DAILY_TOTAL_CAP = 12
 const WRONG_SNAPSHOT_CAP = 8000
 const BREADTH_SNAPSHOT_CAP = 2000
 
-// ── Meta key builders (all local-only; NOT in SYNCED_META_KEYS) ─────────────
+// ── Meta key builders ───────────────────────────────────────────────────────
+// The daily-quest keys below are LOCAL-ONLY (not in the sync allowlist). The one
+// synced family is the NG-0717 lineage imprint (IMPRINT_PREFIX), which rides the
+// meta sync via its prefix as a cross-device keepsake — see add-neurons-imprint-
+// keepsake-sync + lib/sync/tables.ts (which imports IMPRINT_PREFIX as the single
+// source of the synced prefix, so the two can never drift).
 const NS = 'prescription:v1'
 const planKey = (date: string) => `${NS}:plan:${date}`
 const wrongKey = (date: string, qid: string) => `${NS}:wrong:${date}:${qid}`
@@ -65,10 +74,15 @@ const LOCAL_SEED_KEY = `${NS}:localSeed`
 const WRONG_PREFIX = (date: string) => `${NS}:wrong:${date}:`
 const BREADTH_PREFIX = (date: string) => `${NS}:breadth:${date}:`
 const COMPLETED_PREFIX = `${NS}:completed:`
-// NG-0717 lineage imprint: write-once per (subject, date). Subject ids carry no
-// colon and dates are `YYYY-MM-DD`, so the suffix splits cleanly into id + date.
-const imprintKey = (subjectId: string, date: string) => `${NS}:ng0717:imprint:${subjectId}:${date}`
-const IMPRINT_PREFIX = `${NS}:ng0717:imprint:`
+/**
+ * NG-0717 lineage-imprint synced prefix — the SINGLE SOURCE of truth for the imprint
+ * key family. `lib/sync/tables.ts` imports this to build its synced-key membership,
+ * so the sync filter and the key mint can never drift (a rename here moves both).
+ * Keys are write-once per (subject, date). Subject ids carry no colon and dates are
+ * `YYYY-MM-DD`, so the suffix splits cleanly into id + date.
+ */
+export const IMPRINT_PREFIX = `${NS}:ng0717:imprint:`
+const imprintKey = (subjectId: string, date: string) => `${IMPRINT_PREFIX}${subjectId}:${date}`
 
 // ── Types ───────────────────────────────────────────────────────────────────
 export interface PrescriptionPlan {
@@ -110,9 +124,10 @@ export interface PrescriptionStatus {
 /**
  * NG-0717 lineage imprint — a per-subject dendritic bud grown on the mascot each
  * time that subject is the completed day's 開發新連結 family. This is a DERIVED view;
- * the source of truth is write-once `${NS}:ng0717:imprint:<subjectId>:<date>` meta
- * keys (one per completion day for that subject), so `touches` is monotonic and the
- * stage never downgrades. Local-only — NOT in SYNCED_META_KEYS.
+ * the source of truth is write-once `${IMPRINT_PREFIX}<subjectId>:<date>` meta keys
+ * (one per completion day for that subject), so `touches` is monotonic and the stage
+ * never downgrades. These keys sync cross-device as a keepsake (via the prefix; merged
+ * first-write-wins UNION over write-once presence keys — add-neurons-imprint-keepsake-sync).
  */
 export interface Ng0717Imprint {
   subjectId: string

@@ -10,6 +10,10 @@
 import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import type { NeuronsDB, QuestionHistoryRow } from '../db'
 import { PER_FAMILY_CELEBRATION_KEYS } from '../services/maze-celebration'
+// Single source of the NG-0717 imprint key prefix (minted by the prescription
+// service) — re-exported below as IMPRINT_SYNC_PREFIX so the sync filter can never
+// drift from the key mint. prescription.ts imports nothing from lib/sync → no cycle.
+import { IMPRINT_PREFIX } from '../services/prescription'
 
 /**
  * Per-family maze economy keys (redesign-neurons-maze-rotjs-grid) — 11 families ×
@@ -477,11 +481,36 @@ export const SYNCED_META_KEYS: ReadonlySet<string> = new Set([
   ...PER_FAMILY_CELEBRATION_KEYS,
 ])
 
+/**
+ * Synced meta key PREFIXES — for dynamic key families that cannot be enumerated in
+ * SYNCED_META_KEYS. NG-0717 lineage imprints (add-neurons-imprint-keepsake-sync) are
+ * write-once presence keys `${IMPRINT_PREFIX}<subjectId>:<date>`, so the metaAdapter's
+ * first-write-wins over them is a UNION keepsake. The prefix is exact to the imprint
+ * family — it does NOT match sibling `prescription:v1:*` keys such as
+ * `prescription:v1:completed:*` or `prescription:v1:localSeed` (those stay local-only).
+ * Only WRITE-ONCE presence keys may ride a synced prefix (first-write-wins = UNION);
+ * a mutating/deletable value would be merged incorrectly.
+ *
+ * The value is imported from the prescription service (which mints the keys) so the
+ * sync filter and the key mint share ONE source and can never drift.
+ */
+export const IMPRINT_SYNC_PREFIX = IMPRINT_PREFIX
+
+/**
+ * Whether a meta key participates in cross-device sync: the enumerated allowlist OR a
+ * registered synced prefix. Used by BOTH the metaAdapter snapshot (which rows enter the
+ * bundle) and its apply (which incoming rows are accepted), so the two directions can
+ * never diverge.
+ */
+export function isSyncedMetaKey(key: string): boolean {
+  return SYNCED_META_KEYS.has(key) || key.startsWith(IMPRINT_SYNC_PREFIX)
+}
+
 const metaAdapter: TableAdapter<'meta'> = {
   name: 'meta',
   async snapshot(db) {
     const all = await db.meta.toArray()
-    return all.filter((r) => SYNCED_META_KEYS.has(r.key))
+    return all.filter((r) => isSyncedMetaKey(r.key))
   },
   async apply(db, rows) {
     let applied = 0
@@ -494,7 +523,7 @@ const metaAdapter: TableAdapter<'meta'> = {
         }
         const row = incoming as Record<string, unknown>
         const key = row.key
-        if (typeof key !== 'string' || !SYNCED_META_KEYS.has(key)) {
+        if (typeof key !== 'string' || !isSyncedMetaKey(key)) {
           skipped++
           continue
         }

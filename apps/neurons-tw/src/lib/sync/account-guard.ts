@@ -10,7 +10,7 @@
 // pre-guard status quo (first-sign-in merge path), never worse.
 
 import type { NeuronsDB } from '../db'
-import { NEURONS_ADAPTERS, SYNCED_META_KEYS } from './tables'
+import { NEURONS_ADAPTERS, SYNCED_META_KEYS, IMPRINT_SYNC_PREFIX } from './tables'
 import { clearAllPersistedEtags } from './r2/etag'
 import { clearPresignCache } from './r2/client'
 
@@ -89,6 +89,10 @@ export async function clearLocalSyncedData(db: NeuronsDB): Promise<void> {
     for (const name of tableNames) {
       if (name === 'meta') {
         await db.meta.where('key').anyOf([...SYNCED_META_KEYS]).delete()
+        // Dynamic synced keepsake keys (NG-0717 lineage imprints) ride a prefix, not
+        // the enumerated allowlist — clear them too so the outgoing account's buds
+        // don't leak into the next account (add-neurons-imprint-keepsake-sync).
+        await db.meta.where('key').startsWith(IMPRINT_SYNC_PREFIX).delete()
       } else {
         await db.table(name).clear()
       }

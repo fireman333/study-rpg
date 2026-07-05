@@ -178,12 +178,25 @@
 //        grants from `available + consumes` (NEVER 0 — would wipe unspent draws).
 //        NO new adapter / Dexie bump (rides existing `meta`). Worker is
 //        bundle-opaque (no Worker change).
+//   v24 — add-neurons-imprint-keepsake-sync 2026-07-05: promotes NG-0717 lineage
+//        imprints to a cross-device keepsake. The metaAdapter's synced-key test now
+//        admits a PREFIX family `prescription:v1:ng0717:imprint:` (dynamic subject×date
+//        write-once presence keys) in addition to the SYNCED_META_KEYS allowlist —
+//        snapshot AND apply share one `isSyncedMetaKey` helper. Merge = the existing
+//        first-write-wins, which over write-once presence keys is a UNION (a bud grown
+//        on either device converges to both; per-date keys union → cross-device touches
+//        accumulate). NO new adapter, NO backfill post-pass, NO Dexie bump (keys already
+//        exist locally; only the meta sync filter widens). Additive + reader-tolerant: a
+//        v23 client reading a v24 bundle drops the unrecognised imprint keys; a v24
+//        client reading a v23 bundle (no imprint keys) preserves its local imprints
+//        (first-write-wins never deletes local keys absent from the incoming bundle).
+//        Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 import { readAckResetAt, readLastSyncedUserId } from '../account-guard'
 
-export const SCHEMA_VERSION = 23
+export const SCHEMA_VERSION = 24
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'
