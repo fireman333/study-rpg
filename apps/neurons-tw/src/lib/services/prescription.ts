@@ -84,6 +84,20 @@ const COMPLETED_PREFIX = `${NS}:completed:`
 export const IMPRINT_PREFIX = `${NS}:ng0717:imprint:`
 const imprintKey = (subjectId: string, date: string) => `${IMPRINT_PREFIX}${subjectId}:${date}`
 
+/**
+ * The ENTIRE daily-prescription meta namespace (`prescription:v1:*`). Account-switch and
+ * in-place reset wipe this whole prefix: every daily-quest key (plan / wrong / breadth /
+ * completed / reward / lightsOut / localSeed) AND the NG-0717 imprint keepsake sub-prefix
+ * are account-OWNED, not device-local — `completed:<date>` keys drive this account's NG-0717
+ * maturation stage and the imprint keys are its keepsake, so they must not leak into the next
+ * account (the "混血 NG-0717" bug). `IMPRINT_PREFIX` is a sub-prefix of this, so wiping this
+ * SUBSUMES the imprint-only delete. Device-local UI prefs live OUTSIDE this prefix (e.g.
+ * `prescription:homeCollapsed`) and survive the wipe. Single source: account-guard imports
+ * this so the wipe prefix can never drift from the key mint. (fix-neurons-account-switch-
+ * prescription-wipe)
+ */
+export const PRESCRIPTION_META_PREFIX = `${NS}:`
+
 // ── Types ───────────────────────────────────────────────────────────────────
 export interface PrescriptionPlan {
   date: string

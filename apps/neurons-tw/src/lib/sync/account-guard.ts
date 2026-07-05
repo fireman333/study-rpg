@@ -10,7 +10,8 @@
 // pre-guard status quo (first-sign-in merge path), never worse.
 
 import type { NeuronsDB } from '../db'
-import { NEURONS_ADAPTERS, SYNCED_META_KEYS, IMPRINT_SYNC_PREFIX } from './tables'
+import { NEURONS_ADAPTERS, SYNCED_META_KEYS } from './tables'
+import { PRESCRIPTION_META_PREFIX } from '../services/prescription'
 import { clearAllPersistedEtags } from './r2/etag'
 import { clearPresignCache } from './r2/client'
 
@@ -77,7 +78,9 @@ export function evaluateAccountGate(markerUserId: string | null, currentUserId: 
 /**
  * Wipe the previous account's local data before mounting the engine for a new
  * account. Covers every adapter-registered table (derived from NEURONS_ADAPTERS
- * so future adapters are auto-covered), the synced subset of `meta`, and the
+ * so future adapters are auto-covered), within `meta` both the synced subset
+ * (`SYNCED_META_KEYS`) and the whole account-owned `prescription:v1:*` namespace
+ * (daily-quest state + NG-0717 keepsake — see PRESCRIPTION_META_PREFIX), and the
  * local-only `mockExamDrafts` (drafts are the previous account's answers).
  * Atomic: a single rw transaction — partial failure leaves the marker unwritten
  * and the engine unmounted, so the caller can retry without pollution.
@@ -89,10 +92,16 @@ export async function clearLocalSyncedData(db: NeuronsDB): Promise<void> {
     for (const name of tableNames) {
       if (name === 'meta') {
         await db.meta.where('key').anyOf([...SYNCED_META_KEYS]).delete()
-        // Dynamic synced keepsake keys (NG-0717 lineage imprints) ride a prefix, not
-        // the enumerated allowlist — clear them too so the outgoing account's buds
-        // don't leak into the next account (add-neurons-imprint-keepsake-sync).
-        await db.meta.where('key').startsWith(IMPRINT_SYNC_PREFIX).delete()
+        // The whole daily-prescription namespace (`prescription:v1:*`) is account-OWNED,
+        // not device-local: `completed:<date>` keys drive this account's NG-0717 maturation
+        // stage and the imprint sub-prefix is its synced keepsake. Wipe the entire prefix so
+        // the outgoing account's NG-0717 stage / keepsake buds / today's progress never bleed
+        // into the next account (the "混血 NG-0717" leak). This SUBSUMES the former imprint-only
+        // prefix delete (imprint keys live under this prefix). Device-local UI prefs (e.g.
+        // `prescription:homeCollapsed`) live outside `prescription:v1:` and survive.
+        // (add-neurons-imprint-keepsake-sync added the imprint delete;
+        // fix-neurons-account-switch-prescription-wipe widened it to the full namespace.)
+        await db.meta.where('key').startsWith(PRESCRIPTION_META_PREFIX).delete()
       } else {
         await db.table(name).clear()
       }
