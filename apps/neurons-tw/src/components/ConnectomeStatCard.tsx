@@ -85,7 +85,7 @@ export function ConnectomeStatCard({
             </span>
             <span style={ctaBadgeStyle}>{wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}</span>
           </span>
-          <span style={ctaSubStyle}>🔗 修復錯題＝建立連線 → 抽 DMN</span>
+          <span style={ctaSubStyle}><EmojiIcon char="🔗" size={13} decorative /> 修復錯題＝建立連線 → 抽 DMN</span>
         </button>
       ) : (
         <div style={ctaGuidanceStyle}>
@@ -103,14 +103,14 @@ export function ConnectomeStatCard({
       <div className="neurons-stat-stages">
         <div className="neurons-stat-stage" style={stageStyle}>
           <span style={signalStyle}>今日出征 {todayCompleted ? '✓' : '✗'}</span>
-          <span style={signalStyle}>🔥 連續 {streak} 天</span>
-          <span style={signalStyle}>📅 本週 {weeklyCount}/7</span>
+          <span style={signalStyle}><EmojiIcon char="🔥" size={13} decorative /> 連續 {streak} 天</span>
+          <span style={signalStyle}><EmojiIcon char="📅" size={13} decorative /> 本週 {weeklyCount}/7</span>
         </div>
         <span className="neurons-stat-arrow" style={arrowStyle} aria-hidden>
           →
         </span>
         <div className="neurons-stat-stage" style={stageStyle}>
-          <span style={signalStyle}>🔗 穩定連線 {stableLinks}</span>
+          <span style={signalStyle}><EmojiIcon char="🔗" size={13} decorative /> 穩定連線 {stableLinks}</span>
         </div>
         <span className="neurons-stat-arrow" style={arrowStyle} aria-hidden>
           →
@@ -176,13 +176,13 @@ export function ConnectomeStatCard({
             (fix-neurons-dashboard-card-rwd). Wraps on narrow widths. ── */}
       <div style={collectionRowStyle} aria-label="收藏進度">
         <span style={collectionChipStyle}>
-          🧬 變體 <b style={collectionValStyle}>{variants}</b> 隻
+          <EmojiIcon char="🧬" size={13} decorative /> 變體 <b style={collectionValStyle}>{variants}</b> 隻
         </span>
         <span style={collectionChipStyle}>
-          💎 DMN <b style={collectionValStyle}>{dmn.collectionOwned}</b> / {dmn.collectionTotal}
+          <EmojiIcon char="💎" size={13} decorative /> DMN <b style={collectionValStyle}>{dmn.collectionOwned}</b> / {dmn.collectionTotal}
         </span>
         <span style={collectionChipStyle}>
-          📖 累積閱讀 <b style={collectionValStyle}>{totalStudyMin}</b> min
+          <EmojiIcon char="📖" size={13} decorative /> 累積閱讀 <b style={collectionValStyle}>{totalStudyMin}</b> min
         </span>
       </div>
 

@@ -23,6 +23,7 @@ import {
   MAX_SQUAD_SIZE,
 } from '../lib/services/study-squad'
 import VariantSprite from './VariantSprite'
+import { EmojiIcon } from './EmojiIcon'
 
 const RARITY_COLOR: Record<VariantRarity, string> = {
   P0: '#a64dd4',
@@ -42,7 +43,7 @@ export function SquadPreview(): JSX.Element {
   const squad = useActiveSquad()
   return (
     <section style={previewStyle} aria-label="神經元遠征隊">
-      <span style={previewTitleStyle}>🧫 神經元遠征隊</span>
+      <span style={previewTitleStyle}><EmojiIcon char="🧫" size={15} decorative /> 神經元遠征隊</span>
       {squad.length === 0 ? (
         <span style={previewEmptyStyle}>還沒組隊 — 選 5 隻神經元代表你的答題隊伍</span>
       ) : (
@@ -75,7 +76,7 @@ export function SquadManager(): JSX.Element {
   return (
     <section id="squad-manager" style={managerStyle} aria-label="神經元遠征隊編隊">
       <div style={managerHeaderStyle}>
-        <span style={managerTitleStyle}>🧫 神經元遠征隊</span>
+        <span style={managerTitleStyle}><EmojiIcon char="🧫" size={15} decorative /> 神經元遠征隊</span>
         <span style={managerSubtitleStyle}>選 {MAX_SQUAD_SIZE} 隻代表你的答題隊伍 — 點下方圖鑑卡片加入</span>
         <span style={managerCountStyle}>
           {squad.length} / {MAX_SQUAD_SIZE}

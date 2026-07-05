@@ -20,6 +20,7 @@
  */
 import { useEffect, useState, type CSSProperties } from 'react'
 import { loadBookletLinks, type BookletLinkMap } from '../platform/manifest'
+import { EmojiIcon } from './EmojiIcon'
 import { byteStore } from '../platform/byteStore'
 import { fetchBooklet, parseResourceKey, diagnoseDrive, isCorsMaskedError, isSuspectedEdgeThrottle } from '../platform/driveFetch'
 import { getCooldownUntil, recordThrottleStrike, noteDriveSuccess } from '../platform/pdfCooldown'
@@ -315,7 +316,7 @@ export function OfflineAllPdfControl(): JSX.Element {
       {showDiag && (
         <div style={{ flexBasis: '100%', marginTop: '0.3rem' }}>
           <button type="button" style={diagBtnStyle} onClick={runDiag} disabled={diagBusy || busy}>
-            {diagBusy ? '診斷中…' : '🔍 診斷連線（下載一直失敗時點這）'}
+            {diagBusy ? '診斷中…' : (<><EmojiIcon char="🔍" size={13} decorative /> 診斷連線（下載一直失敗時點這）</>)}
           </button>
           {diag && (
             <div style={diagBoxStyle}>

@@ -1,6 +1,7 @@
 import { MOCK_RARITY_COLOR } from '@study-rpg/content-neurons-tw'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import type { MockRollResult } from '../lib/services/mock-variant-gacha'
+import { EmojiIcon } from './EmojiIcon'
 
 // Post-submit reveal strip for the mock-exam variant roll
 // (add-neurons-exam-set-mock-variants). Static one-shot — rendered once in the
@@ -15,7 +16,7 @@ export function MockVariantRevealBadge({ result }: { result: MockRollResult }): 
         <img src={spriteUrl} alt="" style={spriteImgStyle} />
       ) : (
         <span style={glyphStyle} aria-hidden>
-          🧬
+          <EmojiIcon char="🧬" size={28} decorative />
         </span>
       )}
       <div>

@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { EmojiIcon } from '../components/EmojiIcon'
 import type { ContentPack } from '@study-rpg/core'
 import { validateShoutoutMessage, MESSAGE_MAX_GRAPHEMES, graphemeLen } from '@study-rpg/core'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
@@ -416,7 +417,7 @@ function ShoutoutCard({
         {url ? (
           <img src={url} alt="" width={36} height={36} style={{ imageRendering: 'pixelated' }} />
         ) : (
-          <span aria-hidden style={{ fontSize: 20 }}>🧬</span>
+          <span aria-hidden style={{ fontSize: 20 }}><EmojiIcon char="🧬" size={20} decorative /></span>
         )}
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
@@ -539,7 +540,7 @@ function ComposeModal({
                     {url ? (
                       <img src={url} alt="" width={32} height={32} style={{ imageRendering: 'pixelated' }} />
                     ) : (
-                      <span aria-hidden>🧬</span>
+                      <span aria-hidden><EmojiIcon char="🧬" size={18} decorative /></span>
                     )}
                     <span style={familyChoiceNameStyle}>{f.id}</span>
                   </button>

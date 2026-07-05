@@ -39,6 +39,19 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   ['🔌', '1f50c.png'],
   ['🚀', '1f680.png'],
   ['🧭', '1f9ed.png'],
+  // Homepage chrome backfill (pixelate-neurons-homepage-emoji): 今日處方箋 /
+  // 錯題出征 / 神經元遠征隊 / focus-toast glyphs that were still native.
+  ['🩹', '1fa79.png'],
+  ['🔍', '1f50d.png'],
+  ['🗓', '1f5d3.png'],
+  ['🔥', '1f525.png'],
+  ['📅', '1f4c5.png'],
+  ['🧫', '1f9eb.png'],
+  // Family-card action buttons + hotkeys banner + 熄燈儀式 (2nd homepage pass).
+  // 🔄 / 🌙 copied verbatim from the 二階 pack; 🆕 generated to match.
+  ['🆕', '1f195.png'],
+  ['🔄', '1f504.png'],
+  ['🌙', '1f319.png'],
 ]
 
 const ICON_MAP = new Map(ICON_FILES)

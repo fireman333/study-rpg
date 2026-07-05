@@ -12,6 +12,7 @@
  */
 import { type CSSProperties } from 'react'
 import { CelebrationHalo, ParticleBurst, useRespectsReducedMotion } from '../lib/motion'
+import { EmojiIcon } from './EmojiIcon'
 
 const overlayStyle: CSSProperties = {
   position: 'absolute',
@@ -41,7 +42,15 @@ export function ExpeditionRitualCelebration({ streak }: { streak: number }): JSX
   const reduced = useRespectsReducedMotion()
   const banner = (
     <span style={bannerStyle}>
-      ✨ 今日出征完成！{streak > 0 ? ` 🔥 ${streak}` : ''}
+      <EmojiIcon char="✨" size={16} decorative /> 今日出征完成！
+      {streak > 0 ? (
+        <>
+          {' '}
+          <EmojiIcon char="🔥" size={16} decorative /> {streak}
+        </>
+      ) : (
+        ''
+      )}
     </span>
   )
   // Reduced motion → static acknowledgement only (no halo / particles).

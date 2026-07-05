@@ -11,6 +11,7 @@
  */
 
 import { ALL_YEARS, effectiveYearSet, setYearFilter, useYearFilter } from '../lib/services/year-filter'
+import { EmojiIcon } from './EmojiIcon'
 
 export function YearFilterBar(): JSX.Element {
   const persisted = useYearFilter()
@@ -30,7 +31,7 @@ export function YearFilterBar(): JSX.Element {
 
   return (
     <section style={barStyle} aria-label="年份篩選">
-      <span style={labelStyle}>📅 年份</span>
+      <span style={labelStyle}><EmojiIcon char="📅" size={13} decorative /> 年份</span>
       <div style={chipRowStyle} role="group" aria-label="民國年多選">
         <button
           type="button"

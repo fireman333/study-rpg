@@ -22,6 +22,7 @@ import { ExpeditionRitualCelebration } from '../components/ExpeditionRitualCeleb
 import { hasCelebrated, markCelebrated } from '../lib/services/maze-celebration'
 import { ConnectomeStatCard } from '../components/ConnectomeStatCard'
 import { DailyPrescriptionCard } from '../components/DailyPrescriptionCard'
+import { EmojiIcon } from '../components/EmojiIcon'
 import { LightsOutRitual } from '../components/LightsOutRitual'
 import { usePrescriptionStatus } from '../lib/hooks/usePrescriptionStatus'
 import {
@@ -619,7 +620,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
       {focusToast && (
         <div role="status" aria-live="polite" style={focusToastStyle}>
-          🔭 已聚焦腦圖：{focusToast} ↑
+          <EmojiIcon char="🔭" size={14} decorative /> 已聚焦腦圖：{focusToast} ↑
         </div>
       )}
 
@@ -681,7 +682,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
       {/* How-to-play caption — describes the family grid + decoupled maze focus below. */}
       <p style={quizCtaHintStyle}>
-        直接答題，或在下方科目卡片點 📖 閱讀（能量全進該科）。點卡片上的「🔍 聚焦」把該科聚焦在腦圖上（其他科照常作答、版面不跳）；🔭 全覽 把腦圖鏡頭拉回整張連結圖；走腦圖到節點即可抽出神經元。
+        直接答題，或在下方科目卡片點 <EmojiIcon char="📖" size={14} decorative /> 閱讀（能量全進該科）。點卡片上的「<EmojiIcon char="🔍" size={14} decorative /> 聚焦」把該科聚焦在腦圖上（其他科照常作答、版面不跳）；<EmojiIcon char="🔭" size={14} decorative /> 全覽 把腦圖鏡頭拉回整張連結圖；走腦圖到節點即可抽出神經元。
       </p>
 
       {/* ── Family-grid + embedded-maze (redesign-neurons-homepage-squad-and-maze-focus): ONE MazeGrid
@@ -753,7 +754,11 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
               <ul style={{ margin: '0.4rem 0', paddingLeft: '1.1rem' }}>
                 {settlement.newlyWired.map((w) => (
                   <li key={w.pairKey}>
-                    {w.formed ? '🔗 新連線' : '⚡ 強化連線'}：{w.pairKey.replace('|', ' – ')}
+                    {w.formed ? (
+                      <><EmojiIcon char="🔗" size={13} decorative /> 新連線</>
+                    ) : (
+                      <><EmojiIcon char="⚡" size={13} decorative /> 強化連線</>
+                    )}：{w.pairKey.replace('|', ' – ')}
                   </li>
                 ))}
               </ul>
