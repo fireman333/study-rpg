@@ -2328,7 +2328,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q59": {
-  "sourceHash": "d7189393bab902a1a589cf3bf3f911913407abb88bd59b4fba9eda4837cfe926",
+  "sourceHash": "40efaa433ad34189d5e09824b8822e1e300304d7ad5c348a8e23f936d7ff3cd9",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -5461,7 +5461,7 @@
   "flags": []
  },
  "105-1-醫學一-微生物暨免疫學-Q44": {
-  "sourceHash": "5558ae6cde2273f57b834ac55a78a1a20f3764d9decce82f9f8500f0c55d1c8e",
+  "sourceHash": "577ffbe4f2dccf115ed9074677aa10f071c3b4eb93f473abd14dce557cd66a8b",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.018Z",
@@ -7177,7 +7177,7 @@
   "flags": []
  },
  "105-1-醫學二-病理學-Q89": {
-  "sourceHash": "76853ab1d24a5802e538e718fdedce0dbc4ced5d416b6b525413c5a00c77506d",
+  "sourceHash": "be67f061ff50a8d5a8fcb59bd35b74ac029d69afdb3f1f1739cbda8b53130ad9",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.020Z",
@@ -8412,7 +8412,7 @@
   "flags": []
  },
  "105-2-醫學一-組織學-Q35": {
-  "sourceHash": "bb2cb455db7e321e56c7883359a4a187a21ad46b2a21e806ac65c33912f4a14e",
+  "sourceHash": "4b74374a560a9ad335cf001f63d3d8b1d2a95826cde4a78e8c5fe04b5c8a97e7",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.022Z",
@@ -12117,7 +12117,7 @@
   "flags": []
  },
  "106-1-醫學二-病理學-Q86": {
-  "sourceHash": "ea25e635fa849bc4322b053127f50a5ce83735a4033fc7a636862e14175758b9",
+  "sourceHash": "daa42a6e322dab036725dab240dadc3a87cdcb389fddfa1cc14f631aeaa88aa4",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.027Z",
@@ -12429,7 +12429,7 @@
   "flags": []
  },
  "106-1-醫學二-藥理學-Q62": {
-  "sourceHash": "1a0996557179bd3e0ac617314684acfdbcd0007b5c0db42ecc74d80592b6cda2",
+  "sourceHash": "740747c729e538925199ddc6748054821b16555681f8b2c4680471de0f008f8b",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.027Z",
@@ -13965,7 +13965,7 @@
   "flags": []
  },
  "106-2-醫學二-公共衛生學-Q44": {
-  "sourceHash": "6f8bf213cb3d5dae814dbb5b3d33400192d43268326ed5b88795cfd80b512d12",
+  "sourceHash": "a40d3e955411464d21b754faf136829c6c962a6ec35a96acadd7d211e727885e",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.029Z",
@@ -36244,7 +36244,7 @@
   "flags": []
  },
  "111-1-醫學一-組織學-Q41": {
-  "sourceHash": "34a851c169553df1c6bf824810ee49e1445ae9409f3967f112c471d1d9e5c2eb",
+  "sourceHash": "38a597d39cb6f1026c636d6e18b09e32d6d9ebb958623a716b7c5cb25d239d6a",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.062Z",
@@ -41730,7 +41730,7 @@
   "flags": []
  },
  "112-1-醫學一-解剖學-Q28": {
-  "sourceHash": "5f1d5aaefe89188c5cd71a266501cca3fd55d2341aedfd020cdea0a9a7848bd1",
+  "sourceHash": "fb8ad90a3ea78089c248ca02eebece83fbbfaf95dcf579e4447697ce027915a5",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.070Z",
@@ -44356,7 +44356,7 @@
   "flags": []
  },
  "112-2-醫學一-解剖學-Q30": {
-  "sourceHash": "16f08f84fd23b6e37abe5572c2501fc34a11f13f89ec68f85286fb8a4a39ecc3",
+  "sourceHash": "66160ae5d934818ddad168c20523f8769cd4d98b4aff4cca20504e15c052e778",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.074Z",
