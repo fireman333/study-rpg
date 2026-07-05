@@ -251,6 +251,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   // set on a correct answer from the post-answer streak; drives the spike-train
   // burst magnitude. Continuous scale, capped. Reset to baseline on Next.
   const [correctIntensity, setCorrectIntensity] = useState(1)
+  // True when THIS answer consolidated a 今日處方 repair-pool connection — drives the
+  // scoped「連結已固化」note (prescription repair only; never shown in mock/題庫 verdicts).
+  const [repairConsolidated, setRepairConsolidated] = useState(false)
   const reducedMotion = useRespectsReducedMotion()
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
@@ -375,7 +378,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         // so it fires for BOTH the 出征 expedition and family 🆕新題 answers.
         // Best-effort + no-op when today's plan doesn't exist; never break the flow.
         try {
-          await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
+          const presc = await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
+          if (presc.repairConsolidated) setRepairConsolidated(true)
         } catch (err) {
           console.error('[prescription] failed to record answer', err)
         }
@@ -400,6 +404,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
     setHighlighted(null)
     setFeedbackStrip(null)
     setCorrectIntensity(1)
+    setRepairConsolidated(false)
     // Drop the answered question's SRS snapshots — the next question captures
     // its own in handlePick.
     prevSrsRef.current = null
@@ -715,6 +720,11 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   </span>
                 )}
               </p>
+              {repairConsolidated && (
+                <p style={repairConsolidatedStyle}>
+                  🩹 連結已固化 · 這條原本不穩的連結，穩了
+                </p>
+              )}
               {heroReactionBase && (
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.1rem' }} aria-hidden>
                   <SpriteSheetPlayer
@@ -1205,6 +1215,14 @@ const resultLineStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: '0.5rem',
   flexWrap: 'wrap',
+}
+
+// Scoped「連結已固化」note — only when today's 處方 repair pool is consolidated.
+const repairConsolidatedStyle: React.CSSProperties = {
+  margin: '-0.3rem 0 0.6rem',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  color: '#4d8c4d',
 }
 
 // Peripheral EEG spike-train burst on correct answer — sibling overlay, never

@@ -42,6 +42,15 @@ const STAGE_LABEL = [
   '成熟整合的神經元 ✓',
 ] as const
 
+/** Compact 民國-year scope label: contiguous → "113–114", else "114、112". */
+function formatYearScope(years: number[]): string {
+  const sorted = [...years].sort((a, b) => a - b)
+  const contiguous = sorted.every((y, i) => i === 0 || y === sorted[i - 1] + 1)
+  return contiguous && sorted.length > 1
+    ? `${sorted[0]}–${sorted[sorted.length - 1]}`
+    : [...sorted].reverse().join('、')
+}
+
 interface Props {
   /** Engine-computed prescription status; null while loading. */
   status: PrescriptionStatus | null
@@ -73,12 +82,18 @@ export function DailyPrescriptionCard({
     keepsakeUnlocked,
   } = status
   const wrongAutoSatisfied = plan.wrongTarget <= 0
-  const breadthLabel = plan.breadthFamilyLabel ?? '盲區科目'
+  // No eligible 開發新連結 family this day (e.g. all in-scope connections seen).
+  const breadthEmpty = plan.breadthFamilyId == null
+  const breadthLabel = plan.breadthFamilyLabel ?? '新連結科目'
   // Show the academic subject (breadthFamilyId, e.g. 微生物學) alongside the neuron
-  // persona so the player knows which 科目 the 盲區 line targets.
-  const breadthTitle = plan.breadthFamilyId
-    ? `${plan.breadthFamilyId} · ${breadthLabel}`
-    : breadthLabel
+  // persona so the player knows which 科目 the 開發新連結 line targets. Only rendered
+  // in the non-empty branch (breadthFamilyId guaranteed present there).
+  const breadthTitle = `${plan.breadthFamilyId} · ${breadthLabel}`
+  // Range chip: only when the frozen plan scope is a strict subset of all years.
+  const yearScopeLabel = plan.yearScope ? formatYearScope(plan.yearScope) : null
+  // Completed with nothing assignable inside a narrowed scope → point at the year bar.
+  const scopeExhausted =
+    plan.wrongTarget <= 0 && plan.breadthTarget <= 0 && plan.yearScope != null
 
   // Ambient exam countdown chrome (never gates progress).
   const days = daysUntilExam(todayISO())
@@ -102,8 +117,8 @@ export function DailyPrescriptionCard({
           <EmojiIcon char="📋" size={15} /> 今日處方
         </span>
         <span style={stripPartsStyle}>
-          <span>訂正 {wrongAutoSatisfied ? '✓' : `${wrongDone}/${plan.wrongTarget}`}</span>
-          <span>盲區 {breadthDone}/{plan.breadthTarget}</span>
+          <span>修補 {wrongAutoSatisfied ? '✓' : `${wrongDone}/${plan.wrongTarget}`}</span>
+          <span>{breadthEmpty ? '新連結 ✓' : `新連結 ${breadthDone}/${plan.breadthTarget}`}</span>
           <span>已固化 {completedDayCount} 天</span>
         </span>
         <span style={stripChevStyle} aria-hidden>▾</span>
@@ -131,31 +146,49 @@ export function DailyPrescriptionCard({
 
       <p style={leadStyle}>今天做這兩件小事就好，其餘交給每天一點的累積。</p>
 
+      {yearScopeLabel && (
+        <p style={rangeChipStyle} aria-label={`今日處方範圍：民國 ${yearScopeLabel} 年`}>
+          <EmojiIcon char="🗂" size={12} /> 依目前年份範圍穩定練習 · {yearScopeLabel}
+        </p>
+      )}
+
       {/* Two prescription lines. */}
       <div style={linesWrapStyle}>
         <div style={lineRowStyle}>
           <span style={lineLabelStyle}>
-            <EmojiIcon char="🩹" size={14} /> 訂正錯題
+            <EmojiIcon char="🩹" size={14} /> 修補連結
           </span>
           <span style={wrongAutoSatisfied ? lineDoneStyle : lineProgStyle}>
-            {wrongAutoSatisfied ? '今日無待訂正錯題 ✓' : `${wrongDone}/${plan.wrongTarget}`}
+            {wrongAutoSatisfied ? '今日無待修補連結 ✓' : `${wrongDone}/${plan.wrongTarget}`}
           </span>
         </div>
-        <div style={lineRowStyle}>
-          <span style={lineLabelStyle}>
-            <EmojiIcon char="🔍" size={14} /> 開發盲區：{breadthTitle}
-          </span>
-          <span style={breadthDone >= plan.breadthTarget ? lineDoneStyle : lineProgStyle}>
-            {breadthDone}/{plan.breadthTarget}
-          </span>
-        </div>
+        {breadthEmpty ? (
+          <div style={lineRowStyle}>
+            <span style={lineLabelStyle}>
+              <EmojiIcon char="🔍" size={14} /> 開發新連結
+            </span>
+            <span style={lineDoneStyle}>範圍內連結已巡過 ✓</span>
+          </div>
+        ) : (
+          <div style={lineRowStyle}>
+            <span style={lineLabelStyle}>
+              <EmojiIcon char="🔍" size={14} /> 開發新連結：{breadthTitle}
+            </span>
+            <span style={breadthDone >= plan.breadthTarget ? lineDoneStyle : lineProgStyle}>
+              {breadthDone}/{plan.breadthTarget}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Single primary CTA — routes to the next incomplete line, or a calm
           completed state (no route). */}
       {dayComplete ? (
         <div style={completedStyle}>
-          <EmojiIcon char="✅" size={16} /> 今日處方已完成 · 好好收工
+          <EmojiIcon char="✅" size={16} />{' '}
+          {scopeExhausted
+            ? '範圍內今日已巡過 · 可於上方放寬年份，或今日到此為止'
+            : '今日處方已完成 · 好好收工'}
         </div>
       ) : (
         <button
@@ -247,6 +280,21 @@ const leadStyle: React.CSSProperties = {
   fontSize: '0.85rem',
   color: '#5a3f29',
   lineHeight: 1.5,
+}
+
+const rangeChipStyle: React.CSSProperties = {
+  margin: 0,
+  alignSelf: 'flex-start',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.25rem',
+  padding: '0.15rem 0.5rem',
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  color: '#7a5c3a',
+  background: '#f3e7cc',
+  border: '1px solid #e0cfa8',
+  borderRadius: '999px',
 }
 
 const linesWrapStyle: React.CSSProperties = {

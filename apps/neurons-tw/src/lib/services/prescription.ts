@@ -14,11 +14,19 @@
 
 import type { Question } from '@study-rpg/core'
 import { db, todayISO, type QuestionHistoryRow } from '../db'
+import { ALL_YEARS, effectiveYearSet, getYearFilter } from './year-filter'
+import { filterPoolByYear } from './quiz-pool'
 
 /** Minimal family shape the service needs (satisfied by core's `Subject`). */
 interface FamilyRef {
   id: string
   displayName: string
+}
+
+/** Per-question binary flags the plan builder reads (from `questionFlags`). */
+interface QuestionFlagInfo {
+  easyMarked: boolean
+  guessedMarked: boolean
 }
 
 // ── Exam-cycle constant (dogfood: bump per exam cycle) ──────────────────────
@@ -67,10 +75,15 @@ export interface PrescriptionPlan {
   breadthTarget: number
   breadthFamilyId: string | null
   breadthFamilyLabel: string | null
-  /** Snapshot at plan creation — currently-wrong question ids (anti-cheat). */
+  /**
+   * Snapshot at plan creation — the repair pool: currently-wrong ∪ guessed-correct,
+   * minus too-easy (anti-cheat: correcting only these advances the line).
+   */
   wrongEligibleQuestionIds: string[]
-  /** Snapshot at plan creation — 盲區 family's unseen question ids. */
+  /** Snapshot at plan creation — 開發新連結 family's unseen question ids. */
   breadthEligibleQuestionIds: string[]
+  /** Frozen effective exam-year scope; `null` = all years (legacy plans omit it). */
+  yearScope: number[] | null
 }
 
 export interface PrescriptionStatus {
@@ -218,25 +231,59 @@ export function buildPlan(
   pool: readonly Question[],
   history: readonly QuestionHistoryRow[],
   subjects: readonly FamilyRef[],
-  opts: { date: string; recentBlindSpotFamilyIds: readonly string[]; localSeed: string; now: number },
+  opts: {
+    date: string
+    recentBlindSpotFamilyIds: readonly string[]
+    localSeed: string
+    now: number
+    /** Per-question flags (easy / guessed). Empty map = no flags. */
+    flagsByQuestion: ReadonlyMap<string, QuestionFlagInfo>
+    /** Effective exam-year set (from `effectiveYearSet`); all-years = no-op scope. */
+    yearSet: ReadonlySet<number>
+  },
 ): PrescriptionPlan {
-  const wrongIds = history.filter((h) => h.lastResult === 'wrong').map((h) => h.questionId)
+  const { flagsByQuestion, yearSet } = opts
+  const isAllYears = yearSet.size >= ALL_YEARS.length
+  // Scope the pool once via the shared year predicate (quiz-pool.ts). History /
+  // flag ids carry no year of their own, so their scope membership is simply
+  // "is this id in the scoped pool". scopedIds is null iff all years (no-op).
+  const scopedPool = isAllYears ? pool : filterPoolByYear(pool, yearSet)
+  const scopedIds = isAllYears ? null : new Set(scopedPool.map((q) => q.id))
+  const idInScope = (id: string): boolean => scopedIds == null || scopedIds.has(id)
+
+  // ── Repair pool = (currently-wrong ∪ guessed-correct) − too-easy ──
+  const easySet = new Set<string>()
+  const guessedSet = new Set<string>()
+  for (const [qid, f] of flagsByQuestion) {
+    if (f.easyMarked) easySet.add(qid)
+    if (f.guessedMarked) guessedSet.add(qid)
+  }
+  const repairAll = new Set<string>()
+  for (const h of history) if (h.lastResult === 'wrong') repairAll.add(h.questionId)
+  for (const qid of guessedSet) repairAll.add(qid)
+  for (const qid of easySet) repairAll.delete(qid)
+  // Scoped-first: draw from within the year scope; fall back to all-years repair
+  // only when the scoped repair pool is empty (older wrongs/guesses stay real).
+  const repairScoped = [...repairAll].filter(idInScope)
+  const repairIds = repairScoped.length > 0 ? repairScoped : [...repairAll]
+
+  const wrongTarget = computeWrongTarget(repairIds.length, recentAccuracyPct(history))
+
+  // ── Blind-spot / unseen pool (year-scoped; excludes ✨ easy) ──
   const answered = new Set(history.map((h) => h.questionId))
-
-  const wrongTarget = computeWrongTarget(wrongIds.length, recentAccuracyPct(history))
-
   const attemptedByFamily = new Map<string, number>()
   const wrongByFamily = new Map<string, number>()
   for (const h of history) {
+    if (!idInScope(h.questionId)) continue
     attemptedByFamily.set(h.family, (attemptedByFamily.get(h.family) ?? 0) + 1)
     if (h.lastResult === 'wrong')
       wrongByFamily.set(h.family, (wrongByFamily.get(h.family) ?? 0) + 1)
   }
   const totalByFamily = new Map<string, number>()
   const unseenByFamily = new Map<string, string[]>()
-  for (const q of pool) {
+  for (const q of scopedPool) {
     totalByFamily.set(q.subject, (totalByFamily.get(q.subject) ?? 0) + 1)
-    if (!answered.has(q.id)) {
+    if (!answered.has(q.id) && !easySet.has(q.id)) {
       const arr = unseenByFamily.get(q.subject) ?? []
       arr.push(q.id)
       unseenByFamily.set(q.subject, arr)
@@ -254,7 +301,11 @@ export function buildPlan(
   }))
 
   const blind = selectBlindSpotFamily(candidates, opts.recentBlindSpotFamilyIds, opts.date, opts.localSeed)
-  const breadthTarget = computeBreadthTarget(wrongTarget)
+  // No eligible new-connection family (e.g. all in-scope questions seen) → target 0
+  // so the line reads as satisfied and the CTA never routes to a null family.
+  const breadthTarget = blind ? computeBreadthTarget(wrongTarget) : 0
+
+  const yearScope = isAllYears ? null : [...yearSet].sort((a, b) => b - a)
 
   return {
     date: opts.date,
@@ -264,8 +315,9 @@ export function buildPlan(
     breadthTarget,
     breadthFamilyId: blind?.familyId ?? null,
     breadthFamilyLabel: blind?.familyLabel ?? null,
-    wrongEligibleQuestionIds: wrongIds.slice(0, WRONG_SNAPSHOT_CAP),
+    wrongEligibleQuestionIds: repairIds.slice(0, WRONG_SNAPSHOT_CAP),
     breadthEligibleQuestionIds: (blind?.unseenQuestionIds ?? []).slice(0, BREADTH_SNAPSHOT_CAP),
+    yearScope,
   }
 }
 
@@ -323,20 +375,27 @@ export async function getOrCreateTodayPlan(
   const existing = await metaGetJSON<PrescriptionPlan>(planKey(date))
   if (existing) return existing
 
-  const [prev1, prev2, localSeed, history] = await Promise.all([
+  const [prev1, prev2, localSeed, history, flagRows, persistedYears] = await Promise.all([
     metaGetJSON<PrescriptionPlan>(planKey(isoDaysAgo(date, 1))),
     metaGetJSON<PrescriptionPlan>(planKey(isoDaysAgo(date, 2))),
     getLocalSeed(),
     db.questionHistory.toArray(),
+    db.questionFlags.toArray(),
+    getYearFilter(),
   ])
   const recent = [prev1?.breadthFamilyId, prev2?.breadthFamilyId].filter(
     (x): x is string => !!x,
   )
+  const flagsByQuestion = new Map<string, QuestionFlagInfo>()
+  for (const f of flagRows)
+    flagsByQuestion.set(f.questionId, { easyMarked: f.easyMarked, guessedMarked: f.guessedMarked })
   const plan = buildPlan(pack.questions, history, pack.subjects, {
     date,
     recentBlindSpotFamilyIds: recent,
     localSeed,
     now,
+    flagsByQuestion,
+    yearSet: effectiveYearSet(persistedYears),
   })
   // Freeze: only write if still absent (StrictMode / double-mount safe).
   await db.transaction('rw', db.meta, async () => {
@@ -369,14 +428,20 @@ export async function recordPrescriptionAnswer(
   family: string,
   isCorrect: boolean,
   now: number = Date.now(),
-): Promise<void> {
+): Promise<{ repairConsolidated: boolean }> {
   const date = todayISO()
   const plan = await metaGetJSON<PrescriptionPlan>(planKey(date))
-  if (!plan) return
+  if (!plan) return { repairConsolidated: false }
 
+  // True only when THIS answer newly consolidates a repair-pool connection
+  // (a snapshot repair question answered correctly for the first time today).
+  let repairConsolidated = false
   if (isCorrect && plan.wrongEligibleQuestionIds.includes(questionId)) {
     const k = wrongKey(date, questionId)
-    if (!(await metaExists(k))) await db.meta.put({ key: k, value: '1' })
+    if (!(await metaExists(k))) {
+      await db.meta.put({ key: k, value: '1' })
+      repairConsolidated = true
+    }
   }
   if (
     plan.breadthFamilyId != null &&
@@ -399,6 +464,7 @@ export async function recordPrescriptionAnswer(
       await db.meta.put({ key: rewardKey(date), value: JSON.stringify({ claimedAt: now }) })
     }
   }
+  return { repairConsolidated }
 }
 
 /** Full reactive-friendly status snapshot (reads meta; plan must already exist). */
