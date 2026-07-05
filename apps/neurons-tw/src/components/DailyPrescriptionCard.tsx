@@ -27,6 +27,7 @@ import {
 import { todayISO } from '../lib/db'
 import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
 import { EmojiIcon } from './EmojiIcon'
+import { Ng0717BranchBuds, type EnrichedImprint } from './Ng0717BranchBuds'
 import ng0717Stage1 from '../assets/ng0717/stage1.png'
 import ng0717Stage2 from '../assets/ng0717/stage2.png'
 import ng0717Stage3 from '../assets/ng0717/stage3.png'
@@ -59,6 +60,8 @@ interface Props {
   onToggleCollapse: () => void
   /** Single primary CTA — routes to the next incomplete line (wrong → breadth). */
   onStartPrescription: () => void
+  /** Grown NG-0717 lineage imprints, enriched with per-subject colour + label. */
+  branchImprints: EnrichedImprint[]
 }
 
 export function DailyPrescriptionCard({
@@ -66,6 +69,7 @@ export function DailyPrescriptionCard({
   collapsed,
   onToggleCollapse,
   onStartPrescription,
+  branchImprints,
 }: Props): JSX.Element | null {
   const prefersReduced = useRespectsReducedMotion()
 
@@ -226,6 +230,10 @@ export function DailyPrescriptionCard({
           )}
         </div>
       </div>
+
+      {/* NG-0717 分支印記 — dendritic buds grown by covering subjects (only grown
+          buds render; no denominator/gap). */}
+      <Ng0717BranchBuds imprints={branchImprints} />
 
       {/* Ambient exam countdown — chrome only, never a deficit. */}
       <p style={countdownStyle} aria-label="考試倒數（僅供參考）">

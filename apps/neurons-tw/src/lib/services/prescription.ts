@@ -65,6 +65,10 @@ const LOCAL_SEED_KEY = `${NS}:localSeed`
 const WRONG_PREFIX = (date: string) => `${NS}:wrong:${date}:`
 const BREADTH_PREFIX = (date: string) => `${NS}:breadth:${date}:`
 const COMPLETED_PREFIX = `${NS}:completed:`
+// NG-0717 lineage imprint: write-once per (subject, date). Subject ids carry no
+// colon and dates are `YYYY-MM-DD`, so the suffix splits cleanly into id + date.
+const imprintKey = (subjectId: string, date: string) => `${NS}:ng0717:imprint:${subjectId}:${date}`
+const IMPRINT_PREFIX = `${NS}:ng0717:imprint:`
 
 // ── Types ───────────────────────────────────────────────────────────────────
 export interface PrescriptionPlan {
@@ -101,6 +105,34 @@ export interface PrescriptionStatus {
   ng0717Stage: number
   /** True once NG-0717 reaches full maturity (permanent keepsake). */
   keepsakeUnlocked: boolean
+}
+
+/**
+ * NG-0717 lineage imprint — a per-subject dendritic bud grown on the mascot each
+ * time that subject is the completed day's 開發新連結 family. This is a DERIVED view;
+ * the source of truth is write-once `${NS}:ng0717:imprint:<subjectId>:<date>` meta
+ * keys (one per completion day for that subject), so `touches` is monotonic and the
+ * stage never downgrades. Local-only — NOT in SYNCED_META_KEYS.
+ */
+export interface Ng0717Imprint {
+  subjectId: string
+  firstUnlockedDate: string
+  lastTouchedDate: string
+  touches: number
+}
+
+/** Imprint stage thresholds (dogfood-tunable). */
+export const IMPRINT_WARM_TOUCHES = 2
+export const IMPRINT_MYELINATED_TOUCHES = 3
+
+export type ImprintStage = 'absent' | 'sprout' | 'warm' | 'myelinated'
+
+/** Qualitative imprint stage derived purely from touch count (monotonic). */
+export function imprintStage(touches: number): ImprintStage {
+  if (touches >= IMPRINT_MYELINATED_TOUCHES) return 'myelinated'
+  if (touches >= IMPRINT_WARM_TOUCHES) return 'warm'
+  if (touches >= 1) return 'sprout'
+  return 'absent'
 }
 
 // ── Pure helpers (exported for unit tests) ──────────────────────────────────
@@ -416,6 +448,43 @@ export async function getCompletedDayCount(): Promise<number> {
 }
 
 /**
+ * All grown NG-0717 lineage imprints, derived from the write-once per-(subject,date)
+ * keys. Returns ONLY families with ≥1 imprint (absent subjects are never
+ * materialised — the UI renders no gap/placeholder for them). Ordered
+ * earliest-unlocked first, then by subjectId, for stable rendering.
+ */
+export async function getImprints(): Promise<Ng0717Imprint[]> {
+  const rows = await db.meta.where('key').startsWith(IMPRINT_PREFIX).toArray()
+  const datesBySubject = new Map<string, string[]>()
+  for (const r of rows) {
+    const suffix = r.key.slice(IMPRINT_PREFIX.length) // "<subjectId>:<date>"
+    const cut = suffix.lastIndexOf(':')
+    if (cut < 0) continue
+    const subjectId = suffix.slice(0, cut)
+    const date = suffix.slice(cut + 1)
+    const arr = datesBySubject.get(subjectId) ?? []
+    arr.push(date)
+    datesBySubject.set(subjectId, arr)
+  }
+  const imprints: Ng0717Imprint[] = []
+  for (const [subjectId, dates] of datesBySubject) {
+    dates.sort()
+    imprints.push({
+      subjectId,
+      firstUnlockedDate: dates[0],
+      lastTouchedDate: dates[dates.length - 1],
+      touches: dates.length,
+    })
+  }
+  imprints.sort(
+    (a, b) =>
+      a.firstUnlockedDate.localeCompare(b.firstUnlockedDate) ||
+      a.subjectId.localeCompare(b.subjectId),
+  )
+  return imprints
+}
+
+/**
  * Record a quiz answer against today's prescription. Idempotent + deduped:
  * - 訂正錯題 counts a snapshot-wrong question answered correctly (write-once).
  * - 開發盲區 counts a snapshot-unseen question in the 盲區 family on first answer,
@@ -462,6 +531,14 @@ export async function recordPrescriptionAnswer(
     }
     if (!(await metaExists(rewardKey(date)))) {
       await db.meta.put({ key: rewardKey(date), value: JSON.stringify({ claimedAt: now }) })
+    }
+    // NG-0717 lineage imprint: grow/advance today's 開發新連結 family (write-once per
+    // (subject, date); touches derive from the prefix count). breadthFamilyId null →
+    // no imprint this day. The repair line never grows an imprint (it advances only
+    // NG-0717's rolling-day maturation).
+    if (plan.breadthFamilyId != null) {
+      const ik = imprintKey(plan.breadthFamilyId, date)
+      if (!(await metaExists(ik))) await db.meta.put({ key: ik, value: '1' })
     }
   }
   return { repairConsolidated }

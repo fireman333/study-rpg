@@ -19,6 +19,8 @@ import {
   setLightsOutToday,
   clearLightsOutToday,
   daysUntilExam,
+  imprintStage,
+  getImprints,
   NG0717_FULL_MATURITY,
   DAILY_TOTAL_CAP,
   type PrescriptionPlan,
@@ -131,6 +133,17 @@ describe('ng0717Stage', () => {
     expect(ng0717Stage(6)).toBe(3)
     expect(ng0717Stage(10)).toBe(4)
     expect(ng0717Stage(99)).toBe(4)
+  })
+})
+
+// ── pure: NG-0717 lineage imprint stage ──────────────────────────────────────
+describe('imprintStage', () => {
+  it('derives a monotonic qualitative stage from touch count', () => {
+    expect(imprintStage(0)).toBe('absent')
+    expect(imprintStage(1)).toBe('sprout')
+    expect(imprintStage(2)).toBe('warm')
+    expect(imprintStage(3)).toBe('myelinated')
+    expect(imprintStage(99)).toBe('myelinated')
   })
 })
 
@@ -451,5 +464,94 @@ describe('prescription meta layer', () => {
     expect(await isLightsOutToday()).toBe(true)
     await clearLightsOutToday()
     expect(await isLightsOutToday()).toBe(false)
+  })
+})
+
+// ── impure: NG-0717 lineage imprints ─────────────────────────────────────────
+describe('NG-0717 lineage imprints', () => {
+  beforeEach(async () => {
+    await db.delete()
+    await db.open()
+  })
+
+  const IMP = (subjectId: string, date: string) =>
+    `prescription:v1:ng0717:imprint:${subjectId}:${date}`
+
+  it('grows a sprout imprint for the day\'s breadth family when the day completes', async () => {
+    await putPlan({
+      wrongTarget: 1,
+      breadthTarget: 1,
+      breadthFamilyId: 'phys',
+      wrongEligibleQuestionIds: ['w1'],
+      breadthEligibleQuestionIds: ['b1'],
+    })
+    await recordPrescriptionAnswer('w1', 'anat', true)
+    expect(await getImprints()).toEqual([]) // not complete yet → no imprint
+    await recordPrescriptionAnswer('b1', 'phys', true) // completes the day
+    const imps = await getImprints()
+    expect(imps).toHaveLength(1)
+    expect(imps[0].subjectId).toBe('phys')
+    expect(imps[0].touches).toBe(1)
+    expect(imps[0].firstUnlockedDate).toBe(todayISO())
+    expect(imprintStage(imps[0].touches)).toBe('sprout')
+  })
+
+  it('grows NO imprint when the completed day has no breadth family', async () => {
+    // wrong line auto-satisfies the day (breadthTarget 0, breadthFamilyId null).
+    await putPlan({ wrongTarget: 1, breadthTarget: 0, breadthFamilyId: null, wrongEligibleQuestionIds: ['w1'] })
+    await recordPrescriptionAnswer('w1', 'anat', true)
+    expect(await getCompletedDayCount()).toBe(1) // the day IS complete…
+    expect(await getImprints()).toEqual([]) // …but no imprint was grown
+  })
+
+  it('is write-once per (subject, day): replaying completion does not add a second touch', async () => {
+    await putPlan({
+      wrongTarget: 1,
+      breadthTarget: 1,
+      breadthFamilyId: 'phys',
+      wrongEligibleQuestionIds: ['w1'],
+      breadthEligibleQuestionIds: ['b1'],
+    })
+    await recordPrescriptionAnswer('w1', 'anat', true)
+    await recordPrescriptionAnswer('b1', 'phys', true)
+    await recordPrescriptionAnswer('b1', 'phys', true) // replay
+    const imps = await getImprints()
+    expect(imps).toHaveLength(1)
+    expect(imps[0].touches).toBe(1)
+  })
+
+  it('getImprints derives touches / first / last across days and returns only grown families, ordered', async () => {
+    // Seed write-once keys directly for distinct completion days.
+    await db.meta.bulkPut([
+      { key: IMP('phys', '2026-07-01'), value: '1' },
+      { key: IMP('phys', '2026-07-03'), value: '1' },
+      { key: IMP('phys', '2026-07-05'), value: '1' },
+      { key: IMP('anat', '2026-07-04'), value: '1' },
+    ])
+    const imps = await getImprints()
+    // only the 2 grown families; ordered earliest-unlocked first (phys 07-01 < anat 07-04)
+    expect(imps.map((i) => i.subjectId)).toEqual(['phys', 'anat'])
+    const phys = imps.find((i) => i.subjectId === 'phys')!
+    expect(phys.touches).toBe(3)
+    expect(phys.firstUnlockedDate).toBe('2026-07-01')
+    expect(phys.lastTouchedDate).toBe('2026-07-05')
+    expect(imprintStage(phys.touches)).toBe('myelinated')
+    const anat = imps.find((i) => i.subjectId === 'anat')!
+    expect(anat.touches).toBe(1)
+    expect(imprintStage(anat.touches)).toBe('sprout')
+  })
+
+  it('splits keys correctly for CJK subject ids (no colon in ids)', async () => {
+    await db.meta.bulkPut([
+      { key: IMP('藥理學', '2026-07-05'), value: '1' },
+      { key: IMP('公共衛生學', '2026-07-05'), value: '1' },
+    ])
+    const imps = await getImprints()
+    expect(imps.map((i) => i.subjectId).sort()).toEqual(['公共衛生學', '藥理學'])
+    expect(imps.every((i) => i.touches === 1)).toBe(true)
+  })
+
+  it('returns an empty list when no imprint has been grown', async () => {
+    expect(await getImprints()).toEqual([])
   })
 })

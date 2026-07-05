@@ -25,6 +25,8 @@ import { DailyPrescriptionCard } from '../components/DailyPrescriptionCard'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { LightsOutRitual } from '../components/LightsOutRitual'
 import { usePrescriptionStatus } from '../lib/hooks/usePrescriptionStatus'
+import { useNg0717Imprints } from '../lib/hooks/useNg0717Imprints'
+import { type EnrichedImprint } from '../components/Ng0717BranchBuds'
 import {
   isLightsOutToday,
   setLightsOutToday,
@@ -330,6 +332,15 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // line progress + NG-0717 maturation. Collapse pref is device-local (meta key,
   // NOT synced), mirroring maze:homeExpanded; default = expanded.
   const prescription = usePrescriptionStatus(pack)
+  // NG-0717 分支印記: grown dendritic buds, enriched with per-subject colour + label.
+  const rawImprints = useNg0717Imprints()
+  const branchImprints = useMemo<EnrichedImprint[]>(() => {
+    const byId = new Map(pack.subjects.map((s) => [s.id, s]))
+    return rawImprints.map((im) => {
+      const s = byId.get(im.subjectId)
+      return { ...im, color: s?.color ?? '#c9a86a', displayName: s?.displayName ?? im.subjectId }
+    })
+  }, [rawImprints, pack.subjects])
   const [prescriptionCollapsed, setPrescriptionCollapsed] = useState(false)
   useEffect(() => {
     let alive = true
@@ -648,6 +659,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           collapsed={prescriptionCollapsed}
           onToggleCollapse={togglePrescriptionCollapse}
           onStartPrescription={startPrescription}
+          branchImprints={branchImprints}
         />
       )}
 
