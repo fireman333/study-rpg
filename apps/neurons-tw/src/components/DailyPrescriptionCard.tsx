@@ -229,7 +229,7 @@ export function DailyPrescriptionCard({
 
       {/* Ambient exam countdown — chrome only, never a deficit. */}
       <p style={countdownStyle} aria-label="考試倒數（僅供參考）">
-        🗓 {countdownText}
+        <EmojiIcon char="🗓" size={13} decorative /> {countdownText}
       </p>
     </section>
   )

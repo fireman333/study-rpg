@@ -10,6 +10,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { EmojiIcon } from '../components/EmojiIcon'
 import {
   QUIZ_BUG_TARGETS,
   QUIZ_BUG_TARGET_TO_CATEGORY,
@@ -271,7 +272,7 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
 
   return (
     <section aria-label="題庫">
-      <h2 style={titleStyle}>📖 題庫</h2>
+      <h2 style={titleStyle}><EmojiIcon char="📖" size={16} decorative /> 題庫</h2>
       <p style={helperStyle}>
         全部 {questions.length} 題依科別、年份、次別篩選後完整陳列題目、選項與詳解。
         發現題目 / 詳解有誤可點每題的 🐞 回報。
@@ -287,7 +288,7 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
 
       <div style={searchBarStyle}>
         <label style={searchLabelStyle} htmlFor="qbank-search-input">
-          🔍 搜尋
+          <EmojiIcon char="🔍" size={13} decorative /> 搜尋
         </label>
         <span style={searchFieldStyle}>
           <input
@@ -454,7 +455,7 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
                 style={examSetPool.length === 0 ? examRowDoneStyle : examRowStyle}
                 title={examSetPool.length === 0 ? '本冊已全部作答，改用模擬考試重做' : undefined}
               >
-                <span>📖 即時詳解</span>
+                <span><EmojiIcon char="📖" size={13} decorative /> 即時詳解</span>
                 <span style={examBadgeStyle}>
                   {examSetPool.length === 0 ? '已全部作答' : `剩 ${examSetPool.length} 題`}
                 </span>
@@ -470,7 +471,7 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
             </p>
             <p style={examHintStyle}>
               <Link to="/collection" style={{ color: 'var(--accent, #6a9bc4)', fontWeight: 700 }}>
-                🧬 看模擬考收藏（在圖鑑底下）→
+<EmojiIcon char="🧬" size={13} decorative /> 看模擬考收藏（在圖鑑底下）→
               </Link>
             </p>
           </div>

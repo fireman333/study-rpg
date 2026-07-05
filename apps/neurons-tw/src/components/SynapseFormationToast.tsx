@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { ContentPack } from '@study-rpg/core'
+import { EmojiIcon } from './EmojiIcon'
 import {
   decodePairKey,
   subscribeConnectomeEvents,
@@ -88,7 +89,7 @@ export default function ConnectomeToastHost({ pack }: Props): JSX.Element {
             transition={{ duration: transitionDuration, ease: 'easeOut' }}
             style={toastStyle}
           >
-            <span style={emojiStyle}>{t.emoji}</span>
+            <span style={emojiStyle}><EmojiIcon char={t.emoji} size={16} decorative /></span>
             <span>{t.message}</span>
           </motion.div>
         ))}

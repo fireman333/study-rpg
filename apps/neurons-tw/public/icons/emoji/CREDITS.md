@@ -25,6 +25,20 @@ This pack was assembled for `pixelate-neurons-emoji` (2026-06-07):
   (clipboard) / 🌟 `1f31f` (glowing star) / 🔌 `1f50c` (electric plug) /
   💎 `1f48e` (gem stone) / 🐛 `1f41b` (bug) / 🏅 `1f3c5` (sports medal) /
   ❓ `2753` (question mark) / 🚀 `1f680` (rocket).
+- **6 icons generated** 2026-07-05 for the homepage chrome backfill
+  (`pixelate-neurons-homepage-emoji`), same codex CLI formula + ImageMagick
+  post-process (corner-connected floodfill chroma-key → trim → point resize 60px
+  → extent 64×64 → 16-color): 🩹 `1fa79` (adhesive bandage) / 🔍 `1f50d`
+  (magnifying glass) / 🗓 `1f5d3` (spiral calendar) / 🔥 `1f525` (fire) /
+  📅 `1f4c5` (tear-off calendar) / 🧫 `1f9eb` (petri dish). These cover the
+  今日處方箋 / 錯題出征 / 神經元遠征隊 / focus-toast chrome glyphs that were
+  still rendering as native system emoji.
+- **3 icons added** 2026-07-05 (2nd homepage pass — family-card action buttons,
+  hotkeys banner, 熄燈儀式): 🆕 `1f195` (new badge, generated via codex) plus
+  🔄 `1f504` (refresh) and 🌙 `1f319` (crescent moon) **copied verbatim from the
+  二階 pack** (same 2026-05-22 codex origin as the shared 16). The hotkeys-banner
+  glyphs ⌨️ `2328` / ⭐ `2b50` / ✨ `2728` / 🤔 `1f914` / ❓ `2753` were already
+  in the pack and just needed wiring.
 
 ## Style anchor (codex prompt formula)
 

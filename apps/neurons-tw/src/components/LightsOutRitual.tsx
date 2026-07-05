@@ -20,6 +20,7 @@
  */
 
 import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
+import { EmojiIcon } from './EmojiIcon'
 
 interface Props {
   /** Qualitative display labels of families the player touched today. */
@@ -47,7 +48,7 @@ export function LightsOutRitual({ touchedFamilyLabels, onClose }: Props): JSX.El
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={moonStyle} aria-hidden>🌙</div>
+        <div style={moonStyle} aria-hidden><EmojiIcon char="🌙" size={40} decorative /></div>
         <h2 style={titleStyle}>今天到此為止</h2>
 
         {hadActivity ? (

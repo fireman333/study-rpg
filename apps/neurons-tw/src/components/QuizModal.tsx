@@ -722,7 +722,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
               </p>
               {repairConsolidated && (
                 <p style={repairConsolidatedStyle}>
-                  🩹 連結已固化 · 這條原本不穩的連結，穩了
+                  <EmojiIcon char="🩹" size={13} decorative /> 連結已固化 · 這條原本不穩的連結，穩了
                 </p>
               )}
               {heroReactionBase && (

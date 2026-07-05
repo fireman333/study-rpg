@@ -261,7 +261,7 @@ function FamilyCard({
         </div>
         <div style={cardHeadTextStyle}>
           <div style={primaryNameStyle(accent)}>
-            {accrual?.firedToday && <span title="今日已激發" aria-label="今日已激發">🔥 </span>}
+            {accrual?.firedToday && <span title="今日已激發" aria-label="今日已激發"><EmojiIcon char="🔥" size={12} decorative /> </span>}
             {family.id}
           </div>
           <div style={personaNameStyle}>{family.displayName}</div>
@@ -291,7 +291,7 @@ function FamilyCard({
             // (on every family card's 聚焦 entry — the tour targets the first visible match).
             data-tutorial="maze-focus"
           >
-            <span aria-hidden>🔍</span>
+            <EmojiIcon char="🔍" size={13} decorative />
             <span className="neurons-focus-label" style={focusBtnLabelStyle}>聚焦</span>
           </button>
         )}
@@ -320,7 +320,7 @@ function FamilyCard({
                 : `從 ${family.id} 出沒答過的新題（${freshCount} 題）`
           }
         >
-          🆕 新題
+          <EmojiIcon char="🆕" size={13} decorative /> 新題
           <span style={modeChipBadgeStyle}>
             {isEmpty ? '—' : freshCount === 0 ? '全部答過' : `${freshCount}/${family.totalQuestions}`}
           </span>
@@ -332,7 +332,7 @@ function FamilyCard({
           style={reviewDisabled ? modeChipDisabledStyle : modeChipReviewStyle(accent)}
           title={reviewDisabled ? '今日沒有到期的複習題' : `複習 ${family.id} 今日到期的 ${dueCount} 題`}
         >
-          🔄 錯題
+          <EmojiIcon char="🔄" size={13} decorative /> 錯題
           <span style={modeChipBadgeStyle}>{reviewDisabled ? '今日無到期' : dueCount}</span>
         </button>
       </div>
@@ -348,7 +348,11 @@ function FamilyCard({
           style={isReading ? readingChipActiveStyle(accent) : readingChipStyle(accent)}
           title={isReading ? `結束 ${family.id} 的閱讀` : `開始閱讀 ${family.id}（能量全進此科）`}
         >
-          {isReading ? (readingActiveLabel ?? '🟢 閱讀中 · 點擊結束') : '📖 閱讀此科'}
+          {isReading ? (
+            readingActiveLabel ?? '🟢 閱讀中 · 點擊結束'
+          ) : (
+            <><EmojiIcon char="📖" size={13} decorative /> 閱讀此科</>
+          )}
         </button>
       )}
     </article>

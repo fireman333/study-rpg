@@ -25,6 +25,7 @@
 import { memo, useEffect, useState } from 'react'
 import { liveQuery } from 'dexie'
 import { DMN_EXPEDITION_DAILY_CAP } from '@study-rpg/content-neurons-tw'
+import { EmojiIcon } from './EmojiIcon'
 import { readDmnMeta } from '../lib/services/dmn-trigger'
 
 interface BarState {
@@ -77,7 +78,7 @@ export const DmnDrawProgressRing = memo(function DmnDrawProgressRing(): JSX.Elem
   return (
     <div style={wrapStyle} aria-label={caption}>
       <div style={headerRowStyle}>
-        <span style={labelStyle}>💎 DMN 抽卡</span>
+        <span style={labelStyle}><EmojiIcon char="💎" size={13} decorative /> DMN 抽卡</span>
         <span style={countStyle}>{countLabel}</span>
       </div>
       <div

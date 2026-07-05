@@ -74,8 +74,8 @@ function OwnedTile({ def, row }: { def: MockVariantDef; row: MockExamVariantRow 
         {spriteUrl ? (
           <img src={spriteUrl} width={64} height={64} alt={def.displayName} style={{ imageRendering: 'pixelated' }} />
         ) : (
-          <span style={{ fontSize: '2.2rem' }} aria-hidden>
-            🧬
+          <span aria-hidden>
+            <EmojiIcon char="🧬" size={35} decorative />
           </span>
         )}
       </div>

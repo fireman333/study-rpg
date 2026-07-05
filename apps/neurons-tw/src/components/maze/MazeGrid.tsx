@@ -1602,7 +1602,7 @@ export default function MazeGrid({ view, emphasisFamilyId = null, onFamilyTap }:
             🎯 聚焦：{emphasisFamilyId}{focusHasNoNode ? '｜目前沒有可探索節點' : '｜全覽 ✕'}
           </button>
         ) : (
-          <span style={overviewPillStyle}>🔭 腦圖全覽</span>
+          <span style={overviewPillStyle}><EmojiIcon char="🔭" size={13} decorative /> 腦圖全覽</span>
         )}
       </div>
 

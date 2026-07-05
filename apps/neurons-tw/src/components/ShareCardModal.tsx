@@ -15,6 +15,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
+import { EmojiIcon } from './EmojiIcon'
 import {
   buildCharacterCardPayload,
   buildConnectorCardPayload,
@@ -292,7 +293,7 @@ export default function ShareCardModal({ open, onClose, userId }: Props): JSX.El
                   {url ? (
                     <img src={url} alt={`${c.familyA} ↔ ${c.familyB}`} style={pickerImgStyle} />
                   ) : (
-                    <span style={pickerFallbackStyle}>🔗</span>
+                    <span style={pickerFallbackStyle}><EmojiIcon char="🔗" size={18} decorative /></span>
                   )}
                 </button>
               )

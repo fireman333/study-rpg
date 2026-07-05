@@ -13,6 +13,7 @@
  */
 
 import { useState } from 'react'
+import { EmojiIcon } from './EmojiIcon'
 
 // v1 → v2 bump (add-neurons-helpmenu, 2026-05-29): added HelpMenu reference.
 // v2 → v3 bump (add-neurons-question-bookmarks, 2026-05-29): added bookmark
@@ -114,15 +115,15 @@ export default function QuizHotkeysAnnouncementBanner(): JSX.Element | null {
         aria-label="新功能公告：鍵盤快捷鍵"
       >
         <span className="neurons-quiz-hotkeys-banner__icon" aria-hidden="true">
-          ⌨️
+          <EmojiIcon char="⌨️" size={18} decorative />
         </span>
         <span className="neurons-quiz-hotkeys-banner__msg">
           <strong>新功能：答題系統鍵盤快捷鍵</strong> — 題目階段 <kbd>1</kbd>–<kbd>4</kbd> 選答案、
           <kbd>Enter</kbd> 送出；答題後 <kbd>Enter</kbd> 或 <kbd>Space</kbd> 下一題、
-          <kbd>1</kbd> ⭐ 收藏、<kbd>2</kbd> ✨ 太簡單、<kbd>3</kbd> 🤔 我亂猜的；
+          <kbd>1</kbd> <EmojiIcon char="⭐" size={13} decorative /> 收藏、<kbd>2</kbd> <EmojiIcon char="✨" size={13} decorative /> 太簡單、<kbd>3</kbd> <EmojiIcon char="🤔" size={13} decorative /> 我亂猜的；
           長題幹 <kbd>Space</kbd>/<kbd>Shift+Space</kbd> 翻頁、<kbd>↓</kbd><kbd>↑</kbd> 微捲、
           <kbd>Home</kbd>/<kbd>End</kbd> 跳邊；<kbd>Esc</kbd> 隨時關閉。
-          詳見右上 ❓ →「⌨️ 鍵盤快捷鍵」section。
+          詳見右上 <EmojiIcon char="❓" size={13} decorative /> →「<EmojiIcon char="⌨️" size={13} decorative /> 鍵盤快捷鍵」section。
         </span>
         <button
           type="button"

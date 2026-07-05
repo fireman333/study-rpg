@@ -271,7 +271,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
       {yearOptions.length > 0 && (
         <section style={filterBarStyle} aria-label="年份篩選">
           <div style={filterHeaderStyle}>
-            <span style={filterLabelStyle}>📅 依年份篩選</span>
+            <span style={filterLabelStyle}><EmojiIcon char="📅" size={13} decorative /> 依年份篩選</span>
           </div>
           <div style={chipRowStyle}>
             <button
