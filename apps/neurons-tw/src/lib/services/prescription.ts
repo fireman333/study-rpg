@@ -224,15 +224,24 @@ export interface BlindSpotCandidate {
 
 /**
  * Choose the day's 盲區 family: only families with unseen questions are eligible;
- * pick the highest score; skip a family that was the 盲區 on BOTH of the previous
- * 2 days when an alternative exists; break ties deterministically by
- * hash(date + familyId + localSeed).
+ * skip a family that was the 盲區 on BOTH of the previous 2 days when an
+ * alternative exists; then apply an INVISIBLE NG-0717-imprint coverage bias so buds
+ * spread methodically across subjects — families with no imprint yet win first, then
+ * the least-recently-covered one rotates in; the coverage score orders within a tier;
+ * ties break deterministically by hash(date + familyId + localSeed).
+ *
+ * The bias is expressed purely through `lastTouched`: a never-imprinted family maps
+ * to `''`, which sorts before any real `YYYY-MM-DD`, so it is preferred; among
+ * imprinted families the oldest date sorts first. An empty map (no imprints, e.g. a
+ * new player) makes every `lastTouched` `''` → the sort reduces to pure score
+ * (backward-compatible).
  */
 export function selectBlindSpotFamily(
   candidates: readonly BlindSpotCandidate[],
   recentBlindSpotFamilyIds: readonly string[],
   date: string,
   localSeed: string,
+  imprintLastTouchedByFamily: ReadonlyMap<string, string> = new Map(),
 ): BlindSpotCandidate | null {
   const eligible = candidates.filter((c) => c.unseenCount > 0)
   if (eligible.length === 0) return null
@@ -248,10 +257,13 @@ export function selectBlindSpotFamily(
       : eligible
   const scored = preferred.map((c) => ({
     c,
+    lastTouched: imprintLastTouchedByFamily.get(c.familyId) ?? '',
     score: blindSpotScore(c.unseenCount, c.totalQuestions, c.outstandingWrongCount, c.uniqueAttempted),
     tie: stableHash(`${date}:${c.familyId}:${localSeed}`),
   }))
-  scored.sort((a, b) => b.score - a.score || a.tie - b.tie)
+  scored.sort(
+    (a, b) => a.lastTouched.localeCompare(b.lastTouched) || b.score - a.score || a.tie - b.tie,
+  )
   return scored[0].c
 }
 
@@ -272,6 +284,12 @@ export function buildPlan(
     flagsByQuestion: ReadonlyMap<string, QuestionFlagInfo>
     /** Effective exam-year set (from `effectiveYearSet`); all-years = no-op scope. */
     yearSet: ReadonlySet<number>
+    /**
+     * Per-family NG-0717 imprint `lastTouchedDate` (familyId → ISO date). Absent =
+     * never imprinted. Drives the invisible coverage-rotation bias in
+     * `selectBlindSpotFamily`. Empty map = pure score (backward-compatible).
+     */
+    imprintLastTouchedByFamily?: ReadonlyMap<string, string>
   },
 ): PrescriptionPlan {
   const { flagsByQuestion, yearSet } = opts
@@ -332,7 +350,13 @@ export function buildPlan(
     unseenQuestionIds: unseenByFamily.get(s.id) ?? [],
   }))
 
-  const blind = selectBlindSpotFamily(candidates, opts.recentBlindSpotFamilyIds, opts.date, opts.localSeed)
+  const blind = selectBlindSpotFamily(
+    candidates,
+    opts.recentBlindSpotFamilyIds,
+    opts.date,
+    opts.localSeed,
+    opts.imprintLastTouchedByFamily ?? new Map(),
+  )
   // No eligible new-connection family (e.g. all in-scope questions seen) → target 0
   // so the line reads as satisfied and the CTA never routes to a null family.
   const breadthTarget = blind ? computeBreadthTarget(wrongTarget) : 0
@@ -407,13 +431,14 @@ export async function getOrCreateTodayPlan(
   const existing = await metaGetJSON<PrescriptionPlan>(planKey(date))
   if (existing) return existing
 
-  const [prev1, prev2, localSeed, history, flagRows, persistedYears] = await Promise.all([
+  const [prev1, prev2, localSeed, history, flagRows, persistedYears, imprints] = await Promise.all([
     metaGetJSON<PrescriptionPlan>(planKey(isoDaysAgo(date, 1))),
     metaGetJSON<PrescriptionPlan>(planKey(isoDaysAgo(date, 2))),
     getLocalSeed(),
     db.questionHistory.toArray(),
     db.questionFlags.toArray(),
     getYearFilter(),
+    getImprints(),
   ])
   const recent = [prev1?.breadthFamilyId, prev2?.breadthFamilyId].filter(
     (x): x is string => !!x,
@@ -421,6 +446,9 @@ export async function getOrCreateTodayPlan(
   const flagsByQuestion = new Map<string, QuestionFlagInfo>()
   for (const f of flagRows)
     flagsByQuestion.set(f.questionId, { easyMarked: f.easyMarked, guessedMarked: f.guessedMarked })
+  // Invisible coverage-rotation bias: feed each already-grown family's lastTouchedDate
+  // so selectBlindSpotFamily prefers not-yet / least-recently-covered subjects.
+  const imprintLastTouchedByFamily = new Map(imprints.map((im) => [im.subjectId, im.lastTouchedDate]))
   const plan = buildPlan(pack.questions, history, pack.subjects, {
     date,
     recentBlindSpotFamilyIds: recent,
@@ -428,6 +456,7 @@ export async function getOrCreateTodayPlan(
     now,
     flagsByQuestion,
     yearSet: effectiveYearSet(persistedYears),
+    imprintLastTouchedByFamily,
   })
   // Freeze: only write if still absent (StrictMode / double-mount safe).
   await db.transaction('rw', db.meta, async () => {

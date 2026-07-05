@@ -187,6 +187,53 @@ describe('selectBlindSpotFamily', () => {
     const b = selectBlindSpotFamily(c, [], '2026-07-04', 'seed')?.familyId
     expect(a).toBe(b)
   })
+
+  // ── invisible imprint-coverage bias (add-neurons-gentle-branch-rotation) ──
+  it('prefers a never-imprinted family over a higher-score imprinted one', () => {
+    const c = [
+      cand({ familyId: 'A', unseenCount: 90, totalQuestions: 100 }), // higher score, but imprinted
+      cand({ familyId: 'B', unseenCount: 5, totalQuestions: 100 }), // lower score, never imprinted
+    ]
+    const imp = new Map([['A', '2026-07-01']])
+    expect(selectBlindSpotFamily(c, [], 'd', 's', imp)?.familyId).toBe('B')
+  })
+
+  it('orders by score within the never-imprinted tier', () => {
+    const c = [
+      cand({ familyId: 'low', unseenCount: 5, totalQuestions: 100 }),
+      cand({ familyId: 'high', unseenCount: 90, totalQuestions: 100 }),
+    ]
+    // both never imprinted → the bias does not reorder; highest score wins
+    expect(selectBlindSpotFamily(c, [], 'd', 's', new Map())?.familyId).toBe('high')
+  })
+
+  it('rotates to the least-recently-covered family when all eligible are imprinted', () => {
+    const c = [
+      cand({ familyId: 'X', unseenCount: 90, totalQuestions: 100 }), // higher score, touched recently
+      cand({ familyId: 'Y', unseenCount: 10, totalQuestions: 100 }), // lower score, touched long ago
+    ]
+    const imp = new Map([['X', '2026-07-05'], ['Y', '2026-07-01']])
+    expect(selectBlindSpotFamily(c, [], 'd', 's', imp)?.familyId).toBe('Y')
+  })
+
+  it('falls back to pure score with no imprint map (backward-compatible)', () => {
+    const c = [
+      cand({ familyId: 'low', unseenCount: 5, totalQuestions: 100 }),
+      cand({ familyId: 'high', unseenCount: 90, totalQuestions: 100 }),
+    ]
+    expect(selectBlindSpotFamily(c, [], 'd', 's')?.familyId).toBe('high') // no 5th arg
+  })
+
+  it('stacks with the repeated-2-days guard: guard excludes first, then bias picks', () => {
+    const c = [
+      cand({ familyId: 'rep', unseenCount: 90, totalQuestions: 100 }), // would win on score, but repeated
+      cand({ familyId: 'new', unseenCount: 5, totalQuestions: 100 }), // never imprinted
+      cand({ familyId: 'old', unseenCount: 40, totalQuestions: 100 }), // imprinted
+    ]
+    const imp = new Map([['rep', '2026-07-01'], ['old', '2026-07-02']])
+    // 'rep' skipped by the 2-day guard → among {new (never), old (imprinted)} → 'new'
+    expect(selectBlindSpotFamily(c, ['rep', 'rep'], 'd', 's', imp)?.familyId).toBe('new')
+  })
 })
 
 describe('blindSpotScore', () => {
@@ -553,5 +600,18 @@ describe('NG-0717 lineage imprints', () => {
 
   it('returns an empty list when no imprint has been grown', async () => {
     expect(await getImprints()).toEqual([])
+  })
+
+  it('getOrCreateTodayPlan biases the breadth pick toward a never-imprinted family', async () => {
+    const subjects = [{ id: 'anat', displayName: '解剖' }, { id: 'phys', displayName: '生理' }]
+    const pool = [
+      ...Array.from({ length: 30 }, (_, i) => q(`anat-${i}`, 'anat')),
+      ...Array.from({ length: 30 }, (_, i) => q(`phys-${i}`, 'phys')),
+    ]
+    // anat already grew a bud on a past day; phys never → the invisible coverage
+    // bias makes phys today's 開發新連結 family regardless of the score tie-break.
+    await db.meta.put({ key: IMP('anat', '2026-07-01'), value: '1' })
+    const p = await getOrCreateTodayPlan({ questions: pool, subjects })
+    expect(p.breadthFamilyId).toBe('phys')
   })
 })
