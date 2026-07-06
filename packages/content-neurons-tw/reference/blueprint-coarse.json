@@ -1,0 +1,231 @@
+{
+  "_meta": {
+    "note": "Coarse (章節) skeleton for the 11 一階 subjects, transcribed faithfully from the official 考選部 命題大綱 (see moex-blueprint.txt in this dir, the raw PDF extraction). This is the top level of the closed concept tree per add-neurons-concept-tags §1.1. Fine (leaf) concepts hang under these chapters in §1.3 (concept-vocab/<subject>.ts). Chapter `id` is a stable canonical slug unique within its subject; `subjectId` matches the corpus `question.subject` value verbatim.",
+    "source": "中華民國考選部 醫師考試分階段考試命題大綱 (自116年第一次實施; 最新修正 115年6月12日 選專四字第1150002032號)",
+    "sittings": 23,
+    "sittingRange": "104-1 … 115-1",
+    "subjects": 11
+  },
+  "subjects": [
+    {
+      "subjectId": "生物化學",
+      "blueprintName": "生物化學 (biochemistry)",
+      "paper": "醫學一",
+      "referenceBooks": [
+        "Devlin, Textbook of Biochemistry with Clinical Correlation",
+        "Nelson & Cox, Lehninger Principles of Biochemistry",
+        "Mathews, Van Holde, Appling & Anthony-Cahill, Biochemistry"
+      ],
+      "chapters": [
+        { "id": "macromolecule-structure-function", "zh": "胺基酸、蛋白質與酵素、醣類、脂質、維生素及輔酶之結構與功能", "en": "structures and functions of amino acids, protein and enzymes, carbohydrates, lipids, vitamins and coenzymes" },
+        { "id": "nucleic-acids-gene-expression", "zh": "核苷酸與核酸結構、DNA複製、重組與修補、核酸相關生物技術、轉錄、轉譯、基因表現調控", "en": "structures of nucleotides and nucleic acids, DNA replication/recombination/repair, nucleic-acid biotechnology, transcription, translation, regulation of gene expression" },
+        { "id": "intermediary-metabolism", "zh": "中間代謝及調控（醣類代謝、脂肪酸/脂質/含氮化合物代謝、呼吸鏈及氧化磷酸化）", "en": "intermediate metabolism and regulation (carbohydrate/fatty-acid/lipid/nitrogenous metabolism, respiratory chain, oxidative phosphorylation)" },
+        { "id": "signaling-cell-cycle-apoptosis", "zh": "生物訊息傳遞、荷爾蒙作用、細胞週期及凋亡", "en": "signal transduction, action of hormones, cell cycle and programmed cell death" }
+      ]
+    },
+    {
+      "subjectId": "解剖學",
+      "blueprintName": "解剖學 (anatomy)",
+      "paper": "醫學一",
+      "referenceBooks": [
+        "Moore (Dalley & Agur), Clinically Oriented Anatomy",
+        "Drake, Vogl & Mitchell, Gray's Anatomy for Students",
+        "Kiernan, Barr's The Human Nervous System",
+        "Haines, Fundamental Neuroscience for Basic and Clinical Applications"
+      ],
+      "chapters": [
+        { "id": "neuroanatomy", "zh": "神經解剖學", "en": "neuroanatomy" },
+        { "id": "head-and-neck", "zh": "頭、頸部", "en": "head and neck" },
+        { "id": "chest-abdomen-pelvis", "zh": "胸、腹、骨盆", "en": "chest, abdomen and pelvis" },
+        { "id": "upper-lower-extremities", "zh": "上、下肢（含肩帶、腰帶）", "en": "upper and lower extremities (including shoulder girdle and pelvic girdle)" }
+      ]
+    },
+    {
+      "subjectId": "胚胎學",
+      "blueprintName": "胚胎及發育生物學 (formation of embryo and fetus, development of organs)",
+      "paper": "醫學一",
+      "referenceBooks": [
+        "Moore & Persaud, The Developing Human: Clinically Oriented Embryology",
+        "Sadler, Langman's Medical Embryology"
+      ],
+      "chapters": [
+        { "id": "embryology-development", "zh": "胚胎及發育生物學（受精、胚層、器官形成與發育）", "en": "formation of embryo and fetus, development of organs" }
+      ]
+    },
+    {
+      "subjectId": "組織學",
+      "blueprintName": "組織學 (histology)",
+      "paper": "醫學一",
+      "referenceBooks": [
+        "O'Dowd, Bell & Wright, Wheater's Functional Histology",
+        "Pawlina, Ross Histology: A Text and Atlas"
+      ],
+      "chapters": [
+        { "id": "cells-tissues-organs", "zh": "細胞、基本組織及器官", "en": "cells, fundamental tissues and organs" }
+      ]
+    },
+    {
+      "subjectId": "生理學",
+      "blueprintName": "生理學 (physiology)",
+      "paper": "醫學一",
+      "referenceBooks": [
+        "Barrett et al., Ganong's Review of Medical Physiology",
+        "Widmaier, Raff & Strang, Vander's Human Physiology",
+        "Hall, Guyton & Hall Textbook of Medical Physiology"
+      ],
+      "chapters": [
+        { "id": "cell-physiology", "zh": "細胞生理", "en": "cell physiology" },
+        { "id": "nerve-physiology", "zh": "神經", "en": "nerves" },
+        { "id": "muscle-physiology", "zh": "肌肉", "en": "muscles" },
+        { "id": "blood-physiology", "zh": "血液", "en": "blood" },
+        { "id": "cardiovascular-physiology", "zh": "心臟及血管", "en": "heart and vessels" },
+        { "id": "respiratory-physiology", "zh": "呼吸", "en": "respiration" },
+        { "id": "digestive-physiology", "zh": "消化", "en": "digestion" },
+        { "id": "renal-physiology", "zh": "腎臟", "en": "kidneys" },
+        { "id": "endocrine-metabolism-physiology", "zh": "內分泌及新陳代謝", "en": "endocrine and metabolism" },
+        { "id": "reproductive-physiology", "zh": "生殖", "en": "reproduction" }
+      ]
+    },
+    {
+      "subjectId": "微生物學",
+      "blueprintName": "微生物學 (microbiology)",
+      "paper": "醫學二",
+      "referenceBooks": [
+        "Janeway (Murphy et al.), Immunobiology",
+        "Murray, Pfaller & Rosenthal, Medical Microbiology"
+      ],
+      "chapters": [
+        { "id": "bacteriology", "zh": "細菌學", "en": "bacteriology", "blueprintSubItems": [
+          { "zh": "細菌構造、生理、新陳代謝、遺傳、致病機制", "en": "bacterial structure, physiology, metabolism, genetics, mechanisms of pathogenesis" },
+          { "zh": "抗生素及化學治療", "en": "antibiotics and chemotherapy" },
+          { "zh": "革蘭氏陽性細菌", "en": "Gram-positive bacteria" },
+          { "zh": "革蘭氏陰性細菌", "en": "Gram-negative bacteria" },
+          { "zh": "分枝桿菌", "en": "mycobacteria" },
+          { "zh": "厭氧菌", "en": "anaerobes" },
+          { "zh": "軍團菌屬、黴漿菌、披衣菌、立克次體、螺旋體屬", "en": "legionella, mycoplasma, chlamydia, rickettsia, spirochaete" }
+        ] },
+        { "id": "virology", "zh": "病毒學", "en": "virology", "blueprintSubItems": [
+          { "zh": "病毒的分類、構造、複製", "en": "viral classification, structure, replication" },
+          { "zh": "病毒致病的機制", "en": "mechanisms of viral pathogenesis" },
+          { "zh": "抗病毒藥物及病毒性疾病的實驗室診斷", "en": "antiviral agents and laboratory diagnosis of viral disease" },
+          { "zh": "DNA病毒", "en": "DNA viruses" },
+          { "zh": "RNA病毒", "en": "RNA viruses" },
+          { "zh": "反轉錄病毒", "en": "retroviruses" },
+          { "zh": "肝炎病毒", "en": "hepatitis viruses" },
+          { "zh": "普里昂及其他病毒", "en": "prion and miscellaneous viruses" },
+          { "zh": "病毒在疾病的角色", "en": "role of viruses in diseases" }
+        ] },
+        { "id": "mycology", "zh": "真菌學", "en": "mycology", "blueprintSubItems": [
+          { "zh": "酵母菌", "en": "yeasts" },
+          { "zh": "黴菌", "en": "molds" },
+          { "zh": "抗黴菌藥物及化學治療", "en": "antifungal agents and chemotherapy" },
+          { "zh": "新興及再現病原體", "en": "emerging and reemerging pathogens" },
+          { "zh": "感染症的新穎處置", "en": "novel approaches in infectious diseases" }
+        ] }
+      ]
+    },
+    {
+      "subjectId": "免疫學",
+      "blueprintName": "免疫學 (immunology)",
+      "paper": "醫學二",
+      "referenceBooks": [
+        "Janeway (Murphy et al.), Immunobiology",
+        "Murray, Pfaller & Rosenthal, Medical Microbiology"
+      ],
+      "chapters": [
+        { "id": "immune-system-components", "zh": "免疫系統的組成部分", "en": "components of the immune system" },
+        { "id": "innate-adaptive-immunity", "zh": "先天性及後天性免疫", "en": "innate and adaptive immunity" },
+        { "id": "antigen-recognition", "zh": "抗原辨認", "en": "antigen recognition" },
+        { "id": "b-t-lymphocyte-development", "zh": "B及T淋巴球的發展", "en": "development of B- and T-lymphocytes" },
+        { "id": "cell-mediated-immunity", "zh": "細胞性免疫反應", "en": "cell mediated immune responses" },
+        { "id": "humoral-immunity", "zh": "體液性免疫反應", "en": "humoral immune responses" },
+        { "id": "immunoregulation", "zh": "免疫調節", "en": "immunoregulation" },
+        { "id": "host-defense-infection", "zh": "宿主對感染之防衛", "en": "host defense against infection" },
+        { "id": "immunodeficiency", "zh": "免疫缺乏", "en": "immunodeficiency" },
+        { "id": "allergy-hypersensitivity", "zh": "過敏及過敏反應", "en": "allergy and hypersensitivity" },
+        { "id": "autoimmune-disease", "zh": "自體免疫疾病", "en": "autoimmune diseases" },
+        { "id": "cancer-immunology", "zh": "癌症免疫學", "en": "cancer immunology" },
+        { "id": "transplantation-immunology", "zh": "移植", "en": "transplantation" },
+        { "id": "vaccine-immunotherapy", "zh": "疫苗及免疫治療", "en": "vaccine and immunotherapy" }
+      ]
+    },
+    {
+      "subjectId": "寄生蟲學",
+      "blueprintName": "寄生蟲學 (parasitology)",
+      "paper": "醫學二",
+      "referenceBooks": [
+        "Roberts & Janovy, Foundations of Parasitology",
+        "Markell, John & Krotoski, Markell and Voge's Medical Parasitology",
+        "Bogitsh, Carter & Oeltmann, Human Parasitology"
+      ],
+      "chapters": [
+        { "id": "nematodes", "zh": "線蟲", "en": "nematodes" },
+        { "id": "trematodes", "zh": "吸蟲", "en": "trematodes" },
+        { "id": "cestodes", "zh": "絛蟲", "en": "cestodes" },
+        { "id": "protozoa", "zh": "原蟲", "en": "protozoa" },
+        { "id": "arthropod-vectors", "zh": "病媒節肢動物", "en": "arthropods as vectors" }
+      ]
+    },
+    {
+      "subjectId": "藥理學",
+      "blueprintName": "藥理學 (pharmacology)",
+      "paper": "醫學二",
+      "referenceBooks": [
+        "Katzung, Basic & Clinical Pharmacology",
+        "Brody, Larner & Minneman, Human Pharmacology: Molecular to Clinical"
+      ],
+      "chapters": [
+        { "id": "general-pharmacology", "zh": "藥理概論（作用機制、吸收、分佈、代謝、排泄、臨床試驗）", "en": "introduction to pharmacology (mechanism, ADME, clinical trials)" },
+        { "id": "chemotherapy-antimicrobial-antineoplastic", "zh": "化學治療（抗細菌/抗真菌/抗病毒/抗寄生蟲/抗腫瘤）", "en": "chemotherapy (anti-bacterial/fungal/viral/parasite/neoplasm)" },
+        { "id": "hematologic-drugs", "zh": "血液系統作用藥物（免疫抑制/促進、造血、抗凝血、抗血栓、抗血小板、降血脂）", "en": "drugs affecting the hematological system" },
+        { "id": "hormones-antagonists", "zh": "荷爾蒙及荷爾蒙拮抗劑", "en": "hormones and hormone antagonists" },
+        { "id": "renal-cardiovascular-drugs", "zh": "腎臟與心血管系統作用藥", "en": "drugs affecting the kidney and cardiovascular system" },
+        { "id": "autonomic-drugs", "zh": "自主神經系統作用藥物", "en": "drugs affecting the autonomic nervous system" },
+        { "id": "gi-respiratory-drugs", "zh": "胃腸道與呼吸道作用藥物", "en": "drugs affecting the gastrointestinal and respiratory tracts" },
+        { "id": "autacoid-anti-inflammatory-drugs", "zh": "自泌素與抗發炎藥物", "en": "autacoid and anti-inflammatory drugs" },
+        { "id": "cns-anesthetic-drugs", "zh": "中樞神經系統作用藥物、全身麻醉及局部麻醉劑", "en": "CNS drugs, general and local anesthetics" },
+        { "id": "toxicology-miscellaneous", "zh": "其他（重金屬、解毒劑、基因療法等）", "en": "miscellaneous (heavy metals, antidotes, gene therapy, etc.)" }
+      ]
+    },
+    {
+      "subjectId": "病理學",
+      "blueprintName": "病理學 (pathology)",
+      "paper": "醫學二",
+      "referenceBooks": [
+        "Kumar, Cotran & Robbins, Robbins Basic Pathology",
+        "Kumar, Abbas & Fausto, Robbins & Cotran Pathologic Basis of Disease"
+      ],
+      "chapters": [
+        { "id": "cell-injury-inflammation-repair", "zh": "細胞傷害、炎症與組織修復", "en": "cell injury, inflammation and tissue repair" },
+        { "id": "immunity-infection-genetic-disease", "zh": "免疫、感染及遺傳疾病", "en": "diseases of immunity, infectious diseases and genetic disorders" },
+        { "id": "neoplasia-nutrition-environment", "zh": "腫瘤及營養、環境疾病", "en": "neoplasia and diseases of nutrition and environment" },
+        { "id": "cardiovascular-pathology", "zh": "心臟血管系統疾病", "en": "diseases of the cardiovascular system" },
+        { "id": "hematopoietic-lymphoid-pathology", "zh": "造血及淋巴系統疾病", "en": "diseases of hematopoietic and lymphoid system" },
+        { "id": "respiratory-pathology", "zh": "呼吸系統疾病", "en": "diseases of the respiratory system" },
+        { "id": "digestive-pathology", "zh": "消化系統疾病", "en": "diseases of the digestive system" },
+        { "id": "renal-urinary-endocrine-pathology", "zh": "腎臟、泌尿道及內分泌疾病", "en": "diseases of the kidney, lower urinary tract and endocrine system" },
+        { "id": "reproductive-breast-pathology", "zh": "生殖系統及乳房疾病", "en": "diseases of reproductive system and breast" },
+        { "id": "neuro-musculoskeletal-eye-skin-pathology", "zh": "神經、肌肉、骨骼系統、眼睛及皮膚疾病", "en": "diseases of the nervous/muscular/skeletal systems, eye and skin" }
+      ]
+    },
+    {
+      "subjectId": "公共衛生學",
+      "blueprintName": "公共衛生學 (public health)",
+      "paper": "醫學二",
+      "referenceBooks": [
+        "Gordis, Epidemiology",
+        "Glantz, Primer of Biostatistics",
+        "陳拱北預防醫學基金會 系列（健康社會行為學／環境與職業衛生／衛生法規及倫理／衛生行政與管理／生物統計學／流行病學）"
+      ],
+      "chapters": [
+        { "id": "biostatistics", "zh": "生物統計", "en": "biostatistics" },
+        { "id": "epidemiology", "zh": "流行病學", "en": "epidemiology" },
+        { "id": "public-health-admin-policy-promotion", "zh": "公共衛生導論、衛生行政、衛生政策、衛生教育與健康促進", "en": "introduction to public health, health administration, policy, education and promotion" },
+        { "id": "occupational-medicine", "zh": "職業醫學", "en": "occupational medicine" },
+        { "id": "environmental-health", "zh": "環境衛生", "en": "environmental health" },
+        { "id": "public-health-practice-law-ethics", "zh": "公共衛生實務、醫療法規、醫院管理、醫學倫理、國際衛生", "en": "practice of public health, medical law, hospital management, medical ethics, international health" },
+        { "id": "preventive-medicine", "zh": "預防醫學", "en": "preventive medicine" }
+      ]
+    }
+  ]
+}

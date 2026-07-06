@@ -14,9 +14,11 @@
  */
 
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { ContentPack, Question } from '@study-rpg/core'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { QuestionReviewCard } from '../components/QuestionReviewCard'
+import { useConceptTags, conceptLabelsFor } from '../lib/concept-tags'
 import { useAllBookmarks, removeBookmark } from '../lib/services/bookmarks'
 import { useAllFlags } from '../lib/services/question-flags'
 import { useQuestionHistory } from '../lib/services/question-history'
@@ -44,6 +46,10 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
   // Single subscription to the full history table; the two wrong-answer tabs
   // derive from it (目前未答對 = lastResult==='wrong', 歷史曾錯 = everWrong).
   const history = useQuestionHistory()
+
+  // Concept labels (add-neurons-concept-tags §5.2): tapping one here navigates to 題庫 prefilled.
+  const conceptTags = useConceptTags()
+  const navigate = useNavigate()
 
   const [tab, setTab] = useState<TabKey>('manual')
   // Inclusion model (mirrors 題庫 tab): empty Set = 全部 shown, otherwise only the selected chips.
@@ -162,7 +168,15 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         </>
       )
     }
-    return <QuestionReviewCard question={q} header={header} showFigure />
+    return (
+      <QuestionReviewCard
+        question={q}
+        header={header}
+        showFigure
+        conceptLabels={conceptLabelsFor(q, conceptTags)}
+        onConceptClick={(zh) => navigate(`/bank?concept=${encodeURIComponent(zh)}`)}
+      />
+    )
   }
 
   function renderWrongList(rows: QuestionHistoryRow[], hasAny: boolean, emptyText: string): JSX.Element {

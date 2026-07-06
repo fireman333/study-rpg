@@ -1,0 +1,1846 @@
+{
+  "subjectId": "生物化學",
+  "questionCount": 608,
+  "targetConceptCount": 61,
+  "concepts": [
+    {
+      "id": "fat-soluble-vitamins-adek",
+      "zh": "脂溶性維生素（A／D／E／K）之結構與功能",
+      "en": "Fat-soluble vitamins (A, D, E, K): structure and function",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "vitamin A",
+        "retinol",
+        "視黃醇",
+        "retinoic acid",
+        "rhodopsin",
+        "β-carotene",
+        "vitamin D",
+        "cholecalciferol",
+        "膽鈣化醇",
+        "calcitriol",
+        "7-dehydrocholesterol",
+        "vitamin E",
+        "tocopherol",
+        "vitamin K",
+        "isoprenoid",
+        "凝血因子",
+        "clotting factor"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "106-2-醫學一-生物化學-Q78",
+        "108-1-醫學一-生物化學-Q78",
+        "109-1-醫學一-生物化學-Q77",
+        "110-1-醫學一-生物化學-Q77",
+        "115-1-醫學一-生物化學-Q77"
+      ],
+      "note": "split from vitamin-function-deficiency-syndromes per §1.5 panel"
+    },
+    {
+      "id": "water-soluble-vitamins-b-c",
+      "zh": "水溶性維生素（B 群／C）之輔酶角色與缺乏症",
+      "en": "Water-soluble vitamins (B-complex, C): coenzyme roles and deficiency syndromes",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "thiamine",
+        "硫胺",
+        "vitamin B1",
+        "thiamine pyrophosphate",
+        "TPP",
+        "beriberi",
+        "腳氣病",
+        "vitamin B6",
+        "pyridoxal phosphate",
+        "vitamin B12",
+        "cobalamin",
+        "pernicious anemia",
+        "惡性貧血",
+        "biotin",
+        "生物素",
+        "avidin",
+        "folic acid",
+        "葉酸",
+        "niacin",
+        "菸鹼酸",
+        "pellagra",
+        "糙皮病",
+        "pantothenic acid",
+        "泛酸",
+        "vitamin C",
+        "ascorbic acid",
+        "collagen hydroxylation",
+        "scurvy",
+        "壞血病"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "105-1-醫學二-生物化學-Q29",
+        "105-2-醫學二-生物化學-Q29",
+        "108-2-醫學一-生物化學-Q77",
+        "109-2-醫學一-生物化學-Q78",
+        "111-1-醫學一-生物化學-Q82"
+      ],
+      "note": "split from vitamin-function-deficiency-syndromes per §1.5 panel"
+    },
+    {
+      "id": "protein-secondary-tertiary-structure-and-folding",
+      "zh": "蛋白質二級／三級結構與摺疊（含雙硫鍵、變性）",
+      "en": "Protein secondary/tertiary structure and folding (disulfide bonds, denaturation)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "α-helix",
+        "β-sheet",
+        "β-turn",
+        "disulfide bond",
+        "雙硫鍵",
+        "denaturation",
+        "變性",
+        "protein refolding",
+        "collagen",
+        "膠原蛋白",
+        "osteogenesis imperfecta",
+        "成骨不全症",
+        "intrinsically disordered protein",
+        "固有無序蛋白"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q26",
+        "106-2-醫學一-生物化學-Q76",
+        "107-2-醫學一-生物化學-Q74",
+        "108-2-醫學一-生物化學-Q75",
+        "111-1-醫學一-生物化學-Q76"
+      ],
+      "note": "split from protein-higher-order-structure per §1.5 panel"
+    },
+    {
+      "id": "protein-quaternary-structure-and-chaperones",
+      "zh": "蛋白質四級結構、分子伴護子與抗體結構",
+      "en": "Protein quaternary structure, molecular chaperones, and antibody structure",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "quaternary structure",
+        "四級結構",
+        "molecular chaperone",
+        "分子伴護子",
+        "protein subunit assembly",
+        "antibody structure",
+        "抗體",
+        "immunoglobulin",
+        "light chain",
+        "heavy chain"
+      ],
+      "estTestedSittings": 1,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "106-1-醫學二-生物化學-Q26",
+        "106-1-醫學二-生物化學-Q28",
+        "106-1-醫學二-生物化學-Q37"
+      ],
+      "note": "split from protein-higher-order-structure per §1.5 panel"
+    },
+    {
+      "id": "enzyme-kinetics-michaelis-menten",
+      "zh": "酵素動力學（Michaelis-Menten、Km/Vmax/kcat、抑制型態）",
+      "en": "Enzyme kinetics (Michaelis-Menten, Km/Vmax/kcat, inhibitor types)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "competitive inhibitor",
+        "競爭型抑制劑",
+        "Lineweaver-Burk plot",
+        "steady state",
+        "uncompetitive inhibitor",
+        "rate constant"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q27",
+        "105-2-醫學二-生物化學-Q28",
+        "106-2-醫學一-生物化學-Q74",
+        "109-2-醫學一-生物化學-Q76",
+        "110-1-醫學一-生物化學-Q76",
+        "110-2-醫學一-生物化學-Q75"
+      ]
+    },
+    {
+      "id": "carbohydrate-structure-glycosidic-bonds",
+      "zh": "醣類結構與醣苷鍵（單醣、雙醣、多醣、黏多醣）",
+      "en": "Carbohydrate structure and glycosidic bonds (mono-/di-/poly-saccharides, mucopolysaccharides)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "glycosidic bond",
+        "anomer",
+        "變旋異構物",
+        "hyaluronic acid",
+        "玻尿酸",
+        "heparin",
+        "cellulose",
+        "amylopectin",
+        "maltose",
+        "keratan sulfate",
+        "ABO blood group"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "106-2-醫學一-生物化學-Q89",
+        "107-1-醫學一-生物化學-Q89",
+        "107-2-醫學一-生物化學-Q88",
+        "108-2-醫學一-生物化學-Q85",
+        "109-2-醫學一-生物化學-Q88",
+        "110-2-醫學一-生物化學-Q89"
+      ]
+    },
+    {
+      "id": "protein-purification-analysis-methods",
+      "zh": "蛋白質純化與分析技術",
+      "en": "Protein purification and analytical techniques (chromatography, electrophoresis, blotting)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "gel filtration chromatography",
+        "SDS-PAGE",
+        "affinity chromatography",
+        "His-tag",
+        "Northern blotting",
+        "Scatchard analysis",
+        "two-hybrid analysis"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q50",
+        "105-1-醫學二-生物化學-Q50",
+        "105-2-醫學二-生物化學-Q46",
+        "107-1-醫學一-生物化學-Q76",
+        "107-2-醫學一-生物化學-Q76",
+        "108-1-醫學一-生物化學-Q75"
+      ]
+    },
+    {
+      "id": "membrane-transport-mechanisms",
+      "zh": "細胞膜運輸機制（促進性擴散、主動運輸、離子梯度）",
+      "en": "Membrane transport mechanisms (facilitated diffusion, active transport, ion gradients)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "facilitated diffusion",
+        "促進性擴散",
+        "active transport",
+        "主動運輸",
+        "Na+-K+ ATPase",
+        "P-type ATPase",
+        "symport",
+        "ionophore",
+        "secondary active transport"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q41",
+        "104-2-醫學二-生物化學-Q43",
+        "105-1-醫學二-生物化學-Q43",
+        "105-2-醫學二-生物化學-Q41",
+        "106-1-醫學二-生物化學-Q42",
+        "106-2-醫學一-生物化學-Q92"
+      ]
+    },
+    {
+      "id": "enzyme-catalytic-mechanism-classification",
+      "zh": "酵素催化機制與分類（EC 命名、異位調節、活化能）",
+      "en": "Enzyme catalytic mechanism and classification (EC nomenclature, allosteric enzymes, activation energy)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "activation energy",
+        "活化能",
+        "EC number",
+        "allosteric enzyme",
+        "異位調節酵素",
+        "homotropic interaction"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q28",
+        "104-2-醫學二-生物化學-Q27",
+        "107-1-醫學一-生物化學-Q78",
+        "109-1-醫學一-生物化學-Q75",
+        "109-1-醫學一-生物化學-Q76",
+        "109-2-醫學一-生物化學-Q75"
+      ]
+    },
+    {
+      "id": "amino-acid-structure-properties",
+      "zh": "胺基酸化學性質（pKa、電荷、等電點、UV 吸收）",
+      "en": "Amino acid chemical properties (pKa, charge, isoelectric point, UV chromophores)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "ampholyte",
+        "兩性電解質",
+        "isoelectric point",
+        "pI",
+        "電泳",
+        "electrophoresis",
+        "芳香族胺基酸吸收280nm"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q28",
+        "105-1-醫學二-生物化學-Q28",
+        "105-2-醫學二-生物化學-Q27",
+        "106-2-醫學一-生物化學-Q75",
+        "108-1-醫學一-生物化學-Q74",
+        "108-2-醫學一-生物化學-Q76"
+      ]
+    },
+    {
+      "id": "membrane-lipid-composition-structure",
+      "zh": "細胞膜脂質組成與結構（脂膜筏、GPI 錨定、膜脂種類）",
+      "en": "Membrane lipid composition and structure (lipid rafts, GPI anchors, membrane lipid classes)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "lipid raft",
+        "脂膜筏",
+        "GPI anchor",
+        "glycosylphosphatidylinositol",
+        "cardiolipin",
+        "platelet activating factor",
+        "cholesterol in membrane"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學二-生物化學-Q40",
+        "106-1-醫學二-生物化學-Q41",
+        "106-2-醫學一-生物化學-Q91",
+        "107-1-醫學一-生物化學-Q92",
+        "107-2-醫學一-生物化學-Q92",
+        "110-2-醫學一-生物化學-Q92"
+      ]
+    },
+    {
+      "id": "hemoglobin-myoglobin-oxygen-binding",
+      "zh": "血紅素／肌紅蛋白之氧結合與異位調控",
+      "en": "Hemoglobin/myoglobin oxygen binding and allosteric regulation",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "2,3-BPG",
+        "T state",
+        "R state",
+        "sickle cell disease",
+        "鐮形血球貧血症",
+        "hemoglobin S",
+        "fetal hemoglobin"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q30",
+        "105-2-醫學二-生物化學-Q26",
+        "108-2-醫學一-生物化學-Q87",
+        "109-2-醫學一-生物化學-Q74",
+        "110-2-醫學一-生物化學-Q74",
+        "111-2-醫學一-生物化學-Q75"
+      ]
+    },
+    {
+      "id": "nucleotide-coenzyme-derivatives",
+      "zh": "核苷酸衍生輔酶與高能鍵（NAD+、CoA、ATP 磷酸酐鍵）",
+      "en": "Nucleotide-derived coenzymes and high-energy bonds (NAD+, coenzyme A, ATP phosphoanhydride bonds)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "NAD+ structure",
+        "acetyl-CoA thioester bond",
+        "phosphoanhydride bond",
+        "ribonucleotide reductase"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "107-2-醫學一-生物化學-Q77",
+        "113-1-醫學一-生物化學-Q79",
+        "114-1-醫學一-生物化學-Q77",
+        "114-2-醫學一-生物化學-Q87",
+        "115-1-醫學一-生物化學-Q84"
+      ]
+    },
+    {
+      "id": "membrane-protein-topology-transport",
+      "zh": "膜蛋白拓樸與插入（周邊蛋白、嵌入蛋白、translocon）",
+      "en": "Membrane protein topology and insertion (peripheral vs integral proteins, translocon, glycophorin)",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "integral membrane protein",
+        "peripheral membrane protein",
+        "translocon",
+        "bacteriorhodopsin",
+        "glycophorin"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "107-2-醫學一-生物化學-Q90",
+        "108-2-醫學一-生物化學-Q91",
+        "111-2-醫學一-生物化學-Q92",
+        "112-2-醫學一-生物化學-Q92"
+      ]
+    },
+    {
+      "id": "glutathione-redox-function",
+      "zh": "穀胱甘肽與細胞氧化還原防禦",
+      "en": "Glutathione and cellular redox defense",
+      "chapterId": "macromolecule-structure-function",
+      "synonyms": [
+        "GSH",
+        "GSSG",
+        "glutathione peroxidase",
+        "glutathione reductase",
+        "tripeptide"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q45",
+        "107-1-醫學一-生物化學-Q94",
+        "107-1-醫學一-生物化學-Q95",
+        "108-1-醫學一-生物化學-Q91",
+        "110-1-醫學一-生物化學-Q94"
+      ]
+    },
+    {
+      "id": "dna-repair-pathways",
+      "zh": "DNA 修復機制（切除修復、錯誤配對修復、SOS 反應、光解酶）",
+      "en": "DNA repair pathways (excision repair, mismatch repair, SOS response, photolyase)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "base excision repair",
+        "鹼基切除修復",
+        "nucleotide excision repair",
+        "UvrABC",
+        "mismatch repair",
+        "錯誤配對修復",
+        "SOS response",
+        "RecA",
+        "LexA",
+        "photolyase",
+        "光解酶",
+        "DNA glycosylase",
+        "HNPCC",
+        "Ames test",
+        "deamination"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 19,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q37",
+        "105-1-醫學二-生物化學-Q32",
+        "105-2-醫學二-生物化學-Q32",
+        "106-2-醫學一-生物化學-Q84",
+        "107-1-醫學一-生物化學-Q83",
+        "107-2-醫學一-生物化學-Q81"
+      ]
+    },
+    {
+      "id": "cloning-vectors-and-gene-transfer",
+      "zh": "選殖載體與基因轉殖（質體、YAC、表現載體、基因治療、剔除鼠）",
+      "en": "Cloning vectors and gene transfer (plasmids, YAC, expression vectors, gene therapy, knockout mice)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "cloning plasmid",
+        "選殖質體",
+        "yeast artificial chromosome",
+        "YAC",
+        "expression vector",
+        "表現載體",
+        "multiple cloning site",
+        "transformation",
+        "轉形",
+        "knockout mouse",
+        "基因剔除鼠",
+        "gene therapy vector",
+        "基因治療",
+        "site-directed mutagenesis",
+        "定點突變"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q50",
+        "105-2-醫學二-生物化學-Q49",
+        "105-2-醫學二-生物化學-Q50",
+        "108-1-醫學一-生物化學-Q100",
+        "110-1-醫學一-生物化學-Q99"
+      ],
+      "note": "split from recombinant-dna-cloning-vectors per §1.5 panel"
+    },
+    {
+      "id": "molecular-analysis-techniques",
+      "zh": "分子分析技術（限制酶圖譜、RFLP、RNAi、基因庫建構）",
+      "en": "Molecular analysis techniques (restriction mapping, RFLP, RNAi, genomic library construction)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "restriction fragment length polymorphism",
+        "RFLP",
+        "restriction enzyme",
+        "限制酶",
+        "palindromic sequence",
+        "迴文序列",
+        "type II restriction enzyme",
+        "genomic library",
+        "基因庫",
+        "RNAi",
+        "siRNA",
+        "small interfering RNA",
+        "DNA ligase"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "108-2-醫學一-生物化學-Q99",
+        "108-2-醫學一-生物化學-Q100",
+        "110-2-醫學一-生物化學-Q79",
+        "112-1-醫學一-生物化學-Q100",
+        "114-2-醫學一-生物化學-Q99"
+      ],
+      "note": "split from recombinant-dna-cloning-vectors per §1.5 panel"
+    },
+    {
+      "id": "nucleic-acid-primary-secondary-structure",
+      "zh": "核酸一級／二級結構（雙股螺旋、Tm、非典型二級構型）",
+      "en": "Nucleic acid primary/secondary structure (double helix, melting temperature, non-canonical structures)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "B-form DNA",
+        "melting temperature",
+        "Tm",
+        "hypochromicity",
+        "cruciform",
+        "G-quadruplex",
+        "四股DNA結構",
+        "base composition",
+        "Chargaff"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q30",
+        "105-1-醫學二-生物化學-Q31",
+        "105-2-醫學二-生物化學-Q30",
+        "106-2-醫學一-生物化學-Q79",
+        "107-2-醫學一-生物化學-Q80",
+        "108-2-醫學一-生物化學-Q79"
+      ]
+    },
+    {
+      "id": "translation-initiation-mechanism",
+      "zh": "轉譯起始機制（原核／真核起始因子、Shine-Dalgarno、起始 tRNA）",
+      "en": "Translation initiation mechanism (prokaryotic/eukaryotic initiation factors, Shine-Dalgarno, initiator tRNA)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "eIF4F",
+        "Shine-Dalgarno sequence",
+        "IF2",
+        "formyl-methionine",
+        "initiator tRNA",
+        "P site"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q35",
+        "105-2-醫學二-生物化學-Q36",
+        "106-2-醫學一-生物化學-Q85",
+        "107-2-醫學一-生物化學-Q84",
+        "109-1-醫學一-生物化學-Q84",
+        "110-1-醫學一-生物化學-Q85"
+      ]
+    },
+    {
+      "id": "dna-polymerase-replication-fidelity",
+      "zh": "DNA 聚合酶活性與複製校對（外切酶、Klenow fragment）",
+      "en": "DNA polymerase activities and replication fidelity (exonuclease proofreading, Klenow fragment)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "3'→5' exonuclease",
+        "5'→3' exonuclease",
+        "proofreading",
+        "校對",
+        "Klenow fragment",
+        "nick translation"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q31",
+        "106-1-醫學二-生物化學-Q33",
+        "108-1-醫學一-生物化學-Q82",
+        "109-1-醫學一-生物化學-Q81",
+        "109-1-醫學一-生物化學-Q82",
+        "109-2-醫學一-生物化學-Q81"
+      ]
+    },
+    {
+      "id": "transcription-rna-polymerase-mechanism",
+      "zh": "RNA 聚合酶轉錄機制（原核／真核 RNA pol、啟動子辨識）",
+      "en": "RNA polymerase transcription mechanism (prokaryotic/eukaryotic RNA pol, promoter recognition)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "RNA polymerase II",
+        "RNA polymerase I",
+        "RNA polymerase III",
+        "alpha-amanitin",
+        "promoter",
+        "啟動子",
+        "TATA box",
+        "rifampicin"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q34",
+        "104-2-醫學二-生物化學-Q34",
+        "104-2-醫學二-生物化學-Q38",
+        "106-2-醫學一-生物化學-Q86",
+        "108-2-醫學一-生物化學-Q83",
+        "108-2-醫學一-生物化學-Q84"
+      ]
+    },
+    {
+      "id": "operon-gene-regulation-prokaryotic",
+      "zh": "原核操縱組基因調控（lac operon、trp operon、弱化作用）",
+      "en": "Prokaryotic operon gene regulation (lac operon, trp operon, attenuation)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "lac operon",
+        "CRP",
+        "operator",
+        "操作子",
+        "repressor",
+        "抑制子",
+        "trp operon attenuation",
+        "弱化作用",
+        "leader peptide"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q35",
+        "105-2-醫學二-生物化學-Q35",
+        "106-2-醫學一-生物化學-Q83",
+        "108-1-醫學一-生物化學-Q85",
+        "110-1-醫學一-生物化學-Q83",
+        "112-1-醫學一-生物化學-Q85"
+      ]
+    },
+    {
+      "id": "dna-replication-machinery-ecoli",
+      "zh": "大腸桿菌 DNA 複製機制（複製叉、引子酶、DNA pol III）",
+      "en": "E. coli DNA replication machinery (replication fork, primase, DNA polymerase III)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "Okazaki fragment",
+        "岡崎片段",
+        "DnaB helicase",
+        "primase",
+        "DNA polymerase III",
+        "lagging strand",
+        "RNA primer"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q33",
+        "105-1-醫學二-生物化學-Q33",
+        "107-2-醫學一-生物化學-Q82",
+        "108-2-醫學一-生物化學-Q80",
+        "109-2-醫學一-生物化學-Q82",
+        "110-1-醫學一-生物化學-Q82"
+      ]
+    },
+    {
+      "id": "pcr-sequencing-molecular-techniques",
+      "zh": "PCR 與定序技術（引子、Sanger 定序、探針標記）",
+      "en": "PCR and sequencing techniques (primers, Sanger sequencing, probe labeling)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "polymerase chain reaction",
+        "Sanger method",
+        "dideoxy",
+        "DNA footprinting",
+        "polynucleotide kinase",
+        "32P labeling"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q49",
+        "104-1-醫學二-生物化學-Q50",
+        "106-1-醫學二-生物化學-Q31",
+        "106-1-醫學二-生物化學-Q34",
+        "106-1-醫學二-生物化學-Q50",
+        "106-2-醫學一-生物化學-Q100"
+      ]
+    },
+    {
+      "id": "dna-replication-machinery-eukaryotic",
+      "zh": "真核細胞 DNA 複製機制（複製起點、PCNA、DNA 聚合酶類型）",
+      "en": "Eukaryotic DNA replication machinery (replication origins, PCNA, DNA polymerase types)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "replication origin",
+        "複製原點",
+        "PCNA",
+        "processivity",
+        "DNA polymerase gamma",
+        "5'→3' direction only"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "106-2-醫學一-生物化學-Q82",
+        "108-1-醫學一-生物化學-Q84",
+        "108-2-醫學一-生物化學-Q81",
+        "111-2-醫學一-生物化學-Q82",
+        "112-1-醫學一-生物化學-Q81",
+        "114-1-醫學一-生物化學-Q80"
+      ]
+    },
+    {
+      "id": "rna-processing-splicing-stability",
+      "zh": "RNA 加工與穩定性（5' 加帽、poly(A) 尾、剪接、mRNA 穩定性）",
+      "en": "RNA processing and stability (5' capping, poly(A) tail, splicing, mRNA stability)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "5' capping",
+        "7-methylguanosine",
+        "polyadenylation signal",
+        "group I intron splicing",
+        "mRNA stability",
+        "human genome coding percentage"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q33",
+        "105-1-醫學二-生物化學-Q34",
+        "107-2-醫學一-生物化學-Q83",
+        "107-2-醫學一-生物化學-Q85",
+        "107-2-醫學一-生物化學-Q86",
+        "111-2-醫學一-生物化學-Q87"
+      ]
+    },
+    {
+      "id": "translation-elongation-termination",
+      "zh": "轉譯延伸與終止（核糖體、胜肽轉移酶、釋放因子、框移）",
+      "en": "Translation elongation and termination (ribosome, peptidyl transferase, release factors, frameshifting)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "peptidyl transferase",
+        "ribozyme",
+        "translocation",
+        "release factor",
+        "RF1",
+        "frameshifting",
+        "框移",
+        "ribosome structure"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "109-2-醫學一-生物化學-Q84",
+        "110-1-醫學一-生物化學-Q84",
+        "110-2-醫學一-生物化學-Q87",
+        "111-1-醫學一-生物化學-Q90",
+        "111-2-醫學一-生物化學-Q86",
+        "112-1-醫學一-生物化學-Q84"
+      ]
+    },
+    {
+      "id": "homologous-site-specific-recombination",
+      "zh": "同源重組與位點專一重組（RecA/RecBCD、噬菌體嵌入、V(D)J）",
+      "en": "Homologous and site-specific recombination (RecA/RecBCD, phage integration, V(D)J recombination)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "RecA",
+        "RecBCD",
+        "homologous recombination",
+        "同源重組",
+        "lambda phage integration",
+        "V(D)J recombination",
+        "RAG1/2"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-2-醫學二-生物化學-Q31",
+        "107-1-醫學一-生物化學-Q82",
+        "110-1-醫學一-生物化學-Q81",
+        "110-2-醫學一-生物化學-Q82",
+        "113-2-醫學一-生物化學-Q81",
+        "114-2-醫學一-生物化學-Q80"
+      ]
+    },
+    {
+      "id": "antibiotics-nucleic-acid-protein-synthesis-inhibitors",
+      "zh": "抗生素抑制核酸／蛋白質合成之機轉（含胜肽聚醣合成抑制）",
+      "en": "Antibiotic mechanisms inhibiting nucleic acid/protein synthesis (including peptidoglycan synthesis inhibition)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "rifampicin",
+        "ampicillin",
+        "penicillin",
+        "transpeptidase",
+        "peptidoglycan",
+        "antisense oligonucleotide"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q41",
+        "105-1-醫學二-生物化學-Q27",
+        "107-1-醫學一-生物化學-Q84",
+        "110-2-醫學一-生物化學-Q85",
+        "111-1-醫學一-生物化學-Q80",
+        "113-2-醫學一-生物化學-Q85"
+      ]
+    },
+    {
+      "id": "antimetabolite-antiviral-nucleoside-drugs",
+      "zh": "核苷類似物藥物（AZT、5-FU 等抗病毒／抗癌機轉）",
+      "en": "Nucleoside analog drugs (AZT, 5-FU antiviral/anticancer mechanisms)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "AZT",
+        "zidovudine",
+        "chain terminator",
+        "5-fluorouracil",
+        "FdUMP",
+        "thymidylate synthase inhibitor"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q32",
+        "106-2-醫學一-生物化學-Q81",
+        "107-1-醫學一-生物化學-Q81",
+        "110-1-醫學一-生物化學-Q80",
+        "114-2-醫學一-生物化學-Q79"
+      ]
+    },
+    {
+      "id": "reverse-transcriptase-retroviral-biology",
+      "zh": "反轉錄酶與反轉錄病毒生物學（含端粒酶）",
+      "en": "Reverse transcriptase and retroviral biology (including telomerase)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "reverse transcriptase",
+        "反轉錄酶",
+        "retrovirus",
+        "long terminal repeat",
+        "telomerase",
+        "端粒酶"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "110-1-醫學一-生物化學-Q100",
+        "111-2-醫學一-生物化學-Q81",
+        "112-1-醫學一-生物化學-Q82",
+        "113-2-醫學一-生物化學-Q87",
+        "114-2-醫學一-生物化學-Q81"
+      ]
+    },
+    {
+      "id": "dna-methylation-chromatin-epigenetics",
+      "zh": "DNA 甲基化與染色質表觀調控（組蛋白修飾）",
+      "en": "DNA methylation and chromatin epigenetic regulation (histone modification)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "CpG site",
+        "Dam methylase",
+        "histone deacetylase",
+        "組蛋白去乙醯酶",
+        "histone",
+        "chromatin"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "107-2-醫學一-生物化學-Q79",
+        "108-1-醫學一-生物化學-Q81",
+        "108-1-醫學一-生物化學-Q83",
+        "112-2-醫學一-生物化學-Q84",
+        "113-2-醫學一-生物化學-Q82",
+        "115-1-醫學一-生物化學-Q100"
+      ]
+    },
+    {
+      "id": "genetic-code-wobble-hypothesis",
+      "zh": "遺傳密碼與擺動假說（codon-anticodon 配對、突變型式）",
+      "en": "Genetic code and wobble hypothesis (codon-anticodon pairing, mutation types)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "wobble hypothesis",
+        "擺動假說",
+        "codon",
+        "anticodon",
+        "nonsense mutation"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-1-醫學二-生物化學-Q35",
+        "106-1-醫學二-生物化學-Q35",
+        "107-1-醫學一-生物化學-Q86",
+        "110-1-醫學一-生物化學-Q86",
+        "113-1-醫學一-生物化學-Q85"
+      ]
+    },
+    {
+      "id": "aminoacyl-trna-synthetase-function",
+      "zh": "胺醯-tRNA 合成酶與 tRNA 結構功能",
+      "en": "Aminoacyl-tRNA synthetase function and tRNA structure",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "aminoacyl-tRNA synthetase",
+        "胺醯-tRNA合成酶",
+        "esterification",
+        "tRNA 3' CCA"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-1-醫學二-生物化學-Q36",
+        "109-1-醫學一-生物化學-Q83",
+        "109-2-醫學一-生物化學-Q83",
+        "112-1-醫學一-生物化學-Q87",
+        "114-2-醫學一-生物化學-Q83"
+      ]
+    },
+    {
+      "id": "protein-post-translational-modification",
+      "zh": "蛋白質轉譯後修飾（醣基化、磷酸化）",
+      "en": "Protein post-translational modification (glycosylation, phosphorylation)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "N-linked glycosylation",
+        "O-linked glycosylation",
+        "phosphorylation site",
+        "asparagine glycosylation"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-2-醫學二-生物化學-Q33",
+        "108-2-醫學一-生物化學-Q90",
+        "112-1-醫學一-生物化學-Q89",
+        "113-1-醫學一-生物化學-Q89",
+        "114-1-醫學一-生物化學-Q83"
+      ]
+    },
+    {
+      "id": "ubiquitin-proteasome-degradation",
+      "zh": "泛素-蛋白酶體降解路徑",
+      "en": "Ubiquitin-proteasome protein degradation pathway",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "ubiquitin",
+        "泛素",
+        "E3 ligase",
+        "proteasome",
+        "protein turnover"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "109-2-醫學一-生物化學-Q86",
+        "110-2-醫學一-生物化學-Q94",
+        "111-1-醫學一-生物化學-Q88",
+        "111-2-醫學一-生物化學-Q85"
+      ]
+    },
+    {
+      "id": "dna-topoisomerase-supercoiling",
+      "zh": "拓樸異構酶與 DNA 超螺旋調控",
+      "en": "Topoisomerase and DNA supercoiling regulation",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "topoisomerase",
+        "拓樸異構酶",
+        "linking number",
+        "supercoil"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "110-2-醫學一-生物化學-Q86",
+        "113-1-醫學一-生物化學-Q80",
+        "114-1-醫學一-生物化學-Q78"
+      ]
+    },
+    {
+      "id": "eukaryotic-transcription-factor-motifs",
+      "zh": "真核轉錄因子與 DNA 結合模體（增強子、leucine zipper、發育調控基因）",
+      "en": "Eukaryotic transcription factors and DNA-binding motifs (enhancers, leucine zipper, homeotic genes)",
+      "chapterId": "nucleic-acids-gene-expression",
+      "synonyms": [
+        "transcription activator",
+        "enhancer",
+        "增強子",
+        "leucine zipper",
+        "helix-turn-helix",
+        "homeotic gene",
+        "同質異化基因"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "107-1-醫學一-生物化學-Q85",
+        "109-1-醫學一-生物化學-Q85",
+        "109-1-醫學一-生物化學-Q86",
+        "111-1-醫學一-生物化學-Q91"
+      ]
+    },
+    {
+      "id": "glycolysis-pathway-regulation",
+      "zh": "糖解作用途徑與調控（酵素步驟、無氧糖解、紅血球代謝）",
+      "en": "Glycolysis pathway and regulation (enzymatic steps, anaerobic glycolysis, red blood cell metabolism)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "glycolysis",
+        "糖解作用",
+        "aldolase",
+        "pyruvate kinase",
+        "lactate dehydrogenase",
+        "fructose 2,6-bisphosphate",
+        "glucokinase",
+        "hexokinase",
+        "anaerobic glycolysis"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q38",
+        "104-2-醫學二-生物化學-Q39",
+        "104-2-醫學二-生物化學-Q40",
+        "105-1-醫學二-生物化學-Q38",
+        "105-1-醫學二-生物化學-Q40",
+        "105-1-醫學二-生物化學-Q41"
+      ]
+    },
+    {
+      "id": "oxidative-phosphorylation-atp-synthase",
+      "zh": "氧化磷酸化與 ATP 合成酶（質子梯度、解偶聯蛋白）",
+      "en": "Oxidative phosphorylation and ATP synthase (proton gradient, uncoupling proteins)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "ATP synthase",
+        "proton pump",
+        "質子幫浦",
+        "uncoupling protein",
+        "UCP1",
+        "thermogenin",
+        "proton motive force"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q47",
+        "106-2-醫學一-生物化學-Q96",
+        "107-2-醫學一-生物化學-Q95",
+        "108-1-醫學一-生物化學-Q95",
+        "108-2-醫學一-生物化學-Q88",
+        "109-1-醫學一-生物化學-Q95"
+      ]
+    },
+    {
+      "id": "electron-transport-chain-complexes",
+      "zh": "電子傳遞鏈複合體與電子攜帶者",
+      "en": "Electron transport chain complexes and electron carriers",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "electron transport chain",
+        "電子傳遞鏈",
+        "complex I",
+        "complex II",
+        "complex III",
+        "complex IV",
+        "cytochrome c",
+        "coenzyme Q",
+        "cytochrome oxidase"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q45",
+        "105-1-醫學二-生物化學-Q47",
+        "106-1-醫學二-生物化學-Q46",
+        "107-2-醫學一-生物化學-Q96",
+        "108-1-醫學一-生物化學-Q96",
+        "108-2-醫學一-生物化學-Q95"
+      ]
+    },
+    {
+      "id": "purine-pyrimidine-nucleotide-metabolism",
+      "zh": "嘌呤與嘧啶核苷酸代謝（新生合成、回收、分解）",
+      "en": "Purine and pyrimidine nucleotide metabolism (de novo synthesis, salvage, degradation)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "PRPP",
+        "de novo synthesis",
+        "salvage pathway",
+        "gout",
+        "痛風",
+        "Lesch-Nyhan syndrome",
+        "HGPRT",
+        "adenosine deaminase",
+        "xanthine",
+        "orotic aciduria",
+        "dihydroorotate dehydrogenase"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q31",
+        "104-2-醫學二-生物化學-Q32",
+        "105-1-醫學二-生物化學-Q30",
+        "106-1-醫學二-生物化學-Q32",
+        "106-2-醫學一-生物化學-Q80",
+        "108-1-醫學一-生物化學-Q80"
+      ]
+    },
+    {
+      "id": "amino-acid-catabolism-inborn-errors",
+      "zh": "胺基酸分解代謝與先天性代謝異常（PKU、BCAA、含硫胺基酸等）",
+      "en": "Amino acid catabolism and inborn errors of metabolism (PKU, BCAAs, sulfur amino acids, etc.)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "phenylketonuria",
+        "苯酮尿症",
+        "phenylalanine hydroxylase",
+        "branched-chain amino acids",
+        "BCAA",
+        "homocysteine",
+        "cysteine metabolism",
+        "albinism",
+        "chorismate"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q43",
+        "104-2-醫學二-生物化學-Q46",
+        "105-1-醫學二-生物化學-Q45",
+        "107-1-醫學一-生物化學-Q93",
+        "109-2-醫學一-生物化學-Q85",
+        "109-2-醫學一-生物化學-Q94"
+      ]
+    },
+    {
+      "id": "pyruvate-dehydrogenase-complex",
+      "zh": "丙酮酸脫氫酶複合體與 acetyl-CoA 來源",
+      "en": "Pyruvate dehydrogenase complex and sources of acetyl-CoA",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "PDH complex",
+        "丙酮酸脫氫酶複合體",
+        "thiamine pyrophosphate",
+        "lipoic acid",
+        "acetyl-CoA sources"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "106-2-醫學一-生物化學-Q77",
+        "106-2-醫學一-生物化學-Q95",
+        "108-1-醫學一-生物化學-Q88",
+        "108-1-醫學一-生物化學-Q90",
+        "109-2-醫學一-生物化學-Q77",
+        "109-2-醫學一-生物化學-Q89"
+      ]
+    },
+    {
+      "id": "tca-cycle-enzymes-intermediates",
+      "zh": "克氏循環（TCA cycle）酵素與中間產物",
+      "en": "Krebs (TCA) cycle enzymes and intermediates",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "citric acid cycle",
+        "Krebs cycle",
+        "TCA cycle",
+        "克氏循環",
+        "citrate synthase",
+        "aconitase",
+        "succinate dehydrogenase"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q29",
+        "105-2-醫學二-生物化學-Q38",
+        "105-2-醫學二-生物化學-Q43",
+        "106-1-醫學二-生物化學-Q40",
+        "106-1-醫學二-生物化學-Q47",
+        "107-1-醫學一-生物化學-Q88"
+      ]
+    },
+    {
+      "id": "fatty-acid-beta-oxidation",
+      "zh": "脂肪酸 β-氧化（含 ω-氧化、肉鹼系統）",
+      "en": "Fatty acid β-oxidation (including ω-oxidation and the carnitine shuttle)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "beta-oxidation",
+        "β-oxidation",
+        "carnitine palmitoyltransferase",
+        "CPT",
+        "MCAD deficiency",
+        "omega oxidation",
+        "2,4-dienoyl-CoA reductase"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q42",
+        "105-2-醫學二-生物化學-Q42",
+        "106-1-醫學二-生物化學-Q43",
+        "108-2-醫學一-生物化學-Q89",
+        "109-2-醫學一-生物化學-Q91",
+        "110-2-醫學一-生物化學-Q93"
+      ]
+    },
+    {
+      "id": "urea-cycle-ammonia-transport",
+      "zh": "尿素循環與氨運輸（glutamine/alanine 攜帶）",
+      "en": "Urea cycle and ammonia transport (glutamine/alanine carriers)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "urea cycle",
+        "尿素循環",
+        "carbamoyl phosphate synthetase",
+        "glucose-alanine cycle",
+        "aspartate-argininosuccinate shunt"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "105-2-醫學二-生物化學-Q44",
+        "106-1-醫學二-生物化學-Q44",
+        "106-1-醫學二-生物化學-Q45",
+        "106-2-醫學一-生物化學-Q93",
+        "109-2-醫學一-生物化學-Q93",
+        "110-1-醫學一-生物化學-Q93"
+      ]
+    },
+    {
+      "id": "amino-acid-derived-biogenic-molecules",
+      "zh": "胺基酸衍生之生物活性分子（NO、兒茶酚胺、血清素、GABA）",
+      "en": "Amino acid-derived bioactive molecules (nitric oxide, catecholamines, serotonin, GABA)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "nitric oxide",
+        "arginine to NO",
+        "catecholamine",
+        "epinephrine biosynthesis",
+        "serotonin",
+        "tryptophan precursor",
+        "GABA",
+        "iron-sulfur center"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q44",
+        "105-1-醫學二-生物化學-Q46",
+        "108-1-醫學一-生物化學-Q92",
+        "108-1-醫學一-生物化學-Q94",
+        "110-1-醫學一-生物化學-Q96",
+        "112-1-醫學一-生物化學-Q78"
+      ]
+    },
+    {
+      "id": "gluconeogenesis-pathway-regulation",
+      "zh": "糖質新生途徑與 Cori 循環",
+      "en": "Gluconeogenesis pathway and the Cori cycle",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "gluconeogenesis",
+        "糖質新生",
+        "pyruvate carboxylase",
+        "phosphoenolpyruvate carboxykinase",
+        "Cori cycle"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學二-生物化學-Q37",
+        "106-1-醫學二-生物化學-Q38",
+        "106-2-醫學一-生物化學-Q87",
+        "106-2-醫學一-生物化學-Q88",
+        "106-2-醫學一-生物化學-Q94",
+        "108-2-醫學一-生物化學-Q93"
+      ]
+    },
+    {
+      "id": "glycogen-metabolism-synthesis-degradation",
+      "zh": "肝醣合成與分解調控",
+      "en": "Glycogen synthesis and degradation regulation",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "glycogen synthase",
+        "肝醣合成酶",
+        "glycogen phosphorylase",
+        "肝醣磷解酶",
+        "GSK3",
+        "phosphorylase kinase"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "105-1-醫學二-生物化學-Q39",
+        "105-2-醫學二-生物化學-Q39",
+        "106-1-醫學二-生物化學-Q39",
+        "108-1-醫學一-生物化學-Q87",
+        "110-1-醫學一-生物化學-Q89",
+        "114-2-醫學一-生物化學-Q95"
+      ]
+    },
+    {
+      "id": "ketone-body-metabolism",
+      "zh": "酮體生成與利用",
+      "en": "Ketone body synthesis and utilization",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "ketogenesis",
+        "生酮作用",
+        "HMG-CoA synthase",
+        "ketoacidosis",
+        "ketone bodies",
+        "酮體"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "108-2-醫學一-生物化學-Q94",
+        "109-1-醫學一-生物化學-Q92",
+        "110-1-醫學一-生物化學-Q90",
+        "113-1-醫學一-生物化學-Q94",
+        "113-2-醫學一-生物化學-Q91",
+        "114-2-醫學一-生物化學-Q93"
+      ]
+    },
+    {
+      "id": "fatty-acid-lipogenesis-biosynthesis",
+      "zh": "脂肪酸生合成與調控（acetyl-CoA carboxylase、SREBP）",
+      "en": "Fatty acid biosynthesis and regulation (acetyl-CoA carboxylase, SREBP)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "acetyl-CoA carboxylase",
+        "malonyl-CoA",
+        "lipogenesis",
+        "脂肪生成",
+        "SREBP",
+        "palmitate synthesis",
+        "NADPH requirement"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q40",
+        "107-1-醫學一-生物化學-Q90",
+        "109-2-醫學一-生物化學-Q92",
+        "112-2-醫學一-生物化學-Q90",
+        "114-1-醫學一-生物化學-Q91",
+        "114-2-醫學一-生物化學-Q90"
+      ]
+    },
+    {
+      "id": "cholesterol-bile-acid-metabolism",
+      "zh": "膽固醇生合成與膽酸代謝",
+      "en": "Cholesterol biosynthesis and bile acid metabolism",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "HMG-CoA reductase",
+        "statins",
+        "cholesterol biosynthesis",
+        "bile acids",
+        "膽酸",
+        "bile salts"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "109-2-醫學一-生物化學-Q90",
+        "110-1-醫學一-生物化學-Q92",
+        "111-1-醫學一-生物化學-Q97",
+        "113-1-醫學一-生物化學-Q90",
+        "113-2-醫學一-生物化學-Q93"
+      ]
+    },
+    {
+      "id": "phospholipid-sphingolipid-metabolism",
+      "zh": "磷脂與鞘脂代謝（合成、儲積症、膜間運送）",
+      "en": "Phospholipid and sphingolipid metabolism (biosynthesis, storage disorders, membrane trafficking)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "phosphatidylserine",
+        "phosphatidylcholine",
+        "sphingolipidosis",
+        "Tay-Sachs disease",
+        "Gaucher's disease",
+        "cerebroside",
+        "lipid transfer protein"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q42",
+        "112-1-醫學一-生物化學-Q91",
+        "112-1-醫學一-生物化學-Q93",
+        "113-1-醫學一-生物化學-Q91",
+        "114-1-醫學一-生物化學-Q90",
+        "114-2-醫學一-生物化學-Q89"
+      ]
+    },
+    {
+      "id": "heme-porphyrin-metabolism",
+      "zh": "血基質（heme）生合成與分解代謝",
+      "en": "Heme (porphyrin) biosynthesis and catabolism",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "delta-aminolevulinic acid synthase",
+        "ALA synthase",
+        "heme oxygenase",
+        "biliverdin",
+        "succinate-glycine pathway"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q36",
+        "109-1-醫學一-生物化學-Q93",
+        "111-2-醫學一-生物化學-Q95",
+        "112-1-醫學一-生物化學-Q94",
+        "114-1-醫學一-生物化學-Q92"
+      ]
+    },
+    {
+      "id": "lipoprotein-metabolism",
+      "zh": "脂蛋白代謝（LDL、乳糜微粒、家族性高膽固醇血症）",
+      "en": "Lipoprotein metabolism (LDL, chylomicrons, familial hypercholesterolemia)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "LDL receptor",
+        "familial hypercholesterolemia",
+        "家族性高膽固醇血症",
+        "chylomicron",
+        "乳糜微粒",
+        "ApoB-100"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q44",
+        "105-1-醫學二-生物化學-Q42",
+        "105-1-醫學二-生物化學-Q44",
+        "112-1-醫學一-生物化學-Q92",
+        "115-1-醫學一-生物化學-Q95"
+      ]
+    },
+    {
+      "id": "eicosanoid-biosynthesis-function",
+      "zh": "類花生酸生合成與功能（前列腺素、血栓素、白三烯）",
+      "en": "Eicosanoid biosynthesis and function (prostaglandins, thromboxanes, leukotrienes)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "aspirin mechanism",
+        "cyclooxygenase",
+        "arachidonate",
+        "thromboxane",
+        "leukotriene receptor"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "107-1-醫學一-生物化學-Q91",
+        "109-1-醫學一-生物化學-Q90",
+        "110-2-醫學一-生物化學-Q91",
+        "111-2-醫學一-生物化學-Q91"
+      ]
+    },
+    {
+      "id": "one-carbon-metabolism-folate",
+      "zh": "葉酸單碳代謝與相關生合成（甲硫胺酸、肌酸、同半胱胺酸）",
+      "en": "Folate one-carbon metabolism and related biosynthesis (methionine, creatine, homocysteine)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "N5-methyl-THF",
+        "SAM",
+        "S-adenosylmethionine",
+        "creatine biosynthesis",
+        "homocysteine reduction"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "107-2-醫學一-生物化學-Q93",
+        "107-2-醫學一-生物化學-Q94",
+        "111-2-醫學一-生物化學-Q78",
+        "111-2-醫學一-生物化學-Q94",
+        "112-1-醫學一-生物化學-Q77",
+        "115-1-醫學一-生物化學-Q79"
+      ]
+    },
+    {
+      "id": "pentose-phosphate-pathway",
+      "zh": "五碳糖磷酸途徑",
+      "en": "Pentose phosphate pathway",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "pentose phosphate pathway",
+        "戊糖磷酸途徑",
+        "transketolase",
+        "transaldolase",
+        "NADPH production"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "107-1-醫學一-生物化學-Q80",
+        "109-2-醫學一-生物化學-Q87",
+        "114-1-醫學一-生物化學-Q87"
+      ]
+    },
+    {
+      "id": "cancer-metabolism-warburg-effect",
+      "zh": "癌細胞代謝與 Warburg 效應（缺氧誘導因子）",
+      "en": "Cancer cell metabolism and the Warburg effect (hypoxia-inducible factor)",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "Warburg effect",
+        "HIF-1",
+        "缺氧誘導轉錄因子",
+        "FDG-PET",
+        "fumarase mutation"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q37",
+        "105-2-醫學二-生物化學-Q34",
+        "105-2-醫學二-生物化學-Q45",
+        "107-1-醫學一-生物化學-Q96"
+      ]
+    },
+    {
+      "id": "transamination-nitrogen-shuttle",
+      "zh": "轉胺反應與胺基氮攜帶",
+      "en": "Transamination reactions and amino-group carriers",
+      "chapterId": "intermediary-metabolism",
+      "synonyms": [
+        "GOT",
+        "GPT",
+        "transaminase",
+        "alpha-ketoglutarate to glutamate",
+        "oxaloacetate to aspartate"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "108-1-醫學一-生物化學-Q93",
+        "109-1-醫學一-生物化學-Q87",
+        "109-1-醫學一-生物化學-Q94"
+      ]
+    },
+    {
+      "id": "nuclear-receptor-steroid-hormone-signaling",
+      "zh": "核受體與類固醇／甲狀腺素訊息傳遞",
+      "en": "Nuclear receptor and steroid/thyroid hormone signaling",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "steroid hormone receptor",
+        "nuclear receptor",
+        "glucocorticoid receptor",
+        "heat shock protein",
+        "thyroid hormone",
+        "retinoid receptor",
+        "tamoxifen",
+        "peptide vs steroid hormone",
+        "RIA"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "106-1-醫學二-生物化學-Q27",
+        "106-2-醫學一-生物化學-Q90",
+        "107-2-醫學一-生物化學-Q99",
+        "108-1-醫學一-生物化學-Q78",
+        "108-2-醫學一-生物化學-Q97",
+        "109-1-醫學一-生物化學-Q99"
+      ]
+    },
+    {
+      "id": "gpcr-camp-pka-signaling",
+      "zh": "cAMP／蛋白激酶 A 訊息傳遞路徑",
+      "en": "cAMP/protein kinase A signaling pathway",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "protein kinase A",
+        "PKA",
+        "cyclic AMP",
+        "adenylyl cyclase",
+        "cholera toxin",
+        "ADP-ribosylation of Gs",
+        "AMPK"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q26",
+        "106-1-醫學二-生物化學-Q36",
+        "106-1-醫學二-生物化學-Q48",
+        "106-2-醫學一-生物化學-Q98",
+        "107-1-醫學一-生物化學-Q97",
+        "107-1-醫學一-生物化學-Q99"
+      ]
+    },
+    {
+      "id": "ras-mapk-signaling-oncogenes",
+      "zh": "Ras-MAPK 訊息傳遞與致癌基因活化",
+      "en": "Ras-MAPK signaling and oncogene activation",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "Ras protein",
+        "MAPK cascade",
+        "GTPase activating protein",
+        "GAP",
+        "farnesylation",
+        "prenylation",
+        "proto-oncogene",
+        "oncogene"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q36",
+        "105-1-醫學二-生物化學-Q48",
+        "107-1-醫學一-生物化學-Q98",
+        "108-2-醫學一-寄生蟲學-Q82",
+        "108-2-醫學一-生物化學-Q98",
+        "110-1-醫學一-生物化學-Q97"
+      ]
+    },
+    {
+      "id": "cell-cycle-cyclin-cdk-regulation",
+      "zh": "細胞週期調控（cyclin、CDK、期別轉換）",
+      "en": "Cell cycle regulation (cyclin, CDK, phase transitions)",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "cyclin-dependent kinase",
+        "CDK",
+        "p21",
+        "retinoblastoma protein",
+        "pRb",
+        "G0 phase",
+        "S phase",
+        "cell cycle phase"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "106-2-醫學一-生物化學-Q97",
+        "108-1-醫學一-生物化學-Q97",
+        "111-1-醫學一-生物化學-Q77",
+        "111-2-醫學一-生物化學-Q98",
+        "112-1-醫學一-生物化學-Q97",
+        "112-2-醫學一-生物化學-Q96"
+      ]
+    },
+    {
+      "id": "gpcr-structure-signaling",
+      "zh": "G 蛋白偶聯受體結構與訊息傳遞總論",
+      "en": "G protein-coupled receptor structure and general signal transduction",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "GPCR",
+        "7-transmembrane receptor",
+        "trimeric G protein",
+        "cell signaling general principles"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q47",
+        "104-1-醫學二-生物化學-Q48",
+        "104-2-醫學二-生物化學-Q48",
+        "105-2-醫學二-生物化學-Q47",
+        "108-1-醫學一-生物化學-Q98",
+        "112-2-醫學一-生物化學-Q97"
+      ]
+    },
+    {
+      "id": "plc-ip3-dag-calcium-signaling",
+      "zh": "磷脂酶 C／IP3／DAG／鈣離子訊息傳遞",
+      "en": "Phospholipase C/IP3/DAG/calcium signaling",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "phospholipase C",
+        "PIP2",
+        "diacylglycerol",
+        "inositol trisphosphate",
+        "calmodulin",
+        "EF hand",
+        "second messenger"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "108-1-醫學一-生物化學-Q99",
+        "108-2-醫學一-生物化學-Q96",
+        "109-2-醫學一-生物化學-Q98",
+        "110-2-醫學一-生物化學-Q99",
+        "113-1-醫學一-生物化學-Q96",
+        "113-1-醫學一-生物化學-Q97"
+      ]
+    },
+    {
+      "id": "receptor-tyrosine-kinase-signaling",
+      "zh": "受體酪胺酸激酶訊息傳遞（EGF、胰島素受體、二聚化）",
+      "en": "Receptor tyrosine kinase signaling (EGF, insulin receptor, dimerization)",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "receptor tyrosine kinase",
+        "RTK",
+        "EGF receptor",
+        "insulin receptor autophosphorylation",
+        "receptor dimerization"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學二-生物化學-Q49",
+        "105-2-醫學二-生物化學-Q48",
+        "106-1-醫學二-生物化學-Q49",
+        "107-2-醫學一-生物化學-Q97",
+        "111-1-醫學一-生物化學-Q78",
+        "111-2-醫學一-生物化學-Q99"
+      ]
+    },
+    {
+      "id": "guanylyl-cyclase-cgmp-signaling",
+      "zh": "鳥苷酸環化酶／cGMP 訊息傳遞",
+      "en": "Guanylyl cyclase/cGMP signaling",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "guanylyl cyclase",
+        "鳥苷酸環化酶",
+        "cGMP",
+        "atrial natriuretic factor",
+        "guanylin",
+        "nitric oxide-cGMP",
+        "phosphodiesterase"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "104-1-醫學二-生物化學-Q46",
+        "105-2-醫學二-生物化學-Q25",
+        "106-2-醫學一-生物化學-Q99",
+        "109-1-醫學一-生物化學-Q98"
+      ]
+    },
+    {
+      "id": "insulin-signaling-metabolic-effects",
+      "zh": "胰島素訊息傳遞與代謝效應（GLUT4、生合成、脂解調控）",
+      "en": "Insulin signaling and metabolic effects (GLUT4, biosynthesis, regulation of lipolysis)",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "GLUT4",
+        "insulin preprohormone",
+        "insulin biosynthesis",
+        "adipocyte lipolysis"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "105-1-醫學二-生物化學-Q49",
+        "108-1-醫學一-生物化學-Q89",
+        "108-2-醫學一-生物化學-Q86",
+        "109-2-醫學一-生物化學-Q99"
+      ]
+    },
+    {
+      "id": "apoptosis-signaling-pathways",
+      "zh": "細胞凋亡訊息傳遞（caspase、Bcl-2、細胞色素 c）",
+      "en": "Apoptosis signaling pathways (caspases, Bcl-2, cytochrome c)",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "caspase",
+        "Bcl-2",
+        "cytochrome c release",
+        "apoptosome",
+        "TNF-induced apoptosis"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "105-1-醫學二-生物化學-Q37",
+        "109-1-醫學一-生物化學-Q97",
+        "110-2-醫學一-生物化學-Q97",
+        "111-2-醫學一-生物化學-Q97"
+      ]
+    },
+    {
+      "id": "pi3k-akt-signaling",
+      "zh": "PI3K-Akt 訊息傳遞路徑",
+      "en": "PI3K-Akt signaling pathway",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "phosphoinositide 3-kinase",
+        "PI3K",
+        "PIP3",
+        "protein kinase B",
+        "Akt"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "109-2-醫學一-生物化學-Q97",
+        "114-1-醫學一-生物化學-Q97",
+        "114-2-醫學一-生物化學-Q97"
+      ]
+    },
+    {
+      "id": "jak-stat-cytokine-signaling",
+      "zh": "JAK-STAT 細胞激素訊息傳遞",
+      "en": "JAK-STAT cytokine signaling",
+      "chapterId": "signaling-cell-cycle-apoptosis",
+      "synonyms": [
+        "JAK-STAT",
+        "Janus kinase",
+        "signal transducers and activators of transcription",
+        "erythropoietin",
+        "interleukin signaling"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "107-2-醫學一-生物化學-Q98",
+        "108-2-醫學一-生物化學-Q78"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "「蛋白質結構」大桶 protein-higher-order-structure（21題）涵蓋二級/三級/四級/摺疊/雙硫鍵/抗體結構，若審題者覺得太雜可考慮拆成『二級三級結構』vs『四級結構與伴護蛋白』兩概念。",
+    "「維生素功能與缺乏症」大桶 vitamin-function-deficiency-syndromes（26題，20 sittings）刻意合併所有脂溶性/水溶性維生素，因官方大綱本身把維生素列在同一子項；若嫌粒度太粗，可依脂溶性(A/D/E/K) vs 水溶性(B群/C) 拆兩個概念。",
+    "「重組DNA技術與選殖載體」recombinant-dna-cloning-vectors（20題）合併質體/YAC/RFLP/knockout/RNAi/限制酶辨識序列，是本科最大的『分子生物技術工具箱』概念，可能可再拆成『選殖載體設計』vs『分子標記分析技術(RFLP/RNAi)』。",
+    "Q222(108-1-Q90, acetyl-CoA主要來源)歸入 pyruvate-dehydrogenase-complex，因為它测的是acetyl-CoA整體來源概念而非PDH本身機制，若審題者認為應獨立成『acetyl-CoA來源總論』可考慮。",
+    "Q39/Q50(青黴素/transpeptidase 胜肽聚醣合成抑制)歸入 antibiotics-nucleic-acid-protein-synthesis-inhibitors 桶內，雖然主題其實是細胞壁合成抑制（非核酸/蛋白質合成），因獨立成概念題數過少(2題)才合併，語意上略有牽強，如需要可獨立為『抗生素作用機轉總論』。",
+    "Q384/Q433/Q461等『不可逆步驟』/『主要調控酵素』類題目分散在 glycolysis-pathway-regulation 底下，未進一步拆成『糖解限速酵素』子概念，因題量不足以支撐獨立概念。"
+  ]
+}

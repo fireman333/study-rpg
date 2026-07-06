@@ -1,0 +1,934 @@
+{
+  "subjectId": "公共衛生學",
+  "questionCount": 360,
+  "targetConceptCount": 36,
+  "concepts": [
+    {
+      "id": "air-pollutants-classification",
+      "zh": "空氣污染物分類",
+      "en": "classification of air pollutants",
+      "chapterId": "environmental-health",
+      "synonyms": [
+        "衍生性污染物 secondary pollutant",
+        "氮氧化物",
+        "酸雨",
+        "光化學煙霧 photochemical smog"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-2-醫學一-公共衛生學-Q91",
+        "104-2-醫學一-公共衛生學-Q92",
+        "105-1-醫學一-公共衛生學-Q90",
+        "105-2-醫學一-公共衛生學-Q90",
+        "108-1-醫學二-公共衛生學-Q42"
+      ]
+    },
+    {
+      "id": "air-quality-index-and-monitoring",
+      "zh": "空氣污染指標與監測",
+      "en": "air quality index (PSI/AQI) and monitoring",
+      "chapterId": "environmental-health",
+      "synonyms": [
+        "PSI",
+        "AQI",
+        "細懸浮微粒 PM2.5",
+        "光化學評估監測站"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q95",
+        "104-2-醫學一-公共衛生學-Q90",
+        "107-1-醫學二-藥理學-Q44",
+        "107-2-醫學二-公共衛生學-Q43",
+        "113-1-醫學二-公共衛生學-Q42"
+      ]
+    },
+    {
+      "id": "bias-confounding-effect-modification",
+      "zh": "偏差、干擾與效果修飾",
+      "en": "bias, confounding, and effect modification",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "healthy worker effect",
+        "confounder",
+        "干擾因子",
+        "交互作用 interaction",
+        "effect modifier",
+        "因果推論條件 Hill's criteria",
+        "社會流行病學 social epidemiology"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q87",
+        "111-1-醫學二-公共衛生學-Q38",
+        "104-2-醫學一-公共衛生學-Q88",
+        "106-2-醫學二-公共衛生學-Q40",
+        "109-1-醫學二-公共衛生學-Q39"
+      ]
+    },
+    {
+      "id": "case-control-study-design",
+      "zh": "病例對照研究",
+      "en": "case-control study",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "matching配對",
+        "回憶偏差 recall bias",
+        "選擇偏差"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學一-公共衛生學-Q89",
+        "106-1-醫學一-公共衛生學-Q87",
+        "110-1-醫學二-公共衛生學-Q36",
+        "110-2-醫學二-公共衛生學-Q38",
+        "114-2-醫學二-公共衛生學-Q36"
+      ]
+    },
+    {
+      "id": "climate-change-and-greenhouse-gases",
+      "zh": "溫室氣體與全球氣候變遷",
+      "en": "greenhouse gases and global climate change",
+      "chapterId": "environmental-health",
+      "synonyms": [
+        "臭氧層 ozone layer",
+        "氟氯碳化物 CFC",
+        "全球暖化對公衛衝擊"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q92",
+        "107-1-醫學二-藥理學-Q46",
+        "107-2-醫學二-公共衛生學-Q44",
+        "109-1-醫學二-公共衛生學-Q41",
+        "110-1-醫學二-公共衛生學-Q39"
+      ]
+    },
+    {
+      "id": "cohort-and-observational-study-design",
+      "zh": "世代研究與觀察性研究設計總論",
+      "en": "cohort study and overview of observational study designs",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "prospective cohort study",
+        "retrospective cohort study",
+        "雙向研究",
+        "ambispective study",
+        "流行病學定義",
+        "observational epidemiology"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-公共衛生學-Q87",
+        "105-1-醫學一-公共衛生學-Q85",
+        "106-1-醫學一-公共衛生學-Q84",
+        "107-1-醫學二-寄生蟲學-Q36",
+        "109-2-醫學二-公共衛生學-Q38"
+      ]
+    },
+    {
+      "id": "confidence-interval-hypothesis-testing",
+      "zh": "信賴區間與假設檢定基本原理",
+      "en": "confidence interval estimation and hypothesis testing framework",
+      "chapterId": "biostatistics",
+      "synonyms": [
+        "Type I error",
+        "Type II error",
+        "statistical power",
+        "p-value",
+        "顯著水準",
+        "單尾雙尾檢定",
+        "樣本數估計",
+        "sample size calculation"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q86",
+        "104-2-醫學一-公共衛生學-Q83",
+        "104-2-醫學一-公共衛生學-Q85",
+        "105-1-醫學一-公共衛生學-Q84",
+        "105-2-醫學一-公共衛生學-Q86"
+      ]
+    },
+    {
+      "id": "correlation-and-regression",
+      "zh": "相關與迴歸分析",
+      "en": "correlation and regression analysis",
+      "chapterId": "biostatistics",
+      "synonyms": [
+        "Pearson correlation",
+        "Spearman correlation",
+        "simple linear regression",
+        "判定係數",
+        "coefficient of determination R2"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q90",
+        "104-2-醫學一-公共衛生學-Q86",
+        "105-2-醫學一-公共衛生學-Q89",
+        "107-1-醫學二-公共衛生學-Q40",
+        "107-2-醫學二-公共衛生學-Q41"
+      ]
+    },
+    {
+      "id": "demography-population-health-indicators",
+      "zh": "人口學與健康水平指標",
+      "en": "demography and population health indicators",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "人口金字塔 population pyramid",
+        "5歲以下兒童死因",
+        "健康轉型 health transition",
+        "流行病學轉型 epidemiological transition"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-2-醫學一-公共衛生學-Q100",
+        "107-1-醫學二-公共衛生學-Q50",
+        "110-2-醫學二-公共衛生學-Q48",
+        "112-2-醫學二-公共衛生學-Q39",
+        "112-2-醫學二-公共衛生學-Q50"
+      ]
+    },
+    {
+      "id": "descriptive-statistics-measurement-scales",
+      "zh": "描述性統計與測量尺度",
+      "en": "descriptive statistics and levels of measurement",
+      "chapterId": "biostatistics",
+      "synonyms": [
+        "mean median mode",
+        "standard deviation",
+        "coefficient of variation",
+        "skewed distribution",
+        "nominal ordinal interval ratio",
+        "reliability measurement error"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q89",
+        "105-1-醫學一-公共衛生學-Q86",
+        "106-1-醫學一-公共衛生學-Q88",
+        "106-2-醫學二-公共衛生學-Q38",
+        "108-1-醫學二-公共衛生學-Q36"
+      ]
+    },
+    {
+      "id": "disease-frequency-measures",
+      "zh": "疾病頻率與關聯性測量",
+      "en": "measures of disease frequency and association",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "incidence",
+        "prevalence",
+        "死因分率",
+        "attributable risk",
+        "relative risk",
+        "odds ratio",
+        "二次侵襲率",
+        "case-fatality rate",
+        "age-standardized rate"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q85",
+        "104-2-醫學一-公共衛生學-Q84",
+        "107-1-醫學二-公共衛生學-Q39",
+        "108-2-醫學二-公共衛生學-Q41",
+        "110-1-醫學二-公共衛生學-Q37"
+      ]
+    },
+    {
+      "id": "ecological-study-design",
+      "zh": "生態相關研究與生態謬誤",
+      "en": "ecological study and ecological fallacy",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "ecological fallacy",
+        "生態謬誤"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "105-2-醫學一-公共衛生學-Q84",
+        "108-1-醫學二-公共衛生學-Q41",
+        "109-2-醫學二-公共衛生學-Q40",
+        "112-1-醫學二-公共衛生學-Q38"
+      ]
+    },
+    {
+      "id": "environmental-risk-assessment",
+      "zh": "環境毒理與風險評估",
+      "en": "environmental toxicology and risk assessment",
+      "chapterId": "environmental-health",
+      "synonyms": [
+        "危害辨識 hazard identification",
+        "劑量反應評估 dose-response",
+        "風險本質特性化",
+        "危害商數 hazard quotient",
+        "閾值 threshold",
+        "毒物動力學 toxicokinetics",
+        "風險溝通 risk communication"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q94",
+        "104-2-醫學一-公共衛生學-Q93",
+        "104-2-醫學一-公共衛生學-Q94",
+        "106-1-醫學一-公共衛生學-Q90",
+        "107-2-醫學二-公共衛生學-Q46"
+      ]
+    },
+    {
+      "id": "ergonomics-and-physical-hazards",
+      "zh": "人因工學與物理性職業危害",
+      "en": "ergonomics and physical occupational hazards",
+      "chapterId": "occupational-medicine",
+      "synonyms": [
+        "腕道症候群 carpal tunnel syndrome",
+        "白指病 vibration white finger",
+        "電弧焊接",
+        "噪音非聽覺影響"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q92",
+        "105-1-醫學一-公共衛生學-Q95",
+        "106-2-醫學二-公共衛生學-Q45",
+        "109-2-醫學二-公共衛生學-Q46",
+        "112-1-醫學二-公共衛生學-Q42"
+      ]
+    },
+    {
+      "id": "food-safety-and-foodborne-hazards",
+      "zh": "食品安全與有害物質",
+      "en": "food safety and foodborne hazards",
+      "chapterId": "environmental-health",
+      "synonyms": [
+        "HACCP",
+        "油症事件 PCB",
+        "高溫油炸有害物質 acrylamide",
+        "食品中毒",
+        "異環胺 heterocyclic amine"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "108-2-醫學二-公共衛生學-Q45",
+        "109-1-醫學二-公共衛生學-Q42",
+        "109-2-醫學二-公共衛生學-Q42",
+        "114-1-醫學二-公共衛生學-Q41",
+        "114-2-醫學二-病理學-Q47"
+      ]
+    },
+    {
+      "id": "health-administration-organization",
+      "zh": "衛生行政組織與國際衛生",
+      "en": "health administration organization and international health",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "衛生福利部組織",
+        "疾病管制署",
+        "WHO世界衛生組織",
+        "醫療體系績效三大目標"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "106-1-醫學一-公共衛生學-Q100",
+        "110-1-醫學二-公共衛生學-Q49",
+        "112-1-醫學二-公共衛生學-Q49",
+        "113-1-醫學二-公共衛生學-Q47",
+        "113-1-醫學二-公共衛生學-Q49"
+      ]
+    },
+    {
+      "id": "health-care-financing-expenditure",
+      "zh": "醫療費用、財源與市場特性",
+      "en": "health care financing, expenditure, and market characteristics",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "國民醫療保健支出 NHE/GDP",
+        "社會保險原理",
+        "醫療需求誘導 induced demand",
+        "成本效用分析 cost-utility analysis",
+        "醫療服務市場特性"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "106-1-醫學一-公共衛生學-Q98",
+        "108-1-醫學二-公共衛生學-Q49",
+        "110-2-醫學二-公共衛生學-Q49",
+        "111-1-醫學二-公共衛生學-Q48",
+        "113-2-醫學二-公共衛生學-Q49"
+      ]
+    },
+    {
+      "id": "health-insurance-payment-systems",
+      "zh": "健康保險支付制度",
+      "en": "health insurance payment systems",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "論量計酬",
+        "論病例計酬 DRG",
+        "論人計酬",
+        "論質計酬 pay for performance",
+        "總額預算"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q99",
+        "110-1-醫學二-公共衛生學-Q48",
+        "111-2-醫學二-公共衛生學-Q49",
+        "112-1-醫學二-公共衛生學-Q48",
+        "113-1-醫學二-公共衛生學-Q48"
+      ]
+    },
+    {
+      "id": "health-promotion-program-evaluation",
+      "zh": "健康促進計畫策略與評價",
+      "en": "health promotion program strategy and evaluation",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "渥太華憲章 Ottawa Charter",
+        "過程評價 process evaluation",
+        "衝擊評價",
+        "成效評價",
+        "社會行銷 social marketing 4P",
+        "健康促進醫院",
+        "RE-AIM"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-2-醫學一-公共衛生學-Q96",
+        "106-2-醫學二-公共衛生學-Q47",
+        "108-2-醫學二-公共衛生學-Q48",
+        "112-2-醫學二-公共衛生學-Q49",
+        "113-1-醫學二-公共衛生學-Q44"
+      ]
+    },
+    {
+      "id": "healthy-settings-community-health-literacy",
+      "zh": "健康城市、社區營造與健康識能",
+      "en": "healthy cities, community empowerment, and health literacy",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "healthy city",
+        "健康營造",
+        "health literacy",
+        "design thinking 設計思考"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q96",
+        "106-1-醫學一-公共衛生學-Q96",
+        "109-1-醫學二-公共衛生學-Q48",
+        "110-1-醫學二-公共衛生學-Q43",
+        "111-2-醫學二-公共衛生學-Q44"
+      ]
+    },
+    {
+      "id": "hospital-management-tools",
+      "zh": "醫院管理工具與品質評估",
+      "en": "hospital management tools and quality assessment",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "SWOT分析",
+        "平衡計分卡 Balanced Scorecard",
+        "Donabedian品質評估模式",
+        "醫療品質通報系統",
+        "醫院分類"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "107-2-醫學二-公共衛生學-Q50",
+        "108-2-醫學二-公共衛生學-Q49",
+        "109-1-醫學二-公共衛生學-Q50",
+        "110-1-醫學二-公共衛生學-Q50",
+        "112-1-醫學二-公共衛生學-Q50"
+      ]
+    },
+    {
+      "id": "individual-behavior-change-models",
+      "zh": "個人層次健康行為改變模式",
+      "en": "individual-level health behavior change models",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "健康信念模式 Health Belief Model",
+        "PRECEDE-PROCEED模式",
+        "跨理論模式 Transtheoretical Model",
+        "自我效能 self-efficacy",
+        "社會支持 social support"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q97",
+        "104-2-醫學一-公共衛生學-Q95",
+        "104-2-醫學一-公共衛生學-Q97",
+        "105-2-醫學一-公共衛生學-Q97",
+        "106-1-醫學一-公共衛生學-Q95"
+      ]
+    },
+    {
+      "id": "infectious-disease-epidemiology",
+      "zh": "傳染病流行病學與監測通報",
+      "en": "infectious disease epidemiology and surveillance",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "潛伏期 incubation period",
+        "傳染病通報分級",
+        "傳染病監測金字塔",
+        "病媒蚊 vector-borne disease",
+        "疫苗可預防疾病",
+        "院內感染 nosocomial infection",
+        "傳染途徑 transmission route"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "106-1-醫學一-公共衛生學-Q92",
+        "108-1-醫學二-公共衛生學-Q37",
+        "108-1-醫學二-公共衛生學-Q44",
+        "108-2-醫學二-公共衛生學-Q46",
+        "109-2-醫學二-公共衛生學-Q43"
+      ]
+    },
+    {
+      "id": "interpersonal-and-mass-media-theories",
+      "zh": "人際互動與大眾傳播健康行為理論",
+      "en": "interpersonal-level and mass media health behavior theories",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "社會學習理論 social cognitive theory",
+        "創新擴散 diffusion of innovation",
+        "Andersen健康服務利用模式",
+        "涵化理論 cultivation theory",
+        "說服理論 persuasion theory"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q97",
+        "106-2-醫學二-公共衛生學-Q46",
+        "109-2-醫學二-公共衛生學-Q48",
+        "110-1-醫學二-公共衛生學-Q46",
+        "110-2-醫學二-公共衛生學-Q44"
+      ]
+    },
+    {
+      "id": "long-term-care",
+      "zh": "長期照護",
+      "en": "long-term care",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "日常生活活動 ADLs",
+        "團體家屋 group home",
+        "個案管理 case management"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q98",
+        "106-1-醫學一-公共衛生學-Q99",
+        "110-2-醫學二-公共衛生學-Q50",
+        "111-1-醫學二-公共衛生學-Q50",
+        "112-1-醫學二-公共衛生學-Q47"
+      ]
+    },
+    {
+      "id": "medical-ethics-informed-consent",
+      "zh": "醫學倫理與知情同意",
+      "en": "medical ethics and informed consent",
+      "chapterId": "public-health-practice-law-ethics",
+      "synonyms": [
+        "病人自主權利法",
+        "人體試驗告知事項",
+        "愛滋防治倫理",
+        "強制篩檢倫理"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-2-醫學一-公共衛生學-Q100",
+        "105-2-醫學一-公共衛生學-Q98",
+        "105-2-醫學一-公共衛生學-Q99",
+        "109-1-醫學二-公共衛生學-Q49",
+        "110-2-醫學二-公共衛生學-Q43"
+      ]
+    },
+    {
+      "id": "national-health-insurance-taiwan",
+      "zh": "全民健康保險制度",
+      "en": "Taiwan National Health Insurance (NHI) system",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "全民健保特色",
+        "自付費用免除",
+        "保險對象"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "106-2-醫學二-公共衛生學-Q49",
+        "107-2-醫學二-公共衛生學-Q49",
+        "109-2-醫學二-公共衛生學-Q50",
+        "114-1-醫學二-公共衛生學-Q48",
+        "115-1-醫學二-公共衛生學-Q50"
+      ]
+    },
+    {
+      "id": "nonparametric-and-chi-square-tests",
+      "zh": "卡方檢定與無母數檢定",
+      "en": "chi-square test and nonparametric tests",
+      "chapterId": "biostatistics",
+      "synonyms": [
+        "Fisher's exact test",
+        "Mann-Whitney test",
+        "Wilcoxon signed-rank test",
+        "McNemar test",
+        "列聯表分析"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q89",
+        "106-2-醫學二-公共衛生學-Q36",
+        "107-1-醫學二-寄生蟲學-Q38",
+        "107-2-醫學二-公共衛生學-Q37",
+        "108-2-醫學二-公共衛生學-Q40"
+      ]
+    },
+    {
+      "id": "occupational-carcinogens",
+      "zh": "職業性癌症",
+      "en": "occupational carcinogens",
+      "chapterId": "occupational-medicine",
+      "synonyms": [
+        "氯乙烯 vinyl chloride 肝血管肉瘤",
+        "苯 benzene 白血病",
+        "石綿 asbestos 間皮細胞瘤",
+        "IARC致癌物分類"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q91",
+        "106-1-醫學一-公共衛生學-Q93",
+        "108-1-醫學二-公共衛生學-Q46",
+        "109-2-醫學二-公共衛生學-Q45",
+        "110-1-醫學二-公共衛生學-Q41"
+      ]
+    },
+    {
+      "id": "occupational-environmental-heavy-metals",
+      "zh": "重金屬職業與環境暴露危害",
+      "en": "occupational and environmental heavy metal exposure hazards",
+      "chapterId": "occupational-medicine",
+      "synonyms": [
+        "鉛 lead",
+        "汞 mercury 水俣病",
+        "鎘 cadmium 痛痛病",
+        "砷 arsenic",
+        "鉻 chromium",
+        "標的器官毒性 target organ toxicity"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "106-1-醫學一-公共衛生學-Q94",
+        "109-1-醫學二-公共衛生學-Q43",
+        "110-1-醫學二-公共衛生學-Q40",
+        "110-2-醫學二-公共衛生學-Q40",
+        "111-2-醫學二-公共衛生學-Q43"
+      ]
+    },
+    {
+      "id": "occupational-exposure-limits",
+      "zh": "職業暴露限值與管理",
+      "en": "occupational exposure limits and control hierarchy",
+      "chapterId": "occupational-medicine",
+      "synonyms": [
+        "時量平均容許濃度 TWA",
+        "短時間時量平均容許濃度 STEL",
+        "暴露管理層級",
+        "職業病認定"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-2-醫學一-公共衛生學-Q93",
+        "106-2-醫學二-公共衛生學-Q44",
+        "108-1-醫學二-公共衛生學-Q45",
+        "108-2-醫學二-公共衛生學-Q44",
+        "109-1-醫學二-公共衛生學-Q45"
+      ]
+    },
+    {
+      "id": "physician-act-and-medical-practice-law",
+      "zh": "醫師法與醫療執業法規",
+      "en": "Physician Act and medical practice regulation",
+      "chapterId": "public-health-practice-law-ethics",
+      "synonyms": [
+        "密醫罪",
+        "醫療糾紛 malpractice",
+        "藥事法 Pharmaceutical Affairs Act",
+        "醫藥分業"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q100",
+        "105-1-醫學一-公共衛生學-Q100",
+        "107-1-醫學二-公共衛生學-Q49",
+        "110-2-醫學二-公共衛生學-Q46",
+        "110-2-醫學二-公共衛生學-Q47"
+      ]
+    },
+    {
+      "id": "pneumoconiosis-and-dust-hazards",
+      "zh": "塵肺症與粉塵危害",
+      "en": "pneumoconiosis and dust hazards",
+      "chapterId": "occupational-medicine",
+      "synonyms": [
+        "粉塵粒徑",
+        "矽肺症",
+        "石綿肺"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q94",
+        "105-2-醫學一-公共衛生學-Q92",
+        "108-2-醫學二-公共衛生學-Q42",
+        "109-1-醫學二-公共衛生學-Q44",
+        "111-1-醫學二-公共衛生學-Q43"
+      ]
+    },
+    {
+      "id": "probability-and-sampling-distribution",
+      "zh": "機率與抽樣分布",
+      "en": "probability and sampling distribution",
+      "chapterId": "biostatistics",
+      "synonyms": [
+        "中央極限定理",
+        "central limit theorem",
+        "貝氏定理",
+        "conditional probability",
+        "binomial probability"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q83",
+        "104-1-醫學一-公共衛生學-Q84",
+        "105-2-醫學一-公共衛生學-Q83",
+        "105-2-醫學一-公共衛生學-Q85",
+        "106-1-醫學一-公共衛生學-Q86"
+      ]
+    },
+    {
+      "id": "radiation-hazards",
+      "zh": "輻射危害（游離與非游離）",
+      "en": "ionizing and non-ionizing radiation hazards",
+      "chapterId": "occupational-medicine",
+      "synonyms": [
+        "西弗 Sievert",
+        "紫外線 UV-A/B/C",
+        "非游離輻射 infrared"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q93",
+        "105-2-醫學一-公共衛生學-Q94",
+        "106-1-醫學一-公共衛生學-Q91",
+        "106-2-醫學二-公共衛生學-Q42",
+        "111-1-醫學二-公共衛生學-Q41"
+      ]
+    },
+    {
+      "id": "randomized-controlled-trial",
+      "zh": "隨機對照試驗",
+      "en": "randomized controlled trial (RCT)",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "randomization",
+        "clinical trial phases",
+        "臨床試驗分期",
+        "雙盲 double-blind"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q91",
+        "105-2-醫學一-公共衛生學-Q87",
+        "108-2-醫學二-公共衛生學-Q50",
+        "113-1-醫學二-公共衛生學-Q39",
+        "113-2-醫學二-公共衛生學-Q39"
+      ]
+    },
+    {
+      "id": "screening-test-validity",
+      "zh": "篩檢工具效度",
+      "en": "screening test validity",
+      "chapterId": "epidemiology",
+      "synonyms": [
+        "sensitivity",
+        "specificity",
+        "predictive value",
+        "ROC curve",
+        "偽陽性 false positive",
+        "偽陰性 false negative",
+        "cut-off point"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "105-1-醫學一-公共衛生學-Q88",
+        "105-2-醫學一-公共衛生學-Q88",
+        "107-2-醫學二-公共衛生學-Q38",
+        "107-2-醫學二-公共衛生學-Q40",
+        "108-1-醫學二-公共衛生學-Q39"
+      ]
+    },
+    {
+      "id": "social-determinants-of-health",
+      "zh": "健康社會決定因子",
+      "en": "social determinants of health",
+      "chapterId": "public-health-admin-policy-promotion",
+      "synonyms": [
+        "家庭生命週期 family life cycle",
+        "健康不平等 health inequality",
+        "健康定義",
+        "公共心理衛生 public mental health",
+        "精神衛生法源"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "112-1-醫學二-公共衛生學-Q45",
+        "114-2-醫學二-公共衛生學-Q44",
+        "114-2-醫學二-公共衛生學-Q45",
+        "115-1-醫學二-公共衛生學-Q44",
+        "104-1-醫學一-公共衛生學-Q96"
+      ]
+    },
+    {
+      "id": "substance-abuse-and-harm-reduction",
+      "zh": "物質濫用防制與減害策略",
+      "en": "substance abuse prevention and harm reduction",
+      "chapterId": "preventive-medicine",
+      "synonyms": [
+        "美沙冬替代療法",
+        "針頭交換計畫",
+        "成癮耐受性 tolerance",
+        "戒菸策略"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-2-醫學一-公共衛生學-Q95",
+        "110-1-醫學二-公共衛生學-Q45",
+        "111-1-醫學二-公共衛生學-Q46",
+        "111-1-醫學二-公共衛生學-Q47",
+        "111-2-醫學二-公共衛生學-Q47"
+      ]
+    },
+    {
+      "id": "t-test-anova",
+      "zh": "t 檢定與變異數分析",
+      "en": "t-test and analysis of variance (ANOVA)",
+      "chapterId": "biostatistics",
+      "synonyms": [
+        "paired t-test",
+        "independent t-test",
+        "one-way ANOVA",
+        "Bonferroni correction",
+        "log-rank test",
+        "存活分析"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q88",
+        "105-1-醫學一-公共衛生學-Q83",
+        "105-1-醫學一-公共衛生學-Q87",
+        "106-1-醫學一-公共衛生學-Q85",
+        "106-1-醫學一-公共衛生學-Q89"
+      ]
+    },
+    {
+      "id": "three-levels-five-stages-prevention",
+      "zh": "三段五級預防與傷害防制",
+      "en": "three levels and five stages of prevention; injury prevention",
+      "chapterId": "preventive-medicine",
+      "synonyms": [
+        "初段預防",
+        "次段預防",
+        "三段預防",
+        "傷害防制 3E策略",
+        "新生兒篩檢",
+        "BMI肥胖切點"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q98",
+        "105-2-醫學一-公共衛生學-Q96",
+        "112-2-醫學二-公共衛生學-Q45",
+        "112-2-醫學二-公共衛生學-Q48",
+        "114-1-醫學二-公共衛生學-Q47"
+      ]
+    },
+    {
+      "id": "water-quality-and-treatment",
+      "zh": "水質污染與淨水處理",
+      "en": "water quality, pollution, and treatment",
+      "chapterId": "environmental-health",
+      "synonyms": [
+        "藍嬰症 methemoglobinemia",
+        "加氯消毒副產物",
+        "廢水三級處理",
+        "農藥 pesticides",
+        "環境荷爾蒙 endocrine disruptors"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學一-公共衛生學-Q93",
+        "106-2-醫學二-公共衛生學-Q41",
+        "107-1-醫學二-公共衛生學-Q43",
+        "107-2-醫學二-公共衛生學-Q42",
+        "112-2-醫學二-公共衛生學-Q42"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "「個人層次健康行為改變模式」vs「人際互動與大眾傳播理論」的切分：部分題目（如社會支持、說服理論）在教科書中可能被歸入同一章節，此處依理論分析單位（個人 vs 人際/媒體）拆分，若 owner 偏好單一大類可合併回一個 concept。",
+    "「世代研究與觀察性研究設計總論」與「病例對照研究」「生態相關研究」三者常在同一大綱段落（流行病學研究法）授課，此處依研究設計類型細分為 3 個 concept，也可視情況合併為 1 個「觀察性研究設計」大概念。",
+    "「醫師法與醫療執業法規」納入了藥事法、醫療糾紛等鄰近但非醫師法本身的考點，因單題數少而合併，命名可能不夠精準對應內容，建議 owner 確認是否要拆出獨立「藥事法」概念。",
+    "「健康保險支付制度」與「全民健康保險制度」在概念上高度重疊（支付制度多在全民健保脈絡下被考），目前依「制度設計原則 vs 台灣特定制度」拆分，若 owner 認為重複度過高可考慮合併。",
+    "「公共心理衛生」題目量過小（4題）已併入「健康社會決定因子」，語意上兩者關聯較弱（心理衛生 vs 社經地位/家庭週期），僅因粒度控制才合併，建議 owner 確認是否要拆回獨立概念。",
+    "114-2-醫學二-病理學-Q43（疫苗注射）與 114-2-醫學二-病理學-Q47（食品中毒）兩題原始 subject 標記為「病理學」但內容明顯屬公衛（疫苗政策/食品安全），已按內容而非原始標記納入本科概念樹。"
+  ]
+}

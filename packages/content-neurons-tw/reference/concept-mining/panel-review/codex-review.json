@@ -1,0 +1,88 @@
+{
+  "reviewer": "codex",
+  "verdict": "needs-rework",
+  "blocking": [
+    {
+      "subject": "生理學",
+      "leafId": "enzyme-kinetics-and-catalysis",
+      "issue": "合法掛在 cell-physiology，但酵素動力學不是官方生理章節的自然概念，且與生物化學/enzyme-kinetics-michaelis-menten、enzyme-catalytic-mechanism-classification 實質重複。",
+      "fix": "移出生理學；相關題目併回生物化學酵素動力學/催化 leaf，或若原題確為生理試題，改掛到更具生理意義的運輸/細胞功能 leaf。"
+    },
+    {
+      "subject": "病理學",
+      "leafId": "wound-healing-fibrosis + carcinogenesis-oncogenes-tumor-suppressors",
+      "issue": "wound-healing-fibrosis 的 zh 已涵蓋「細胞週期調控」，synonyms 又含 RB、p53、p16、cyclin/CDK；但 carcinogenesis-oncogenes-tumor-suppressors 才是腫瘤抑制基因 canonical leaf，會讓 p53/RB 題目歸屬失真。",
+      "fix": "將 p53/RB/p16/cyclin-D-CDK4 等腫瘤抑制/細胞週期癌化考點集中到 carcinogenesis；wound-healing-fibrosis 僅保留肉芽組織、纖維化、再生與幹細胞。"
+    },
+    {
+      "subject": "寄生蟲學",
+      "leafId": "mite-borne-disease",
+      "issue": "同一 leaf 合併恙蟲病與塵蟎氣喘過敏；前者是病媒感染，後者是非感染性過敏原暴露，作為「重現度押題單位」語意不封閉。",
+      "fix": "保留恙蟲病於 arthropod-vectors；塵蟎氣喘移出寄生蟲概念樹，或另立「arthropod allergy」且標記為非感染/非病媒題。"
+    }
+  ],
+  "recommendations": [
+    {
+      "subject": "微生物學",
+      "leafId": "candida-species",
+      "issue": "zh/en 已寫「念珠菌與其他伺機性酵母菌」，但 id 仍是 candida-species，且 synonyms 包含 Cryptococcus 與 Pneumocystis；下游以 id 搜尋或排序時會誤以為只代表 Candida。",
+      "fix": "改 id 為 opportunistic-yeast-like-fungi，或拆成 candida、cryptococcus、pneumocystis 三個 leaf。",
+      "severity": "P2"
+    },
+    {
+      "subject": "病理學",
+      "leafId": "metabolic-bone-disease",
+      "issue": "代謝性骨病、骨關節炎與眼科病理被放在同一 leaf；雖在官方同一粗章節內，但眼科病理與骨病沒有共同 textbook 概念軸。",
+      "fix": "至少拆出 ocular-pathology；若題量不足，保留為低頻 leaf，不要併入 metabolic-bone-disease。",
+      "severity": "P2"
+    },
+    {
+      "subject": "病理學",
+      "leafId": "peripheral-nerve-injury-repair",
+      "issue": "leaf 同時收周邊神經損傷、中毒/代謝性腦病、肌病變、化膿性骨髓炎與感染性關節炎；名稱與內容都像多個低頻桶硬併。",
+      "fix": "拆為 peripheral-nerve-disease、toxic-metabolic-encephalopathy、myopathy-and-infectious-bone-joint，或改成明確標示為 miscellaneous-neuro-musculoskeletal-pathology。",
+      "severity": "P2"
+    },
+    {
+      "subject": "藥理學",
+      "leafId": "bronchodilators + antimuscarinic-drugs",
+      "issue": "bronchodilators 的 en 宣稱包含 antimuscarinics，但 ipratropium/tiotropium 被放在 antimuscarinic-drugs；同一考點可能依機轉或適應症雙向歸屬。",
+      "fix": "明定 asthma/COPD 題依適應症歸 bronchodilators，或依機轉歸 antimuscarinic；並讓 leaf 名稱/同義詞同步反映規則。",
+      "severity": "P3"
+    },
+    {
+      "subject": "公共衛生學",
+      "leafId": "health-insurance-payment-systems + national-health-insurance-taiwan",
+      "issue": "支付制度與全民健保制度高度重疊；總額預算、支付方式多半在 NHI 脈絡考，重現度可能被拆散。",
+      "fix": "若押題排序優先，合併為 national-health-insurance-and-payment；若搜尋優先，保留但明定制度設計 vs 支付工具的分界。",
+      "severity": "P3"
+    },
+    {
+      "subject": "公共衛生學",
+      "leafId": "social-determinants-of-health",
+      "issue": "synonyms 內含公共心理衛生、精神衛生法源，與健康社會決定因子不是同一封閉概念；法源也較接近 public-health-practice-law-ethics。",
+      "fix": "將精神衛生法源移至法規/倫理 leaf；公共心理衛生若題量不足可另列 low-frequency leaf。",
+      "severity": "P3"
+    },
+    {
+      "subject": "藥理學",
+      "leafId": "toxicology-miscellaneous",
+      "issue": "官方章節寫明「重金屬、解毒劑、基因療法等」，但藥理 leaf 只覆蓋 heavy-metal-poisoning-chelators 與 specific-antidotes-non-metal；gene therapy 只在生化 recombinant-dna-cloning-vectors 出現。",
+      "fix": "若題庫有基因療法藥理題，補 gene-therapy-pharmacology；若沒有，於 report 明註為未觀察到考題而非章節遺漏。",
+      "severity": "P3"
+    },
+    {
+      "subject": "微生物學",
+      "leafId": "vector-borne-and-zoonotic-atypical-bacteria",
+      "issue": "Rickettsia/Ehrlichia、Spirochetes、Brucella、Yersinia pestis 被合併；章節合法但不是標準 textbook taxonomy，搜尋與押題解讀都偏粗。",
+      "fix": "若不拆，至少改名為 atypical-zoonotic-and-vector-borne-bacteria 並在 owner 規則中標記為 bottom-up composite；語料擴增時優先拆成三組。",
+      "severity": "P3"
+    }
+  ],
+  "ownerDecisions": [
+    "是否允許跨科平行 leaf 共享同義詞（例如 vitamin B12、apoptosis、drug names），或需要全域 canonical owner？目前建議 subject namespace 可共享，但同科內不可重複。",
+    "bottom-up composite leaf 要當作真正押題單位，還是只當搜尋桶？若是押題單位，寄生蟲與病理的 non-canonical 合併桶需更嚴格拆分。",
+    "官方粗章節把不相關領域放同章時，leaf 是否仍需維持單一 textbook 概念軸？例如病理 neuro-musculoskeletal-eye-skin 章下的眼科與骨病是否可共 leaf。"
+  ],
+  "notes": "我獨立比對了 vocab chapters 與 blueprint chapters，且抽查全部 leaf.chapterId：未發現封閉集 id 違規，vocab 的章節集合也與 blueprint 一致。主要問題不是 schema，而是少數合法章節內的語意封閉性、同科重疊與非標準命名；上列 blocking 建議先修，否則會影響概念重現度排序的可辯護性。"
+}

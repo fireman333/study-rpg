@@ -1,0 +1,1910 @@
+{
+  "subjectId": "病理學",
+  "questionCount": 574,
+  "targetConceptCount": 57,
+  "concepts": [
+    {
+      "id": "cell-injury-reversible-irreversible",
+      "zh": "細胞損傷與凋亡（可逆性／不可逆性傷害／細胞凋亡）",
+      "en": "cell injury and apoptosis (reversible/irreversible injury, apoptosis)",
+      "chapterId": "cell-injury-inflammation-repair",
+      "synonyms": [
+        "hydropic swelling",
+        "cellular swelling",
+        "細胞脹腫",
+        "膜受損",
+        "ATP dependent injury",
+        "ischemia-reperfusion injury",
+        "programmed cell death",
+        "凋亡體 apoptotic bodies",
+        "phosphatidylserine flip",
+        "細胞凋亡",
+        "apoptosis"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 25,
+      "exampleQIds": [
+        "106-2-醫學二-病理學-Q77",
+        "107-1-醫學二-病理學-Q78",
+        "110-2-醫學二-病理學-Q77",
+        "113-1-醫學二-病理學-Q76",
+        "114-2-醫學二-病理學-Q77",
+        "115-1-醫學二-病理學-Q77"
+      ]
+    },
+    {
+      "id": "necrosis-types",
+      "zh": "壞死型態（凝固性／液化性／乾酪性／脂肪／類纖維蛋白）",
+      "en": "patterns of necrosis (coagulative/liquefactive/caseous/fat/fibrinoid)",
+      "chapterId": "cell-injury-inflammation-repair",
+      "synonyms": [
+        "coagulative necrosis",
+        "liquefactive necrosis",
+        "caseous necrosis",
+        "fibrinoid necrosis",
+        "fat necrosis",
+        "凝固性壞死",
+        "液化性壞死",
+        "乾酪性壞死"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "106-1-醫學二-病理學-Q77",
+        "110-1-醫學二-病理學-Q76",
+        "112-2-醫學二-病理學-Q76",
+        "113-2-醫學二-病理學-Q77",
+        "114-2-醫學二-病理學-Q76"
+      ]
+    },
+    {
+      "id": "cellular-adaptation",
+      "zh": "細胞適應、細胞內堆積物與類澱粉沉積症",
+      "en": "cellular adaptations, intracellular accumulations, and amyloidosis",
+      "chapterId": "cell-injury-inflammation-repair",
+      "synonyms": [
+        "atrophy",
+        "hypertrophy",
+        "hyperplasia",
+        "metaplasia",
+        "dysplasia",
+        "萎縮",
+        "肥大",
+        "增生",
+        "化生",
+        "異生",
+        "lipofuscin",
+        "hemosiderin",
+        "steatosis",
+        "cholesterol accumulation",
+        "脂褐質",
+        "血鐵素",
+        "脂肪變性",
+        "黃瘤 xanthoma",
+        "細胞內堆積物與色素",
+        "intracellular accumulations and pigments",
+        "Congo red",
+        "AA amyloid",
+        "AL amyloid",
+        "transthyretin amyloidosis",
+        "剛果紅染色",
+        "類澱粉沉積症",
+        "amyloidosis"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 25,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q77",
+        "108-2-醫學二-藥理學-Q76",
+        "109-1-醫學二-病理學-Q77",
+        "111-1-醫學二-病理學-Q77",
+        "111-2-醫學二-病理學-Q77",
+        "107-1-醫學二-病理學-Q76"
+      ],
+      "note": "112-1 exampleQId corrected below in post-process"
+    },
+    {
+      "id": "acute-inflammation-mediators",
+      "zh": "炎症反應（急性化學介質與肉芽腫性發炎）",
+      "en": "inflammation: acute mediators and granulomatous inflammation",
+      "chapterId": "cell-injury-inflammation-repair",
+      "synonyms": [
+        "histamine",
+        "vasodilation",
+        "vascular permeability",
+        "bradykinin",
+        "complement C3a C5a",
+        "組織胺",
+        "血管擴張",
+        "急性發炎",
+        "granuloma",
+        "noncaseating granuloma",
+        "caseating granuloma",
+        "sarcoidosis granuloma",
+        "非乾酪性肉芽腫",
+        "肉芽腫性發炎",
+        "granulomatous inflammation"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 21,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q77",
+        "105-2-醫學二-病理學-Q76",
+        "106-2-醫學二-病理學-Q76",
+        "107-1-醫學二-病理學-Q77",
+        "110-2-醫學二-病理學-Q76",
+        "111-1-醫學二-病理學-Q76"
+      ]
+    },
+    {
+      "id": "wound-healing-fibrosis",
+      "zh": "細胞週期調控、再生、幹細胞與傷口癒合",
+      "en": "cell cycle regulation, regeneration, stem cells, and wound healing",
+      "chapterId": "cell-injury-inflammation-repair",
+      "synonyms": [
+        "granulation tissue",
+        "keloid",
+        "hypertrophic scar",
+        "TGF-beta fibrosis",
+        "肉芽組織",
+        "蟹足腫",
+        "纖維化",
+        "cyclin D/cdk4",
+        "cyclin E/cdk2",
+        "G1 to S transition",
+        "組織再生能力",
+        "labile/stable/permanent tissue",
+        "hair follicle bulge",
+        "liver regeneration",
+        "皮膚幹細胞",
+        "肝臟代償性生長",
+        "幹細胞（體幹細胞位置）",
+        "adult/somatic stem cell niches",
+        "細胞週期調控、再生與幹細胞",
+        "cell cycle regulation, regeneration, and stem cells"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "110-1-醫學二-病理學-Q77",
+        "112-2-醫學二-病理學-Q77",
+        "108-1-醫學二-病理學-Q76",
+        "104-1-醫學二-病理學-Q83",
+        "105-1-醫學二-病理學-Q76",
+        "106-2-醫學二-病理學-Q81"
+      ]
+    },
+    {
+      "id": "hypersensitivity-reactions",
+      "zh": "過敏反應分型與先天性免疫缺陷／移植排斥",
+      "en": "hypersensitivity reactions and primary immunodeficiency/transplant rejection",
+      "chapterId": "immunity-infection-genetic-disease",
+      "synonyms": [
+        "Type I-IV hypersensitivity",
+        "immune complex",
+        "TH2 mediated disease",
+        "第二型過敏反應",
+        "Bruton disease X-linked agammaglobulinemia",
+        "DiGeorge syndrome",
+        "Wiskott-Aldrich syndrome",
+        "chronic granulomatous disease",
+        "hyperacute rejection",
+        "acute cellular rejection",
+        "chronic rejection",
+        "obliterative bronchiolitis",
+        "急性排斥",
+        "慢性排斥",
+        "器官移植排斥病理",
+        "transplant rejection pathology",
+        "先天性免疫缺陷與器官移植排斥",
+        "primary immunodeficiency and transplant rejection"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q78",
+        "106-1-醫學二-病理學-Q99",
+        "112-1-醫學二-病理學-Q79",
+        "113-1-醫學二-病理學-Q79",
+        "114-2-醫學二-病理學-Q79",
+        "108-2-醫學二-病理學-Q78"
+      ]
+    },
+    {
+      "id": "autoimmune-connective-tissue-disease",
+      "zh": "自體免疫疾病與血管炎（含血清學）",
+      "en": "systemic autoimmune disease and vasculitis (with serology)",
+      "chapterId": "immunity-infection-genetic-disease",
+      "synonyms": [
+        "systemic lupus erythematosus",
+        "rheumatoid arthritis",
+        "Sjögren syndrome",
+        "anti-dsDNA",
+        "anti-SS-A/SS-B",
+        "全身性紅斑性狼瘡",
+        "類風濕性關節炎",
+        "ANCA vasculitis",
+        "granulomatosis with polyangiitis",
+        "giant cell arteritis",
+        "polyarteritis nodosa",
+        "anti-centromere antibody",
+        "抗嗜中性球細胞質抗體",
+        "血管炎與自體抗體血清學",
+        "vasculitis and autoantibody serology"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q99",
+        "106-1-醫學二-病理學-Q99",
+        "109-2-醫學二-病理學-Q78",
+        "110-1-醫學二-病理學-Q78",
+        "114-1-醫學二-病理學-Q99",
+        "115-1-醫學二-病理學-Q89"
+      ]
+    },
+    {
+      "id": "chromosomal-numerical-disorders",
+      "zh": "遺傳性疾病（染色體數目異常與單基因遺傳疾病）",
+      "en": "genetic disorders (numerical chromosomal and single-gene Mendelian disorders)",
+      "chapterId": "immunity-infection-genetic-disease",
+      "synonyms": [
+        "Down syndrome",
+        "trisomy 21",
+        "translocation Down syndrome",
+        "Klinefelter syndrome",
+        "Turner syndrome",
+        "nondisjunction",
+        "mosaicism",
+        "唐氏症",
+        "familial hypercholesterolemia",
+        "LDL receptor mutation",
+        "Prader-Willi syndrome",
+        "genomic imprinting",
+        "Marfan syndrome",
+        "Ehlers-Danlos syndrome",
+        "fragile X syndrome",
+        "22q11.2 deletion syndrome",
+        "單基因遺傳疾病（受器／結構蛋白／基因印記異常）",
+        "single-gene Mendelian disorders (receptor/structural protein/imprinting defects)"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q79",
+        "108-1-醫學二-病理學-Q78",
+        "112-1-醫學二-病理學-Q78",
+        "104-1-醫學二-病理學-Q79",
+        "104-1-醫學二-病理學-Q80",
+        "104-1-醫學二-病理學-Q81"
+      ]
+    },
+    {
+      "id": "bacterial-spirochete-infections",
+      "zh": "細菌／螺旋體／黴菌／寄生蟲感染病理",
+      "en": "bacterial, spirochetal, fungal, and parasitic infection pathology",
+      "chapterId": "immunity-infection-genetic-disease",
+      "synonyms": [
+        "syphilis",
+        "Treponema pallidum",
+        "leprosy Hansen disease",
+        "lepromatous vs tuberculoid leprosy",
+        "streptococcal infection",
+        "梅毒",
+        "痲瘋",
+        "mucormycosis",
+        "aspergillosis",
+        "toxoplasmosis",
+        "filariasis elephantiasis",
+        "scrub typhus",
+        "恙蟲病",
+        "絲蟲病",
+        "黴菌與寄生蟲感染病理",
+        "fungal and parasitic infection pathology"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q78",
+        "106-2-醫學二-病理學-Q80",
+        "107-2-醫學二-病理學-Q79",
+        "109-1-醫學二-病理學-Q79",
+        "110-1-醫學二-病理學-Q79",
+        "110-2-醫學二-病理學-Q79"
+      ]
+    },
+    {
+      "id": "viral-infection-pathology",
+      "zh": "病毒感染病理（腮腺炎／EBV／狂犬病／JC virus等）",
+      "en": "viral infection pathology (mumps, EBV, rabies, JC virus, etc.)",
+      "chapterId": "immunity-infection-genetic-disease",
+      "synonyms": [
+        "mumps virus",
+        "Epstein-Barr virus infectious mononucleosis",
+        "rabies Negri body",
+        "JC polyomavirus",
+        "poliovirus",
+        "西尼羅河病毒"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q79",
+        "107-2-醫學二-病理學-Q77",
+        "107-2-醫學二-病理學-Q78",
+        "108-1-醫學二-病理學-Q98",
+        "109-2-醫學二-病理學-Q100",
+        "111-2-醫學二-病理學-Q79"
+      ]
+    },
+    {
+      "id": "carcinogenesis-oncogenes-tumor-suppressors",
+      "zh": "致癌機轉：致癌基因與抑癌基因",
+      "en": "carcinogenesis: oncogenes and tumor suppressor genes",
+      "chapterId": "neoplasia-nutrition-environment",
+      "synonyms": [
+        "RB",
+        "p53",
+        "TP53",
+        "RAS",
+        "MYC",
+        "E-cadherin",
+        "Li-Fraumeni syndrome",
+        "gene silencing p16"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q83",
+        "106-2-醫學二-病理學-Q81",
+        "108-2-醫學二-病理學-Q81",
+        "109-2-醫學二-病理學-Q80",
+        "110-1-醫學二-病理學-Q80",
+        "113-2-醫學二-病理學-Q82",
+        "114-1-醫學二-病理學-Q80"
+      ]
+    },
+    {
+      "id": "tumor-biology-hallmarks",
+      "zh": "腫瘤生物學特性（單株性／異質性／侵襲轉移／免疫逃避）",
+      "en": "tumor biology hallmarks (clonality, heterogeneity, invasion/metastasis, immune evasion)",
+      "chapterId": "neoplasia-nutrition-environment",
+      "synonyms": [
+        "anaplasia",
+        "tumor grading",
+        "growth fraction",
+        "self-sufficiency in growth signals",
+        "immune evasion PD-L1",
+        "惡性腫瘤特徵",
+        "轉移"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q82",
+        "104-2-醫學二-病理學-Q80",
+        "107-2-醫學二-病理學-Q80",
+        "112-2-醫學二-病理學-Q80",
+        "113-2-醫學二-病理學-Q81",
+        "114-1-醫學二-病理學-Q81",
+        "114-2-醫學二-病理學-Q81"
+      ]
+    },
+    {
+      "id": "carcinogens-environmental-toxicology",
+      "zh": "致癌物與環境毒物病理（黃麴毒素／石棉／重金屬／輻射）",
+      "en": "carcinogens and environmental toxicology (aflatoxin, asbestos, heavy metals, radiation)",
+      "chapterId": "neoplasia-nutrition-environment",
+      "synonyms": [
+        "aflatoxin B1",
+        "asbestos",
+        "benzene",
+        "vinyl chloride",
+        "lead poisoning",
+        "cadmium",
+        "UV pyrimidine dimer",
+        "黃麴毒素"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q81",
+        "108-1-醫學二-病理學-Q80",
+        "109-1-醫學二-病理學-Q80",
+        "110-1-醫學二-病理學-Q80",
+        "113-1-醫學二-病理學-Q81",
+        "113-2-醫學二-病理學-Q80"
+      ]
+    },
+    {
+      "id": "epidemiology-cancer-risk-inference",
+      "zh": "腫瘤流行病學、副贅瘤症候群與營養缺乏疾病",
+      "en": "cancer epidemiology, paraneoplastic syndromes, and nutritional deficiency disease",
+      "chapterId": "neoplasia-nutrition-environment",
+      "synonyms": [
+        "migrant study gastric cancer Japan",
+        "environment vs genetics",
+        "cachexia TNF",
+        "hypercalcemia of malignancy",
+        "SIADH",
+        "paraneoplastic syndrome",
+        "副贅瘤症候群與惡體質",
+        "paraneoplastic syndromes and cachexia",
+        "vitamin B1 thiamine Wernicke",
+        "niacin pellagra",
+        "vitamin B12 deficiency",
+        "vitamin toxicity",
+        "營養與維生素缺乏疾病",
+        "nutritional and vitamin deficiency diseases"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q80",
+        "108-1-醫學二-病理學-Q80",
+        "108-2-醫學二-病理學-Q80",
+        "108-1-醫學二-病理學-Q100",
+        "110-2-醫學二-病理學-Q80",
+        "115-1-醫學二-病理學-Q80"
+      ],
+      "note": "bottom-up grouping of miscellaneous small-N topics"
+    },
+    {
+      "id": "atherosclerosis",
+      "zh": "動脈粥狀硬化",
+      "en": "atherosclerosis",
+      "chapterId": "cardiovascular-pathology",
+      "synonyms": [
+        "atherosclerotic plaque",
+        "stable vs vulnerable plaque",
+        "risk factors LDL homocysteine",
+        "粥狀動脈硬化"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "107-1-醫學二-病理學-Q83",
+        "108-1-醫學二-病理學-Q83",
+        "109-2-醫學二-病理學-Q82",
+        "114-1-醫學二-病理學-Q83"
+      ]
+    },
+    {
+      "id": "myocardial-infarction",
+      "zh": "心肌梗塞病理演變",
+      "en": "myocardial infarction pathology and time course",
+      "chapterId": "cardiovascular-pathology",
+      "synonyms": [
+        "coagulative necrosis timeline",
+        "biomarker troponin",
+        "myocardial rupture",
+        "subendocardial ischemia",
+        "reperfusion injury",
+        "sudden cardiac death"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q85",
+        "104-2-醫學二-病理學-Q82",
+        "106-1-醫學二-病理學-Q80",
+        "111-2-醫學二-病理學-Q83",
+        "110-2-醫學二-病理學-Q82",
+        "113-1-醫學二-病理學-Q76",
+        "115-1-醫學二-病理學-Q81"
+      ]
+    },
+    {
+      "id": "cardiomyopathy",
+      "zh": "心肌病變（肥厚型／擴張型／限制型）",
+      "en": "cardiomyopathy (hypertrophic/dilated/restrictive)",
+      "chapterId": "cardiovascular-pathology",
+      "synonyms": [
+        "hypertrophic cardiomyopathy",
+        "dilated cardiomyopathy",
+        "myofiber disarray",
+        "amyloid cardiomyopathy"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q80",
+        "109-1-醫學二-病理學-Q83",
+        "111-1-醫學二-病理學-Q86",
+        "112-1-醫學二-病理學-Q83",
+        "112-2-醫學二-病理學-Q81"
+      ]
+    },
+    {
+      "id": "congenital-heart-disease",
+      "zh": "先天性心臟病與動脈瘤／主動脈剝離",
+      "en": "congenital heart disease and aneurysm/aortic dissection",
+      "chapterId": "cardiovascular-pathology",
+      "synonyms": [
+        "patent ductus arteriosus",
+        "ventricular septal defect",
+        "aortic atresia",
+        "coarctation of aorta",
+        "tetralogy of Fallot",
+        "abdominal aortic aneurysm",
+        "aortic dissection",
+        "berry aneurysm",
+        "Charcot-Bouchard microaneurysm",
+        "動脈瘤與主動脈剝離",
+        "aneurysm and aortic dissection"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "108-2-醫學二-病理學-Q83",
+        "113-1-醫學二-病理學-Q84",
+        "114-2-醫學二-病理學-Q82",
+        "107-2-醫學二-病理學-Q82",
+        "109-2-醫學二-病理學-Q82",
+        "110-2-醫學二-病理學-Q99"
+      ],
+      "note": "bottom-up grouping of lower-frequency structural cardiovascular topics"
+    },
+    {
+      "id": "endocarditis",
+      "zh": "心臟瓣膜疾病與心內膜炎",
+      "en": "valvular heart disease and endocarditis",
+      "chapterId": "cardiovascular-pathology",
+      "synonyms": [
+        "nonbacterial thrombotic endocarditis",
+        "Libman-Sacks endocarditis",
+        "infective endocarditis",
+        "bicuspid aortic valve calcification",
+        "mitral annular calcification",
+        "myxomatous degeneration",
+        "rheumatic heart disease Aschoff body",
+        "心臟瓣膜疾病",
+        "valvular heart disease"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q83",
+        "109-2-醫學二-病理學-Q78",
+        "104-1-醫學二-病理學-Q86",
+        "106-1-醫學二-病理學-Q81",
+        "110-1-醫學二-病理學-Q83",
+        "111-1-醫學二-病理學-Q85"
+      ]
+    },
+    {
+      "id": "thrombosis-embolism",
+      "zh": "血栓與栓塞",
+      "en": "thrombosis and embolism",
+      "chapterId": "cardiovascular-pathology",
+      "synonyms": [
+        "deep vein thrombosis",
+        "pulmonary embolism",
+        "systemic thromboembolism",
+        "amniotic fluid embolism",
+        "fat embolism",
+        "air embolism",
+        "hypercoagulable state"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q84",
+        "108-1-醫學二-病理學-Q88",
+        "109-1-醫學二-病理學-Q82",
+        "109-2-醫學二-病理學-Q81",
+        "111-1-醫學二-病理學-Q84",
+        "111-2-醫學二-病理學-Q82",
+        "113-2-醫學二-病理學-Q87"
+      ]
+    },
+    {
+      "id": "shock-infarct",
+      "zh": "休克、梗塞、肺心症與血液動力學異常（水腫）",
+      "en": "shock, infarction, cor pulmonale, and hemodynamic disturbances (edema)",
+      "chapterId": "cardiovascular-pathology",
+      "synonyms": [
+        "hypovolemic shock",
+        "acute tubular necrosis",
+        "red vs white infarct",
+        "splenic infarct",
+        "cor pulmonale",
+        "pulmonary hypertension",
+        "plexiform lesion",
+        "肺心症與肺高壓",
+        "cor pulmonale and pulmonary hypertension",
+        "transudate vs exudate",
+        "hydrostatic pressure",
+        "oncotic pressure",
+        "lymphatic obstruction chylothorax",
+        "水腫機轉",
+        "水腫與血液動力學異常",
+        "edema and hemodynamic disturbances"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "107-2-醫學二-病理學-Q81",
+        "113-1-醫學二-病理學-Q83",
+        "113-2-醫學二-病理學-Q86",
+        "105-1-醫學二-病理學-Q82",
+        "110-2-醫學二-病理學-Q86",
+        "115-1-醫學二-病理學-Q90"
+      ]
+    },
+    {
+      "id": "anemia-classification",
+      "zh": "貧血分類與周邊血液型態異常",
+      "en": "anemia classification and peripheral blood morphology",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "iron deficiency anemia",
+        "pernicious anemia",
+        "megaloblastic anemia",
+        "thalassemia",
+        "G6PD deficiency",
+        "aplastic anemia",
+        "schistocytes",
+        "target cells",
+        "Howell-Jolly bodies",
+        "basophilic stippling",
+        "red cell inclusions",
+        "周邊血液細胞型態異常",
+        "peripheral blood cell morphology abnormalities"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q87",
+        "106-2-醫學二-病理學-Q89",
+        "107-2-醫學二-病理學-Q83",
+        "110-2-醫學二-病理學-Q84",
+        "111-1-醫學二-病理學-Q88",
+        "112-2-醫學二-病理學-Q85"
+      ]
+    },
+    {
+      "id": "bleeding-disorders-coagulopathy",
+      "zh": "出血性疾病、凝血功能異常與溶血性尿毒症候群",
+      "en": "bleeding disorders, coagulopathy, and hemolytic-uremic syndrome",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "von Willebrand disease",
+        "hemophilia A",
+        "TTP",
+        "ITP",
+        "DIC",
+        "aPTT PT",
+        "血友病",
+        "Shiga-like toxin",
+        "E. coli O157:H7",
+        "typical HUS",
+        "溶血性尿毒症候群",
+        "hemolytic-uremic syndrome"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q83",
+        "108-1-醫學二-病理學-Q82",
+        "108-1-醫學二-病理學-Q85",
+        "109-2-醫學二-病理學-Q84",
+        "110-2-醫學二-病理學-Q81",
+        "111-2-醫學二-病理學-Q84"
+      ]
+    },
+    {
+      "id": "myeloproliferative-neoplasms",
+      "zh": "骨髓增生性腫瘤與骨髓化生不良症候群",
+      "en": "myeloproliferative neoplasms and myelodysplastic syndrome",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "polycythemia vera",
+        "essential thrombocythemia",
+        "chronic myelogenous leukemia",
+        "BCR-ABL",
+        "myelodysplastic syndrome",
+        "myelofibrosis",
+        "JAK2"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q84",
+        "107-1-醫學二-病理學-Q84",
+        "109-1-醫學二-病理學-Q84",
+        "110-2-醫學二-病理學-Q85",
+        "113-1-醫學二-病理學-Q85",
+        "114-1-醫學二-病理學-Q84"
+      ]
+    },
+    {
+      "id": "acute-leukemia",
+      "zh": "急性白血病（淋巴母細胞性／骨髓性）",
+      "en": "acute leukemia (lymphoblastic/myeloid)",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "acute lymphoblastic leukemia",
+        "acute myeloid leukemia",
+        "t(15;17)",
+        "TdT CD10 CD19",
+        "Auer rods"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q85",
+        "106-2-醫學二-病理學-Q84",
+        "107-2-醫學二-病理學-Q84",
+        "112-1-醫學二-病理學-Q85",
+        "113-1-醫學二-病理學-Q85",
+        "114-1-醫學二-病理學-Q85"
+      ]
+    },
+    {
+      "id": "non-hodgkin-lymphoma",
+      "zh": "非何杰金氏淋巴瘤分類",
+      "en": "non-Hodgkin lymphoma classification",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "diffuse large B-cell lymphoma",
+        "follicular lymphoma",
+        "Burkitt lymphoma",
+        "mantle cell lymphoma",
+        "MALT lymphoma",
+        "anaplastic large cell lymphoma",
+        "mycosis fungoides",
+        "NK/T-cell lymphoma"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q81",
+        "105-2-醫學二-病理學-Q100",
+        "106-1-醫學二-病理學-Q82",
+        "107-1-醫學二-病理學-Q85",
+        "108-1-醫學二-病理學-Q84",
+        "109-2-醫學二-病理學-Q85",
+        "111-2-醫學二-病理學-Q85",
+        "112-1-醫學二-病理學-Q84",
+        "112-1-醫學二-病理學-Q80"
+      ]
+    },
+    {
+      "id": "hodgkin-lymphoma",
+      "zh": "何杰金氏淋巴瘤（Reed-Sternberg細胞、EBV關聯、腫瘤細胞比例）",
+      "en": "Hodgkin lymphoma (Reed-Sternberg cells, EBV association, low tumor-cell fraction)",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "Reed-Sternberg cell",
+        "nodular sclerosis Hodgkin",
+        "mixed cellularity Hodgkin lymphoma",
+        "lymphocyte predominant Hodgkin lymphoma",
+        "Epstein-Barr virus lymphoma",
+        "何杰金氏淋巴瘤",
+        "里德-史坦伯格細胞"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q81",
+        "108-2-醫學二-病理學-Q84",
+        "109-2-醫學二-病理學-Q79",
+        "114-2-醫學二-病理學-Q84"
+      ],
+      "note": "split from hodgkin-lymphoma per §1.5 panel — retains pure HL scope"
+    },
+    {
+      "id": "plasma-cell-disorders-multiple-myeloma",
+      "zh": "漿細胞疾病（多發性骨髓瘤、單株丙型球蛋白病變、Russell body）",
+      "en": "plasma cell disorders (multiple myeloma, monoclonal gammopathy, Russell bodies)",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "Russell body",
+        "Bence-Jones protein",
+        "monoclonal gammopathy",
+        "multiple myeloma",
+        "MGUS",
+        "plasmacytoma",
+        "漿細胞疾病",
+        "多發性骨髓瘤",
+        "單株丙型球蛋白病變"
+      ],
+      "estTestedSittings": 1,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "108-2-醫學二-病理學-Q77",
+        "108-2-醫學二-病理學-Q85"
+      ],
+      "note": "split from hodgkin-lymphoma per §1.5 panel — genuinely low-yield in this 574-Q slice despite clinical importance; only 1 sitting (108-2) tested it directly, so 高頻 framing in the brief does not hold empirically for this subject's corpus — flagging honestly rather than inflating"
+    },
+    {
+      "id": "cll-and-spleen-thymus-disorders",
+      "zh": "慢性淋巴球性白血病與脾臟／胸腺疾病（脾腫大、脾梗塞、胸腺增生、胸腺瘤）",
+      "en": "chronic lymphocytic leukemia and spleen/thymus disorders (splenomegaly, splenic infarct, thymic hyperplasia, thymoma)",
+      "chapterId": "hematopoietic-lymphoid-pathology",
+      "synonyms": [
+        "CLL",
+        "CD5 CD20 CD23",
+        "small lymphocytic lymphoma",
+        "splenomegaly congestive",
+        "splenic infarct",
+        "thymoma",
+        "thymic follicular hyperplasia",
+        "myasthenia gravis",
+        "pure red cell aplasia",
+        "myelofibrosis splenomegaly",
+        "慢性淋巴球性白血病",
+        "脾腫大",
+        "脾梗塞",
+        "胸腺瘤",
+        "重症肌無力"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "107-2-醫學二-病理學-Q84",
+        "110-1-醫學二-病理學-Q85",
+        "107-1-醫學二-病理學-Q84",
+        "109-1-醫學二-病理學-Q85",
+        "112-2-醫學二-病理學-Q83",
+        "112-2-醫學二-病理學-Q84",
+        "113-1-醫學二-病理學-Q86",
+        "113-2-醫學二-病理學-Q86"
+      ],
+      "note": "split from hodgkin-lymphoma per §1.5 panel — CLL alone (2 Qs) was too thin to stand alone so merged with spleen/thymus disorders (6 Qs) per brief's fallback instruction"
+    },
+    {
+      "id": "pneumonia-classification",
+      "zh": "肺炎分類（大葉性／支氣管肺炎／非典型／病毒性）",
+      "en": "pneumonia classification (lobar/bronchopneumonia/atypical/viral)",
+      "chapterId": "respiratory-pathology",
+      "synonyms": [
+        "lobar pneumonia",
+        "bronchopneumonia",
+        "atypical pneumonia Mycoplasma",
+        "viral pneumonia",
+        "lung abscess"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "106-1-醫學二-病理學-Q87",
+        "105-2-醫學二-病理學-Q85",
+        "108-1-醫學二-病理學-Q76",
+        "108-2-醫學二-病理學-Q87",
+        "113-2-醫學二-病理學-Q88",
+        "114-1-醫學二-病理學-Q86",
+        "114-1-醫學二-病理學-Q88",
+        "115-1-醫學二-病理學-Q91"
+      ]
+    },
+    {
+      "id": "copd-emphysema-chronic-bronchitis",
+      "zh": "慢性阻塞性肺病（肺氣腫／慢性支氣管炎／氣喘／支氣管擴張）",
+      "en": "COPD spectrum (emphysema/chronic bronchitis/asthma/bronchiectasis)",
+      "chapterId": "respiratory-pathology",
+      "synonyms": [
+        "emphysema centriacinar panacinar",
+        "alpha-1 antitrypsin deficiency",
+        "chronic bronchitis",
+        "asthma Curschmann spirals",
+        "bronchiectasis"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q85",
+        "109-2-醫學二-病理學-Q87",
+        "110-1-醫學二-病理學-Q87",
+        "110-1-醫學二-病理學-Q88",
+        "112-1-醫學二-病理學-Q87",
+        "112-2-醫學二-病理學-Q88",
+        "115-1-醫學二-病理學-Q92"
+      ]
+    },
+    {
+      "id": "interstitial-lung-disease",
+      "zh": "間質性肺病（特發性肺纖維化／過敏性肺炎／機化性肺炎）",
+      "en": "interstitial lung disease (IPF/hypersensitivity pneumonitis/organizing pneumonia)",
+      "chapterId": "respiratory-pathology",
+      "synonyms": [
+        "idiopathic pulmonary fibrosis",
+        "non-specific interstitial pneumonia",
+        "hypersensitivity pneumonitis",
+        "organizing pneumonia",
+        "honeycomb fibrosis",
+        "farmer's lung"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q89",
+        "105-1-醫學二-病理學-Q99",
+        "107-1-醫學二-病理學-Q87",
+        "108-2-醫學二-病理學-Q86",
+        "111-2-醫學二-病理學-Q87",
+        "114-1-醫學二-病理學-Q87"
+      ]
+    },
+    {
+      "id": "ards-diffuse-alveolar-damage",
+      "zh": "急性呼吸窘迫症候群、瀰漫性肺泡傷害與塵肺症",
+      "en": "ARDS/diffuse alveolar damage and pneumoconiosis",
+      "chapterId": "respiratory-pathology",
+      "synonyms": [
+        "ARDS",
+        "hyaline membrane",
+        "diffuse alveolar damage",
+        "type II pneumocyte proliferation",
+        "silicosis",
+        "coal worker pneumoconiosis",
+        "asbestosis",
+        "asbestos body",
+        "塵肺症（矽肺症／煤工塵肺症／石棉肺症）",
+        "pneumoconiosis (silicosis/coal worker's/asbestosis)"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "107-1-醫學二-病理學-Q86",
+        "107-2-醫學二-病理學-Q99",
+        "107-2-醫學二-病理學-Q100",
+        "111-1-醫學二-病理學-Q91",
+        "112-1-醫學二-病理學-Q88",
+        "105-2-醫學二-病理學-Q83"
+      ],
+      "note": "bottom-up grouping of two moderate-frequency environmental/injury lung topics"
+    },
+    {
+      "id": "pulmonary-vascular-disease",
+      "zh": "肺血管疾病與上呼吸道／鼻咽腫瘤",
+      "en": "pulmonary vascular disease and upper respiratory/nasopharyngeal tumors",
+      "chapterId": "respiratory-pathology",
+      "synonyms": [
+        "pulmonary embolism",
+        "Goodpasture syndrome",
+        "idiopathic pulmonary hemosiderosis",
+        "pulmonary sequestration",
+        "nasopharyngeal carcinoma",
+        "EBV EBER",
+        "angiofibroma",
+        "Schneiderian papilloma",
+        "olfactory neuroblastoma",
+        "上呼吸道與鼻咽腫瘤",
+        "upper respiratory and nasopharyngeal tumors"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q82",
+        "106-1-醫學二-病理學-Q86",
+        "107-1-醫學二-病理學-Q88",
+        "109-2-醫學二-病理學-Q81",
+        "108-1-醫學二-病理學-Q86",
+        "109-1-醫學二-病理學-Q86"
+      ],
+      "note": "bottom-up grouping of two moderate-frequency respiratory topics"
+    },
+    {
+      "id": "pleural-disease-atelectasis",
+      "zh": "肋膜疾病與肺膨脹不全",
+      "en": "pleural disease and atelectasis",
+      "chapterId": "respiratory-pathology",
+      "synonyms": [
+        "pleural effusion",
+        "empyema",
+        "pneumothorax",
+        "atelectasis types",
+        "mesothelioma"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q90",
+        "104-2-醫學二-病理學-Q87",
+        "106-1-醫學二-病理學-Q83",
+        "106-2-醫學二-病理學-Q86",
+        "108-2-醫學二-病理學-Q88",
+        "110-2-醫學二-病理學-Q87",
+        "110-2-醫學二-病理學-Q88",
+        "111-1-醫學二-病理學-Q89",
+        "113-1-醫學二-病理學-Q87",
+        "113-1-醫學二-病理學-Q88"
+      ]
+    },
+    {
+      "id": "lung-carcinoma",
+      "zh": "肺癌組織學分類與分子病理",
+      "en": "lung carcinoma histologic classification and molecular pathology",
+      "chapterId": "respiratory-pathology",
+      "synonyms": [
+        "adenocarcinoma of lung",
+        "squamous cell carcinoma of lung",
+        "small cell carcinoma",
+        "EGFR mutation",
+        "paraneoplastic hypercalcemia",
+        "肺癌"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "106-2-醫學二-病理學-Q88",
+        "107-1-醫學二-病理學-Q89",
+        "107-2-醫學二-病理學-Q86",
+        "108-2-醫學二-病理學-Q80",
+        "109-1-醫學二-病理學-Q88",
+        "111-1-醫學二-病理學-Q90",
+        "112-1-醫學二-病理學-Q86",
+        "112-2-醫學二-病理學-Q86",
+        "114-2-醫學二-病理學-Q87"
+      ]
+    },
+    {
+      "id": "gastritis-peptic-ulcer",
+      "zh": "胃／食道疾病：胃炎、消化性潰瘍與腫瘤",
+      "en": "gastric/esophageal disease: gastritis, peptic ulcer, and neoplasia",
+      "chapterId": "digestive-pathology",
+      "synonyms": [
+        "H. pylori gastritis",
+        "autoimmune gastritis",
+        "peptic ulcer",
+        "CagA",
+        "gastric carcinoma diffuse vs intestinal",
+        "Barrett esophagus",
+        "MALT lymphoma",
+        "gastric MALToma",
+        "CDH1",
+        "胃與食道腫瘤（胃癌／MALToma／Barrett食道）",
+        "gastric and esophageal neoplasia (gastric cancer/MALToma/Barrett esophagus)"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q87",
+        "106-2-醫學二-病理學-Q89",
+        "108-2-醫學二-病理學-Q91",
+        "111-1-醫學二-病理學-Q92",
+        "113-1-醫學二-病理學-Q92",
+        "114-1-醫學二-病理學-Q90"
+      ]
+    },
+    {
+      "id": "inflammatory-bowel-disease",
+      "zh": "腸道疾病：炎症性腸病、感染性腸炎與蠕動異常",
+      "en": "intestinal disease: IBD, infectious colitis, and GI motility disorders",
+      "chapterId": "digestive-pathology",
+      "synonyms": [
+        "Crohn disease",
+        "ulcerative colitis",
+        "skip lesion",
+        "crypt abscess",
+        "toxic megacolon",
+        "pseudopolyps",
+        "pseudomembranous colitis",
+        "Clostridium difficile",
+        "Hirschsprung disease",
+        "intussusception",
+        "pyloric stenosis",
+        "achalasia",
+        "腸道感染與蠕動異常疾病",
+        "infectious colitis and GI motility disorders"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q89",
+        "108-1-醫學二-病理學-Q91",
+        "109-2-醫學二-病理學-Q90",
+        "111-1-醫學二-病理學-Q93",
+        "115-1-醫學二-病理學-Q94",
+        "104-1-醫學二-病理學-Q93"
+      ]
+    },
+    {
+      "id": "colorectal-neoplasia-and-polyposis",
+      "zh": "大腸腫瘤與息肉症候群（家族性腺瘤性息肉症、遺傳性非息肉症大腸癌、闌尾類癌）",
+      "en": "colorectal neoplasia and polyposis syndromes (familial adenomatous polyposis, Lynch syndrome, appendiceal carcinoid)",
+      "chapterId": "digestive-pathology",
+      "synonyms": [
+        "familial adenomatous polyposis",
+        "APC gene",
+        "hereditary nonpolyposis colon cancer",
+        "Lynch syndrome",
+        "MSH2 MSH6 MLH1",
+        "villous adenoma",
+        "hyperplastic polyp",
+        "carcinoid tumor appendix",
+        "大腸腺瘤息肉",
+        "家族性腺瘤性息肉症",
+        "遺傳性非息肉症大腸癌",
+        "闌尾類癌"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "106-2-醫學二-病理學-Q91",
+        "109-2-醫學二-病理學-Q90",
+        "111-2-醫學二-病理學-Q81",
+        "111-2-醫學二-病理學-Q91"
+      ],
+      "note": "split from colorectal-neoplasia-polyposis per §1.5 panel — retains pure colorectal scope"
+    },
+    {
+      "id": "oral-and-salivary-gland-lesions",
+      "zh": "口腔與唾液腺病灶（多形性腺瘤、黏液表皮樣癌、口腔白斑／紅斑、口腔癌）",
+      "en": "oral and salivary gland lesions (pleomorphic adenoma, mucoepidermoid carcinoma, oral leukoplakia/erythroplakia, oral cancer)",
+      "chapterId": "digestive-pathology",
+      "synonyms": [
+        "pleomorphic adenoma",
+        "Warthin tumor",
+        "mucoepidermoid carcinoma",
+        "adenoid cystic carcinoma",
+        "leukoplakia erythroplakia",
+        "oral squamous cell carcinoma",
+        "口腔與唾液腺病灶",
+        "多形性腺瘤",
+        "黏液表皮樣癌",
+        "口腔白斑",
+        "口腔紅斑",
+        "口腔癌"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "109-1-醫學二-病理學-Q91",
+        "111-2-醫學二-病理學-Q92",
+        "112-2-醫學二-病理學-Q90",
+        "114-2-醫學二-病理學-Q89",
+        "104-2-醫學二-病理學-Q90"
+      ],
+      "note": "split from colorectal-neoplasia-polyposis per §1.5 panel — oral/salivary carved out as its own sub-concept"
+    },
+    {
+      "id": "viral-hepatitis",
+      "zh": "肝臟疾病：病毒性肝炎與毒性代謝性肝病",
+      "en": "liver disease: viral hepatitis and toxic/metabolic liver disease",
+      "chapterId": "digestive-pathology",
+      "synonyms": [
+        "hepatitis B virus",
+        "hepatitis D virus",
+        "hepatitis E virus",
+        "vertical transmission",
+        "HBsAg HBeAg HBcAg",
+        "alcoholic hepatitis",
+        "Mallory-Denk bodies",
+        "Wilson disease",
+        "hemochromatosis",
+        "acetaminophen hepatotoxicity",
+        "steatosis",
+        "毒性與代謝性肝病（酒精性／脂肪肝／威爾森氏症／血鐵沉著症／NASH）",
+        "toxic and metabolic liver disease (alcoholic/fatty liver/Wilson/hemochromatosis)"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "107-2-醫學二-病理學-Q89",
+        "108-1-醫學二-病理學-Q89",
+        "109-2-醫學二-病理學-Q89",
+        "110-1-醫學二-病理學-Q89",
+        "114-1-醫學二-病理學-Q89",
+        "105-1-醫學二-病理學-Q88"
+      ]
+    },
+    {
+      "id": "autoimmune-cholestatic-liver-disease",
+      "zh": "肝臟疾病：自體免疫膽汁鬱積性疾病與肝腫瘤",
+      "en": "liver disease: autoimmune/cholestatic disease and liver tumors",
+      "chapterId": "digestive-pathology",
+      "synonyms": [
+        "primary biliary cirrhosis",
+        "primary sclerosing cholangitis",
+        "autoimmune hepatitis",
+        "biliary atresia",
+        "anti-mitochondrial antibody",
+        "hepatocellular carcinoma",
+        "fibrolamellar carcinoma",
+        "hepatic adenoma",
+        "hepatoblastoma",
+        "nodular regenerative hyperplasia",
+        "肝臟腫瘤（肝細胞癌／肝腺瘤／肝母細胞瘤）",
+        "liver tumors (hepatocellular carcinoma/hepatic adenoma/hepatoblastoma)"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q91",
+        "105-1-醫學二-病理學-Q90",
+        "106-1-醫學二-病理學-Q88",
+        "109-1-醫學二-病理學-Q89",
+        "110-2-醫學二-病理學-Q91",
+        "113-1-醫學二-病理學-Q90"
+      ]
+    },
+    {
+      "id": "gallbladder-biliary-pancreatic-inflammation",
+      "zh": "膽胰疾病：發炎性疾病與胰臟腫瘤",
+      "en": "biliary/pancreatic disease: inflammation and pancreatic tumors",
+      "chapterId": "digestive-pathology",
+      "synonyms": [
+        "acute cholecystitis",
+        "gallstones cholesterol",
+        "acute pancreatitis",
+        "chronic pancreatitis",
+        "insulinoma",
+        "solid-pseudopapillary neoplasm",
+        "pancreatic ductal adenocarcinoma",
+        "IPMN",
+        "mucinous cystadenoma",
+        "acinar cell carcinoma",
+        "胰臟腫瘤",
+        "pancreatic tumors"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q88",
+        "109-2-醫學二-病理學-Q91",
+        "111-1-醫學二-病理學-Q94",
+        "112-2-醫學二-病理學-Q89",
+        "113-1-醫學二-病理學-Q91",
+        "113-2-醫學二-病理學-Q91"
+      ]
+    },
+    {
+      "id": "glomerulonephritis",
+      "zh": "腎絲球疾病（增生性／膜性／新月形／腎病症候群）",
+      "en": "glomerular disease (proliferative/membranous/crescentic/nephrotic syndrome)",
+      "chapterId": "renal-urinary-endocrine-pathology",
+      "synonyms": [
+        "anti-basement membrane disease",
+        "membranous nephropathy",
+        "membranoproliferative GN",
+        "crescentic GN",
+        "IgA nephropathy",
+        "post-streptococcal GN",
+        "dense deposit disease",
+        "minimal change disease",
+        "focal segmental glomerulosclerosis",
+        "diabetic nephropathy",
+        "benign familial hematuria",
+        "腎病症候群與足細胞病變",
+        "nephrotic syndrome and podocytopathy"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q96",
+        "104-2-醫學二-病理學-Q92",
+        "107-2-醫學二-病理學-Q90",
+        "108-2-醫學二-病理學-Q93",
+        "111-1-醫學二-病理學-Q95",
+        "111-2-醫學二-病理學-Q94"
+      ]
+    },
+    {
+      "id": "tubulointerstitial-disease",
+      "zh": "腎臟與泌尿道疾病：腎小管間質性疾病、腎盂腎炎與泌尿上皮腫瘤",
+      "en": "renal and urinary tract disease: tubulointerstitial disease, pyelonephritis, and urothelial neoplasia",
+      "chapterId": "renal-urinary-endocrine-pathology",
+      "synonyms": [
+        "acute tubular necrosis",
+        "drug-induced interstitial nephritis",
+        "analgesic nephropathy",
+        "hypertensive nephrosclerosis",
+        "xanthogranulomatous pyelonephritis",
+        "Proteus",
+        "腎盂腎炎",
+        "pyelonephritis",
+        "urothelial carcinoma",
+        "carcinoma in situ bladder",
+        "FGFR3 mutation",
+        "interstitial cystitis",
+        "Brunn nests",
+        "polypoid cystitis",
+        "clear cell carcinoma kidney",
+        "papillary renal cell carcinoma",
+        "VHL gene",
+        "renal oncocytoma",
+        "angiomyolipoma",
+        "腎細胞癌",
+        "renal cell carcinoma",
+        "腎臟與泌尿上皮腫瘤（腎細胞癌／膀胱病灶）",
+        "renal and urothelial neoplasia (renal cell carcinoma/bladder lesions)"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 22,
+      "exampleQIds": [
+        "108-1-醫學二-病理學-Q92",
+        "109-2-醫學二-病理學-Q93",
+        "110-2-醫學二-病理學-Q83",
+        "111-2-醫學二-病理學-Q93",
+        "110-1-醫學二-病理學-Q93",
+        "114-2-醫學二-病理學-Q93"
+      ]
+    },
+    {
+      "id": "pituitary-adrenal-disease",
+      "zh": "腦下垂體與腎上腺疾病",
+      "en": "pituitary and adrenal disease",
+      "chapterId": "renal-urinary-endocrine-pathology",
+      "synonyms": [
+        "pituitary adenoma",
+        "Cushing syndrome",
+        "pituitary apoplexy",
+        "adrenal hemorrhage Waterhouse-Friderichsen",
+        "corticotroph adenoma"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q90",
+        "106-1-醫學二-病理學-Q90",
+        "108-1-醫學二-病理學-Q93",
+        "109-2-醫學二-病理學-Q92",
+        "110-1-醫學二-病理學-Q92",
+        "112-2-醫學二-病理學-Q94",
+        "115-1-醫學二-病理學-Q95"
+      ]
+    },
+    {
+      "id": "thyroid-disease",
+      "zh": "甲狀腺疾病（甲狀腺炎／腫瘤）",
+      "en": "thyroid disease (thyroiditis/neoplasms)",
+      "chapterId": "renal-urinary-endocrine-pathology",
+      "synonyms": [
+        "Hashimoto thyroiditis",
+        "subacute granulomatous thyroiditis",
+        "papillary thyroid carcinoma",
+        "medullary thyroid carcinoma",
+        "myxedema",
+        "Graves disease"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q94",
+        "105-1-醫學二-病理學-Q92",
+        "106-1-醫學二-病理學-Q91",
+        "106-1-醫學二-病理學-Q92",
+        "108-2-醫學二-病理學-Q94",
+        "110-1-醫學二-病理學-Q94",
+        "115-1-醫學二-病理學-Q97"
+      ]
+    },
+    {
+      "id": "parathyroid-disease",
+      "zh": "副甲狀腺疾病（原發性／次發性副甲狀腺機能亢進、副甲狀腺腺瘤與腺癌）",
+      "en": "parathyroid disease (primary/secondary hyperparathyroidism, parathyroid adenoma and carcinoma)",
+      "chapterId": "renal-urinary-endocrine-pathology",
+      "synonyms": [
+        "parathyroid adenoma",
+        "primary hyperparathyroidism",
+        "secondary hyperparathyroidism",
+        "parathyroid carcinoma",
+        "chief cell hyperplasia",
+        "calcium-sensing receptor",
+        "cyclin D1",
+        "osteitis fibrosa cystica",
+        "副甲狀腺腺瘤",
+        "原發性副甲狀腺機能亢進",
+        "次發性副甲狀腺機能亢進",
+        "副甲狀腺癌"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q95",
+        "105-1-醫學二-病理學-Q93",
+        "106-2-醫學二-病理學-Q94",
+        "107-1-醫學二-病理學-Q93",
+        "111-1-醫學二-病理學-Q97",
+        "112-1-醫學二-病理學-Q94",
+        "113-2-醫學二-病理學-Q94"
+      ],
+      "note": "split from parathyroid-disease per §1.5 panel — retains pure parathyroid scope"
+    },
+    {
+      "id": "diabetes-mellitus-pathology",
+      "zh": "糖尿病病理（胰島類澱粉沉積、糖尿病腎絲球病變、細動脈玻璃樣變）",
+      "en": "diabetes mellitus pathology (islet amyloid deposition, diabetic glomerulopathy, hyaline arteriolosclerosis)",
+      "chapterId": "renal-urinary-endocrine-pathology",
+      "synonyms": [
+        "islet amyloid polypeptide",
+        "diabetic glomerulopathy",
+        "nodular glomerulosclerosis",
+        "Kimmelstiel-Wilson lesion",
+        "diffuse mesangial sclerosis",
+        "hyaline thickening of arterioles",
+        "type 2 diabetes mellitus",
+        "糖尿病腎病變",
+        "結節性腎小球硬化症",
+        "胰島類澱粉沉積",
+        "細動脈玻璃樣增厚"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "113-1-醫學二-病理學-Q93",
+        "110-2-醫學二-病理學-Q93",
+        "111-2-醫學二-病理學-Q94",
+        "110-2-醫學二-病理學-Q83"
+      ],
+      "note": "split from parathyroid-disease per §1.5 panel — extracted higher-yield DM pathology hidden under low-frequency leaf name"
+    },
+    {
+      "id": "cervical-dysplasia-hpv",
+      "zh": "子宮頸／子宮內膜疾病：HPV相關病變、子宮頸癌、子宮內膜癌與子宮肌層腫瘤",
+      "en": "cervical/endometrial disease: HPV-associated lesions, cervical/endometrial carcinoma, and myometrial tumors",
+      "chapterId": "reproductive-breast-pathology",
+      "synonyms": [
+        "cervical intraepithelial neoplasia",
+        "HPV E6 E7",
+        "koilocyte",
+        "condyloma acuminatum",
+        "Nabothian cyst",
+        "cervical carcinoma squamous",
+        "endometrial carcinoma type I II",
+        "endometrial hyperplasia PTEN",
+        "dysfunctional uterine bleeding",
+        "leiomyoma",
+        "leiomyosarcoma",
+        "MED12 mutation",
+        "子宮肌層腫瘤",
+        "uterine myometrial tumors",
+        "子宮頸癌、子宮內膜癌與子宮肌層腫瘤",
+        "cervical/endometrial carcinoma and uterine myometrial tumors"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 22,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q97",
+        "105-2-醫學二-病理學-Q78",
+        "106-1-醫學二-病理學-Q79",
+        "108-2-醫學二-病理學-Q97",
+        "111-2-醫學二-病理學-Q96",
+        "112-1-醫學二-病理學-Q95"
+      ]
+    },
+    {
+      "id": "gestational-trophoblastic-disease",
+      "zh": "妊娠滋養層疾病與卵巢上皮性腫瘤",
+      "en": "gestational trophoblastic disease and ovarian epithelial tumors",
+      "chapterId": "reproductive-breast-pathology",
+      "synonyms": [
+        "complete mole",
+        "partial mole",
+        "choriocarcinoma",
+        "ectopic pregnancy",
+        "placental site trophoblastic tumor",
+        "serous carcinoma high-grade low-grade",
+        "mucinous carcinoma",
+        "clear cell carcinoma",
+        "endometrioid carcinoma",
+        "type I type II ovarian cancer",
+        "TP53",
+        "卵巢上皮性腫瘤",
+        "ovarian epithelial tumors"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q97",
+        "104-2-醫學二-病理學-Q93",
+        "105-1-醫學二-病理學-Q94",
+        "109-1-醫學二-病理學-Q97",
+        "109-2-醫學二-病理學-Q95",
+        "110-2-醫學二-病理學-Q96"
+      ],
+      "note": "bottom-up grouping"
+    },
+    {
+      "id": "ovarian-germ-cell-sex-cord-tumors",
+      "zh": "卵巢生殖細胞瘤／性索間質瘤、子宮內膜異位症與多囊性卵巢症候群",
+      "en": "ovarian germ cell/sex cord-stromal tumors, endometriosis, and PCOS",
+      "chapterId": "reproductive-breast-pathology",
+      "synonyms": [
+        "dysgerminoma",
+        "yolk sac tumor",
+        "granulosa cell tumor",
+        "Sertoli-Leydig cell tumor",
+        "Brenner tumor",
+        "teratoma mature immature",
+        "endometriosis",
+        "polycystic ovary syndrome",
+        "Stein-Leventhal syndrome",
+        "子宮內膜異位症與多囊性卵巢症候群",
+        "endometriosis and polycystic ovary syndrome"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q100",
+        "106-1-醫學二-病理學-Q93",
+        "109-1-醫學二-病理學-Q96",
+        "111-1-醫學二-病理學-Q100",
+        "113-2-醫學二-病理學-Q97",
+        "107-1-醫學二-病理學-Q97"
+      ]
+    },
+    {
+      "id": "testicular-germ-cell-tumors",
+      "zh": "睪丸生殖細胞瘤",
+      "en": "testicular germ cell tumors",
+      "chapterId": "reproductive-breast-pathology",
+      "synonyms": [
+        "seminoma",
+        "embryonal carcinoma",
+        "yolk sac tumor testis",
+        "choriocarcinoma testis",
+        "teratoma testis",
+        "isochromosome 12p"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q93",
+        "104-2-醫學二-病理學-Q95",
+        "107-1-醫學二-病理學-Q94",
+        "107-2-醫學二-病理學-Q92",
+        "108-1-醫學二-病理學-Q97",
+        "110-1-醫學二-病理學-Q97",
+        "110-2-醫學二-病理學-Q97",
+        "111-1-醫學二-病理學-Q83",
+        "108-2-醫學二-病理學-Q96"
+      ]
+    },
+    {
+      "id": "testicular-epididymal-inflammation-cryptorchidism",
+      "zh": "睪丸／副睪炎症、隱睪症與外陰疾病",
+      "en": "testicular/epididymal inflammation, cryptorchidism, and vulvar disease",
+      "chapterId": "reproductive-breast-pathology",
+      "synonyms": [
+        "orchitis epididymitis",
+        "cryptorchidism",
+        "testicular torsion",
+        "extramammary Paget disease",
+        "vulvar squamous cell carcinoma",
+        "lichen sclerosus",
+        "differentiated VIN",
+        "外陰疾病（外陰癌／乳房外柏哲德氏病）",
+        "vulvar disease (vulvar carcinoma/extramammary Paget disease)"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "106-1-醫學二-病理學-Q95",
+        "109-1-醫學二-病理學-Q94",
+        "110-1-醫學二-病理學-Q96",
+        "111-2-醫學二-病理學-Q95",
+        "105-2-醫學二-病理學-Q95",
+        "109-1-醫學二-病理學-Q95"
+      ],
+      "note": "bottom-up grouping of lower-frequency reproductive topics"
+    },
+    {
+      "id": "prostate-disease",
+      "zh": "前列腺疾病（增生／癌／發炎）",
+      "en": "prostate disease (hyperplasia/carcinoma/inflammation)",
+      "chapterId": "reproductive-breast-pathology",
+      "synonyms": [
+        "benign prostatic hyperplasia",
+        "prostatic adenocarcinoma",
+        "PSA",
+        "TMPRSS2-ERG",
+        "Gleason grade",
+        "prostatitis"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q96",
+        "105-2-醫學二-病理學-Q91",
+        "108-1-醫學二-病理學-Q96",
+        "108-2-醫學二-病理學-Q95",
+        "109-2-醫學二-病理學-Q96",
+        "113-2-醫學二-病理學-Q96",
+        "114-1-醫學二-病理學-Q96"
+      ]
+    },
+    {
+      "id": "breast-benign-lesions",
+      "zh": "乳房疾病：良性病變與乳癌",
+      "en": "breast disease: benign lesions and carcinoma",
+      "chapterId": "reproductive-breast-pathology",
+      "synonyms": [
+        "fibroadenoma",
+        "intraductal papilloma",
+        "radial scar",
+        "atypical ductal hyperplasia",
+        "atypical lobular hyperplasia",
+        "periductal mastitis",
+        "invasive ductal carcinoma",
+        "invasive lobular carcinoma",
+        "ductal carcinoma in situ",
+        "ER PR HER2",
+        "metaplastic carcinoma",
+        "Paget disease of breast",
+        "乳癌組織學與分子亞型",
+        "breast carcinoma histology and molecular subtypes"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 19,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q98",
+        "106-2-醫學二-病理學-Q96",
+        "106-2-醫學二-病理學-Q97",
+        "107-2-醫學二-病理學-Q95",
+        "111-1-醫學二-病理學-Q98",
+        "113-1-醫學二-病理學-Q95"
+      ]
+    },
+    {
+      "id": "cerebral-herniation",
+      "zh": "腦血管疾病與腦脫疝症候群",
+      "en": "cerebrovascular disease and cerebral herniation syndromes",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "transtentorial herniation",
+        "subfalcine herniation",
+        "tonsillar herniation",
+        "Kernohan notch",
+        "Duret hemorrhage",
+        "lacunar infarct",
+        "cerebral amyloid angiopathy",
+        "hypertensive hemorrhage",
+        "berry aneurysm subarachnoid hemorrhage",
+        "腦血管疾病（梗塞／出血／小窩性梗塞）",
+        "cerebrovascular disease (infarct/hemorrhage/lacunar infarct)"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學二-病理學-Q99",
+        "105-1-醫學二-病理學-Q98",
+        "107-1-醫學二-病理學-Q100",
+        "115-1-醫學二-病理學-Q100",
+        "107-2-醫學二-病理學-Q97",
+        "109-1-醫學二-病理學-Q99"
+      ]
+    },
+    {
+      "id": "cns-infection",
+      "zh": "中樞神經系統感染病理",
+      "en": "CNS infection pathology",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "viral encephalitis",
+        "neuronophagia",
+        "HSV encephalitis Cowdry body",
+        "progressive multifocal leukoencephalopathy",
+        "subacute sclerosing panencephalitis",
+        "CJD spongiform"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-2-醫學二-病理學-Q100",
+        "105-2-醫學二-病理學-Q97",
+        "106-2-醫學二-病理學-Q98",
+        "107-1-醫學二-病理學-Q79",
+        "109-2-醫學二-病理學-Q100",
+        "110-1-醫學二-病理學-Q100",
+        "112-1-醫學二-病理學-Q99",
+        "113-1-醫學二-病理學-Q99"
+      ]
+    },
+    {
+      "id": "neurodegenerative-disease",
+      "zh": "神經退化性疾病",
+      "en": "neurodegenerative disease",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "Alzheimer disease neuritic plaque",
+        "Parkinson disease alpha-synuclein",
+        "multiple system atrophy",
+        "ALS TDP-43",
+        "frontotemporal dementia"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "109-2-醫學二-病理學-Q99",
+        "110-1-醫學二-病理學-Q99",
+        "115-1-醫學二-病理學-Q88"
+      ]
+    },
+    {
+      "id": "cns-tumors",
+      "zh": "中樞神經系統腫瘤",
+      "en": "CNS tumors",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "pilocytic astrocytoma Rosenthal fiber",
+        "glioblastoma",
+        "medulloblastoma WNT SHH",
+        "craniopharyngioma",
+        "primary CNS lymphoma",
+        "diffuse midline glioma H3K27M"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q98",
+        "107-1-醫學二-病理學-Q99",
+        "107-2-醫學二-病理學-Q96",
+        "109-1-醫學二-病理學-Q100",
+        "110-2-醫學二-病理學-Q100",
+        "112-1-醫學二-病理學-Q100",
+        "112-2-醫學二-病理學-Q99",
+        "112-2-醫學二-病理學-Q100"
+      ]
+    },
+    {
+      "id": "peripheral-nerve-injury-repair",
+      "zh": "周邊神經與骨骼肌疾病：神經損傷修復、中毒代謝性腦病、肌病變與感染性骨關節疾病",
+      "en": "peripheral nerve and skeletal muscle disease: nerve injury/repair, toxic-metabolic encephalopathy, myopathy, and infectious osteomyelitis/septic arthritis",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "Wallerian degeneration",
+        "traumatic neuroma",
+        "axonal peripheral neuropathy",
+        "toxic peripheral neuropathy",
+        "carbon monoxide poisoning basal ganglia",
+        "hepatic encephalopathy",
+        "Wernicke encephalopathy",
+        "中毒與代謝性腦病",
+        "toxic and metabolic encephalopathy",
+        "inclusion body myositis",
+        "rimmed vacuole",
+        "myositis ossificans",
+        "pyogenic osteomyelitis",
+        "septic arthritis",
+        "gonococcal arthritis",
+        "化膿性骨髓炎與感染性關節炎",
+        "pyogenic osteomyelitis and infectious arthritis",
+        "骨骼肌病變與感染性骨關節疾病",
+        "skeletal muscle myopathy and infectious osteomyelitis/septic arthritis"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "106-1-醫學二-病理學-Q97",
+        "112-2-醫學二-病理學-Q98",
+        "113-2-醫學二-病理學-Q99",
+        "111-2-醫學二-病理學-Q80",
+        "107-1-醫學二-病理學-Q100",
+        "108-1-醫學二-病理學-Q100"
+      ],
+      "note": "bottom-up grouping of lower-frequency peripheral neuromuscular topics"
+    },
+    {
+      "id": "bone-tumors",
+      "zh": "骨腫瘤（骨肉瘤／軟骨肉瘤／骨巨細胞瘤等）",
+      "en": "bone tumors (osteosarcoma/chondrosarcoma/giant cell tumor)",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "osteosarcoma",
+        "chondrosarcoma",
+        "Ewing sarcoma",
+        "giant cell tumor of bone",
+        "aneurysmal bone cyst",
+        "fibrous cortical defect"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-1-醫學二-病理學-Q96",
+        "107-1-醫學二-病理學-Q98",
+        "110-1-醫學二-病理學-Q98",
+        "111-1-醫學二-病理學-Q78",
+        "111-1-醫學二-病理學-Q79",
+        "111-1-醫學二-病理學-Q83",
+        "111-2-醫學二-病理學-Q98"
+      ]
+    },
+    {
+      "id": "metabolic-bone-disease-and-osteoarthritis",
+      "zh": "代謝性骨疾病與骨關節炎（成骨不全症、蝕骨細胞活性異常、RANKL/OPG、退化性關節炎）",
+      "en": "metabolic bone disease and osteoarthritis (osteogenesis imperfecta, osteoclast activity disorders, RANKL/OPG, osteoarthritis)",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "osteogenesis imperfecta",
+        "osteitis fibrosa cystica",
+        "osteoarthritis",
+        "Paget disease of bone",
+        "osteoprotegerin RANKL",
+        "osteopetrosis",
+        "senile osteoporosis",
+        "post-menopausal osteoporosis",
+        "articular cartilage degeneration",
+        "退化性關節炎",
+        "成骨不全症",
+        "蝕骨細胞",
+        "骨質疏鬆"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "109-1-醫學二-病理學-Q98",
+        "109-2-醫學二-病理學-Q98",
+        "113-2-醫學二-病理學-Q98",
+        "114-2-醫學二-病理學-Q98"
+      ],
+      "note": "split from metabolic-bone-disease per §1.5 panel — retains metabolic bone + OA scope, excludes ocular topics and existing bone-tumors leaf overlap"
+    },
+    {
+      "id": "ophthalmic-pathology",
+      "zh": "眼科病理（弗克斯氏內皮失養症、水晶體後纖維增生、肉芽腫性葡萄膜炎、眼球癆、眼內惡性黑色素瘤）",
+      "en": "ophthalmic pathology (Fuchs endothelial dystrophy, retrolental fibroplasia, granulomatous uveitis, phthisis bulbi, ocular malignant melanoma)",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "Fuchs endothelial dystrophy",
+        "retrolental fibroplasia",
+        "phthisis bulbi",
+        "keratoconus",
+        "granulomatous uveitis",
+        "sarcoidosis uveitis",
+        "ocular malignant melanoma",
+        "pterygium",
+        "pinguecula",
+        "眼科病理",
+        "水晶體後纖維增生",
+        "眼球癆",
+        "肉芽腫性葡萄膜炎"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "106-1-醫學二-病理學-Q98",
+        "107-2-醫學二-病理學-Q98",
+        "108-1-醫學二-病理學-Q99",
+        "110-2-醫學二-病理學-Q98",
+        "111-2-醫學二-病理學-Q100",
+        "114-1-醫學二-病理學-Q98"
+      ],
+      "note": "split from metabolic-bone-disease per §1.5 panel — ocular pathology carved out as its own sub-concept"
+    },
+    {
+      "id": "skin-immunobullous-inflammatory",
+      "zh": "皮膚疾病：免疫性水泡病、發炎性皮膚病與腫瘤",
+      "en": "skin disease: immunobullous, inflammatory, and neoplastic",
+      "chapterId": "neuro-musculoskeletal-eye-skin-pathology",
+      "synonyms": [
+        "pemphigus vulgaris",
+        "bullous pemphigoid",
+        "psoriasis parakeratosis",
+        "erythema migrans",
+        "actinic keratosis",
+        "dysplastic nevus",
+        "malignant melanoma",
+        "seborrheic keratosis",
+        "皮膚腫瘤與癌前病變",
+        "skin neoplasia and precancerous lesions"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-2-醫學二-病理學-Q96",
+        "108-2-醫學二-病理學-Q99",
+        "111-1-醫學二-病理學-Q76",
+        "114-1-醫學二-病理學-Q100",
+        "114-2-醫學二-病理學-Q79",
+        "114-2-醫學二-病理學-Q78"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "「細胞損傷與凋亡」把 reversible/irreversible injury 與 apoptosis 合併——兩者機轉不同（前者是非計畫性傷害、後者是計畫性細胞死亡），但因各自單獨題數偏少（apoptosis 9 sittings）而合併，教學上可考慮拆開。",
+    "「細胞適應、細胞內堆積物與類澱粉沉積症」是把 3 個 Robbins 章節小節（adaptation / accumulation / amyloidosis）合併的 bottom-up 分組，若下游要更細緻的押題排序可再拆成 2-3 個子概念。",
+    "「腸道疾病：炎症性腸病、感染性腸炎與蠕動異常」把 IBD（Crohn/UC，免疫機轉）與感染性腸炎（C. diff）、先天蠕動異常（Hirschsprung、pyloric stenosis）三種不同病因合併，純粹因各自題數偏少才歸一類，語意上不算同一疾病家族。",
+    "「肝臟疾病：自體免疫膽汁鬱積性疾病與肝腫瘤」合併了自體免疫/膽汁鬱積機轉疾病與腫瘤性疾病，兩者病理生理完全不同，是 bottom-up sizing 考量下的合併。",
+    "「膽胰疾病：發炎性疾病與胰臟腫瘤」把膽囊/胰臟發炎與胰臟腫瘤（不同致病機轉）放一起，屬 sizing-driven 合併而非語意自然分群。",
+    "「淋巴系統疾病：何杰金氏淋巴瘤、慢性淋巴球性白血病、漿細胞疾病與脾臟／胸腺疾病」是四個彼此獨立疾病實體的 bottom-up 合併桶，僅因各自單題數低（2-5 sittings）才歸一類，下游若要精準押題排序建議拆開。",
+    "「周邊神經與骨骼肌疾病」同樣是合併周邊神經病變、中毒代謝性腦病、肌病變與感染性骨關節炎四種不同疾病實體的 bottom-up 分組。",
+    "「代謝性骨疾病、骨關節炎與眼科病理」跨越骨骼與眼科兩個器官系統合併，是本次分類中最勉強的一組（chapter 內兩個次領域皆屬低頻但語意上不相關），下游使用時建議視為兩個獨立小主題。",
+    "「腎臟與泌尿道疾病：腎小管間質性疾病、腎盂腎炎與泌尿上皮腫瘤」把非腫瘤性（間質性腎炎/腎盂腎炎）與腫瘤性（泌尿上皮癌/腎細胞癌）疾病合併，屬 sizing 考量。",
+    "「先天性心臟病與動脈瘤／主動脈剝離」兩者皆屬血管結構異常但成因（先天發育 vs. 後天退化/結締組織病）不同，屬 bottom-up 合併。"
+  ]
+}

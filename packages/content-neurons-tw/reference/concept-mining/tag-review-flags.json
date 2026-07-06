@@ -1,0 +1,1829 @@
+{
+  "flags": [
+    {
+      "qid": "104-1-醫學一-解剖學-Q4",
+      "reason": "keyword≠model (kw:orbit-and-extraocular-muscles)"
+    },
+    {
+      "qid": "104-1-醫學一-解剖學-Q6",
+      "reason": "keyword≠model (kw:vestibular-nuclei-and-mlf)"
+    },
+    {
+      "qid": "104-1-醫學一-解剖學-Q7",
+      "reason": "keyword≠model (kw:cerebral-arterial-territories)"
+    },
+    {
+      "qid": "104-1-醫學一-解剖學-Q14",
+      "reason": "keyword≠model (kw:mesenteric-vasculature-and-gi-blood-supply)"
+    },
+    {
+      "qid": "104-1-醫學一-微生物暨免疫學-Q44",
+      "reason": "keyword≠model (kw:staph-aureus)"
+    },
+    {
+      "qid": "104-1-醫學一-寄生蟲學-Q80",
+      "reason": "keyword≠model (kw:intestinal-luminal-amoebae)"
+    },
+    {
+      "qid": "104-1-醫學一-公共衛生學-Q87",
+      "reason": "keyword≠model (kw:infectious-disease-epidemiology)"
+    },
+    {
+      "qid": "104-1-醫學一-公共衛生學-Q96",
+      "reason": "keyword≠model (kw:social-determinants-of-health)"
+    },
+    {
+      "qid": "104-1-醫學二-生理學-Q6",
+      "reason": "keyword≠model (kw:skeletal-muscle-mechanics-and-energetics)"
+    },
+    {
+      "qid": "104-1-醫學二-生理學-Q11",
+      "reason": "keyword≠model (kw:cardiac-output-contractility-and-venous-return)"
+    },
+    {
+      "qid": "104-1-醫學二-生理學-Q14",
+      "reason": "keyword≠model (kw:chemoreceptor-control-and-altitude-exercise-adaptation)"
+    },
+    {
+      "qid": "104-1-醫學二-生理學-Q17",
+      "reason": "keyword≠model (kw:sensory-receptor-coding-and-adaptation)"
+    },
+    {
+      "qid": "104-1-醫學二-生理學-Q25",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "104-1-醫學二-生物化學-Q32",
+      "reason": "keyword≠model (kw:pcr-sequencing-molecular-techniques)"
+    },
+    {
+      "qid": "104-1-醫學二-生物化學-Q34",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "104-1-醫學二-生物化學-Q43",
+      "reason": "keyword≠model (kw:eukaryotic-transcription-factor-motifs)"
+    },
+    {
+      "qid": "104-1-醫學二-藥理學-Q58",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "104-1-醫學二-藥理學-Q69",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "104-1-醫學二-藥理學-Q71",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "104-1-醫學二-病理學-Q84",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "104-2-醫學一-解剖學-Q19",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "104-2-醫學一-解剖學-Q22",
+      "reason": "keyword≠model (kw:lower-limb-cutaneous-innervation)"
+    },
+    {
+      "qid": "104-2-醫學一-組織學-Q40",
+      "reason": "keyword≠model (kw:endocrine-system-histology)"
+    },
+    {
+      "qid": "104-2-醫學一-微生物暨免疫學-Q67",
+      "reason": "keyword≠model (kw:innate-vs-adaptive-immunity-overview)"
+    },
+    {
+      "qid": "104-2-醫學一-寄生蟲學-Q76",
+      "reason": "keyword≠model (kw:angiostrongyliasis-and-larva-migrans)"
+    },
+    {
+      "qid": "104-2-醫學一-公共衛生學-Q84",
+      "reason": "keyword≠model (kw:infectious-disease-epidemiology)"
+    },
+    {
+      "qid": "104-2-醫學一-公共衛生學-Q97",
+      "reason": "keyword≠model (kw:individual-behavior-change-models)"
+    },
+    {
+      "qid": "104-2-醫學二-生理學-Q5",
+      "reason": "keyword≠model (kw:sodium-and-potassium-handling-along-nephron)"
+    },
+    {
+      "qid": "104-2-醫學二-生理學-Q8",
+      "reason": "keyword≠model (kw:thyroid-hormone-synthesis-and-action)"
+    },
+    {
+      "qid": "104-2-醫學二-生理學-Q20",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "104-2-醫學二-生理學-Q22",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "104-2-醫學二-生理學-Q24",
+      "reason": "keyword≠model (kw:autonomic-nervous-system-organization-and-effects)"
+    },
+    {
+      "qid": "104-2-醫學二-生理學-Q25",
+      "reason": "keyword≠model (kw:ovarian-folliculogenesis-and-oogenesis)"
+    },
+    {
+      "qid": "104-2-醫學二-生物化學-Q47",
+      "reason": "keyword≠model (kw:membrane-transport-mechanisms)"
+    },
+    {
+      "qid": "104-2-醫學二-病理學-Q76",
+      "reason": "keyword≠model (kw:wound-healing-fibrosis)"
+    },
+    {
+      "qid": "104-2-醫學二-病理學-Q82",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "104-2-醫學二-病理學-Q90",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "104-2-醫學二-病理學-Q93",
+      "reason": "keyword≠model (kw:gestational-trophoblastic-disease)"
+    },
+    {
+      "qid": "104-2-醫學二-病理學-Q96",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "105-1-醫學一-解剖學-Q3",
+      "reason": "keyword≠model (kw:inguinal-canal-and-hernia)"
+    },
+    {
+      "qid": "105-1-醫學一-解剖學-Q7",
+      "reason": "keyword≠model (kw:cerebellar-peduncles-afferent-efferent)"
+    },
+    {
+      "qid": "105-1-醫學一-解剖學-Q11",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "105-1-醫學一-解剖學-Q15",
+      "reason": "keyword≠model (kw:diaphragm-openings-and-crura)"
+    },
+    {
+      "qid": "105-1-醫學一-解剖學-Q23",
+      "reason": "keyword≠model (kw:lower-limb-cutaneous-innervation)"
+    },
+    {
+      "qid": "105-1-醫學一-解剖學-Q25",
+      "reason": "keyword≠model (kw:femoral-and-obturator-nerves)"
+    },
+    {
+      "qid": "105-1-醫學一-微生物暨免疫學-Q66",
+      "reason": "keyword≠model (kw:b-and-t-lymphocyte-developmental-checkpoints)"
+    },
+    {
+      "qid": "105-1-醫學一-微生物暨免疫學-Q67",
+      "reason": "keyword≠model (kw:innate-vs-adaptive-immunity-overview)"
+    },
+    {
+      "qid": "105-1-醫學一-微生物暨免疫學-Q72",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "105-1-醫學一-公共衛生學-Q87",
+      "reason": "keyword≠model (kw:descriptive-statistics-measurement-scales)"
+    },
+    {
+      "qid": "105-1-醫學一-公共衛生學-Q99",
+      "reason": "keyword≠model (kw:health-insurance-payment-systems)"
+    },
+    {
+      "qid": "105-1-醫學二-生理學-Q7",
+      "reason": "keyword≠model (kw:proprioception-and-spinal-reflexes)"
+    },
+    {
+      "qid": "105-1-醫學二-生理學-Q10",
+      "reason": "keyword≠model (kw:gastric-acid-secretion-and-regulation)"
+    },
+    {
+      "qid": "105-1-醫學二-生理學-Q18",
+      "reason": "keyword≠model (kw:erythropoiesis-and-red-cell-physiology)"
+    },
+    {
+      "qid": "105-1-醫學二-生物化學-Q26",
+      "reason": "keyword≠model (kw:dna-replication-machinery-ecoli)"
+    },
+    {
+      "qid": "105-1-醫學二-藥理學-Q63",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "105-1-醫學二-藥理學-Q64",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "105-1-醫學二-病理學-Q95",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "105-1-醫學二-病理學-Q97",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "105-1-醫學二-病理學-Q100",
+      "reason": "keyword≠model (kw:wound-healing-fibrosis)"
+    },
+    {
+      "qid": "105-2-醫學一-解剖學-Q3",
+      "reason": "keyword≠model (kw:vertebral-column-and-spinal-nerve-relations)"
+    },
+    {
+      "qid": "105-2-醫學一-解剖學-Q9",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "105-2-醫學一-胚胎學-Q29",
+      "reason": "keyword≠model (kw:gametogenesis-fertilization)"
+    },
+    {
+      "qid": "105-2-醫學一-組織學-Q37",
+      "reason": "keyword≠model (kw:lymphoid-organs-histology)"
+    },
+    {
+      "qid": "105-2-醫學一-微生物暨免疫學-Q62",
+      "reason": "keyword≠model (kw:tcr-and-bcr-gene-rearrangement-v-d-j)"
+    },
+    {
+      "qid": "105-2-醫學一-微生物暨免疫學-Q63",
+      "reason": "keyword≠model (kw:antibody-class-switch-and-somatic-hypermutation)"
+    },
+    {
+      "qid": "105-2-醫學一-微生物暨免疫學-Q64",
+      "reason": "keyword≠model (kw:innate-vs-adaptive-immunity-overview)"
+    },
+    {
+      "qid": "105-2-醫學一-微生物暨免疫學-Q68",
+      "reason": "keyword≠model (kw:lymphoid-organs-and-cell-trafficking)"
+    },
+    {
+      "qid": "105-2-醫學一-微生物暨免疫學-Q70",
+      "reason": "keyword≠model (kw:hypersensitivity-types-ii-iii-iv)"
+    },
+    {
+      "qid": "105-2-醫學一-公共衛生學-Q91",
+      "reason": "keyword≠model (kw:water-quality-and-treatment)"
+    },
+    {
+      "qid": "105-2-醫學二-生理學-Q1",
+      "reason": "keyword≠model (kw:countercurrent-mechanism-and-urine-concentration)"
+    },
+    {
+      "qid": "105-2-醫學二-生理學-Q1",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "105-2-醫學二-生理學-Q18",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "105-2-醫學二-生理學-Q23",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "105-2-醫學二-藥理學-Q65",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "105-2-醫學二-藥理學-Q74",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "105-2-醫學二-病理學-Q75",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "105-2-醫學二-病理學-Q82",
+      "reason": "keyword≠model (kw:pulmonary-vascular-disease)"
+    },
+    {
+      "qid": "105-2-醫學二-病理學-Q84",
+      "reason": "keyword≠model (kw:thrombosis-embolism)"
+    },
+    {
+      "qid": "105-2-醫學二-病理學-Q90",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "105-2-醫學二-病理學-Q93",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-1-醫學一-解剖學-Q2",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-1-醫學一-解剖學-Q4",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-1-醫學一-解剖學-Q7",
+      "reason": "keyword≠model (kw:abdominal-autonomic-innervation)"
+    },
+    {
+      "qid": "106-1-醫學一-解剖學-Q8",
+      "reason": "keyword≠model (kw:spinal-cord-meninges-and-ligaments)"
+    },
+    {
+      "qid": "106-1-醫學一-解剖學-Q13",
+      "reason": "keyword≠model (kw:limbic-system-and-hippocampal-formation)"
+    },
+    {
+      "qid": "106-1-醫學一-解剖學-Q26",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-1-醫學一-胚胎學-Q32",
+      "reason": "keyword≠model (kw:germ-layers-gastrulation)"
+    },
+    {
+      "qid": "106-1-醫學一-微生物暨免疫學-Q62",
+      "reason": "keyword≠model (kw:self-tolerance-central-and-peripheral)"
+    },
+    {
+      "qid": "106-1-醫學一-微生物暨免疫學-Q71",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-1-醫學一-公共衛生學-Q84",
+      "reason": "keyword≠model (kw:social-determinants-of-health)"
+    },
+    {
+      "qid": "106-1-醫學二-生理學-Q14",
+      "reason": "keyword≠model (kw:arterial-blood-pressure-and-baroreflex)"
+    },
+    {
+      "qid": "106-1-醫學二-生理學-Q19",
+      "reason": "keyword≠model (kw:white-blood-cells-and-phagocytes)"
+    },
+    {
+      "qid": "106-1-醫學二-生理學-Q23",
+      "reason": "keyword≠model (kw:cardiac-output-contractility-and-venous-return)"
+    },
+    {
+      "qid": "106-1-醫學二-藥理學-Q56",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-1-醫學二-藥理學-Q59",
+      "reason": "keyword≠model (kw:alzheimer-disease-drugs)"
+    },
+    {
+      "qid": "106-1-醫學二-藥理學-Q68",
+      "reason": "keyword≠model (kw:neuromuscular-blocking-drugs)"
+    },
+    {
+      "qid": "106-1-醫學二-病理學-Q79",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "106-1-醫學二-病理學-Q85",
+      "reason": "keyword≠model (kw:ards-diffuse-alveolar-damage)"
+    },
+    {
+      "qid": "106-1-醫學二-病理學-Q92",
+      "reason": "keyword≠model (kw:chromosomal-numerical-disorders)"
+    },
+    {
+      "qid": "106-1-醫學二-病理學-Q100",
+      "reason": "keyword≠model (kw:bacterial-spirochete-infections)"
+    },
+    {
+      "qid": "106-2-醫學一-解剖學-Q9",
+      "reason": "keyword≠model (kw:pelvic-floor-and-perineal-membrane)"
+    },
+    {
+      "qid": "106-2-醫學一-解剖學-Q10",
+      "reason": "keyword≠model (kw:neck-triangles-and-cervical-fascia)"
+    },
+    {
+      "qid": "106-2-醫學一-解剖學-Q19",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-2-醫學一-解剖學-Q20",
+      "reason": "keyword≠model (kw:dural-venous-sinuses)"
+    },
+    {
+      "qid": "106-2-醫學一-解剖學-Q25",
+      "reason": "keyword≠model (kw:large-intestine-and-appendix)"
+    },
+    {
+      "qid": "106-2-醫學一-解剖學-Q31",
+      "reason": "keyword≠model (kw:vertebral-column-and-spinal-nerve-relations)"
+    },
+    {
+      "qid": "106-2-醫學一-生理學-Q67",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "106-2-醫學一-生物化學-Q96",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "106-2-醫學二-微生物暨免疫學-Q11",
+      "reason": "keyword≠model (kw:picornaviridae-enterovirus-polio)"
+    },
+    {
+      "qid": "106-2-醫學二-微生物暨免疫學-Q19",
+      "reason": "keyword≠model (kw:antibody-class-switch-and-somatic-hypermutation)"
+    },
+    {
+      "qid": "106-2-醫學二-微生物暨免疫學-Q21",
+      "reason": "keyword≠model (kw:phagocytes-and-innate-effector-cells)"
+    },
+    {
+      "qid": "106-2-醫學二-公共衛生學-Q48",
+      "reason": "keyword≠model (kw:individual-behavior-change-models)"
+    },
+    {
+      "qid": "106-2-醫學二-病理學-Q79",
+      "reason": "keyword≠model (kw:inflammatory-bowel-disease)"
+    },
+    {
+      "qid": "106-2-醫學二-病理學-Q85",
+      "reason": "keyword≠model (kw:pulmonary-vascular-disease)"
+    },
+    {
+      "qid": "106-2-醫學二-病理學-Q87",
+      "reason": "keyword≠model (kw:plasma-cell-disorders-multiple-myeloma)"
+    },
+    {
+      "qid": "106-2-醫學二-病理學-Q90",
+      "reason": "keyword≠model (kw:non-hodgkin-lymphoma)"
+    },
+    {
+      "qid": "106-2-醫學二-病理學-Q95",
+      "reason": "keyword≠model (kw:plasma-cell-disorders-multiple-myeloma)"
+    },
+    {
+      "qid": "107-1-醫學一-解剖學-Q2",
+      "reason": "keyword≠model (kw:pupillary-light-reflex-and-accommodation)"
+    },
+    {
+      "qid": "107-1-醫學一-解剖學-Q13",
+      "reason": "keyword≠model (kw:cerebellar-peduncles-afferent-efferent)"
+    },
+    {
+      "qid": "107-1-醫學一-解剖學-Q22",
+      "reason": "keyword≠model (kw:vertebral-column-and-spinal-nerve-relations)"
+    },
+    {
+      "qid": "107-1-醫學一-解剖學-Q26",
+      "reason": "keyword≠model (kw:mesenteric-vasculature-and-gi-blood-supply)"
+    },
+    {
+      "qid": "107-1-醫學一-解剖學-Q30",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "107-1-醫學一-組織學-Q40",
+      "reason": "keyword≠model (kw:connective-tissue-proper-fibers-and-fibroblasts)"
+    },
+    {
+      "qid": "107-1-醫學一-生理學-Q60",
+      "reason": "keyword≠model (kw:capillary-fluid-exchange-and-lymphatics)"
+    },
+    {
+      "qid": "107-1-醫學一-生理學-Q63",
+      "reason": "keyword≠model (kw:respiratory-control-center-and-muscles)"
+    },
+    {
+      "qid": "107-1-醫學一-生理學-Q65",
+      "reason": "keyword≠model (kw:capillary-fluid-exchange-and-lymphatics)"
+    },
+    {
+      "qid": "107-1-醫學一-生理學-Q67",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "107-1-醫學一-生物化學-Q98",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "107-1-醫學二-微生物暨免疫學-Q10",
+      "reason": "keyword≠model (kw:rickettsia-ehrlichia-and-zoonotic-bacteria)"
+    },
+    {
+      "qid": "107-1-醫學二-微生物暨免疫學-Q27",
+      "reason": "keyword≠model (kw:autoimmune-disease-mechanisms)"
+    },
+    {
+      "qid": "107-1-醫學二-公共衛生學-Q29",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "107-1-醫學二-藥理學-Q48",
+      "reason": "keyword≠model (kw:social-determinants-of-health)"
+    },
+    {
+      "qid": "107-1-醫學二-藥理學-Q52",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "107-1-醫學二-藥理學-Q56",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "107-1-醫學二-藥理學-Q57",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "107-1-醫學二-病理學-Q67",
+      "reason": "keyword≠model (kw:alpha-adrenergic-agonists)"
+    },
+    {
+      "qid": "107-1-醫學二-藥理學-Q71",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "107-2-醫學一-解剖學-Q4",
+      "reason": "keyword≠model (kw:bladder-anatomy-and-innervation)"
+    },
+    {
+      "qid": "107-2-醫學一-解剖學-Q6",
+      "reason": "keyword≠model (kw:spinal-cord-meninges-and-ligaments)"
+    },
+    {
+      "qid": "107-2-醫學一-解剖學-Q17",
+      "reason": "keyword≠model (kw:cerebellar-peduncles-afferent-efferent)"
+    },
+    {
+      "qid": "107-2-醫學一-組織學-Q42",
+      "reason": "keyword≠model (kw:vascular-histology-arteries-veins-capillaries)"
+    },
+    {
+      "qid": "107-2-醫學一-生物化學-Q89",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "107-2-醫學一-生物化學-Q97",
+      "reason": "keyword≠model (kw:enzyme-kinetics-michaelis-menten)"
+    },
+    {
+      "qid": "107-2-醫學二-微生物暨免疫學-Q25",
+      "reason": "keyword≠model (kw:lymphoid-organs-and-cell-trafficking)"
+    },
+    {
+      "qid": "107-2-醫學二-寄生蟲學-Q32",
+      "reason": "keyword≠model (kw:paragonimiasis-and-ectopic-lesions)"
+    },
+    {
+      "qid": "107-2-醫學二-公共衛生學-Q50",
+      "reason": "keyword≠model (kw:hospital-management-tools)"
+    },
+    {
+      "qid": "107-2-醫學二-藥理學-Q68",
+      "reason": "keyword≠model (kw:neuromuscular-blocking-drugs)"
+    },
+    {
+      "qid": "107-2-醫學二-藥理學-Q68",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "107-2-醫學二-病理學-Q76",
+      "reason": "keyword≠model (kw:tumor-biology-hallmarks)"
+    },
+    {
+      "qid": "107-2-醫學二-病理學-Q84",
+      "reason": "keyword≠model (kw:myeloproliferative-neoplasms)"
+    },
+    {
+      "qid": "107-2-醫學二-病理學-Q91",
+      "reason": "keyword≠model (kw:wound-healing-fibrosis)"
+    },
+    {
+      "qid": "107-2-醫學二-病理學-Q93",
+      "reason": "keyword≠model (kw:gestational-trophoblastic-disease)"
+    },
+    {
+      "qid": "107-2-醫學二-病理學-Q94",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "108-1-醫學一-解剖學-Q3",
+      "reason": "keyword≠model (kw:dural-venous-sinuses)"
+    },
+    {
+      "qid": "108-1-醫學一-解剖學-Q14",
+      "reason": "keyword≠model (kw:trigeminal-nerve-branches-and-distribution)"
+    },
+    {
+      "qid": "108-1-醫學一-解剖學-Q16",
+      "reason": "keyword≠model (kw:cerebral-cortex-functional-localization)"
+    },
+    {
+      "qid": "108-1-醫學一-解剖學-Q20",
+      "reason": "keyword≠model (kw:skull-foramina-and-cranial-fossae)"
+    },
+    {
+      "qid": "108-1-醫學一-組織學-Q42",
+      "reason": "keyword≠model (kw:epithelial-surface-specializations-and-junctions)"
+    },
+    {
+      "qid": "108-1-醫學一-組織學-Q46",
+      "reason": "keyword≠model (kw:female-reproductive-system-histology)"
+    },
+    {
+      "qid": "108-1-醫學一-生理學-Q69",
+      "reason": "keyword≠model (kw:cortisol-actions-cushing-syndrome-and-circadian-regulation)"
+    },
+    {
+      "qid": "108-1-醫學一-生理學-Q72",
+      "reason": "keyword≠model (kw:sex-differentiation-and-embryonic-development)"
+    },
+    {
+      "qid": "108-1-醫學一-生物化學-Q82",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "108-1-醫學一-生物化學-Q84",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "108-1-醫學二-微生物暨免疫學-Q4",
+      "reason": "keyword≠model (kw:bacterial-structure-and-cell-envelope)"
+    },
+    {
+      "qid": "108-1-醫學二-微生物暨免疫學-Q25",
+      "reason": "keyword≠model (kw:tcr-mhc-restricted-antigen-recognition)"
+    },
+    {
+      "qid": "108-1-醫學二-公共衛生學-Q51",
+      "reason": "keyword≠model (kw:antifungal-drugs)"
+    },
+    {
+      "qid": "108-1-醫學二-藥理學-Q58",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "108-1-醫學二-藥理學-Q67",
+      "reason": "keyword≠model (kw:receptor-pharmacodynamics)"
+    },
+    {
+      "qid": "108-1-醫學二-病理學-Q77",
+      "reason": "keyword≠model (kw:breast-benign-lesions)"
+    },
+    {
+      "qid": "108-1-醫學二-病理學-Q85",
+      "reason": "keyword≠model (kw:pulmonary-vascular-disease)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q1",
+      "reason": "keyword≠model (kw:vestibular-nuclei-and-mlf)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q15",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q19",
+      "reason": "keyword≠model (kw:abdominal-aorta-branches)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q24",
+      "reason": "keyword≠model (kw:brainstem-vascular-syndromes)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q25",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q27",
+      "reason": "keyword≠model (kw:vagus-nerve-and-recurrent-laryngeal-nerve)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q31",
+      "reason": "keyword≠model (kw:cerebral-arterial-territories)"
+    },
+    {
+      "qid": "108-2-醫學一-解剖學-Q33",
+      "reason": "keyword≠model (kw:pelvic-floor-and-perineal-membrane)"
+    },
+    {
+      "qid": "108-2-醫學一-微生物暨免疫學-Q45",
+      "reason": "keyword≠model (kw:muscle-tissue-comparative-histology)"
+    },
+    {
+      "qid": "108-2-醫學一-藥理學-Q47",
+      "reason": "keyword≠model (kw:anesthetics-general-and-local)"
+    },
+    {
+      "qid": "108-2-醫學一-生理學-Q63",
+      "reason": "keyword≠model (kw:synaptic-transmission-and-neurotransmitters)"
+    },
+    {
+      "qid": "108-2-醫學一-生物化學-Q79",
+      "reason": "keyword≠model (kw:carbohydrate-structure-glycosidic-bonds)"
+    },
+    {
+      "qid": "108-2-醫學一-寄生蟲學-Q82",
+      "reason": "keyword≠model (kw:dna-replication-machinery-eukaryotic)"
+    },
+    {
+      "qid": "108-2-醫學一-生物化學-Q83",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "108-2-醫學一-生物化學-Q84",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "108-2-醫學二-微生物暨免疫學-Q13",
+      "reason": "keyword≠model (kw:bunya-arena-filoviridae-hemorrhagic-fever)"
+    },
+    {
+      "qid": "108-2-醫學二-微生物暨免疫學-Q15",
+      "reason": "keyword-fallback (model gave nothing)"
+    },
+    {
+      "qid": "108-2-醫學二-微生物暨免疫學-Q19",
+      "reason": "keyword≠model (kw:innate-vs-adaptive-immunity-overview)"
+    },
+    {
+      "qid": "108-2-醫學二-微生物暨免疫學-Q22",
+      "reason": "keyword≠model (kw:self-tolerance-central-and-peripheral)"
+    },
+    {
+      "qid": "108-2-醫學二-公共衛生學-Q47",
+      "reason": "keyword≠model (kw:individual-behavior-change-models)"
+    },
+    {
+      "qid": "108-2-醫學二-藥理學-Q68",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "108-2-醫學二-藥理學-Q74",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "108-2-醫學二-病理學-Q79",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "109-1-醫學一-解剖學-Q12",
+      "reason": "keyword≠model (kw:spinal-cord-ascending-sensory-tracts)"
+    },
+    {
+      "qid": "109-1-醫學一-解剖學-Q15",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "109-1-醫學一-解剖學-Q18",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "109-1-醫學一-解剖學-Q20",
+      "reason": "keyword≠model (kw:spinal-cord-meninges-and-ligaments)"
+    },
+    {
+      "qid": "109-1-醫學一-組織學-Q37",
+      "reason": "keyword≠model (kw:epithelial-surface-specializations-and-junctions)"
+    },
+    {
+      "qid": "109-1-醫學一-生理學-Q52",
+      "reason": "keyword≠model (kw:gastric-acid-secretion-and-regulation)"
+    },
+    {
+      "qid": "109-1-醫學一-生理學-Q60",
+      "reason": "keyword≠model (kw:cerebellar-function)"
+    },
+    {
+      "qid": "109-1-醫學一-生理學-Q61",
+      "reason": "keyword≠model (kw:cardiac-cycle-and-heart-sounds)"
+    },
+    {
+      "qid": "109-1-醫學一-生理學-Q67",
+      "reason": "keyword≠model (kw:cardiac-output-contractility-and-venous-return)"
+    },
+    {
+      "qid": "109-1-醫學一-生物化學-Q83",
+      "reason": "keyword≠model (kw:dna-replication-machinery-eukaryotic)"
+    },
+    {
+      "qid": "109-1-醫學二-公共衛生學-Q50",
+      "reason": "keyword≠model (kw:disease-frequency-measures)"
+    },
+    {
+      "qid": "109-1-醫學二-藥理學-Q52",
+      "reason": "keyword≠model (kw:sex-hormones-antagonists)"
+    },
+    {
+      "qid": "109-1-醫學二-藥理學-Q71",
+      "reason": "keyword≠model (kw:receptor-pharmacodynamics)"
+    },
+    {
+      "qid": "109-1-醫學二-病理學-Q81",
+      "reason": "keyword≠model (kw:breast-benign-lesions)"
+    },
+    {
+      "qid": "109-1-醫學二-病理學-Q92",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "109-1-醫學二-病理學-Q94",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "109-2-醫學一-解剖學-Q3",
+      "reason": "keyword≠model (kw:neck-vasculature-jugular-veins)"
+    },
+    {
+      "qid": "109-2-醫學一-解剖學-Q13",
+      "reason": "keyword≠model (kw:ear-tympanic-cavity-and-ossicles)"
+    },
+    {
+      "qid": "109-2-醫學一-解剖學-Q14",
+      "reason": "keyword≠model (kw:basal-ganglia-circuitry)"
+    },
+    {
+      "qid": "109-2-醫學一-解剖學-Q17",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "109-2-醫學一-解剖學-Q18",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "109-2-醫學一-胚胎學-Q32",
+      "reason": "keyword≠model (kw:gametogenesis-fertilization)"
+    },
+    {
+      "qid": "109-2-醫學一-組織學-Q43",
+      "reason": "keyword≠model (kw:vascular-histology-arteries-veins-capillaries)"
+    },
+    {
+      "qid": "109-2-醫學一-組織學-Q44",
+      "reason": "keyword≠model (kw:endocrine-system-histology)"
+    },
+    {
+      "qid": "109-2-醫學一-組織學-Q45",
+      "reason": "keyword≠model (kw:muscle-tissue-comparative-histology)"
+    },
+    {
+      "qid": "109-2-醫學一-生理學-Q52",
+      "reason": "keyword≠model (kw:visual-pathway-and-lesion-localization)"
+    },
+    {
+      "qid": "109-2-醫學一-生理學-Q56",
+      "reason": "keyword≠model (kw:vascular-hemodynamics-and-local-blood-flow-regulation)"
+    },
+    {
+      "qid": "109-2-醫學一-生理學-Q65",
+      "reason": "keyword≠model (kw:sodium-and-potassium-handling-along-nephron)"
+    },
+    {
+      "qid": "109-2-醫學一-生理學-Q71",
+      "reason": "keyword≠model (kw:growth-hormone-and-prolactin-regulation)"
+    },
+    {
+      "qid": "109-2-醫學一-生物化學-Q79",
+      "reason": "keyword≠model (kw:dna-repair-pathways)"
+    },
+    {
+      "qid": "109-2-醫學一-生物化學-Q80",
+      "reason": "keyword≠model (kw:genetic-code-wobble-hypothesis)"
+    },
+    {
+      "qid": "109-2-醫學一-生物化學-Q90",
+      "reason": "keyword≠model (kw:insulin-signaling-metabolic-effects)"
+    },
+    {
+      "qid": "109-2-醫學二-微生物暨免疫學-Q20",
+      "reason": "keyword≠model (kw:phagocytes-and-innate-effector-cells)"
+    },
+    {
+      "qid": "109-2-醫學二-寄生蟲學-Q31",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "109-2-醫學二-病理學-Q77",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "109-2-醫學二-病理學-Q87",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "110-1-醫學一-解剖學-Q1",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-1-醫學一-解剖學-Q4",
+      "reason": "keyword≠model (kw:bladder-anatomy-and-innervation)"
+    },
+    {
+      "qid": "110-1-醫學一-解剖學-Q19",
+      "reason": "keyword≠model (kw:neck-vasculature-jugular-veins)"
+    },
+    {
+      "qid": "110-1-醫學一-解剖學-Q20",
+      "reason": "keyword≠model (kw:bladder-anatomy-and-innervation)"
+    },
+    {
+      "qid": "110-1-醫學一-解剖學-Q27",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-1-醫學一-解剖學-Q30",
+      "reason": "keyword≠model (kw:musculocutaneous-nerve)"
+    },
+    {
+      "qid": "110-1-醫學一-胚胎學-Q36",
+      "reason": "keyword≠model (kw:neural-tube-development)"
+    },
+    {
+      "qid": "110-1-醫學一-生理學-Q57",
+      "reason": "keyword≠model (kw:cell-organelle-function-and-apoptosis)"
+    },
+    {
+      "qid": "110-1-醫學一-生理學-Q58",
+      "reason": "keyword≠model (kw:renal-autoregulation-and-tubuloglomerular-feedback)"
+    },
+    {
+      "qid": "110-1-醫學一-生理學-Q66",
+      "reason": "keyword≠model (kw:erythropoiesis-and-red-cell-physiology)"
+    },
+    {
+      "qid": "110-1-醫學一-生理學-Q70",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-1-醫學一-生物化學-Q74",
+      "reason": "keyword≠model (kw:amino-acid-derived-biogenic-molecules)"
+    },
+    {
+      "qid": "110-1-醫學一-生物化學-Q75",
+      "reason": "keyword≠model (kw:enzyme-kinetics-michaelis-menten)"
+    },
+    {
+      "qid": "110-1-醫學一-生物化學-Q79",
+      "reason": "keyword≠model (kw:pentose-phosphate-pathway)"
+    },
+    {
+      "qid": "110-1-醫學二-微生物暨免疫學-Q18",
+      "reason": "keyword≠model (kw:lymphoid-organs-and-cell-trafficking)"
+    },
+    {
+      "qid": "110-1-醫學二-公共衛生學-Q36",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-1-醫學二-藥理學-Q69",
+      "reason": "keyword≠model (kw:receptor-pharmacodynamics)"
+    },
+    {
+      "qid": "110-1-醫學二-病理學-Q88",
+      "reason": "keyword≠model (kw:skin-immunobullous-inflammatory)"
+    },
+    {
+      "qid": "110-1-醫學二-病理學-Q92",
+      "reason": "keyword≠model (kw:cellular-adaptation)"
+    },
+    {
+      "qid": "110-1-醫學二-病理學-Q96",
+      "reason": "keyword≠model (kw:testicular-germ-cell-tumors)"
+    },
+    {
+      "qid": "110-2-醫學一-解剖學-Q1",
+      "reason": "keyword≠model (kw:neck-vasculature-jugular-veins)"
+    },
+    {
+      "qid": "110-2-醫學一-解剖學-Q12",
+      "reason": "keyword≠model (kw:basal-ganglia-circuitry)"
+    },
+    {
+      "qid": "110-2-醫學一-解剖學-Q14",
+      "reason": "keyword≠model (kw:cerebellar-peduncles-afferent-efferent)"
+    },
+    {
+      "qid": "110-2-醫學一-解剖學-Q15",
+      "reason": "keyword≠model (kw:skull-foramina-and-cranial-fossae)"
+    },
+    {
+      "qid": "110-2-醫學一-解剖學-Q18",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-2-醫學一-解剖學-Q30",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-2-醫學一-組織學-Q39",
+      "reason": "keyword≠model (kw:cartilage-histology)"
+    },
+    {
+      "qid": "110-2-醫學一-組織學-Q40",
+      "reason": "keyword≠model (kw:endocrine-system-histology)"
+    },
+    {
+      "qid": "110-2-醫學一-生理學-Q47",
+      "reason": "keyword≠model (kw:skeletal-muscle-excitation-contraction-coupling)"
+    },
+    {
+      "qid": "110-2-醫學一-生理學-Q50",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-2-醫學一-生理學-Q58",
+      "reason": "keyword≠model (kw:calcium-phosphate-homeostasis-pth-vitamin-d)"
+    },
+    {
+      "qid": "110-2-醫學一-生理學-Q63",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-2-醫學一-生物化學-Q79",
+      "reason": "keyword≠model (kw:molecular-analysis-techniques)"
+    },
+    {
+      "qid": "110-2-醫學一-生物化學-Q90",
+      "reason": "keyword≠model (kw:enzyme-kinetics-michaelis-menten)"
+    },
+    {
+      "qid": "110-2-醫學一-生物化學-Q98",
+      "reason": "keyword≠model (kw:nuclear-receptor-steroid-hormone-signaling)"
+    },
+    {
+      "qid": "110-2-醫學一-生物化學-Q99",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "110-2-醫學二-微生物暨免疫學-Q13",
+      "reason": "keyword≠model (kw:orthomyxoviridae-influenza)"
+    },
+    {
+      "qid": "110-2-醫學二-寄生蟲學-Q35",
+      "reason": "keyword-fallback (model gave nothing)"
+    },
+    {
+      "qid": "110-2-醫學二-公共衛生學-Q49",
+      "reason": "keyword≠model (kw:physician-act-and-medical-practice-law)"
+    },
+    {
+      "qid": "110-2-醫學二-藥理學-Q65",
+      "reason": "keyword≠model (kw:antimuscarinic-genitourinary-eye)"
+    },
+    {
+      "qid": "110-2-醫學二-病理學-Q86",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "110-2-醫學二-病理學-Q99",
+      "reason": "keyword≠model (kw:congenital-heart-disease)"
+    },
+    {
+      "qid": "111-1-醫學一-解剖學-Q6",
+      "reason": "keyword≠model (kw:internal-capsule-vascular-supply)"
+    },
+    {
+      "qid": "111-1-醫學一-解剖學-Q9",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-1-醫學一-解剖學-Q11",
+      "reason": "keyword≠model (kw:oral-cavity-tongue-and-taste)"
+    },
+    {
+      "qid": "111-1-醫學一-解剖學-Q11",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-1-醫學一-解剖學-Q15",
+      "reason": "keyword≠model (kw:abdominal-autonomic-innervation)"
+    },
+    {
+      "qid": "111-1-醫學一-解剖學-Q19",
+      "reason": "keyword≠model (kw:thoracic-wall-and-intercostal-neurovascular-bundle)"
+    },
+    {
+      "qid": "111-1-醫學一-解剖學-Q24",
+      "reason": "keyword≠model (kw:bladder-anatomy-and-innervation)"
+    },
+    {
+      "qid": "111-1-醫學一-組織學-Q40",
+      "reason": "keyword≠model (kw:connective-tissue-proper-fibers-and-fibroblasts)"
+    },
+    {
+      "qid": "111-1-醫學一-生理學-Q59",
+      "reason": "keyword≠model (kw:synaptic-transmission-and-neurotransmitters)"
+    },
+    {
+      "qid": "111-1-醫學一-生理學-Q70",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "111-1-醫學一-生理學-Q71",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "111-1-醫學一-生物化學-Q80",
+      "reason": "keyword≠model (kw:antibiotics-nucleic-acid-protein-synthesis-inhibitors)"
+    },
+    {
+      "qid": "111-1-醫學一-生物化學-Q99",
+      "reason": "keyword≠model (kw:eukaryotic-transcription-factor-motifs)"
+    },
+    {
+      "qid": "111-1-醫學二-微生物暨免疫學-Q10",
+      "reason": "keyword≠model (kw:lymphoid-organs-and-cell-trafficking)"
+    },
+    {
+      "qid": "111-1-醫學二-微生物暨免疫學-Q20",
+      "reason": "keyword≠model (kw:innate-vs-adaptive-immunity-overview)"
+    },
+    {
+      "qid": "111-1-醫學二-公共衛生學-Q36",
+      "reason": "keyword≠model (kw:confidence-interval-hypothesis-testing)"
+    },
+    {
+      "qid": "111-1-醫學二-公共衛生學-Q43",
+      "reason": "keyword≠model (kw:air-quality-index-and-monitoring)"
+    },
+    {
+      "qid": "111-1-醫學二-公共衛生學-Q44",
+      "reason": "keyword≠model (kw:bias-confounding-effect-modification)"
+    },
+    {
+      "qid": "111-1-醫學二-公共衛生學-Q49",
+      "reason": "keyword≠model (kw:screening-test-validity)"
+    },
+    {
+      "qid": "111-1-醫學二-病理學-Q81",
+      "reason": "keyword≠model (kw:bone-tumors)"
+    },
+    {
+      "qid": "111-1-醫學二-病理學-Q89",
+      "reason": "keyword≠model (kw:cll-and-spleen-thymus-disorders)"
+    },
+    {
+      "qid": "111-1-醫學二-病理學-Q100",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-2-醫學一-解剖學-Q11",
+      "reason": "keyword≠model (kw:lymphatic-drainage-thorax-and-breast)"
+    },
+    {
+      "qid": "111-2-醫學一-解剖學-Q14",
+      "reason": "keyword≠model (kw:mediastinum-boundaries-and-contents)"
+    },
+    {
+      "qid": "111-2-醫學一-胚胎學-Q21",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-2-醫學一-胚胎學-Q32",
+      "reason": "keyword≠model (kw:cardiovascular-development)"
+    },
+    {
+      "qid": "111-2-醫學一-生理學-Q61",
+      "reason": "keyword≠model (kw:lung-volumes-and-capacities)"
+    },
+    {
+      "qid": "111-2-醫學一-生理學-Q62",
+      "reason": "keyword≠model (kw:capillary-fluid-exchange-and-lymphatics)"
+    },
+    {
+      "qid": "111-2-醫學一-生理學-Q66",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-2-醫學一-生物化學-Q70",
+      "reason": "keyword≠model (kw:calcium-phosphate-homeostasis-pth-vitamin-d)"
+    },
+    {
+      "qid": "111-2-醫學一-生理學-Q72",
+      "reason": "keyword≠model (kw:male-hpg-axis-and-disorders)"
+    },
+    {
+      "qid": "111-2-醫學一-生物化學-Q74",
+      "reason": "keyword≠model (kw:amino-acid-derived-biogenic-molecules)"
+    },
+    {
+      "qid": "111-2-醫學一-生物化學-Q78",
+      "reason": "keyword≠model (kw:water-soluble-vitamins-b-c)"
+    },
+    {
+      "qid": "111-2-醫學一-生物化學-Q96",
+      "reason": "keyword≠model (kw:protein-quaternary-structure-and-chaperones)"
+    },
+    {
+      "qid": "111-2-醫學二-微生物暨免疫學-Q12",
+      "reason": "keyword≠model (kw:viral-replication-antivirals-and-diagnostics)"
+    },
+    {
+      "qid": "111-2-醫學二-微生物暨免疫學-Q16",
+      "reason": "keyword≠model (kw:bacterial-metabolism-and-genetics)"
+    },
+    {
+      "qid": "111-2-醫學二-微生物暨免疫學-Q26",
+      "reason": "keyword≠model (kw:lymphoid-organs-and-cell-trafficking)"
+    },
+    {
+      "qid": "111-2-醫學二-微生物暨免疫學-Q28",
+      "reason": "keyword≠model (kw:lymphoid-organs-and-cell-trafficking)"
+    },
+    {
+      "qid": "111-2-醫學二-寄生蟲學-Q32",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-2-醫學二-公共衛生學-Q36",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-2-醫學二-藥理學-Q62",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "111-2-醫學二-病理學-Q82",
+      "reason": "keyword≠model (kw:gestational-trophoblastic-disease)"
+    },
+    {
+      "qid": "111-2-醫學二-病理學-Q87",
+      "reason": "keyword≠model (kw:wound-healing-fibrosis)"
+    },
+    {
+      "qid": "111-2-醫學二-病理學-Q89",
+      "reason": "keyword≠model (kw:tumor-biology-hallmarks)"
+    },
+    {
+      "qid": "111-2-醫學二-病理學-Q90",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "111-2-醫學二-病理學-Q100",
+      "reason": "keyword≠model (kw:myocardial-infarction)"
+    },
+    {
+      "qid": "112-1-醫學一-解剖學-Q1",
+      "reason": "keyword≠model (kw:auditory-pathway-and-nuclei)"
+    },
+    {
+      "qid": "112-1-醫學一-解剖學-Q5",
+      "reason": "keyword≠model (kw:cerebral-arterial-territories)"
+    },
+    {
+      "qid": "112-1-醫學一-解剖學-Q7",
+      "reason": "keyword≠model (kw:bladder-anatomy-and-innervation)"
+    },
+    {
+      "qid": "112-1-醫學一-胚胎學-Q34",
+      "reason": "keyword-fallback (model gave nothing)"
+    },
+    {
+      "qid": "112-1-醫學一-生理學-Q35",
+      "reason": "keyword≠model (kw:germ-layers-gastrulation)"
+    },
+    {
+      "qid": "112-1-醫學一-組織學-Q38",
+      "reason": "keyword≠model (kw:special-senses-eye-and-ear-histology)"
+    },
+    {
+      "qid": "112-1-醫學一-生理學-Q53",
+      "reason": "keyword≠model (kw:gastric-acid-secretion-and-regulation)"
+    },
+    {
+      "qid": "112-1-醫學一-生理學-Q56",
+      "reason": "keyword≠model (kw:smooth-muscle-physiology-and-muscle-type-comparison)"
+    },
+    {
+      "qid": "112-1-醫學一-生理學-Q68",
+      "reason": "keyword≠model (kw:adh-regulation-water-balance-and-osmolarity-disorders)"
+    },
+    {
+      "qid": "112-1-醫學一-生理學-Q71",
+      "reason": "keyword≠model (kw:smooth-muscle-physiology-and-muscle-type-comparison)"
+    },
+    {
+      "qid": "112-1-醫學一-生理學-Q73",
+      "reason": "keyword≠model (kw:pregnancy-labor-and-lactation-physiology)"
+    },
+    {
+      "qid": "112-1-醫學一-生物化學-Q85",
+      "reason": "keyword≠model (kw:translation-initiation-mechanism)"
+    },
+    {
+      "qid": "112-1-醫學一-生物化學-Q90",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "112-1-醫學二-微生物暨免疫學-Q19",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "112-1-醫學二-微生物暨免疫學-Q22",
+      "reason": "keyword≠model (kw:type-i-interferon-antiviral-response)"
+    },
+    {
+      "qid": "112-1-醫學二-寄生蟲學-Q30",
+      "reason": "keyword≠model (kw:paragonimiasis-and-ectopic-lesions)"
+    },
+    {
+      "qid": "112-1-醫學二-藥理學-Q61",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "112-1-醫學二-病理學-Q84",
+      "reason": "keyword≠model (kw:tumor-biology-hallmarks)"
+    },
+    {
+      "qid": "112-1-醫學二-病理學-Q84",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "112-1-醫學二-病理學-Q92",
+      "reason": "keyword≠model (kw:wound-healing-fibrosis)"
+    },
+    {
+      "qid": "112-2-醫學一-解剖學-Q8",
+      "reason": "keyword≠model (kw:neck-vasculature-jugular-veins)"
+    },
+    {
+      "qid": "112-2-醫學一-解剖學-Q8",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "112-2-醫學一-解剖學-Q18",
+      "reason": "keyword≠model (kw:inferior-vena-cava-and-tributaries)"
+    },
+    {
+      "qid": "112-2-醫學一-生理學-Q70",
+      "reason": "keyword≠model (kw:insulin-secretion-action-and-energy-metabolism)"
+    },
+    {
+      "qid": "112-2-醫學一-生物化學-Q77",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "112-2-醫學一-生物化學-Q79",
+      "reason": "keyword≠model (kw:urea-cycle-ammonia-transport)"
+    },
+    {
+      "qid": "112-2-醫學一-生物化學-Q80",
+      "reason": "keyword≠model (kw:dna-replication-machinery-ecoli)"
+    },
+    {
+      "qid": "112-2-醫學一-生物化學-Q94",
+      "reason": "keyword≠model (kw:protein-post-translational-modification)"
+    },
+    {
+      "qid": "112-2-醫學二-微生物暨免疫學-Q3",
+      "reason": "keyword≠model (kw:bacterial-metabolism-and-genetics)"
+    },
+    {
+      "qid": "112-2-醫學二-公共衛生學-Q36",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "112-2-醫學二-公共衛生學-Q44",
+      "reason": "keyword≠model (kw:social-determinants-of-health)"
+    },
+    {
+      "qid": "112-2-醫學二-藥理學-Q65",
+      "reason": "keyword≠model (kw:antimuscarinic-genitourinary-eye)"
+    },
+    {
+      "qid": "112-2-醫學二-病理學-Q80",
+      "reason": "keyword≠model (kw:bleeding-disorders-coagulopathy)"
+    },
+    {
+      "qid": "112-2-醫學二-病理學-Q98",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-1-醫學一-解剖學-Q3",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-1-醫學一-解剖學-Q6",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-1-醫學一-解剖學-Q11",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-1-醫學一-組織學-Q43",
+      "reason": "keyword≠model (kw:lymphoid-organs-histology)"
+    },
+    {
+      "qid": "113-1-醫學一-生理學-Q49",
+      "reason": "keyword≠model (kw:somatosensory-pathways-and-referred-pain)"
+    },
+    {
+      "qid": "113-1-醫學一-生理學-Q68",
+      "reason": "keyword≠model (kw:pregnancy-labor-and-lactation-physiology)"
+    },
+    {
+      "qid": "113-1-醫學一-生理學-Q69",
+      "reason": "keyword≠model (kw:cortisol-actions-cushing-syndrome-and-circadian-regulation)"
+    },
+    {
+      "qid": "113-1-醫學一-生理學-Q73",
+      "reason": "keyword≠model (kw:ovarian-folliculogenesis-and-oogenesis)"
+    },
+    {
+      "qid": "113-1-醫學一-生物化學-Q77",
+      "reason": "keyword≠model (kw:protein-secondary-tertiary-structure-and-folding)"
+    },
+    {
+      "qid": "113-1-醫學一-生物化學-Q86",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "113-1-醫學二-寄生蟲學-Q29",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-1-醫學二-寄生蟲學-Q30",
+      "reason": "keyword≠model (kw:angiostrongyliasis-and-larva-migrans)"
+    },
+    {
+      "qid": "113-1-醫學二-寄生蟲學-Q35",
+      "reason": "keyword≠model (kw:scrub-typhus-chigger-mite)"
+    },
+    {
+      "qid": "113-1-醫學二-公共衛生學-Q37",
+      "reason": "keyword≠model (kw:t-test-anova)"
+    },
+    {
+      "qid": "113-1-醫學二-藥理學-Q66",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-1-醫學二-藥理學-Q70",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "113-1-醫學二-病理學-Q76",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "113-1-醫學二-病理學-Q79",
+      "reason": "keyword≠model (kw:acute-inflammation-mediators)"
+    },
+    {
+      "qid": "113-1-醫學二-病理學-Q82",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "113-1-醫學二-病理學-Q94",
+      "reason": "keyword≠model (kw:chromosomal-numerical-disorders)"
+    },
+    {
+      "qid": "113-1-醫學二-病理學-Q96",
+      "reason": "keyword≠model (kw:gestational-trophoblastic-disease)"
+    },
+    {
+      "qid": "113-2-醫學一-解剖學-Q3",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-2-醫學一-解剖學-Q7",
+      "reason": "keyword≠model (kw:neck-vasculature-jugular-veins)"
+    },
+    {
+      "qid": "113-2-醫學一-解剖學-Q8",
+      "reason": "keyword≠model (kw:cerebellar-peduncles-afferent-efferent)"
+    },
+    {
+      "qid": "113-2-醫學一-解剖學-Q13",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-2-醫學一-解剖學-Q18",
+      "reason": "keyword≠model (kw:thoracic-wall-and-intercostal-neurovascular-bundle)"
+    },
+    {
+      "qid": "113-2-醫學一-解剖學-Q19",
+      "reason": "keyword≠model (kw:abdominal-aorta-branches)"
+    },
+    {
+      "qid": "113-2-醫學一-解剖學-Q25",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-2-醫學一-組織學-Q47",
+      "reason": "keyword≠model (kw:capillary-fluid-exchange-and-lymphatics)"
+    },
+    {
+      "qid": "113-2-醫學一-生理學-Q49",
+      "reason": "keyword≠model (kw:menstrual-cycle-and-menopause-physiology)"
+    },
+    {
+      "qid": "113-2-醫學一-生理學-Q70",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "113-2-醫學一-生物化學-Q85",
+      "reason": "keyword≠model (kw:transcription-rna-polymerase-mechanism)"
+    },
+    {
+      "qid": "113-2-醫學一-生物化學-Q90",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-2-醫學一-生物化學-Q93",
+      "reason": "keyword≠model (kw:fatty-acid-beta-oxidation)"
+    },
+    {
+      "qid": "113-2-醫學二-微生物暨免疫學-Q12",
+      "reason": "keyword-fallback (model gave nothing)"
+    },
+    {
+      "qid": "113-2-醫學二-微生物暨免疫學-Q21",
+      "reason": "keyword≠model (kw:self-tolerance-central-and-peripheral)"
+    },
+    {
+      "qid": "113-2-醫學二-微生物暨免疫學-Q23",
+      "reason": "keyword≠model (kw:mucosal-immunity-iga-and-microbiota)"
+    },
+    {
+      "qid": "113-2-醫學二-公共衛生學-Q42",
+      "reason": "keyword≠model (kw:water-quality-and-treatment)"
+    },
+    {
+      "qid": "113-2-醫學二-公共衛生學-Q44",
+      "reason": "keyword≠model (kw:social-determinants-of-health)"
+    },
+    {
+      "qid": "113-2-醫學二-藥理學-Q58",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "113-2-醫學二-藥理學-Q60",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "113-2-醫學二-病理學-Q79",
+      "reason": "keyword≠model (kw:hodgkin-lymphoma)"
+    },
+    {
+      "qid": "113-2-醫學二-病理學-Q90",
+      "reason": "keyword≠model (kw:autoimmune-connective-tissue-disease)"
+    },
+    {
+      "qid": "114-1-醫學一-解剖學-Q2",
+      "reason": "keyword≠model (kw:cerebral-arterial-territories)"
+    },
+    {
+      "qid": "114-1-醫學一-解剖學-Q11",
+      "reason": "keyword≠model (kw:orbit-and-extraocular-muscles)"
+    },
+    {
+      "qid": "114-1-醫學一-解剖學-Q25",
+      "reason": "keyword≠model (kw:penile-and-clitoral-erectile-anatomy)"
+    },
+    {
+      "qid": "114-1-醫學一-組織學-Q38",
+      "reason": "keyword≠model (kw:digestive-system-salivary-glands)"
+    },
+    {
+      "qid": "114-1-醫學一-組織學-Q41",
+      "reason": "keyword≠model (kw:respiratory-system-histology)"
+    },
+    {
+      "qid": "114-1-醫學一-生理學-Q48",
+      "reason": "keyword≠model (kw:visual-pathway-and-lesion-localization)"
+    },
+    {
+      "qid": "114-1-醫學一-生理學-Q55",
+      "reason": "keyword≠model (kw:skeletal-muscle-mechanics-and-energetics)"
+    },
+    {
+      "qid": "114-1-醫學一-生理學-Q62",
+      "reason": "keyword≠model (kw:renal-autoregulation-and-tubuloglomerular-feedback)"
+    },
+    {
+      "qid": "114-1-醫學一-生物化學-Q81",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "114-1-醫學一-生物化學-Q84",
+      "reason": "keyword≠model (kw:pcr-sequencing-molecular-techniques)"
+    },
+    {
+      "qid": "114-1-醫學一-生物化學-Q100",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "114-1-醫學二-微生物暨免疫學-Q13",
+      "reason": "keyword≠model (kw:other-dna-viruses-pox-adeno)"
+    },
+    {
+      "qid": "114-1-醫學二-寄生蟲學-Q35",
+      "reason": "keyword≠model (kw:scrub-typhus-chigger-mite)"
+    },
+    {
+      "qid": "114-1-醫學二-公共衛生學-Q45",
+      "reason": "keyword≠model (kw:health-promotion-program-evaluation)"
+    },
+    {
+      "qid": "114-1-醫學二-病理學-Q86",
+      "reason": "keyword≠model (kw:acute-inflammation-mediators)"
+    },
+    {
+      "qid": "114-2-醫學一-解剖學-Q7",
+      "reason": "keyword≠model (kw:facial-nerve-branches-and-parasympathetic)"
+    },
+    {
+      "qid": "114-2-醫學一-解剖學-Q10",
+      "reason": "keyword≠model (kw:vagus-nerve-and-recurrent-laryngeal-nerve)"
+    },
+    {
+      "qid": "114-2-醫學一-解剖學-Q18",
+      "reason": "keyword≠model (kw:cardiac-chambers-and-surfaces)"
+    },
+    {
+      "qid": "114-2-醫學一-解剖學-Q22",
+      "reason": "keyword≠model (kw:neck-triangles-and-cervical-fascia)"
+    },
+    {
+      "qid": "114-2-醫學一-胚胎學-Q35",
+      "reason": "keyword≠model (kw:neural-tube-development)"
+    },
+    {
+      "qid": "114-2-醫學一-生理學-Q59",
+      "reason": "keyword≠model (kw:sensory-receptor-coding-and-adaptation)"
+    },
+    {
+      "qid": "114-2-醫學一-生理學-Q70",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q74",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q77",
+      "reason": "keyword≠model (kw:amino-acid-structure-properties)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q78",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q80",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q84",
+      "reason": "keyword≠model (kw:dna-replication-machinery-eukaryotic)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q87",
+      "reason": "keyword≠model (kw:enzyme-kinetics-michaelis-menten)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q93",
+      "reason": "keyword≠model (kw:eukaryotic-transcription-factor-motifs)"
+    },
+    {
+      "qid": "114-2-醫學一-生物化學-Q100",
+      "reason": "keyword≠model (kw:amino-acid-structure-properties)"
+    },
+    {
+      "qid": "114-2-醫學二-微生物暨免疫學-Q25",
+      "reason": "keyword≠model (kw:self-tolerance-central-and-peripheral)"
+    },
+    {
+      "qid": "114-2-醫學二-公共衛生學-Q26",
+      "reason": "keyword≠model (kw:innate-vs-adaptive-immunity-overview)"
+    },
+    {
+      "qid": "114-2-醫學二-公共衛生學-Q36",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "114-2-醫學二-公共衛生學-Q45",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "114-2-醫學二-藥理學-Q60",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "114-2-醫學二-病理學-Q86",
+      "reason": "keyword≠model (kw:atherosclerosis)"
+    },
+    {
+      "qid": "114-2-醫學二-病理學-Q95",
+      "reason": "keyword≠model (kw:bone-tumors)"
+    },
+    {
+      "qid": "115-1-醫學一-解剖學-Q7",
+      "reason": "keyword≠model (kw:facial-nerve-branches-and-parasympathetic)"
+    },
+    {
+      "qid": "115-1-醫學一-解剖學-Q9",
+      "reason": "keyword≠model (kw:vagus-nerve-and-recurrent-laryngeal-nerve)"
+    },
+    {
+      "qid": "115-1-醫學一-解剖學-Q11",
+      "reason": "keyword≠model (kw:bladder-anatomy-and-innervation)"
+    },
+    {
+      "qid": "115-1-醫學一-解剖學-Q20",
+      "reason": "keyword≠model (kw:brainstem-vascular-syndromes)"
+    },
+    {
+      "qid": "115-1-醫學一-解剖學-Q27",
+      "reason": "keyword≠model (kw:spinal-cord-ascending-sensory-tracts)"
+    },
+    {
+      "qid": "115-1-醫學一-胚胎學-Q35",
+      "reason": "keyword≠model (kw:limb-axial-musculoskeletal-development)"
+    },
+    {
+      "qid": "115-1-醫學一-生理學-Q47",
+      "reason": "keyword≠model (kw:countercurrent-mechanism-and-urine-concentration)"
+    },
+    {
+      "qid": "115-1-醫學一-生理學-Q48",
+      "reason": "keyword≠model (kw:synaptic-transmission-and-neurotransmitters)"
+    },
+    {
+      "qid": "115-1-醫學一-生理學-Q63",
+      "reason": "keyword≠model (kw:countercurrent-mechanism-and-urine-concentration)"
+    },
+    {
+      "qid": "115-1-醫學一-生理學-Q67",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "115-1-醫學一-生物化學-Q84",
+      "reason": "keyword≠model (kw:nucleotide-coenzyme-derivatives)"
+    },
+    {
+      "qid": "115-1-醫學一-生物化學-Q87",
+      "reason": "keyword≠model (kw:rna-processing-splicing-stability)"
+    },
+    {
+      "qid": "115-1-醫學一-生物化學-Q92",
+      "reason": "keyword≠model (kw:purine-pyrimidine-nucleotide-metabolism)"
+    },
+    {
+      "qid": "115-1-醫學一-生物化學-Q94",
+      "reason": "keyword≠model (kw:fatty-acid-beta-oxidation)"
+    },
+    {
+      "qid": "115-1-醫學一-生物化學-Q99",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "115-1-醫學二-微生物暨免疫學-Q4",
+      "reason": "keyword≠model (kw:type-i-interferon-antiviral-response)"
+    },
+    {
+      "qid": "115-1-醫學二-微生物暨免疫學-Q12",
+      "reason": "keyword≠model (kw:bacterial-structure-and-cell-envelope)"
+    },
+    {
+      "qid": "115-1-醫學二-微生物暨免疫學-Q28",
+      "reason": "keyword≠model (kw:autoimmune-biologics-and-immunotherapy)"
+    },
+    {
+      "qid": "115-1-醫學二-公共衛生學-Q45",
+      "reason": "keyword≠model (kw:healthy-settings-community-health-literacy)"
+    },
+    {
+      "qid": "115-1-醫學二-藥理學-Q52",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "115-1-醫學二-藥理學-Q68",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "115-1-醫學二-病理學-Q81",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "115-1-醫學二-病理學-Q86",
+      "reason": "keyword≠model (kw:non-hodgkin-lymphoma)"
+    },
+    {
+      "qid": "115-1-醫學二-病理學-Q88",
+      "reason": "keyword≠model (kw:wound-healing-fibrosis)"
+    },
+    {
+      "qid": "115-1-醫學二-病理學-Q90",
+      "reason": "keyword≠model (kw:shock-infarct)"
+    }
+  ],
+  "coldLeaves": []
+}

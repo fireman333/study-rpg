@@ -1,0 +1,1971 @@
+{
+  "subjectId": "生理學",
+  "questionCount": 612,
+  "targetConceptCount": 61,
+  "concepts": [
+    {
+      "id": "membrane-potential-and-equilibrium",
+      "zh": "膜電位與離子平衡電位",
+      "en": "membrane potential and ion equilibrium potential",
+      "chapterId": "cell-physiology",
+      "synonyms": [
+        "Nernst equation",
+        "electrochemical equilibrium",
+        "resting membrane potential",
+        "graded potential"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q1",
+        "104-1-醫學二-生理學-Q2",
+        "110-2-醫學一-生理學-Q53",
+        "111-2-醫學一-生理學-Q53",
+        "113-1-醫學一-生理學-Q53"
+      ]
+    },
+    {
+      "id": "membrane-transport-mechanisms",
+      "zh": "膜運輸機制",
+      "en": "membrane transport mechanisms (diffusion, active transport, osmosis)",
+      "chapterId": "cell-physiology",
+      "synonyms": [
+        "simple diffusion",
+        "facilitated diffusion",
+        "primary active transport",
+        "secondary active transport",
+        "cotransporter",
+        "countertransport",
+        "osmosis",
+        "tonicity",
+        "hypertonic solution"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "108-1-醫學一-生理學-Q47",
+        "110-1-醫學一-生理學-Q48",
+        "112-2-醫學一-生理學-Q47",
+        "114-2-醫學一-生理學-Q47",
+        "115-1-醫學一-生理學-Q47",
+        "111-1-醫學一-生理學-Q47",
+        "111-1-醫學一-生理學-Q53",
+        "114-2-醫學一-生理學-Q47"
+      ]
+    },
+    {
+      "id": "cell-membrane-composition-and-fluidity",
+      "zh": "細胞膜組成與流動性",
+      "en": "cell membrane composition and fluidity",
+      "chapterId": "cell-physiology",
+      "synonyms": [
+        "cholesterol",
+        "phospholipid",
+        "membrane fluidity",
+        "lipid bilayer"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "106-1-醫學二-生理學-Q1",
+        "111-2-醫學一-生理學-Q47",
+        "113-1-醫學一-生理學-Q47"
+      ]
+    },
+    {
+      "id": "cell-organelle-function-and-apoptosis",
+      "zh": "胞器功能與細胞凋亡",
+      "en": "organelle function and apoptosis",
+      "chapterId": "cell-physiology",
+      "synonyms": [
+        "mitochondrion",
+        "electron transport chain",
+        "Golgi apparatus",
+        "microtubule",
+        "cytoskeleton",
+        "細胞凋亡",
+        "apoptosis",
+        "programmed cell death",
+        "caspase",
+        "DNA fragmentation"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q1",
+        "106-1-醫學二-生理學-Q20",
+        "112-1-醫學一-生理學-Q47",
+        "108-1-醫學一-生理學-Q69",
+        "109-1-醫學一-生理學-Q47"
+      ]
+    },
+    {
+      "id": "astrocyte-and-glial-function",
+      "zh": "星狀膠細胞與神經膠細胞功能",
+      "en": "astrocyte and glial cell function",
+      "chapterId": "cell-physiology",
+      "synonyms": [
+        "astrocyte",
+        "glial cell",
+        "blood-brain barrier"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q6",
+        "108-2-醫學一-藥理學-Q48",
+        "114-2-醫學一-微生物暨免疫學-Q51"
+      ]
+    },
+    {
+      "id": "enzyme-kinetics-and-catalysis",
+      "zh": "酵素動力學與催化反應",
+      "en": "enzyme kinetics and catalysis (Michaelis-Menten)",
+      "chapterId": "cell-physiology",
+      "synonyms": [
+        "Michaelis-Menten equation",
+        "zero-order reaction",
+        "enzyme catalysis"
+      ],
+      "estTestedSittings": 1,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "111-1-醫學一-生理學-Q74",
+        "111-1-醫學一-生理學-Q75"
+      ],
+      "note": "bottom-up：生化交界題，語料明確歸屬於生理學考卷細胞生理段落"
+    },
+    {
+      "id": "synaptic-transmission-and-neurotransmitters",
+      "zh": "突觸傳遞與神經傳導物質受體",
+      "en": "synaptic transmission and neurotransmitter receptors",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "synapse",
+        "acetylcholine",
+        "nicotinic receptor",
+        "muscarinic receptor",
+        "GABA",
+        "glycine",
+        "catecholamine",
+        "serotonin",
+        "glutamate",
+        "NMDA receptor",
+        "AMPA receptor",
+        "metabotropic receptor",
+        "synaptic vesicle",
+        "quantal release",
+        "SNARE protein",
+        "botulinum toxin",
+        "monoamine oxidase inhibitor"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 26,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q3",
+        "110-2-醫學一-生理學-Q54",
+        "111-1-醫學一-生理學-Q54",
+        "111-1-醫學一-生理學-Q55",
+        "111-2-醫學一-生理學-Q54",
+        "112-2-醫學一-生理學-Q52",
+        "112-2-醫學一-生理學-Q53",
+        "113-2-醫學一-生理學-Q51",
+        "113-2-醫學一-生理學-Q52",
+        "114-2-醫學一-生理學-Q52",
+        "115-1-醫學一-生理學-Q54",
+        "112-1-醫學一-生理學-Q53"
+      ]
+    },
+    {
+      "id": "autonomic-nervous-system-organization-and-effects",
+      "zh": "自律神經系統組織與效應",
+      "en": "autonomic nervous system organization and effects",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "sympathetic nervous system",
+        "parasympathetic nervous system",
+        "preganglionic neuron",
+        "postganglionic neuron",
+        "adrenergic receptor",
+        "cholinergic receptor",
+        "adrenal medulla"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "106-1-醫學二-生理學-Q3",
+        "106-2-醫學一-生理學-Q47",
+        "106-2-醫學一-生理學-Q49",
+        "111-1-醫學一-生理學-Q59",
+        "112-2-醫學一-生理學-Q50",
+        "113-1-醫學一-生理學-Q49",
+        "113-1-醫學一-生理學-Q50",
+        "114-1-醫學一-生理學-Q52",
+        "114-2-醫學一-微生物暨免疫學-Q51",
+        "115-1-醫學一-生理學-Q50",
+        "114-1-醫學一-生理學-Q49",
+        "113-2-醫學一-生理學-Q48",
+        "115-1-醫學一-生理學-Q48",
+        "115-1-醫學一-生理學-Q51"
+      ]
+    },
+    {
+      "id": "sensory-receptor-coding-and-adaptation",
+      "zh": "感覺受器編碼與適應",
+      "en": "sensory receptor coding and adaptation",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "frequency coding of action potential",
+        "lateral inhibition",
+        "receptive field",
+        "rapid adaptation",
+        "slow adaptation",
+        "Pacinian corpuscle"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q4",
+        "106-1-醫學二-生理學-Q5",
+        "105-1-醫學二-生理學-Q3",
+        "111-1-醫學一-生理學-Q50"
+      ]
+    },
+    {
+      "id": "somatosensory-pathways-and-referred-pain",
+      "zh": "體感覺傳導路徑（背柱／脊髓丘腦徑）與轉移痛",
+      "en": "somatosensory pathways (dorsal column, anterolateral) and referred pain",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "dorsal column-medial lemniscal system",
+        "anterolateral system",
+        "spinothalamic tract",
+        "thalamic relay nucleus",
+        "referred pain",
+        "fast pain",
+        "slow pain",
+        "A-delta fiber",
+        "C fiber"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q4",
+        "106-2-醫學一-生理學-Q48",
+        "109-1-醫學一-生理學-Q51",
+        "109-1-醫學一-生理學-Q54",
+        "110-2-醫學一-生理學-Q50",
+        "112-2-醫學一-生理學-Q54",
+        "105-2-醫學二-生理學-Q6",
+        "109-1-醫學一-生理學-Q52",
+        "113-2-醫學一-生理學-Q53"
+      ]
+    },
+    {
+      "id": "motor-control-hierarchy-and-motor-neuron-disorders",
+      "zh": "運動控制階層、皮質脊髓徑與運動神經元病變",
+      "en": "motor control hierarchy, corticospinal pathways, and motor neuron disorders",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "corticospinal tract",
+        "皮質脊髓束",
+        "reticulospinal tract",
+        "rubrospinal tract",
+        "basal ganglia",
+        "premotor cortex",
+        "supplementary motor area",
+        "primary motor cortex",
+        "posterior parietal cortex",
+        "上／下運動神經元病變與去大腦僵直",
+        "upper and lower motor neuron disorders and decerebrate rigidity",
+        "amyotrophic lateral sclerosis",
+        "myasthenia gravis",
+        "decerebrate posturing",
+        "Parkinson's disease",
+        "Huntington's disease"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 21,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q5",
+        "105-1-醫學二-生理學-Q6",
+        "107-1-醫學一-生理學-Q53",
+        "105-2-醫學二-生理學-Q4",
+        "106-2-醫學一-生理學-Q50",
+        "106-2-醫學一-生理學-Q51",
+        "107-1-醫學一-生理學-Q51",
+        "107-1-醫學一-生理學-Q52",
+        "109-2-醫學一-生理學-Q50",
+        "110-1-醫學一-生理學-Q52"
+      ]
+    },
+    {
+      "id": "cerebellar-function",
+      "zh": "小腦功能",
+      "en": "cerebellar function",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "cerebellar cortex",
+        "Purkinje cell",
+        "granule cell",
+        "spinocerebellar pathway",
+        "vestibulocerebellar pathway",
+        "intention tremor",
+        "dysmetria"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q5",
+        "106-1-醫學二-生理學-Q6",
+        "108-2-醫學一-生理學-Q51",
+        "108-2-醫學一-生理學-Q52"
+      ]
+    },
+    {
+      "id": "proprioception-and-spinal-reflexes",
+      "zh": "本體感覺與脊髓反射（肌梭／高爾基腱器／牽張反射）",
+      "en": "proprioception and spinal reflexes (muscle spindle, Golgi tendon organ, stretch reflex)",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "muscle spindle",
+        "Golgi tendon organ",
+        "Ia fiber",
+        "Ib fiber",
+        "gamma motor neuron",
+        "alpha-gamma coactivation",
+        "脊髓反射（牽張反射／屈曲交叉伸肌反射）",
+        "spinal reflexes (stretch reflex, flexor-crossed extensor reflex)",
+        "stretch reflex",
+        "knee jerk reflex",
+        "withdrawal reflex",
+        "crossed extensor reflex",
+        "monosynaptic reflex"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q5",
+        "110-1-醫學一-生理學-Q51",
+        "110-1-醫學一-生理學-Q53",
+        "112-1-醫學一-生理學-Q51",
+        "113-1-醫學一-生理學-Q56",
+        "109-1-醫學一-生理學-Q55",
+        "113-2-醫學一-生理學-Q54"
+      ]
+    },
+    {
+      "id": "vision-retina-and-phototransduction",
+      "zh": "視覺：視網膜與光傳導",
+      "en": "vision: retina and phototransduction",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "photoreceptor",
+        "rod cell",
+        "cone cell",
+        "phototransduction",
+        "cGMP",
+        "transducin",
+        "rhodopsin",
+        "dark adaptation",
+        "light adaptation",
+        "color vision",
+        "receptive field of retinal cells"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q6",
+        "107-2-醫學一-生理學-Q48",
+        "107-2-醫學一-生理學-Q49",
+        "107-2-醫學一-生理學-Q47",
+        "108-1-醫學一-生理學-Q50",
+        "113-1-醫學一-生理學-Q48",
+        "112-2-醫學一-生理學-Q48",
+        "115-1-醫學一-生理學-Q49"
+      ]
+    },
+    {
+      "id": "visual-pathway-and-lesion-localization",
+      "zh": "視覺傳導路徑與病灶定位",
+      "en": "visual pathway and lesion localization",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "optic nerve",
+        "optic chiasm",
+        "optic tract",
+        "lateral geniculate nucleus",
+        "visual field defect",
+        "bitemporal hemianopia",
+        "optic disc",
+        "scotoma"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "106-1-醫學二-生理學-Q2",
+        "107-1-醫學一-生理學-Q47",
+        "107-1-醫學一-生理學-Q49",
+        "107-2-醫學一-生理學-Q53",
+        "109-1-醫學一-生理學-Q50",
+        "109-2-醫學一-生理學-Q72",
+        "110-2-醫學一-生理學-Q48",
+        "111-2-醫學一-生理學-Q48",
+        "112-1-醫學一-生理學-Q50",
+        "113-2-醫學一-生理學-Q53"
+      ]
+    },
+    {
+      "id": "hearing-and-vestibular-function",
+      "zh": "聽覺與前庭平衡功能",
+      "en": "hearing and vestibular function",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "cochlea",
+        "organ of Corti",
+        "basilar membrane",
+        "hair cell",
+        "central auditory pathway",
+        "tympanic membrane",
+        "middle ear ossicles",
+        "前庭系統與平衡",
+        "vestibular system and balance",
+        "semicircular canal",
+        "utricle",
+        "saccule",
+        "vestibular apparatus",
+        "nystagmus",
+        "vertigo"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q4",
+        "104-2-醫學二-生理學-Q3",
+        "105-1-醫學二-生理學-Q2",
+        "106-1-醫學二-生理學-Q4",
+        "106-2-醫學一-生理學-Q52",
+        "107-2-醫學一-生理學-Q51",
+        "112-1-醫學一-生理學-Q54",
+        "111-2-醫學一-生理學-Q49",
+        "109-2-醫學一-生理學-Q47",
+        "109-2-醫學一-生理學-Q51"
+      ]
+    },
+    {
+      "id": "olfaction-and-gustation",
+      "zh": "嗅覺與味覺",
+      "en": "olfaction and gustation",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "olfactory receptor",
+        "olfactory epithelium",
+        "olfactory bulb",
+        "taste bud",
+        "umami taste",
+        "gustatory pathway"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "108-1-醫學一-生理學-Q48",
+        "109-1-醫學一-生理學-Q49",
+        "109-1-醫學一-生理學-Q52",
+        "109-2-醫學一-生理學-Q49",
+        "106-2-醫學一-生理學-Q53",
+        "114-1-醫學一-生理學-Q47"
+      ]
+    },
+    {
+      "id": "hypothalamic-regulatory-functions",
+      "zh": "下視丘調節功能（體溫／生物時鐘／口渴）",
+      "en": "hypothalamic regulatory functions (thermoregulation, circadian rhythm, thirst)",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "suprachiasmatic nucleus",
+        "preoptic nucleus",
+        "thermoregulation",
+        "circadian rhythm",
+        "thirst",
+        "osmoreceptor"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "105-2-醫學二-生理學-Q3",
+        "105-2-醫學二-生理學-Q17",
+        "107-1-醫學一-生理學-Q50",
+        "109-2-醫學一-生理學-Q52",
+        "110-1-醫學一-生理學-Q50",
+        "111-1-醫學一-生理學-Q72",
+        "111-2-醫學一-生理學-Q52",
+        "111-2-醫學一-生理學-Q67",
+        "114-1-醫學一-生理學-Q48"
+      ]
+    },
+    {
+      "id": "sleep-stages-and-eeg",
+      "zh": "睡眠週期與腦電圖",
+      "en": "sleep stages and EEG",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "REM sleep",
+        "non-REM sleep",
+        "EEG",
+        "alpha rhythm",
+        "beta rhythm",
+        "K complex",
+        "reticular activating system"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q2",
+        "107-2-醫學一-生理學-Q50",
+        "110-2-醫學一-生理學-Q51",
+        "111-2-醫學一-生理學-Q51",
+        "114-1-醫學一-生理學-Q51",
+        "114-1-醫學一-生理學-Q54"
+      ]
+    },
+    {
+      "id": "higher-cortical-and-limbic-function",
+      "zh": "高階皮質與邊緣系統功能（語言／記憶／情緒酬賞）",
+      "en": "higher cortical and limbic function (language, memory, emotion/reward)",
+      "chapterId": "nerve-physiology",
+      "synonyms": [
+        "Broca's area",
+        "Wernicke's area",
+        "aphasia",
+        "hippocampus",
+        "amnesia",
+        "explicit memory",
+        "implicit memory",
+        "corpus callosum",
+        "visual neglect",
+        "anterograde amnesia",
+        "retrograde amnesia",
+        "情緒與酬賞動機神經環路",
+        "emotion, reward, and motivation circuits",
+        "amygdala",
+        "mesolimbic dopamine pathway",
+        "reward",
+        "reinforcer"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "109-2-醫學一-生理學-Q48",
+        "111-1-醫學一-生理學-Q52",
+        "111-1-醫學一-生理學-Q53",
+        "112-1-醫學一-生理學-Q49",
+        "112-1-醫學一-生理學-Q50",
+        "112-2-醫學一-生理學-Q51",
+        "113-2-醫學一-生理學-Q49",
+        "114-1-醫學一-生理學-Q53",
+        "114-2-醫學一-生理學-Q49",
+        "115-1-醫學一-生理學-Q52"
+      ]
+    },
+    {
+      "id": "skeletal-muscle-excitation-contraction-coupling",
+      "zh": "骨骼肌興奮收縮偶合",
+      "en": "skeletal muscle excitation-contraction coupling",
+      "chapterId": "muscle-physiology",
+      "synonyms": [
+        "dihydropyridine receptor",
+        "ryanodine receptor",
+        "T-tubule",
+        "sarcoplasmic reticulum",
+        "troponin",
+        "tropomyosin",
+        "cross-bridge cycling",
+        "sliding filament mechanism",
+        "neuromuscular junction",
+        "end plate potential",
+        "nicotinic receptor at motor end plate"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 22,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q7",
+        "106-2-醫學一-生理學-Q54",
+        "108-1-醫學一-生理學-Q52",
+        "108-2-醫學一-生理學-Q54",
+        "108-2-醫學一-生理學-Q55",
+        "109-1-醫學一-生理學-Q56",
+        "107-2-醫學一-生理學-Q54",
+        "107-2-醫學一-生理學-Q55",
+        "112-1-醫學一-生理學-Q56",
+        "112-2-醫學一-生理學-Q55",
+        "113-2-醫學一-生理學-Q50",
+        "114-2-醫學一-生理學-Q48",
+        "115-1-醫學一-生理學-Q55"
+      ]
+    },
+    {
+      "id": "muscle-fiber-types-and-fatigue",
+      "zh": "肌纖維類型與疲勞特性",
+      "en": "muscle fiber types and fatigue characteristics",
+      "chapterId": "muscle-physiology",
+      "synonyms": [
+        "fast-glycolytic fiber",
+        "fast-oxidative-glycolytic fiber",
+        "slow-oxidative fiber",
+        "red muscle",
+        "white muscle",
+        "myoglobin",
+        "motor unit recruitment order"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q7",
+        "106-1-醫學二-生理學-Q7",
+        "108-1-醫學一-生理學-Q51",
+        "109-1-醫學一-生理學-Q57",
+        "112-1-醫學一-生理學-Q55",
+        "107-1-醫學一-生理學-Q55",
+        "114-2-醫學一-生理學-Q56"
+      ]
+    },
+    {
+      "id": "skeletal-muscle-mechanics-and-energetics",
+      "zh": "骨骼肌力學與能量代謝",
+      "en": "skeletal muscle mechanics and energetics",
+      "chapterId": "muscle-physiology",
+      "synonyms": [
+        "isometric contraction",
+        "isotonic contraction",
+        "length-tension relationship",
+        "creatine phosphate",
+        "rigor mortis"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "110-1-醫學一-生理學-Q54",
+        "110-2-醫學一-生理學-Q55",
+        "111-1-醫學一-生理學-Q57",
+        "111-2-醫學一-生理學-Q55",
+        "113-2-醫學一-生理學-Q55",
+        "114-1-醫學一-生理學-Q55",
+        "114-1-醫學一-生理學-Q56",
+        "114-2-醫學一-生理學-Q55"
+      ]
+    },
+    {
+      "id": "smooth-muscle-physiology-and-muscle-type-comparison",
+      "zh": "平滑肌生理與三型肌肉之比較",
+      "en": "smooth muscle physiology and comparison across muscle types",
+      "chapterId": "muscle-physiology",
+      "synonyms": [
+        "single-unit smooth muscle",
+        "multi-unit smooth muscle",
+        "dense body",
+        "calmodulin",
+        "myosin light-chain kinase",
+        "myosin light-chain phosphatase",
+        "心肌與骨骼肌／平滑肌之比較（自主節律性）",
+        "comparison of cardiac, skeletal, and smooth muscle (myogenic activity)",
+        "myogenic activity",
+        "spontaneous depolarization",
+        "specialized cardiac muscle"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q7",
+        "105-2-醫學二-生理學-Q7",
+        "106-1-醫學二-生理學-Q8",
+        "106-2-醫學一-生理學-Q55",
+        "109-2-醫學一-生理學-Q54",
+        "113-1-醫學一-生理學-Q55",
+        "106-1-醫學二-生理學-Q9",
+        "113-2-醫學一-生理學-Q56"
+      ]
+    },
+    {
+      "id": "hemoglobin-oxygen-binding-and-acid-base-buffering",
+      "zh": "血紅素氧結合、血氧運輸與血液酸鹼緩衝",
+      "en": "hemoglobin-oxygen binding, blood gas transport, and acid-base buffering",
+      "chapterId": "blood-physiology",
+      "synonyms": [
+        "oxygen-hemoglobin dissociation curve",
+        "Bohr effect",
+        "2,3-DPG",
+        "fetal hemoglobin",
+        "carboxyhemoglobin",
+        "P50",
+        "hemoglobin saturation",
+        "血液酸鹼緩衝功能",
+        "blood's role in acid-base buffering",
+        "bicarbonate buffer",
+        "hemoglobin as buffer",
+        "plasma protein buffer"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 19,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q9",
+        "105-1-醫學二-生理學-Q12",
+        "105-2-醫學二-生理學-Q12",
+        "107-1-醫學一-生理學-Q56",
+        "107-1-醫學一-生理學-Q57",
+        "108-2-醫學一-生理學-Q61",
+        "110-1-醫學一-生理學-Q57",
+        "112-2-醫學一-生理學-Q62",
+        "114-2-醫學一-生理學-Q62",
+        "104-1-醫學二-生理學-Q8"
+      ]
+    },
+    {
+      "id": "blood-groups-and-transfusion-reactions",
+      "zh": "血型與輸血反應",
+      "en": "blood groups and transfusion reactions",
+      "chapterId": "blood-physiology",
+      "synonyms": [
+        "ABO blood group",
+        "Rh factor",
+        "agglutination",
+        "anti-A antibody"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "108-1-醫學一-生理學-Q53",
+        "109-1-醫學一-生理學-Q58"
+      ]
+    },
+    {
+      "id": "hemostasis-and-coagulation-cascade",
+      "zh": "止血與凝血機制",
+      "en": "hemostasis and coagulation cascade",
+      "chapterId": "blood-physiology",
+      "synonyms": [
+        "clotting factor",
+        "fibrinogen",
+        "thrombin",
+        "von Willebrand factor",
+        "hemophilia",
+        "platelet aggregation",
+        "intrinsic pathway",
+        "extrinsic pathway",
+        "fibrinolysis",
+        "protein C"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q8",
+        "105-2-醫學二-生理學-Q8",
+        "108-1-醫學一-生理學-Q54",
+        "106-2-醫學一-生理學-Q56",
+        "107-2-醫學一-生理學-Q56",
+        "109-2-醫學一-生理學-Q56",
+        "110-1-醫學一-生理學-Q56",
+        "111-2-醫學一-生理學-Q56",
+        "114-1-醫學一-生理學-Q57",
+        "114-2-醫學一-生理學-Q57"
+      ]
+    },
+    {
+      "id": "erythropoiesis-and-red-cell-physiology",
+      "zh": "紅血球生成與生理特性",
+      "en": "erythropoiesis and red blood cell physiology",
+      "chapterId": "blood-physiology",
+      "synonyms": [
+        "erythropoietin",
+        "hematocrit",
+        "sickle-cell disease",
+        "anemia",
+        "pernicious anemia",
+        "vitamin B12"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "110-1-醫學一-生理學-Q63",
+        "112-1-醫學一-生理學-Q57",
+        "113-1-醫學一-生理學-Q57",
+        "113-2-醫學一-生理學-Q57",
+        "115-1-醫學一-生理學-Q56"
+      ]
+    },
+    {
+      "id": "white-blood-cells-and-phagocytes",
+      "zh": "白血球與吞噬細胞",
+      "en": "white blood cells and phagocytes",
+      "chapterId": "blood-physiology",
+      "synonyms": [
+        "macrophage",
+        "monocyte",
+        "neutrophil",
+        "phagocytosis",
+        "osteoclast lineage",
+        "mast cell",
+        "Kupffer cell"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q24",
+        "106-1-醫學二-生理學-Q9",
+        "108-2-醫學一-生理學-Q56",
+        "111-1-醫學一-生理學-Q58"
+      ]
+    },
+    {
+      "id": "cardiac-action-potential-mechanisms",
+      "zh": "心肌動作電位機制",
+      "en": "cardiac action potential mechanisms (ventricular and pacemaker)",
+      "chapterId": "cardiovascular-physiology",
+      "synonyms": [
+        "plateau phase",
+        "SA node pacemaker potential",
+        "funny channel",
+        "L-type calcium channel",
+        "fast sodium channel"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q10",
+        "105-1-醫學二-生理學-Q9",
+        "110-2-醫學一-生理學-Q56",
+        "112-2-醫學一-生理學-Q57",
+        "114-1-醫學一-生理學-Q59",
+        "114-2-醫學一-生理學-Q59",
+        "114-2-醫學一-生理學-Q60",
+        "108-1-醫學一-生理學-Q57"
+      ]
+    },
+    {
+      "id": "cardiac-cycle-and-heart-sounds",
+      "zh": "心動週期與心音",
+      "en": "cardiac cycle and heart sounds",
+      "chapterId": "cardiovascular-physiology",
+      "synonyms": [
+        "isovolumetric contraction",
+        "isovolumetric relaxation",
+        "dicrotic notch",
+        "murmur",
+        "heart sound splitting",
+        "aortic valve closure"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q12",
+        "105-1-醫學二-生理學-Q11",
+        "109-1-醫學一-生理學-Q59",
+        "109-1-醫學一-生理學-Q60",
+        "110-2-醫學一-生理學-Q59",
+        "111-1-醫學一-生理學-Q60",
+        "108-1-醫學一-生理學-Q55",
+        "111-2-醫學一-生理學-Q58",
+        "112-2-醫學一-生理學-Q58",
+        "113-1-醫學一-生理學-Q58",
+        "113-2-醫學一-生理學-Q61",
+        "115-1-醫學一-生理學-Q57",
+        "115-1-醫學一-生理學-Q58",
+        "112-1-醫學一-生理學-Q60"
+      ]
+    },
+    {
+      "id": "electrocardiogram-interpretation",
+      "zh": "心電圖判讀",
+      "en": "electrocardiogram (ECG) interpretation",
+      "chapterId": "cardiovascular-physiology",
+      "synonyms": [
+        "P wave",
+        "QRS complex",
+        "T wave",
+        "PR interval",
+        "ST interval",
+        "atrial fibrillation",
+        "heart block"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "108-1-醫學一-生理學-Q57",
+        "109-1-醫學一-生理學-Q60",
+        "111-2-醫學一-生理學-Q57",
+        "114-2-醫學一-生理學-Q58",
+        "115-1-醫學一-生理學-Q57"
+      ]
+    },
+    {
+      "id": "cardiac-output-contractility-and-venous-return",
+      "zh": "心輸出量、收縮力與靜脈回流（前負荷）調控",
+      "en": "cardiac output, contractility, and venous return (preload) regulation",
+      "chapterId": "cardiovascular-physiology",
+      "synonyms": [
+        "Frank-Starling law",
+        "stroke volume",
+        "contractility",
+        "end-diastolic volume",
+        "cardiac denervation after transplant",
+        "靜脈回流與心臟前負荷",
+        "venous return and cardiac preload",
+        "venous compliance",
+        "venous pressure",
+        "right atrial pressure"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 22,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q9",
+        "104-2-醫學二-生理學-Q11",
+        "108-1-醫學一-生理學-Q56",
+        "111-1-醫學一-生理學-Q61",
+        "112-1-醫學一-生理學-Q61",
+        "112-2-醫學一-生理學-Q59",
+        "113-1-醫學一-生理學-Q59",
+        "111-2-醫學一-生理學-Q60",
+        "106-2-醫學一-生理學-Q57",
+        "109-2-醫學一-生理學-Q58"
+      ]
+    },
+    {
+      "id": "arterial-blood-pressure-and-baroreflex",
+      "zh": "動脈血壓調控與感壓反射",
+      "en": "arterial blood pressure regulation and baroreflex",
+      "chapterId": "cardiovascular-physiology",
+      "synonyms": [
+        "baroreceptor reflex",
+        "pulse pressure",
+        "mean arterial pressure",
+        "orthostatic hypotension",
+        "hemorrhage compensation"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 26,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q11",
+        "106-1-醫學二-生理學-Q12",
+        "107-1-醫學一-生理學-Q58",
+        "107-1-醫學一-生理學-Q59",
+        "108-1-醫學一-生理學-Q58",
+        "108-2-醫學一-生理學-Q57",
+        "108-2-醫學一-生理學-Q58",
+        "110-1-醫學一-生理學-Q59",
+        "110-1-醫學一-生理學-Q60",
+        "110-2-醫學一-生理學-Q58",
+        "111-1-醫學一-生理學-Q62",
+        "111-2-醫學一-生理學-Q59",
+        "112-1-醫學一-生理學-Q58",
+        "112-1-醫學一-生理學-Q59",
+        "113-1-醫學一-生理學-Q60",
+        "114-1-醫學一-生理學-Q61",
+        "106-1-醫學二-生理學-Q11"
+      ]
+    },
+    {
+      "id": "vascular-hemodynamics-and-local-blood-flow-regulation",
+      "zh": "血管血流動力學與局部血流自動調節",
+      "en": "vascular hemodynamics and local blood flow autoregulation",
+      "chapterId": "cardiovascular-physiology",
+      "synonyms": [
+        "total peripheral resistance",
+        "vascular compliance",
+        "Poiseuille's law",
+        "blood flow distribution",
+        "atherosclerosis",
+        "局部血流自動調節",
+        "local blood flow autoregulation",
+        "reactive hyperemia",
+        "active hyperemia",
+        "myogenic response",
+        "coronary blood flow autoregulation",
+        "cerebral autoregulation"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "106-1-醫學二-生理學-Q10",
+        "106-2-醫學一-生理學-Q58",
+        "107-2-醫學一-生理學-Q57",
+        "108-1-醫學一-生理學-Q58",
+        "109-2-醫學一-生理學-Q59",
+        "113-1-醫學一-生理學-Q61",
+        "110-1-醫學一-生理學-Q58",
+        "110-2-醫學一-生理學-Q57",
+        "114-1-醫學一-生理學-Q60",
+        "115-1-醫學一-生理學-Q60"
+      ]
+    },
+    {
+      "id": "capillary-fluid-exchange-and-lymphatics",
+      "zh": "微血管液體交換與淋巴系統",
+      "en": "capillary fluid exchange (Starling forces) and lymphatics",
+      "chapterId": "cardiovascular-physiology",
+      "synonyms": [
+        "Starling forces",
+        "net filtration pressure",
+        "hydrostatic pressure",
+        "colloid osmotic pressure",
+        "edema",
+        "lymphatic flow"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學二-生理學-Q10",
+        "105-2-醫學二-生理學-Q11",
+        "107-2-醫學一-生理學-Q59",
+        "108-2-醫學一-生理學-Q59",
+        "112-2-醫學一-生理學-Q60",
+        "113-2-醫學一-生理學-Q59",
+        "115-1-醫學一-生理學-Q59"
+      ]
+    },
+    {
+      "id": "lung-volumes-and-capacities",
+      "zh": "肺容積與肺容量",
+      "en": "lung volumes and capacities",
+      "chapterId": "respiratory-physiology",
+      "synonyms": [
+        "tidal volume",
+        "vital capacity",
+        "functional residual capacity",
+        "residual volume",
+        "closing volume"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q13",
+        "104-2-醫學二-生理學-Q14",
+        "108-2-醫學一-生理學-Q62",
+        "110-1-醫學一-生理學-Q61",
+        "114-2-醫學一-生理學-Q63"
+      ]
+    },
+    {
+      "id": "mechanics-of-breathing",
+      "zh": "呼吸力學（肋膜壓／彈性回復力／作功／表面張力素）",
+      "en": "mechanics of breathing (intrapleural pressure, elastic recoil, work of breathing, surfactant)",
+      "chapterId": "respiratory-physiology",
+      "synonyms": [
+        "intrapleural pressure",
+        "transpulmonary pressure",
+        "elastic recoil",
+        "lung compliance",
+        "work of breathing",
+        "pulmonary surfactant"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "105-2-醫學二-生理學-Q14",
+        "106-1-醫學二-生理學-Q15",
+        "107-1-醫學一-生理學-Q62",
+        "109-1-醫學一-生理學-Q62",
+        "109-2-醫學一-生理學-Q60",
+        "110-1-醫學一-生理學-Q62",
+        "110-2-醫學一-生理學-Q60",
+        "112-2-醫學一-生理學-Q61",
+        "114-1-醫學一-生理學-Q63",
+        "115-1-醫學一-生理學-Q61"
+      ]
+    },
+    {
+      "id": "respiratory-control-center-and-muscles",
+      "zh": "呼吸調控中樞與呼吸肌",
+      "en": "respiratory control centers and respiratory muscles",
+      "chapterId": "respiratory-physiology",
+      "synonyms": [
+        "phrenic nerve",
+        "internal intercostal muscle",
+        "dorsal respiratory group",
+        "ventral respiratory group",
+        "pneumotaxic center",
+        "apneusis",
+        "pre-Bötzinger complex"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "107-1-醫學一-生理學-Q61",
+        "110-2-醫學一-生理學-Q60",
+        "112-1-醫學一-生理學-Q62"
+      ]
+    },
+    {
+      "id": "chemoreceptor-control-and-altitude-exercise-adaptation",
+      "zh": "化學感受器換氣調控與高山／運動呼吸適應",
+      "en": "chemoreceptor control of ventilation and high-altitude/exercise adaptation",
+      "chapterId": "respiratory-physiology",
+      "synonyms": [
+        "central chemoreceptor",
+        "peripheral chemoreceptor",
+        "carotid body",
+        "hypercapnia ventilatory response",
+        "hypoxic drive",
+        "高山適應與運動時呼吸調節",
+        "high-altitude and exercise respiratory adaptation",
+        "hypoxia acclimatization",
+        "hyperventilation",
+        "exercise ventilation increase"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q13",
+        "105-1-醫學二-生理學-Q13",
+        "108-1-醫學一-生理學-Q60",
+        "112-1-醫學一-生理學-Q63",
+        "113-1-醫學一-生理學-Q64",
+        "109-2-醫學一-生理學-Q61",
+        "111-1-醫學一-生理學-Q64"
+      ]
+    },
+    {
+      "id": "ventilation-perfusion-and-gas-diffusion",
+      "zh": "換氣灌流比與氣體擴散限制",
+      "en": "ventilation-perfusion relationships and gas diffusion limitation",
+      "chapterId": "respiratory-physiology",
+      "synonyms": [
+        "V/Q mismatch",
+        "hypoxic pulmonary vasoconstriction",
+        "regional lung ventilation-perfusion differences",
+        "氣體擴散與擴散限制過程",
+        "gas diffusion and diffusion-limited gas exchange",
+        "diffusing capacity",
+        "diffusion-limited gas exchange",
+        "perfusion-limited gas exchange",
+        "pulmonary edema effect on diffusion"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q14",
+        "106-1-醫學二-生理學-Q14",
+        "109-2-醫學一-生理學-Q62",
+        "111-2-醫學一-生理學-Q61",
+        "115-1-醫學一-生理學-Q62",
+        "106-2-醫學一-生理學-Q61",
+        "111-1-醫學一-生理學-Q63"
+      ]
+    },
+    {
+      "id": "co2-transport-and-acid-base-interpretation",
+      "zh": "二氧化碳運輸與酸鹼血氣判讀",
+      "en": "CO2 transport and blood gas acid-base interpretation",
+      "chapterId": "respiratory-physiology",
+      "synonyms": [
+        "carbonic anhydrase",
+        "chloride shift",
+        "bicarbonate transport",
+        "respiratory acidosis",
+        "respiratory alkalosis",
+        "hypoxemia interpretation",
+        "hypercapnia interpretation"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 22,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q17",
+        "105-1-醫學二-生理學-Q14",
+        "107-1-醫學一-生理學-Q57",
+        "107-1-醫學一-生理學-Q60",
+        "108-2-醫學一-生理學-Q61",
+        "110-2-醫學一-生理學-Q61",
+        "111-2-醫學一-生理學-Q62",
+        "112-2-醫學一-生理學-Q56",
+        "113-1-醫學一-生理學-Q62"
+      ]
+    },
+    {
+      "id": "obstructive-and-restrictive-lung-disease-physiology",
+      "zh": "阻塞性與限制性肺疾病生理",
+      "en": "obstructive and restrictive lung disease physiology",
+      "chapterId": "respiratory-physiology",
+      "synonyms": [
+        "emphysema",
+        "chronic obstructive pulmonary disease",
+        "pulmonary fibrosis",
+        "FEV1",
+        "airway resistance"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "107-2-醫學一-生理學-Q60",
+        "107-2-醫學一-生理學-Q61",
+        "108-1-醫學一-生理學-Q59",
+        "109-1-醫學一-生理學-Q61",
+        "109-1-醫學一-生理學-Q63",
+        "113-2-醫學一-生理學-Q63"
+      ]
+    },
+    {
+      "id": "gastric-acid-secretion-and-regulation",
+      "zh": "胃酸分泌與調控",
+      "en": "gastric acid secretion and regulation",
+      "chapterId": "digestive-physiology",
+      "synonyms": [
+        "parietal cell",
+        "gastrin",
+        "histamine in gastric secretion",
+        "vagal stimulation of acid secretion",
+        "gastric phase",
+        "H+/K+ ATPase",
+        "enterochromaffin-like cell"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q16",
+        "108-1-醫學一-生理學-Q62",
+        "111-1-醫學一-生理學-Q65",
+        "111-2-醫學一-生理學-Q63",
+        "112-2-醫學一-生理學-Q63",
+        "112-2-醫學一-生理學-Q64",
+        "115-1-醫學一-生理學-Q63",
+        "105-2-醫學二-生理學-Q16"
+      ]
+    },
+    {
+      "id": "gi-motility-patterns",
+      "zh": "腸胃道運動模式",
+      "en": "GI motility patterns (peristalsis, segmentation, MMC)",
+      "chapterId": "digestive-physiology",
+      "synonyms": [
+        "migrating myoelectric complex",
+        "segmentation contraction",
+        "mass action contraction",
+        "gastric emptying",
+        "achalasia",
+        "interstitial cells of Cajal"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q16",
+        "105-2-醫學二-生理學-Q15",
+        "106-2-醫學一-生理學-Q63",
+        "108-1-醫學一-生理學-Q63",
+        "109-2-醫學一-生理學-Q63",
+        "111-1-醫學一-生理學-Q66",
+        "113-2-醫學一-生理學-Q65"
+      ]
+    },
+    {
+      "id": "enteric-nervous-system-and-reflexes",
+      "zh": "腸神經系統與相關反射",
+      "en": "enteric nervous system and related reflexes",
+      "chapterId": "digestive-physiology",
+      "synonyms": [
+        "myenteric plexus",
+        "submucosal plexus",
+        "gastrocolic reflex",
+        "defecation reflex"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q16",
+        "107-2-醫學一-生理學-Q63",
+        "108-2-醫學一-生理學-Q63",
+        "111-2-醫學一-生理學-Q50"
+      ]
+    },
+    {
+      "id": "gi-hormones-and-regulatory-peptides",
+      "zh": "腸胃道激素",
+      "en": "GI hormones and regulatory peptides",
+      "chapterId": "digestive-physiology",
+      "synonyms": [
+        "cholecystokinin",
+        "secretin",
+        "gastric inhibitory peptide",
+        "motilin",
+        "somatostatin (GI)",
+        "vasoactive intestinal peptide"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "106-1-醫學二-生理學-Q17",
+        "109-1-醫學一-生理學-Q65",
+        "109-2-醫學一-生理學-Q64",
+        "110-1-醫學一-生理學-Q65",
+        "113-1-醫學一-生理學-Q64",
+        "113-2-醫學一-生理學-Q64",
+        "114-1-醫學一-生理學-Q65",
+        "114-2-醫學一-生理學-Q65"
+      ]
+    },
+    {
+      "id": "bile-formation-and-lipid-vitamin-absorption",
+      "zh": "膽汁生成與脂質／脂溶性維生素吸收",
+      "en": "bile formation and lipid/fat-soluble vitamin absorption",
+      "chapterId": "digestive-physiology",
+      "synonyms": [
+        "bile salt",
+        "bile acid",
+        "micelle formation",
+        "lipase",
+        "bilirubin",
+        "gallstone",
+        "enterohepatic circulation",
+        "小腸對脂質與維生素之特殊吸收機制",
+        "intestinal absorption of lipids and vitamins (cholesterol, vitamin B12)",
+        "cholesterol absorption",
+        "vitamin B12 absorption",
+        "intrinsic factor",
+        "ileal resection consequence"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q15",
+        "107-1-醫學一-生理學-Q64",
+        "107-2-醫學一-生理學-Q64",
+        "110-1-醫學一-生理學-Q64",
+        "110-2-醫學一-生理學-Q62",
+        "114-1-醫學一-生理學-Q64",
+        "115-1-醫學一-生理學-Q64",
+        "114-2-醫學一-生理學-Q64",
+        "110-1-醫學一-生理學-Q63"
+      ]
+    },
+    {
+      "id": "carbohydrate-and-protein-digestion-absorption",
+      "zh": "醣類與蛋白質消化吸收",
+      "en": "carbohydrate and protein digestion/absorption",
+      "chapterId": "digestive-physiology",
+      "synonyms": [
+        "amylase",
+        "maltose",
+        "SGLT1",
+        "GLUT5",
+        "exopeptidase",
+        "aminopeptidase",
+        "chymotrypsin",
+        "trypsin"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q15",
+        "106-1-醫學二-生理學-Q16",
+        "108-1-醫學一-生理學-Q64",
+        "108-2-醫學一-生理學-Q64",
+        "111-2-醫學一-生理學-Q64",
+        "112-1-醫學一-生理學-Q64",
+        "112-1-醫學一-生理學-Q65",
+        "113-1-醫學一-生理學-Q65"
+      ]
+    },
+    {
+      "id": "gfr-and-renal-clearance-calculation",
+      "zh": "腎絲球過濾率與清除率計算",
+      "en": "GFR and renal clearance calculation",
+      "chapterId": "renal-physiology",
+      "synonyms": [
+        "inulin clearance",
+        "PAH clearance",
+        "renal plasma flow",
+        "filtration fraction"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q18",
+        "109-1-醫學一-生理學-Q66",
+        "110-1-醫學一-生理學-Q66",
+        "110-2-醫學一-生理學-Q65",
+        "111-1-醫學一-生理學-Q68",
+        "113-2-醫學一-生理學-Q67",
+        "114-1-醫學一-生理學-Q66"
+      ]
+    },
+    {
+      "id": "renal-autoregulation-and-tubuloglomerular-feedback",
+      "zh": "腎臟自動調節與腎小管腎絲球回饋",
+      "en": "renal autoregulation and tubuloglomerular feedback",
+      "chapterId": "renal-physiology",
+      "synonyms": [
+        "tubuloglomerular feedback",
+        "glomerulotubular balance",
+        "macula densa",
+        "afferent arteriole",
+        "efferent arteriole",
+        "mesangial cell"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q18",
+        "107-1-醫學一-生理學-Q65",
+        "110-1-醫學一-生理學-Q67",
+        "110-2-醫學一-生理學-Q66",
+        "115-1-醫學一-生理學-Q65"
+      ]
+    },
+    {
+      "id": "sodium-and-potassium-handling-along-nephron",
+      "zh": "鈉與鉀離子沿腎元的處理機制",
+      "en": "sodium and potassium handling along the nephron",
+      "chapterId": "renal-physiology",
+      "synonyms": [
+        "proximal convoluted tubule sodium reabsorption",
+        "Na-K-2Cl cotransporter",
+        "Na-Cl cotransporter",
+        "epithelial sodium channel",
+        "thick ascending limb",
+        "腎小管鉀離子處理",
+        "renal tubular handling of potassium",
+        "distal tubule potassium secretion",
+        "aldosterone effect on potassium secretion",
+        "ROMK channel",
+        "Bartter syndrome"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q19",
+        "107-2-醫學一-生理學-Q66",
+        "108-2-醫學一-生理學-Q66",
+        "113-1-醫學一-生理學-Q66",
+        "110-2-醫學一-生理學-Q64",
+        "108-1-醫學一-生理學-Q66",
+        "109-2-醫學一-生理學-Q66",
+        "111-1-醫學一-生理學-Q67",
+        "112-1-醫學一-生理學-Q66",
+        "112-2-醫學一-生理學-Q66"
+      ]
+    },
+    {
+      "id": "countercurrent-mechanism-and-urine-concentration",
+      "zh": "逆流機制與尿液濃縮稀釋",
+      "en": "countercurrent mechanism and urine concentration/dilution",
+      "chapterId": "renal-physiology",
+      "synonyms": [
+        "loop of Henle",
+        "vasa recta",
+        "countercurrent multiplier",
+        "countercurrent exchanger",
+        "urea recycling",
+        "aquaporin"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q18",
+        "105-1-醫學二-生理學-Q19",
+        "105-2-醫學二-生理學-Q19",
+        "106-1-醫學二-生理學-Q18",
+        "106-2-醫學一-生理學-Q65",
+        "108-1-醫學一-生理學-Q65",
+        "108-2-醫學一-生理學-Q65",
+        "109-2-醫學一-生理學-Q65",
+        "114-2-醫學一-生理學-Q67",
+        "114-2-醫學一-生理學-Q66"
+      ]
+    },
+    {
+      "id": "adh-regulation-water-balance-and-osmolarity-disorders",
+      "zh": "抗利尿激素調控、水平衡與滲透壓電解質疾患",
+      "en": "ADH regulation, water balance, and plasma osmolarity/electrolyte disorders",
+      "chapterId": "renal-physiology",
+      "synonyms": [
+        "antidiuretic hormone",
+        "vasopressin",
+        "central diabetes insipidus",
+        "nephrogenic diabetes insipidus",
+        "osmoreceptor",
+        "free water clearance",
+        "血漿滲透壓計算與電解質失衡診斷",
+        "plasma osmolarity calculation and electrolyte disorders",
+        "plasma osmolarity calculation",
+        "hyponatremia",
+        "hyperkalemia",
+        "adrenal insufficiency electrolyte pattern"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q17",
+        "104-2-醫學二-生理學-Q19",
+        "111-2-醫學一-生理學-Q66",
+        "112-1-醫學一-生理學-Q67",
+        "115-1-醫學一-生理學-Q68",
+        "112-2-醫學一-生理學-Q65",
+        "112-1-醫學一-生理學-Q68"
+      ]
+    },
+    {
+      "id": "glucose-handling-in-renal-tubule",
+      "zh": "腎小管葡萄糖處理",
+      "en": "renal tubular handling of glucose",
+      "chapterId": "renal-physiology",
+      "synonyms": [
+        "glucose transport maximum",
+        "SGLT2",
+        "glycosuria",
+        "secondary active transport of glucose in tubule"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-1-醫學二-生理學-Q17",
+        "106-2-醫學一-生理學-Q66",
+        "108-1-醫學一-生理學-Q67"
+      ]
+    },
+    {
+      "id": "renal-acid-base-regulation",
+      "zh": "腎臟酸鹼平衡調節",
+      "en": "renal acid-base regulation",
+      "chapterId": "renal-physiology",
+      "synonyms": [
+        "bicarbonate reabsorption",
+        "H+ secretion in tubule",
+        "ammonium excretion",
+        "titratable acid",
+        "renal response to metabolic acidosis"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "107-2-醫學一-生理學-Q65",
+        "111-2-醫學一-生理學-Q65",
+        "113-2-醫學一-生理學-Q66",
+        "115-1-醫學一-生理學-Q66"
+      ]
+    },
+    {
+      "id": "hypothalamic-pituitary-axis-overview",
+      "zh": "下視丘—腦下垂體軸總論",
+      "en": "hypothalamic-pituitary axis overview",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "anterior pituitary",
+        "posterior pituitary",
+        "tropic hormone",
+        "hypophyseal portal system",
+        "pituitary adenoma"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q21",
+        "109-2-醫學一-生理學-Q67",
+        "109-2-醫學一-生理學-Q68",
+        "109-2-醫學一-生理學-Q72",
+        "111-1-醫學一-生理學-Q69",
+        "108-1-醫學一-生理學-Q71",
+        "109-1-醫學一-生理學-Q71",
+        "114-1-醫學一-生理學-Q68"
+      ]
+    },
+    {
+      "id": "growth-hormone-and-prolactin-regulation",
+      "zh": "生長激素與泌乳素調控",
+      "en": "growth hormone and prolactin regulation",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "growth hormone",
+        "IGF-1",
+        "somatostatin inhibition of GH",
+        "acromegaly",
+        "dwarfism",
+        "GH receptor defect",
+        "泌乳素調控",
+        "prolactin regulation",
+        "prolactin",
+        "dopamine inhibition of prolactin",
+        "hyperprolactinemia",
+        "galactorrhea"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q20",
+        "105-1-醫學二-生理學-Q23",
+        "110-1-醫學一-生理學-Q68",
+        "110-2-醫學一-生理學-Q68",
+        "111-1-醫學一-生理學-Q70",
+        "112-2-醫學一-生理學-Q68",
+        "113-2-醫學一-生理學-Q69",
+        "104-2-醫學二-生理學-Q21",
+        "107-2-醫學一-生理學-Q71",
+        "108-2-醫學一-生理學-Q73"
+      ]
+    },
+    {
+      "id": "thyroid-hormone-synthesis-and-action",
+      "zh": "甲狀腺素合成與作用",
+      "en": "thyroid hormone synthesis and action",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "thyroglobulin",
+        "iodide trapping",
+        "triiodothyronine",
+        "thyroxine",
+        "reverse T3",
+        "thyroxine-binding globulin",
+        "hyperthyroidism",
+        "hypothyroidism",
+        "Graves' disease"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 24,
+      "exampleQIds": [
+        "105-2-醫學二-生理學-Q21",
+        "107-2-醫學一-生理學-Q67",
+        "107-2-醫學一-生理學-Q70",
+        "108-2-醫學一-生理學-Q67",
+        "108-2-醫學一-生理學-Q70",
+        "109-1-醫學一-生理學-Q68",
+        "109-2-醫學一-生理學-Q69",
+        "110-2-醫學一-生理學-Q71",
+        "111-2-醫學一-生理學-Q71",
+        "112-1-醫學一-生理學-Q71",
+        "112-2-醫學一-生理學-Q70",
+        "113-1-醫學一-生理學-Q70",
+        "114-1-醫學一-生理學-Q70",
+        "114-1-醫學一-生理學-Q71"
+      ]
+    },
+    {
+      "id": "adrenal-cortex-steroidogenesis",
+      "zh": "腎上腺皮質類固醇生成",
+      "en": "adrenal cortex steroidogenesis",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "StAR protein",
+        "zona glomerulosa",
+        "zona fasciculata",
+        "zona reticularis",
+        "cortisol synthesis pathway",
+        "21-hydroxylase deficiency",
+        "congenital adrenal hyperplasia"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "107-1-醫學一-生理學-Q67",
+        "108-1-醫學一-生理學-Q69",
+        "109-1-醫學一-生理學-Q69",
+        "110-2-醫學一-生理學-Q70",
+        "110-2-醫學一-生理學-Q67",
+        "112-1-醫學一-生理學-Q70",
+        "112-2-醫學一-生理學-Q71"
+      ]
+    },
+    {
+      "id": "cortisol-actions-cushing-syndrome-and-circadian-regulation",
+      "zh": "皮質醇作用、庫欣氏症候群與激素晝夜節律",
+      "en": "cortisol actions, Cushing syndrome, and circadian hormone regulation",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "glucocorticoid action",
+        "permissive action of hormones",
+        "Cushing syndrome",
+        "ACTH-secreting tumor",
+        "gluconeogenesis (cortisol)",
+        "acute stress response cortisol",
+        "激素分泌之晝夜節律",
+        "circadian rhythm of hormone secretion",
+        "ACTH circadian rhythm",
+        "cortisol circadian rhythm",
+        "melatonin",
+        "suprachiasmatic nucleus control of hormone secretion"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q22",
+        "105-2-醫學二-生理學-Q24",
+        "106-2-醫學一-生理學-Q67",
+        "107-1-醫學一-生物化學-Q69",
+        "111-1-醫學一-生理學-Q71",
+        "113-1-醫學一-生理學-Q69",
+        "114-1-醫學一-生理學-Q72",
+        "115-1-醫學一-生理學-Q67",
+        "108-1-醫學一-生理學-Q68",
+        "114-2-醫學一-生理學-Q70"
+      ]
+    },
+    {
+      "id": "mineralocorticoid-aldosterone-regulation",
+      "zh": "礦皮質素／醛固酮調控",
+      "en": "mineralocorticoid (aldosterone) regulation",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "renin-angiotensin-aldosterone system",
+        "aldosterone",
+        "primary hyperaldosteronism",
+        "adrenal insufficiency electrolyte pattern",
+        "atrial natriuretic peptide"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q20",
+        "105-2-醫學二-生理學-Q18",
+        "106-1-醫學二-生理學-Q23",
+        "107-1-醫學一-生理學-Q71",
+        "108-2-醫學一-生理學-Q69",
+        "109-1-醫學一-生理學-Q72",
+        "111-2-醫學一-生物化學-Q68",
+        "112-1-醫學一-生理學-Q68",
+        "114-1-醫學一-生理學-Q69"
+      ]
+    },
+    {
+      "id": "stress-response-and-catecholamine-hormones",
+      "zh": "壓力反應與兒茶酚胺激素",
+      "en": "stress response and catecholamine hormones",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "catecholamine synthesis",
+        "phenylethanolamine N-methyltransferase",
+        "sympathoadrenal response",
+        "hypoglycemia counterregulation"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q23",
+        "104-2-醫學二-生理學-Q24",
+        "111-2-醫學一-生物化學-Q69",
+        "111-2-醫學一-生物化學-Q70",
+        "115-1-醫學一-生理學-Q51"
+      ]
+    },
+    {
+      "id": "insulin-secretion-action-and-energy-metabolism",
+      "zh": "胰島素分泌作用、能量代謝與糖尿病酮酸中毒",
+      "en": "insulin secretion/action, energy metabolism, and diabetic ketoacidosis",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "GLUT2",
+        "GLUT4",
+        "ATP-sensitive K+ channel in beta cell",
+        "insulin secretion mechanism",
+        "insulin action on glucose uptake",
+        "insulin resistance",
+        "能量代謝與呼吸商",
+        "energy metabolism and respiratory quotient",
+        "respiratory quotient",
+        "substrate metabolism",
+        "tyrosine-derived hormone metabolic role",
+        "糖尿病酮酸中毒與胰島素缺乏效應",
+        "diabetic ketoacidosis and insulin deficiency effects",
+        "ketone body formation",
+        "diabetic ketoacidosis",
+        "osmotic diuresis",
+        "gluconeogenesis in insulin deficiency"
+      ],
+      "estTestedSittings": 20,
+      "estQuestionCount": 30,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q23",
+        "105-2-醫學二-生理學-Q20",
+        "106-1-醫學二-生理學-Q22",
+        "106-2-醫學一-生理學-Q68",
+        "106-2-醫學一-生理學-Q69",
+        "108-2-醫學一-生理學-Q68",
+        "109-2-醫學一-生理學-Q69",
+        "112-2-醫學一-生理學-Q69",
+        "113-1-醫學一-生理學-Q72",
+        "113-2-醫學一-生理學-Q72"
+      ]
+    },
+    {
+      "id": "calcium-phosphate-homeostasis-pth-vitamin-d",
+      "zh": "鈣磷恆定與副甲狀腺素／維生素D",
+      "en": "calcium-phosphate homeostasis, PTH and vitamin D",
+      "chapterId": "endocrine-metabolism-physiology",
+      "synonyms": [
+        "parathyroid hormone",
+        "calcitonin",
+        "1,25-dihydroxyvitamin D",
+        "hypocalcemia",
+        "rickets",
+        "tetany",
+        "bone remodeling"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 24,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q24",
+        "105-1-醫學二-生理學-Q20",
+        "105-1-醫學二-生理學-Q21",
+        "105-2-醫學二-生理學-Q22",
+        "106-1-醫學二-生理學-Q19",
+        "107-1-醫學一-生理學-Q68",
+        "110-1-醫學一-生理學-Q71",
+        "110-1-醫學一-生理學-Q69",
+        "112-1-醫學一-微生物暨免疫學-Q69",
+        "113-1-醫學一-生理學-Q71",
+        "113-2-醫學一-生理學-Q71",
+        "114-1-醫學一-生理學-Q69",
+        "114-2-醫學一-生理學-Q72"
+      ]
+    },
+    {
+      "id": "menstrual-cycle-and-menopause-physiology",
+      "zh": "月經週期激素調控與停經生理",
+      "en": "menstrual cycle hormonal regulation and menopause physiology",
+      "chapterId": "reproductive-physiology",
+      "synonyms": [
+        "follicular phase",
+        "luteal phase",
+        "LH surge",
+        "estrogen (menstrual cycle)",
+        "progesterone (menstrual cycle)",
+        "corpus luteum",
+        "dominant follicle",
+        "停經生理",
+        "menopause physiology",
+        "menopause",
+        "post-menopausal FSH/LH elevation"
+      ],
+      "estTestedSittings": 19,
+      "estQuestionCount": 27,
+      "exampleQIds": [
+        "104-2-醫學二-生理學-Q25",
+        "105-1-醫學二-生理學-Q22",
+        "106-2-醫學一-生理學-Q72",
+        "106-2-醫學一-生理學-Q73",
+        "107-1-醫學一-生理學-Q72",
+        "107-2-醫學一-生理學-Q72",
+        "110-1-醫學一-生理學-Q73",
+        "111-1-醫學一-生理學-Q48",
+        "111-2-醫學一-生理學-Q72",
+        "112-2-醫學一-生理學-Q72"
+      ]
+    },
+    {
+      "id": "ovarian-folliculogenesis-and-oogenesis",
+      "zh": "卵巢濾泡發育與卵子形成",
+      "en": "ovarian folliculogenesis and oogenesis",
+      "chapterId": "reproductive-physiology",
+      "synonyms": [
+        "primordial follicle",
+        "primary follicle",
+        "antral follicle",
+        "cumulus oophorus",
+        "oogenesis",
+        "zona pellucida",
+        "polyspermy block"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "106-2-醫學一-生理學-Q73",
+        "111-2-醫學一-生理學-Q73",
+        "113-1-醫學一-生理學-Q73",
+        "114-2-醫學一-生理學-Q73",
+        "104-2-醫學二-生理學-Q25"
+      ]
+    },
+    {
+      "id": "testicular-function-and-spermatogenesis",
+      "zh": "睪丸功能與精子生成",
+      "en": "testicular function and spermatogenesis",
+      "chapterId": "reproductive-physiology",
+      "synonyms": [
+        "Sertoli cell",
+        "Leydig cell",
+        "blood-testis barrier",
+        "spermatogenesis",
+        "seminiferous tubule",
+        "inhibin B"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-生理學-Q25",
+        "106-1-醫學二-生理學-Q25",
+        "108-1-醫學一-生理學-Q72",
+        "109-1-醫學一-生理學-Q53",
+        "109-2-醫學一-生理學-Q70",
+        "110-1-醫學一-生理學-Q72",
+        "110-2-醫學一-生理學-Q72",
+        "113-2-醫學一-生理學-Q73"
+      ]
+    },
+    {
+      "id": "male-hpg-axis-and-disorders",
+      "zh": "男性下視丘—腦下垂體—性腺軸與疾患",
+      "en": "male hypothalamic-pituitary-gonadal axis and disorders",
+      "chapterId": "reproductive-physiology",
+      "synonyms": [
+        "testosterone regulation",
+        "LH receptor defect",
+        "Klinefelter's syndrome",
+        "hyperprolactinemia in males"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "108-2-醫學一-生理學-Q72",
+        "108-2-醫學一-生理學-Q73",
+        "107-1-醫學一-生理學-Q70",
+        "110-2-醫學一-生理學-Q72"
+      ]
+    },
+    {
+      "id": "sex-differentiation-and-embryonic-development",
+      "zh": "性別分化與胚胎發育",
+      "en": "sex differentiation and embryonic development",
+      "chapterId": "reproductive-physiology",
+      "synonyms": [
+        "Müllerian-inhibiting substance",
+        "Wolffian duct",
+        "Müllerian duct",
+        "testis descent",
+        "sexual differentiation"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "109-1-醫學一-生理學-Q73",
+        "111-1-醫學一-生理學-Q49",
+        "112-2-醫學一-生理學-Q73",
+        "112-1-醫學一-生理學-Q73"
+      ]
+    },
+    {
+      "id": "pregnancy-labor-and-lactation-physiology",
+      "zh": "妊娠、分娩與泌乳生理",
+      "en": "pregnancy, labor, and lactation physiology",
+      "chapterId": "reproductive-physiology",
+      "synonyms": [
+        "oxytocin",
+        "milk ejection reflex",
+        "human chorionic gonadotropin",
+        "labor onset mechanism",
+        "lactation regulation"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "108-1-醫學一-生理學-Q73",
+        "108-2-醫學一-生理學-Q71",
+        "109-2-醫學一-生理學-Q71",
+        "112-2-醫學一-生理學-Q67",
+        "115-1-醫學一-生理學-Q69",
+        "115-1-醫學一-生理學-Q72",
+        "115-1-醫學一-生理學-Q68"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "呼吸商（respiratory quotient）與 tyrosine-derived hormone 代謝題掛在 endocrine-metabolism-physiology 章節下的 insulin-secretion-action-and-energy-metabolism 概念，屬跨主題（可能被視為 nutrition/biochem 範疇），語料量少（2題）故合併而非獨立概念。",
+    "少數題目原始 subject 標籤跨科（例：108-2-醫學一-藥理學-Q48 astrocyte 功能、112-1-醫學一-微生物暨免疫學-Q69 vitamin D3、114-2-醫學一-微生物暨免疫學-Q51 自主神經），但內容明確屬生理學範疇，已收入對應概念並保留原始 id（id 內仍見「藥理學」「微生物暨免疫學」字樣，屬語料原始標籤非分類錯誤）。",
+    "「甲狀腺素合成與作用」與「腎上腺皮質類固醇生成」／「皮質醇作用、庫欣氏症候群與激素晝夜節律」在部分題目重疊（例如壓力反應同時考 cortisol 與 catecholamine、甲狀腺與腎上腺同時出現於同一鑑別診斷題），已依主考點拆分，但邊界略主觀，需人眼複核。",
+    "「動脈血壓調控與感壓反射」與「血管血流動力學與局部血流自動調節」在失血代償、運動時心血管調節等題目上有重疊，依主要測驗機制（baroreflex 反射弧 vs. 局部/阻力調節）切分，但部分題目（如失血代償題）兩者皆可成立。",
+    "「月經週期激素調控與停經生理」與「卵巢濾泡發育與卵子形成」有天然重疊（濾泡發育本身即受激素驅動），依題目主問點（激素數值變化 vs. 濾泡形態學階段）切分，邊界需人眼複核。"
+  ]
+}

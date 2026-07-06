@@ -22,6 +22,12 @@ mkdirSync(DEST_DIR, { recursive: true })
 for (const file of ['meta.json', 'subjects.json', 'questions.json']) {
   copyFileSync(resolve(SRC_DIR, file), resolve(DEST_DIR, file))
 }
+// Concept-tag artifacts (add-neurons-concept-tags §4.5): per-question tags for search + labels,
+// and the recurrence dataset for downstream 押題. Optional — skip if not yet built.
+for (const file of ['concept-tags.json', 'concept-recurrence.json']) {
+  const src = resolve(SRC_DIR, file)
+  if (existsSync(src)) copyFileSync(src, resolve(DEST_DIR, file))
+}
 
 // Question figures: copy dist/figures/*.png → public/content/neurons-tw/figures/
 const FIG_SRC = resolve(SRC_DIR, 'figures')

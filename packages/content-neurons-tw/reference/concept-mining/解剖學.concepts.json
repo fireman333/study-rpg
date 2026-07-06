@@ -1,0 +1,1808 @@
+{
+  "subjectId": "解剖學",
+  "questionCount": 700,
+  "targetConceptCount": 70,
+  "concepts": [
+    {
+      "id": "abdominal-aorta-branches",
+      "zh": "腹主動脈分支",
+      "en": "abdominal aorta branches",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "腹腔幹",
+        "celiac trunk",
+        "膈下動脈",
+        "睪丸動脈"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "109-1-醫學一-解剖學-Q8",
+        "110-2-醫學一-解剖學-Q6",
+        "110-2-醫學一-解剖學-Q7",
+        "111-2-醫學一-解剖學-Q18"
+      ]
+    },
+    {
+      "id": "abdominal-autonomic-innervation",
+      "zh": "腹部自主神經支配",
+      "en": "abdominal autonomic (sympathetic/parasympathetic) innervation",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "內臟大神經",
+        "greater splanchnic nerve",
+        "交感神經鏈",
+        "星狀神經節",
+        "迷走神經腹腔支"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q14",
+        "105-1-醫學一-解剖學-Q15",
+        "109-1-醫學一-解剖學-Q26",
+        "111-1-醫學一-解剖學-Q15"
+      ]
+    },
+    {
+      "id": "accessory-and-hypoglossal-nerves",
+      "zh": "副神經與舌下神經",
+      "en": "accessory nerve (CN XI) and hypoglossal nerve (CN XII)",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "斜方肌",
+        "胸鎖乳突肌",
+        "舌下神經",
+        "舌內肌"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q25",
+        "105-2-醫學一-解剖學-Q9",
+        "107-1-醫學一-解剖學-Q3",
+        "110-2-醫學一-解剖學-Q18"
+      ]
+    },
+    {
+      "id": "adrenal-gland-and-suprarenal-vessels",
+      "zh": "腎上腺與腎上腺血管",
+      "en": "adrenal (suprarenal) gland and vessels",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "嗜鉻細胞",
+        "chromaffin cell",
+        "小內臟神經"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "107-2-醫學一-解剖學-Q25",
+        "109-1-醫學一-解剖學-Q26",
+        "112-1-醫學一-解剖學-Q18",
+        "115-1-醫學一-解剖學-Q22"
+      ]
+    },
+    {
+      "id": "anterior-abdominal-wall-muscles-and-nerves",
+      "zh": "前腹壁肌肉與神經",
+      "en": "anterior abdominal wall muscles and nerves",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "腹直肌",
+        "腹外斜肌",
+        "腹內斜肌",
+        "腹橫肌",
+        "弓狀線",
+        "肋下神經"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q15",
+        "106-2-醫學一-解剖學-Q26",
+        "108-2-醫學一-解剖學-Q26",
+        "113-1-醫學一-解剖學-Q19"
+      ]
+    },
+    {
+      "id": "auditory-pathway-and-nuclei",
+      "zh": "聽覺傳導路徑與神經核",
+      "en": "auditory pathway and nuclei",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "耳蝸神經核",
+        "cochlear nucleus",
+        "下橄欖核",
+        "inferior olivary nucleus",
+        "外側蹄系",
+        "內側膝狀體"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q5",
+        "106-2-醫學一-解剖學-Q14",
+        "107-2-醫學一-解剖學-Q14",
+        "114-1-醫學一-解剖學-Q1"
+      ]
+    },
+    {
+      "id": "axillary-and-suprascapular-nerves",
+      "zh": "腋神經與肩胛上神經",
+      "en": "axillary nerve and suprascapular nerve",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "三角肌",
+        "棘上肌",
+        "棘下肌",
+        "旋轉套",
+        "rotator cuff"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q25",
+        "106-1-醫學一-解剖學-Q28",
+        "108-1-醫學一-解剖學-Q30",
+        "111-1-醫學一-解剖學-Q27"
+      ]
+    },
+    {
+      "id": "back-muscles-erector-spinae-and-suboccipital-region",
+      "zh": "背肌（豎脊肌）與枕下三角",
+      "en": "back muscles (erector spinae) and suboccipital region",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "多裂肌",
+        "後鋸肌",
+        "枕下神經",
+        "枕大神經"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q24",
+        "105-2-醫學一-解剖學-Q26",
+        "108-2-醫學一-解剖學-Q31",
+        "113-1-醫學一-解剖學-Q28"
+      ]
+    },
+    {
+      "id": "basal-ganglia-circuitry",
+      "zh": "基底核直接／間接迴路",
+      "en": "basal ganglia direct/indirect pathway",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "紋狀體",
+        "corpus striatum",
+        "黑質",
+        "substantia nigra",
+        "丘腦下核",
+        "subthalamic nucleus",
+        "Parkinson disease"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q3",
+        "108-2-醫學一-解剖學-Q15",
+        "109-1-醫學一-解剖學-Q20",
+        "113-2-醫學一-解剖學-Q2"
+      ]
+    },
+    {
+      "id": "bladder-anatomy-and-innervation",
+      "zh": "膀胱解剖與神經支配",
+      "en": "urinary bladder anatomy and innervation",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "迫尿肌",
+        "detrusor muscle",
+        "膀胱三角",
+        "薦內臟神經"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q18",
+        "106-1-醫學一-解剖學-Q5",
+        "110-1-醫學一-解剖學-Q27",
+        "114-2-醫學一-解剖學-Q26"
+      ]
+    },
+    {
+      "id": "brachial-plexus-organization",
+      "zh": "臂神經叢構造",
+      "en": "brachial plexus organization (cords/divisions)",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "神經索",
+        "cords",
+        "腋動脈第二段"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "106-2-醫學一-解剖學-Q11",
+        "107-2-醫學一-解剖學-Q30",
+        "111-2-醫學一-解剖學-Q8",
+        "114-1-醫學一-解剖學-Q26"
+      ]
+    },
+    {
+      "id": "brainstem-motor-nuclei-and-decussation",
+      "zh": "腦幹運動神經核與交叉",
+      "en": "brainstem motor nuclei and decussation",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "滑車神經核",
+        "trochlear nucleus",
+        "腦幹神經核交叉"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q4",
+        "106-2-醫學一-解剖學-Q2",
+        "107-1-醫學一-解剖學-Q13",
+        "110-2-醫學一-解剖學-Q15"
+      ]
+    },
+    {
+      "id": "brainstem-vascular-syndromes",
+      "zh": "腦幹血管症候群",
+      "en": "brainstem vascular syndromes",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "內側延腦症候群",
+        "medial medullary syndrome",
+        "外側延腦症候群",
+        "lateral medullary syndrome",
+        "PICA"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "110-1-醫學一-解剖學-Q1",
+        "113-2-醫學一-解剖學-Q6"
+      ]
+    },
+    {
+      "id": "cardiac-chambers-and-surfaces",
+      "zh": "心臟腔室與體表投影",
+      "en": "cardiac chambers, surfaces, and pericardium",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "心尖",
+        "左心房",
+        "右心室",
+        "心包膜橫竇",
+        "心包膜斜竇",
+        "梳狀肌"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q10",
+        "106-2-醫學一-解剖學-Q21",
+        "109-1-醫學一-解剖學-Q7",
+        "112-2-醫學一-解剖學-Q15"
+      ]
+    },
+    {
+      "id": "cardiac-conduction-system",
+      "zh": "心臟傳導系統",
+      "en": "cardiac conduction system",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "竇房結",
+        "SA node",
+        "房室結",
+        "AV node",
+        "界嵴"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-2-醫學一-解剖學-Q13",
+        "106-1-醫學一-解剖學-Q22",
+        "108-2-醫學一-解剖學-Q20",
+        "112-2-醫學一-解剖學-Q14"
+      ]
+    },
+    {
+      "id": "cerebellar-peduncles-afferent-efferent",
+      "zh": "小腦腳與傳入傳出徑路",
+      "en": "cerebellar peduncles (superior/middle/inferior)",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "上小腦腳",
+        "中小腦腳",
+        "下小腦腳",
+        "小腦齒狀核",
+        "小腦扁桃體疝",
+        "cerebellopontine angle"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q3",
+        "107-1-醫學一-解剖學-Q14",
+        "108-1-醫學一-解剖學-Q1",
+        "108-2-醫學一-解剖學-Q11"
+      ]
+    },
+    {
+      "id": "cerebral-arterial-territories",
+      "zh": "大腦動脈供應區域",
+      "en": "cerebral arterial territories",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "前大腦動脈",
+        "中大腦動脈",
+        "後大腦動脈",
+        "anterior/middle/posterior cerebral artery"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q1",
+        "105-1-醫學一-解剖學-Q2",
+        "109-1-醫學一-解剖學-Q16",
+        "109-2-醫學一-解剖學-Q18"
+      ]
+    },
+    {
+      "id": "cerebral-cortex-functional-localization",
+      "zh": "大腦皮質功能分區",
+      "en": "cerebral cortex functional areas (Brodmann)",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "Broca area",
+        "Wernicke area",
+        "初級運動皮質",
+        "primary motor cortex",
+        "味覺皮質",
+        "島葉"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q1",
+        "106-1-醫學一-解剖學-Q14",
+        "108-2-醫學一-解剖學-Q15",
+        "110-2-醫學一-解剖學-Q12"
+      ]
+    },
+    {
+      "id": "cervical-plexus-and-ansa-cervicalis",
+      "zh": "頸神經叢與頸襻",
+      "en": "cervical plexus and ansa cervicalis",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "舌骨下肌",
+        "耳大神經",
+        "枕小神經"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q11",
+        "106-2-醫學一-解剖學-Q17",
+        "107-1-醫學一-解剖學-Q4",
+        "111-2-醫學一-解剖學-Q8"
+      ]
+    },
+    {
+      "id": "coronary-arteries-and-cardiac-supply",
+      "zh": "冠狀動脈與心臟血液供應",
+      "en": "coronary arteries and myocardial blood supply",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "左冠狀動脈",
+        "右冠狀動脈",
+        "後室間支",
+        "優勢冠狀動脈"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "106-1-醫學一-解剖學-Q22",
+        "107-2-醫學一-解剖學-Q20",
+        "109-2-醫學一-解剖學-Q22",
+        "111-1-醫學一-解剖學-Q17"
+      ]
+    },
+    {
+      "id": "cranial-nerve-parasympathetic-nuclei",
+      "zh": "腦神經副交感神經核",
+      "en": "cranial nerve parasympathetic nuclei",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "Edinger-Westphal nucleus",
+        "上泌涎核",
+        "下泌涎核",
+        "動眼神經副交感核"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q4",
+        "106-1-醫學一-解剖學-Q16",
+        "108-1-醫學一-解剖學-Q17",
+        "109-1-醫學一-解剖學-Q19"
+      ]
+    },
+    {
+      "id": "diaphragm-openings-and-crura",
+      "zh": "橫膈裂孔與腳",
+      "en": "diaphragm openings and crura",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "主動脈裂孔",
+        "食道裂孔",
+        "中央腱",
+        "膈神經",
+        "phrenic nerve"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q15",
+        "107-2-醫學一-解剖學-Q8",
+        "109-1-醫學一-解剖學-Q8",
+        "111-2-醫學一-解剖學-Q18"
+      ]
+    },
+    {
+      "id": "dural-venous-sinuses",
+      "zh": "硬腦膜靜脈竇",
+      "en": "dural venous sinuses",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "直竇",
+        "乙狀竇",
+        "上矢狀竇",
+        "海綿竇",
+        "cavernous sinus"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q8",
+        "108-2-醫學一-解剖學-Q18",
+        "109-1-醫學一-解剖學-Q4",
+        "110-1-醫學一-解剖學-Q6"
+      ]
+    },
+    {
+      "id": "ear-tympanic-cavity-and-ossicles",
+      "zh": "中耳鼓室與聽小骨",
+      "en": "middle ear tympanic cavity and ossicles",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "鐙骨肌",
+        "鼓膜張肌",
+        "耳咽管",
+        "auditory tube",
+        "內耳",
+        "膜性迷路",
+        "外淋巴",
+        "迷路動脈"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 19,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q9",
+        "110-2-醫學一-解剖學-Q4",
+        "112-2-醫學一-解剖學-Q12",
+        "113-2-醫學一-解剖學-Q14"
+      ]
+    },
+    {
+      "id": "face-vasculature",
+      "zh": "顏面血管系統",
+      "en": "facial vasculature",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "顏面動脈",
+        "顏面靜脈",
+        "淺顳動脈",
+        "海綿竇感染"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "107-2-醫學一-解剖學-Q19",
+        "109-2-醫學一-解剖學-Q21",
+        "112-2-醫學一-解剖學-Q7",
+        "113-1-醫學一-解剖學-Q13"
+      ]
+    },
+    {
+      "id": "facial-nerve-branches-and-parasympathetic",
+      "zh": "顏面神經分支與副交感成分",
+      "en": "facial nerve (CN VII) branches and parasympathetic fibers",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "鼓索神經",
+        "chorda tympani",
+        "翼腭神經節",
+        "膝狀神經節",
+        "geniculate ganglion",
+        "岩大神經"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q3",
+        "106-2-醫學一-解剖學-Q5",
+        "109-1-醫學一-解剖學-Q6",
+        "114-1-醫學一-解剖學-Q10"
+      ]
+    },
+    {
+      "id": "female-reproductive-organs-and-ligaments",
+      "zh": "女性生殖器官與韌帶",
+      "en": "female reproductive organs and supporting ligaments",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "子宮圓韌帶",
+        "卵巢韌帶",
+        "懸韌帶",
+        "子宮頸",
+        "大陰唇",
+        "外陰"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q16",
+        "105-2-醫學一-解剖學-Q19",
+        "108-1-醫學一-解剖學-Q27",
+        "110-1-醫學一-解剖學-Q28"
+      ]
+    },
+    {
+      "id": "femoral-and-obturator-nerves",
+      "zh": "股神經與閉孔神經",
+      "en": "femoral nerve and obturator nerve",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "內收長肌",
+        "膝反射",
+        "knee jerk reflex",
+        "縫匠肌"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q22",
+        "105-1-醫學一-解剖學-Q20",
+        "107-2-醫學一-解剖學-Q29",
+        "108-2-醫學一-解剖學-Q29"
+      ]
+    },
+    {
+      "id": "foot-tarsal-tunnel-and-plantar-anatomy",
+      "zh": "足部跗骨隧道與足底解剖",
+      "en": "foot tarsal tunnel and plantar anatomy",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "距骨",
+        "載距突",
+        "足底弓動脈",
+        "踝關節"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "107-2-醫學一-解剖學-Q12",
+        "108-1-醫學一-解剖學-Q11",
+        "111-2-醫學一-解剖學-Q28",
+        "112-2-醫學一-解剖學-Q30"
+      ]
+    },
+    {
+      "id": "forearm-muscles-and-nerve-supply",
+      "zh": "前臂肌肉與神經支配",
+      "en": "forearm muscles and their nerve supply",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "旋前圓肌",
+        "旋後肌",
+        "屈指深肌",
+        "蚓狀肌"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q27",
+        "104-2-醫學一-解剖學-Q27",
+        "107-2-醫學一-解剖學-Q31",
+        "109-2-醫學一-解剖學-Q12"
+      ]
+    },
+    {
+      "id": "glossopharyngeal-nerve-distribution",
+      "zh": "舌咽神經分布",
+      "en": "glossopharyngeal nerve (CN IX) distribution",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "莖突咽肌",
+        "耳神經節",
+        "otic ganglion",
+        "岩小神經"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q6",
+        "105-2-醫學一-解剖學-Q9",
+        "111-1-醫學一-解剖學-Q10",
+        "112-1-醫學一-解剖學-Q12"
+      ]
+    },
+    {
+      "id": "gluteal-region-nerves-and-muscles",
+      "zh": "臀部神經與肌肉",
+      "en": "gluteal region nerves and muscles",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "臀上動脈",
+        "臀中肌",
+        "梨狀肌",
+        "坐骨粗隆"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q15",
+        "108-2-醫學一-解剖學-Q7",
+        "109-2-醫學一-解剖學-Q29",
+        "111-2-醫學一-解剖學-Q30"
+      ]
+    },
+    {
+      "id": "hand-intrinsic-muscles-and-nerve-lesions",
+      "zh": "手內在肌與神經損傷",
+      "en": "intrinsic hand muscles and nerve lesions",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "手腕骨頭",
+        "舟狀骨",
+        "月狀骨",
+        "食指外展內收"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q28",
+        "106-1-醫學一-解剖學-Q9",
+        "109-1-醫學一-解剖學-Q31",
+        "114-1-醫學一-解剖學-Q27"
+      ]
+    },
+    {
+      "id": "hip-joint-and-proximal-femur",
+      "zh": "髖關節與股骨近端",
+      "en": "hip joint and proximal femur",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "大轉子",
+        "小轉子",
+        "粗線",
+        "linea aspera",
+        "髂脛束"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q22",
+        "106-2-醫學一-解剖學-Q10",
+        "110-1-醫學一-解剖學-Q29",
+        "113-1-醫學一-解剖學-Q30"
+      ]
+    },
+    {
+      "id": "humerus-and-elbow-region",
+      "zh": "肱骨與肘關節區域",
+      "en": "humerus and elbow region",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "肱骨外科頸",
+        "三角肌粗隆",
+        "網球肘",
+        "高爾夫球肘",
+        "肘窩",
+        "深肱動脈"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q23",
+        "106-1-醫學一-解剖學-Q9",
+        "108-1-醫學一-解剖學-Q10",
+        "112-2-醫學一-解剖學-Q27"
+      ]
+    },
+    {
+      "id": "inferior-vena-cava-and-tributaries",
+      "zh": "下腔靜脈與屬支",
+      "en": "inferior vena cava and tributaries",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "左腎靜脈",
+        "左腎上腺靜脈",
+        "左性腺靜脈"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "107-2-醫學一-解剖學-Q25",
+        "108-1-醫學一-解剖學-Q7",
+        "111-1-醫學一-解剖學-Q20",
+        "112-1-醫學一-解剖學-Q18"
+      ]
+    },
+    {
+      "id": "inguinal-canal-and-hernia",
+      "zh": "腹股溝管與疝氣",
+      "en": "inguinal canal and hernia",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "腹股溝深環",
+        "腹股溝淺環",
+        "精索",
+        "直接型疝氣",
+        "腹股溝韌帶"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q20",
+        "107-2-醫學一-解剖學-Q26",
+        "109-2-醫學一-解剖學-Q6",
+        "112-2-醫學一-解剖學-Q20"
+      ]
+    },
+    {
+      "id": "internal-capsule-vascular-supply",
+      "zh": "內囊血液供應",
+      "en": "internal capsule blood supply",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "前脈絡叢動脈",
+        "anterior choroidal artery",
+        "豆狀核"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "109-1-醫學一-解剖學-Q1",
+        "114-1-醫學一-解剖學-Q3",
+        "114-2-醫學一-解剖學-Q4"
+      ]
+    },
+    {
+      "id": "knee-joint-ligaments-and-menisci",
+      "zh": "膝關節韌帶與半月板",
+      "en": "knee joint ligaments and menisci",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "前十字韌帶",
+        "脛側副韌帶",
+        "鵝足",
+        "pes anserinus",
+        "股四頭肌",
+        "膕動脈"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q26",
+        "107-1-醫學一-解剖學-Q9",
+        "112-1-醫學一-解剖學-Q31",
+        "114-1-醫學一-解剖學-Q29"
+      ]
+    },
+    {
+      "id": "large-intestine-and-appendix",
+      "zh": "大腸與闌尾",
+      "en": "large intestine and appendix",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "結腸帶",
+        "taenia coli",
+        "闌尾"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q13",
+        "106-1-醫學一-解剖學-Q6",
+        "112-1-醫學一-解剖學-Q21",
+        "112-2-醫學一-解剖學-Q19"
+      ]
+    },
+    {
+      "id": "leg-vasculature-and-nerves",
+      "zh": "小腿血管與神經",
+      "en": "leg vasculature and nerves",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "脛後動脈",
+        "脛前動脈",
+        "小隱靜脈",
+        "大隱靜脈"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q24",
+        "107-2-醫學一-解剖學-Q12",
+        "109-1-醫學一-解剖學-Q13",
+        "111-1-醫學一-解剖學-Q31"
+      ]
+    },
+    {
+      "id": "limbic-system-and-hippocampal-formation",
+      "zh": "邊緣系統與海馬結構",
+      "en": "limbic system and hippocampal formation",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "杏仁核",
+        "amygdala",
+        "穹窿",
+        "fornix",
+        "乳頭體",
+        "嗅覺傳導路徑"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q2",
+        "107-2-醫學一-解剖學-Q16",
+        "109-2-醫學一-解剖學-Q16",
+        "112-2-醫學一-解剖學-Q4"
+      ]
+    },
+    {
+      "id": "liver-biliary-tract-and-pancreas",
+      "zh": "肝臟、膽道與胰臟",
+      "en": "liver, biliary tract, and pancreas",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "肝門三體",
+        "portal triad",
+        "裸區",
+        "肝圓韌帶",
+        "主胰管",
+        "門脈全身吻合"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q13",
+        "106-2-醫學一-解剖學-Q7",
+        "108-1-醫學一-解剖學-Q6",
+        "111-2-醫學一-解剖學-Q20"
+      ]
+    },
+    {
+      "id": "lower-limb-cutaneous-innervation",
+      "zh": "下肢皮膚感覺神經分布",
+      "en": "lower limb cutaneous innervation",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "腓腸神經",
+        "腓淺神經",
+        "L5皮節"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q22",
+        "105-1-醫學一-解剖學-Q23",
+        "105-2-醫學一-解剖學-Q22",
+        "107-2-醫學一-解剖學-Q10"
+      ]
+    },
+    {
+      "id": "lumbar-plexus-branches",
+      "zh": "腰神經叢分支",
+      "en": "lumbar plexus branches",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "閉孔神經",
+        "生殖股神經",
+        "腸髂腹下神經"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q22",
+        "105-1-醫學一-解剖學-Q16",
+        "105-1-醫學一-解剖學-Q20",
+        "106-1-醫學一-解剖學-Q23"
+      ]
+    },
+    {
+      "id": "lung-lobes-fissures-and-bronchial-tree",
+      "zh": "肺葉、肺裂與支氣管樹",
+      "en": "lung lobes, fissures, and bronchial tree",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "水平裂",
+        "支氣管肺節段",
+        "bronchopulmonary segment",
+        "支氣管動脈",
+        "咳血",
+        "肺門"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "106-2-醫學一-解剖學-Q24",
+        "108-2-醫學一-解剖學-Q4",
+        "110-2-醫學一-解剖學-Q17",
+        "111-2-醫學一-解剖學-Q16"
+      ]
+    },
+    {
+      "id": "lymphatic-drainage-thorax-and-breast",
+      "zh": "胸部與乳房淋巴回流",
+      "en": "lymphatic drainage of thorax and breast",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "腋淋巴結",
+        "axillary lymph node",
+        "乳房淋巴",
+        "肺臟淋巴"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q12",
+        "106-1-醫學一-解剖學-Q20",
+        "108-1-醫學一-解剖學-Q22",
+        "109-1-醫學一-解剖學-Q22"
+      ]
+    },
+    {
+      "id": "male-reproductive-organs-and-prostate",
+      "zh": "男性生殖器官與前列腺",
+      "en": "male reproductive organs and prostate",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "前列腺",
+        "輸精管",
+        "ductus deferens",
+        "精子生成",
+        "球尿道腺"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q17",
+        "104-1-醫學一-解剖學-Q20",
+        "108-2-醫學一-解剖學-Q27",
+        "110-1-醫學一-解剖學-Q11"
+      ]
+    },
+    {
+      "id": "median-nerve-course-and-lesions",
+      "zh": "正中神經路徑與損傷",
+      "en": "median nerve course and lesions",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "腕隧道症候群",
+        "carpal tunnel syndrome",
+        "屈拇指長肌"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "108-2-醫學一-解剖學-Q30",
+        "110-2-醫學一-解剖學-Q30",
+        "112-2-醫學一-解剖學-Q31",
+        "115-1-醫學一-解剖學-Q29"
+      ]
+    },
+    {
+      "id": "mediastinum-boundaries-and-contents",
+      "zh": "縱隔分區與內容物",
+      "en": "mediastinum divisions and contents",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "上縱隔",
+        "後縱隔",
+        "主動脈弓",
+        "肺動脈幹",
+        "胸腺",
+        "奇靜脈"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 25,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q11",
+        "107-1-醫學一-解剖學-Q29",
+        "108-2-醫學一-解剖學-Q19",
+        "111-2-醫學一-解剖學-Q20"
+      ]
+    },
+    {
+      "id": "mesenteric-vasculature-and-gi-blood-supply",
+      "zh": "腸繫膜血管與腸胃血液供應",
+      "en": "mesenteric vasculature and GI tract blood supply",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "腸繫膜上動脈",
+        "腸繫膜下動脈",
+        "脾動脈",
+        "肝總動脈"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "105-2-醫學一-解剖學-Q14",
+        "107-1-醫學一-解剖學-Q26",
+        "109-1-醫學一-解剖學-Q25",
+        "113-2-醫學一-解剖學-Q22"
+      ]
+    },
+    {
+      "id": "musculocutaneous-nerve",
+      "zh": "肌皮神經",
+      "en": "musculocutaneous nerve",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "前臂外側皮神經",
+        "肱肌",
+        "肱二頭肌"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "107-2-醫學一-解剖學-Q31",
+        "109-1-醫學一-解剖學-Q30",
+        "111-2-醫學一-解剖學-Q27",
+        "113-2-醫學一-解剖學-Q27"
+      ]
+    },
+    {
+      "id": "nasal-cavity-and-paranasal-sinuses",
+      "zh": "鼻腔與副鼻竇",
+      "en": "nasal cavity and paranasal sinuses",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "半月裂",
+        "篩泡",
+        "鼻中隔",
+        "鼻淚管",
+        "上頷竇"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q10",
+        "106-1-醫學一-解剖學-Q17",
+        "110-1-醫學一-解剖學-Q19",
+        "111-2-醫學一-解剖學-Q10"
+      ]
+    },
+    {
+      "id": "neck-triangles-and-cervical-fascia",
+      "zh": "頸部三角與筋膜",
+      "en": "neck triangles and cervical fascia",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "二腹肌三角",
+        "氣管前層",
+        "肌三角"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q8",
+        "107-1-醫學一-解剖學-Q4",
+        "108-1-醫學一-解剖學-Q18",
+        "114-2-醫學一-解剖學-Q14"
+      ]
+    },
+    {
+      "id": "neck-vasculature-jugular-veins",
+      "zh": "頸部靜脈系統",
+      "en": "neck venous system (jugular veins)",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "內頸靜脈",
+        "外頸靜脈",
+        "頭臂靜脈",
+        "內頸動脈",
+        "破裂孔"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "106-1-醫學一-解剖學-Q1",
+        "108-2-醫學一-解剖學-Q19",
+        "109-2-醫學一-解剖學-Q3",
+        "111-1-醫學一-解剖學-Q10"
+      ]
+    },
+    {
+      "id": "oral-cavity-tongue-and-taste",
+      "zh": "口腔、舌與味覺傳導",
+      "en": "oral cavity, tongue, and taste pathway",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "舌內在肌",
+        "味覺",
+        "輪廓狀乳突",
+        "舌神經"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q9",
+        "106-2-醫學一-解剖學-Q4",
+        "109-1-醫學一-解剖學-Q3",
+        "111-2-醫學一-解剖學-Q11"
+      ]
+    },
+    {
+      "id": "orbit-and-extraocular-muscles",
+      "zh": "眼眶與眼外肌",
+      "en": "orbit and extraocular muscles",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "共同腱環",
+        "common tendinous ring",
+        "眼球運動",
+        "動眼神經",
+        "滑車神經",
+        "外旋神經",
+        "上眼瞼下垂",
+        "ptosis"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 25,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q4",
+        "108-2-醫學一-解剖學-Q2",
+        "111-2-醫學一-解剖學-Q7",
+        "113-2-醫學一-解剖學-Q8"
+      ]
+    },
+    {
+      "id": "pelvic-floor-and-perineal-membrane",
+      "zh": "骨盆底與會陰膜",
+      "en": "pelvic floor (pelvic diaphragm) and perineal membrane",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "提肛肌",
+        "levator ani",
+        "恥直腸肌",
+        "坐骨肛門窩",
+        "會陰淺凹",
+        "會陰深隙",
+        "會陰體",
+        "骨盆入口"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q18",
+        "106-2-醫學一-解剖學-Q9",
+        "108-2-醫學一-解剖學-Q28",
+        "111-1-醫學一-解剖學-Q26"
+      ]
+    },
+    {
+      "id": "pelvic-splanchnic-and-autonomic-innervation-of-pelvis",
+      "zh": "骨盆內臟神經與骨盆自主神經",
+      "en": "pelvic splanchnic nerves and pelvic autonomic innervation",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "骨盆內臟神經",
+        "pelvic splanchnic nerve",
+        "骨盆神經叢"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "110-1-醫學一-解剖學-Q27",
+        "111-1-醫學一-解剖學-Q25",
+        "112-1-醫學一-解剖學-Q23",
+        "115-1-醫學一-解剖學-Q21"
+      ]
+    },
+    {
+      "id": "pelvic-vasculature-internal-iliac-branches",
+      "zh": "骨盆血管與髂內動脈分支",
+      "en": "pelvic vasculature and internal iliac artery branches",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "子宮動脈",
+        "陰部內動脈",
+        "閉孔動脈",
+        "薦正中動脈"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q17",
+        "105-1-醫學一-解剖學-Q20",
+        "107-2-醫學一-解剖學-Q29",
+        "111-2-醫學一-解剖學-Q24"
+      ]
+    },
+    {
+      "id": "penile-and-clitoral-erectile-anatomy",
+      "zh": "陰莖／陰蒂勃起組織解剖",
+      "en": "penile and clitoral erectile tissue anatomy",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "陰莖深動脈",
+        "海綿體尿道",
+        "尿道海綿體",
+        "陰蒂深動脈"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q21",
+        "110-1-醫學一-解剖學-Q27",
+        "111-1-醫學一-解剖學-Q24",
+        "113-2-醫學一-解剖學-Q24"
+      ]
+    },
+    {
+      "id": "peritoneum-and-mesenteries",
+      "zh": "腹膜與腸繫膜",
+      "en": "peritoneum and mesenteries",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "腹膜內器官",
+        "intraperitoneal organ",
+        "腹膜後器官",
+        "retroperitoneal organ",
+        "網膜孔"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q13",
+        "109-2-醫學一-解剖學-Q10",
+        "110-2-醫學一-解剖學-Q25",
+        "111-2-醫學一-解剖學-Q19"
+      ]
+    },
+    {
+      "id": "pharynx-and-swallowing",
+      "zh": "咽部與吞嚥",
+      "en": "pharynx and swallowing mechanism",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "咽縮肌",
+        "pharyngeal constrictor",
+        "梨狀窩",
+        "扁桃腺"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q6",
+        "106-2-醫學一-解剖學-Q3",
+        "109-2-醫學一-解剖學-Q20",
+        "113-2-醫學一-解剖學-Q12"
+      ]
+    },
+    {
+      "id": "pleura-and-pleural-cavity",
+      "zh": "肋膜與肋膜腔",
+      "en": "pleura and pleural cavity",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "壁層胸膜",
+        "parietal pleura",
+        "肋膜穿刺",
+        "肺塌陷",
+        "atelectasis"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q11",
+        "106-1-醫學一-解剖學-Q3",
+        "107-1-醫學一-解剖學-Q21",
+        "107-2-醫學一-解剖學-Q22"
+      ]
+    },
+    {
+      "id": "pudendal-nerve-and-perineal-innervation",
+      "zh": "陰部神經與會陰部神經支配",
+      "en": "pudendal nerve and perineal innervation",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "陰部神經阻斷術",
+        "坐骨棘",
+        "陰部管",
+        "提睪肌",
+        "生殖股神經"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q21",
+        "104-2-醫學一-解剖學-Q19",
+        "105-2-醫學一-解剖學-Q21",
+        "108-1-醫學一-解剖學-Q8"
+      ]
+    },
+    {
+      "id": "pupillary-light-reflex-and-accommodation",
+      "zh": "瞳孔光反射與調視反射",
+      "en": "pupillary light reflex and accommodation-convergence reflex",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "角膜反射",
+        "corneal reflex",
+        "動眼神經麻痺",
+        "上丘"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q6",
+        "105-2-醫學一-解剖學-Q7",
+        "108-1-醫學一-解剖學-Q14",
+        "112-2-醫學一-解剖學-Q1"
+      ]
+    },
+    {
+      "id": "radial-nerve-course-and-lesions",
+      "zh": "橈神經路徑與損傷",
+      "en": "radial nerve course and lesions",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "橈神經深支",
+        "後骨間神經",
+        "肱骨骨折",
+        "外展拇長肌"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q24",
+        "105-2-醫學一-解剖學-Q25",
+        "106-1-醫學一-解剖學-Q27",
+        "112-1-醫學一-解剖學-Q27"
+      ]
+    },
+    {
+      "id": "rectum-and-anal-canal",
+      "zh": "直腸與肛管",
+      "en": "rectum and anal canal",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "直腸乙狀結腸交接處",
+        "梳狀線",
+        "pectinate line",
+        "肛門內括約肌",
+        "肛直腸彎曲"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q16",
+        "106-1-醫學一-解剖學-Q6",
+        "109-2-醫學一-解剖學-Q8",
+        "111-1-醫學一-解剖學-Q23"
+      ]
+    },
+    {
+      "id": "salivary-glands",
+      "zh": "唾液腺",
+      "en": "salivary glands",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "下頜下腺",
+        "耳下腺",
+        "parotid gland",
+        "耳顳神經"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q3",
+        "104-2-醫學一-解剖學-Q7",
+        "105-1-醫學一-解剖學-Q8",
+        "106-2-醫學一-解剖學-Q5"
+      ]
+    },
+    {
+      "id": "sciatic-nerve-and-branches",
+      "zh": "坐骨神經與分支",
+      "en": "sciatic nerve and its branches",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "脛神經",
+        "腓總神經",
+        "腓淺神經",
+        "腓深神經",
+        "跗骨隧道"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q27",
+        "107-2-醫學一-解剖學-Q10",
+        "108-2-醫學一-解剖學-Q8",
+        "109-1-醫學一-解剖學-Q29"
+      ]
+    },
+    {
+      "id": "shoulder-girdle-muscles-and-nerves",
+      "zh": "肩帶肌肉與神經支配",
+      "en": "shoulder girdle muscles and their nerve supply",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "斜方肌",
+        "前鋸肌",
+        "翼狀肩胛骨",
+        "winging scapula",
+        "長胸神經",
+        "背肩胛神經",
+        "闊背肌"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q15",
+        "106-1-醫學一-解剖學-Q28",
+        "107-2-醫學一-解剖學-Q30",
+        "111-1-醫學一-解剖學-Q27"
+      ]
+    },
+    {
+      "id": "skull-foramina-and-cranial-fossae",
+      "zh": "顱骨孔洞與顱窩",
+      "en": "skull foramina and cranial fossae",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "圓孔",
+        "棘孔",
+        "眶上裂",
+        "翼腭窩",
+        "pterygopalatine fossa",
+        "前／中／後顱窩"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q9",
+        "108-1-醫學一-解剖學-Q19",
+        "110-2-醫學一-解剖學-Q31",
+        "112-2-醫學一-解剖學-Q10"
+      ]
+    },
+    {
+      "id": "spinal-cord-ascending-sensory-tracts",
+      "zh": "脊髓上行感覺徑路",
+      "en": "spinal cord ascending sensory tracts",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "脊髓丘腦徑",
+        "spinothalamic tract",
+        "背柱內側蹄系",
+        "dorsal column-medial lemniscus",
+        "背側脊髓小腦徑",
+        "脊髓背核",
+        "nucleus dorsalis of Clarke"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "108-2-醫學一-解剖學-Q13",
+        "110-1-醫學一-解剖學-Q15",
+        "111-2-醫學一-解剖學-Q1",
+        "113-1-醫學一-解剖學-Q5"
+      ]
+    },
+    {
+      "id": "spinal-cord-blood-supply",
+      "zh": "脊髓血液供應",
+      "en": "spinal cord blood supply",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "脊髓前動脈",
+        "anterior spinal artery",
+        "脊髓節動脈",
+        "segmental medullary artery"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "105-2-醫學一-解剖學-Q3",
+        "110-2-醫學一-解剖學-Q11"
+      ]
+    },
+    {
+      "id": "spinal-cord-descending-motor-tracts",
+      "zh": "脊髓下行運動徑路",
+      "en": "spinal cord descending motor tracts",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "皮質脊髓徑",
+        "corticospinal tract",
+        "前庭脊髓徑",
+        "vestibulospinal tract",
+        "紅核脊髓徑"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q1",
+        "107-1-醫學一-解剖學-Q15",
+        "108-1-醫學一-解剖學-Q1",
+        "108-2-醫學一-解剖學-Q12"
+      ]
+    },
+    {
+      "id": "spinal-cord-meninges-and-ligaments",
+      "zh": "脊髓被膜與固定韌帶",
+      "en": "spinal meninges and denticulate ligament",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "齒狀韌帶",
+        "denticulate ligament",
+        "軟膜",
+        "pia mater"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q7",
+        "105-2-醫學一-解剖學-Q27",
+        "108-1-醫學一-解剖學-Q31",
+        "110-1-醫學一-解剖學-Q2"
+      ]
+    },
+    {
+      "id": "stomach-and-duodenum",
+      "zh": "胃與十二指腸",
+      "en": "stomach and duodenum",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "幽門平面",
+        "十二指腸懸肌",
+        "胃體"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學一-解剖學-Q15",
+        "107-2-醫學一-解剖學-Q7",
+        "109-1-醫學一-解剖學-Q25",
+        "113-1-醫學一-解剖學-Q18"
+      ]
+    },
+    {
+      "id": "temporomandibular-joint-and-mastication",
+      "zh": "顳頜關節與咀嚼肌",
+      "en": "temporomandibular joint and muscles of mastication",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "翼外肌",
+        "翼內肌",
+        "下頜骨下壓"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "106-1-醫學一-解剖學-Q18",
+        "107-2-醫學一-解剖學-Q4",
+        "110-1-醫學一-解剖學-Q20",
+        "113-1-醫學一-解剖學-Q12"
+      ]
+    },
+    {
+      "id": "thalamus-nuclei-and-connections",
+      "zh": "丘腦神經核與投射",
+      "en": "thalamic nuclei and projections",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "內側膝狀體",
+        "外側膝狀體",
+        "腹後外側核",
+        "habenular nucleus",
+        "韁核"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "105-1-醫學一-解剖學-Q1",
+        "109-1-醫學一-解剖學-Q15",
+        "109-2-醫學一-解剖學-Q18",
+        "111-1-醫學一-解剖學-Q6"
+      ]
+    },
+    {
+      "id": "thoracic-wall-and-intercostal-neurovascular-bundle",
+      "zh": "胸壁與肋間神經血管束",
+      "en": "thoracic wall and intercostal neurovascular bundle",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "肋間神經",
+        "肋間動脈",
+        "肋骨",
+        "胸廓",
+        "胸骨角",
+        "肋弓"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 30,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q11",
+        "107-1-醫學一-解剖學-Q10",
+        "109-2-醫學一-解剖學-Q27",
+        "111-2-醫學一-解剖學-Q14"
+      ]
+    },
+    {
+      "id": "trigeminal-nerve-branches-and-distribution",
+      "zh": "三叉神經分支與分布",
+      "en": "trigeminal nerve (CN V) branches and distribution",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "眼神經",
+        "上頷神經",
+        "下頷神經",
+        "鼻睫神經",
+        "三叉神經運動核"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q9",
+        "106-1-醫學一-解剖學-Q2",
+        "107-2-醫學一-解剖學-Q5",
+        "111-1-醫學一-解剖學-Q7"
+      ]
+    },
+    {
+      "id": "ulnar-nerve-course-and-lesions",
+      "zh": "尺神經路徑與損傷",
+      "en": "ulnar nerve course and lesions",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "尺神經深支",
+        "內收拇指肌",
+        "肱骨內上髁"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q28",
+        "105-1-醫學一-解剖學-Q26",
+        "105-1-醫學一-解剖學-Q28",
+        "108-2-醫學一-解剖學-Q9"
+      ]
+    },
+    {
+      "id": "upper-limb-cutaneous-innervation",
+      "zh": "上肢皮膚感覺神經分布",
+      "en": "upper limb cutaneous innervation",
+      "chapterId": "upper-lower-extremities",
+      "synonyms": [
+        "前臂外側皮神經",
+        "枕大神經",
+        "耳大神經"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q23",
+        "107-1-醫學一-解剖學-Q4",
+        "107-2-醫學一-解剖學-Q10",
+        "111-1-醫學一-解剖學-Q29"
+      ]
+    },
+    {
+      "id": "vagus-nerve-and-recurrent-laryngeal-nerve",
+      "zh": "迷走神經與喉返神經",
+      "en": "vagus nerve (CN X) and recurrent/external laryngeal nerve",
+      "chapterId": "head-and-neck",
+      "synonyms": [
+        "喉返神經",
+        "recurrent laryngeal nerve",
+        "喉內神經",
+        "喉外神經",
+        "環甲肌",
+        "甲狀腺手術"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 21,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q5",
+        "108-1-醫學一-解剖學-Q2",
+        "109-1-醫學一-解剖學-Q24",
+        "112-2-醫學一-解剖學-Q9"
+      ]
+    },
+    {
+      "id": "vertebral-column-and-spinal-nerve-relations",
+      "zh": "脊柱與脊神經對應關係",
+      "en": "vertebral column and spinal nerve level correspondence",
+      "chapterId": "chest-abdomen-pelvis",
+      "synonyms": [
+        "椎間盤突出",
+        "棘突",
+        "後縱韌帶",
+        "皮節",
+        "dermatome",
+        "椎骨高度地標"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q25",
+        "107-1-醫學一-解剖學-Q22",
+        "108-2-醫學一-解剖學-Q23",
+        "110-1-醫學一-解剖學-Q8"
+      ]
+    },
+    {
+      "id": "vestibular-nuclei-and-mlf",
+      "zh": "前庭神經核與內側縱束",
+      "en": "vestibular nuclei and medial longitudinal fasciculus (MLF)",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "內側縱束",
+        "眩暈",
+        "vertigo"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學一-解剖學-Q6",
+        "105-1-醫學一-解剖學-Q5",
+        "105-2-醫學一-解剖學-Q5",
+        "109-1-醫學一-解剖學-Q2"
+      ]
+    },
+    {
+      "id": "visual-pathway-and-field-defects",
+      "zh": "視覺傳導路徑與視野缺損",
+      "en": "visual pathway and visual field defects",
+      "chapterId": "neuroanatomy",
+      "synonyms": [
+        "視交叉",
+        "optic chiasma",
+        "視徑",
+        "optic tract",
+        "雙眼顳側偏盲",
+        "外側膝狀體"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學一-解剖學-Q2",
+        "105-2-醫學一-解剖學-Q4",
+        "109-1-醫學一-解剖學-Q16",
+        "111-2-醫學一-解剖學-Q13"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "「脊柱與脊神經對應關係 vertebral-column-and-spinal-nerve-relations」目前掛在 chest-abdomen-pelvis 章節（因大綱無獨立脊椎章），但內容橫跨全身（含頸/胸/腰椎），owner 可考慮改掛 neuroanatomy 或拆分。",
+    "back-muscles-erector-spinae-and-suboccipital-region 掛在 upper-lower-extremities（軀幹背肌非四肢），但大綱亦無獨立「軀幹/背部」章節，屬 bottom-up 安置，建議 owner 確認是否合理。",
+    "'diaphragm-openings-and-crura' 收納了膈神經(phrenic nerve)相關題目，但膈神經同時涉及頸神經叢(C3-5起源)與胸腔（心包膜感覺）與腹腔（裂孔），目前依大綱掛在 chest-abdomen-pelvis，跨三章節的題目已依主要考點(裂孔解剖)歸類。",
+    "眶上裂/翼腭窩/顱底孔洞題目量偏大且與腦神經分支高度重疊（例如同一題可能同時考『三叉神經分支』與『骨性孔洞』），部分 exampleQIds 在兩個 concept 間有主觀取捨。",
+    "'gluteal-region-nerves-and-muscles' 與 'hip-joint-and-proximal-femur' 部分題目（如坐骨粗隆/大轉子附著肌）在骨骼-肌肉-神經三者間歸類略有主觀性，owner 可視需要合併或保留現狀。"
+  ]
+}

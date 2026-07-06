@@ -1,0 +1,46 @@
+{
+  "reviewer": "Codex",
+  "verdict": "fix-first",
+  "blocking": [
+    {
+      "issue": "經典但降溫的近3硬切窗會系統性誤標近期仍有考的高頻概念。",
+      "evidence": "cooling 50項中有33項最後一次在113-1或113-2；例：鴉片類止痛藥、成癮物質與酒精藥理學、腸胃道運動模式、血栓與栓塞、血吸蟲症。",
+      "fix": "經典但降溫至少要求近5=0，或用「近5=0且recencyWeightedBreadth下降」；113-1/113-2仍出現者改為穩定考點或近期待觀察。"
+    },
+    {
+      "issue": "sample 有一組明確錯標或漏核心 leaf，若直接上 UI 會把錯誤考點累積進 breadth。",
+      "evidence": "109-2-醫學一-胚胎學-Q32 quickening 被標四肢/中軸發育；106-1-醫學一-微生物暨免疫學-Q49 lysozyme 被標細菌外套；105-1-醫學二-生理學-Q19 近端小管等滲水再吸收被灌到葡萄糖與逆流機制；114-1-醫學二-藥理學-Q61 fludrocortisone 被標糖皮質激素；111-2-醫學一-解剖學-Q11 唇部淋巴被標顏面血管/口腔舌味覺；114-1-醫學二-微生物暨免疫學-Q21 B細胞surrogate light chain 被加自體耐受性。",
+      "fix": "先對上述 qid 重標並回推同類 keyword 規則；UI 前至少重抽每科20題做 adjudication，錯標率需低於約3%。"
+    }
+  ],
+  "recommendations": [
+    {
+      "issue": "tier precedence 不一致：PI3K-Akt 訊息傳遞路徑 breadth=3、近3=2，符合近年新寵訊號卻被 low-yield 吃掉。",
+      "fix": "把「近年新寵」優先於 low-yield，或新增「低基數新訊號」避免把近期連考概念顯示成低價值。",
+      "severity": "P2"
+    },
+    {
+      "issue": "breadth=14且近3=3 的概念被留在穩定考點，和 breadth=15 的常青必掃只有一格差距但 UI 語意差很多。",
+      "fix": "常青必掃改用連續分數或二級徽章；至少把抗生素作用機轉、B/T淋巴球發育檢查點、抗癲癇藥物、迷走神經與喉返神經標為常青候選。",
+      "severity": "P2"
+    },
+    {
+      "issue": "multi-label 對 secondary tag 給等權 breadth，會灌水相鄰概念；sample 平均1.29 tags/題，3題有3個 tags。",
+      "fix": "區分 primary/secondary tag；sitting-breadth 只用 primary 或 secondary 權重0.25。重點 qid：110-1-解剖-Q27、111-2-公衛-Q36、105-1-生理-Q19。",
+      "severity": "P2"
+    },
+    {
+      "issue": "系統性偏誤偏向 keyword/鄰近章節：看到 peptidoglycan、immature B、deltoid、prostate、GPCR/insulin 時容易把背景詞也算成考點。",
+      "fix": "標註 prompt 加規則：考正解機轉優先於題幹背景詞；可保留 secondary，但不得進主排序 breadth。",
+      "severity": "P2"
+    },
+    {
+      "issue": "questionCount/breadth 整體未見大異常，但高頻大桶仍偏粗，頂端概念如藥物動力學、糖解作用、胸壁與肋間神經血管束每 sittings 內可多題。",
+      "fix": "UI 上避免把 questionCount 當獨立押題強度；對頂端大桶提供子概念 drill-down 或例題群。",
+      "severity": "P3"
+    }
+  ],
+  "tierWindowVerdict": "不建議維持近3硬切窗。近3=0只能代表最近三回未出現，不能直接叫降溫；因50個降溫中33個在113-1或113-2仍出現，建議經典但降溫改為近5=0，或至少分成「近3空窗」與「近5真降溫」。鴉片類止痛藥這類最後113-2的概念應移出降溫。",
+  "taggingErrorRate": "明確錯標約7/99=7.1%；若把 secondary tag 灌水也算進去約10-12%。明確問題 qid：106-2-醫學一-解剖學-Q15、111-2-醫學一-解剖學-Q11、109-2-醫學一-胚胎學-Q32、106-1-醫學一-微生物暨免疫學-Q49、105-1-醫學二-生理學-Q19、114-1-醫學二-藥理學-Q61、114-1-醫學二-微生物暨免疫學-Q21。",
+  "notes": "整體資料不是 needs-rework：545 leaf、breadth 主鍵可用，且 sample 多數 tag 合理。但目前不宜 ship-to-ui，因 tier 文案會把近兩年仍出現的概念說成降溫，且少數錯標會在 multi-label 等權下放大成錯誤押題訊號。"
+}

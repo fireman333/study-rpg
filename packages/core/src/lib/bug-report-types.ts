@@ -20,6 +20,7 @@ export const BUG_REPORT_CATEGORIES = [
   'question-error',
   'image-broken',
   'explanation-error',
+  'concept-tag-error',
 ] as const
 
 export type BugReportCategory = (typeof BUG_REPORT_CATEGORIES)[number]
@@ -59,6 +60,7 @@ export const QUIZ_BUG_TARGETS = [
   'question',
   'image',
   'explanation',
+  'concept-tag',
   'other',
 ] as const
 
@@ -68,6 +70,7 @@ export const QUIZ_BUG_TARGET_TO_CATEGORY: Record<QuizBugTarget, BugReportCategor
   question: 'question-error',
   image: 'image-broken',
   explanation: 'explanation-error',
+  'concept-tag': 'concept-tag-error',
   other: 'other',
 }
 

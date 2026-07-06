@@ -1,0 +1,748 @@
+{
+  "subjectId": "免疫學",
+  "questionCount": 264,
+  "targetConceptCount": 26,
+  "concepts": [
+    {
+      "id": "lymphoid-organs-and-cell-trafficking",
+      "zh": "淋巴器官與細胞游走",
+      "en": "lymphoid organs and leukocyte trafficking",
+      "chapterId": "immune-system-components",
+      "synonyms": [
+        "周邊淋巴組織",
+        "造血作用",
+        "hematopoiesis",
+        "黏著分子",
+        "adhesion molecules",
+        "脾臟",
+        "淋巴結",
+        "胸腺",
+        "骨髓"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q62",
+        "106-1-醫學一-微生物暨免疫學-Q62",
+        "107-2-醫學二-微生物暨免疫學-Q18",
+        "112-2-醫學二-微生物暨免疫學-Q18",
+        "113-1-醫學二-微生物暨免疫學-Q18",
+        "113-2-醫學二-微生物暨免疫學-Q18"
+      ]
+    },
+    {
+      "id": "complement-system",
+      "zh": "補體系統",
+      "en": "complement system",
+      "chapterId": "innate-adaptive-immunity",
+      "synonyms": [
+        "classical pathway",
+        "調理作用",
+        "opsonization",
+        "membrane attack complex",
+        "MAC",
+        "C1 C2 C4",
+        "CD59"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-2-醫學一-微生物暨免疫學-Q66",
+        "106-2-醫學二-微生物暨免疫學-Q18",
+        "107-2-醫學二-微生物暨免疫學-Q23",
+        "110-1-醫學二-微生物暨免疫學-Q19",
+        "110-2-醫學二-微生物暨免疫學-Q18",
+        "113-2-醫學二-微生物暨免疫學-Q19"
+      ]
+    },
+    {
+      "id": "phagocytes-and-innate-effector-cells",
+      "zh": "吞噬細胞與先天效應細胞",
+      "en": "phagocytes and innate effector cells",
+      "chapterId": "innate-adaptive-immunity",
+      "synonyms": [
+        "巨噬細胞",
+        "嗜中性球",
+        "neutrophil",
+        "macrophage",
+        "呼吸爆發",
+        "respiratory burst",
+        "NADPH oxidase",
+        "慢性肉芽腫病",
+        "chronic granulomatous disease",
+        "嗜酸性白血球",
+        "eosinophil"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q70",
+        "108-1-醫學二-微生物暨免疫學-Q18",
+        "107-2-醫學二-微生物暨免疫學-Q22",
+        "108-2-醫學二-微生物暨免疫學-Q25",
+        "109-2-醫學二-微生物暨免疫學-Q19",
+        "114-1-醫學二-微生物暨免疫學-Q19"
+      ]
+    },
+    {
+      "id": "innate-vs-adaptive-immunity-overview",
+      "zh": "先天免疫與後天免疫的區別",
+      "en": "innate versus adaptive immunity",
+      "chapterId": "innate-adaptive-immunity",
+      "synonyms": [
+        "先天性免疫力",
+        "後天性免疫",
+        "專一性/非專一性防禦",
+        "antigen-presenting cell",
+        "dendritic cell",
+        "樹突細胞"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學一-微生物暨免疫學-Q62",
+        "111-1-醫學二-微生物暨免疫學-Q18",
+        "111-2-醫學二-微生物暨免疫學-Q18",
+        "114-1-醫學二-微生物暨免疫學-Q18",
+        "108-2-醫學二-微生物暨免疫學-Q18"
+      ]
+    },
+    {
+      "id": "pattern-recognition-receptors-tlr-nlr",
+      "zh": "模式辨識受體（TLR／NLR）",
+      "en": "pattern recognition receptors (Toll-like and NOD-like receptors)",
+      "chapterId": "innate-adaptive-immunity",
+      "synonyms": [
+        "PAMPs",
+        "病原相關分子模式",
+        "Toll-like receptor",
+        "NLRP3",
+        "inflammasome",
+        "發炎小體"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-1-醫學一-微生物暨免疫學-Q69",
+        "109-1-醫學二-微生物暨免疫學-Q19",
+        "112-2-醫學二-微生物暨免疫學-Q19",
+        "114-2-醫學二-微生物暨免疫學-Q24",
+        "115-1-醫學二-微生物暨免疫學-Q19"
+      ]
+    },
+    {
+      "id": "type-i-interferon-antiviral-response",
+      "zh": "第一型干擾素與抗病毒反應",
+      "en": "type I interferon antiviral response",
+      "chapterId": "innate-adaptive-immunity",
+      "synonyms": [
+        "interferon-alpha",
+        "IFN-α",
+        "第一型干擾素",
+        "抗病毒狀態"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "109-2-醫學二-微生物暨免疫學-Q18",
+        "112-2-醫學二-微生物暨免疫學-Q11",
+        "113-1-醫學二-微生物暨免疫學-Q19",
+        "115-1-醫學二-微生物暨免疫學-Q24",
+        "112-1-醫學二-微生物暨免疫學-Q19"
+      ]
+    },
+    {
+      "id": "tcr-and-bcr-gene-rearrangement-v-d-j",
+      "zh": "T/B 細胞抗原受體基因重組（V(D)J 重組）",
+      "en": "TCR and BCR gene rearrangement (V(D)J recombination)",
+      "chapterId": "antigen-recognition",
+      "synonyms": [
+        "RAG1/RAG2",
+        "TdT",
+        "N-nucleotide addition",
+        "V(D)J recombination",
+        "抗體多樣性",
+        "CDR3",
+        "ataxia-telangiectasia"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 17,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q65",
+        "105-1-醫學一-微生物暨免疫學-Q63",
+        "105-2-醫學一-微生物暨免疫學-Q63",
+        "106-1-醫學一-微生物暨免疫學-Q65",
+        "107-1-醫學二-微生物暨免疫學-Q19",
+        "108-1-醫學二-微生物暨免疫學-Q19"
+      ]
+    },
+    {
+      "id": "tcr-mhc-restricted-antigen-recognition",
+      "zh": "MHC 限制性抗原呈現與 TCR-CD3 訊息傳遞",
+      "en": "MHC-restricted antigen presentation and TCR-CD3 signal transduction",
+      "chapterId": "antigen-recognition",
+      "synonyms": [
+        "MHC class I",
+        "MHC class II",
+        "CD3 complex",
+        "invariant chain",
+        "β2-microglobulin",
+        "抗原呈獻細胞"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q64",
+        "107-1-醫學二-微生物暨免疫學-Q18",
+        "109-2-醫學二-微生物暨免疫學-Q20",
+        "110-1-醫學二-微生物暨免疫學-Q20",
+        "110-2-醫學二-微生物暨免疫學-Q19",
+        "112-1-醫學二-微生物暨免疫學-Q20"
+      ]
+    },
+    {
+      "id": "b-and-t-lymphocyte-developmental-checkpoints",
+      "zh": "B/T 淋巴球發育檢查點",
+      "en": "B- and T-lymphocyte developmental checkpoints",
+      "chapterId": "b-t-lymphocyte-development",
+      "synonyms": [
+        "pre-B cell receptor",
+        "pre-T cell receptor",
+        "positive selection",
+        "negative selection",
+        "µ heavy chain",
+        "allelic exclusion",
+        "記憶性B細胞"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "108-1-醫學二-微生物暨免疫學-Q20",
+        "108-2-醫學二-微生物暨免疫學-Q21",
+        "109-1-醫學二-微生物暨免疫學-Q21",
+        "112-1-醫學二-微生物暨免疫學-Q21",
+        "114-1-醫學二-微生物暨免疫學-Q21",
+        "114-2-醫學二-微生物暨免疫學-Q21"
+      ]
+    },
+    {
+      "id": "cytotoxic-lymphocyte-killing-mechanisms-ctl-nk",
+      "zh": "毒殺型淋巴球殺傷機轉（CTL／NK）",
+      "en": "cytotoxic lymphocyte killing mechanisms (CTL and NK cells)",
+      "chapterId": "cell-mediated-immunity",
+      "synonyms": [
+        "perforin",
+        "granzyme",
+        "Fas/FasL",
+        "cytotoxic T lymphocyte",
+        "natural killer cell",
+        "MHC class I missing-self"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q63",
+        "104-2-醫學一-微生物暨免疫學-Q64",
+        "105-1-醫學一-微生物暨免疫學-Q65",
+        "108-1-醫學二-微生物暨免疫學-Q21",
+        "109-2-醫學二-微生物暨免疫學-Q22",
+        "111-2-醫學二-微生物暨免疫學-Q21"
+      ]
+    },
+    {
+      "id": "cd4-t-helper-subset-differentiation",
+      "zh": "CD4 輔助性 T 細胞亞群分化（TH1/TH2/TH17/Treg）",
+      "en": "CD4+ T helper subset differentiation (TH1, TH2, TH17, Treg)",
+      "chapterId": "cell-mediated-immunity",
+      "synonyms": [
+        "TH1",
+        "TH2",
+        "TH17",
+        "FoxP3",
+        "RORγT",
+        "IL-23",
+        "第十七型輔助性T細胞"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "107-1-醫學二-微生物暨免疫學-Q20",
+        "106-1-醫學一-微生物暨免疫學-Q66",
+        "107-2-醫學二-微生物暨免疫學-Q20",
+        "109-1-醫學二-微生物暨免疫學-Q22",
+        "110-2-醫學二-微生物暨免疫學-Q22",
+        "111-1-醫學二-微生物暨免疫學-Q25"
+      ]
+    },
+    {
+      "id": "antibody-class-switch-and-somatic-hypermutation",
+      "zh": "抗體類型轉換與體細胞超突變",
+      "en": "antibody class switch recombination and somatic hypermutation",
+      "chapterId": "humoral-immunity",
+      "synonyms": [
+        "class switching",
+        "AID",
+        "activation-induced cytidine deaminase",
+        "affinity maturation",
+        "親和力成熟",
+        "germinal center",
+        "IgD RNA splicing"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "105-2-醫學一-微生物暨免疫學-Q62",
+        "106-1-醫學一-微生物暨免疫學-Q63",
+        "106-1-醫學一-微生物暨免疫學-Q64",
+        "106-2-醫學二-微生物暨免疫學-Q20",
+        "104-2-醫學一-微生物暨免疫學-Q68",
+        "105-1-醫學一-微生物暨免疫學-Q72"
+      ]
+    },
+    {
+      "id": "tfh-cells-and-germinal-center-b-cell-help",
+      "zh": "濾泡輔助性 T 細胞與生發中心 B 細胞協助",
+      "en": "T follicular helper cells and germinal center B-cell help",
+      "chapterId": "humoral-immunity",
+      "synonyms": [
+        "T follicular helper",
+        "TFH",
+        "linked recognition",
+        "CD40L",
+        "co-stimulatory molecule",
+        "B7"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "108-2-醫學二-微生物暨免疫學-Q23",
+        "111-1-醫學二-微生物暨免疫學-Q19",
+        "104-1-醫學一-微生物暨免疫學-Q67",
+        "112-1-醫學二-微生物暨免疫學-Q23",
+        "110-2-醫學二-微生物暨免疫學-Q23",
+        "108-1-醫學二-微生物暨免疫學-Q22"
+      ]
+    },
+    {
+      "id": "immunoglobulin-structure-and-fc-function",
+      "zh": "免疫球蛋白結構與 Fc 功能",
+      "en": "immunoglobulin structure and Fc effector function",
+      "chapterId": "humoral-immunity",
+      "synonyms": [
+        "Fc receptor",
+        "IgM通過胎盤",
+        "secretory IgA",
+        "isotype",
+        "抗體結構"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "107-1-醫學二-微生物暨免疫學-Q22",
+        "108-1-醫學二-微生物暨免疫學-Q23",
+        "110-1-醫學二-微生物暨免疫學-Q23",
+        "113-1-醫學二-微生物暨免疫學-Q22",
+        "112-2-醫學二-微生物暨免疫學-Q23"
+      ]
+    },
+    {
+      "id": "self-tolerance-central-and-peripheral",
+      "zh": "自體耐受性（中樞與周邊）",
+      "en": "self-tolerance (central and peripheral)",
+      "chapterId": "immunoregulation",
+      "synonyms": [
+        "AIRE",
+        "central tolerance",
+        "peripheral tolerance",
+        "regulatory T cell",
+        "Treg",
+        "clonal deletion",
+        "oral tolerance",
+        "口服耐受性"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "105-1-醫學一-微生物暨免疫學-Q67",
+        "106-1-醫學一-微生物暨免疫學-Q71",
+        "108-2-醫學二-微生物暨免疫學-Q22",
+        "108-2-醫學二-微生物暨免疫學-Q26",
+        "109-2-醫學二-微生物暨免疫學-Q26",
+        "112-1-醫學二-微生物暨免疫學-Q26"
+      ]
+    },
+    {
+      "id": "mucosal-immunity-iga-and-microbiota",
+      "zh": "黏膜免疫、分泌型 IgA 與共生菌",
+      "en": "mucosal immunity, secretory IgA, and commensal microbiota",
+      "chapterId": "host-defense-infection",
+      "synonyms": [
+        "M cell",
+        "M細胞",
+        "commensal microbiota",
+        "共生菌",
+        "thymus-independent antigen",
+        "secretory component",
+        "Crohn's disease",
+        "celiac disease"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "106-2-醫學二-微生物暨免疫學-Q22",
+        "108-1-醫學二-微生物暨免疫學-Q23",
+        "108-2-醫學二-微生物暨免疫學-Q24",
+        "109-1-醫學二-微生物暨免疫學-Q18",
+        "109-1-醫學二-微生物暨免疫學-Q24",
+        "110-1-醫學二-微生物暨免疫學-Q24"
+      ]
+    },
+    {
+      "id": "mycobacterial-defense-and-il12-ifng-axis",
+      "zh": "分枝桿菌宿主防禦與 IL-12–IFN-γ 軸",
+      "en": "host defense against mycobacteria and the IL-12–IFN-γ axis",
+      "chapterId": "host-defense-infection",
+      "synonyms": [
+        "結核桿菌",
+        "Mycobacterium tuberculosis",
+        "肉芽腫",
+        "granuloma",
+        "IFN-γ release assay",
+        "結核菌素試驗",
+        "tuberculin skin test",
+        "IGRA"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學一-微生物暨免疫學-Q68",
+        "107-2-醫學二-微生物暨免疫學-Q20",
+        "107-2-醫學二-微生物暨免疫學-Q21",
+        "109-1-醫學二-微生物暨免疫學-Q3",
+        "110-1-醫學二-微生物暨免疫學-Q25",
+        "113-2-醫學二-微生物暨免疫學-Q1"
+      ]
+    },
+    {
+      "id": "immunodeficiency-primary-and-acquired",
+      "zh": "原發性與後天性免疫缺損",
+      "en": "primary and acquired immunodeficiency diseases",
+      "chapterId": "immunodeficiency",
+      "synonyms": [
+        "SCID",
+        "XSCID",
+        "DiGeorge syndrome",
+        "Wiskott-Aldrich syndrome",
+        "bare lymphocyte syndrome",
+        "RAG1/RAG2",
+        "HIV",
+        "AIDS",
+        "CXCR4",
+        "白血球黏著分子缺損"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q70",
+        "104-2-醫學一-微生物暨免疫學-Q68",
+        "105-1-醫學一-微生物暨免疫學-Q70",
+        "105-2-醫學一-微生物暨免疫學-Q68",
+        "106-1-醫學一-微生物暨免疫學-Q69",
+        "107-1-醫學二-微生物暨免疫學-Q24"
+      ]
+    },
+    {
+      "id": "hyper-igm-and-hyper-ige-syndromes",
+      "zh": "高 IgM／高 IgE 症候群",
+      "en": "hyper-IgM syndrome and hyper-IgE syndrome",
+      "chapterId": "immunodeficiency",
+      "synonyms": [
+        "CD40 ligand",
+        "CD40L",
+        "STAT3",
+        "超高IgE症候群"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "106-1-醫學一-微生物暨免疫學-Q63",
+        "108-1-醫學二-微生物暨免疫學-Q24",
+        "106-2-醫學二-微生物暨免疫學-Q24"
+      ]
+    },
+    {
+      "id": "type-i-hypersensitivity-ige-and-allergy",
+      "zh": "第一型過敏反應與 IgE 介導過敏疾病",
+      "en": "type I hypersensitivity and IgE-mediated allergic disease",
+      "chapterId": "allergy-hypersensitivity",
+      "synonyms": [
+        "mast cell",
+        "肥大細胞",
+        "allergic asthma",
+        "過敏性氣喘",
+        "desensitization",
+        "減敏療法",
+        "anti-IgE antibody"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q71",
+        "104-1-醫學一-微生物暨免疫學-Q72",
+        "104-2-醫學一-微生物暨免疫學-Q69",
+        "105-2-醫學一-微生物暨免疫學-Q69",
+        "105-2-醫學一-微生物暨免疫學-Q70",
+        "106-1-醫學一-微生物暨免疫學-Q70"
+      ]
+    },
+    {
+      "id": "hypersensitivity-types-ii-iii-iv",
+      "zh": "第二、三、四型過敏反應",
+      "en": "type II, III, and IV hypersensitivity reactions",
+      "chapterId": "allergy-hypersensitivity",
+      "synonyms": [
+        "Coombs and Gell classification",
+        "Arthus reaction",
+        "阿瑟氏反應",
+        "delayed-type hypersensitivity",
+        "遲發型過敏反應",
+        "結核菌素反應"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q71",
+        "105-1-醫學一-微生物暨免疫學-Q71",
+        "106-1-醫學一-微生物暨免疫學-Q68",
+        "107-1-醫學二-微生物暨免疫學-Q25",
+        "111-1-醫學二-微生物暨免疫學-Q10",
+        "113-2-醫學二-微生物暨免疫學-Q25"
+      ]
+    },
+    {
+      "id": "hygiene-hypothesis",
+      "zh": "衛生假說",
+      "en": "hygiene hypothesis",
+      "chapterId": "allergy-hypersensitivity",
+      "synonyms": [
+        "hygiene hypothesis",
+        "過敏疾病盛行率"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "109-2-醫學二-微生物暨免疫學-Q25",
+        "111-2-醫學二-微生物暨免疫學-Q25",
+        "112-2-醫學二-微生物暨免疫學-Q25"
+      ]
+    },
+    {
+      "id": "autoimmune-disease-mechanisms",
+      "zh": "自體免疫疾病致病機轉",
+      "en": "autoimmune disease pathogenic mechanisms",
+      "chapterId": "autoimmune-disease",
+      "synonyms": [
+        "molecular mimicry",
+        "分子類似性",
+        "HLA",
+        "類風濕性關節炎",
+        "rheumatoid arthritis",
+        "myasthenia gravis",
+        "重症肌無力",
+        "SLE",
+        "紅斑性狼瘡"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-2-醫學一-微生物暨免疫學-Q71",
+        "104-2-醫學一-微生物暨免疫學-Q72",
+        "106-2-醫學二-微生物暨免疫學-Q26",
+        "107-2-醫學二-微生物暨免疫學-Q25",
+        "107-2-醫學二-微生物暨免疫學-Q26",
+        "110-2-醫學二-微生物暨免疫學-Q26"
+      ]
+    },
+    {
+      "id": "autoimmune-biologics-and-immunotherapy",
+      "zh": "自體免疫疾病生物製劑治療",
+      "en": "biologic therapy for autoimmune disease",
+      "chapterId": "autoimmune-disease",
+      "synonyms": [
+        "monoclonal antibody",
+        "humanized antibody",
+        "anti-TNF",
+        "CTLA4-Ig",
+        "anti-RANKL",
+        "denosumab",
+        "rituximab"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "105-2-醫學一-微生物暨免疫學-Q71",
+        "107-1-醫學二-微生物暨免疫學-Q26",
+        "107-1-醫學二-微生物暨免疫學-Q28",
+        "107-2-醫學二-微生物暨免疫學-Q28",
+        "112-2-醫學二-微生物暨免疫學-Q22",
+        "108-1-醫學二-微生物暨免疫學-Q28"
+      ]
+    },
+    {
+      "id": "cancer-immunosurveillance-and-immunoediting",
+      "zh": "腫瘤免疫監視與免疫編輯",
+      "en": "cancer immunosurveillance and tumor immunoediting",
+      "chapterId": "cancer-immunology",
+      "synonyms": [
+        "tumor antigen",
+        "腫瘤抗原",
+        "elimination phase",
+        "equilibrium phase",
+        "escape phase",
+        "immune evasion",
+        "MDSC",
+        "調節性T細胞浸潤"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q73",
+        "105-1-醫學一-微生物暨免疫學-Q73",
+        "105-2-醫學一-微生物暨免疫學-Q73",
+        "106-1-醫學一-微生物暨免疫學-Q72",
+        "106-1-醫學一-微生物暨免疫學-Q73",
+        "106-2-醫學二-微生物暨免疫學-Q27"
+      ]
+    },
+    {
+      "id": "cancer-immunotherapy-checkpoint-and-monoclonal-antibody",
+      "zh": "癌症免疫治療（免疫檢查點抑制劑與單株抗體）",
+      "en": "cancer immunotherapy (immune checkpoint inhibitors and monoclonal antibodies)",
+      "chapterId": "cancer-immunology",
+      "synonyms": [
+        "CTLA-4",
+        "PD-1",
+        "PD-L1",
+        "checkpoint blockade",
+        "CAR-T",
+        "adoptive T-cell transfer",
+        "trastuzumab",
+        "pembrolizumab"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-2-醫學一-微生物暨免疫學-Q73",
+        "105-2-醫學一-微生物暨免疫學-Q72",
+        "108-1-醫學二-微生物暨免疫學-Q27",
+        "109-1-醫學二-微生物暨免疫學-Q26",
+        "110-1-醫學二-微生物暨免疫學-Q22",
+        "110-2-醫學二-微生物暨免疫學-Q21"
+      ]
+    },
+    {
+      "id": "transplant-rejection-hyperacute-acute-chronic",
+      "zh": "移植排斥反應（超急性／急性／慢性）",
+      "en": "transplant rejection (hyperacute, acute, and chronic)",
+      "chapterId": "transplantation-immunology",
+      "synonyms": [
+        "hyperacute rejection",
+        "mixed lymphocyte reaction",
+        "MLR",
+        "HLA-DR",
+        "血管內皮細胞",
+        "chronic rejection"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q66",
+        "104-1-醫學一-微生物暨免疫學-Q74",
+        "104-2-醫學一-微生物暨免疫學-Q74",
+        "106-1-醫學一-微生物暨免疫學-Q74",
+        "106-2-醫學二-微生物暨免疫學-Q28",
+        "109-1-醫學二-微生物暨免疫學-Q27"
+      ]
+    },
+    {
+      "id": "gvhd-and-immune-privileged-sites",
+      "zh": "移植體對抗宿主疾病與免疫特區",
+      "en": "graft-versus-host disease and immunologically privileged sites",
+      "chapterId": "transplantation-immunology",
+      "synonyms": [
+        "graft-versus-host disease",
+        "GVHD",
+        "造血幹細胞移植",
+        "immunologically privileged site",
+        "sympathetic ophthalmia"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "104-1-醫學一-微生物暨免疫學-Q74",
+        "104-2-醫學一-微生物暨免疫學-Q74",
+        "105-2-醫學一-微生物暨免疫學-Q74",
+        "114-2-醫學二-微生物暨免疫學-Q27"
+      ]
+    },
+    {
+      "id": "vaccine-types-and-immunology",
+      "zh": "疫苗種類與免疫學原理",
+      "en": "vaccine types and vaccine immunology",
+      "chapterId": "vaccine-immunotherapy",
+      "synonyms": [
+        "live attenuated vaccine",
+        "減毒疫苗",
+        "BCG",
+        "卡介苗",
+        "conjugate vaccine",
+        "herd immunity",
+        "群體免疫力"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學一-微生物暨免疫學-Q66",
+        "110-2-醫學二-微生物暨免疫學-Q24",
+        "111-2-醫學二-微生物暨免疫學-Q22",
+        "111-2-醫學二-微生物暨免疫學-Q24",
+        "113-2-醫學二-微生物暨免疫學-Q23",
+        "113-2-醫學二-微生物暨免疫學-Q24"
+      ]
+    },
+    {
+      "id": "immunosuppressive-drugs-and-corticosteroids",
+      "zh": "免疫抑制藥物與類固醇",
+      "en": "immunosuppressive drugs and corticosteroids",
+      "chapterId": "vaccine-immunotherapy",
+      "synonyms": [
+        "corticosteroid",
+        "類固醇",
+        "rapamycin",
+        "azathioprine",
+        "cyclophosphamide",
+        "mycophenolate",
+        "fingolimod"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-1-醫學一-微生物暨免疫學-Q74",
+        "108-2-醫學二-微生物暨免疫學-Q27",
+        "107-1-醫學二-微生物暨免疫學-Q28",
+        "112-1-醫學二-微生物暨免疫學-Q27",
+        "112-2-醫學二-微生物暨免疫學-Q22"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "106-2-醫學二-微生物暨免疫學-Q8（DNA gyrase／restriction enzyme／cloning vector 題）實為分子生物學基因工程工具題，非免疫學概念，未掛任何 concept，供 owner 決定是否整題移出免疫學切片。",
+    "hyper-igm-and-hyper-ige-syndromes 與 antibody-class-switch-and-somatic-hypermutation 有 2 題重疊（106-1-Q63、108-1-Q24）：這兩題同時測「class switch 機轉」與「特定基因缺陷對應症候群」兩個知識點，故雙掛；若 owner 認為過細可考慮合併這兩個 concept。",
+    "cytotoxic-lymphocyte-killing-mechanisms-ctl-nk 把 CTL 與 NK 殺傷機轉合併成一個 concept（因多題把兩者放在同一敘述比較），但若下游要分別統計「CD8 T 細胞」vs「NK 細胞」的重現度，可能需要拆分。",
+    "tcr-mhc-restricted-antigen-recognition 同時涵蓋『MHC class I/II 結構呈現』與『TCR-CD3 訊息傳遞』兩個教科書章節子題，因語料題量各自偏薄（多為每次考試 1 題）而合併；若 owner 認為此為兩個獨立主題可再拆。",
+    "b-and-t-lymphocyte-developmental-checkpoints 合併了 pre-BCR/pre-TCR 與胸腺陽性/陰性選擇兩群機轉，因為多題把 T 與 B 系發育放在同一大題比較（如 108-1-Q20 的多選題涵蓋 AIRE/CTLA-4/Fas/positive selection/negative selection/Treg）；純粹 B 系與純粹 T 系的比例接近 1:1，可視需要再拆為 b-cell-developmental-checkpoints 與 t-cell-developmental-checkpoints。",
+    "immunodeficiency-primary-and-acquired 把『先天性原發性免疫缺損』與『HIV/AIDS 後天免疫缺損』放在同一 concept，因語料中 HIV 題量偏薄（僅 2 題）不足以獨立成概念；若語料擴充後 HIV 題量增加，建議拆出獨立 hiv-aids concept。",
+    "vaccine-types-and-immunology 與 mycobacterial-defense-and-il12-ifng-axis 中的卡介苗／IFN-γ release assay 相關題有主題重疊（105-2-Q66「卡介苗是減毒活菌疫苗」偏疫苗種類，113-2-Q1「IFN-γ release assay 用於區分卡介苗接種與感染」偏宿主防禦），已按各題核心考點分別歸類。"
+  ]
+}

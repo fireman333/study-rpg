@@ -10,14 +10,18 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "tsx scripts/build.ts",
+    "build": "tsx scripts/build.ts && tsx scripts/build-concept-recurrence.ts",
     "typecheck": "tsc --noEmit",
     "verify:normalize": "tsx scripts/verify-normalize.ts",
     "verify:validator": "tsx scripts/verify-validator.ts",
     "verify:dmn": "tsx scripts/verify-dmn-validator.ts",
     "verify:equipment": "tsx scripts/verify-equipment-validator.ts",
     "verify:connectors": "tsx scripts/verify-connectors.ts",
-    "verify:option-explanations": "tsx scripts/verify-option-explanations.ts"
+    "verify:option-explanations": "tsx scripts/verify-option-explanations.ts",
+    "verify:concept-vocab": "tsx scripts/verify-concept-vocab.ts",
+    "verify:concept-tags": "tsx scripts/verify-concept-tags.ts",
+    "build:concept-recurrence": "tsx scripts/build-concept-recurrence.ts",
+    "build:concept-keyword-prepass": "tsx scripts/build-concept-keyword-prepass.ts"
   },
   "peerDependencies": {
     "@study-rpg/core": "workspace:*"

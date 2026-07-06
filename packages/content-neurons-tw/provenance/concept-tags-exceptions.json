@@ -1,0 +1,6 @@
+{
+  "__doc__": "Questions whose corpus `subject` field is mislabeled — their content belongs to a DIFFERENT subject, so no honest concept exists in their (wrong) subject tree. Concept-tagging cannot honestly tag these without a subject-relabel (deferred corpus audit, see memory neurons-full-corpus-subject-audit-deferred). Surfaced here rather than force-tagged. Excluded from the 100%-coverage gate.",
+  "104-2-醫學一-微生物暨免疫學-Q70": "ABO 血型遺傳機率題 — 內容屬 免疫/遺傳學，非微生物學；微生物 tree 無血型概念",
+  "108-2-醫學二-公共衛生學-Q28": "Natalizumab (anti-VLA-4) 治療 MS — 內容屬免疫藥理，corpus subject 誤標為微生物學",
+  "113-2-醫學二-寄生蟲學-Q27": "癌症免疫治療 (CIK/PD-1) — 內容屬免疫學，corpus subject 誤標為微生物學"
+}

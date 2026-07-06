@@ -1,0 +1,652 @@
+{
+  "subjectId": "組織學",
+  "questionCount": 225,
+  "targetConceptCount": 22,
+  "concepts": [
+    {
+      "id": "nervous-tissue-neuron-and-glia",
+      "zh": "神經組織：神經元與神經膠細胞",
+      "en": "Nervous Tissue: Neurons and Neuroglia",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "neuroglia",
+        "Schwann cell",
+        "satellite cell",
+        "blood-brain barrier",
+        "axonal transport",
+        "神經膠細胞",
+        "許旺細胞",
+        "衛星細胞",
+        "血腦屏障",
+        "軸突運輸"
+      ],
+      "estTestedSittings": 17,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "105-2-醫學一-組織學-Q35",
+        "106-1-醫學一-組織學-Q35",
+        "106-2-醫學一-組織學-Q37",
+        "106-2-醫學一-組織學-Q44",
+        "108-1-醫學一-組織學-Q40"
+      ]
+    },
+    {
+      "id": "endocrine-system-histology",
+      "zh": "內分泌系統組織學",
+      "en": "Endocrine System Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "thyroid follicle",
+        "adrenal cortex",
+        "adrenal medulla",
+        "pituitary gland",
+        "Leydig cell",
+        "甲狀腺濾泡",
+        "腎上腺皮質",
+        "腦下垂體",
+        "萊氏細胞"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "104-2-醫學一-組織學-Q39",
+        "104-2-醫學一-組織學-Q40",
+        "106-1-醫學一-組織學-Q39",
+        "106-1-醫學一-組織學-Q40",
+        "107-2-醫學一-組織學-Q45"
+      ]
+    },
+    {
+      "id": "male-reproductive-system-histology",
+      "zh": "男性生殖系統組織學",
+      "en": "Male Reproductive System Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "seminiferous tubule",
+        "Sertoli cell",
+        "Leydig cell",
+        "epididymis",
+        "prostate",
+        "spermiogenesis",
+        "細精管",
+        "睪丸支持細胞",
+        "精子成型",
+        "副睪",
+        "前列腺"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "105-1-醫學一-組織學-Q41",
+        "105-2-醫學一-組織學-Q41",
+        "106-1-醫學一-組織學-Q41",
+        "107-2-醫學一-組織學-Q46",
+        "108-1-醫學一-組織學-Q46"
+      ]
+    },
+    {
+      "id": "muscle-tissue-comparative-histology",
+      "zh": "肌肉組織比較組織學",
+      "en": "Comparative Histology of Muscle Tissue",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "skeletal muscle",
+        "smooth muscle",
+        "cardiac muscle",
+        "sarcolemma",
+        "motor end plate",
+        "muscle spindle",
+        "intercalated disc",
+        "骨骼肌",
+        "平滑肌",
+        "心肌",
+        "運動終板",
+        "肌梭",
+        "心肌間盤"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學一-組織學-Q36",
+        "105-1-醫學一-組織學-Q36",
+        "107-1-醫學一-組織學-Q38",
+        "108-1-醫學一-組織學-Q37",
+        "108-2-醫學一-胚胎學-Q37"
+      ]
+    },
+    {
+      "id": "digestive-system-small-and-large-intestine",
+      "zh": "消化系統：小腸與大腸組織學",
+      "en": "Digestive System: Small and Large Intestine Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "crypts of Lieberkühn",
+        "Brunner's gland",
+        "teniae coli",
+        "appendix",
+        "duodenum",
+        "jejunum",
+        "ileum",
+        "colon",
+        "腸腺",
+        "十二指腸腺",
+        "結腸帶",
+        "闌尾"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "106-1-醫學一-組織學-Q37",
+        "107-1-醫學一-組織學-Q42",
+        "107-2-醫學一-組織學-Q43",
+        "108-1-醫學一-組織學-Q42",
+        "109-2-醫學一-組織學-Q43"
+      ]
+    },
+    {
+      "id": "cell-biology-organelles-and-cytoskeleton",
+      "zh": "細胞胞器與細胞骨架",
+      "en": "Cell Organelles and Cytoskeleton",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "organelle",
+        "細胞骨架",
+        "microtubule",
+        "mitochondria",
+        "細胞生物學"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "105-2-醫學一-組織學-Q33",
+        "107-2-醫學一-胚胎學-Q37",
+        "108-1-醫學一-組織學-Q38",
+        "110-2-醫學一-組織學-Q38",
+        "111-1-醫學一-組織學-Q37"
+      ]
+    },
+    {
+      "id": "epithelial-tissue-classification-and-lining",
+      "zh": "上皮組織分類與器官內襯",
+      "en": "Epithelial Tissue Classification and Lining Epithelium",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "simple squamous epithelium",
+        "stratified squamous epithelium",
+        "transitional epithelium",
+        "urothelium",
+        "pseudostratified columnar epithelium",
+        "移形上皮",
+        "泌尿上皮",
+        "偽複層柱狀上皮"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學一-組織學-Q34",
+        "104-1-醫學一-組織學-Q39",
+        "109-1-醫學一-組織學-Q42",
+        "110-2-醫學一-組織學-Q44",
+        "112-2-醫學一-組織學-Q37"
+      ]
+    },
+    {
+      "id": "bone-histology-and-ossification",
+      "zh": "骨組織學與骨化作用",
+      "en": "Bone Histology and Ossification",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "osteoblast",
+        "osteocyte",
+        "osteoclast",
+        "intramembranous ossification",
+        "endochondral ossification",
+        "膜內骨化",
+        "軟骨內骨化",
+        "骨母細胞",
+        "蝕骨細胞"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-2-醫學一-組織學-Q35",
+        "105-1-醫學一-組織學-Q34",
+        "106-2-醫學一-組織學-Q39",
+        "108-2-醫學一-組織學-Q39",
+        "111-1-醫學一-組織學-Q39"
+      ]
+    },
+    {
+      "id": "cartilage-histology",
+      "zh": "軟骨組織學",
+      "en": "Cartilage Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "hyaline cartilage",
+        "elastic cartilage",
+        "fibrocartilage",
+        "透明軟骨",
+        "彈性軟骨",
+        "纖維軟骨",
+        "interstitial growth",
+        "appositional growth"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-1-醫學一-組織學-Q35",
+        "106-1-醫學一-組織學-Q34",
+        "107-2-醫學一-組織學-Q38",
+        "106-2-醫學一-組織學-Q38",
+        "112-2-醫學一-組織學-Q39"
+      ]
+    },
+    {
+      "id": "vascular-histology-arteries-veins-capillaries",
+      "zh": "血管組織學（動脈、靜脈、微血管）",
+      "en": "Vascular Histology (Arteries, Veins, Capillaries)",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "elastic artery",
+        "muscular artery",
+        "fenestrated capillary",
+        "continuous capillary",
+        "pericyte",
+        "彈性動脈",
+        "肌型動脈",
+        "穿孔型微血管",
+        "周細胞"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學一-組織學-Q37",
+        "104-1-醫學一-組織學-Q38",
+        "105-1-醫學一-組織學-Q38",
+        "107-1-醫學一-組織學-Q39",
+        "107-2-醫學一-組織學-Q41"
+      ]
+    },
+    {
+      "id": "lymphoid-organs-histology",
+      "zh": "淋巴器官組織學",
+      "en": "Lymphoid Organ Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "lymph node",
+        "spleen",
+        "Peyer's patch",
+        "plasma cell",
+        "淋巴結",
+        "脾臟",
+        "培亞氏斑",
+        "漿細胞"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-2-醫學一-組織學-Q36",
+        "105-2-醫學一-組織學-Q37",
+        "105-1-醫學一-組織學-Q37",
+        "106-2-醫學一-組織學-Q40",
+        "108-1-醫學一-組織學-Q41"
+      ]
+    },
+    {
+      "id": "integumentary-system-skin-histology",
+      "zh": "皮膚組織學",
+      "en": "Integumentary System (Skin) Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "epidermis",
+        "hair follicle",
+        "Merkel cell",
+        "Langerhans cell",
+        "表皮",
+        "毛囊",
+        "蘭氏細胞"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學一-組織學-Q36",
+        "106-1-醫學一-組織學-Q36",
+        "107-1-醫學一-組織學-Q44",
+        "108-1-醫學一-組織學-Q44",
+        "109-1-醫學一-組織學-Q44"
+      ]
+    },
+    {
+      "id": "digestive-system-esophagus-and-stomach",
+      "zh": "消化系統：食道與胃組織學",
+      "en": "Digestive System: Esophagus and Stomach Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "parietal cell",
+        "chief cell",
+        "gastric gland",
+        "pyloric gland",
+        "fundic gland",
+        "胃腺壁細胞",
+        "胃底腺",
+        "胃幽門腺",
+        "主細胞"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "106-1-醫學一-組織學-Q38",
+        "105-1-醫學一-組織學-Q39",
+        "106-2-醫學一-組織學-Q41",
+        "108-1-醫學一-組織學-Q43",
+        "109-1-醫學一-組織學-Q43"
+      ]
+    },
+    {
+      "id": "respiratory-system-histology",
+      "zh": "呼吸系統組織學",
+      "en": "Respiratory System Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "trachea",
+        "bronchus",
+        "bronchiole",
+        "type-I pneumocyte",
+        "type-II pneumocyte",
+        "olfactory epithelium",
+        "氣管",
+        "支氣管",
+        "肺泡細胞",
+        "嗅覺上皮"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學一-組織學-Q40",
+        "106-2-醫學一-組織學-Q43",
+        "107-2-醫學一-組織學-Q44",
+        "108-2-醫學一-組織學-Q41",
+        "109-1-醫學一-組織學-Q41"
+      ]
+    },
+    {
+      "id": "female-reproductive-system-histology",
+      "zh": "女性生殖系統組織學",
+      "en": "Female Reproductive System Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "corpus luteum",
+        "ovarian follicle",
+        "endometrium",
+        "chorionic villi",
+        "zona pellucida",
+        "黃體",
+        "卵巢濾泡",
+        "子宮內膜",
+        "絨毛膜絨毛",
+        "透明帶"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學一-組織學-Q41",
+        "107-1-醫學一-組織學-Q45",
+        "108-1-醫學一-組織學-Q45",
+        "108-2-醫學一-微生物暨免疫學-Q45",
+        "110-2-醫學一-組織學-Q45"
+      ]
+    },
+    {
+      "id": "epithelial-surface-specializations-and-junctions",
+      "zh": "上皮細胞表面特化構造與細胞接合",
+      "en": "Epithelial Surface Specializations and Cell Junctions",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "microvilli",
+        "stereocilia",
+        "desmosome",
+        "hemidesmosome",
+        "tight junction",
+        "gap junction",
+        "細胞接合",
+        "半橋粒",
+        "靜纖毛"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-2-醫學一-組織學-Q33",
+        "114-1-醫學一-組織學-Q46",
+        "111-1-醫學一-組織學-Q44",
+        "115-1-醫學一-組織學-Q37",
+        "108-2-醫學一-胚胎學-Q38"
+      ]
+    },
+    {
+      "id": "digestive-system-liver-gallbladder-and-pancreas",
+      "zh": "消化系統：肝、膽囊與胰臟外分泌組織學",
+      "en": "Digestive System: Liver, Gallbladder, and Exocrine Pancreas Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "Rokitansky-Aschoff sinus",
+        "bile duct",
+        "hepatocyte",
+        "acinar cell",
+        "肝小葉",
+        "駱阿氏竇",
+        "膽管",
+        "肝細胞"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "106-2-醫學一-組織學-Q42",
+        "107-1-醫學一-組織學-Q41",
+        "107-2-醫學一-組織學-Q42",
+        "110-1-醫學一-組織學-Q42",
+        "111-1-醫學一-組織學-Q42"
+      ]
+    },
+    {
+      "id": "urinary-system-histology",
+      "zh": "泌尿系統組織學",
+      "en": "Urinary System Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "nephron",
+        "proximal convoluted tubule",
+        "distal convoluted tubule",
+        "juxtaglomerular apparatus",
+        "brush border",
+        "近曲小管",
+        "遠曲小管",
+        "近腎絲球器",
+        "刷狀緣"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "108-2-醫學一-組織學-Q44",
+        "109-2-醫學一-組織學-Q44",
+        "111-2-醫學一-組織學-Q44",
+        "112-1-醫學一-組織學-Q44",
+        "112-2-醫學一-組織學-Q44"
+      ]
+    },
+    {
+      "id": "glandular-epithelium-and-secretion-mechanisms",
+      "zh": "腺體上皮與分泌機轉",
+      "en": "Glandular Epithelium and Modes of Secretion",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "merocrine",
+        "apocrine",
+        "holocrine",
+        "myoepithelial cell",
+        "部分分泌",
+        "頂漿分泌",
+        "全漿分泌",
+        "肌上皮細胞"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-1-醫學一-組織學-Q33",
+        "106-1-醫學一-組織學-Q33",
+        "111-1-醫學一-組織學-Q38",
+        "111-2-醫學一-組織學-Q38",
+        "104-2-醫學一-組織學-Q37"
+      ]
+    },
+    {
+      "id": "connective-tissue-proper-fibers-and-fibroblasts",
+      "zh": "結締組織本體、纖維與纖維母細胞",
+      "en": "Connective Tissue Proper, Fibers, and Fibroblasts",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "collagen fiber",
+        "elastic fiber",
+        "adipose tissue",
+        "fibroblast",
+        "膠原纖維",
+        "彈性纖維",
+        "脂肪組織"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-2-醫學一-組織學-Q34",
+        "107-1-醫學一-組織學-Q40",
+        "114-1-醫學一-組織學-Q40",
+        "108-1-醫學一-組織學-Q39",
+        "113-2-醫學一-組織學-Q41"
+      ]
+    },
+    {
+      "id": "blood-cells-and-hematopoiesis",
+      "zh": "血液細胞與造血",
+      "en": "Blood Cells and Hematopoiesis",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "platelet",
+        "leukocyte",
+        "erythropoiesis",
+        "bone marrow",
+        "血小板",
+        "白血球",
+        "紅血球生成",
+        "骨髓"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "107-1-醫學一-組織學-Q37",
+        "107-2-醫學一-組織學-Q39",
+        "109-1-醫學一-組織學-Q39",
+        "109-2-醫學一-組織學-Q39",
+        "110-1-醫學一-組織學-Q39"
+      ]
+    },
+    {
+      "id": "digestive-system-salivary-glands",
+      "zh": "消化系統：唾液腺組織學",
+      "en": "Digestive System: Salivary Gland Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "parotid gland",
+        "serous demilune",
+        "mucous acinus",
+        "耳下腺",
+        "漿液半月",
+        "黏液腺泡"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-2-醫學一-組織學-Q38",
+        "105-2-醫學一-組織學-Q39",
+        "112-2-醫學一-組織學-Q42",
+        "112-2-醫學一-組織學-Q43",
+        "113-1-醫學一-組織學-Q42"
+      ]
+    },
+    {
+      "id": "special-senses-eye-and-ear-histology",
+      "zh": "特殊感覺器官組織學（眼與耳）",
+      "en": "Special Senses: Eye and Ear Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "cornea",
+        "iris",
+        "ciliary body",
+        "membranous labyrinth",
+        "角膜",
+        "虹膜",
+        "睫狀體",
+        "膜性迷路"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學一-組織學-Q41",
+        "106-2-醫學一-組織學-Q46",
+        "107-1-醫學一-組織學-Q46",
+        "110-1-醫學一-組織學-Q40",
+        "111-2-醫學一-組織學-Q40"
+      ]
+    },
+    {
+      "id": "digestive-system-oral-cavity-tongue-and-teeth",
+      "zh": "消化系統：口腔、舌與牙齒組織學",
+      "en": "Digestive System: Oral Cavity, Tongue, and Teeth Histology",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "circumvallate papillae",
+        "taste bud",
+        "cementum",
+        "dentin",
+        "enamel",
+        "輪廓乳突",
+        "齒堊質",
+        "牙本質",
+        "琺瑯質"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "111-2-醫學一-組織學-Q42",
+        "115-1-醫學一-組織學-Q43",
+        "110-2-醫學一-組織學-Q42",
+        "113-2-醫學一-組織學-Q42"
+      ]
+    },
+    {
+      "id": "microscopy-and-tissue-preparation-techniques",
+      "zh": "顯微技術與組織處理",
+      "en": "Microscopy and Tissue Preparation Techniques",
+      "chapterId": "cells-tissues-organs",
+      "synonyms": [
+        "freeze fracture",
+        "formalin fixation",
+        "bright-field microscope",
+        "冷凍割斷術",
+        "福馬林固定"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "105-1-醫學一-組織學-Q33",
+        "113-1-醫學一-組織學-Q37",
+        "113-2-醫學一-組織學-Q38"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "108-2-醫學一-微生物暨免疫學-Q45（子宮壁敘述）與 108-2-醫學一-胚胎學-Q37/Q38、107-2-醫學一-胚胎學-Q37 等題目原始切片 subject 標記為胚胎學／微免，但內容實為組織學核心考點（子宮壁組織層、平滑肌細胞、細胞間接合、粒線體），本次比照內容歸類，非切片 subject 欄位。",
+    "腎上腺嗜鉻細胞（chromaffin cell）相關題（104-1-Q40 鉻鹽染色、107-1-Q43 腎上腺素釋放）歸入 endocrine-system-histology 而非另立神經內分泌/神經嵴衍生 concept；因考點聚焦其分泌功能而非神經嵴發生學。",
+    "膽囊（gallbladder）與胰臟外分泌部題目合併入 digestive-system-liver-gallbladder-and-pancreas（未獨立分出膽囊或胰臟 concept），因胰臟外分泌純題數過少（僅與唾液腺比較 1 題），若日後語料擴充可考慮拆分。",
+    "epithelial-surface-specializations-and-junctions 與 cell-junctions 概念未拆分（合併於同一 concept），因考題數量不足以支撐兩個獨立且有鑑別度的 concept；審閱時可視統計需求決定是否拆分「表面特化」與「細胞接合」。",
+    "109-1-醫學一-組織學-Q37（類上皮組織 epithelioid tissue 的細胞域敘述）掛在 epithelial-tissue-classification-and-lining 而非另立 epithelial-domain-polarity concept，因其考點與上皮分類密切相關且獨立題量僅 1 題。"
+  ]
+}

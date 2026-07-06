@@ -1,0 +1,126 @@
+{
+  "reviewer": "fable",
+  "verdict": "ship-with-minor-fixes",
+  "blocking": [
+    {
+      "subject": "病理學",
+      "leafId": "parathyroid-disease",
+      "issue": "此 bottomUp 桶把『副甲狀腺疾病』（低頻）與『糖尿病病理』（歷年高頻考點）併在一起。桶的重現度會被糖尿病撐高，但名稱只寫副甲狀腺 → 下游押題排序會出現『parathyroid-disease 很常考』的假訊號，學生照名稱去複習副甲狀腺、卻漏掉真正撐起頻率的糖尿病。這是重現度失真、不是單純粒度粗。",
+      "fix": "把『糖尿病病理』切成獨立 leaf（diabetes-pathology），parathyroid-disease 只留副甲狀腺；兩者各自報自己的 sitting 覆蓋。"
+    },
+    {
+      "subject": "病理學",
+      "leafId": "metabolic-bone-disease",
+      "issue": "跨兩個器官系統的合併（代謝性骨疾病＋骨關節炎＋眼科病理），report 自己也標為『最勉強的一組』。眼科病理的重現度被埋進骨疾病桶 → 『眼科病理』作為一個押題單位被稀釋到看不見，骨桶被灌水，兩邊排序都失真。",
+      "fix": "把『眼科病理』抽出（併入或另立 ophthalmic-pathology），本 leaf 保留代謝性骨病＋OA 這組語意相近者。"
+    },
+    {
+      "subject": "病理學",
+      "leafId": "hodgkin-lymphoma",
+      "issue": "名稱承諾『何杰金氏淋巴瘤』，實際桶內是 HL＋CLL＋漿細胞疾病（multiple myeloma）＋脾／胸腺疾病四個獨立疾病實體。Myeloma 與 CLL 是各自的高頻考點，被藏在 hodgkin 名下 → 排序會低估 myeloma/CLL、又讓『何杰金』看起來比實際頻繁。名稱誤導＋重現度失真雙重。",
+      "fix": "至少把『漿細胞疾病（multiple myeloma）』獨立成 leaf；CLL 視題量決定獨立或併入 lymphoid。桶改名為中性的 lymphoid-disorders-misc。"
+    }
+  ],
+  "recommendations": [
+    {
+      "subject": "生物化學",
+      "leafId": "vitamin-function-deficiency-syndromes",
+      "issue": "26題/20 sittings，rubric 點名的飽和大桶典型。合併全部脂溶＋水溶維生素 → 會在接近 23/23 飽和、押題不夠銳，喊『維生素常考』對醫學生等於沒講。個別維生素症候群（B1 Wernicke／B12・葉酸／niacin pellagra／C）在國考其實各有鮮明考點。",
+      "fix": "最少依脂溶(A/D/E/K) vs 水溶(B群/C) 拆兩桶；理想依症候群拆 3–4 桶以恢復押題辨識度。",
+      "severity": "P2"
+    },
+    {
+      "subject": "生物化學",
+      "leafId": "protein-higher-order-structure",
+      "issue": "21題大桶，涵蓋二級/三級/四級/摺疊/雙硫鍵/抗體結構，飽和且押題單位太雜。",
+      "fix": "拆『二三級結構與摺疊』vs『四級結構與伴護蛋白(chaperone)』兩概念。",
+      "severity": "P2"
+    },
+    {
+      "subject": "生物化學",
+      "leafId": "recombinant-dna-cloning-vectors",
+      "issue": "20題『分子生物技術工具箱』，合併質體/YAC/RFLP/knockout/RNAi/限制酶，飽和且異質。",
+      "fix": "拆『選殖載體設計』vs『分子標記與分析技術(RFLP/RNAi/knockout)』。",
+      "severity": "P3"
+    },
+    {
+      "subject": "藥理學",
+      "leafId": "antimuscarinic-drugs",
+      "issue": "30題、本科最大 leaf。單一機轉(M 拮抗)合併眼科散瞳／COPD 吸入／膀胱過動 → 幾乎必然 23/23 飽和，押題排序頂端變平台、無鑑別。",
+      "fix": "依臨床用途或藥物次類拆 2–3 桶（眼科散瞳／呼吸道吸入劑／泌尿科），單一機轉可在 synonyms 保留跨連結。",
+      "severity": "P2"
+    },
+    {
+      "subject": "藥理學",
+      "leafId": "beta-lactam-antibiotics",
+      "issue": "rubric 提到藥理約有 5 個 leaf 觸及 23/23（本檔無 per-leaf sitting count 可驗，見 notes）。β-lactam 是最可能飽和者之一，且已內含 penicillin/cephalosporin/carbapenem 三個教學上獨立的次類。",
+      "fix": "若實際 sitting histogram 證實飽和，依 penicillins / cephalosporins(含世代) / carbapenems 拆分；此拆分同時符合教科書組織與押題辨識。",
+      "severity": "P2"
+    },
+    {
+      "subject": "藥理學",
+      "leafId": "adrenergic-agonists",
+      "issue": "擬交感致效劑同屬高頻飽和候選；α vs β 選擇性在國考是分開的鮮明考點，合成單桶稀釋辨識度。",
+      "fix": "視 sitting 分佈拆『α 致效劑』vs『β 致效劑(含選擇性)』；diuretics / antiepileptic-drugs 一併用同準則檢視。",
+      "severity": "P3"
+    },
+    {
+      "subject": "微生物學",
+      "leafId": "vector-borne-and-zoonotic-atypical-bacteria",
+      "issue": "bottomUp，11題/9 sittings，本科最粗合併：立克次體＋艾利希體＋螺旋體(梅毒/鉤端/萊姆)＋布魯氏菌，科屬完全不同。螺旋體(尤其梅毒)是獨立高頻考點，被混入後押題與搜尋都被稀釋。",
+      "fix": "至少把『螺旋體(梅毒/鉤端螺旋體/萊姆病)』抽成獨立 leaf；其餘依 report 建議 3-way 或保留為 atypical 混合桶。",
+      "severity": "P2"
+    },
+    {
+      "subject": "微生物學",
+      "leafId": "candida-species",
+      "issue": "名稱只寫念珠菌，實含 Cryptococcus neoformans 與 Pneumocystis jirovecii。學生搜『隱球菌』『PCP』找不到 → 這兩者的重現度被隱藏在 candida 名下，押題與搜尋雙輸（命名裁決與 Codex lens 重疊）。",
+      "fix": "改名為中性『伺機性酵母樣真菌感染』，或把 Cryptococcus / Pneumocystis 至少在 synonyms 顯性化；命名最終與 Codex 一起裁。",
+      "severity": "P3"
+    },
+    {
+      "subject": "病理學",
+      "leafId": "peripheral-nerve-injury-repair",
+      "issue": "bottomUp 四合一（周邊神經病變＋中毒代謝性腦病＋肌病變＋感染性骨關節炎），彼此病因無關，語意上不是一個押題單位。與 blocking 三桶同屬『病理 11 個 sizing-driven 合併』家族，只是失真程度較輕故不列 blocking。",
+      "fix": "納入 owner 對病理 bottomUp 桶的系統性複核；優先把肌病變/感染性骨關節從神經桶分出。",
+      "severity": "P3"
+    },
+    {
+      "subject": "病理學",
+      "leafId": "colorectal-neoplasia-polyposis",
+      "issue": "bottomUp 把『大腸腫瘤/息肉症候群』與不相干的『口腔／唾液腺病灶』併桶。大腸腫瘤是高頻主軸，口腔唾液腺被搭便車 → 名稱與內容不符，搜尋誤導。",
+      "fix": "把口腔／唾液腺病灶抽出（另立或併入消化道其他 leaf），本 leaf 專注大腸腫瘤息肉。",
+      "severity": "P3"
+    },
+    {
+      "subject": "免疫學",
+      "leafId": "hypersensitivity-types-ii-iii-iv",
+      "issue": "跨科粒度落差：免疫學把過敏拆成 type-I 與 type-II/III/IV 兩 leaf（細），但病理學 hypersensitivity-reactions 把全部四型＋移植排斥＋免疫缺陷併成單一 leaf（粗）。同一概念在兩科粒度差距過大，學生跨科複習『第四型過敏』體驗不一致。",
+      "fix": "非必須統一，但建議在病理 hypersensitivity-reactions 的 zh 標明其為跨型總論，或把移植排斥/免疫缺陷從該病理桶分出以拉近粒度。",
+      "severity": "P3"
+    },
+    {
+      "subject": "生理學",
+      "leafId": "enzyme-kinetics-and-catalysis",
+      "issue": "bottomUp。酵素動力學本質是生化核心（生化已有 enzyme-kinetics-michaelis-menten）；生理出現近同名 leaf 高機率來自少數跨科誤標題目(report 已註生理有呼吸商/tyrosine 等 leak)。跨科同概念雙掛會讓搜尋『酵素動力學』落到兩個科、押題重複計數。",
+      "fix": "覆核此 leaf 的來源題是否應 re-home 回生化；若確為生理正當考點則在 zh 註明生理脈絡以區分。",
+      "severity": "P3"
+    },
+    {
+      "subject": "生理學",
+      "leafId": "membrane-transport-mechanisms",
+      "issue": "生化與生理各有一個 id/名稱完全相同的 membrane-transport-mechanisms leaf（hemoglobin-oxygen-binding、apoptosis 亦跨 2–3 科近同名）。內容分工其實合理(生化=分子載體、生理=電化學驅動)，但字面同名會讓跨科概念搜尋分不清是哪一個。",
+      "fix": "跨科同名 leaf 在 zh 加科別脈絡後綴(如『膜運輸機制(分子機制)』vs『膜運輸機制(電化學梯度)』)；純命名層，不動 id/歸類。",
+      "severity": "P4"
+    }
+  ],
+  "ownerDecisions": [
+    "生化維生素大桶(vitamin-function-deficiency-syndromes, 26題)要不要拆：脂溶vs水溶 兩桶、或逐症候群 3–4 桶？（影響押題頂端銳度）",
+    "藥理飽和大類(antimuscarinic-drugs 30題、beta-lactam、adrenergic-agonists 等 ~5 個觸及 23/23 者)保留單一機轉桶、還是依 subclass/臨床用途拆分以恢復辨識度？",
+    "病理 11 個 sizing-driven bottomUp 合併桶要不要系統性拆分：優先處理跨器官系統或高低頻混桶者(metabolic-bone+眼科、parathyroid+糖尿病、hodgkin+myeloma、peripheral-nerve 四合一、colorectal+口腔唾液腺)。",
+    "跨科同名 leaf(生化/生理 membrane-transport-mechanisms、hemoglobin binding、apoptosis 三科)是否在 zh 加科別後綴以利搜尋；id 與歸類不動。",
+    "微生物 candida-species 命名(實含 Cryptococcus/Pneumocystis)與 vector-borne 大桶(含螺旋體)是否拆／改名——與 Codex 命名 lens 一起裁。",
+    "生理 enzyme-kinetics-and-catalysis(bottomUp)是否把來源題 re-home 回生化，避免跨科酵素動力學雙掛重複計數。"
+  ],
+  "notes": "整體結構健全，可 ship-with-minor-fixes。11 科 528 leaf 的全域密度都落在 每科題數÷8–12 的目標帶內(解剖87/生理71 略高於 target 屬可接受的偏細)，沒有任何一科整體過粗或過細，封閉集乾淨(獨立核對 4 科 chapterId 皆在集內、無 out-of-set)。真正的問題是『科內分佈失衡』而非全域粒度：少數飽和大桶(生化維生素26題/蛋白質結構21題、藥理 antimuscarinic 30題與 ~5 個 23/23 候選)會把押題排序頂端壓成無鑑別的平台；另有病理 11 個 sizing-driven bottomUp 合併桶把語意/病因不相干的疾病(甚至跨器官系統)綁成一個押題單位，其中 3 個(parathyroid+糖尿病、metabolic-bone+眼科、hodgkin+myeloma)因『高頻疾病撐高桶、名稱指向低頻疾病』而讓重現度直接失真，列為 blocking。以上皆是外科手術式的拆桶/改名，不是結構重寫。\n\n重要資料缺口(影響本審查可信度，請 owner 補):本 merged.json 每個 leaf 只有 {id,zh,en,chapterId,synonyms}，沒有 per-leaf 的 sitting count / exampleQIds。我對『哪些飽和到 23/23、哪個合併桶被高頻疾病撐高』的判斷全靠 report 的散文計數(如 26題/20 sittings)＋醫學生領域知識推得，無法從資料本身逐一驗證。押題排序的核心訊號正是這張 per-leaf × sitting 的重現度直方圖——建議在 finalize 排序前先把它算出來，用它反過來確認我點名的飽和 leaf 與失真合併桶，並抓出我在無計數下看不到的『被切太細、1 題一概念稀釋重現度』的另一端(藥理 pulmonary-hypertension/migraine/alzheimer、免疫多個單-leaf 章節屬此嫌疑，但單題冷概念本身不違規，需計數才能區分正當冷門 vs 過度切分)。"
+}

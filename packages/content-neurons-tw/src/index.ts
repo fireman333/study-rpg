@@ -227,3 +227,17 @@ export {
   CONNECTOR_PAIR_KEYS,
   CONNECTOR_TOTAL,
 } from './connectors'
+
+// Closed two-level concept-tag vocabulary (add-neurons-concept-tags)
+export {
+  CONCEPT_VOCAB,
+  ALL_LEAVES,
+  validateConceptVocab,
+  resolveLeaf,
+  normalizeSurface,
+  type ConceptVocab,
+  type SubjectConceptTree,
+  type ConceptChapter,
+  type ConceptLeaf,
+  type ConceptVocabFailure,
+} from './concept-vocab/index'

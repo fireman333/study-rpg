@@ -27,11 +27,12 @@ const migrationSql = readFileSync(
 )
 
 // The category CHECK is re-created (with 'desktop-app' added) by migration 0018, so the
-// authoritative category list to check the canonical set against is 0018, not 0017.
+// authoritative category list is the LATEST additive migration — 0019 (adds
+// 'concept-tag-error', stacked on 0018's 'desktop-app'), not 0017.
 const categoryMigrationSql = readFileSync(
   fileURLToPath(
     new URL(
-      '../../../../supabase/migrations/0018_neurons_desktop_bug_category.sql',
+      '../../../../supabase/migrations/0019_neurons_concept_tag_category.sql',
       import.meta.url,
     ),
   ),

@@ -883,6 +883,7 @@ const QUIZ_BUG_TARGET_LABELS: Record<QuizBugTarget, string> = {
   question: '題目內容有誤',
   image: '圖片問題',
   explanation: '答案 / 詳解有誤',
+  'concept-tag': '概念標籤錯誤',
   other: '其他',
 }
 

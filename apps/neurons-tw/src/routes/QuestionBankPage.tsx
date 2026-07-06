@@ -9,8 +9,9 @@
  * in-quiz inline reporter uses (so reports land identically, with question_id).
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { EmojiIcon } from '../components/EmojiIcon'
+import { useConceptTags, conceptLabelsFor, type ConceptTagMap } from '../lib/concept-tags'
 import {
   QUIZ_BUG_TARGETS,
   QUIZ_BUG_TARGET_TO_CATEGORY,
@@ -198,9 +199,38 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
   const [committedQuery, setCommittedQuery] = useState('')
   const composingRef = useRef(false)
 
+  // Concept-label search shortcut (add-neurons-concept-tags §5.2): tapping a concept label
+  // (here or from 收藏) lands on /bank?concept=<zh> — prefill the search box from that param.
+  const [searchParams, setSearchParams] = useSearchParams()
+  useEffect(() => {
+    const c = searchParams.get('concept')
+    if (c) {
+      setSearchInput(c)
+      setCommittedQuery(c)
+    }
+  }, [searchParams])
+  const handleConceptClick = (zh: string): void => {
+    setSearchInput(zh)
+    setCommittedQuery(zh)
+    setSearchParams({ concept: zh })
+    window.scrollTo({ top: 0 })
+  }
+
+  // Concept tags (add-neurons-concept-tags §5.1) — folded into the search haystack so a
+  // concept-name query surfaces every question tagged with it (incl. cross-concept questions).
+  const conceptTags = useConceptTags()
   // Precompute the searchable haystack once per corpus (co-located with the
   // question to avoid a per-row lookup during filtering).
-  const searchRows = useMemo(() => questions.map((q) => ({ q, haystack: buildHaystack(q) })), [questions])
+  const searchRows = useMemo(
+    () =>
+      questions.map((q) => {
+        const conceptText = conceptLabelsFor(q, conceptTags)
+          .map((c) => c.zh)
+          .join(' ')
+        return { q, haystack: `${buildHaystack(q)} ${conceptText.normalize('NFKC').toLowerCase()}` }
+      }),
+    [questions, conceptTags],
+  )
   // Whitespace-split tokens, AND-combined; NFKC-lowercased to match the haystack.
   const searchTokens = useMemo(() => tokenizeSearchQuery(committedQuery), [committedQuery])
 
@@ -382,7 +412,13 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
 
       <ul style={listStyle}>
         {paged.map((q) => (
-          <QuestionEntry key={q.id} q={q} onReport={() => setBugForQ(q.id)} />
+          <QuestionEntry
+            key={q.id}
+            q={q}
+            onReport={() => setBugForQ(q.id)}
+            conceptTags={conceptTags}
+            onConceptClick={handleConceptClick}
+          />
         ))}
       </ul>
 
@@ -563,7 +599,17 @@ function ChipGroup({
 
 // ─── Per-question entry ──────────────────────────────────────────────────────
 
-function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): JSX.Element {
+function QuestionEntry({
+  q,
+  onReport,
+  conceptTags,
+  onConceptClick,
+}: {
+  q: Question
+  onReport: () => void
+  conceptTags: ConceptTagMap
+  onConceptClick: (zh: string) => void
+}): JSX.Element {
   const year = qYear(q)
   const session = qSession(q)
   // 題庫-specific chrome (題號 + 🐞 回報 + 年/次/科 tags) is the header; the FULL read-only
@@ -586,7 +632,13 @@ function QuestionEntry({ q, onReport }: { q: Question; onReport: () => void }): 
   )
   return (
     <li style={entryStyle}>
-      <QuestionReviewCard question={q} header={header} showFigure />
+      <QuestionReviewCard
+        question={q}
+        header={header}
+        showFigure
+        conceptLabels={conceptLabelsFor(q, conceptTags)}
+        onConceptClick={onConceptClick}
+      />
     </li>
   )
 }
@@ -636,6 +688,7 @@ const TARGET_LABELS: Record<QuizBugTarget, string> = {
   question: '題目內容有誤',
   image: '圖片問題',
   explanation: '答案 / 詳解有誤',
+  'concept-tag': '概念標籤錯誤',
   other: '其他',
 }
 

@@ -1,0 +1,507 @@
+{
+  "subjectId": "寄生蟲學",
+  "questionCount": 166,
+  "targetConceptCount": 17,
+  "concepts": [
+    {
+      "id": "foodborne-tissue-nematodes",
+      "zh": "食因性組織線蟲（旋毛蟲／菲律賓毛線蟲／海獸胃線蟲／棘顎口線蟲／麥地那線蟲／肝毛線蟲）",
+      "en": "foodborne and tissue-invasive nematodes (Trichinella spiralis, Capillaria philippinensis, Anisakis spp., Gnathostoma spinigerum, Dracunculus medinensis)",
+      "chapterId": "nematodes",
+      "synonyms": [
+        "旋毛蟲症 trichinellosis",
+        "腸道毛細線蟲症",
+        "海獸胃線蟲症 anisakiasis",
+        "棘顎口線蟲症 gnathostomiasis",
+        "麥地那龍線蟲症 dracunculiasis",
+        "低蛋白血症 hypoproteinemia",
+        "肝毛線蟲假性感染 spurious infection"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學一-寄生蟲學-Q75",
+        "104-1-醫學一-寄生蟲學-Q76",
+        "105-2-醫學一-寄生蟲學-Q75",
+        "106-1-醫學一-寄生蟲學-Q76",
+        "107-1-醫學二-公共衛生學-Q29",
+        "108-1-醫學二-寄生蟲學-Q29"
+      ],
+      "note": "Capillaria hepatica 之假性感染（spurious infection）併入本概念，因與 C. philippinensis 常被國考同題群比較"
+    },
+    {
+      "id": "intestinal-nematodes-soil-transmitted",
+      "zh": "腸道土壤傳播線蟲（蛔蟲／蟯蟲／鞭蟲／鉤蟲／糞小桿線蟲）",
+      "en": "soil-transmitted intestinal nematodes (Ascaris, Enterobius, Trichuris, hookworm, Strongyloides)",
+      "chapterId": "nematodes",
+      "synonyms": [
+        "蛔蟲症",
+        "蟯蟲症",
+        "鞭蟲症",
+        "鉤蟲病",
+        "糞小桿線蟲症",
+        "strongyloidiasis",
+        "autoinfection",
+        "notched tail filariform larva",
+        "iron deficiency anemia"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-2-醫學一-寄生蟲學-Q76",
+        "105-1-醫學一-寄生蟲學-Q75",
+        "105-2-醫學一-寄生蟲學-Q76",
+        "106-1-醫學一-寄生蟲學-Q77",
+        "106-2-醫學二-寄生蟲學-Q30",
+        "108-2-醫學二-寄生蟲學-Q29"
+      ]
+    },
+    {
+      "id": "lymphatic-and-subcutaneous-filariasis",
+      "zh": "淋巴絲蟲病與皮下絲蟲病（班氏絲蟲／馬來絲蟲／羅阿絲蟲／蟠尾絲蟲）",
+      "en": "lymphatic and subcutaneous filariasis (Wuchereria bancrofti, Brugia malayi, Loa loa, Onchocerca volvulus)",
+      "chapterId": "nematodes",
+      "synonyms": [
+        "象皮病 elephantiasis",
+        "乳糜尿 chyluria",
+        "microfilaria periodicity",
+        "河川盲 river blindness",
+        "豹皮花紋 leopard skin",
+        "tropical pulmonary eosinophilia"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-2-醫學一-寄生蟲學-Q75",
+        "105-1-醫學一-寄生蟲學-Q76",
+        "106-1-醫學一-寄生蟲學-Q75",
+        "106-2-醫學二-寄生蟲學-Q29",
+        "107-2-醫學二-寄生蟲學-Q30",
+        "108-1-醫學二-寄生蟲學-Q30"
+      ]
+    },
+    {
+      "id": "angiostrongyliasis-and-larva-migrans",
+      "zh": "廣東住血線蟲症與幼蟲移行症（內臟／皮膚型）",
+      "en": "angiostrongyliasis and larva migrans syndromes (visceral / cutaneous)",
+      "chapterId": "nematodes",
+      "synonyms": [
+        "嗜酸性腦膜炎 eosinophilic meningitis",
+        "廣東住血線蟲 Angiostrongylus cantonensis",
+        "犬蛔蟲 Toxocara canis",
+        "內臟幼蟲移行症 VLM",
+        "皮膚幼蟲移行症 CLM",
+        "犬鉤蟲 Ancylostoma caninum"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "107-1-醫學二-寄生蟲學-Q30",
+        "107-2-醫學二-寄生蟲學-Q29",
+        "108-2-醫學二-寄生蟲學-Q30",
+        "109-1-醫學二-微生物暨免疫學-Q30",
+        "110-1-醫學二-寄生蟲學-Q30",
+        "112-2-醫學二-寄生蟲學-Q30"
+      ],
+      "note": "bottom-up：三者機轉不同但皆屬「動物寄生蟲於人體異常移行造成之嗜酸性白血球增多症候群」，教學上常合併比較，故聚為一概念"
+    },
+    {
+      "id": "schistosomiasis",
+      "zh": "血吸蟲症（日本／埃及／曼氏血吸蟲）",
+      "en": "schistosomiasis (Schistosoma japonicum, S. haematobium, S. mansoni)",
+      "chapterId": "trematodes",
+      "synonyms": [
+        "片山熱 Katayama fever",
+        "血尿 hematuria",
+        "膀胱癌 bladder cancer",
+        "尾刺蟲卵 terminal spine egg",
+        "雌雄異體 dioecious",
+        "肉芽腫 granuloma"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學一-寄生蟲學-Q78",
+        "106-1-醫學一-寄生蟲學-Q79",
+        "107-2-醫學二-寄生蟲學-Q31",
+        "109-1-醫學二-微生物暨免疫學-Q31",
+        "109-2-醫學二-寄生蟲學-Q30",
+        "111-2-醫學二-寄生蟲學-Q32"
+      ]
+    },
+    {
+      "id": "paragonimiasis-and-ectopic-lesions",
+      "zh": "肺吸蟲症與吸蟲異位病變",
+      "en": "paragonimiasis and ectopic fluke lesions (Paragonimus westermani)",
+      "chapterId": "trematodes",
+      "synonyms": [
+        "衛氏肺吸蟲",
+        "醉蟹 drunken crab",
+        "血痰 blood-tinged sputum",
+        "Charcot-Leyden crystals",
+        "咽喉型 halzoun",
+        "異位腦病變 ectopic CNS lesion"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-2-醫學一-寄生蟲學-Q78",
+        "106-2-醫學二-寄生蟲學-Q31",
+        "107-2-醫學二-寄生蟲學-Q32",
+        "108-1-醫學二-寄生蟲學-Q31",
+        "108-2-醫學二-公共衛生學-Q31",
+        "110-1-醫學二-寄生蟲學-Q32"
+      ]
+    },
+    {
+      "id": "liver-and-intestinal-flukes",
+      "zh": "肝吸蟲與腸道吸蟲（中華肝吸蟲／異形吸蟲）",
+      "en": "liver and intestinal flukes (Clonorchis sinensis, Heterophyes heterophyes)",
+      "chapterId": "trematodes",
+      "synonyms": [
+        "中華肝吸蟲症 clonorchiasis",
+        "異形吸蟲症",
+        "膽管癌 cholangiocarcinoma",
+        "囊幼 metacercaria",
+        "第三吸盤 third sucker"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學一-寄生蟲學-Q77",
+        "105-1-醫學一-寄生蟲學-Q77",
+        "106-1-醫學一-寄生蟲學-Q78",
+        "113-1-醫學二-寄生蟲學-Q32",
+        "114-2-醫學二-寄生蟲學-Q32"
+      ]
+    },
+    {
+      "id": "echinococcosis-and-small-tapeworms",
+      "zh": "包生絛蟲症與小型絛蟲（單胞／多胞絛蟲、短小／縮小包膜絛蟲、犬複殖器絛蟲）",
+      "en": "echinococcosis and small tapeworms (Echinococcus granulosus/multilocularis, Hymenolepis nana/diminuta, Dipylidium caninum)",
+      "chapterId": "cestodes",
+      "synonyms": [
+        "包生囊 hydatid cyst",
+        "肺泡狀囊 alveolar cyst",
+        "短小包膜絛蟲自體感染",
+        "跳蚤中間宿主",
+        "絛蟲頭節 scolex"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學一-寄生蟲學-Q77",
+        "105-2-醫學一-寄生蟲學-Q77",
+        "107-1-醫學二-寄生蟲學-Q31",
+        "107-1-醫學二-寄生蟲學-Q32",
+        "109-1-醫學二-微生物暨免疫學-Q32",
+        "109-2-醫學二-寄生蟲學-Q31"
+      ]
+    },
+    {
+      "id": "taeniasis-and-cysticercosis",
+      "zh": "條蟲病與囊尾幼蟲症（豬肉／牛肉絛蟲）",
+      "en": "taeniasis and cysticercosis (Taenia solium, Taenia saginata)",
+      "chapterId": "cestodes",
+      "synonyms": [
+        "神經性囊尾幼蟲症 neurocysticercosis",
+        "豬囊尾幼蟲症 cysticercosis cellulosae",
+        "人為終宿主兼中間宿主"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "108-1-醫學二-寄生蟲學-Q32",
+        "111-1-醫學二-寄生蟲學-Q32",
+        "111-2-醫學二-寄生蟲學-Q31",
+        "114-1-醫學二-寄生蟲學-Q32",
+        "115-1-醫學二-寄生蟲學-Q31"
+      ]
+    },
+    {
+      "id": "diphyllobothriasis-and-sparganosis",
+      "zh": "廣節裂頭絛蟲症與孔雀蚴／裂頭蚴移行症",
+      "en": "diphyllobothriasis and sparganosis (Diphyllobothrium latum, Spirometra mansonoides)",
+      "chapterId": "cestodes",
+      "synonyms": [
+        "維他命B12缺乏",
+        "裂頭蚴 plerocercoid",
+        "原尾幼蟲 procercoid",
+        "卵蓋 operculum"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "104-2-醫學一-寄生蟲學-Q78",
+        "105-1-醫學一-寄生蟲學-Q78",
+        "108-2-醫學二-寄生蟲學-Q32",
+        "111-1-醫學二-寄生蟲學-Q31"
+      ]
+    },
+    {
+      "id": "malaria-plasmodium",
+      "zh": "瘧疾（瘧原蟲生活史、致病機轉與併發症）",
+      "en": "malaria (Plasmodium spp. life cycle, pathogenesis, and complications)",
+      "chapterId": "protozoa",
+      "synonyms": [
+        "間日瘧 P. vivax",
+        "惡性瘧 P. falciparum",
+        "三日瘧 P. malariae",
+        "卵形瘧 P. ovale",
+        "諾氏瘧原蟲 P. knowlesi",
+        "黑水熱 blackwater fever",
+        "隱眠體 hypnozoite",
+        "細胞附著 cytoadherence"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學一-寄生蟲學-Q79",
+        "104-2-醫學一-寄生蟲學-Q81",
+        "108-1-醫學二-寄生蟲學-Q33",
+        "109-2-醫學二-寄生蟲學-Q32",
+        "110-1-醫學二-寄生蟲學-Q33",
+        "110-2-醫學二-寄生蟲學-Q32"
+      ]
+    },
+    {
+      "id": "free-living-amoebae-and-flagellates",
+      "zh": "自由生活阿米巴與腸道／泌尿生殖道鞭毛蟲（含隱孢子蟲）",
+      "en": "free-living amoebae and flagellates (Naegleria fowleri, Acanthamoeba, Giardia lamblia, Trichomonas vaginalis, Cryptosporidium spp.)",
+      "chapterId": "protozoa",
+      "synonyms": [
+        "原發性阿米巴腦膜腦炎 PAM",
+        "肉芽腫性阿米巴腦炎 GAE",
+        "棘阿米巴角膜炎",
+        "梨形鞭毛蟲症 giardiasis",
+        "陰道滴蟲症 trichomoniasis",
+        "隱孢子蟲症 cryptosporidiosis"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-2-醫學一-寄生蟲學-Q80",
+        "105-1-醫學一-寄生蟲學-Q80",
+        "106-1-醫學一-寄生蟲學-Q80",
+        "106-2-醫學二-寄生蟲學-Q32",
+        "107-2-醫學二-寄生蟲學-Q33",
+        "109-1-醫學二-微生物暨免疫學-Q33"
+      ],
+      "note": "Giardia/Trichomonas/Cryptosporidium 與自由生活阿米巴機轉不同，但皆屬「非血液型鞭毛蟲/阿米巴」且各自考題量小（2題級），bottom-up 聚為一概念避免過度稀釋"
+    },
+    {
+      "id": "leishmaniasis",
+      "zh": "利什曼原蟲症（內臟型黑熱病與皮膚型）",
+      "en": "leishmaniasis (visceral kala-azar and cutaneous forms)",
+      "chapterId": "protozoa",
+      "synonyms": [
+        "黑熱病 kala-azar",
+        "杜氏利什曼原蟲 L. donovani",
+        "無鞭毛體 amastigote",
+        "白蛉 sandfly",
+        "後黑熱病皮膚利什曼原蟲症"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學一-寄生蟲學-Q81",
+        "104-2-醫學一-寄生蟲學-Q79",
+        "106-2-醫學二-寄生蟲學-Q33",
+        "108-2-醫學二-病理學-Q34",
+        "109-1-醫學二-微生物暨免疫學-Q34",
+        "110-2-醫學二-寄生蟲學-Q34"
+      ]
+    },
+    {
+      "id": "intestinal-luminal-amoebae",
+      "zh": "腸道管腔阿米巴（痢疾阿米巴及其他非致病性阿米巴）",
+      "en": "intestinal luminal amoebae (Entamoeba histolytica and non-pathogenic amoebae)",
+      "chapterId": "protozoa",
+      "synonyms": [
+        "阿米巴痢疾 amebic dysentery",
+        "阿米巴肝膿瘍 amebic liver abscess",
+        "阿米巴腫 ameboma",
+        "大腸阿米巴 E. coli",
+        "哈氏阿米巴",
+        "嗜碘阿米巴"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "104-1-醫學一-寄生蟲學-Q80",
+        "105-1-醫學一-寄生蟲學-Q79",
+        "106-1-醫學一-寄生蟲學-Q81",
+        "106-1-醫學一-寄生蟲學-Q82",
+        "106-2-醫學二-寄生蟲學-Q34",
+        "107-1-醫學二-寄生蟲學-Q33"
+      ]
+    },
+    {
+      "id": "trypanosomiasis",
+      "zh": "錐蟲病（美洲卡格氏症與非洲昏睡病）",
+      "en": "trypanosomiasis (Chagas disease and African sleeping sickness)",
+      "chapterId": "protozoa",
+      "synonyms": [
+        "卡格氏症 Chagas' disease",
+        "枯西氏錐蟲 T. cruzi",
+        "昏睡病 sleeping sickness",
+        "岡比亞錐蟲",
+        "羅得西亞錐蟲",
+        "采采蠅 tsetse fly",
+        "錐鼻蟲 kissing bug",
+        "Romaña's sign"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-2-醫學一-寄生蟲學-Q82",
+        "108-2-醫學二-病理學-Q33",
+        "109-1-醫學二-微生物暨免疫學-Q35",
+        "110-1-醫學二-寄生蟲學-Q35",
+        "112-1-醫學二-寄生蟲學-Q33",
+        "114-1-醫學二-寄生蟲學-Q33"
+      ]
+    },
+    {
+      "id": "babesiosis",
+      "zh": "巴貝氏原蟲病",
+      "en": "babesiosis (Babesia spp.)",
+      "chapterId": "protozoa",
+      "synonyms": [
+        "雙核形 binucleate form",
+        "硬蜱 Ixodes",
+        "溶血性貧血",
+        "脾臟切除病人重症"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "105-2-醫學一-寄生蟲學-Q79",
+        "107-2-醫學二-寄生蟲學-Q35",
+        "108-2-醫學二-寄生蟲學-Q35",
+        "110-2-醫學二-寄生蟲學-Q35",
+        "115-1-醫學二-寄生蟲學-Q33"
+      ]
+    },
+    {
+      "id": "toxoplasmosis",
+      "zh": "弓蟲症",
+      "en": "toxoplasmosis (Toxoplasma gondii)",
+      "chapterId": "protozoa",
+      "synonyms": [
+        "弓形蟲",
+        "貓為終宿主",
+        "先天性弓蟲症",
+        "弓蟲腦炎 Toxoplasma encephalitis"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "105-2-醫學一-寄生蟲學-Q80",
+        "112-2-醫學二-寄生蟲學-Q32",
+        "113-2-醫學二-寄生蟲學-Q32",
+        "114-2-醫學二-寄生蟲學-Q33"
+      ]
+    },
+    {
+      "id": "scrub-typhus-chigger-mite",
+      "zh": "恙蟲病與恙蟎媒介",
+      "en": "scrub typhus (Orientia tsutsugamushi) and chigger mite vector",
+      "chapterId": "arthropod-vectors",
+      "synonyms": [
+        "恙蟲病 scrub typhus / tsutsugamushi disease",
+        "地里恙蟎 Leptotrombidium deliense",
+        "Orientia tsutsugamushi",
+        "恙蟎 chigger mite"
+      ],
+      "estTestedSittings": 4,
+      "estQuestionCount": 4,
+      "exampleQIds": [
+        "104-1-醫學一-寄生蟲學-Q82",
+        "107-2-醫學二-寄生蟲學-Q34",
+        "109-2-醫學二-寄生蟲學-Q35",
+        "111-2-醫學二-寄生蟲學-Q35"
+      ],
+      "note": "split from mite-borne-disease per §1.5 panel — vector-borne rickettsial infection"
+    },
+    {
+      "id": "dust-mite-allergy",
+      "zh": "塵蟎過敏原與氣喘",
+      "en": "house dust mite allergen and asthma",
+      "chapterId": "arthropod-vectors",
+      "synonyms": [
+        "塵蟎 dust mite",
+        "致敏原 allergen",
+        "house dust mite",
+        "兒童氣喘 asthma allergen"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "105-1-醫學一-寄生蟲學-Q81",
+        "112-2-醫學二-寄生蟲學-Q34"
+      ],
+      "note": "split from mite-borne-disease per §1.5 panel — non-infectious arthropod allergen (Codex/Fable: not semantically closed with vector infection)"
+    },
+    {
+      "id": "tick-borne-disease",
+      "zh": "蜱媒介疾病（萊姆病、艾利希體症、回歸熱等）",
+      "en": "tick-borne disease (Lyme disease, ehrlichiosis, relapsing fever, tick-borne rickettsioses)",
+      "chapterId": "arthropod-vectors",
+      "synonyms": [
+        "萊姆病 Lyme disease",
+        "伯氏疏螺旋體 Borrelia burgdorferi",
+        "遊走性紅斑 erythema migrans",
+        "艾利克次體症 ehrlichiosis",
+        "回歸熱 relapsing fever",
+        "硬蜱 Ixodes",
+        "軟蜱 soft tick"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "104-2-醫學一-寄生蟲學-Q82",
+        "105-1-醫學一-寄生蟲學-Q82",
+        "105-2-醫學一-寄生蟲學-Q81",
+        "107-1-醫學二-寄生蟲學-Q34",
+        "109-2-醫學二-寄生蟲學-Q34",
+        "112-2-醫學二-寄生蟲學-Q35"
+      ]
+    },
+    {
+      "id": "louse-flea-mechanical-vectors",
+      "zh": "蝨蚤媒介疾病與機械性傳播（流行性斑疹傷寒、鼠疫、蠅蛆症）",
+      "en": "louse- and flea-borne disease and mechanical transmission (epidemic typhus, plague, myiasis)",
+      "chapterId": "arthropod-vectors",
+      "synonyms": [
+        "流行性斑疹傷寒 epidemic typhus",
+        "體蝨 body louse",
+        "鼠疫 plague",
+        "鼠蚤 Xenopsylla cheopis",
+        "蠅蛆症 myiasis",
+        "機械性傳播 mechanical transmission",
+        "家蠅 house fly"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "106-2-醫學二-寄生蟲學-Q35",
+        "107-1-醫學二-寄生蟲學-Q35",
+        "108-1-醫學二-寄生蟲學-Q35",
+        "111-1-醫學二-寄生蟲學-Q35",
+        "113-1-醫學二-寄生蟲學-Q35",
+        "113-2-醫學二-寄生蟲學-Q35"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "foodborne-tissue-nematodes 把 Capillaria philippinensis / C. hepatica / Trichinella / Anisakis / Gnathostoma / Dracunculus 5 種不同科的線蟲併為一個 bottom-up 概念（因各自考題量僅 1–4 題，過細會稀釋押題），owner 可考慮日後再拆。",
+    "angiostrongyliasis-and-larva-migrans 把 Angiostrongylus cantonensis（腦脊髓）、Toxocara canis（VLM）、Ancylostoma caninum（CLM）三種不同蟲併為一組，共同點是「動物寄生蟲於人體異位移行造成嗜酸性白血球增多」，非傳統教科書分類方式，屬 bottom-up 判斷。",
+    "free-living-amoebae-and-flagellates 把自由生活阿米巴（Naegleria/Acanthamoeba）與腸道/泌尿道鞭毛蟲（Giardia/Trichomonas）及隱孢子蟲併為一組，機轉完全不同，純粹因各自考題量小（2–5題）而 bottom-up 合併，non-canonical 但避免過度細碎。",
+    "mite-borne-disease 把恙蟲病（病媒疾病）與塵蟎氣喘過敏（非感染症）併入同一概念，兩者僅共同點是「蟎」，屬 bottom-up 分組。",
+    "108-2-醫學二-公共衛生學-Q31 與 110-1-醫學二-寄生蟲學-Q32 兩題本質在問「哪個吸蟲不會造成腦部異位病變」（answer 分別為棘口吸蟲、薑片蟲，屬 distractor 蟲種），核心考點鎖定在 paragonimiasis-and-ectopic-lesions（衛氏肺吸蟲最常見腦部異位病灶），而非棘口吸蟲/薑片蟲本身；owner 可覆核此分類是否合理。",
+    "114-2-醫學二-寄生蟲學-Q34（哪個原蟲不是血鞭毛蟲 hemoflagellate，正解為唇形鞭毛蟲 Chilomastix mesnili）掛在 trypanosomiasis 概念下（因該題核心是辨識血鞭毛蟲 taxonomy，與 Leishmania/Trypanosoma 同組），但正解本身屬腸道鞭毛蟲，非血鞭毛蟲，分類略有張力，owner 可覆核。",
+    "113-2-醫學二-藥理學-Q31（血吸蟲雌雄同體敘述為誤，因血吸蟲雌雄異體 dioecious）雖標題含「藥理學」，內容實為血吸蟲形態學考題，已歸入 schistosomiasis。"
+  ]
+}

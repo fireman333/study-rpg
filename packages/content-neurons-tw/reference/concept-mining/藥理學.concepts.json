@@ -1,0 +1,1632 @@
+{
+  "subjectId": "藥理學",
+  "questionCount": 577,
+  "targetConceptCount": 58,
+  "concepts": [
+    {
+      "id": "pharmacokinetics-adme",
+      "zh": "藥物動力學基本概念與新藥研發試驗",
+      "en": "pharmacokinetics (ADME, pH-partition) and drug development/clinical trial phases",
+      "chapterId": "general-pharmacology",
+      "synonyms": [
+        "first-pass effect",
+        "首渡效應",
+        "clearance",
+        "volume of distribution",
+        "facilitated diffusion",
+        "biotransformation",
+        "生物轉換",
+        "Henderson-Hasselbalch",
+        "pKa",
+        "ion trapping",
+        "離子化",
+        "pKa / pH-partition hypothesis",
+        "phase 1/2/3",
+        "安全性試驗",
+        "toxicity testing",
+        "mutagenic/carcinogenic potential",
+        "clinical trial phases"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q51",
+        "104-2-醫學二-藥理學-Q51",
+        "104-2-醫學二-藥理學-Q52",
+        "107-1-醫學二-藥理學-Q51",
+        "107-1-醫學二-藥理學-Q60",
+        "106-2-醫學二-藥理學-Q62"
+      ]
+    },
+    {
+      "id": "drug-drug-interaction-cyp",
+      "zh": "藥物交互作用與細胞色素 P450 誘導/抑制",
+      "en": "drug-drug interactions via CYP450 induction/inhibition",
+      "chapterId": "general-pharmacology",
+      "synonyms": [
+        "cytochrome P450",
+        "enzyme induction",
+        "enzyme inhibition",
+        "肝臟代謝酵素誘發",
+        "加強代謝",
+        "抑制代謝"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q52",
+        "106-1-醫學二-藥理學-Q51",
+        "106-1-醫學二-藥理學-Q72",
+        "108-2-醫學二-藥理學-Q59",
+        "115-1-醫學二-藥理學-Q63"
+      ]
+    },
+    {
+      "id": "receptor-pharmacodynamics",
+      "zh": "受體藥理學：致效劑/拮抗劑作用理論",
+      "en": "receptor pharmacodynamics (agonist/antagonist types, efficacy)",
+      "chapterId": "general-pharmacology",
+      "synonyms": [
+        "partial agonist",
+        "competitive antagonist",
+        "noncompetitive antagonist",
+        "chemical antagonism",
+        "GPCR signaling",
+        "G protein-coupled receptor"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q59",
+        "106-2-醫學二-藥理學-Q61",
+        "108-2-醫學二-病理學-Q58",
+        "112-1-醫學二-藥理學-Q51",
+        "112-1-醫學二-藥理學-Q59"
+      ]
+    },
+    {
+      "id": "penicillins",
+      "zh": "青黴素類抗生素",
+      "en": "penicillins (natural, penicillinase-resistant, aminopenicillins, antipseudomonal, beta-lactamase inhibitor combinations)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "ampicillin",
+        "amoxicillin",
+        "nafcillin",
+        "dicloxacillin",
+        "ticarcillin",
+        "piperacillin",
+        "sulbactam",
+        "clavulanate",
+        "antipseudomonal penicillin",
+        "benzathine penicillin"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "107-1-醫學二-病理學-Q64",
+        "107-2-醫學二-藥理學-Q62",
+        "108-1-醫學二-藥理學-Q61",
+        "107-1-醫學二-藥理學-Q61",
+        "110-1-醫學二-藥理學-Q52",
+        "112-1-醫學二-藥理學-Q55"
+      ],
+      "note": "split from beta-lactam-antibiotics per §1.5 panel"
+    },
+    {
+      "id": "cephalosporins",
+      "zh": "頭孢菌素類抗生素（含世代分類）",
+      "en": "cephalosporins by generation (1st-5th gen; cefazolin, ceftriaxone, cefepime, ceftazidime-avibactam)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "cefazolin",
+        "cefuroxime",
+        "ceftriaxone",
+        "cefepime",
+        "ceftazidime",
+        "cephalosporin generation",
+        "頭孢菌素世代",
+        "surgical prophylaxis"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q61",
+        "108-1-醫學二-藥理學-Q62",
+        "111-2-醫學二-藥理學-Q52",
+        "112-2-醫學二-藥理學-Q52",
+        "114-2-醫學二-藥理學-Q55"
+      ],
+      "note": "split from beta-lactam-antibiotics per §1.5 panel"
+    },
+    {
+      "id": "carbapenems-and-monobactams",
+      "zh": "碳青黴烯類與單環乙內醯胺類抗生素",
+      "en": "carbapenems and monobactams (imipenem-cilastatin, aztreonam)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "imipenem",
+        "cilastatin",
+        "aztreonam",
+        "monobactam",
+        "dehydropeptidase",
+        "transpeptidase inhibition",
+        "beta-lactamase resistant"
+      ],
+      "estTestedSittings": 3,
+      "estQuestionCount": 3,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q55",
+        "106-1-醫學二-藥理學-Q62",
+        "109-1-醫學二-藥理學-Q62"
+      ],
+      "note": "split from beta-lactam-antibiotics per §1.5 panel"
+    },
+    {
+      "id": "aminoglycosides",
+      "zh": "胺基配醣體類抗生素",
+      "en": "aminoglycoside antibiotics",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "gentamicin",
+        "amikacin",
+        "tobramycin",
+        "30S ribosome"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q54",
+        "107-1-醫學二-病理學-Q64",
+        "109-1-醫學二-藥理學-Q63",
+        "112-2-醫學二-藥理學-Q54",
+        "115-1-醫學二-藥理學-Q53"
+      ]
+    },
+    {
+      "id": "tetracyclines",
+      "zh": "四環黴素類抗生素",
+      "en": "tetracycline antibiotics",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "doxycycline",
+        "minocycline",
+        "tigecycline",
+        "omadacycline",
+        "Tet efflux pump"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q53",
+        "104-2-醫學二-藥理學-Q67",
+        "106-1-醫學二-藥理學-Q60",
+        "108-2-醫學二-藥理學-Q60",
+        "114-1-醫學二-藥理學-Q52"
+      ]
+    },
+    {
+      "id": "macrolides-clindamycin",
+      "zh": "巨環內酯類與 Clindamycin",
+      "en": "macrolides and clindamycin (protein synthesis inhibitors)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "erythromycin",
+        "clarithromycin",
+        "clindamycin",
+        "50S ribosome"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q69",
+        "104-2-醫學二-藥理學-Q56",
+        "107-2-醫學二-藥理學-Q61",
+        "110-2-醫學二-藥理學-Q54",
+        "114-1-醫學二-藥理學-Q52"
+      ]
+    },
+    {
+      "id": "sulfonamides-trimethoprim",
+      "zh": "磺胺類與 Trimethoprim",
+      "en": "sulfonamides and trimethoprim (folate synthesis inhibitors)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "TMP-SMZ",
+        "dihydrofolate reductase",
+        "sulfamethoxazole"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q54",
+        "107-1-醫學二-藥理學-Q63",
+        "108-2-醫學二-藥理學-Q60",
+        "113-1-醫學二-藥理學-Q52",
+        "113-2-醫學二-藥理學-Q52"
+      ]
+    },
+    {
+      "id": "vancomycin-glycopeptides",
+      "zh": "Vancomycin 與醣肽類抗生素",
+      "en": "vancomycin and glycopeptide antibiotics",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "teicoplanin",
+        "dalbavancin",
+        "D-Ala-D-Ala",
+        "MRSA"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q52",
+        "106-2-醫學二-藥理學-Q64",
+        "108-2-醫學二-藥理學-Q51",
+        "111-1-醫學二-藥理學-Q54",
+        "113-1-醫學二-藥理學-Q52"
+      ]
+    },
+    {
+      "id": "antimycobacterial-drugs",
+      "zh": "抗結核／抗分枝桿菌藥物",
+      "en": "antimycobacterial drugs (rifampin, isoniazid)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "rifampin",
+        "isoniazid",
+        "pyridoxine",
+        "N-acetyltransferase"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q52",
+        "107-2-醫學二-藥理學-Q60",
+        "108-2-醫學二-藥理學-Q59",
+        "108-2-醫學二-藥理學-Q61",
+        "112-1-醫學二-藥理學-Q52"
+      ]
+    },
+    {
+      "id": "antifungal-drugs",
+      "zh": "抗黴菌藥物",
+      "en": "antifungal drugs",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "azole",
+        "ketoconazole",
+        "fluconazole",
+        "terbinafine",
+        "amphotericin B",
+        "nystatin",
+        "squalene epoxidase"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q53",
+        "105-1-醫學二-藥理學-Q54",
+        "109-2-醫學二-藥理學-Q59",
+        "113-2-醫學二-藥理學-Q55",
+        "114-2-醫學二-藥理學-Q54"
+      ]
+    },
+    {
+      "id": "antiviral-drugs-herpes-hiv-hbv",
+      "zh": "抗病毒藥物（疱疹/HIV/B肝）",
+      "en": "antiviral drugs (herpesviruses, HIV, hepatitis B)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "acyclovir",
+        "thymidine kinase",
+        "zidovudine",
+        "tenofovir",
+        "abacavir",
+        "ganciclovir",
+        "enfuvirtide"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 13,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q54",
+        "106-2-醫學二-藥理學-Q51",
+        "108-2-醫學二-藥理學-Q62",
+        "109-2-醫學二-藥理學-Q52",
+        "114-1-醫學二-藥理學-Q53"
+      ]
+    },
+    {
+      "id": "anticancer-alkylating-antimetabolite",
+      "zh": "抗腫瘤藥物：烷化劑與抗代謝藥物",
+      "en": "anticancer drugs: alkylating agents and antimetabolites",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "cyclophosphamide",
+        "methotrexate",
+        "5-fluorouracil",
+        "cisplatin",
+        "carboplatin",
+        "oxaliplatin",
+        "6-mercaptopurine",
+        "thymidylate synthase"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "108-1-醫學二-藥理學-Q52",
+        "110-1-醫學二-藥理學-Q55",
+        "113-2-醫學二-藥理學-Q53",
+        "114-2-醫學二-藥理學-Q52",
+        "115-1-醫學二-藥理學-Q52"
+      ]
+    },
+    {
+      "id": "anticancer-antimitotic-antibiotic",
+      "zh": "抗腫瘤藥物：抗微小管藥物與抗癌抗生素",
+      "en": "anticancer drugs: anti-microtubule agents and antitumor antibiotics",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "vincristine",
+        "vinblastine",
+        "paclitaxel",
+        "doxorubicin",
+        "bleomycin",
+        "topoisomerase II",
+        "紡錘體毒藥"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q63",
+        "109-1-醫學二-藥理學-Q75",
+        "111-2-醫學二-藥理學-Q55",
+        "112-2-醫學二-藥理學-Q54",
+        "114-2-醫學二-藥理學-Q52"
+      ]
+    },
+    {
+      "id": "targeted-anticancer-mab-tki",
+      "zh": "標靶抗癌藥物（單株抗體/酪胺酸激酶抑制劑/免疫檢查點抑制劑）",
+      "en": "targeted anticancer agents (monoclonal antibodies, TKIs, immune checkpoint inhibitors)",
+      "chapterId": "chemotherapy-antimicrobial-antineoplastic",
+      "synonyms": [
+        "bevacizumab",
+        "VEGF",
+        "cetuximab",
+        "HER-2",
+        "trastuzumab",
+        "imatinib",
+        "sunitinib",
+        "lapatinib",
+        "pembrolizumab",
+        "atezolizumab",
+        "nivolumab",
+        "PD-L1",
+        "immune checkpoint inhibitors (PD-1/PD-L1)"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q53",
+        "109-2-醫學二-藥理學-Q55",
+        "111-2-醫學二-藥理學-Q54",
+        "113-2-醫學二-藥理學-Q54",
+        "115-1-醫學二-藥理學-Q54",
+        "108-2-醫學二-藥理學-Q73"
+      ]
+    },
+    {
+      "id": "anticoagulants",
+      "zh": "抗凝血藥物",
+      "en": "anticoagulants (heparin, warfarin, direct oral anticoagulants)",
+      "chapterId": "hematologic-drugs",
+      "synonyms": [
+        "heparin",
+        "warfarin",
+        "dabigatran",
+        "rivaroxaban",
+        "fondaparinux",
+        "antithrombin III",
+        "VKORC1"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q57",
+        "105-2-醫學二-藥理學-Q56",
+        "109-1-醫學二-藥理學-Q51",
+        "111-2-醫學二-藥理學-Q51",
+        "113-1-醫學二-藥理學-Q58"
+      ]
+    },
+    {
+      "id": "antiplatelet-drugs",
+      "zh": "抗血小板凝集藥物",
+      "en": "antiplatelet drugs",
+      "chapterId": "hematologic-drugs",
+      "synonyms": [
+        "aspirin low-dose",
+        "clopidogrel",
+        "ticlopidine",
+        "abciximab",
+        "glycoprotein IIb/IIIa",
+        "ADP receptor antagonist"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q58",
+        "104-1-醫學二-藥理學-Q59",
+        "105-1-醫學二-藥理學-Q56",
+        "109-2-醫學二-藥理學-Q58",
+        "112-2-醫學二-藥理學-Q57"
+      ]
+    },
+    {
+      "id": "thrombolytics-antifibrinolytics",
+      "zh": "血栓溶解劑與抗纖維蛋白溶解劑",
+      "en": "thrombolytics and antifibrinolytic agents",
+      "chapterId": "hematologic-drugs",
+      "synonyms": [
+        "plasminogen activator",
+        "tranexamic acid",
+        "aminocaproic acid",
+        "tenecteplase"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q57",
+        "106-2-醫學二-藥理學-Q66",
+        "107-2-醫學二-藥理學-Q64",
+        "110-1-醫學二-藥理學-Q59",
+        "113-2-醫學二-藥理學-Q57"
+      ]
+    },
+    {
+      "id": "lipid-lowering-drugs",
+      "zh": "降血脂藥物",
+      "en": "lipid-lowering drugs (statins and non-statin agents)",
+      "chapterId": "hematologic-drugs",
+      "synonyms": [
+        "statin",
+        "HMG-CoA reductase",
+        "ezetimibe",
+        "fenofibrate",
+        "niacin",
+        "cholestyramine",
+        "PCSK9 inhibitor",
+        "evolocumab"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q55",
+        "108-1-醫學二-藥理學-Q54",
+        "110-1-醫學二-藥理學-Q57",
+        "112-1-醫學二-藥理學-Q58",
+        "115-1-醫學二-藥理學-Q58"
+      ]
+    },
+    {
+      "id": "hematopoietic-growth-factors",
+      "zh": "造血生長因子與血小板生成素製劑",
+      "en": "hematopoietic growth factors and thrombopoietin agents",
+      "chapterId": "hematologic-drugs",
+      "synonyms": [
+        "erythropoietin",
+        "G-CSF",
+        "romiplostim",
+        "eltrombopag",
+        "plerixafor",
+        "oprelvekin"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 9,
+      "exampleQIds": [
+        "110-1-醫學二-藥理學-Q58",
+        "110-2-醫學二-藥理學-Q58",
+        "110-2-醫學二-藥理學-Q59",
+        "113-1-醫學二-藥理學-Q57",
+        "114-1-醫學二-藥理學-Q57"
+      ]
+    },
+    {
+      "id": "immunosuppressants",
+      "zh": "免疫抑制劑",
+      "en": "immunosuppressant drugs",
+      "chapterId": "hematologic-drugs",
+      "synonyms": [
+        "cyclosporine",
+        "tacrolimus",
+        "sirolimus",
+        "calcineurin inhibitor",
+        "mycophenolate mofetil",
+        "basiliximab"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q52",
+        "109-1-醫學二-藥理學-Q65",
+        "111-2-醫學二-藥理學-Q57",
+        "113-2-醫學二-藥理學-Q56",
+        "114-1-醫學二-藥理學-Q58"
+      ]
+    },
+    {
+      "id": "thyroid-drugs",
+      "zh": "甲狀腺藥物",
+      "en": "thyroid drugs (antithyroid agents and thyroid hormone replacement)",
+      "chapterId": "hormones-antagonists",
+      "synonyms": [
+        "methimazole",
+        "propylthiouracil",
+        "levothyroxine",
+        "liotrix",
+        "Graves' disease",
+        "perchlorate"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q61",
+        "105-1-醫學二-藥理學-Q61",
+        "105-2-醫學二-藥理學-Q58",
+        "106-2-醫學二-藥理學-Q53",
+        "111-1-醫學二-藥理學-Q60"
+      ]
+    },
+    {
+      "id": "glucocorticoids",
+      "zh": "糖皮質激素",
+      "en": "glucocorticoids (pharmacology and adverse effects)",
+      "chapterId": "hormones-antagonists",
+      "synonyms": [
+        "prednisone",
+        "prednisolone",
+        "Cushing syndrome",
+        "庫欣氏症候群",
+        "corticosteroid"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q62",
+        "109-2-醫學二-藥理學-Q60",
+        "111-1-醫學二-藥理學-Q61",
+        "112-1-醫學二-藥理學-Q60",
+        "115-1-醫學二-藥理學-Q60"
+      ]
+    },
+    {
+      "id": "sex-hormones-antagonists",
+      "zh": "性荷爾蒙、拮抗劑與 GnRH 類似物",
+      "en": "sex hormones, antagonists, and GnRH analogs",
+      "chapterId": "hormones-antagonists",
+      "synonyms": [
+        "tamoxifen",
+        "raloxifene",
+        "estrogen",
+        "danazol",
+        "clomiphene",
+        "flutamide",
+        "finasteride",
+        "testosterone",
+        "mifepristone",
+        "leuprolide",
+        "GnRH agonist",
+        "central precocious puberty",
+        "中樞性性早熟",
+        "GnRH agonists (leuprolide)"
+      ],
+      "estTestedSittings": 18,
+      "estQuestionCount": 26,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q58",
+        "108-1-醫學二-藥理學-Q64",
+        "111-2-醫學二-藥理學-Q54",
+        "112-1-醫學二-藥理學-Q60",
+        "113-1-醫學二-藥理學-Q60",
+        "104-2-醫學二-藥理學-Q59"
+      ]
+    },
+    {
+      "id": "antidiabetic-drugs",
+      "zh": "降血糖藥物",
+      "en": "antidiabetic drugs (insulin and oral hypoglycemics)",
+      "chapterId": "hormones-antagonists",
+      "synonyms": [
+        "insulin",
+        "sulfonylurea",
+        "metformin",
+        "thiazolidinedione",
+        "SGLT2 inhibitor",
+        "GLP-1 agonist",
+        "acarbose"
+      ],
+      "estTestedSittings": 17,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q53",
+        "108-2-醫學二-藥理學-Q53",
+        "110-1-醫學二-藥理學-Q61",
+        "113-2-醫學二-藥理學-Q61",
+        "115-1-醫學二-藥理學-Q59"
+      ]
+    },
+    {
+      "id": "pituitary-growth-hormone-axis",
+      "zh": "腦下垂體與生長激素軸用藥",
+      "en": "pituitary and growth hormone axis drugs",
+      "chapterId": "hormones-antagonists",
+      "synonyms": [
+        "growth hormone",
+        "IGF-1",
+        "mecasermin",
+        "octreotide",
+        "bromocriptine",
+        "acromegaly",
+        "肢端肥大症"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q60",
+        "105-1-醫學二-藥理學-Q59",
+        "108-1-醫學二-藥理學-Q65",
+        "109-1-醫學二-藥理學-Q67",
+        "113-1-醫學二-藥理學-Q69"
+      ]
+    },
+    {
+      "id": "calcium-bone-metabolism-drugs",
+      "zh": "鈣磷代謝與骨質疏鬆治療藥物",
+      "en": "drugs affecting calcium/bone metabolism (vitamin D, bisphosphonates, calcitonin)",
+      "chapterId": "hormones-antagonists",
+      "synonyms": [
+        "vitamin D",
+        "alendronate",
+        "denosumab",
+        "calcitonin",
+        "骨質疏鬆症",
+        "RANKL"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q57",
+        "109-1-醫學二-藥理學-Q53",
+        "112-1-醫學二-藥理學-Q60",
+        "114-1-醫學二-藥理學-Q60",
+        "115-1-醫學二-藥理學-Q60"
+      ]
+    },
+    {
+      "id": "vasopressin-adh-drugs",
+      "zh": "抗利尿激素（血管加壓素）相關藥物",
+      "en": "vasopressin (ADH) agonists and antagonists",
+      "chapterId": "hormones-antagonists",
+      "synonyms": [
+        "desmopressin",
+        "conivaptan",
+        "tolvaptan",
+        "diabetes insipidus",
+        "尿崩症"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q62",
+        "106-1-醫學二-藥理學-Q55",
+        "108-1-醫學二-藥理學-Q55",
+        "111-1-醫學二-藥理學-Q71",
+        "115-1-醫學二-藥理學-Q57"
+      ]
+    },
+    {
+      "id": "diuretics",
+      "zh": "利尿劑",
+      "en": "diuretics",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "furosemide",
+        "thiazide",
+        "spironolactone",
+        "eplerenone",
+        "acetazolamide",
+        "mannitol"
+      ],
+      "estTestedSittings": 21,
+      "estQuestionCount": 24,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q63",
+        "106-2-醫學二-藥理學-Q54",
+        "108-2-醫學二-藥理學-Q54",
+        "111-1-醫學二-藥理學-Q63",
+        "115-1-醫學二-藥理學-Q61"
+      ]
+    },
+    {
+      "id": "raas-antihypertensives",
+      "zh": "腎素-血管收縮素系統作用降血壓藥",
+      "en": "renin-angiotensin-aldosterone system antihypertensives (ACEI/ARB/renin inhibitor)",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "angiotensin converting enzyme inhibitor",
+        "ACEI",
+        "losartan",
+        "aliskiren",
+        "renin inhibitor"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q64",
+        "105-1-醫學二-藥理學-Q65",
+        "105-2-醫學二-藥理學-Q61",
+        "109-1-醫學二-藥理學-Q55",
+        "112-2-醫學二-藥理學-Q62"
+      ],
+      "note": "cold — small n despite clinical importance"
+    },
+    {
+      "id": "vasodilator-ccb-antihypertensives",
+      "zh": "血管擴張劑與鈣離子通道阻斷劑（降血壓）",
+      "en": "direct vasodilators and calcium channel blockers as antihypertensives",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "nifedipine",
+        "hydralazine",
+        "minoxidil",
+        "nitroprusside",
+        "diazoxide",
+        "fenoldopam",
+        "clevidipine"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 18,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q65",
+        "109-1-醫學二-藥理學-Q55",
+        "112-1-醫學二-藥理學-Q63",
+        "113-2-醫學二-藥理學-Q64",
+        "115-1-醫學二-藥理學-Q64"
+      ]
+    },
+    {
+      "id": "beta-blockers-cardiovascular",
+      "zh": "乙型交感神經拮抗劑（心血管用途）",
+      "en": "beta-adrenoceptor antagonists in cardiovascular therapy",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "propranolol",
+        "atenolol",
+        "esmolol",
+        "labetalol",
+        "carvedilol",
+        "β-adrenoceptor blocker"
+      ],
+      "estTestedSittings": 20,
+      "estQuestionCount": 24,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q67",
+        "106-1-醫學二-藥理學-Q65",
+        "109-1-醫學二-藥理學-Q54",
+        "111-1-醫學二-藥理學-Q66",
+        "113-1-醫學二-藥理學-Q75"
+      ]
+    },
+    {
+      "id": "antiarrhythmic-drugs",
+      "zh": "抗心律不整藥物",
+      "en": "antiarrhythmic drugs (Vaughan Williams classes)",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "quinidine",
+        "procainamide",
+        "lidocaine",
+        "amiodarone",
+        "sotalol",
+        "adenosine",
+        "Torsade de Pointes",
+        "LQT"
+      ],
+      "estTestedSittings": 22,
+      "estQuestionCount": 26,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q63",
+        "104-2-醫學二-藥理學-Q62",
+        "108-1-醫學二-藥理學-Q57",
+        "111-1-醫學二-藥理學-Q64",
+        "114-2-醫學二-藥理學-Q63"
+      ]
+    },
+    {
+      "id": "heart-failure-drugs",
+      "zh": "心臟衰竭治療藥物",
+      "en": "drugs for heart failure",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "sacubitril",
+        "valsartan",
+        "neprilysin inhibitor",
+        "nesiritide",
+        "milrinone",
+        "digoxin"
+      ],
+      "estTestedSittings": 15,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q61",
+        "109-2-醫學二-藥理學-Q62",
+        "110-2-醫學二-藥理學-Q63",
+        "112-1-醫學二-藥理學-Q64",
+        "115-1-醫學二-藥理學-Q63"
+      ]
+    },
+    {
+      "id": "antianginal-drugs",
+      "zh": "抗心絞痛藥物",
+      "en": "antianginal drugs (nitrates and novel agents)",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "nitroglycerin",
+        "organic nitrates",
+        "ranolazine",
+        "ivabradine",
+        "nicorandil",
+        "molsidomine"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q63",
+        "106-2-醫學二-藥理學-Q69",
+        "107-2-醫學二-藥理學-Q66",
+        "111-2-醫學二-藥理學-Q63",
+        "114-2-醫學二-藥理學-Q64"
+      ]
+    },
+    {
+      "id": "pulmonary-hypertension-drugs",
+      "zh": "肺高壓治療藥物",
+      "en": "drugs for pulmonary hypertension",
+      "chapterId": "renal-cardiovascular-drugs",
+      "synonyms": [
+        "bosentan",
+        "endothelin antagonist",
+        "treprostinil",
+        "iloprost",
+        "phosphodiesterase-5 inhibitor"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q67",
+        "108-1-醫學二-藥理學-Q59",
+        "110-2-醫學二-藥理學-Q70",
+        "112-1-醫學二-藥理學-Q71",
+        "114-1-醫學二-藥理學-Q71"
+      ]
+    },
+    {
+      "id": "cholinergic-agonists-ache-inhibitors",
+      "zh": "膽鹼性致效劑與膽鹼酯酶抑制劑",
+      "en": "cholinergic agonists and cholinesterase inhibitors",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "bethanechol",
+        "pilocarpine",
+        "neostigmine",
+        "physostigmine",
+        "carbachol",
+        "myasthenia gravis",
+        "重症肌無力"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 16,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q75",
+        "105-1-醫學二-藥理學-Q67",
+        "106-2-醫學二-藥理學-Q56",
+        "111-1-醫學二-藥理學-Q67",
+        "114-2-醫學二-藥理學-Q65"
+      ]
+    },
+    {
+      "id": "antimuscarinic-respiratory-copd",
+      "zh": "抗蕈毒鹼藥物－呼吸道（COPD/氣喘吸入劑）",
+      "en": "antimuscarinic bronchodilators for COPD/asthma (ipratropium, tiotropium)",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "ipratropium",
+        "tiotropium",
+        "muscarinic receptor antagonist",
+        "COPD吸入劑",
+        "抗膽鹼性支氣管擴張劑",
+        "blood-brain barrier penetration"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "110-1-醫學二-藥理學-Q66",
+        "110-2-醫學二-藥理學-Q67",
+        "111-1-醫學二-藥理學-Q69",
+        "114-2-醫學二-藥理學-Q68",
+        "115-1-醫學二-藥理學-Q65"
+      ],
+      "note": "split from antimuscarinic-drugs per §1.5 panel"
+    },
+    {
+      "id": "antimuscarinic-genitourinary-eye",
+      "zh": "抗蕈毒鹼藥物－泌尿/眼科（膀胱過動/散瞳）",
+      "en": "antimuscarinic drugs for overactive bladder and ophthalmic mydriasis (oxybutynin, darifenacin)",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "oxybutynin",
+        "darifenacin",
+        "M3 muscarinic receptor",
+        "overactive bladder",
+        "膀胱過動症",
+        "尿失禁"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "109-1-醫學二-藥理學-Q68",
+        "111-2-醫學二-藥理學-Q66"
+      ],
+      "note": "split from antimuscarinic-drugs per §1.5 panel"
+    },
+    {
+      "id": "antimuscarinic-central-antiparkinson-antiemetic",
+      "zh": "抗蕈毒鹼藥物－中樞/暈車/抗巴金森/一般臨床應用與中毒",
+      "en": "central and general antimuscarinic uses (motion sickness scopolamine, antiparkinsonian benztropine, atropine toxidrome/antidote)",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "atropine",
+        "scopolamine",
+        "benztropine",
+        "muscarinic toxidrome",
+        "毒蕈鹼中毒",
+        "暈車",
+        "抗巴金森氏症"
+      ],
+      "estTestedSittings": 5,
+      "estQuestionCount": 5,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q66",
+        "106-1-醫學二-藥理學-Q56",
+        "111-1-醫學二-藥理學-Q73",
+        "113-1-醫學二-藥理學-Q65",
+        "113-2-醫學二-藥理學-Q65"
+      ],
+      "note": "split from antimuscarinic-drugs per §1.5 panel"
+    },
+    {
+      "id": "alpha-adrenergic-agonists",
+      "zh": "甲型腎上腺素受體致效劑",
+      "en": "alpha-adrenergic agonists (clonidine, methyldopa, midodrine, pseudoephedrine, epinephrine)",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "clonidine",
+        "methyldopa",
+        "midodrine",
+        "pseudoephedrine",
+        "epinephrine",
+        "alpha-1 agonist",
+        "alpha-2 agonist",
+        "central alpha2 agonist",
+        "rebound hypertension",
+        "sympathomimetic"
+      ],
+      "estTestedSittings": 8,
+      "estQuestionCount": 8,
+      "exampleQIds": [
+        "111-2-醫學二-藥理學-Q65",
+        "112-1-醫學二-藥理學-Q62",
+        "113-1-醫學二-藥理學-Q66",
+        "115-1-醫學二-藥理學-Q66",
+        "108-1-醫學二-藥理學-Q66",
+        "114-1-醫學二-藥理學-Q66",
+        "109-2-醫學二-藥理學-Q66",
+        "104-1-醫學二-藥理學-Q66"
+      ],
+      "note": "split from adrenergic-agonists per §1.5 panel"
+    },
+    {
+      "id": "beta-adrenergic-agonists",
+      "zh": "乙型腎上腺素受體致效劑",
+      "en": "beta-adrenergic agonists and catecholamine receptor pharmacology (isoproterenol, dopamine)",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "isoproterenol",
+        "dopamine",
+        "beta-1 agonist",
+        "beta-2 agonist",
+        "presynaptic autoreceptor",
+        "catecholamine dose-response"
+      ],
+      "estTestedSittings": 2,
+      "estQuestionCount": 2,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q66",
+        "113-2-醫學二-藥理學-Q66"
+      ],
+      "note": "split from adrenergic-agonists per §1.5 panel"
+    },
+    {
+      "id": "alpha-adrenergic-antagonists",
+      "zh": "甲型交感神經拮抗劑",
+      "en": "alpha-adrenoceptor antagonists",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "prazosin",
+        "tamsulosin",
+        "phentolamine",
+        "alpha-blocker",
+        "良性攝護腺肥大"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q68",
+        "108-2-醫學二-藥理學-Q65",
+        "111-1-醫學二-藥理學-Q66",
+        "114-1-醫學二-藥理學-Q66",
+        "114-2-醫學二-藥理學-Q66"
+      ]
+    },
+    {
+      "id": "neuromuscular-blocking-drugs",
+      "zh": "神經肌肉阻斷劑",
+      "en": "neuromuscular blocking drugs",
+      "chapterId": "autonomic-drugs",
+      "synonyms": [
+        "rocuronium",
+        "succinylcholine",
+        "tubocurarine",
+        "depolarizing/nondepolarizing blocker",
+        "malignant hyperthermia",
+        "惡性高熱"
+      ],
+      "estTestedSittings": 7,
+      "estQuestionCount": 7,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q65",
+        "106-2-醫學二-藥理學-Q72",
+        "107-1-醫學二-藥理學-Q71",
+        "108-1-醫學二-藥理學-Q67",
+        "109-1-醫學二-藥理學-Q71"
+      ]
+    },
+    {
+      "id": "peptic-ulcer-drugs",
+      "zh": "消化性潰瘍治療藥物（H2拮抗劑/氫離子幫浦抑制劑）",
+      "en": "peptic ulcer drugs (H2 antagonists, proton pump inhibitors)",
+      "chapterId": "gi-respiratory-drugs",
+      "synonyms": [
+        "cimetidine",
+        "famotidine",
+        "omeprazole",
+        "esomeprazole",
+        "pantoprazole",
+        "H+/K+-ATPase"
+      ],
+      "estTestedSittings": 12,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q69",
+        "109-1-醫學二-藥理學-Q56",
+        "110-1-醫學二-藥理學-Q68",
+        "111-2-醫學二-藥理學-Q67",
+        "114-1-醫學二-藥理學-Q67"
+      ]
+    },
+    {
+      "id": "gi-motility-antiemetics",
+      "zh": "腸胃道蠕動調節藥物與止吐劑",
+      "en": "GI prokinetics, antidiarrheals, and antiemetics",
+      "chapterId": "gi-respiratory-drugs",
+      "synonyms": [
+        "metoclopramide",
+        "ondansetron",
+        "aprepitant",
+        "loperamide",
+        "tegaserod",
+        "linaclotide",
+        "lubiprostone",
+        "腸躁症"
+      ],
+      "estTestedSittings": 17,
+      "estQuestionCount": 20,
+      "exampleQIds": [
+        "107-2-醫學二-藥理學-Q69",
+        "109-1-醫學二-藥理學-Q69",
+        "112-1-醫學二-藥理學-Q69",
+        "113-2-醫學二-藥理學-Q68",
+        "115-1-醫學二-藥理學-Q69"
+      ]
+    },
+    {
+      "id": "bronchodilators",
+      "zh": "支氣管擴張劑",
+      "en": "bronchodilators (beta-2 agonists, methylxanthines, antimuscarinics)",
+      "chapterId": "gi-respiratory-drugs",
+      "synonyms": [
+        "albuterol",
+        "salmeterol",
+        "formoterol",
+        "theophylline",
+        "ipratropium",
+        "tiotropium"
+      ],
+      "estTestedSittings": 19,
+      "estQuestionCount": 22,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q68",
+        "107-2-醫學二-藥理學-Q70",
+        "110-1-醫學二-藥理學-Q67",
+        "111-2-醫學二-藥理學-Q68",
+        "115-1-醫學二-藥理學-Q65"
+      ]
+    },
+    {
+      "id": "asthma-anti-inflammatory-drugs",
+      "zh": "氣喘抗發炎藥物",
+      "en": "asthma anti-inflammatory drugs (corticosteroids, leukotriene modifiers, anti-IgE)",
+      "chapterId": "gi-respiratory-drugs",
+      "synonyms": [
+        "cromolyn",
+        "zafirlukast",
+        "zileuton",
+        "omalizumab",
+        "reslizumab",
+        "inhaled corticosteroid",
+        "leukotriene receptor antagonist"
+      ],
+      "estTestedSittings": 21,
+      "estQuestionCount": 26,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q57",
+        "105-2-醫學二-藥理學-Q67",
+        "109-2-醫學二-藥理學-Q67",
+        "112-2-醫學二-藥理學-Q71",
+        "115-1-醫學二-藥理學-Q67"
+      ]
+    },
+    {
+      "id": "nsaids-cox-inhibitors",
+      "zh": "非類固醇消炎止痛藥（NSAIDs）",
+      "en": "nonsteroidal anti-inflammatory drugs (COX inhibitors)",
+      "chapterId": "autacoid-anti-inflammatory-drugs",
+      "synonyms": [
+        "aspirin",
+        "ibuprofen",
+        "indomethacin",
+        "ketorolac",
+        "naproxen",
+        "acetaminophen",
+        "cyclooxygenase"
+      ],
+      "estTestedSittings": 23,
+      "estQuestionCount": 33,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q68",
+        "105-2-醫學二-藥理學-Q69",
+        "108-1-醫學二-藥理學-Q68",
+        "111-2-醫學二-藥理學-Q56",
+        "115-1-醫學二-藥理學-Q71"
+      ]
+    },
+    {
+      "id": "gout-drugs",
+      "zh": "痛風治療藥物",
+      "en": "drugs for gout",
+      "chapterId": "autacoid-anti-inflammatory-drugs",
+      "synonyms": [
+        "allopurinol",
+        "febuxostat",
+        "colchicine",
+        "probenecid",
+        "pegloticase",
+        "rasburicase",
+        "xanthine oxidase"
+      ],
+      "estTestedSittings": 14,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q69",
+        "107-2-醫學二-藥理學-Q71",
+        "109-1-醫學二-藥理學-Q64",
+        "110-2-醫學二-藥理學-Q71",
+        "114-2-醫學二-藥理學-Q69"
+      ]
+    },
+    {
+      "id": "histamine-serotonin-autacoid-pharmacology",
+      "zh": "組織胺與血清素自泌素藥理學",
+      "en": "histamine and serotonin autacoid pharmacology (incl. antihistamines)",
+      "chapterId": "autacoid-anti-inflammatory-drugs",
+      "synonyms": [
+        "diphenhydramine",
+        "cyproheptadine",
+        "loratadine",
+        "H1 receptor antagonist",
+        "第一代/第二代抗組織胺",
+        "5-HT receptor",
+        "chemoreceptor reflex",
+        "carcinoid tumor",
+        "serotonin (5-HT) receptor pharmacology"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q69",
+        "106-1-醫學二-藥理學-Q76",
+        "109-1-醫學二-藥理學-Q69",
+        "111-2-醫學二-藥理學-Q71",
+        "114-2-醫學二-藥理學-Q71",
+        "108-1-醫學二-藥理學-Q74"
+      ]
+    },
+    {
+      "id": "prostaglandins-uterine-drugs",
+      "zh": "前列腺素類與子宮作用藥物",
+      "en": "prostaglandins and uterine-acting drugs",
+      "chapterId": "autacoid-anti-inflammatory-drugs",
+      "synonyms": [
+        "misoprostol",
+        "dinoprostone",
+        "alprostadil",
+        "oxytocin",
+        "mifepristone",
+        "墮胎藥",
+        "引產"
+      ],
+      "estTestedSittings": 19,
+      "estQuestionCount": 22,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q70",
+        "107-2-醫學二-藥理學-Q56",
+        "110-2-醫學二-藥理學-Q68",
+        "112-2-醫學二-藥理學-Q70",
+        "114-1-醫學二-藥理學-Q71"
+      ]
+    },
+    {
+      "id": "anti-rheumatic-biologics",
+      "zh": "抗風濕生物製劑與免疫調節劑",
+      "en": "anti-rheumatic biologics and immunomodulators (TNF-alpha inhibitors etc.)",
+      "chapterId": "autacoid-anti-inflammatory-drugs",
+      "synonyms": [
+        "infliximab",
+        "etanercept",
+        "adalimumab",
+        "abatacept",
+        "leflunomide",
+        "TNF-α inhibitor",
+        "類風濕性關節炎"
+      ],
+      "estTestedSittings": 10,
+      "estQuestionCount": 11,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q68",
+        "106-1-醫學二-藥理學-Q64",
+        "107-2-醫學二-藥理學-Q51",
+        "111-1-醫學二-藥理學-Q53",
+        "114-2-醫學二-藥理學-Q56"
+      ]
+    },
+    {
+      "id": "antiepileptic-drugs",
+      "zh": "抗癲癇藥物",
+      "en": "antiepileptic drugs",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "phenytoin",
+        "valproic acid",
+        "carbamazepine",
+        "ethosuximide",
+        "lamotrigine",
+        "levetiracetam",
+        "status epilepticus",
+        "absence seizure"
+      ],
+      "estTestedSittings": 22,
+      "estQuestionCount": 25,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q71",
+        "105-1-醫學二-藥理學-Q74",
+        "107-2-醫學二-藥理學-Q74",
+        "110-2-醫學二-藥理學-Q51",
+        "115-1-醫學二-藥理學-Q72"
+      ]
+    },
+    {
+      "id": "antiparkinsonian-drugs",
+      "zh": "抗帕金森氏症藥物",
+      "en": "antiparkinsonian drugs",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "levodopa",
+        "carbidopa",
+        "selegiline",
+        "amantadine",
+        "entacapone",
+        "bromocriptine",
+        "帕金森氏症"
+      ],
+      "estTestedSittings": 16,
+      "estQuestionCount": 19,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q71",
+        "106-1-醫學二-藥理學-Q73",
+        "108-2-醫學二-藥理學-Q67",
+        "111-1-醫學二-藥理學-Q52",
+        "114-2-醫學二-藥理學-Q74"
+      ]
+    },
+    {
+      "id": "sedative-hypnotics-benzodiazepines",
+      "zh": "鎮靜安眠藥物與苯二氮平類",
+      "en": "sedative-hypnotics and benzodiazepines",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "diazepam",
+        "lorazepam",
+        "alprazolam",
+        "flumazenil",
+        "zaleplon",
+        "ramelteon",
+        "suvorexant",
+        "withdrawal syndrome",
+        "禁斷現象"
+      ],
+      "estTestedSittings": 23,
+      "estQuestionCount": 30,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q74",
+        "106-2-醫學二-藥理學-Q59",
+        "107-2-醫學二-藥理學-Q57",
+        "111-2-醫學二-藥理學-Q74",
+        "115-1-醫學二-藥理學-Q74"
+      ]
+    },
+    {
+      "id": "antipsychotic-drugs",
+      "zh": "抗精神病藥物",
+      "en": "antipsychotic drugs",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "chlorpromazine",
+        "haloperidol",
+        "clozapine",
+        "olanzapine",
+        "ziprasidone",
+        "extrapyramidal symptom",
+        "錐體外症候群",
+        "思覺失調症"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q73",
+        "106-1-醫學二-藥理學-Q74",
+        "108-1-醫學二-藥理學-Q74",
+        "110-1-醫學二-藥理學-Q72",
+        "111-2-醫學二-藥理學-Q72"
+      ]
+    },
+    {
+      "id": "antidepressant-drugs",
+      "zh": "抗憂鬱藥物",
+      "en": "antidepressant drugs",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "SSRI",
+        "fluoxetine",
+        "paroxetine",
+        "venlafaxine",
+        "trazodone",
+        "bupropion",
+        "tricyclic antidepressant"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "105-2-醫學二-藥理學-Q70",
+        "110-2-醫學二-藥理學-Q74",
+        "112-2-醫學二-藥理學-Q72",
+        "113-1-醫學二-藥理學-Q74",
+        "114-1-醫學二-藥理學-Q74"
+      ]
+    },
+    {
+      "id": "opioid-analgesics",
+      "zh": "鴉片類止痛藥",
+      "en": "opioid analgesics",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "morphine",
+        "methadone",
+        "fentanyl",
+        "naloxone",
+        "tramadol",
+        "dextromethorphan",
+        "opioid receptor"
+      ],
+      "estTestedSittings": 23,
+      "estQuestionCount": 29,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q72",
+        "107-1-醫學二-藥理學-Q74",
+        "109-1-醫學二-藥理學-Q59",
+        "111-1-醫學二-藥理學-Q74",
+        "115-1-醫學二-藥理學-Q71"
+      ]
+    },
+    {
+      "id": "anesthetics-general-and-local",
+      "zh": "全身麻醉劑與局部麻醉劑",
+      "en": "general and local anesthetics",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "halothane",
+        "nitrous oxide",
+        "thiopental",
+        "propofol",
+        "ketamine",
+        "minimal alveolar concentration",
+        "bupivacaine",
+        "lidocaine（局部）",
+        "amide-type anesthetic",
+        "local anesthetics (bupivacaine, amide-type)"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 15,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q58",
+        "107-2-醫學二-藥理學-Q59",
+        "110-2-醫學二-藥理學-Q73",
+        "111-1-醫學二-藥理學-Q51",
+        "114-1-醫學二-藥理學-Q72",
+        "106-2-醫學二-藥理學-Q58"
+      ]
+    },
+    {
+      "id": "substance-use-alcohol-pharmacology",
+      "zh": "成癮物質與酒精藥理學",
+      "en": "pharmacology of drugs of abuse and alcohol",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "amphetamine",
+        "cocaine",
+        "alcohol",
+        "ethanol",
+        "disulfiram",
+        "methylphenidate",
+        "varenicline",
+        "withdrawal",
+        "dependence",
+        "戒斷症狀"
+      ],
+      "estTestedSittings": 23,
+      "estQuestionCount": 27,
+      "exampleQIds": [
+        "104-2-醫學二-藥理學-Q74",
+        "105-1-醫學二-藥理學-Q72",
+        "109-1-醫學二-藥理學-Q73",
+        "111-2-醫學二-藥理學-Q61",
+        "113-2-醫學二-藥理學-Q75"
+      ]
+    },
+    {
+      "id": "migraine-drugs",
+      "zh": "偏頭痛治療藥物",
+      "en": "drugs for migraine",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "sumatriptan",
+        "5-HT1B/1D agonist",
+        "lasmiditan",
+        "triptan"
+      ],
+      "estTestedSittings": 9,
+      "estQuestionCount": 10,
+      "exampleQIds": [
+        "106-1-醫學二-藥理學-Q70",
+        "108-2-醫學二-藥理學-Q56",
+        "110-1-醫學二-藥理學-Q56",
+        "110-2-醫學二-藥理學-Q69",
+        "114-1-醫學二-藥理學-Q70"
+      ]
+    },
+    {
+      "id": "alzheimer-disease-drugs",
+      "zh": "阿茲海默症治療藥物",
+      "en": "drugs for Alzheimer's disease",
+      "chapterId": "cns-anesthetic-drugs",
+      "synonyms": [
+        "donepezil",
+        "galantamine",
+        "memantine",
+        "NMDA receptor antagonist",
+        "cholinesterase inhibitor（CNS）"
+      ],
+      "estTestedSittings": 6,
+      "estQuestionCount": 6,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q71",
+        "105-1-醫學二-藥理學-Q67",
+        "107-2-醫學二-藥理學-Q67",
+        "107-2-醫學二-藥理學-Q73",
+        "115-1-醫學二-藥理學-Q73"
+      ]
+    },
+    {
+      "id": "heavy-metal-poisoning-chelators",
+      "zh": "重金屬中毒與螯合劑",
+      "en": "heavy metal poisoning and chelating agents",
+      "chapterId": "toxicology-miscellaneous",
+      "synonyms": [
+        "dimercaprol",
+        "penicillamine",
+        "deferoxamine",
+        "succimer",
+        "prussian blue",
+        "arsenic",
+        "mercury",
+        "thallium",
+        "砷中毒",
+        "汞中毒",
+        "鉈鹽中毒"
+      ],
+      "estTestedSittings": 13,
+      "estQuestionCount": 14,
+      "exampleQIds": [
+        "105-1-醫學二-藥理學-Q73",
+        "106-1-醫學二-藥理學-Q75",
+        "108-1-醫學二-藥理學-Q75",
+        "109-2-醫學二-藥理學-Q75",
+        "114-1-醫學二-藥理學-Q75"
+      ]
+    },
+    {
+      "id": "specific-antidotes-non-metal",
+      "zh": "非重金屬中毒之特定解毒劑",
+      "en": "specific antidotes for non-metal poisonings",
+      "chapterId": "toxicology-miscellaneous",
+      "synonyms": [
+        "hydroxocobalamin",
+        "pralidoxime",
+        "fomepizole",
+        "acetylcysteine",
+        "glucagon",
+        "cyanide antidote",
+        "organophosphate antidote",
+        "有機磷中毒解毒劑"
+      ],
+      "estTestedSittings": 11,
+      "estQuestionCount": 12,
+      "exampleQIds": [
+        "104-1-醫學二-藥理學-Q75",
+        "105-2-醫學二-藥理學-Q73",
+        "110-1-醫學二-藥理學-Q75",
+        "113-2-醫學二-藥理學-Q75",
+        "114-2-醫學二-藥理學-Q75"
+      ]
+    }
+  ],
+  "coldChapters": [],
+  "ambiguityShortlist": [
+    "raas-antihypertensives（ACEI/ARB/renin inhibitor）樣本數僅 5 題，遠低於一般粗估門檻——是否併入 vasodilator-ccb-antihypertensives 或保留獨立概念，因其臨床重要性遠高於考題頻率，建議保留獨立但標記 cold。",
+    "gnrh-analogs 與 sex-hormones-antagonists 兩概念有 persona 重疊（both touch 生殖內分泌軸），目前依「GnRH 促性腺軸調節」vs「性荷爾蒙受體本身」的機轉區分，但邊界題（如 leuprolide 相關）可能需要人工複核歸屬。",
+    "serotonin-receptor-pharmacology（血清素受體）與 antidepressant-drugs（SSRI 機轉）皆涉及 serotonin，目前依「受體生理藥理學 vs 憂鬱症治療應用」切分，但部分題（fluoxetine 機轉題）落在憂鬱症側，需確認無跨概念重複計算。",
+    "asthma 相關細分為 bronchodilators 與 asthma-anti-inflammatory-drugs 兩概念，但 methylxanthine（theophylline）與 muscarinic antagonist（ipratropium/tiotropium）題目橫跨支氣管擴張與抗發炎兩端，實際切分依『藥物主要藥理類別』而非『臨床適應症』，需人眼確認無誤植。",
+    "opioid-analgesics（鴉片類止痛藥）與 gi-motility-antiemetics 中的止瀉劑 loperamide/diphenoxylate（亦屬鴉片受體致效劑但用於腸胃道）有機轉重疊，目前依『臨床適應症軸』分別歸入 CNS 止痛與腸胃道止瀉，建議 owner 確認此切分邏輯是否符合下游押題排序需求。",
+    "antimuscarinic-drugs（30 題，本科最大概念）涵蓋眼科散瞳、COPD 吸入劑、膀胱過動症等多元臨床情境，粒度上可能需要再切分（如『眼科/COPD/泌尿科用途』三個子概念），目前因單一機轉（M receptor 拮抗）而合併，建議 owner 檢視是否符合『押題排序』需求或應再拆分。"
+  ]
+}
