@@ -27,6 +27,8 @@ import { PrecedingContext } from './PrecedingContext'
 import { QuestionFigure } from './QuestionFigure'
 import { QuestionJumpGrid } from './QuestionJumpGrid'
 import { EmojiIcon } from './EmojiIcon'
+import { ConceptLabelRow } from './ConceptLabelRow'
+import { useConceptTags, conceptLabelsFor, conceptBankHref } from '../lib/concept-tags'
 
 /**
  * 模擬考試 (mock-exam) runner — closed-book ordered run through a whole exam paper
@@ -85,6 +87,7 @@ export function MockExamRunner({
   const [rollResult, setRollResult] = useState<MockRollResult | null>(null)
   const stemRef = useRef<HTMLParagraphElement>(null)
 
+  const conceptTags = useConceptTags()
   const q = sessionPool[state.index]
   const score = useMemo(() => scoreMockExam(sessionPool, state.answers), [sessionPool, state.answers])
   const cellStates = useMemo(() => navigatorCellStates(sessionPool, state), [sessionPool, state])
@@ -256,6 +259,11 @@ export function MockExamRunner({
                   })}
               </div>
 
+              {/* Concept labels appear only in the post-submission review (never during answering).
+                  Tap → new tab to 題庫 prefilled, preserving the review in the original tab. */}
+              {state.submitted && (
+                <ConceptLabelRow labels={conceptLabelsFor(q, conceptTags)} hrefFor={conceptBankHref} />
+              )}
               {state.submitted && q.explanation && (
                 <>
                   <LocalPdfButton questionId={q.id} />

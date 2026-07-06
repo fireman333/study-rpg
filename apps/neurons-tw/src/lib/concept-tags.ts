@@ -51,6 +51,16 @@ export async function loadConceptTags(baseUrl = DEFAULT_BASE): Promise<ConceptTa
   return inflight
 }
 
+/**
+ * New-tab href to the 題庫 prefilled with a concept, for the INTERACTIVE answering flows
+ * (QuizModal / MockExamRunner). Rendered as a native `<a target="_blank">` so activating it
+ * opens the bank in a separate tab and preserves the in-progress answering session — unlike the
+ * read-only review cards, which navigate in-app. MUST include the Vite base (`/neurons/` in prod).
+ */
+export function conceptBankHref(zh: string): string {
+  return `${import.meta.env.BASE_URL}bank?concept=${encodeURIComponent(zh)}`
+}
+
 /** Resolve a question's tags to display labels (unknown ids dropped, order preserved). */
 export function conceptLabelsFor(q: Question, tags: ConceptTagMap): ConceptLabel[] {
   const ids = tags[q.id]

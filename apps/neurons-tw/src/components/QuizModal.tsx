@@ -30,6 +30,8 @@ import SquadCelebration from './SquadCelebration'
 import MazeExpedition, { ExpeditionRestoreStub } from './MazeExpedition'
 import { QuestionFigure } from './QuestionFigure'
 import { PrecedingContext } from './PrecedingContext'
+import { ConceptLabelRow } from './ConceptLabelRow'
+import { useConceptTags, conceptLabelsFor, conceptBankHref } from '../lib/concept-tags'
 import { useExpeditionHidden, setExpeditionHiddenPref } from '../lib/expedition-visibility'
 import { SPRITE_MAP } from '@study-rpg/theme-pixel-neurons'
 import { liveQuery } from 'dexie'
@@ -258,6 +260,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
   const squad = useActiveSquad()
+  // Tested concept labels for the current question (add-neurons-concept-labels-in-quiz).
+  const conceptTags = useConceptTags()
   // Tally correct answers this session for the onComplete seam; guard so the
   // session-end callback fires at most once.
   const correctCountRef = useRef(0)
@@ -564,6 +568,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
       : [correctKey]
   const isCorrect = picked !== null && (q.disputed === true || acceptedKeys.includes(picked))
   const revealed = picked !== null
+  // Concept labels are shown only after reveal (pre-reveal would spoil what the question tests).
+  const conceptLabels = conceptLabelsFor(q, conceptTags)
   // Featured correct-reaction: play the answered family's reaction flourish next to
   // the spike train. Ownership-gated featured slot — when the player owns the slot-5
   // 傳奇 apex (and it ships a `correct` showpiece) the reaction upgrades to it; else
@@ -750,6 +756,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   reducedMotion={reducedMotion}
                 />
               )}
+              {/* Tested concept labels (post-reveal only). Tap → new tab to 題庫 prefilled with the
+                  concept, preserving this answering session in the original tab. */}
+              <ConceptLabelRow labels={conceptLabels} hrefFor={conceptBankHref} />
               {q.explanation && (
                 <>
                   <LocalPdfButton questionId={q.id} />
