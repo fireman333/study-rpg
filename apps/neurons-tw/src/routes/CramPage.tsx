@@ -10,10 +10,13 @@
  * The user-facing label is 考古; the internal cram.json field is still `push` (unchanged).
  * Data is lazy-fetched cram.json (useCram); questions resolve from the loaded ContentPack.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ContentPack, Question } from '@study-rpg/core'
 import type { CramBlock, CramPushItem } from '@study-rpg/content-neurons-tw'
 import { useCram } from '../lib/cram'
+import { useQuestionHistory } from '../lib/services/question-history'
+import { getTodayPlanSnapshotIds } from '../lib/services/prescription'
+import { orderPracticePool } from '../lib/cram-practice-pool'
 import { QuestionReviewCard } from '../components/QuestionReviewCard'
 import { QuizModal } from '../components/QuizModal'
 import { EmojiIcon } from '../components/EmojiIcon'
@@ -46,6 +49,26 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
   const [drawerFor, setDrawerFor] = useState<string | null>(null) // `${subjectId}::${leafId}`
   const [methodOpen, setMethodOpen] = useState(false)
   const [practice, setPractice] = useState<{ pool: Question[]; label: string } | null>(null)
+
+  // Coverage imprint: a 考古 item is "已固化過" when ≥1 of its source questions is
+  // currently answered correctly (pure derived from questionHistory; zero schema).
+  const history = useQuestionHistory()
+  const consolidatedIds = useMemo(
+    () => new Set(history.filter((h) => h.lastResult === 'correct').map((h) => h.questionId)),
+    [history],
+  )
+  // Today's prescription snapshot ids (read-only; null when no plan yet) — used to
+  // serve snapshot questions first in cram practice so the prescription payoff fires.
+  const [snapshotIds, setSnapshotIds] = useState<Set<string> | null>(null)
+  useEffect(() => {
+    let alive = true
+    getTodayPlanSnapshotIds().then((ids) => {
+      if (alive) setSnapshotIds(ids)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
 
   if (!cram) {
     return (
@@ -149,7 +172,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
               style={sectionPracticeStyle}
               onClick={() => {
                 const ids = active.push.flatMap((p) => p.sourceQuestionIds)
-                const pool = resolve([...new Set(ids)])
+                const pool = orderPracticePool(resolve([...new Set(ids)]), snapshotIds)
                 if (pool.length > 0) setPractice({ pool, label: `${active.name} 高頻概念` })
               }}
             >
@@ -163,6 +186,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                 const dkey = `${active.subjectId}::${item.leafId}`
                 const drawerOpen = drawerFor === dkey
                 const tier = TIER_STYLE[item.tier] ?? TIER_STYLE['穩定考點']
+                const covered = item.sourceQuestionIds.some((id) => consolidatedIds.has(id))
                 return (
                   <li key={item.leafId} style={pushItemStyle}>
                     <div style={pushRowStyle}>
@@ -170,6 +194,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                       <span style={{ ...tierChipStyle, color: tier.color, background: tier.bg }}>
                         {tier.icon} {item.tier}
                       </span>
+                      {covered && <span style={coveredChipStyle}>✓ 已固化過</span>}
                     </div>
                     <button
                       type="button"
@@ -188,7 +213,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                       <CramEvidenceDrawer
                         item={item}
                         questions={resolve(item.sourceQuestionIds)}
-                        onPractice={(pool) => setPractice({ pool, label: item.zh })}
+                        onPractice={(pool) => setPractice({ pool: orderPracticePool(pool, snapshotIds), label: item.zh })}
                       />
                     )}
                   </li>
@@ -201,7 +226,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
 
       {/* Practice on-ramp — existing QuizModal in practice mode (no progression, wrong→錯題本→出征) */}
       {practice && (
-        <QuizModal pool={practice.pool} practice onClose={() => setPractice(null)} />
+        <QuizModal pool={practice.pool} practice preserveOrder onClose={() => setPractice(null)} />
       )}
     </div>
   )
@@ -350,6 +375,8 @@ const pushItemStyle: React.CSSProperties = { border: '1px solid #e2d4b0', border
 const pushRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }
 const pushZhStyle: React.CSSProperties = { fontSize: '0.88rem', color: '#2a2118', fontFamily: 'var(--font-legible)', fontWeight: 600 }
 const tierChipStyle: React.CSSProperties = { fontSize: '0.7rem', borderRadius: 999, padding: '0.05rem 0.45rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
+// Positive coverage imprint — shown only on covered items; never a count/%/denominator.
+const coveredChipStyle: React.CSSProperties = { fontSize: '0.68rem', color: '#2f6b45', background: '#d5ecd9', border: '1px solid #a9d4b5', borderRadius: 999, padding: '0.05rem 0.4rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
 const countChipStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #d8c39a', background: '#f8f2e2', borderRadius: 6, padding: '0.15rem 0.5rem', fontSize: '0.76rem', color: '#5a4a33', cursor: 'pointer', fontFamily: 'var(--font-legible)', width: '100%', textAlign: 'left' }
 const intensityStyle: React.CSSProperties = { color: '#a08a5a' }
 const sectionPracticeStyle: React.CSSProperties = { marginTop: '0.6rem', marginBottom: '0.6rem', border: '1px solid #b58900', background: '#fff3d0', color: '#7a5410', borderRadius: 6, padding: '0.35rem 0.7rem', fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }

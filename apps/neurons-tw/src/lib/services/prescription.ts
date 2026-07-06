@@ -611,6 +611,20 @@ export async function recordPrescriptionAnswer(
   return { repairConsolidated, breadthConsolidated, justCompleted }
 }
 
+/**
+ * Read-only snapshot of today's plan's eligible question ids (repair ∪ breadth),
+ * or `null` when today has no plan yet. Deliberately does NOT create a plan (unlike
+ * `getOrCreateTodayPlan`) — used by /cram to prioritize snapshot questions into the
+ * practice pool so the prescription-crediting payoff is reliably reachable, without
+ * materializing the plan as a side effect of merely opening /cram. No-plan → null →
+ * caller falls back to normal shuffle (zero behavior change).
+ */
+export async function getTodayPlanSnapshotIds(): Promise<Set<string> | null> {
+  const plan = await metaGetJSON<PrescriptionPlan>(planKey(todayISO()))
+  if (!plan) return null
+  return new Set([...plan.wrongEligibleQuestionIds, ...plan.breadthEligibleQuestionIds])
+}
+
 /** Full reactive-friendly status snapshot (reads meta; plan must already exist). */
 export async function getPrescriptionStatus(): Promise<PrescriptionStatus> {
   const date = todayISO()
