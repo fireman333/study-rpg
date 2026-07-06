@@ -25,13 +25,28 @@ for (const [sid, tree] of Object.entries(CONCEPT_VOCAB)) {
 let cache: ConceptTagMap | null = null
 let inflight: Promise<ConceptTagMap> | null = null
 
-export async function loadConceptTags(baseUrl = '/content/neurons-tw'): Promise<ConceptTagMap> {
+// MUST include the Vite base (`/neurons/` in prod, `/` in dev) — same as App.tsx's
+// getContentPack call. A bare `/content/...` path hits the SPA index.html fallback in
+// prod (200 HTML), so JSON.parse fails and labels/search silently vanish.
+const DEFAULT_BASE = `${import.meta.env.BASE_URL}content/neurons-tw`
+
+export async function loadConceptTags(baseUrl = DEFAULT_BASE): Promise<ConceptTagMap> {
   if (cache) return cache
   if (!inflight) {
     inflight = fetch(`${baseUrl}/concept-tags.json`)
-      .then((r) => (r.ok ? (r.json() as Promise<ConceptTagMap>) : {}))
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json() as Promise<ConceptTagMap>
+      })
       .then((m) => (cache = m))
-      .catch(() => (cache = {})) // concept tags are enhancement-only — never block the bank on a fetch miss
+      .catch((e) => {
+        // enhancement-only: never block the bank — but surface the failure, don't swallow it.
+        console.warn(
+          `[concept-tags] load failed (${baseUrl}/concept-tags.json) — labels/search disabled this session:`,
+          (e as Error)?.message ?? e,
+        )
+        return (cache = {})
+      })
   }
   return inflight
 }
@@ -46,7 +61,7 @@ export function conceptLabelsFor(q: Question, tags: ConceptTagMap): ConceptLabel
 }
 
 /** React hook: returns the loaded tag map (empty until loaded). */
-export function useConceptTags(baseUrl = '/content/neurons-tw'): ConceptTagMap {
+export function useConceptTags(baseUrl = DEFAULT_BASE): ConceptTagMap {
   const [tags, setTags] = useState<ConceptTagMap>(cache ?? {})
   useEffect(() => {
     let alive = true
