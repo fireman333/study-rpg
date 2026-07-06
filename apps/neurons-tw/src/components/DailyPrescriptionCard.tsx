@@ -22,14 +22,19 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { PrescriptionStatus } from '../lib/services/prescription'
-import {
-  daysUntilExam,
-  NG0717_FULL_MATURITY,
-} from '../lib/services/prescription'
+import { daysUntilExam } from '../lib/services/prescription'
 import { todayISO } from '../lib/db'
 import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
 import { EmojiIcon } from './EmojiIcon'
 import { CramCalmView } from './CramCalmView'
+import {
+  DAY_COMPLETE_LINE,
+  CRAM_RESCUE_INVITE,
+  CRAM_RESCUE_DONE,
+  CRAM_RESCUE_FLAVOR,
+  NG0717_OPEN_HINT,
+  NG0717_KEEPSAKE_LINE,
+} from '../lib/calm-copy'
 import { Ng0717BranchBuds, type EnrichedImprint } from './Ng0717BranchBuds'
 import ng0717Stage1 from '../assets/ng0717/stage1.png'
 import ng0717Stage2 from '../assets/ng0717/stage2.png'
@@ -90,6 +95,7 @@ export function DailyPrescriptionCard({
     completedDayCount,
     ng0717Stage,
     keepsakeUnlocked,
+    cramRescueDone,
   } = status
   const wrongAutoSatisfied = plan.wrongTarget <= 0
   // No eligible 開發新連結 family this day (e.g. all in-scope connections seen).
@@ -191,43 +197,48 @@ export function DailyPrescriptionCard({
         )}
       </div>
 
-      {/* Single primary CTA — routes to the next incomplete line, or a calm
-          completed state (no route). */}
-      {dayComplete ? (
-        <div style={completedStyle}>
-          <EmojiIcon char="✅" size={16} />{' '}
-          {scopeExhausted
-            ? '範圍內今日已巡過 · 可於上方放寬年份，或今日到此為止'
-            : '今日處方已完成 · 好好收工'}
-        </div>
-      ) : (
-        <button
-          type="button"
-          style={ctaStyle}
-          onClick={onStartPrescription}
-        >
-          開始今日處方
-        </button>
-      )}
-
-      {/* Low-salience exit to 考前猜題 — optional exam-eve resource, secondary to the
-          primary CTA; no badge / count / countdown (anti-anxiety contract). */}
-      <Link to="/cram" style={cramLinkStyle}>考前？看高頻考點 →</Link>
-
-      {/* 考前收斂 calm view — only after the day is complete; a neutral disclosure
-          toggle (not an action-CTA) reveals a passive reassurance panel. Mounting
-          it lazily loads cram.json only on expand. */}
-      {dayComplete && (
-        <div style={calmWrapStyle}>
-          <button
-            type="button"
-            style={calmToggleStyle}
-            onClick={() => setCalmOpen((v) => !v)}
-            aria-expanded={calmOpen}
-          >
-            {calmOpen ? '▴ 今晚收束' : '▾ 今晚收束'}
+      {/* Action row — two side-by-side buttons: 高頻考點 (→ /cram) + 今日處方
+          (primary CTA; a non-routing completed state when both lines are done). The
+          高頻考點 button carries no badge / count / countdown (anti-anxiety). */}
+      <div style={actionRowStyle}>
+        <Link to="/cram" style={halfCramBtnStyle}>高頻考點</Link>
+        {dayComplete ? (
+          <div style={halfDoneBtnStyle}>
+            <EmojiIcon char="✅" size={15} decorative /> 今日完成
+          </div>
+        ) : (
+          <button type="button" style={halfPrescBtnStyle} onClick={onStartPrescription}>
+            今日處方
           </button>
-          {calmOpen && <CramCalmView />}
+        )}
+      </div>
+
+      {/* dayComplete → one coherent 收束 area: completion line + optional 考前救援
+          bonus + 今晚收束 calm toggle. The bonus NEVER reads as 未完成/繼續 and does
+          not affect dayComplete or NG-0717 (flavor reward only). */}
+      {dayComplete && (
+        <div style={completeAreaStyle}>
+          <p style={completeLineStyle}>
+            {scopeExhausted ? '範圍內今日已巡過 · 這樣就夠了' : DAY_COMPLETE_LINE}
+          </p>
+          {cramRescueDone ? (
+            <p style={rescueDoneStyle}>
+              {CRAM_RESCUE_DONE} · {CRAM_RESCUE_FLAVOR}
+            </p>
+          ) : (
+            <p style={rescueInviteStyle}>{CRAM_RESCUE_INVITE}</p>
+          )}
+          <div style={calmWrapStyle}>
+            <button
+              type="button"
+              style={calmToggleStyle}
+              onClick={() => setCalmOpen((v) => !v)}
+              aria-expanded={calmOpen}
+            >
+              {calmOpen ? '▴ 今晚收束' : '▾ 今晚收束'}
+            </button>
+            {calmOpen && <CramCalmView />}
+          </div>
         </div>
       )}
 
@@ -249,11 +260,9 @@ export function DailyPrescriptionCard({
           <span style={mascotNameStyle}>NG-0717 · {spriteLabel}</span>
           <span style={mascotCountStyle}>已固化 {completedDayCount} 天</span>
           {keepsakeUnlocked ? (
-            <span style={keepsakeStyle}>💠 完全體 · 永久紀念 2026.07.17</span>
+            <span style={keepsakeStyle}>💠 成熟印記 · {NG0717_KEEPSAKE_LINE}</span>
           ) : (
-            <span style={mascotHintStyle}>
-              完成處方讓 NG-0717 逐步成熟（第 {NG0717_FULL_MATURITY} 天完全體）
-            </span>
+            <span style={mascotHintStyle}>{NG0717_OPEN_HINT}</span>
           )}
         </div>
       </div>
@@ -373,45 +382,89 @@ const lineDoneStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
 }
 
-const ctaStyle: React.CSSProperties = {
+// Two-button action row: 高頻考點 (left, secondary) + 今日處方 (right, primary CTA).
+const actionRowStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '0.5rem',
   width: '100%',
   boxSizing: 'border-box',
-  padding: '0.65rem 1rem',
-  borderRadius: '6px',
-  border: '2px solid #e0a44a',
-  background: 'linear-gradient(135deg, #c06a3a 0%, #a85530 100%)',
-  color: '#fff',
-  fontFamily: 'inherit',
-  fontSize: '1rem',
-  fontWeight: 700,
-  cursor: 'pointer',
-  boxShadow: '0 0 0 2px rgba(255,255,255,0.18)',
 }
 
-const completedStyle: React.CSSProperties = {
+const halfBtnBase: React.CSSProperties = {
+  flex: 1,
+  boxSizing: 'border-box',
+  padding: '0.6rem 0.5rem',
+  borderRadius: '6px',
+  fontFamily: 'inherit',
+  fontSize: '0.95rem',
+  fontWeight: 700,
+  textAlign: 'center',
+  cursor: 'pointer',
+  textDecoration: 'none',
+}
+
+// Left — 高頻考點 exit (secondary; no badge/count/countdown per anti-anxiety contract).
+const halfCramBtnStyle: React.CSSProperties = {
+  ...halfBtnBase,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: '0.35rem',
-  width: '100%',
-  boxSizing: 'border-box',
-  padding: '0.6rem 1rem',
-  borderRadius: '6px',
+  border: '2px solid #d8c39a',
+  background: '#f4ecd8',
+  color: '#7a5410',
+}
+
+// Right — primary 今日處方 CTA.
+const halfPrescBtnStyle: React.CSSProperties = {
+  ...halfBtnBase,
+  border: '2px solid #e0a44a',
+  background: 'linear-gradient(135deg, #c06a3a 0%, #a85530 100%)',
+  color: '#fff',
+  boxShadow: '0 0 0 2px rgba(255,255,255,0.18)',
+}
+
+// Right — completed (non-routing) state.
+const halfDoneBtnStyle: React.CSSProperties = {
+  ...halfBtnBase,
+  cursor: 'default',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.3rem',
   border: '2px solid #a8c99a',
   background: '#eef6e8',
   color: '#3f6b34',
-  fontWeight: 700,
-  fontSize: '0.95rem',
 }
 
-// Low-salience 考前猜題 exit — subtle, secondary to the primary CTA (anti-anxiety).
-const cramLinkStyle: React.CSSProperties = {
-  display: 'block',
-  marginTop: '0.5rem',
+// dayComplete 收束 area — completion line + optional 考前救援 bonus + calm toggle.
+const completeAreaStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.3rem',
+}
+
+const completeLineStyle: React.CSSProperties = {
+  margin: 0,
+  textAlign: 'center',
+  fontSize: '0.9rem',
+  fontWeight: 700,
+  color: '#3f6b34',
+}
+
+// Optional bonus — undone invite is muted/soft (never a deficit); done is positive.
+const rescueInviteStyle: React.CSSProperties = {
+  margin: 0,
   textAlign: 'center',
   fontSize: '0.8rem',
   color: '#8c6d4a',
-  textDecoration: 'none',
+}
+
+const rescueDoneStyle: React.CSSProperties = {
+  margin: 0,
+  textAlign: 'center',
+  fontSize: '0.8rem',
+  fontWeight: 600,
+  color: '#4d8c4d',
 }
 
 // 考前收斂 calm view — neutral disclosure toggle + passive panel (dayComplete only).
