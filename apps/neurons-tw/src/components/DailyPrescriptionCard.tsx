@@ -19,6 +19,7 @@
  * Spec: openspec/specs/neurons-daily-prescription/spec.md
  */
 
+import { Link } from 'react-router-dom'
 import type { PrescriptionStatus } from '../lib/services/prescription'
 import {
   daysUntilExam,
@@ -204,6 +205,10 @@ export function DailyPrescriptionCard({
         </button>
       )}
 
+      {/* Low-salience exit to 考前猜題 — optional exam-eve resource, secondary to the
+          primary CTA; no badge / count / countdown (anti-anxiety contract). */}
+      <Link to="/cram" style={cramLinkStyle}>考前？看高頻考點 →</Link>
+
       {/* NG-0717 mascot + cumulative「已固化 X 天」(no fixed denominator). */}
       <div style={mascotRowStyle}>
         <img
@@ -375,6 +380,16 @@ const completedStyle: React.CSSProperties = {
   color: '#3f6b34',
   fontWeight: 700,
   fontSize: '0.95rem',
+}
+
+// Low-salience 考前猜題 exit — subtle, secondary to the primary CTA (anti-anxiety).
+const cramLinkStyle: React.CSSProperties = {
+  display: 'block',
+  marginTop: '0.5rem',
+  textAlign: 'center',
+  fontSize: '0.8rem',
+  color: '#8c6d4a',
+  textDecoration: 'none',
 }
 
 const mascotRowStyle: React.CSSProperties = {

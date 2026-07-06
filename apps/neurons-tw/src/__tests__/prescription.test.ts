@@ -446,6 +446,32 @@ describe('prescription meta layer', () => {
     expect((await recordPrescriptionAnswer('out', 'anat', true)).repairConsolidated).toBe(false) // outside snapshot
   })
 
+  it('reports breadth consolidation only on the first breadth answer (for the 新連結已開發 note)', async () => {
+    await putPlan({
+      wrongTarget: 99,
+      breadthTarget: 2,
+      breadthFamilyId: 'phys',
+      breadthEligibleQuestionIds: ['b1', 'b2'],
+    })
+    expect((await recordPrescriptionAnswer('b1', 'phys', false)).breadthConsolidated).toBe(true) // wrong still credits breadth
+    expect((await recordPrescriptionAnswer('b1', 'phys', true)).breadthConsolidated).toBe(false) // dedup
+    expect((await recordPrescriptionAnswer('b2', 'anat', true)).breadthConsolidated).toBe(false) // wrong family
+    expect((await recordPrescriptionAnswer('out', 'phys', true)).breadthConsolidated).toBe(false) // outside snapshot
+  })
+
+  it('reports justCompleted only on the answer that completes both lines (for the 今日處方箋完成 note)', async () => {
+    await putPlan({
+      wrongTarget: 1,
+      breadthTarget: 1,
+      breadthFamilyId: 'phys',
+      wrongEligibleQuestionIds: ['w1'],
+      breadthEligibleQuestionIds: ['b1'],
+    })
+    expect((await recordPrescriptionAnswer('w1', 'anat', true)).justCompleted).toBe(false) // breadth not yet done
+    expect((await recordPrescriptionAnswer('b1', 'phys', true)).justCompleted).toBe(true) // this answer completes the day
+    expect((await recordPrescriptionAnswer('b1', 'phys', true)).justCompleted).toBe(false) // already complete, idempotent
+  })
+
   it('getOrCreateTodayPlan applies the persisted year filter to the pool', async () => {
     const subjects = [{ id: 'anat', displayName: '解剖' }, { id: 'phys', displayName: '生理' }]
     const pool = [

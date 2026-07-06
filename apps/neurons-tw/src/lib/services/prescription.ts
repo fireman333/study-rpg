@@ -555,14 +555,19 @@ export async function recordPrescriptionAnswer(
   family: string,
   isCorrect: boolean,
   now: number = Date.now(),
-): Promise<{ repairConsolidated: boolean }> {
+): Promise<{ repairConsolidated: boolean; breadthConsolidated: boolean; justCompleted: boolean }> {
   const date = todayISO()
   const plan = await metaGetJSON<PrescriptionPlan>(planKey(date))
-  if (!plan) return { repairConsolidated: false }
+  if (!plan) return { repairConsolidated: false, breadthConsolidated: false, justCompleted: false }
 
-  // True only when THIS answer newly consolidates a repair-pool connection
-  // (a snapshot repair question answered correctly for the first time today).
+  // Each flag is true only when THIS answer newly credits the matching line — a snapshot
+  // repair question consolidated (first correct today), a breadth-family question first
+  // answered today, or this being the answer that completes both lines. Fired from ANY
+  // entry point (答題 / 出征 / 模考 / 考前猜題 practice): a deliberate exception to the
+  // practice-inert contract, scoped to prescription crediting only.
   let repairConsolidated = false
+  let breadthConsolidated = false
+  let justCompleted = false
   if (isCorrect && plan.wrongEligibleQuestionIds.includes(questionId)) {
     const k = wrongKey(date, questionId)
     if (!(await metaExists(k))) {
@@ -576,7 +581,10 @@ export async function recordPrescriptionAnswer(
     plan.breadthEligibleQuestionIds.includes(questionId)
   ) {
     const k = breadthKey(date, questionId)
-    if (!(await metaExists(k))) await db.meta.put({ key: k, value: '1' })
+    if (!(await metaExists(k))) {
+      await db.meta.put({ key: k, value: '1' })
+      breadthConsolidated = true
+    }
   }
 
   const [wrongDone, breadthDone] = await Promise.all([
@@ -586,6 +594,7 @@ export async function recordPrescriptionAnswer(
   if (wrongDone >= plan.wrongTarget && breadthDone >= plan.breadthTarget) {
     if (!(await metaExists(completedKey(date)))) {
       await db.meta.put({ key: completedKey(date), value: JSON.stringify({ completedAt: now }) })
+      justCompleted = true
     }
     if (!(await metaExists(rewardKey(date)))) {
       await db.meta.put({ key: rewardKey(date), value: JSON.stringify({ claimedAt: now }) })
@@ -599,7 +608,7 @@ export async function recordPrescriptionAnswer(
       if (!(await metaExists(ik))) await db.meta.put({ key: ik, value: '1' })
     }
   }
-  return { repairConsolidated }
+  return { repairConsolidated, breadthConsolidated, justCompleted }
 }
 
 /** Full reactive-friendly status snapshot (reads meta; plan must already exist). */
