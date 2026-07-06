@@ -10,7 +10,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "build": "tsx scripts/build.ts && tsx scripts/build-concept-recurrence.ts",
+    "build": "tsx scripts/build.ts && tsx scripts/build-concept-recurrence.ts && tsx scripts/build-cram.ts",
     "typecheck": "tsc --noEmit",
     "verify:normalize": "tsx scripts/verify-normalize.ts",
     "verify:validator": "tsx scripts/verify-validator.ts",
@@ -21,7 +21,9 @@
     "verify:concept-vocab": "tsx scripts/verify-concept-vocab.ts",
     "verify:concept-tags": "tsx scripts/verify-concept-tags.ts",
     "build:concept-recurrence": "tsx scripts/build-concept-recurrence.ts",
-    "build:concept-keyword-prepass": "tsx scripts/build-concept-keyword-prepass.ts"
+    "build:concept-keyword-prepass": "tsx scripts/build-concept-keyword-prepass.ts",
+    "build:cram": "tsx scripts/build-cram.ts",
+    "verify:cram": "tsx scripts/verify-cram.ts"
   },
   "peerDependencies": {
     "@study-rpg/core": "workspace:*"

@@ -23,10 +23,24 @@ for (const file of ['meta.json', 'subjects.json', 'questions.json']) {
   copyFileSync(resolve(SRC_DIR, file), resolve(DEST_DIR, file))
 }
 // Concept-tag artifacts (add-neurons-concept-tags §4.5): per-question tags for search + labels,
-// and the recurrence dataset for downstream 押題. Optional — skip if not yet built.
-for (const file of ['concept-tags.json', 'concept-recurrence.json']) {
+// and the recurrence dataset for downstream 押題. cram.json (add-neurons-cram-tab): the 考前猜題
+// dataset, lazy-fetched by /cram (not via getContentPack). Optional — skip if not yet built.
+for (const file of ['concept-tags.json', 'concept-recurrence.json', 'cram.json']) {
   const src = resolve(SRC_DIR, file)
   if (existsSync(src)) copyFileSync(src, resolve(DEST_DIR, file))
+}
+
+// 考前速看 A4 PDFs (add-neurons-cram-tab): committed content-pack source → served under content/
+// (already an assetDir, so no build-cf-pages allowlist change needed). Downloaded from /cram.
+const PDF_SRC = resolve(__dirname, '..', '..', '..', 'packages/content-neurons-tw/src/cram/pdf')
+let cramPdfCount = 0
+if (existsSync(PDF_SRC)) {
+  const PDF_DEST = resolve(DEST_DIR, 'cram-pdf')
+  mkdirSync(PDF_DEST, { recursive: true })
+  for (const f of readdirSync(PDF_SRC).filter((n) => n.endsWith('.pdf'))) {
+    copyFileSync(resolve(PDF_SRC, f), resolve(PDF_DEST, f))
+    cramPdfCount += 1
+  }
 }
 
 // Question figures: copy dist/figures/*.png → public/content/neurons-tw/figures/
@@ -65,5 +79,5 @@ if (existsSync(EF_SRC)) {
   }
 }
 console.log(
-  `✓ Copied content-neurons-tw artifacts (+ ${figureCount} figures, ${tableImageCount} table-images, ${explFigureCount} explanation-figures) → ${DEST_DIR}`,
+  `✓ Copied content-neurons-tw artifacts (+ ${figureCount} figures, ${tableImageCount} table-images, ${explFigureCount} explanation-figures, ${cramPdfCount} cram PDFs) → ${DEST_DIR}`,
 )
