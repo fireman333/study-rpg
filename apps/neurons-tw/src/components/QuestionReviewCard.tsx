@@ -12,6 +12,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import type { Question } from '@study-rpg/core'
 import type { ConceptLabel } from '../lib/concept-tags'
+import { ConceptLabelRow } from './ConceptLabelRow'
 import { EmojiIcon } from './EmojiIcon'
 import { PrecedingContext } from './PrecedingContext'
 import { QuestionFigure } from './QuestionFigure'
@@ -61,28 +62,7 @@ export function QuestionReviewCard({
         <strong>正解：</strong>
         {q.disputed ? '⚖ 送分題（考選部判定全部給分）' : `(${acceptedKeysOf(q).join(' 或 ')})`}
       </p>
-      {conceptLabels && conceptLabels.length > 0 && (
-        <div style={conceptRowStyle}>
-          <span style={conceptLeadStyle}>考點</span>
-          {conceptLabels.map((c) =>
-            onConceptClick ? (
-              <button
-                key={c.leafId}
-                type="button"
-                style={conceptChipButtonStyle}
-                onClick={() => onConceptClick(c.zh)}
-                title={`搜尋「${c.zh}」的所有題目`}
-              >
-                {c.zh}
-              </button>
-            ) : (
-              <span key={c.leafId} style={conceptChipStyle}>
-                {c.zh}
-              </span>
-            ),
-          )}
-        </div>
-      )}
+      <ConceptLabelRow labels={conceptLabels ?? []} onConceptClick={onConceptClick} />
       {q.explanation && (
         <>
           <LocalPdfButton questionId={q.id} />
@@ -111,8 +91,3 @@ const explanationStyle: CSSProperties = { marginTop: '0.4rem', background: '#f4e
 const explanationSummaryStyle: CSSProperties = { fontWeight: 700, color: '#8c6d4a', cursor: 'pointer', fontSize: '0.86rem' }
 const explanationBodyStyle: CSSProperties = { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontSize: '0.86rem', color: '#3a2a1a', lineHeight: 1.65, marginTop: '0.4rem', fontFamily: 'var(--font-legible)' }
 const aiNoteStyle: CSSProperties = { fontSize: '0.74rem', color: '#a07a3a', marginTop: '0.4rem', fontStyle: 'italic', fontFamily: 'var(--font-legible)' }
-// Concept-tag label row (add-neurons-concept-tags §5.2)
-const conceptRowStyle: CSSProperties = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.3rem', margin: '0.1rem 0 0.35rem' }
-const conceptLeadStyle: CSSProperties = { fontSize: '0.72rem', color: '#8c6d4a', fontWeight: 700, fontFamily: 'var(--font-legible)' }
-const conceptChipStyle: CSSProperties = { fontSize: '0.74rem', color: '#5a4a33', background: '#efe4cc', border: '1px solid #d8c39a', borderRadius: '999px', padding: '0.08rem 0.5rem', fontFamily: 'var(--font-legible)', lineHeight: 1.5 }
-const conceptChipButtonStyle: CSSProperties = { ...conceptChipStyle, cursor: 'pointer', color: '#7a5a2a' }
