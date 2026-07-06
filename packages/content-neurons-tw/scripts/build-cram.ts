@@ -61,10 +61,12 @@ interface Recurrence {
 }
 type ConceptTags = Record<string, string[]>
 
-// Honesty is enforced on 押題 items only (raw counts + tier — verify-cram scopes its lint to
-// 押題 fields). 速看 study-section headings are preserved verbatim: `必中考古` is standard 國考
-// slang for high-yield repeatedly-tested past questions, NOT a this-year prediction/guarantee,
-// so it is not rewritten (per cram design D7 + Codex review 2026-07-06).
+// Honesty invariant: neither 押題 items nor 速看 study-section headings may use guarantee/
+// prediction slang. 押題 items carry raw counts + tier only; 速看 headings are curated labels.
+// The former `必中考古` heading was renamed `高頻考古` (frequency-based — matches the /cram
+// disclaimer 頻率高 ≠ 今年一定考), superseding design D7's 速看-heading carve-out, per the honesty
+// spec ban on 保證/必中/100%/今年一定考 (fix-neurons-cram-guarantee-wording, 2026-07-06).
+// verify-cram lints both surfaces (押題 fields + 速看 headings).
 
 // ── HTML helpers (dependency-free) ─────────────────────────────────────────
 
