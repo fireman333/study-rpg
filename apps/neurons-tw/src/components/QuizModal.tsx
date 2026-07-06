@@ -68,9 +68,13 @@ interface Props {
   /**
    * Pure-practice mode (per tidy-neurons-homepage-ui): 模考 / 題庫 answers SHALL NOT
    * accrue maze energy, advance the walker, pull variants, bump the streak, or
-   * credit the connectome. `questionHistory` (paper coverage + everWrong) and the
-   * SRS schedule STILL record. Callers also omit `onComplete`, so no DMN draw axis
-   * is credited. Defaults to false (養成 quiz / 出征 keep full rewards).
+   * credit the connectome. `questionHistory` (paper coverage + everWrong), the SRS
+   * schedule, AND 今日處方箋 crediting STILL fire. The prescription credit is a
+   * deliberate exception to practice-inert: answering a frozen-snapshot question
+   * correctly IS repairing that connection regardless of entry point, so 考前猜題
+   * practice visibly advances the daily 修煉 (no XP / gacha / game-streak granted).
+   * Callers also omit `onComplete`, so no DMN draw axis is credited. Defaults to
+   * false (養成 quiz / 出征 keep full rewards).
    */
   practice?: boolean
 }
@@ -253,9 +257,12 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   // set on a correct answer from the post-answer streak; drives the spike-train
   // burst magnitude. Continuous scale, capped. Reset to baseline on Next.
   const [correctIntensity, setCorrectIntensity] = useState(1)
-  // True when THIS answer consolidated a 今日處方 repair-pool connection — drives the
-  // scoped「連結已固化」note (prescription repair only; never shown in mock/題庫 verdicts).
+  // True when THIS answer newly credited a 今日處方箋 line — drive the scoped verdict
+  // notes. Fire from ANY entry point incl. 考前猜題 practice (prescription crediting is a
+  // deliberate exception to practice-inert), so cram practice visibly advances 修煉.
   const [repairConsolidated, setRepairConsolidated] = useState(false)
+  const [breadthConsolidated, setBreadthConsolidated] = useState(false)
+  const [dayJustCompleted, setDayJustCompleted] = useState(false)
   const reducedMotion = useRespectsReducedMotion()
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
@@ -384,6 +391,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         try {
           const presc = await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
           if (presc.repairConsolidated) setRepairConsolidated(true)
+          if (presc.breadthConsolidated) setBreadthConsolidated(true)
+          if (presc.justCompleted) setDayJustCompleted(true)
         } catch (err) {
           console.error('[prescription] failed to record answer', err)
         }
@@ -409,6 +418,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
     setFeedbackStrip(null)
     setCorrectIntensity(1)
     setRepairConsolidated(false)
+    setBreadthConsolidated(false)
+    setDayJustCompleted(false)
     // Drop the answered question's SRS snapshots — the next question captures
     // its own in handlePick.
     prevSrsRef.current = null
@@ -726,9 +737,19 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   </span>
                 )}
               </p>
-              {repairConsolidated && (
+              {repairConsolidated && !dayJustCompleted && (
                 <p style={repairConsolidatedStyle}>
                   <EmojiIcon char="🩹" size={13} decorative /> 連結已固化 · 這條原本不穩的連結，穩了
+                </p>
+              )}
+              {breadthConsolidated && !dayJustCompleted && (
+                <p style={breadthDevelopedStyle}>
+                  <EmojiIcon char="🔍" size={13} decorative /> 新連結已開發 · 今日處方箋開發新連結 +1
+                </p>
+              )}
+              {dayJustCompleted && (
+                <p style={dayCompletedNoteStyle}>
+                  <EmojiIcon char="🎉" size={13} decorative /> 今日處方箋完成 · 兩件小事都做完了
                 </p>
               )}
               {heroReactionBase && (
@@ -1233,6 +1254,22 @@ const repairConsolidatedStyle: React.CSSProperties = {
   fontSize: '0.82rem',
   fontWeight: 600,
   color: '#4d8c4d',
+}
+
+// 「新連結已開發」note — first breadth-family answer credited today (any entry point).
+const breadthDevelopedStyle: React.CSSProperties = {
+  margin: '-0.3rem 0 0.6rem',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  color: '#2f6b8c',
+}
+
+// Non-punishing 「今日處方箋完成」note — the answer that completes both lines today.
+const dayCompletedNoteStyle: React.CSSProperties = {
+  margin: '-0.3rem 0 0.6rem',
+  fontSize: '0.82rem',
+  fontWeight: 700,
+  color: '#7a5410',
 }
 
 // Peripheral EEG spike-train burst on correct answer — sibling overlay, never
