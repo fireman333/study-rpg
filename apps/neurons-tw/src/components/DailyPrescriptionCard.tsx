@@ -19,6 +19,7 @@
  * Spec: openspec/specs/neurons-daily-prescription/spec.md
  */
 
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { PrescriptionStatus } from '../lib/services/prescription'
 import {
@@ -28,6 +29,7 @@ import {
 import { todayISO } from '../lib/db'
 import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
 import { EmojiIcon } from './EmojiIcon'
+import { CramCalmView } from './CramCalmView'
 import { Ng0717BranchBuds, type EnrichedImprint } from './Ng0717BranchBuds'
 import ng0717Stage1 from '../assets/ng0717/stage1.png'
 import ng0717Stage2 from '../assets/ng0717/stage2.png'
@@ -73,6 +75,9 @@ export function DailyPrescriptionCard({
   branchImprints,
 }: Props): JSX.Element | null {
   const prefersReduced = useRespectsReducedMotion()
+  // 考前收斂 calm view expand state (device+session local; default collapsed). Only
+  // used when dayComplete — mounting CramCalmView lazily loads cram.json on expand.
+  const [calmOpen, setCalmOpen] = useState(false)
 
   // Loading / no-plan-yet: render nothing so the card never flashes an empty box.
   if (!status || !status.plan) return null
@@ -208,6 +213,23 @@ export function DailyPrescriptionCard({
       {/* Low-salience exit to 考前猜題 — optional exam-eve resource, secondary to the
           primary CTA; no badge / count / countdown (anti-anxiety contract). */}
       <Link to="/cram" style={cramLinkStyle}>考前？看高頻考點 →</Link>
+
+      {/* 考前收斂 calm view — only after the day is complete; a neutral disclosure
+          toggle (not an action-CTA) reveals a passive reassurance panel. Mounting
+          it lazily loads cram.json only on expand. */}
+      {dayComplete && (
+        <div style={calmWrapStyle}>
+          <button
+            type="button"
+            style={calmToggleStyle}
+            onClick={() => setCalmOpen((v) => !v)}
+            aria-expanded={calmOpen}
+          >
+            {calmOpen ? '▴ 今晚收束' : '▾ 今晚收束'}
+          </button>
+          {calmOpen && <CramCalmView />}
+        </div>
+      )}
 
       {/* NG-0717 mascot + cumulative「已固化 X 天」(no fixed denominator). */}
       <div style={mascotRowStyle}>
@@ -390,6 +412,24 @@ const cramLinkStyle: React.CSSProperties = {
   fontSize: '0.8rem',
   color: '#8c6d4a',
   textDecoration: 'none',
+}
+
+// 考前收斂 calm view — neutral disclosure toggle + passive panel (dayComplete only).
+const calmWrapStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+}
+
+const calmToggleStyle: React.CSSProperties = {
+  alignSelf: 'center',
+  border: 'none',
+  background: 'transparent',
+  color: '#8c6d4a',
+  fontFamily: 'inherit',
+  fontSize: '0.8rem',
+  cursor: 'pointer',
+  padding: '0.15rem 0.3rem',
 }
 
 const mascotRowStyle: React.CSSProperties = {
