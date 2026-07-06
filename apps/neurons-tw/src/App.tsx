@@ -19,6 +19,7 @@ import DmnCollectionPage from './routes/DmnCollectionPage'
 import BookmarksPage from './routes/BookmarksPage'
 import CollectionPage from './routes/CollectionPage'
 import { QuestionBankPage } from './routes/QuestionBankPage'
+import { CramPage } from './routes/CramPage'
 import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import { CustomTooltipHost } from './components/CustomTooltipHost'
@@ -103,11 +104,7 @@ export default function App(): JSX.Element {
                   <span style={isActive ? activeNavBoxStyle : navBoxStyle}>收藏</span>
                 )}
               </NavLink>
-              <NavLink to="/bank" style={navLinkStyle}>
-                {({ isActive }) => (
-                  <span style={isActive ? activeNavBoxStyle : navBoxStyle}>題庫</span>
-                )}
-              </NavLink>
+              <GroupNavLink to="/bank" label="題庫" group={BANK_GROUP_PATHS} />
               <GroupNavLink to="/leaderboard" label="社群" group={COMMUNITY_GROUP_PATHS} />
             </nav>
             <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
@@ -161,7 +158,10 @@ function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
           {/* /maze-beta is fused into the homepage — redirect old bookmarks. */}
           <Route path="/maze-beta" element={<Navigate to="/" replace />} />
           <Route path="/bookmarks" element={<BookmarksPage pack={pack} />} />
-          <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
+          <Route element={<SubTabLayout group="bank" />}>
+            <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
+            <Route path="/cram" element={<CramPage pack={pack} />} />
+          </Route>
           {/* Relocated into /collection (finalize-mock-variant-catalog); keep a redirect for any old link. */}
           <Route path="/mock-collection" element={<Navigate to="/collection" replace />} />
           <Route path="/motion-demo" element={<MotionDemoPage />} />
@@ -178,8 +178,13 @@ function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
  */
 const COLLECTION_GROUP_PATHS = ['/collection', '/dmn', '/achievements']
 const COMMUNITY_GROUP_PATHS = ['/leaderboard', '/shoutout']
+const BANK_GROUP_PATHS = ['/bank', '/cram']
 
 const SUBTAB_GROUPS = {
+  bank: [
+    { to: '/bank', label: '題庫' },
+    { to: '/cram', label: '考前猜題' },
+  ],
   collection: [
     { to: '/collection', label: '神經元圖鑑' },
     { to: '/dmn', label: 'DMN' },
@@ -206,7 +211,7 @@ function GroupNavLink({ to, label, group }: { to: string; label: string; group: 
 function SubTabLayout({ group }: { group: keyof typeof SUBTAB_GROUPS }): JSX.Element {
   return (
     <>
-      <nav style={subTabBarStyle} aria-label={group === 'collection' ? '圖鑑分頁' : '社群分頁'}>
+      <nav style={subTabBarStyle} aria-label={group === 'collection' ? '圖鑑分頁' : group === 'bank' ? '題庫分頁' : '社群分頁'}>
         {SUBTAB_GROUPS[group].map((t) => (
           <NavLink key={t.to} to={t.to} style={navLinkStyle} end>
             {({ isActive }) => (

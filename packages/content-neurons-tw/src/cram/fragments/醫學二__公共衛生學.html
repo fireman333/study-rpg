@@ -1,0 +1,61 @@
+<div class="block"><h3>📐 公式卡 / 易混定義</h3>
+<table class="num"><tbody>
+<tr><td>統計檢定選擇總則</td><td><b>比較「均值(連續)」→ t/ANOVA；比較「比例(類別)」→ chi-square/Fisher</b></td></tr>
+<tr><td>Paired t-test vs Two-sample t-test</td><td><b>同一組人前後測 → paired；兩組獨立不同人 → two-sample(independent)</b></td></tr>
+<tr><td>Chi-square vs Fisher's exact</td><td><b>2×2 有任一格期望值 &lt;5(小樣本) → Fisher；期望值夠大 → chi-square</b></td></tr>
+<tr><td>McNemar test</td><td><b>類別變項的「配對/前後測」設計（≠ 獨立樣本 2×2 用 Fisher/chi-square）</b></td></tr>
+<tr><td>≥3 組獨立樣本比均值</td><td><b>ANOVA（≠ 三組不能用 t-test 或 Z-test）</b></td></tr>
+<tr><td>兩連續變項相關/預測(兩者皆連續)</td><td><b>linear regression / Pearson；反應變項二分類 → logistic regression</b></td></tr>
+<tr><td>Spearman correlation</td><td><b>至少一變項為有序(ordinal，如年齡分級/薪資高中低)、免常態假設</b></td></tr>
+<tr><td>Type I error (α)</td><td><b>H0 實際為真卻推翻它（偽陽性；顯著水準）</b></td></tr>
+<tr><td>Type II error (β)</td><td><b>H0 實際為假卻沒推翻它；β = 1 − power</b></td></tr>
+<tr><td>Power(檢定力)</td><td><b>= 1 − β；H0 為假時正確拒絕的機率。↑樣本數 / ↑α / ↑effect size 皆提升 power</b></td></tr>
+<tr><td>樣本數估計方向</td><td><b>↑SD → 樣本數↑；↑effect size / ↑α / ↓power(需求) → 樣本數↓</b></td></tr>
+<tr><td>Sensitivity(敏感度)</td><td><b>有病者中測陽性的機率（有病→測得出）</b></td></tr>
+<tr><td>Specificity(特異度)</td><td><b>無病者中測陰性的機率（沒病→測沒病）</b></td></tr>
+<tr><td>PPV / NPV</td><td><b>陽性者中真有病 / 陰性者中真沒病；PPV 受盛行率影響（盛行率↓ → PPV↓、偽陽性比例↑）</b></td></tr>
+<tr><td>Cut-off 移動</td><td><b>放寬標準 → 敏感度↑、特異度↓、偽陽性↑（Se 與 Sp 無法同時最大化）</b></td></tr>
+<tr><td>相關係數 r vs 決定係數 R²</td><td><b>R² = r²；「可被解釋的變異比例」用 R²（r=0.4 → 只解釋 16% 非 40%）</b></td></tr>
+<tr><td>Pearson r 性質</td><td><b>介於 −1~1；r 與迴歸斜率 b 同號；r 顯著≠因果、相關≠因果</b></td></tr>
+<tr><td>比較不同單位變異大小</td><td><b>變異係數 CV = SD/mean（消除單位；SD/variance 受單位影響不能比）</b></td></tr>
+<tr><td>Odds ratio 判有無關聯</td><td><b>看 OR 95% CI 是否含 1（含 1 = 無關聯）；≠ 與 0 比較</b></td></tr>
+</tbody></table></div>
+
+<div class="block"><h3>⚖️ 易混淆對照</h3>
+<table class="disc"><thead><tr><th>Bias 型別</th><th>定義 / 一句鑑別</th><th>經典例</th></tr></thead>
+<tbody>
+<tr><td>生態謬誤 (ecological fallacy)</td><td>用群體層級相關硬推個體因果</td><td>各國乳癌率↔高血脂盛行率</td></tr>
+<tr><td>選樣偏差 (selection bias)</td><td>研究對象選取階段就偏</td><td>健康工人效應 (healthy worker effect)</td></tr>
+<tr><td>訊息偏差 (information bias)</td><td>資料測量/收集錯誤造成</td><td>測量誤差、錯誤分組</td></tr>
+<tr><td>干擾 (confounding)</td><td>第三變項同時與暴露和疾病相關</td><td>加入 logistic 迴歸「調整」處理</td></tr>
+</tbody></table></div>
+
+<div class="block"><h3>⚖️ 易混淆對照</h3>
+<table class="disc"><thead><tr><th>軸</th><th>Incidence(發生率)</th><th>Prevalence(盛行率)</th></tr></thead>
+<tbody>
+<tr><td>意義</td><td>新發生個案（危害辨識談的是發生率非盛行率）</td><td>現有個案，含病程持續時間</td></tr>
+<tr><td>粗 vs 年齡標準化</td><td colspan="2"><b>粗發生率高但標準化後低 → 該地人口老化程度高</b></td></tr>
+</tbody></table></div>
+
+<div class="block"><h3>⚖️ 易混淆對照</h3>
+<table class="disc"><thead><tr><th>研究/檢定概念</th><th>特徵一句鑑別</th></tr></thead>
+<tbody>
+<tr><td>生態學研究 (ecological study)</td><td>以族群為單位、僅總和資料無個人暴露；最難控干擾</td></tr>
+<tr><td>病例對照 (case-control)</td><td>回溯、只能算 OR、算不出發生率/RR；單向</td></tr>
+<tr><td>巢式病例對照 (nested case-control)</td><td>雙向研究法（前瞻追蹤 + 回溯暴露）</td></tr>
+<tr><td>新藥上市前評療效</td><td>隨機分派試驗 RCT (Phase 3)；廣告缺陷=沒對照組</td></tr>
+<tr><td>交互作用 (interaction) vs 干擾</td><td>「關聯隨X狀態而變」= 效應修飾查 interaction；調整只能控干擾</td></tr>
+<tr><td>平行檢定 (parallel) vs 系列檢定 (series)</td><td>parallel(任一陽即陽)→淨敏感度↑特異度↓；series(皆陽才陽)→特異度↑</td></tr>
+<tr><td>中央極限定理</td><td>樣本平均值分布趨常態(非 Poisson)；SE 取決於母體SD與樣本大小</td></tr>
+</tbody></table></div>
+
+<div class="block"><h3>🔑 關鍵字 → 答案</h3>
+<table class="kw"><tbody>
+<tr><td class="k">光化學煙霧 / 光化學監測站主角</td><td>臭氧 O₃（前驅物 NOx、VOCs/HC）</td></tr>
+<tr><td class="k">氮氧化物 NOx 狹義</td><td>NO + NO₂（酸雨侵蝕建築主因）</td></tr>
+<tr><td class="k">量表：膽固醇 mg/dl</td><td>等比 ratio scale；體溫℃=等距、血型=類別、癌症分期=序位</td></tr>
+<tr><td class="k">1848 首訂公共衛生法 / John Snow 霍亂</td><td>英國（公衛始祖）</td></tr>
+<tr><td class="k">戒菸階段：有動機無計畫 / 尚未行動</td><td>沉思期 contemplation；買器材未規律=準備期 preparation</td></tr>
+<tr><td class="k">為何有人做癌篩有人不做</td><td>健康信念模式 (health belief model)</td></tr>
+<tr><td class="k">所得重分配/社會互助作用最小</td><td>醫療儲蓄帳戶 (medical saving account)</td></tr>
+</tbody></table></div>

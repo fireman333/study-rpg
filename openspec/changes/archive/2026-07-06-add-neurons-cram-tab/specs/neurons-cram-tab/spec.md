@@ -1,0 +1,113 @@
+## ADDED Requirements
+
+### Requirement: The 題庫 tab SHALL become a subtab group with 題庫 and 考前猜題
+
+The system SHALL present the 題庫 top-nav entry as a subtab group containing `/bank` (existing question bank, behavior unchanged) and `/cram` (考前猜題), reusing the app's existing subtab pattern. The 題庫 top-nav entry SHALL stay highlighted while either subtab is active.
+
+#### Scenario: Both subtabs highlight 題庫
+- **WHEN** the user is on `/bank` or on `/cram`
+- **THEN** the top-nav 題庫 entry SHALL render as active, and the subtab bar SHALL show 題庫 and 考前猜題
+
+#### Scenario: Direct URL and reload work in production
+- **WHEN** the user opens `/cram` directly or reloads (F5) on `/cram` on the production host
+- **THEN** the 考前猜題 view SHALL render (not a 404 / not a redirect to home)
+
+### Requirement: 考前猜題 SHALL present per-subject 速看重點 and 押題清單, organized by paper, with progressive disclosure
+
+`/cram` SHALL organize content by subject within two regions (醫學一 / 醫學二), using single-open subject accordions. Opening a subject SHALL show its 押題清單 by default and keep its 速看重點 tables in a nested collapsed section. Collapsed subjects SHALL show a compact count chip.
+
+#### Scenario: Single-open subject accordion
+- **WHEN** the user opens one subject accordion
+- **THEN** any previously open subject SHALL collapse, so at most one subject is expanded at a time
+
+#### Scenario: 押題 visible, 速看 nested
+- **WHEN** a subject is expanded
+- **THEN** its 押題清單 SHALL be visible and its 速看重點 tables SHALL be behind a secondary "展開速看表格" toggle
+
+#### Scenario: Mobile subject quick-jump
+- **WHEN** viewed on a phone-width viewport
+- **THEN** a sticky subject quick-jump chip row SHALL be available, and no content SHALL cause horizontal page scroll
+
+### Requirement: 押題 items SHALL be honest — raw counts and tiers only, no guarantee or precision claims
+
+Each 押題 item SHALL display only raw recurrence counts (e.g. 「23 次考試出現 N 次」) and its tier label. The feature MUST NOT display normalized scores, hit-rate percentages, or any guarantee/prediction-certainty language.
+
+#### Scenario: Raw counts, no fabricated precision
+- **WHEN** a 押題 item is rendered
+- **THEN** it SHALL show its raw sitting count and tier, AND MUST NOT show a normalized 0–1 score, a 命中率%, or wording such as 保證/必中/100%/今年一定考
+
+#### Scenario: Cooling topics are labelled
+- **WHEN** a 押題 concept is 經典但降溫
+- **THEN** its cooling status SHALL be shown, not hidden
+
+### Requirement: The 考前猜題 view SHALL carry a persistent methodology disclaimer and version stamp
+
+`/cram` SHALL show a persistent one-line disclaimer plus an expandable methodology note and a data-window version stamp, always in-view (not a dismissible modal).
+
+#### Scenario: Disclaimer and version stamp always present
+- **WHEN** the 考前猜題 view is shown
+- **THEN** a persistent disclaimer stating the ranking is frequency-based (頻率高 ≠ 今年一定考), an expandable "怎麼算的" methodology note, and a 「統計至 115-1」 version stamp SHALL all be present
+
+### Requirement: cram content units SHALL be self-contained; 押題 items SHALL drill down to real source questions via an evidence-first drawer
+
+Each cram line (速看 block row or 押題 item) SHALL be fully readable without expanding any source. **押題 items** SHALL carry `sourceQuestionIds` (the questions tagged with that concept) and expose a low-emphasis count chip that opens an **evidence-first drawer**: the concept's raw count + tier plus a recent-first, capped read-only mini-list of its real source questions (`QuestionReviewCard`), preserving passive source-verification. Selecting a question SHALL open its existing read-only view inline; the source PDF panel SHALL open only on the explicit 看原始詳解 PDF control, never automatically. **速看 blocks** SHALL be self-contained and are NOT required to carry per-row source links (they are compressed, deliberately standalone).
+
+#### Scenario: Line stands alone
+- **WHEN** a user reads a cram line without expanding sources
+- **THEN** the line SHALL convey its full takeaway with no dependency on the source list
+
+#### Scenario: 押題 count chip opens an evidence-first drawer
+- **WHEN** the user taps a 押題 item's count chip
+- **THEN** an evidence drawer SHALL show the concept's raw count + tier and a recent-first, capped read-only mini-list of its source questions, and selecting one SHALL open the existing read-only question view for that real question id
+
+#### Scenario: PDF panel never auto-opens on mobile
+- **WHEN** a user expands any cram accordion, 押題 drawer, or source list
+- **THEN** the docked/full-screen PDF panel MUST NOT open automatically; it SHALL open only when the user taps the explicit 看原始詳解 PDF control
+
+#### Scenario: Broken 押題 source links are impossible at build
+- **WHEN** the cram data is built
+- **THEN** a validator SHALL verify every 押題 `sourceQuestionIds` value exists in the built `questions.json`, failing the build otherwise
+
+### Requirement: 考前猜題 SHALL bridge into the game via a low-friction practice on-ramp, without gating or manipulation
+
+The 押題 evidence drawer SHALL embed a low-friction primary CTA (「▶ 答 1 題看看」) that opens the existing quiz in **practice mode** over that concept's questions; each subject's 速看 section SHALL offer exactly ONE section-level 「用本章高頻概念練 N 題」 CTA (not a per-row CTA). Practice mode SHALL NOT affect progression but SHALL record wrong answers to the 錯題本 (feeding the existing 出征 loop). Answering SHALL require no sign-in; sign-in prompts MAY appear only at a save moment (persisting 錯題本 / 出征 / collection), framed as saving progress, never as unlocking content. The feature MUST NOT: require registration before reading sources or answering; hide cram highlights behind game progress; show hit-rate / guarantee language; push gacha / leaderboard before the user has engaged; use streak / countdown / rank pressure to create anxiety; attach a CTA to every highlight row; or shame wrong answers.
+
+#### Scenario: One-tap practice from a 押題 concept
+- **WHEN** the user taps 「▶ 答 1 題看看」 in a 押題 evidence drawer
+- **THEN** the quiz SHALL open directly in practice mode on that concept's questions with a single-question probe, requiring no sign-in, no difficulty/count prompt, and no full-screen promo modal first
+
+#### Scenario: Wrong answer bridges to 出征 without shaming
+- **WHEN** the user answers a cram practice question incorrectly
+- **THEN** the wrong question SHALL be recorded to the 錯題本 (per existing practice-mode behavior), and any post-answer prompt SHALL frame it as a repairable synapse to fix via 出征, shown only after the answer, never before
+
+#### Scenario: No gate, no manipulation
+- **WHEN** any cram → game on-ramp is presented
+- **THEN** it MUST NOT gate reading or answering behind sign-in, MUST NOT use hit-rate / guarantee language, and MUST NOT inject streak / countdown / rank pressure
+
+### Requirement: 考前猜題 SHALL offer one-click download of a pre-generated A4 PDF sharing one source with the in-app view
+
+The view SHALL provide a one-click download of a pre-generated A4 PDF. The PDF and the in-app 速看 content SHALL share a single source of truth — both derive from the same committed 速看 fragments — so they do not diverge in content. The PDF SHALL be a committed, served static asset (never produced by the browser print dialog or client-side at runtime).
+
+#### Scenario: One-click direct download
+- **WHEN** the user taps the download control
+- **THEN** the pre-generated A4 PDF SHALL download directly (not via the browser print dialog, not via client-side runtime generation)
+
+#### Scenario: PDF and in-app 速看 share one source
+- **WHEN** the 速看 content is authored
+- **THEN** both the in-app 速看 view (`cram.json`) and the downloadable PDF SHALL derive from the same committed 速看 fragments, so their content does not diverge
+
+### Requirement: 考前猜題 SHALL be fully open with no entitlement gate
+
+All 考前猜題 content — 速看重點, 押題清單, source-question links, 詳解, the `cram.json` static asset, and the A4 PDF download — SHALL be accessible to all users without any sign-in, leaderboard, or game-progression requirement.
+
+#### Scenario: Anonymous user has full access including PDF download
+- **WHEN** a signed-out user opens `/cram`
+- **THEN** all 速看重點 / 押題清單 / source links / 詳解 SHALL be readable AND the A4 PDF download SHALL work, with no sign-in, leaderboard, or level-unlock prompt
+
+### Requirement: 考前猜題 SHALL continue the pixel theme
+
+The view SHALL use the app's pixel theme tokens (cream/brown pixel panels, gold accent, Cubic 11 pixel font for headings) with the legible font stack for exam-text content. It MAY additionally apply per-subject NT-branch accent colors.
+
+#### Scenario: Pixel-themed rendering
+- **WHEN** the 考前猜題 view renders
+- **THEN** it SHALL use the theme's pixel panel/heading styling, with exam-content text using the legible font stack

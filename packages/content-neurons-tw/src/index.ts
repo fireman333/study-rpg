@@ -241,3 +241,13 @@ export {
   type ConceptLeaf,
   type ConceptVocabFailure,
 } from './concept-vocab/index'
+
+// 考前猜題 (cram) data model (add-neurons-cram-tab). The cram.json build product is lazy-fetched
+// by the app at runtime (not bundled via getContentPack); these are the shared shape types.
+export type {
+  CramBlock,
+  CramPushItem,
+  CramSubject,
+  CramBook,
+  CramData,
+} from './cram/cram-types'
