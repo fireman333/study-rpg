@@ -5,6 +5,12 @@ import {
   CALM_COVERAGE_PREFIX,
   CALM_COVERAGE_SUFFIX,
   CALM_CLOSING_LINE,
+  DAY_COMPLETE_LINE,
+  CRAM_RESCUE_INVITE,
+  CRAM_RESCUE_DONE,
+  CRAM_RESCUE_FLAVOR,
+  NG0717_OPEN_HINT,
+  NG0717_KEEPSAKE_LINE,
 } from '../lib/calm-copy'
 
 const item = (leafId: string, sourceQuestionIds: string[]): CramPushItem => ({
@@ -59,16 +65,31 @@ describe('countCoveredConcepts', () => {
   })
 })
 
-describe('calm-view copy guard (honesty)', () => {
-  const banned = /連續|掌握|覆蓋|覆蓋率|%|還差|剩下|還沒讀|保證|必中|今年一定考|會派上用場/
-  const literals = [CALM_COVERAGE_PREFIX, CALM_COVERAGE_SUFFIX, CALM_CLOSING_LINE]
+describe('prescription-card copy guard (honesty + anti-anxiety)', () => {
+  const banned =
+    /連續|掌握|覆蓋|覆蓋率|%|還差|剩下|還沒讀|保證|必中|今年一定考|會派上用場|繼續完成|下一步|未完成|第.*天完全體/
+  const literals = [
+    CALM_COVERAGE_PREFIX,
+    CALM_COVERAGE_SUFFIX,
+    CALM_CLOSING_LINE,
+    DAY_COMPLETE_LINE,
+    CRAM_RESCUE_INVITE,
+    CRAM_RESCUE_DONE,
+    CRAM_RESCUE_FLAVOR,
+    NG0717_OPEN_HINT,
+    NG0717_KEEPSAKE_LINE,
+  ]
 
-  it('the two locked lines are exactly the approved wording', () => {
+  it('the calm-view lines are exactly the approved wording', () => {
     expect(`${CALM_COVERAGE_PREFIX}{M}${CALM_COVERAGE_SUFFIX}`).toBe('你已答對過 {M} 個高頻考點的題目。')
     expect(CALM_CLOSING_LINE).toBe('今晚可以停在這裡，讓連結慢慢固化。')
   })
 
-  it('no calm-view copy contains a banned token (no %/denominator/prediction)', () => {
+  it('the NG-0717 hint no longer carries the 「第 N 天完全體」 countdown', () => {
+    expect(NG0717_OPEN_HINT).not.toMatch(/第.*天完全體|還差|\d+\s*天完全體/)
+  })
+
+  it('no card copy contains a banned token (no %/denominator/countdown/prediction/deficit)', () => {
     for (const s of literals) expect(banned.test(s), `banned token in: ${s}`).toBe(false)
   })
 })

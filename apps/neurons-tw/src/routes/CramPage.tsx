@@ -226,7 +226,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
 
       {/* Practice on-ramp — existing QuizModal in practice mode (no progression, wrong→錯題本→出征) */}
       {practice && (
-        <QuizModal pool={practice.pool} practice preserveOrder onClose={() => setPractice(null)} />
+        <QuizModal pool={practice.pool} practice preserveOrder creditCramRescue onClose={() => setPractice(null)} />
       )}
     </div>
   )

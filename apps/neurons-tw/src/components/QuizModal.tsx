@@ -5,7 +5,7 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
-import { recordPrescriptionAnswer } from '../lib/services/prescription'
+import { recordPrescriptionAnswer, recordCramRescueAnswer } from '../lib/services/prescription'
 import { flushFirstPullReveals } from '../lib/services/first-pull-reveal'
 import {
   scheduleSrsForAnswer,
@@ -77,6 +77,13 @@ interface Props {
    * false (養成 quiz / 出征 keep full rewards).
    */
   practice?: boolean
+  /**
+   * Credit today's 考前救援 bonus (add-neurons-cram-rescue-and-card-actions). Set by
+   * the 考前猜題 (cram) practice entry: each answer (correct OR wrong) writes a
+   * write-once daily meta key so the optional post-完成 bonus can read it. LOCAL-only;
+   * no dayComplete / economy effect. Defaults to false.
+   */
+  creditCramRescue?: boolean
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -219,7 +226,7 @@ function useOwnsLegendarySlot(familyId: string | undefined): boolean {
   return owns
 }
 
-export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false }: Props): JSX.Element {
+export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false, creditCramRescue = false }: Props): JSX.Element {
   // Build session pool ONCE at mount and freeze it — a quiz session is an
   // immutable ordered sequence. The caller's `pool` prop ref churns whenever
   // `questionHistory` updates: the `useQuestionHistory` liveQuery emits a NEW
@@ -396,6 +403,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         } catch (err) {
           console.error('[prescription] failed to record answer', err)
         }
+        // 考前救援 bonus — cram practice entry only (correct OR wrong). Own channel,
+        // best-effort; write-once daily meta, no dayComplete / economy effect.
+        if (creditCramRescue) {
+          try {
+            await recordCramRescueAnswer(q.id)
+          } catch (err) {
+            console.error('[cram-rescue] failed to record answer', err)
+          }
+        }
         // Update the SRS schedule for this question — runs on EVERY answer
         // regardless of mode (二階 skipSrs semantics). Best-effort, own channel.
         try {
@@ -409,7 +425,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         setBusy(false)
       }
     },
-    [picked, busy, q, practice],
+    [picked, busy, q, practice, creditCramRescue],
   )
 
   const handleNext = useCallback(() => {

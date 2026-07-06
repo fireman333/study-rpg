@@ -48,6 +48,9 @@ export const NG0717_KEEPSAKE_STAMP = '2026.07.17'
 /** Hard cap on total daily questions (both lines combined). */
 export const DAILY_TOTAL_CAP = 12
 
+/** 考前救援 bonus target — cram-practice questions today (correct OR wrong). Dogfood-tunable. */
+export const CRAM_RESCUE_TARGET = 1
+
 // Snapshot-size caps. These store the FULL eligible set, not just the first N:
 // the fresh / expedition pools do NOT serve in snapshot order, so a small cap
 // leaves most answered questions outside the snapshot and uncounted (caught in
@@ -73,6 +76,11 @@ const lightsOutKey = (date: string) => `${NS}:lightsOut:${date}`
 const LOCAL_SEED_KEY = `${NS}:localSeed`
 const WRONG_PREFIX = (date: string) => `${NS}:wrong:${date}:`
 const BREADTH_PREFIX = (date: string) => `${NS}:breadth:${date}:`
+// 考前救援 bonus (add-neurons-cram-rescue-and-card-actions) — write-once per date+qid
+// when answering from the cram practice entry (correct OR wrong). LOCAL-ONLY; subsumed
+// by PRESCRIPTION_META_PREFIX so account-reset/switch wipes it with the rest.
+const cramRescueKey = (date: string, qid: string) => `${NS}:cramRescue:${date}:${qid}`
+const CRAM_RESCUE_PREFIX = (date: string) => `${NS}:cramRescue:${date}:`
 const COMPLETED_PREFIX = `${NS}:completed:`
 /**
  * NG-0717 lineage-imprint synced prefix — the SINGLE SOURCE of truth for the imprint
@@ -133,6 +141,8 @@ export interface PrescriptionStatus {
   ng0717Stage: number
   /** True once NG-0717 reaches full maturity (permanent keepsake). */
   keepsakeUnlocked: boolean
+  /** 考前救援 optional bonus done today (≥ CRAM_RESCUE_TARGET cram-practice answers). */
+  cramRescueDone: boolean
 }
 
 /**
@@ -625,16 +635,27 @@ export async function getTodayPlanSnapshotIds(): Promise<Set<string> | null> {
   return new Set([...plan.wrongEligibleQuestionIds, ...plan.breadthEligibleQuestionIds])
 }
 
+/**
+ * Record a cram-practice answer toward today's 考前救援 bonus (write-once per
+ * date+question; correct OR wrong). LOCAL-ONLY; wiped with the prescription prefix.
+ * No-op after the first answer for a given question today.
+ */
+export async function recordCramRescueAnswer(questionId: string): Promise<void> {
+  const k = cramRescueKey(todayISO(), questionId)
+  if (!(await metaExists(k))) await db.meta.put({ key: k, value: '1' })
+}
+
 /** Full reactive-friendly status snapshot (reads meta; plan must already exist). */
 export async function getPrescriptionStatus(): Promise<PrescriptionStatus> {
   const date = todayISO()
-  const [plan, wrongDone, breadthDone, completedDayCount] = await Promise.all([
+  const [plan, wrongDone, breadthDone, completedDayCount, cramRescueCount] = await Promise.all([
     metaGetJSON<PrescriptionPlan>(planKey(date)),
     countWithPrefix(WRONG_PREFIX(date)),
     countWithPrefix(BREADTH_PREFIX(date)),
     getCompletedDayCount(),
+    countWithPrefix(CRAM_RESCUE_PREFIX(date)),
   ])
-  return deriveStatus(plan, wrongDone, breadthDone, completedDayCount)
+  return deriveStatus(plan, wrongDone, breadthDone, completedDayCount, cramRescueCount >= CRAM_RESCUE_TARGET)
 }
 
 /** Pure status derivation (exported for tests). */
@@ -643,6 +664,7 @@ export function deriveStatus(
   wrongDone: number,
   breadthDone: number,
   completedDayCount: number,
+  cramRescueDone = false,
 ): PrescriptionStatus {
   const wrongComplete = plan ? wrongDone >= plan.wrongTarget : false
   const breadthComplete = plan ? breadthDone >= plan.breadthTarget : false
@@ -665,6 +687,7 @@ export function deriveStatus(
     completedDayCount,
     ng0717Stage: ng0717Stage(completedDayCount),
     keepsakeUnlocked: completedDayCount >= NG0717_FULL_MATURITY,
+    cramRescueDone,
   }
 }
 
