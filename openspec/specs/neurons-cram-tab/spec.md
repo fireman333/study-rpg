@@ -20,19 +20,23 @@ The system SHALL present the 題庫 top-nav entry as a subtab group containing `
 
 ### Requirement: 考前猜題 SHALL present per-subject 速看重點 and 押題清單, organized by paper, with progressive disclosure
 
-`/cram` SHALL organize content by subject within two regions (醫學一 / 醫學二), using single-open subject accordions. Opening a subject SHALL show its 押題清單 by default and keep its 速看重點 tables in a nested collapsed section. Collapsed subjects SHALL show a compact count chip.
+`/cram` SHALL organize content by subject within two regions (醫學一 / 醫學二), using a single-select subject **filter-chip row** (chips grouped by paper). Selecting a subject chip SHALL show only that subject's panel; there SHALL be no expand/collapse accordion and no sticky quick-jump anchor row. On entry with no prior selection, the first subject SHALL be auto-selected so the view always shows content. Within the selected subject's panel, the 速看重點 blocks SHALL render first and directly (no "展開速看重點" toggle — content is already scoped to one subject), followed by the section practice CTA and then the 考古清單. The user-facing label for the 押題 (recurrence-ranked concept) list SHALL read 考古清單; the internal `cram.json` `push` field name is unchanged.
 
-#### Scenario: Single-open subject accordion
-- **WHEN** the user opens one subject accordion
-- **THEN** any previously open subject SHALL collapse, so at most one subject is expanded at a time
+#### Scenario: Single-select subject filter
+- **WHEN** the user taps a subject filter chip
+- **THEN** only that subject's panel SHALL be shown, with no accordion expand/collapse and no sticky quick-jump row
 
-#### Scenario: 押題 visible, 速看 nested
-- **WHEN** a subject is expanded
-- **THEN** its 押題清單 SHALL be visible and its 速看重點 tables SHALL be behind a secondary "展開速看表格" toggle
+#### Scenario: 速看重點 first and shown directly
+- **WHEN** a subject is selected
+- **THEN** its 速看重點 blocks SHALL render first and be shown directly (no collapse toggle), and its 考古清單 SHALL appear after the section practice CTA
 
-#### Scenario: Mobile subject quick-jump
-- **WHEN** viewed on a phone-width viewport
-- **THEN** a sticky subject quick-jump chip row SHALL be available, and no content SHALL cause horizontal page scroll
+#### Scenario: First subject selected on entry
+- **WHEN** the 考前猜題 view first renders with no prior subject selection
+- **THEN** the first subject SHALL be auto-selected so content is visible without any tap
+
+#### Scenario: Mobile no horizontal scroll
+- **WHEN** viewed on a phone-width (≈390px) viewport
+- **THEN** the subject filter chips SHALL wrap, and no content SHALL cause horizontal page scroll
 
 ### Requirement: 押題 items SHALL be honest — raw counts and tiers only, no guarantee or precision claims
 
@@ -76,7 +80,7 @@ Each cram line (速看 block row or 押題 item) SHALL be fully readable without
 
 ### Requirement: 考前猜題 SHALL bridge into the game via a low-friction practice on-ramp, without gating or manipulation
 
-The 押題 evidence drawer SHALL embed a low-friction primary CTA (「▶ 答 1 題看看」) that opens the existing quiz in **practice mode** over that concept's questions; each subject's 速看 section SHALL offer exactly ONE section-level 「用本章高頻概念練 N 題」 CTA (not a per-row CTA). Practice mode SHALL NOT affect progression but SHALL record wrong answers to the 錯題本 (feeding the existing 出征 loop). Answering SHALL require no sign-in; sign-in prompts MAY appear only at a save moment (persisting 錯題本 / 出征 / collection), framed as saving progress, never as unlocking content. The feature MUST NOT: require registration before reading sources or answering; hide cram highlights behind game progress; show hit-rate / guarantee language; push gacha / leaderboard before the user has engaged; use streak / countdown / rank pressure to create anxiety; attach a CTA to every highlight row; or shame wrong answers.
+The 押題 evidence drawer SHALL embed a low-friction primary CTA (「▶ 答 1 題看看」) that opens the existing quiz in **practice mode** over that concept's questions; each selected subject's panel SHALL offer exactly ONE section-level 「用本章高頻概念練 N 題」 CTA (not a per-row CTA), positioned above the 考古清單. Practice mode SHALL NOT affect progression but SHALL record wrong answers to the 錯題本 (feeding the existing 出征 loop). Answering SHALL require no sign-in; sign-in prompts MAY appear only at a save moment (persisting 錯題本 / 出征 / collection), framed as saving progress, never as unlocking content. The feature MUST NOT: require registration before reading sources or answering; hide cram highlights behind game progress; show hit-rate / guarantee language; push gacha / leaderboard before the user has engaged; use streak / countdown / rank pressure to create anxiety; attach a CTA to every highlight row; or shame wrong answers.
 
 #### Scenario: One-tap practice from a 押題 concept
 - **WHEN** the user taps 「▶ 答 1 題看看」 in a 押題 evidence drawer

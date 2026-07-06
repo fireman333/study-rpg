@@ -1,11 +1,13 @@
 /**
- * CramPage — /cram 考前猜題 (add-neurons-cram-tab).
+ * CramPage — /cram 考前猜題 (add-neurons-cram-tab; UX refined in refine-neurons-cram-tab-ux).
  *
- * Two regions (醫學一 / 醫學二), single-open subject accordions. Each subject shows its 押題清單
- * first (honest raw counts + tier, no hit-rate/guarantee) with an evidence-first drawer that drills
- * to real source questions AND offers a low-friction practice on-ramp (design D7); 速看重點 blocks
- * are nested behind a toggle. Persistent honesty disclaimer + methodology note + 「統計至 115-1」stamp.
+ * Layout (top→bottom): download-PDF row → honesty disclaimer + methodology + 「統計至 115-1」 stamp
+ * → single-select subject filter chips (grouped 醫學一 / 醫學二; first subject auto-selected) →
+ * selected subject panel = 速看重點 blocks (shown directly, first) → section practice CTA →
+ * 考古清單 (concept-recurrence ranking, honest raw counts + tier) with an evidence-first drawer that
+ * drills to real source questions and offers a low-friction practice on-ramp (design D7).
  *
+ * The user-facing label is 考古; the internal cram.json field is still `push` (unchanged).
  * Data is lazy-fetched cram.json (useCram); questions resolve from the loaded ContentPack.
  */
 import { useMemo, useState } from 'react'
@@ -40,8 +42,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
     return m
   }, [pack.questions])
 
-  const [openSubject, setOpenSubject] = useState<string | null>(null)
-  const [showBlocks, setShowBlocks] = useState<Record<string, boolean>>({})
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
   const [drawerFor, setDrawerFor] = useState<string | null>(null) // `${subjectId}::${leafId}`
   const [methodOpen, setMethodOpen] = useState(false)
   const [practice, setPractice] = useState<{ pool: Question[]; label: string } | null>(null)
@@ -57,8 +58,23 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
   const resolve = (ids: string[]): Question[] =>
     ids.map((id) => questionById.get(id)).filter((q): q is Question => q != null)
 
+  // Auto-select the first subject on entry; no accordion, one subject shown at a time.
+  const activeId = selectedSubject ?? cram.books[0]?.subjects[0]?.subjectId ?? null
+  const activeBook = cram.books.find((b) => b.subjects.some((s) => s.subjectId === activeId))
+  const active = activeBook?.subjects.find((s) => s.subjectId === activeId) ?? null
+
   return (
     <div style={pageStyle}>
+      {/* ── Download PDF row (top, under subtab) ── */}
+      <div style={downloadRowStyle}>
+        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
+          ⬇ 下載 醫學一 A4 PDF
+        </a>
+        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學二.pdf`} download style={downloadBtnStyle}>
+          ⬇ 下載 醫學二 A4 PDF
+        </a>
+      </div>
+
       {/* ── Persistent honesty header ── */}
       <header style={disclaimerStyle}>
         <p style={disclaimerLineStyle}>
@@ -73,7 +89,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
         </div>
         {methodOpen && (
           <div style={methodBodyStyle}>
-            押題排序＝該概念在 <b>23 次考試</b>（104–114 各兩次 + 115 第一次）中出現過的<b>不同次數</b>
+            考古排序＝該概念在 <b>23 次考試</b>（104–114 各兩次 + 115 第一次）中出現過的<b>不同次數</b>
             （sitting-breadth，同一次考多題只算一次，上限 23）。分母固定 23，跨概念題不會灌水。
             「共 N 題」是次要強度參考，可能超過真實題數（跨概念題重複計）。
             速看重點由歷屆真實考題 + 陽明國考考古題小組詳解壓縮而成，每一條都可回溯真題。
@@ -81,134 +97,107 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
         )}
       </header>
 
-      {/* ── Mobile sticky subject quick-jump ── */}
-      <nav style={quickJumpStyle} aria-label="科目快跳">
-        {cram.books.map((book) =>
-          book.subjects.map((s) => (
-            <a key={s.subjectId} href={`#cram-${s.subjectId}`} style={quickChipStyle}>
-              {s.name}
-            </a>
-          )),
-        )}
-      </nav>
-
-      {/* ── Books ── */}
-      {cram.books.map((book) => (
-        <section key={book.book} style={{ marginBottom: '1.5rem' }}>
-          <h2 style={bookHeadingStyle}>
-            {book.book}
-            <span style={bookNoteStyle}>{book.book === '醫學一' ? '（上午卷）' : '（下午卷）'}</span>
-          </h2>
-
-          {book.subjects.map((s) => {
-            const key = s.subjectId
-            const isOpen = openSubject === key
-            const blocksOpen = showBlocks[key] ?? false
-            return (
-              <article key={key} id={`cram-${s.subjectId}`} style={subjectCardStyle}>
+      {/* ── Subject filter chips (single-select, grouped by paper) ── */}
+      <div style={chipRowStyle} aria-label="科目篩選">
+        {cram.books.map((book) => (
+          <div key={book.book} style={chipGroupStyle}>
+            <span style={chipGroupLabelStyle}>{book.book}</span>
+            {book.subjects.map((s) => {
+              const isActive = s.subjectId === activeId
+              return (
                 <button
+                  key={s.subjectId}
                   type="button"
-                  style={subjectHeaderStyle}
-                  aria-expanded={isOpen}
-                  onClick={() => setOpenSubject(isOpen ? null : key)}
+                  aria-pressed={isActive}
+                  style={{ ...filterChipStyle, ...(isActive ? filterChipActiveStyle : null) }}
+                  onClick={() => setSelectedSubject(s.subjectId)}
                 >
-                  <span style={subjectNameStyle}>{s.name}</span>
-                  <span style={subjectCountChipStyle}>
-                    押題 {s.push.length} · 速看 {s.blocks.length}
-                  </span>
-                  <span style={{ marginLeft: 'auto' }}>{isOpen ? '▴' : '▾'}</span>
+                  {s.name}
                 </button>
-
-                {isOpen && (
-                  <div style={subjectBodyStyle}>
-                    {/* 押題清單 (visible by default) */}
-                    <h3 style={sectionLabelStyle}>🎯 押題清單（依重現度）</h3>
-                    <ul style={pushListStyle}>
-                      {s.push.map((item) => {
-                        const dkey = `${s.subjectId}::${item.leafId}`
-                        const drawerOpen = drawerFor === dkey
-                        const tier = TIER_STYLE[item.tier] ?? TIER_STYLE['穩定考點']
-                        return (
-                          <li key={item.leafId} style={pushItemStyle}>
-                            <div style={pushRowStyle}>
-                              <span style={pushZhStyle}>{item.zh}</span>
-                              <span style={{ ...tierChipStyle, color: tier.color, background: tier.bg }}>
-                                {tier.icon} {item.tier}
-                              </span>
-                            </div>
-                            <button
-                              type="button"
-                              style={countChipStyle}
-                              aria-expanded={drawerOpen}
-                              onClick={() => setDrawerFor(drawerOpen ? null : dkey)}
-                            >
-                              {item.sittingsTotal} 次考試出現 <b>{item.sittingBreadth}</b> 次
-                              <span style={intensityStyle}> · 共 {item.questionCount} 題</span>
-                              <span style={{ marginLeft: '0.35rem', opacity: 0.7 }}>
-                                {drawerOpen ? '▴ 收合' : '▾ 看題'}
-                              </span>
-                            </button>
-
-                            {drawerOpen && (
-                              <CramEvidenceDrawer
-                                item={item}
-                                questions={resolve(item.sourceQuestionIds)}
-                                onPractice={(pool) =>
-                                  setPractice({ pool, label: item.zh })
-                                }
-                              />
-                            )}
-                          </li>
-                        )
-                      })}
-                    </ul>
-
-                    {/* One section-level practice CTA (D7 — single low-friction bridge) */}
-                    <button
-                      type="button"
-                      style={sectionPracticeStyle}
-                      onClick={() => {
-                        const ids = s.push.flatMap((p) => p.sourceQuestionIds)
-                        const pool = resolve([...new Set(ids)])
-                        if (pool.length > 0) setPractice({ pool, label: `${s.name} 高頻概念` })
-                      }}
-                    >
-                      ▶ 用本章高頻概念練幾題
-                    </button>
-
-                    {/* 速看重點 (nested, collapsed) */}
-                    <button
-                      type="button"
-                      style={blocksToggleStyle}
-                      aria-expanded={blocksOpen}
-                      onClick={() => setShowBlocks((m) => ({ ...m, [key]: !blocksOpen }))}
-                    >
-                      📖 {blocksOpen ? '收合' : '展開'}速看重點（{s.blocks.length} 區塊）{blocksOpen ? '▴' : '▾'}
-                    </button>
-                    {blocksOpen && (
-                      <div style={blocksWrapStyle}>
-                        {s.blocks.map((b, i) => (
-                          <CramBlockView key={i} block={b} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </article>
-            )
-          })}
-        </section>
-      ))}
-
-      {/* Download */}
-      <div style={downloadRowStyle}>
-        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
-          ⬇ 下載 醫學一 A4 PDF
-        </a>
-        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學二.pdf`} download style={downloadBtnStyle}>
-          ⬇ 下載 醫學二 A4 PDF
-        </a>
+              )
+            })}
+          </div>
+        ))}
       </div>
+
+      {/* ── Selected subject panel: 速看重點 → 練幾題 CTA → 考古清單 ── */}
+      {active && (
+        <article style={subjectCardStyle}>
+          <div style={subjectBodyStyle}>
+            <div style={panelHeaderStyle}>
+              <span style={subjectNameStyle}>{active.name}</span>
+              {activeBook && (
+                <span style={bookNoteStyle}>{activeBook.book === '醫學一' ? '（上午卷）' : '（下午卷）'}</span>
+              )}
+              <span style={subjectCountChipStyle}>
+                考古 {active.push.length} · 速看 {active.blocks.length}
+              </span>
+            </div>
+
+            {/* 速看重點 (first, shown directly) */}
+            {active.blocks.length > 0 && (
+              <div style={blocksWrapStyle}>
+                {active.blocks.map((b, i) => (
+                  <CramBlockView key={i} block={b} />
+                ))}
+              </div>
+            )}
+
+            {/* One section-level practice CTA (D7 — single low-friction bridge), above 考古清單 */}
+            <button
+              type="button"
+              style={sectionPracticeStyle}
+              onClick={() => {
+                const ids = active.push.flatMap((p) => p.sourceQuestionIds)
+                const pool = resolve([...new Set(ids)])
+                if (pool.length > 0) setPractice({ pool, label: `${active.name} 高頻概念` })
+              }}
+            >
+              ▶ 用本章高頻概念練幾題
+            </button>
+
+            {/* 考古清單 (依重現度) */}
+            <h3 style={sectionLabelStyle}>🎯 考古清單（依重現度）</h3>
+            <ul style={pushListStyle}>
+              {active.push.map((item) => {
+                const dkey = `${active.subjectId}::${item.leafId}`
+                const drawerOpen = drawerFor === dkey
+                const tier = TIER_STYLE[item.tier] ?? TIER_STYLE['穩定考點']
+                return (
+                  <li key={item.leafId} style={pushItemStyle}>
+                    <div style={pushRowStyle}>
+                      <span style={pushZhStyle}>{item.zh}</span>
+                      <span style={{ ...tierChipStyle, color: tier.color, background: tier.bg }}>
+                        {tier.icon} {item.tier}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      style={countChipStyle}
+                      aria-expanded={drawerOpen}
+                      onClick={() => setDrawerFor(drawerOpen ? null : dkey)}
+                    >
+                      {item.sittingsTotal} 次考試出現 <b>{item.sittingBreadth}</b> 次
+                      <span style={intensityStyle}> · 共 {item.questionCount} 題</span>
+                      <span style={{ marginLeft: '0.35rem', opacity: 0.7 }}>
+                        {drawerOpen ? '▴ 收合' : '▾ 看題'}
+                      </span>
+                    </button>
+
+                    {drawerOpen && (
+                      <CramEvidenceDrawer
+                        item={item}
+                        questions={resolve(item.sourceQuestionIds)}
+                        onPractice={(pool) => setPractice({ pool, label: item.zh })}
+                      />
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </article>
+      )}
 
       {/* Practice on-ramp — existing QuizModal in practice mode (no progression, wrong→錯題本→出征) */}
       {practice && (
@@ -218,7 +207,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
   )
 }
 
-/** 押題 evidence-first drawer: raw count + tier + recent-first read-only source mini-list + on-ramp. */
+/** 考古 evidence-first drawer: raw count + tier + recent-first read-only source mini-list + on-ramp. */
 function CramEvidenceDrawer({
   item,
   questions,
@@ -344,15 +333,17 @@ const disclaimerMetaStyle: React.CSSProperties = { display: 'flex', alignItems: 
 const methodBtnStyle: React.CSSProperties = { border: '1px solid #c9ad7f', background: '#fff8e8', borderRadius: 999, padding: '0.1rem 0.6rem', fontSize: '0.76rem', cursor: 'pointer', color: '#7a5a2a', fontFamily: 'var(--font-legible)' }
 const stampStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#8c6d4a', fontFamily: 'var(--font-legible)' }
 const methodBodyStyle: React.CSSProperties = { marginTop: '0.5rem', fontSize: '0.78rem', color: '#4a3a22', lineHeight: 1.7, background: '#fff8e8', border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.55rem 0.7rem', fontFamily: 'var(--font-legible)' }
-const quickJumpStyle: React.CSSProperties = { position: 'sticky', top: 0, zIndex: 5, display: 'flex', flexWrap: 'wrap', gap: '0.3rem', padding: '0.4rem 0', background: 'var(--bg-cream, #f4ecd8)', marginBottom: '0.5rem' }
-const quickChipStyle: React.CSSProperties = { fontSize: '0.72rem', textDecoration: 'none', color: '#7a5a2a', background: '#efe4cc', border: '1px solid #d8c39a', borderRadius: 999, padding: '0.08rem 0.5rem', fontFamily: 'var(--font-legible)' }
-const bookHeadingStyle: React.CSSProperties = { fontSize: '1.05rem', color: '#5a3d1a', margin: '0.5rem 0 0.6rem', display: 'flex', alignItems: 'baseline', gap: '0.4rem' }
-const bookNoteStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#8c6d4a', fontWeight: 400, fontFamily: 'var(--font-legible)' }
-const subjectCardStyle: React.CSSProperties = { border: '1px solid #c9ad7f', borderRadius: 8, marginBottom: '0.5rem', overflow: 'hidden', background: '#fffdf7', scrollMarginTop: '3rem' }
-const subjectHeaderStyle: React.CSSProperties = { width: '100%', display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 0.8rem', background: '#f4ecd8', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-pixel-cjk)', fontSize: '0.9rem', color: '#4a3a22' }
-const subjectNameStyle: React.CSSProperties = { fontWeight: 700 }
-const subjectCountChipStyle: React.CSSProperties = { fontSize: '0.7rem', color: '#8c6d4a', background: '#efe4cc', borderRadius: 999, padding: '0.05rem 0.5rem', fontFamily: 'var(--font-legible)' }
+const chipRowStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }
+const chipGroupStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.3rem' }
+const chipGroupLabelStyle: React.CSSProperties = { fontSize: '0.76rem', color: '#5a3d1a', fontWeight: 700, marginRight: '0.2rem', whiteSpace: 'nowrap' }
+const filterChipStyle: React.CSSProperties = { fontSize: '0.76rem', border: '1px solid #d8c39a', background: '#efe4cc', color: '#7a5a2a', borderRadius: 999, padding: '0.2rem 0.6rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }
+const filterChipActiveStyle: React.CSSProperties = { background: '#b58900', color: '#fff', borderColor: '#b58900', fontWeight: 600 }
+const subjectCardStyle: React.CSSProperties = { border: '1px solid #c9ad7f', borderRadius: 8, marginBottom: '0.5rem', overflow: 'hidden', background: '#fffdf7' }
 const subjectBodyStyle: React.CSSProperties = { padding: '0.6rem 0.8rem' }
+const panelHeaderStyle: React.CSSProperties = { display: 'flex', alignItems: 'baseline', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.6rem' }
+const subjectNameStyle: React.CSSProperties = { fontWeight: 700, fontSize: '0.95rem', color: '#4a3a22' }
+const bookNoteStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#8c6d4a', fontWeight: 400, fontFamily: 'var(--font-legible)' }
+const subjectCountChipStyle: React.CSSProperties = { fontSize: '0.7rem', color: '#8c6d4a', background: '#efe4cc', borderRadius: 999, padding: '0.05rem 0.5rem', fontFamily: 'var(--font-legible)' }
 const sectionLabelStyle: React.CSSProperties = { fontSize: '0.82rem', color: '#7a5410', margin: '0.2rem 0 0.5rem' }
 const pushListStyle: React.CSSProperties = { listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }
 const pushItemStyle: React.CSSProperties = { border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.45rem 0.6rem', background: '#fff' }
@@ -361,9 +352,8 @@ const pushZhStyle: React.CSSProperties = { fontSize: '0.88rem', color: '#2a2118'
 const tierChipStyle: React.CSSProperties = { fontSize: '0.7rem', borderRadius: 999, padding: '0.05rem 0.45rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
 const countChipStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #d8c39a', background: '#f8f2e2', borderRadius: 6, padding: '0.15rem 0.5rem', fontSize: '0.76rem', color: '#5a4a33', cursor: 'pointer', fontFamily: 'var(--font-legible)', width: '100%', textAlign: 'left' }
 const intensityStyle: React.CSSProperties = { color: '#a08a5a' }
-const sectionPracticeStyle: React.CSSProperties = { marginTop: '0.6rem', border: '1px solid #b58900', background: '#fff3d0', color: '#7a5410', borderRadius: 6, padding: '0.35rem 0.7rem', fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }
-const blocksToggleStyle: React.CSSProperties = { marginTop: '0.7rem', border: '1px solid #c9ad7f', background: '#f4ecd8', borderRadius: 6, padding: '0.35rem 0.7rem', fontSize: '0.82rem', cursor: 'pointer', color: '#5a4a33', fontFamily: 'var(--font-legible)', width: '100%', textAlign: 'left' }
-const blocksWrapStyle: React.CSSProperties = { marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }
+const sectionPracticeStyle: React.CSSProperties = { marginTop: '0.6rem', marginBottom: '0.6rem', border: '1px solid #b58900', background: '#fff3d0', color: '#7a5410', borderRadius: 6, padding: '0.35rem 0.7rem', fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }
+const blocksWrapStyle: React.CSSProperties = { marginTop: '0.2rem', marginBottom: '0.2rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }
 const blockStyle: React.CSSProperties = { border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.5rem 0.65rem', background: '#fffdf7' }
 const blockHeadingStyle: React.CSSProperties = { fontSize: '0.84rem', color: '#7a5410', margin: '0 0 0.4rem' }
 const kernelListStyle: React.CSSProperties = { margin: 0, paddingLeft: '1.1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }
@@ -384,5 +374,5 @@ const sourceQBtnStyle: React.CSSProperties = { border: '1px solid #d8c39a', back
 const reviewWrapStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.5rem 0.6rem', background: '#fff' }
 const moreNoteStyle: React.CSSProperties = { margin: '0.3rem 0 0', fontSize: '0.74rem', color: '#a08a5a', fontFamily: 'var(--font-legible)' }
 const practiceCtaStyle: React.CSSProperties = { marginTop: '0.5rem', border: '1px solid #b58900', background: '#b58900', color: '#fff', borderRadius: 6, padding: '0.35rem 0.9rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
-const downloadRowStyle: React.CSSProperties = { display: 'flex', gap: '0.6rem', flexWrap: 'wrap', margin: '1rem 0 2rem' }
+const downloadRowStyle: React.CSSProperties = { display: 'flex', gap: '0.6rem', flexWrap: 'wrap', margin: '0 0 1rem' }
 const downloadBtnStyle: React.CSSProperties = { border: '1px solid #8c6d4a', background: '#f4ecd8', color: '#5a3d1a', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', textDecoration: 'none', fontFamily: 'var(--font-legible)' }
