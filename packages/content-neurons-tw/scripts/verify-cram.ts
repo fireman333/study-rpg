@@ -4,8 +4,10 @@
  * Checks:
  *   1. Every 押題 sourceQuestionId exists as a question `id` in dist/questions.json.
  *   2. Each of the 11 subjects has ≥1 速看 block AND ≥1 押題 item.
- *   3. HONESTY grep — scoped to 押題 item fields only (raw counts + tier); 速看 study-section
- *      headings (e.g. 必中考古, standard 國考 slang) are intentionally NOT linted (design D7).
+ *   3. HONESTY grep — the forbidden guarantee/prediction phrases must not appear in 押題 item
+ *      fields (raw counts + tier) NOR in any 速看 block heading (curated labels). Block BODIES are
+ *      not linted (legit medical stats like sensitivity 100% live there). This supersedes design
+ *      D7's 速看-heading carve-out (fix-neurons-cram-guarantee-wording, 2026-07-06).
  *   4. Content-loss guard: per subject, the count of 速看 table/kernel blocks in cram.json equals
  *      the count of `<table class="kw|disc|num">` + `<ul class="kernel">` nodes in its fragment
  *      (catches the "second table in a block silently dropped" class of bug).
@@ -90,11 +92,24 @@ function main(): void {
     failures.push(`Expected ${EXPECTED_SUBJECTS} subjects, found ${subjectCount}`)
   }
 
-  // 3. Honesty grep — 押題 item fields ONLY (not the whole JSON / not 速看 headings).
+  // 3. Honesty grep — 押題 item fields AND 速看 block headings (curated labels). Block BODIES are
+  //    deliberately NOT linted: legit medical stats (e.g. sensitivity 100%) live in body text;
+  //    guarantee/prediction slang in a curated heading is always a violation (supersedes D7).
   const pushText = JSON.stringify(cram.books.flatMap((b) => b.subjects.flatMap((s) => s.push)))
   for (const forbidden of HONESTY_FORBIDDEN) {
     if (pushText.includes(forbidden)) {
       failures.push(`HONESTY violation: forbidden phrase "${forbidden}" present in a 押題 item`)
+    }
+  }
+  for (const book of cram.books) {
+    for (const subj of book.subjects) {
+      for (const block of subj.blocks) {
+        for (const forbidden of HONESTY_FORBIDDEN) {
+          if (block.heading.includes(forbidden)) {
+            failures.push(`HONESTY violation: forbidden phrase "${forbidden}" in 速看 heading "${block.heading}" (${subj.subjectId})`)
+          }
+        }
+      }
     }
   }
 
