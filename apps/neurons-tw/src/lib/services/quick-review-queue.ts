@@ -25,12 +25,27 @@ function read(): string[] {
   }
 }
 
+// Subscribers notified on ANY queue mutation. localStorage is not reactive, so
+// React consumers (the pinned badge + expedition lead) subscribe here to recompute
+// after enqueue / dequeue / prune / clear (refold-neurons-quick-review-into-expedition).
+const listeners = new Set<() => void>()
+
+/** Subscribe to queue mutations; returns an unsubscribe. */
+export function subscribeQuickReviewQueue(cb: () => void): () => void {
+  listeners.add(cb)
+  return () => {
+    listeners.delete(cb)
+  }
+}
+
 function write(ids: string[]): void {
   try {
     if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
   } catch {
     // Best-effort — private-mode / quota errors are non-fatal for a convenience buffer.
   }
+  // Notify AFTER the write attempt so subscribers re-read the persisted state.
+  listeners.forEach((l) => l())
 }
 
 /** All queued question ids, in enqueue order. */
@@ -41,6 +56,29 @@ export function getQuickReviewQueue(): string[] {
 /** True when the queue already holds this question id. */
 export function isQueuedForQuickReview(questionId: string): boolean {
   return read().includes(questionId)
+}
+
+/**
+ * The queued ids that are STILL wrong, in enqueue (FIFO) order. `isStillWrong` is
+ * supplied by the caller (typically a Set-membership test over the current
+ * wrong-question set) so this module stays decoupled from Dexie / question types.
+ * One source for both the「已置頂 N 題」badge count and the expedition lead
+ * ordering (refold-neurons-quick-review-into-expedition), so they cannot disagree.
+ */
+export function getPinnedStillWrongIds(isStillWrong: (id: string) => boolean): string[] {
+  return read().filter(isStillWrong)
+}
+
+/**
+ * Drop queued ids that are no longer wrong so a pin cleared elsewhere can't
+ * silently resurrect (and the raw queue stays truthful vs. the badge). Writes
+ * (and notifies) ONLY when something is actually pruned — safe to call on every
+ * history change without churn (refold-neurons-quick-review-into-expedition).
+ */
+export function pruneQuickReviewQueue(isStillWrong: (id: string) => boolean): void {
+  const cur = read()
+  const next = cur.filter(isStillWrong)
+  if (next.length !== cur.length) write(next)
 }
 
 /** Enqueue a question id (idempotent). Returns the resulting queue length. */

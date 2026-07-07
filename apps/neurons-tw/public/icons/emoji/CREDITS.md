@@ -39,6 +39,11 @@ This pack was assembled for `pixelate-neurons-emoji` (2026-06-07):
   二階 pack** (same 2026-05-22 codex origin as the shared 16). The hotkeys-banner
   glyphs ⌨️ `2328` / ⭐ `2b50` / ✨ `2728` / 🤔 `1f914` / ❓ `2753` were already
   in the pack and just needed wiring.
+- **1 icon added** 2026-07-07 for the renamed pin CTA
+  (`refold-neurons-quick-review-into-expedition`), same codex CLI `gpt-image-2`
+  formula + ImageMagick post-process (corner floodfill chroma-key → trim → point
+  resize 60px → extent 64×64 → 16-color): 📌 `1f4cc` (pushpin). Renders the
+  「置頂下次出征」CTA (formerly「加入快速複習」🔍) as pixel-art.
 
 ## Style anchor (codex prompt formula)
 
