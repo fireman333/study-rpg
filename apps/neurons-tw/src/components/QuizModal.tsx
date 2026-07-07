@@ -11,6 +11,7 @@ import {
   scheduleSrsForAnswer,
   applyEasyModifier,
   applyGuessedModifier,
+  applyInsightModifier,
   restoreDefaultSrs,
 } from '../lib/services/srs-scheduler'
 import { SpikeTrainFiring, AnswerFeedbackFlash, streakFeedbackIntensity } from '../lib/motion'
@@ -583,11 +584,13 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         console.error(`[question-flags] toggle ${kind} failed`, err)
         return
       }
-      // Only 觀念洞 adjusts the schedule (prioritise + shorten interval). 看錯 leaves
-      // the SRS schedule alone — its effect is purely review-ordering de-prioritisation.
+      // Only 觀念洞 adjusts the schedule (prioritise + interval 1 + ease decrement via
+      // applyInsightModifier — harsher than a plain wrong, distinct from 我亂猜的 which
+      // preserves ease; add-neurons-insight-ease-penalty). 看錯 leaves the schedule alone —
+      // its effect is purely review-ordering de-prioritisation. Un-flag restores default.
       if (kind !== 'insight') return
       try {
-        if (on) await applyGuessedModifier(cur.id, prevSrsRef.current)
+        if (on) await applyInsightModifier(cur.id, prevSrsRef.current)
         else if (defaultPostSrsRef.current) await restoreDefaultSrs(cur.id, defaultPostSrsRef.current)
       } catch (err) {
         console.error('[srs] insight modifier failed', err)

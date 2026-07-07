@@ -112,7 +112,7 @@ After an **incorrect** answer is revealed, the QuizModal SHALL offer two opt-in 
 
 The modifiers SHALL affect subsequent review/expedition priority:
 - 看錯 SHALL **de-prioritise** the question in the 錯題 review / 出征 ordering (it is likely already known), and SHALL NOT promote it into the targeted-drill high-priority set.
-- 觀念洞 SHALL **prioritise** the question in the 錯題 review / 出征 ordering AND shorten its next review interval (mirroring the existing `reviewCardBinaryGuessed` interval-reset behaviour), WITHOUT clearing `everWrong`.
+- 觀念洞 SHALL **prioritise** the question in the 錯題 review / 出征 ordering AND apply a **distinct, harsher review schedule** via a dedicated `reviewCardBinaryInsight` engine function — resetting the next interval to 1 **and** decrementing the ease factor (a self-declared concept gap decays ease faster than a plain wrong answer, and unlike 🤔「我亂猜的」it does NOT preserve ease), so a concept gap re-graduates more slowly than either a plain wrong or a lucky guess. The three post-answer schedules SHALL therefore be **distinct on ease**: 觀念洞 (lowest ease) < plain-wrong < 我亂猜的 (ease preserved). 觀念洞 SHALL NOT clear `everWrong`. The exact ease multiplier is implementation-defined and dogfood-tunable (initial value one notch harsher than the plain-wrong multiplier), floored at the existing ease floor so a single flag cannot collapse a card's ease in one hit.
 
 The modifier icons SHALL render through the existing neurons `<EmojiIcon>` pixel-art component (mapped codepoint PNG assets), NOT raw OS emoji.
 
@@ -125,12 +125,20 @@ Because the `questionFlags` row now carries four coexisting boolean flags (`easy
 - **AND** the question SHALL be de-prioritised in the 錯題 review / 出征 ordering
 - **AND** `everWrong` SHALL remain true (unchanged)
 
-#### Scenario: 觀念洞 marks a knowledge gap and prioritises it
+#### Scenario: 觀念洞 marks a knowledge gap and applies a distinct harsher schedule
 
 - **WHEN** the player taps 💡「觀念洞」after a wrong answer
 - **THEN** `questionFlags.insightMarked` SHALL be set true with an updated `updatedAt`
-- **AND** the question SHALL be prioritised in the 錯題 review / 出征 ordering with a shortened next interval
+- **AND** the question SHALL be prioritised in the 錯題 review / 出征 ordering
+- **AND** its schedule SHALL be set via `reviewCardBinaryInsight` — interval reset to 1 with a **lowered ease factor** (strictly lower than the ease a plain wrong answer would leave, and lower than 我亂猜的 which preserves ease), floored at the ease floor
 - **AND** `everWrong` SHALL remain true (unchanged)
+
+#### Scenario: Un-flagging 觀念洞 restores the default schedule
+
+- **GIVEN** 觀念洞 is active on the current question (its schedule was set via `reviewCardBinaryInsight`)
+- **WHEN** the player taps 💡「觀念洞」again to clear it
+- **THEN** `questionFlags.insightMarked` SHALL be cleared to false
+- **AND** the question's SRS schedule SHALL be restored to the default post-answer snapshot (the ease decrement SHALL NOT persist after un-flagging)
 
 #### Scenario: Error-cause modifiers only appear after a wrong answer
 
