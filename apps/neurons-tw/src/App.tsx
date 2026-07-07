@@ -12,6 +12,7 @@ import VariantUnlockModal from './components/VariantUnlockModal'
 import { backfillAchievementsFromCurrentStats } from './lib/services/achievement'
 import { initMasteryForPack } from './lib/services/connectome'
 import { initializeDmnTrigger } from './lib/services/dmn-trigger'
+import { initializePrescriptionWireListener } from './lib/services/prescription-wire'
 import { installConsoleErrorCapture } from './lib/services/console-error-buffer'
 import AchievementsPage from './routes/AchievementsPage'
 import AchievementToastHost from './components/AchievementToastHost'
@@ -58,6 +59,10 @@ export default function App(): JSX.Element {
         // (Collection 2.0: no variant-gacha subscriber — variants come from the
         // player-initiated pull on /collection.)
         initializeDmnTrigger()
+        // Register the prescription synapse-wire listener (tier-ladder T3/T4
+        // objective, add-neurons-prescription-tiers-and-sync) — subscribes to the
+        // expedition co-repair events; idempotent on StrictMode double-mount.
+        initializePrescriptionWireListener()
         // Seed familyMastery rows once at app boot — BEFORE any route mounts.
         // OverviewPage ('/') also runs this on mount, but /bank and /cram deep-links
         // mount QuizModal without OverviewPage, so answering there would throw an

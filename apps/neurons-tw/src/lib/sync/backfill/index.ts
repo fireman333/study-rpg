@@ -13,6 +13,7 @@ import { backfillRepresentativesLWW } from './representatives'
 import { backfillActiveSquadLWW } from './active-squad'
 import { backfillFirstPullFamiliesUnion } from './first-pull'
 import { backfillDmnDailyCounters } from './dmn-daily'
+import { backfillPrescriptionPlanMinLWW } from './prescription-plan'
 
 export async function runOnPullComplete(
   db: NeuronsDB,
@@ -74,6 +75,18 @@ export async function runOnPullComplete(
     await backfillDmnDailyCounters(db, incomingMeta)
   } catch (err) {
     console.warn('[sync.backfill] step 1e (dmn-daily) failed', err)
+  }
+
+  // Step 1f — Prescription plan earliest-createdAt-wins MIN-LWW (per-(account,
+  // date) daily-quest plan; the meta adapter is first-write-wins, this enforces
+  // the earliest-wins merge). Per add-neurons-prescription-tiers-and-sync.
+  try {
+    const incomingMeta = pull.snapshot
+      ? extractBundleMetaMap(pull.snapshot.data)
+      : {}
+    await backfillPrescriptionPlanMinLWW(db, incomingMeta)
+  } catch (err) {
+    console.warn('[sync.backfill] step 1f (prescription-plan) failed', err)
   }
 
   // Step 2 — Achievement backfill. Silent (no toast / no reward dispatch).

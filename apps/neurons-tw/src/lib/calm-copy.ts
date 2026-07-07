@@ -18,3 +18,22 @@ export const CRAM_RESCUE_FLAVOR = '額外養分 +1'
 // NG-0717 open-ended reframe — drop the 「第 10 天完全體」 countdown.
 export const NG0717_OPEN_HINT = '完成處方會讓 NG-0717 慢慢長出新的形態；每一次完成都算數。'
 export const NG0717_KEEPSAKE_LINE = '一路修補過的痕跡，不是截止日'
+
+// ── Tier ladder copy (add-neurons-prescription-tiers-and-sync) ───────────────
+// T2–T4 render ONLY after T1 (today's two lines) is done — progressive
+// disclosure, mirroring the 考前救援 visibility gate. T1 is the ONLY tier worded
+// 「完成」 (DAY_COMPLETE_LINE above); un-reached tiers use invite tone only. No
+// 還差 / 未達成 / 落後 / 連續 / countdown / denominator anywhere (copy-guard).
+export const TIER_T1_NAME = '基礎處方'
+export const TIER_T2_NAME = '追加固化'
+export const TIER_T3_NAME = '形成連結'
+export const TIER_T4_NAME = '深度出征'
+export const TIER_PANEL_LEAD = '今天的處方收工了；有餘裕的話，下面是可以加深的選項。'
+export const TIER_T2_INVITE_WRONG = '手感還在的話，可以再多固化幾條連結（可選）'
+export const TIER_T2_INVITE_BREADTH = '想多開幾條新連結？隨時可以（可選）'
+export const TIER_T2_INVITE_CRAM = '去高頻考點多練幾題，也算固化（可選）'
+export const TIER_T3_INVITE = '出征修補時，科目之間會自然長出連結（可選）'
+export const TIER_T4_INVITE = '狀態好的話，今天可以走得更深（可選）'
+/** Reached-tier acknowledgement: `{TIER_Tn_NAME} ✓ · 傳導能量 +{E} → {family}`. */
+export const TIER_REACHED_MARK = '✓'
+export const TIER_ENERGY_LABEL = '傳導能量'
