@@ -48,6 +48,7 @@ import {
   buildWrongQuestionPool,
   buildQuickReviewPool,
   buildSessionRepairPool,
+  leadThenFill,
   onExpeditionComplete,
 } from '../lib/services/expedition'
 import {
@@ -57,7 +58,12 @@ import {
 } from '../lib/services/weakness-pressure'
 import { useConceptTags } from '../lib/concept-tags'
 import { useAllFlags } from '../lib/services/question-flags'
-import { getQuickReviewQueue, dequeueQuickReview } from '../lib/services/quick-review-queue'
+import {
+  getPinnedStillWrongIds,
+  dequeueQuickReview,
+  pruneQuickReviewQueue,
+  subscribeQuickReviewQueue,
+} from '../lib/services/quick-review-queue'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { useMaze } from '../lib/maze/useMaze'
@@ -268,29 +274,43 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     () => questionHistory.some((h) => h.everWrong === true),
     [questionHistory],
   )
+  // Pinned「置頂下次出征」ids that are STILL wrong — one source for both the pool
+  // lead ordering and the「已置頂 N 題」badge (refold-neurons-quick-review-into-expedition).
+  const wrongIdSet = useMemo(
+    () => new Set(questionHistory.filter((h) => h.lastResult === 'wrong').map((h) => h.questionId)),
+    [questionHistory],
+  )
+  // Prune the transient queue to still-wrong ids on every history change so a pin
+  // cleared elsewhere can't silently resurrect. pruneQuickReviewQueue only writes
+  // (and notifies) when it actually drops something → no churn on a clean queue.
+  useEffect(() => {
+    pruneQuickReviewQueue((id) => wrongIdSet.has(id))
+  }, [wrongIdSet])
+  // localStorage isn't reactive: bump on any queue mutation (enqueue in QuizModal /
+  // dequeue on expedition close / prune) so the badge + expedition lead recompute.
+  const [queueRev, setQueueRev] = useState(0)
+  useEffect(() => subscribeQuickReviewQueue(() => setQueueRev((r) => r + 1)), [])
+  const pinnedStillWrongIds = useMemo(
+    () => getPinnedStillWrongIds((id) => wrongIdSet.has(id)),
+    [wrongIdSet, queueRev],
+  )
   const expeditionPool = useMemo(() => {
     if (!expeditionOpen) return []
-    // 出征 / 快速複習 orderings honour the error-cause flags (觀念洞 front / 看錯 back)
-    // via `flagOf` (add-neurons-weakness-radar-and-error-repair, Codex blocker fix).
-    if (!quickReviewActive) return buildWrongQuestionPool(pack.questions, questionHistory, flagOf)
-    // Quick-review draws from the transient device-local queue FIRST
-    // (add-neurons-weakness-radar-and-error-repair, Feature 2): enqueued questions
-    // lead, then the priority-ordered ≤5 wrong-pool mini-batch fills the rest (deduped, cap 5).
-    const queuedIds = getQuickReviewQueue()
+    // Pinned still-wrong ids lead BOTH the full expedition and the DMN quick-review
+    // mini-batch (Feature 2 refolded into 錯題出征 per refold-neurons-quick-review-into-
+    // expedition). Ordering honours the error-cause flags (觀念洞 front / 看錯 back)
+    // via `flagOf` within the fill pool.
     const byId = new Map(pack.questions.map((q) => [q.id, q]))
-    const lead = queuedIds.map((id) => byId.get(id)).filter((q): q is (typeof pack.questions)[number] => Boolean(q))
-    const rest = buildQuickReviewPool(pack.questions, questionHistory, 5, flagOf)
-    const seen = new Set(lead.map((q) => q.id))
-    const merged = [...lead]
-    for (const q of rest) {
-      if (merged.length >= 5) break
-      if (!seen.has(q.id)) {
-        seen.add(q.id)
-        merged.push(q)
-      }
+    const pinned = pinnedStillWrongIds
+      .map((id) => byId.get(id))
+      .filter((q): q is (typeof pack.questions)[number] => Boolean(q))
+    if (!quickReviewActive) {
+      // Full expedition: whole wrong set, pinned questions led to the front (no cap).
+      return leadThenFill(pinned, buildWrongQuestionPool(pack.questions, questionHistory, flagOf))
     }
-    return merged.slice(0, 5)
-  }, [expeditionOpen, quickReviewActive, pack.questions, questionHistory, flagOf])
+    // DMN quick-review mini-batch: pinned lead, priority-ordered ≤5 wrong-pool fill (cap 5).
+    return leadThenFill(pinned, buildQuickReviewPool(pack.questions, questionHistory, 5, flagOf), 5)
+  }, [expeditionOpen, quickReviewActive, pack.questions, questionHistory, flagOf, pinnedStillWrongIds])
 
   useEffect(() => {
     initMasteryForPack(pack).catch(() => {
@@ -788,6 +808,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
           status={connStatus}
           hasEverAnsweredWrong={hasEverAnsweredWrong}
           wrongCount={wrongCount}
+          pinnedCount={pinnedStillWrongIds.length}
           onExpedition={openExpedition}
           variants={stats.variants}
           totalStudyMin={totalStudyMin}
@@ -853,9 +874,11 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         <QuizModal
           pool={expeditionPool}
           onClose={() => {
-            // A quick-review batch consumes the transient queue — drop the served ids
-            // so they don't lead the next batch again (Feature 2).
-            if (quickReviewActive) dequeueQuickReview(expeditionPool.map((q) => q.id))
+            // Both paths consume the transient queue — drop the served pins so a
+            // cleared pin doesn't re-lead the next expedition (refold-neurons-quick-
+            // review-into-expedition). dequeueQuickReview only removes ids actually in
+            // the queue, so passing the full served pool is a safe intersection.
+            dequeueQuickReview(expeditionPool.map((q) => q.id))
             setExpeditionOpen(false)
             setQuickReviewActive(false)
           }}

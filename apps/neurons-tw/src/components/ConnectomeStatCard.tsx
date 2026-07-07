@@ -34,6 +34,8 @@ interface Props {
   hasEverAnsweredWrong: boolean
   /** Current cross-subject wrong-question count (drives the CTA badge + disabled state). */
   wrongCount: number
+  /** Count of「置頂下次出征」pins that are still wrong; shows a「已置頂 N 題」badge when > 0. */
+  pinnedCount?: number
   /** Opens the cross-subject wrong-question expedition drill directly. */
   onExpedition: () => void
   /** Total-collection chips folded into the card (🧬 collected / 💎 DMN owned / 📖 reading min). */
@@ -45,6 +47,7 @@ export function ConnectomeStatCard({
   status,
   hasEverAnsweredWrong,
   wrongCount,
+  pinnedCount = 0,
   onExpedition,
   variants,
   totalStudyMin,
@@ -85,7 +88,14 @@ export function ConnectomeStatCard({
             </span>
             <span style={ctaBadgeStyle}>{wrongCount === 0 ? '無錯題' : `${wrongCount} 題`}</span>
           </span>
-          <span style={ctaSubStyle}><EmojiIcon char="🔗" size={13} decorative /> 修復錯題＝建立連線 → 抽 DMN</span>
+          <span style={ctaSubStyle}>
+            <EmojiIcon char="🔗" size={13} decorative /> 修復錯題＝建立連線 → 抽 DMN
+            {pinnedCount > 0 && (
+              <span style={pinnedBadgeStyle}>
+                <EmojiIcon char="📌" size={12} decorative /> 已置頂 {pinnedCount} 題
+              </span>
+            )}
+          </span>
         </button>
       ) : (
         <div style={ctaGuidanceStyle}>
@@ -255,6 +265,21 @@ const ctaBadgeStyle: React.CSSProperties = {
   borderRadius: '999px',
   fontSize: '0.78em',
   fontWeight: 600,
+}
+
+// 「已置頂 N 題」pin badge on the ⚔️ 錯題出征 sub-line (refold-neurons-quick-review-
+// into-expedition): tells the player their pins are queued for the next expedition.
+const pinnedBadgeStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.15rem',
+  marginLeft: '0.4rem',
+  padding: '0.05rem 0.4rem',
+  background: 'rgba(255,255,255,0.28)',
+  borderRadius: '999px',
+  fontSize: '0.92em',
+  fontWeight: 600,
+  whiteSpace: 'nowrap',
 }
 
 const ctaGuidanceStyle: React.CSSProperties = {

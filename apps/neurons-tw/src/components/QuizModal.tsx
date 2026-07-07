@@ -1087,7 +1087,7 @@ function FlagButtons({
  * after a wrong answer, actively show the chosen distractor's explanation (框成
  * 迷思) + the correct option's explanation (框成 關鍵), both sourced from the
  * existing `optionExplanations`. A missing side is omitted (graceful degrade),
- * never an empty block. Carries the「加入快速複習」CTA (transient device-local queue).
+ * never an empty block. Carries the「置頂下次出征」CTA (transient device-local queue).
  */
 function ErrorCauseReplay({
   question,
@@ -1136,19 +1136,22 @@ function ErrorCauseReplay({
   )
 }
 
-/**「加入快速複習」button — reflects enqueued state; idempotent enqueue upstream. */
+/**「置頂下次出征」button — pins the just-missed question to the front of the next
+ *  錯題出征 (refold-neurons-quick-review-into-expedition). Reflects pinned state;
+ *  idempotent enqueue upstream. 📌 renders pixel-art via the emoji-icon pack. */
 function QuickReviewCta({ queued, onAdd }: { queued: boolean; onAdd: () => void }): JSX.Element {
+  const pinnedCopy = '已置頂，下次錯題出征會優先遇到'
   return (
     <button
       type="button"
       style={queued ? quickReviewCtaAddedStyle : quickReviewCtaStyle}
       onClick={onAdd}
       disabled={queued}
-      aria-label={queued ? '已加入快速複習' : '加入快速複習'}
-      title={queued ? '已加入下次快速複習' : '加入下次快速複習（本機暫存）'}
+      aria-label={queued ? pinnedCopy : '置頂下次出征'}
+      title={queued ? pinnedCopy : '置頂到下次錯題出征最前面（本機暫存）'}
     >
-      <EmojiIcon char={queued ? '🩹' : '🔍'} size={14} decorative />
-      {queued ? ' 已加入快速複習' : ' 加入快速複習'}
+      <EmojiIcon char="📌" size={14} decorative />
+      {queued ? ` ${pinnedCopy}` : ' 置頂下次出征'}
     </button>
   )
 }

@@ -30,6 +30,38 @@ import { orderByErrorCausePriority, type FlagLookup } from './weakness-pressure'
  * @param history - `questionHistory` rows (typically from `useQuestionHistory`).
  * @param flagOf  - optional questionId → error-cause flag hint.
  */
+/**
+ * Merge a lead list in front of a fill pool, deduped by id, order preserved,
+ * optionally capped. Powers the homepage expedition ordering so「置頂下次出征」
+ * pins (the lead) surface ahead of the rest of the pool (the fill). Pure.
+ * (refold-neurons-quick-review-into-expedition)
+ *
+ * - Full 錯題出征:  leadThenFill(pinnedWrong, fullWrongPool)          — no cap
+ * - DMN quick-review: leadThenFill(pinnedWrong, quickReviewPool, 5)   — cap 5
+ */
+export function leadThenFill<T extends { id: string }>(
+  leadItems: readonly T[],
+  fillPool: readonly T[],
+  cap?: number,
+): T[] {
+  const seen = new Set<string>()
+  const out: T[] = []
+  for (const q of leadItems) {
+    if (!seen.has(q.id)) {
+      seen.add(q.id)
+      out.push(q)
+    }
+  }
+  for (const q of fillPool) {
+    if (cap !== undefined && out.length >= cap) break
+    if (!seen.has(q.id)) {
+      seen.add(q.id)
+      out.push(q)
+    }
+  }
+  return cap !== undefined ? out.slice(0, cap) : out
+}
+
 export function buildWrongQuestionPool(
   pool: readonly Question[],
   history: readonly QuestionHistoryRow[],

@@ -55,6 +55,9 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   // Error-cause modifiers (add-neurons-weakness-radar-and-error-repair): 👁 看錯.
   // 💡 觀念洞 reuses the existing 1f4a1.png row above.
   ['👁', '1f441.png'],
+  // 置頂下次出征 CTA (refold-neurons-quick-review-into-expedition): 📌 pushpin,
+  // generated to match the pack so the renamed pin CTA renders pixel-art.
+  ['📌', '1f4cc.png'],
 ]
 
 const ICON_MAP = new Map(ICON_FILES)
