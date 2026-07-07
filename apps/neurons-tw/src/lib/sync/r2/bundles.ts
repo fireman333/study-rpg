@@ -191,12 +191,24 @@
 //        client reading a v23 bundle (no imprint keys) preserves its local imprints
 //        (first-write-wins never deletes local keys absent from the incoming bundle).
 //        Worker is bundle-opaque (no Worker change).
+//   v25 — add-neurons-pin-queue-r2-sync 2026-07-07: `questionFlags` rows gain a
+//        nullable synced `pinnedAt` (置頂下次出征 pin, formerly a device-local
+//        localStorage FIFO). Effective pin = pinnedAt != null; FIFO = pinnedAt
+//        ascending (non-indexed, NO Dexie bump). Dequeue = EXPLICIT
+//        `"pinnedAt": null` with a fresh updatedAt so the removal rides the
+//        existing per-row LWW (no tombstone); an incoming row that OMITS the key
+//        (older client) preserves the local pin (preserve-on-omission — omitted
+//        ≠ explicit null). NO new adapter / meta key. Additive + reader-tolerant:
+//        a v24 client reading a v25 bundle drops the unknown field (its later
+//        omitting pushes cannot wipe v25 pins); a v25 client reading a v24 bundle
+//        sees pinnedAt absent = not pinned, local pins preserved. Worker is
+//        bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 import { readAckResetAt, readLastSyncedUserId } from '../account-guard'
 
-export const SCHEMA_VERSION = 24
+export const SCHEMA_VERSION = 25
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

@@ -833,6 +833,16 @@ const questionFlagsAdapter: TableAdapter<'questionFlags'> = {
           guessedMarked: pick('guessedMarked', existing?.guessedMarked),
           wrongAnswerMarked: pick('wrongAnswerMarked', existing?.wrongAnswerMarked),
           insightMarked: pick('insightMarked', existing?.insightMarked),
+          // 置頂 pin (add-neurons-pin-queue-r2-sync, R2 SCHEMA_VERSION 25).
+          // LOAD-BEARING distinction — do NOT conflate OMITTED with explicit null:
+          //   * key OMITTED (`!('pinnedAt' in row)`, an older client that never
+          //     learned the field) → preserve the local pin, exactly like the four
+          //     booleans above;
+          //   * key present with EXPLICIT null → a dequeue; apply it so the clear
+          //     propagates cross-device. The per-row LWW gate above (`existing.
+          //     updatedAt >= updatedAt → skip`) already carries the dequeue's
+          //     recency — no separate path.
+          pinnedAt: 'pinnedAt' in row ? (row.pinnedAt as number | null) : (existing?.pinnedAt ?? undefined),
           updatedAt,
         })
         applied++

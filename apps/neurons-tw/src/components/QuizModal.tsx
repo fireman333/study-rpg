@@ -27,7 +27,7 @@ import {
   toggleInsight,
   useFlag,
 } from '../lib/services/question-flags'
-import { enqueueQuickReview, isQueuedForQuickReview } from '../lib/services/quick-review-queue'
+import { enqueueQuickReview, useIsPinned } from '../lib/services/quick-review-queue'
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { Explanation } from './Explanation'
@@ -600,19 +600,20 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   )
   const handleToggleWrongAnswer = useCallback(() => runWrongCauseToggle('wrong'), [runWrongCauseToggle])
   const handleToggleInsight = useCallback(() => runWrongCauseToggle('insight'), [runWrongCauseToggle])
-  // 加入快速複習: enqueue the just-missed question into the transient device-local
-  // queue (localStorage; no synced table / schema bump). Tracks enqueued state so
-  // the CTA can reflect it. Reset per-question in handleNext.
+  // 置頂下次出征: pin the just-missed question via the durable cross-device
+  // `questionFlags.pinnedAt` (add-neurons-pin-queue-r2-sync; async Dexie write).
+  // `queuedForReview` gives instant optimistic feedback (reset per-question in
+  // handleNext); `useIsPinned` is the liveQuery-backed durable state.
   const [queuedForReview, setQueuedForReview] = useState(false)
+  const pinnedForReview = useIsPinned(q?.id ?? '')
   const handleAddToQuickReview = useCallback(() => {
     const cur = sessionPool[idx]
     if (!cur) return
-    try {
-      enqueueQuickReview(cur.id)
-      setQueuedForReview(true)
-    } catch (err) {
+    setQueuedForReview(true)
+    enqueueQuickReview(cur.id).catch((err) => {
       console.error('[quick-review] enqueue failed', err)
-    }
+      setQueuedForReview(false)
+    })
   }, [sessionPool, idx])
   // Whether the just-answered question is correct — mirrors the reveal-region
   // isCorrect (computed again below for render). Drives which modifier pair the
@@ -939,7 +940,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   question={q}
                   chosenKey={picked}
                   correctKeys={acceptedKeys}
-                  queued={queuedForReview || isQueuedForQuickReview(q.id)}
+                  queued={queuedForReview || pinnedForReview}
                   onAddToQuickReview={handleAddToQuickReview}
                 />
               )}
@@ -1141,7 +1142,9 @@ function ErrorCauseReplay({
 
 /**「置頂下次出征」button — pins the just-missed question to the front of the next
  *  錯題出征 (refold-neurons-quick-review-into-expedition). Reflects pinned state;
- *  idempotent enqueue upstream. 📌 renders pixel-art via the emoji-icon pack. */
+ *  idempotent enqueue upstream; the pin is cross-device durable via
+ *  questionFlags.pinnedAt (add-neurons-pin-queue-r2-sync). 📌 renders pixel-art
+ *  via the emoji-icon pack. */
 function QuickReviewCta({ queued, onAdd }: { queued: boolean; onAdd: () => void }): JSX.Element {
   const pinnedCopy = '已置頂，下次錯題出征會優先遇到'
   return (
@@ -1151,7 +1154,7 @@ function QuickReviewCta({ queued, onAdd }: { queued: boolean; onAdd: () => void 
       onClick={onAdd}
       disabled={queued}
       aria-label={queued ? pinnedCopy : '置頂下次出征'}
-      title={queued ? pinnedCopy : '置頂到下次錯題出征最前面（本機暫存）'}
+      title={queued ? pinnedCopy : '置頂到下次錯題出征最前面（跨裝置同步）'}
     >
       <EmojiIcon char="📌" size={14} decorative />
       {queued ? ` ${pinnedCopy}` : ' 置頂下次出征'}

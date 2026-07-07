@@ -252,6 +252,13 @@ export interface QuestionBookmarkTombstoneRow {
  * them read as false. Every writer MUST preserve the flags it does not own
  * (see question-flags.ts) and the R2 questionFlags adapter serializes all four.
  *
+ * `pinnedAt` (add-neurons-pin-queue-r2-sync) is a NON-INDEXED, R2-synced,
+ * nullable 置頂下次出征 pin timestamp riding the same per-row LWW on
+ * `updatedAt`. Effective pin = `pinnedAt != null`; FIFO order = `pinnedAt`
+ * ascending, sorted in-memory (do NOT index it — that would force a
+ * `.version()` bump + upgrade fixture). Dequeue writes an EXPLICIT `null`
+ * (not a deleted key) so the removal serializes and propagates cross-device.
+ *
  * Future `add-neurons-srs-pipeline` will consume these as SRS scheduling
  * inputs (easy → longer interval, guessed → shorter / re-queue).
  */
@@ -263,6 +270,8 @@ export interface QuestionFlagRow {
   wrongAnswerMarked?: boolean
   /** 💡 觀念洞 — genuine knowledge gap; prioritises + shortens next interval. */
   insightMarked?: boolean
+  /** 📌 置頂下次出征 pin (epoch ms). `null` = explicitly dequeued (LWW-propagated); absent = never pinned. */
+  pinnedAt?: number | null
   updatedAt: number
 }
 
