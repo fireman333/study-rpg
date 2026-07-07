@@ -58,12 +58,7 @@ import {
 } from '../lib/services/weakness-pressure'
 import { useConceptTags } from '../lib/concept-tags'
 import { useAllFlags } from '../lib/services/question-flags'
-import {
-  getPinnedStillWrongIds,
-  dequeueQuickReview,
-  pruneQuickReviewQueue,
-  subscribeQuickReviewQueue,
-} from '../lib/services/quick-review-queue'
+import { dequeueQuickReview } from '../lib/services/quick-review-queue'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { useMaze } from '../lib/maze/useMaze'
@@ -280,19 +275,20 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     () => new Set(questionHistory.filter((h) => h.lastResult === 'wrong').map((h) => h.questionId)),
     [questionHistory],
   )
-  // Prune the transient queue to still-wrong ids on every history change so a pin
-  // cleared elsewhere can't silently resurrect. pruneQuickReviewQueue only writes
-  // (and notifies) when it actually drops something → no churn on a clean queue.
-  useEffect(() => {
-    pruneQuickReviewQueue((id) => wrongIdSet.has(id))
-  }, [wrongIdSet])
-  // localStorage isn't reactive: bump on any queue mutation (enqueue in QuizModal /
-  // dequeue on expedition close / prune) so the badge + expedition lead recompute.
-  const [queueRev, setQueueRev] = useState(0)
-  useEffect(() => subscribeQuickReviewQueue(() => setQueueRev((r) => r + 1)), [])
+  // Sourced from the R2-synced `questionFlags.pinnedAt` (add-neurons-pin-queue-
+  // r2-sync): `questionFlags` above is a Dexie liveQuery (useAllFlags), so
+  // enqueue / dequeue / cross-device pulls recompute the badge + expedition lead
+  // natively — the old localStorage subscribe/prune/queueRev machinery is gone.
+  // Still-wrong is a read-time filter (replaces the eager prune: a pin whose
+  // question is no longer wrong is simply not counted / not led); FIFO order =
+  // `pinnedAt` ascending, sorted in-memory (non-indexed by design).
   const pinnedStillWrongIds = useMemo(
-    () => getPinnedStillWrongIds((id) => wrongIdSet.has(id)),
-    [wrongIdSet, queueRev],
+    () =>
+      questionFlags
+        .filter((f) => f.pinnedAt != null && wrongIdSet.has(f.questionId))
+        .sort((a, b) => (a.pinnedAt as number) - (b.pinnedAt as number))
+        .map((f) => f.questionId),
+    [questionFlags, wrongIdSet],
   )
   const expeditionPool = useMemo(() => {
     if (!expeditionOpen) return []
@@ -874,11 +870,11 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         <QuizModal
           pool={expeditionPool}
           onClose={() => {
-            // Both paths consume the transient queue — drop the served pins so a
-            // cleared pin doesn't re-lead the next expedition (refold-neurons-quick-
-            // review-into-expedition). dequeueQuickReview only removes ids actually in
-            // the queue, so passing the full served pool is a safe intersection.
-            dequeueQuickReview(expeditionPool.map((q) => q.id))
+            // Both paths consume the pins — null the served pins' pinnedAt (fresh
+            // updatedAt) so the dequeue propagates cross-device under per-row LWW
+            // (add-neurons-pin-queue-r2-sync). dequeueQuickReview only touches rows
+            // actually pinned, so passing the full served pool is a safe intersection.
+            void dequeueQuickReview(expeditionPool.map((q) => q.id))
             setExpeditionOpen(false)
             setQuickReviewActive(false)
           }}

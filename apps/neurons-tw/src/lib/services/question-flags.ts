@@ -10,8 +10,9 @@
  *
  * CRITICAL (add-neurons-weakness-radar-and-error-repair D3): every setter reads
  * the existing row and preserves the flags it does NOT own. A `put` that omits a
- * field would silently clear a flag another writer set — so all four setters
- * carry all four fields through, changing only their own.
+ * field would silently clear a flag another writer set — so all setters carry
+ * every field through, changing only their own. This includes the 置頂 pin
+ * `pinnedAt` (add-neurons-pin-queue-r2-sync): toggling ✨/🤔/👁/💡 never drops it.
  *
  * Spec: openspec/specs/neurons-mode/spec.md
  *   "Neurons-tw SHALL persist per-question binary modifier flags with cross-device sync"
@@ -31,12 +32,14 @@ export async function getFlag(questionId: string): Promise<QuestionFlagRow | nul
 }
 
 /**
- * Upsert one flag while preserving the other three. Single write path for all
- * four setters — reads the existing row first so no flag is ever dropped.
+ * Upsert one field while preserving the rest. Single write path for all
+ * setters — reads the existing row first so no flag (or pin) is ever dropped.
  */
 async function putFlag(
   questionId: string,
-  patch: Partial<Pick<QuestionFlagRow, 'easyMarked' | 'guessedMarked' | 'wrongAnswerMarked' | 'insightMarked'>>,
+  patch: Partial<
+    Pick<QuestionFlagRow, 'easyMarked' | 'guessedMarked' | 'wrongAnswerMarked' | 'insightMarked' | 'pinnedAt'>
+  >,
 ): Promise<void> {
   await db.transaction('rw', db.questionFlags, async () => {
     const existing = await db.questionFlags.get(questionId)
@@ -46,10 +49,28 @@ async function putFlag(
       guessedMarked: patch.guessedMarked ?? existing?.guessedMarked ?? false,
       wrongAnswerMarked: patch.wrongAnswerMarked ?? existing?.wrongAnswerMarked ?? false,
       insightMarked: patch.insightMarked ?? existing?.insightMarked ?? false,
+      // 置頂 pin carry-through (add-neurons-pin-queue-r2-sync): `undefined` =
+      // don't touch (carry the existing value so the four boolean setters never
+      // drop a pin); `number` = enqueue; explicit `null` = dequeue — null is
+      // distinct from undefined so a dequeue persists (and later serializes as
+      // `"pinnedAt": null`, propagating the removal under per-row LWW).
+      pinnedAt: patch.pinnedAt !== undefined ? patch.pinnedAt : existing?.pinnedAt,
       updatedAt: Date.now(),
     })
   })
 }
+
+/**
+ * Set (`Date.now()` = enqueue) or clear (`null` = dequeue) the 置頂下次出征 pin.
+ * The single write path for the pin — see quick-review-queue.ts for the
+ * queue-level API (add-neurons-pin-queue-r2-sync).
+ */
+export async function setPinnedAt(questionId: string, value: number | null): Promise<void> {
+  await putFlag(questionId, { pinnedAt: value })
+}
+
+// The four boolean setters below all route through putFlag, so each preserves
+// the other three flags AND the 置頂 pin `pinnedAt` (carry-through above).
 
 /** Upsert easyMarked while preserving the other three flags. Refreshes updatedAt. */
 export async function setEasy(questionId: string, value: boolean): Promise<void> {
