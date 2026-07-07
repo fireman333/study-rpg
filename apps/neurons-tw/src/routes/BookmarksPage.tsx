@@ -19,6 +19,7 @@ import type { ContentPack, Question } from '@study-rpg/core'
 import { EmojiIcon } from '../components/EmojiIcon'
 import { QuestionReviewCard } from '../components/QuestionReviewCard'
 import { useConceptTags, conceptLabelsFor } from '../lib/concept-tags'
+import { reclassifiedFamily } from '../lib/question-family'
 import { useAllBookmarks, removeBookmark } from '../lib/services/bookmarks'
 import { useAllFlags } from '../lib/services/question-flags'
 import { useQuestionHistory } from '../lib/services/question-history'
@@ -151,10 +152,18 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
   // separate 科目 / 年份 badges.
   function renderQuestionContent(questionId: string, timeTs: number): JSX.Element {
     const q = questionMap.get(questionId)
+    // When the build reclassified this question into a family that differs from the subject its
+    // 題號 encodes, surface it beside the id so the mismatch reads as intentional (not a bug).
+    const reclassifiedSubject = q ? reclassifiedFamily(questionId, q.subject) : null
     const header = (
       <header style={rowHeaderStyle}>
         <div style={badgeGroupStyle}>
-          <span style={qidStyle}>題號 {questionId}</span>
+          <span style={qidStyle}>
+            題號 {questionId}
+            {reclassifiedSubject && (
+              <span style={reclassifiedNoteStyle}>（現歸類：{reclassifiedSubject}）</span>
+            )}
+          </span>
           {renderFlagChips(questionId)}
         </div>
         <span style={timeStyle}>{relativeTime(timeTs)}</span>
@@ -580,6 +589,15 @@ const qidStyle: React.CSSProperties = {
   color: '#7a6038',
   fontWeight: 700,
   fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+}
+
+// Subtle inline marker after the 題號 when the question was reclassified into a different family.
+const reclassifiedNoteStyle: React.CSSProperties = {
+  marginLeft: '0.4em',
+  fontWeight: 400,
+  fontSize: '0.92em',
+  opacity: 0.8,
+  fontFamily: 'system-ui, "Noto Sans TC", sans-serif',
 }
 
 const badgeGroupStyle: React.CSSProperties = {

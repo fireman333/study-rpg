@@ -12,6 +12,7 @@ import {
   type MockExamState,
 } from '../lib/exam-set-mock'
 import { recordQuestionResult } from '../lib/services/question-history'
+import { reclassifiedFamily } from '../lib/question-family'
 import {
   saveMockDraft,
   deleteMockDraft,
@@ -92,6 +93,9 @@ export function MockExamRunner({
   const score = useMemo(() => scoreMockExam(sessionPool, state.answers), [sessionPool, state.answers])
   const cellStates = useMemo(() => navigatorCellStates(sessionPool, state), [sessionPool, state])
   const hasProgress = state.answers.some((a) => a !== null)
+  // Surface the actual family when the build reclassified this question away from the
+  // subject its 題號 encodes, so the mismatch reads as intentional (not a bug).
+  const reclassifiedSubject = q ? reclassifiedFamily(q.id, q.subject) : null
 
   // Move focus to the stem on navigation (a11y).
   useEffect(() => {
@@ -280,7 +284,14 @@ export function MockExamRunner({
                   )}
                 </>
               )}
-              {state.submitted && <p style={questionIdStyle}>題號 {q.id}</p>}
+              {state.submitted && (
+                <p style={questionIdStyle}>
+                  題號 {q.id}
+                  {reclassifiedSubject && (
+                    <span style={reclassifiedNoteStyle}>（現歸類：{reclassifiedSubject}）</span>
+                  )}
+                </p>
+              )}
 
               <QuestionJumpGrid
                 states={cellStates}
@@ -509,6 +520,8 @@ const explanationBodyStyle: React.CSSProperties = {
 }
 const aiNoteStyle: React.CSSProperties = { marginTop: '0.6rem', fontSize: '0.74rem', lineHeight: 1.5, color: '#8a5a2a', fontStyle: 'italic', fontFamily: 'var(--font-legible)' }
 const questionIdStyle: React.CSSProperties = { marginTop: '0.6rem', fontSize: '0.72rem', color: '#9b8c70', fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace' }
+// Subtle inline marker after the 題號 when the question was reclassified into a different family.
+const reclassifiedNoteStyle: React.CSSProperties = { marginLeft: '0.4em', fontWeight: 400, fontSize: '0.92em', opacity: 0.8, fontFamily: 'system-ui, "Noto Sans TC", sans-serif' }
 const footerStyle: React.CSSProperties = {
   padding: '0.75rem 1rem',
   borderTop: '1px solid #d4c4a0',
