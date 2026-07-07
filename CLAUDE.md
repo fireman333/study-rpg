@@ -48,7 +48,7 @@ M2（一階）+ M_2nd（二階 hospital mode）並行用 git worktree 隔離。�
 
 - **Never** `git commit` without explicit user confirmation
 - **Never** auto-write spec content — every requirement / scenario needs user-confirmed wording
-- **Never** run `openspec archive --yes` raw CLI — always use `/opsx:archive` slash (it has a sync gate the raw CLI skips)
+- **Never** run `openspec archive --yes` raw CLI — always use `/opsx:archive` slash. (Rationale, corrected 2026-07-07: NOT because the raw CLI skips the sync — it does sync — but because its `MODIFIED` is a **wholesale block replacement**, so a partial-restatement delta silently drops un-restated scenarios and `validate` won't catch it; the slash's agent-driven sync handles partial deltas + adds a human review gate. If raw CLI is ever used, it's safe only for a confirmed full-restatement delta plus a scenario-level `git diff` check.)
 - Engine API surface (`packages/core/src/types.ts`) is the third-party fork contract; breaking changes need a CHANGELOG entry
 - `packages/core/` stays content-agnostic — medical terms belong in theme / content packs, never in core
 
