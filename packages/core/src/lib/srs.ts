@@ -31,6 +31,15 @@ export const WRONG_INTERVAL_MULTIPLIER = 0.5
 export const WRONG_EASE_MULTIPLIER = 0.85
 
 /**
+ * Multiplier applied to `easeFactor` when a wrong answer is flagged 觀念洞
+ * (a self-declared concept gap). One notch harsher than `WRONG_EASE_MULTIPLIER`
+ * — a concept gap is a stronger "I don't get this" signal than an unflagged
+ * wrong (which folds in careless slips), so it decays ease slightly faster and
+ * re-graduates more slowly. Dogfood-tunable.
+ */
+export const INSIGHT_EASE_MULTIPLIER = 0.8
+
+/**
  * Initial interval seeds shared by both variants: [first correct, second correct].
  *
  * Wider seeds (was `[1, 6]`) align with FSRS default stability ≈ 3 days and
@@ -249,6 +258,26 @@ export function reviewCardBinaryGuessed(input: { prev: BinaryReviewPrev; now?: n
   return {
     interval: GUESSED_RESET_INTERVAL,
     easeFactor: prev.easeFactor,
+    nextDueAt: now + GUESSED_RESET_INTERVAL * DAY,
+  }
+}
+
+/**
+ * neurons opt-in modifier: 「觀念洞」 (self-declared concept gap) on a WRONG answer.
+ *
+ * Like `reviewCardBinaryGuessed` it forces `interval = 1`, but UNLIKE guessed it
+ * ALSO decrements ease (`× INSIGHT_EASE_MULTIPLIER`, floored at `EASE_FLOOR`) — a
+ * concept gap is a stronger "I don't get this" signal than a lucky guess, so it
+ * re-graduates more slowly. Ease is strictly lower than both the plain-wrong path
+ * (`× WRONG_EASE_MULTIPLIER`) and guessed (ease preserved). `everWrong` is NOT
+ * touched by this path (the neurons mastery/wrong-list monotonic-OR invariant).
+ */
+export function reviewCardBinaryInsight(input: { prev: BinaryReviewPrev; now?: number }): BinaryReviewResult {
+  const { prev } = input
+  const now = input.now ?? Date.now()
+  return {
+    interval: GUESSED_RESET_INTERVAL,
+    easeFactor: Math.max(EASE_FLOOR, prev.easeFactor * INSIGHT_EASE_MULTIPLIER),
     nextDueAt: now + GUESSED_RESET_INTERVAL * DAY,
   }
 }

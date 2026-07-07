@@ -26,6 +26,7 @@ import {
   reviewCardBinary,
   reviewCardBinaryEasy,
   reviewCardBinaryGuessed,
+  reviewCardBinaryInsight,
   SRS_DAILY_CAP,
   type Question,
   type BinaryReviewPrev,
@@ -130,6 +131,26 @@ export async function applyGuessedModifier(
   now: number = Date.now(),
 ): Promise<void> {
   const r = reviewCardBinaryGuessed({ prev: prev ?? { ...FRESH_PREV }, now })
+  await db.questionHistory.update(questionId, {
+    interval: r.interval,
+    easeFactor: r.easeFactor,
+    nextDueAt: r.nextDueAt,
+    updatedAt: now,
+  })
+}
+
+/**
+ * 💡「觀念洞」: a self-declared concept gap on a WRONG answer. Forces interval 1
+ * AND decrements ease via `reviewCardBinaryInsight` (harsher than a plain wrong,
+ * distinct from 我亂猜的 which preserves ease) so the gap re-graduates slower.
+ * (add-neurons-insight-ease-penalty)
+ */
+export async function applyInsightModifier(
+  questionId: string,
+  prev: BinaryReviewPrev | null,
+  now: number = Date.now(),
+): Promise<void> {
+  const r = reviewCardBinaryInsight({ prev: prev ?? { ...FRESH_PREV }, now })
   await db.questionHistory.update(questionId, {
     interval: r.interval,
     easeFactor: r.easeFactor,
