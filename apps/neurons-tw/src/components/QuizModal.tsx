@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
+import { reclassifiedFamily } from '../lib/question-family'
 import {
   recordPrescriptionAnswer,
   recordCramRescueAnswer,
@@ -764,6 +765,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
       : [correctKey]
   const isCorrect = picked !== null && (q.disputed === true || acceptedKeys.includes(picked))
   const revealed = picked !== null
+  // The 題號 embeds the original 考選部 subject; when the build reclassified this question
+  // into a different family, surface it so the mismatch reads as intentional (not a bug).
+  const reclassifiedSubject = reclassifiedFamily(q.id, q.subject)
   // Concept labels are shown only after reveal (pre-reveal would spoil what the question tests).
   const conceptLabels = conceptLabelsFor(q, conceptTags)
   // Featured correct-reaction: play the answered family's reaction flourish next to
@@ -840,7 +844,12 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         )}
 
         <div style={bodyStyle} ref={scrollContainerRef}>
-          <p style={questionIdTopStyle}>題號 {q.id}</p>
+          <p style={questionIdTopStyle}>
+            題號 {q.id}
+            {reclassifiedSubject && (
+              <span style={reclassifiedNoteStyle}>（現歸類：{reclassifiedSubject}）</span>
+            )}
+          </p>
           <PrecedingContext question={q} />
           <p style={stemStyle}>{q.stem}</p>
           <QuestionFigure key={q.id} q={q} />
@@ -1680,6 +1689,16 @@ const questionIdTopStyle: React.CSSProperties = {
   letterSpacing: '0.02em',
   color: '#9b8c70',
   fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+}
+
+// Subtle inline marker after the 題號 when the question was reclassified into a
+// different family than its id encodes; inherits the muted id color so it never jars.
+const reclassifiedNoteStyle: React.CSSProperties = {
+  marginLeft: '0.4em',
+  fontWeight: 400,
+  fontSize: '0.92em',
+  opacity: 0.8,
+  fontFamily: 'system-ui, "Noto Sans TC", sans-serif',
 }
 
 const footerStyle: React.CSSProperties = {

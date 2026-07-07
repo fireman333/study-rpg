@@ -32,6 +32,7 @@ import {
 } from '../lib/services/expedition'
 import { loadMockDraft, deleteMockDraft } from '../lib/services/mock-exam-draft'
 import { isDraftFresh } from '../lib/exam-set-mock'
+import { reclassifiedFamily } from '../lib/question-family'
 
 const PAGE_SIZE = 50
 
@@ -612,13 +613,21 @@ function QuestionEntry({
 }): JSX.Element {
   const year = qYear(q)
   const session = qSession(q)
+  // The 題號 encodes the original 考選部 subject; when reclassified into a different family,
+  // surface it beside the id so the mismatch reads as intentional (not a mislabel bug).
+  const reclassifiedSubject = reclassifiedFamily(q.id, q.subject)
   // 題庫-specific chrome (題號 + 🐞 回報 + 年/次/科 tags) is the header; the FULL read-only
   // question body (承上題 + stem + figure + options + 正解 + 看原始詳解 PDF + 簡答) is the shared
   // <QuestionReviewCard>, identical to the 收藏 review surface.
   const header = (
     <>
       <div style={entryHeadStyle}>
-        <span style={entryIdStyle}>{q.id}</span>
+        <span style={entryIdStyle}>
+          {q.id}
+          {reclassifiedSubject && (
+            <span style={reclassifiedNoteStyle}>（現歸類：{reclassifiedSubject}）</span>
+          )}
+        </span>
         <button type="button" style={reportBtnStyle} onClick={onReport} aria-label="回報這題" title="回報這題">
           🐞 回報
         </button>
@@ -904,6 +913,8 @@ const entryStyle: React.CSSProperties = {
 }
 const entryHeadStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }
 const entryIdStyle: React.CSSProperties = { fontSize: '0.78rem', color: '#8c6d4a', fontWeight: 700 }
+// Subtle inline marker after the 題號 when the question was reclassified into a different family.
+const reclassifiedNoteStyle: React.CSSProperties = { marginLeft: '0.4em', fontWeight: 400, fontSize: '0.92em', opacity: 0.8, fontFamily: 'system-ui, "Noto Sans TC", sans-serif' }
 const reportBtnStyle: React.CSSProperties = {
   padding: '0.18rem 0.55rem',
   background: 'transparent',
