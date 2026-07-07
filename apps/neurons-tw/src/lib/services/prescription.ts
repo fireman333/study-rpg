@@ -7,17 +7,33 @@
  * a missed day is neutral. NO Dexie schema change — all state lives in the existing
  * `meta` key-value table under the `prescription:v1:` namespace, keyed by local ISO
  * date, as write-once keys (absent → truthy, never deleted) so derived counters are
- * monotonic and cross-device merges are safe. The daily-quest keys (plan / wrong /
- * breadth / completed / reward / lightsOut / localSeed) are LOCAL-ONLY. The one
- * exception is the NG-0717 lineage-imprint keys (`${IMPRINT_PREFIX}<subj>:<date>`),
- * which sync cross-device as a keepsake via the prefix (add-neurons-imprint-keepsake-sync;
- * additive R2 SCHEMA_VERSION, first-write-wins UNION over write-once presence keys).
+ * monotonic and cross-device merges are safe. The daily-quest keys SYNC cross-device
+ * as a date-windowed table (add-neurons-prescription-tiers-and-sync): `plan` / `wrong`
+ * / `breadth` / `cramRescue` / `wire` / `tierClaim` within today ±1 local day,
+ * `completed` / `reward` for ALL dates; `lightsOut` / `localSeed` stay LOCAL-ONLY
+ * (deletable / device-ritual keys violate the write-once contract). Membership is
+ * single-sourced here via `isSyncedPrescriptionKey` (consumed by lib/sync/tables.ts).
+ * The NG-0717 lineage-imprint keys (`${IMPRINT_PREFIX}<subj>:<date>`) keep riding
+ * their own prefix (add-neurons-imprint-keepsake-sync). The plan family converges
+ * cross-device by an earliest-createdAt-wins MIN-LWW post-pass
+ * (lib/sync/backfill/prescription-plan.ts); every other synced family is write-once
+ * presence → first-write-wins = UNION.
+ *
+ * Tier ladder (add-neurons-prescription-tiers-and-sync): a same-day 4-tier ladder
+ * (T1 基礎處方 / T2 追加固化 / T3 形成連結 / T4 深度出征) whose objectives are FROZEN
+ * into the plan at generation. The current tier is DERIVED (never a stored mutable
+ * field — no new merge type); the DISPLAYED tier adds a claim-floor
+ * (`max(derivedTier, highestClaimedTier)`) so it is same-day monotonic. Energy
+ * rewards are claim-gated flat writes into the existing `maze:<familyId>:earned`
+ * MAX-merge counter — NEVER a scalar LWW value.
  *
  * Capability spec: openspec/specs/neurons-daily-prescription/spec.md
  */
 
 import type { Question } from '@study-rpg/core'
+import { FAMILY_IDS } from '@study-rpg/content-neurons-tw'
 import { db, todayISO, type QuestionHistoryRow } from '../db'
+import { earnedKey } from '../maze/economy'
 import { ALL_YEARS, effectiveYearSet, getYearFilter } from './year-filter'
 import { filterPoolByYear } from './quiz-pool'
 
@@ -61,11 +77,12 @@ const WRONG_SNAPSHOT_CAP = 8000
 const BREADTH_SNAPSHOT_CAP = 2000
 
 // ── Meta key builders ───────────────────────────────────────────────────────
-// The daily-quest keys below are LOCAL-ONLY (not in the sync allowlist). The one
-// synced family is the NG-0717 lineage imprint (IMPRINT_PREFIX), which rides the
-// meta sync via its prefix as a cross-device keepsake — see add-neurons-imprint-
-// keepsake-sync + lib/sync/tables.ts (which imports IMPRINT_PREFIX as the single
-// source of the synced prefix, so the two can never drift).
+// The daily-quest keys below SYNC cross-device via `isSyncedPrescriptionKey` (the
+// single-sourced matcher exported at the bottom of this block; lib/sync/tables.ts
+// imports it, so the key mint and the sync filter can never drift). `lightsOut` /
+// `localSeed` are the LOCAL-ONLY exceptions (deletable / device-ritual keys). The
+// NG-0717 lineage imprints ride their OWN prefix (IMPRINT_PREFIX) — see
+// add-neurons-imprint-keepsake-sync.
 const NS = 'prescription:v1'
 const planKey = (date: string) => `${NS}:plan:${date}`
 const wrongKey = (date: string, qid: string) => `${NS}:wrong:${date}:${qid}`
@@ -77,11 +94,23 @@ const LOCAL_SEED_KEY = `${NS}:localSeed`
 const WRONG_PREFIX = (date: string) => `${NS}:wrong:${date}:`
 const BREADTH_PREFIX = (date: string) => `${NS}:breadth:${date}:`
 // 考前救援 bonus (add-neurons-cram-rescue-and-card-actions) — write-once per date+qid
-// when answering from the cram practice entry (correct OR wrong). LOCAL-ONLY; subsumed
-// by PRESCRIPTION_META_PREFIX so account-reset/switch wipes it with the rest.
+// when answering from the cram practice entry (correct OR wrong). SYNCED (write-once
+// UNION, date-windowed) since add-neurons-prescription-tiers-and-sync so the 救援
+// display AND the T2 cram-fallback counting agree across devices; subsumed by
+// PRESCRIPTION_META_PREFIX so account-reset/switch wipes it with the rest.
 const cramRescueKey = (date: string, qid: string) => `${NS}:cramRescue:${date}:${qid}`
 const CRAM_RESCUE_PREFIX = (date: string) => `${NS}:cramRescue:${date}:`
 const COMPLETED_PREFIX = `${NS}:completed:`
+// Form-synapse objective (add-neurons-prescription-tiers-and-sync): write-once
+// per (date, pairKey) → per-pair-per-day dedup for free. Written by the boot-time
+// listener in prescription-wire.ts off the existing expedition co-repair emitter.
+const wireKey = (date: string, pairKey: string) => `${NS}:wire:${date}:${pairKey}`
+const WIRE_PREFIX = (date: string) => `${NS}:wire:${date}:`
+// Tier claim markers (T2–T4) — write-once `{claimedAt, energy, familyId}`. T1's
+// marker is the pre-existing `reward:{date}` key (now carrying the +10 grant).
+const tierClaimKey = (date: string, tier: 2 | 3 | 4) => `${NS}:tierClaim:${date}:${tier}`
+/** `plan:{date}` key prefix — consumed by the MIN-LWW backfill post-pass. */
+export const PRESCRIPTION_PLAN_KEY_PREFIX = `${NS}:plan:`
 /**
  * NG-0717 lineage-imprint synced prefix — the SINGLE SOURCE of truth for the imprint
  * key family. `lib/sync/tables.ts` imports this to build its synced-key membership,
@@ -95,19 +124,96 @@ const imprintKey = (subjectId: string, date: string) => `${IMPRINT_PREFIX}${subj
 /**
  * The ENTIRE daily-prescription meta namespace (`prescription:v1:*`). Account-switch and
  * in-place reset wipe this whole prefix: every daily-quest key (plan / wrong / breadth /
- * completed / reward / lightsOut / localSeed) AND the NG-0717 imprint keepsake sub-prefix
- * are account-OWNED, not device-local — `completed:<date>` keys drive this account's NG-0717
- * maturation stage and the imprint keys are its keepsake, so they must not leak into the next
- * account (the "混血 NG-0717" bug). `IMPRINT_PREFIX` is a sub-prefix of this, so wiping this
- * SUBSUMES the imprint-only delete. Device-local UI prefs live OUTSIDE this prefix (e.g.
- * `prescription:homeCollapsed`) and survive the wipe. Single source: account-guard imports
- * this so the wipe prefix can never drift from the key mint. (fix-neurons-account-switch-
- * prescription-wipe)
+ * completed / reward / cramRescue / wire / tierClaim / lightsOut / localSeed) AND the
+ * NG-0717 imprint keepsake sub-prefix are account-OWNED, not device-local —
+ * `completed:<date>` keys drive this account's NG-0717 maturation stage, the tier claims
+ * and progress keys are its daily-quest state, and the imprint keys are its keepsake, so
+ * they must not leak into the next account (the "混血 NG-0717" bug). `IMPRINT_PREFIX` is a
+ * sub-prefix of this, so wiping this SUBSUMES the imprint-only delete. Device-local UI
+ * prefs live OUTSIDE this prefix (e.g. `prescription:homeCollapsed`) and survive the wipe.
+ * Single source: account-guard imports this so the wipe prefix can never drift from the
+ * key mint. (fix-neurons-account-switch-prescription-wipe)
  */
 export const PRESCRIPTION_META_PREFIX = `${NS}:`
 
+// ── Synced-key matcher (single source — consumed by lib/sync/tables.ts) ──────
+
+/** Families synced within a today-±1-local-day window (bounds bundle growth,
+ *  tolerates midnight/timezone skew). */
+const DATE_WINDOWED_FAMILIES: ReadonlySet<string> = new Set([
+  'plan',
+  'wrong',
+  'breadth',
+  'cramRescue',
+  'wire',
+  'tierClaim',
+])
+/** Families synced for ALL dates (full history: `completedDayCount` + NG-0717
+ *  maturation derive from every completed day). */
+const ALL_DATES_FAMILIES: ReadonlySet<string> = new Set(['completed', 'reward'])
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+/**
+ * Whether a `prescription:v1:*` meta key participates in cross-device sync
+ * (add-neurons-prescription-tiers-and-sync). Mirrors the IMPRINT_PREFIX
+ * single-sourcing: `lib/sync/tables.ts` imports this as a clause of
+ * `isSyncedMetaKey`, so BOTH the metaAdapter snapshot AND its apply use the same
+ * test and the mint/filter can never drift.
+ *
+ * - `plan:` / `wrong:` / `breadth:` / `cramRescue:` / `wire:` / `tierClaim:`
+ *   match within today ±1 local day.
+ * - `completed:` / `reward:` match ALL dates.
+ * - `lightsOut:` / `localSeed` NEVER match (deletable / device-ritual keys).
+ * - `ng0717:imprint:` keys are NOT matched here — they ride their own prefix
+ *   (IMPRINT_PREFIX) in isSyncedMetaKey.
+ */
+export function isSyncedPrescriptionKey(key: string, today: string = todayISO()): boolean {
+  if (!key.startsWith(PRESCRIPTION_META_PREFIX)) return false
+  const rest = key.slice(PRESCRIPTION_META_PREFIX.length) // '<family>:<suffix>' | 'localSeed'
+  const cut = rest.indexOf(':')
+  if (cut < 0) return false // 'localSeed' — no family separator → local-only
+  const family = rest.slice(0, cut)
+  const suffix = rest.slice(cut + 1) // '{date}' or '{date}:{qid|pairKey|tier}'
+  const date = suffix.slice(0, 10)
+  if (!ISO_DATE_RE.test(date)) return false
+  if (ALL_DATES_FAMILIES.has(family)) return true
+  if (!DATE_WINDOWED_FAMILIES.has(family)) return false // lightsOut / ng0717 / unknown
+  return date === today || date === isoDaysAgo(today, 1) || date === isoDaysAgo(today, -1)
+}
+
+// ── Tier ladder constants (dogfood-tunable) ──────────────────────────────────
+// T2 ≈ 3 extra corrections; T3 target 1 synapse; T4 ≈ 12 cumulative corrections
+// AND 2 synapses; flat energy 10/15/20/25 (Σ = 70/day). All game-design defaults,
+// re-tunable from dogfood telemetry without schema impact (targets freeze per-plan).
+export const TIER_T2_EXTRA_DEFAULT = 3
+export const TIER_T3_TARGET_DEFAULT = 1
+export const TIER_T4_CORRECTIONS_DEFAULT = 12
+export const TIER_T4_SYNAPSES_DEFAULT = 2
+/** Flat conduction-energy grant per tier (claim-gated; NEVER multiplied). */
+export const TIER_ENERGY: Readonly<Record<1 | 2 | 3 | 4, number>> = {
+  1: 10,
+  2: 15,
+  3: 20,
+  4: 25,
+}
+
+/** T2 counting substrate, frozen along the fallback chain at plan generation. */
+export type TierT2Kind = 'wrongOverflow' | 'breadth' | 'cram'
+
+/** Frozen tier-spec fields (all optional — a legacy plan without them renders no
+ *  tier panel; derivation returns tier-absent). */
+export interface TierSpec {
+  t2Kind?: TierT2Kind
+  t2Extra?: number
+  t3Kind?: 'synapse'
+  t3Target?: number
+  t4Kind?: 'deep'
+  t4Target?: { corrections: number; synapses: number }
+}
+
 // ── Types ───────────────────────────────────────────────────────────────────
-export interface PrescriptionPlan {
+export interface PrescriptionPlan extends TierSpec {
   date: string
   createdAt: number
   seed: string
@@ -124,6 +230,41 @@ export interface PrescriptionPlan {
   breadthEligibleQuestionIds: string[]
   /** Frozen effective exam-year scope; `null` = all years (legacy plans omit it). */
   yearScope: number[] | null
+}
+
+/** Per-rung derived progress for the tier panel. */
+export interface TierRungStatus {
+  target: number
+  done: number
+  complete: boolean
+}
+
+/**
+ * Derived tier-ladder state (add-neurons-prescription-tiers-and-sync). PURE
+ * projection of the (winner) plan's frozen tier spec + UNION'd progress keys —
+ * the tier is NEVER a stored mutable field. `displayTier` adds the claim-floor
+ * (`max(derivedTier, highestClaimedTier)`) so the shown tier is same-day
+ * monotonic even after a divergent plan loses the cross-device MIN-LWW merge.
+ */
+export interface TierLadderStatus {
+  derivedTier: number
+  highestClaimedTier: number
+  displayTier: number
+  t2: (TierRungStatus & { kind: TierT2Kind }) | null
+  t3: TierRungStatus | null
+  t4: { corrections: TierRungStatus; synapses: TierRungStatus; complete: boolean } | null
+}
+
+/** Extra progress inputs `deriveTier` needs beyond the two T1 lines. */
+export interface TierProgressInputs {
+  /** Count of `cramRescue:{date}:*` keys today (T2 cram-fallback units). */
+  cramRescueCount: number
+  /** Count of distinct `wire:{date}:*` keys today (T3/T4 synapse objective). */
+  wireCount: number
+  /** `reward:{date}` present (T1's claim marker). */
+  t1Claimed: boolean
+  /** Tiers with a `tierClaim:{date}:{t}` marker present (local or pulled). */
+  claimedTiers: ReadonlySet<number>
 }
 
 export interface PrescriptionStatus {
@@ -143,6 +284,8 @@ export interface PrescriptionStatus {
   keepsakeUnlocked: boolean
   /** 考前救援 optional bonus done today (≥ CRAM_RESCUE_TARGET cram-practice answers). */
   cramRescueDone: boolean
+  /** Derived tier-ladder state; null when the plan has no frozen tier spec. */
+  tier: TierLadderStatus | null
 }
 
 /**
@@ -230,6 +373,229 @@ export function computeBreadthTarget(wrongTarget: number): number {
   if (wrongTarget <= 4) return 8
   if (wrongTarget === 5) return 7
   return 6
+}
+
+/**
+ * Freeze the day's tier spec from the SAME frozen snapshots the plan is built
+ * from (add-neurons-prescription-tiers-and-sync). PURE. Objectives auto-shrink
+ * with a frozen fallback chain so a plan can NEVER freeze an unachievable tier
+ * (no「今天不可能達成」dead state):
+ *
+ * - T2 chain: wrong-snapshot overflow beyond T1's target → (exhausted) breadth
+ *   pool overflow → (exhausted) cram practice at a DOUBLED target (counted via
+ *   the `cramRescue:{date}:{qid}` keys — cram is unbounded, so ×2 keeps it
+ *   non-trivial).
+ * - T3/T4 (synapse objectives) are frozen ABSENT when the frozen wrong pool is
+ *   empty: the anti-farm gate requires a settlement's counted repairs to
+ *   intersect `wrongEligibleQuestionIds`, so with an empty frozen pool no wire
+ *   key could ever be minted — freezing a synapse target that day WOULD be a
+ *   dead state. The ladder simply caps at T2 (mirrors legacy tier-absent
+ *   tolerance).
+ * - T4's correction target shrinks to what the frozen pools make achievable:
+ *   at most every frozen wrong (write-once per qid) plus the T2 fallback units
+ *   when the chain engaged.
+ */
+export function deriveTierSpec(input: {
+  wrongTarget: number
+  wrongEligibleCount: number
+  breadthTarget: number
+  breadthEligibleCount: number
+}): TierSpec {
+  const wrongOverflow = Math.max(0, input.wrongEligibleCount - input.wrongTarget)
+  const breadthOverflow = Math.max(0, input.breadthEligibleCount - input.breadthTarget)
+  let t2Kind: TierT2Kind
+  let t2Extra: number
+  if (wrongOverflow > 0) {
+    t2Kind = 'wrongOverflow'
+    t2Extra = Math.min(TIER_T2_EXTRA_DEFAULT, wrongOverflow)
+  } else if (breadthOverflow > 0) {
+    t2Kind = 'breadth'
+    t2Extra = Math.min(TIER_T2_EXTRA_DEFAULT, breadthOverflow)
+  } else {
+    t2Kind = 'cram'
+    t2Extra = TIER_T2_EXTRA_DEFAULT * 2 // cram fallback DOUBLES the target
+  }
+  if (input.wrongEligibleCount === 0) {
+    // Synapse objectives unachievable (anti-farm needs pre-today wrongs) → absent.
+    return { t2Kind, t2Extra }
+  }
+  // T4 corrections stream = today's wrong keys (≤ frozen pool size) plus the T2
+  // fallback units when the chain engaged (wrongOverflow units are themselves
+  // wrong keys — already inside wrongEligibleCount, no double count).
+  const fallbackUnits = t2Kind === 'wrongOverflow' ? 0 : t2Extra
+  const corrections = Math.min(
+    TIER_T4_CORRECTIONS_DEFAULT,
+    input.wrongEligibleCount + fallbackUnits,
+  )
+  return {
+    t2Kind,
+    t2Extra,
+    t3Kind: 'synapse',
+    t3Target: TIER_T3_TARGET_DEFAULT,
+    t4Kind: 'deep',
+    t4Target: { corrections, synapses: TIER_T4_SYNAPSES_DEFAULT },
+  }
+}
+
+/** Progress inputs for `deriveTier` (the two T1 lines + the tier substrates). */
+export interface TierProgress extends TierProgressInputs {
+  wrongDone: number
+  breadthDone: number
+}
+
+/**
+ * Derive the tier ladder from the (winner) plan's frozen spec + UNION'd progress
+ * key counts. PURE — recomputed on read, never stored (design D1). Returns null
+ * when the plan carries no tier spec (legacy plan → tier panel hidden).
+ *
+ * `derivedTier` is strictly ladder-ordered (tier k requires tiers 1..k complete;
+ * an absent rung caps the ladder below it). `displayTier` adds the claim-floor:
+ * write-once claims are same-day monotonic, so the player never sees a tier they
+ * celebrated get taken back — even when a divergent losing plan makes
+ * `derivedTier` drop after the MIN-LWW converges.
+ */
+export function deriveTier(
+  plan: PrescriptionPlan | null,
+  p: TierProgress,
+): TierLadderStatus | null {
+  if (!plan) return null
+  if (plan.t2Kind == null && plan.t3Kind == null && plan.t4Kind == null) return null
+
+  const t1Complete = p.wrongDone >= plan.wrongTarget && p.breadthDone >= plan.breadthTarget
+
+  // T2 units along the frozen counting substrate.
+  let t2: (TierRungStatus & { kind: TierT2Kind }) | null = null
+  let t2UnitsDone = 0
+  if (plan.t2Kind != null && plan.t2Extra != null) {
+    t2UnitsDone =
+      plan.t2Kind === 'wrongOverflow'
+        ? Math.max(0, p.wrongDone - plan.wrongTarget)
+        : plan.t2Kind === 'breadth'
+          ? Math.max(0, p.breadthDone - plan.breadthTarget)
+          : p.cramRescueCount
+    t2 = {
+      kind: plan.t2Kind,
+      target: plan.t2Extra,
+      done: t2UnitsDone,
+      complete: t2UnitsDone >= plan.t2Extra,
+    }
+  }
+
+  const t3: TierRungStatus | null =
+    plan.t3Kind != null && plan.t3Target != null
+      ? { target: plan.t3Target, done: p.wireCount, complete: p.wireCount >= plan.t3Target }
+      : null
+
+  let t4: TierLadderStatus['t4'] = null
+  if (plan.t4Kind != null && plan.t4Target != null) {
+    // Same unit stream T1+T2 count: today's wrong keys, plus T2 fallback units
+    // (capped at t2Extra so unbounded cram can't alone power T4) when engaged.
+    const fallbackDone =
+      plan.t2Kind != null && plan.t2Kind !== 'wrongOverflow' && plan.t2Extra != null
+        ? Math.min(t2UnitsDone, plan.t2Extra)
+        : 0
+    const corrDone = p.wrongDone + fallbackDone
+    const corrections: TierRungStatus = {
+      target: plan.t4Target.corrections,
+      done: corrDone,
+      complete: corrDone >= plan.t4Target.corrections,
+    }
+    const synapses: TierRungStatus = {
+      target: plan.t4Target.synapses,
+      done: p.wireCount,
+      complete: p.wireCount >= plan.t4Target.synapses,
+    }
+    // T4 requires BOTH conditions.
+    t4 = { corrections, synapses, complete: corrections.complete && synapses.complete }
+  }
+
+  let derivedTier = 0
+  if (t1Complete) derivedTier = 1
+  if (derivedTier === 1 && t2?.complete) derivedTier = 2
+  if (derivedTier === 2 && t3?.complete) derivedTier = 3
+  if (derivedTier === 3 && t4?.complete) derivedTier = 4
+
+  const highestClaimedTier = p.claimedTiers.has(4)
+    ? 4
+    : p.claimedTiers.has(3)
+      ? 3
+      : p.claimedTiers.has(2)
+        ? 2
+        : p.t1Claimed
+          ? 1
+          : 0
+
+  return {
+    derivedTier,
+    highestClaimedTier,
+    displayTier: Math.max(derivedTier, highestClaimedTier),
+    t2,
+    t3,
+    t4,
+  }
+}
+
+/**
+ * Deterministic energy-grant family for a date — hashed from the DATE ALONE
+ * (add-neurons-prescription-tiers-and-sync fix for the divergent-family
+ * double-pay). It deliberately does NOT use the plan's `breadthFamilyId` or
+ * `seed`: those diverge between two offline devices' plans for the same date
+ * BEFORE the earliest-wins plan merge converges, so granting to the plan's
+ * family would let the same tier pay into two different families' `earned`
+ * counters (both survive MAX-merge). Hashing the date alone makes every device
+ * grant a given date's tier energy to the SAME family, so a cross-device
+ * double-claim MAX-collapses to ~one grant instead of stacking. (Forgiving
+ * model: the grant may still be absorbed on a less-active device — accepted —
+ * but it can never double-pay.) The chosen family is stable per date, not tied
+ * to the day's developed family. Assumes `FAMILY_IDS` order/length is a stable
+ * canonical invariant (it is — the maze `earned` keys are coupled to it); a
+ * change to it would be a breaking schema event handled separately.
+ */
+export function grantFamilyForDate(date: string): string {
+  return FAMILY_IDS[stableHash(date) % FAMILY_IDS.length]
+}
+
+/**
+ * Earliest-createdAt-wins MIN-LWW picker for divergent `plan:{date}` values
+ * (design D5). Returns the raw string to persist, or null to keep local as-is.
+ * MIN over the totally-ordered `(createdAt, seed)` pair is a semilattice →
+ * pull-order-independent, bidirectionally convergent. A malformed/unparsable
+ * INCOMING plan keeps local; a malformed LOCAL yields to a valid incoming.
+ */
+export function pickPlanMinLWW(localRaw: string | undefined, incomingRaw: string): string | null {
+  const incoming = parsePlanEnvelope(incomingRaw)
+  if (!incoming) return null // malformed incoming → keep local
+  if (localRaw === undefined) return incomingRaw
+  const local = parsePlanEnvelope(localRaw)
+  if (!local) return incomingRaw
+  if (incoming.createdAt < local.createdAt) return incomingRaw
+  if (incoming.createdAt === local.createdAt && incoming.seed < local.seed) return incomingRaw
+  return null
+}
+
+function parsePlanEnvelope(raw: string): { createdAt: number; seed: string } | null {
+  try {
+    const p = JSON.parse(raw) as Record<string, unknown>
+    if (!p || typeof p !== 'object') return null
+    if (typeof p.createdAt !== 'number' || !Number.isFinite(p.createdAt)) return null
+    if (typeof p.seed !== 'string') return null
+    return { createdAt: p.createdAt, seed: p.seed }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Whether a raw `plan:{date}` meta value is a well-formed plan envelope
+ * (add-neurons-prescription-tiers-and-sync fix). The generic meta apply is
+ * first-write-wins, so it can install a MALFORMED incoming plan when the local
+ * device had none for that date (pickPlanMinLWW then keeps that local garbage).
+ * The plan MIN-LWW post-pass uses this to DROP any in-window plan key whose
+ * stored value is malformed, so the reader regenerates a fresh valid plan
+ * instead of choking on it.
+ */
+export function isValidPlanRaw(raw: unknown): boolean {
+  return typeof raw === 'string' && parsePlanEnvelope(raw) !== null
 }
 
 /** Coverage-weighted blind-spot score. Higher = better 盲區 candidate. */
@@ -402,6 +768,20 @@ export function buildPlan(
 
   const yearScope = isAllYears ? null : [...yearSet].sort((a, b) => b - a)
 
+  const wrongEligibleQuestionIds = repairIds.slice(0, WRONG_SNAPSHOT_CAP)
+  const breadthEligibleQuestionIds = (blind?.unseenQuestionIds ?? []).slice(
+    0,
+    BREADTH_SNAPSHOT_CAP,
+  )
+  // Freeze the day's tier spec from the SAME frozen snapshots (tier ladder,
+  // add-neurons-prescription-tiers-and-sync). Rides the plan; converges with it.
+  const tierSpec = deriveTierSpec({
+    wrongTarget,
+    wrongEligibleCount: wrongEligibleQuestionIds.length,
+    breadthTarget,
+    breadthEligibleCount: breadthEligibleQuestionIds.length,
+  })
+
   return {
     date: opts.date,
     createdAt: opts.now,
@@ -410,9 +790,10 @@ export function buildPlan(
     breadthTarget,
     breadthFamilyId: blind?.familyId ?? null,
     breadthFamilyLabel: blind?.familyLabel ?? null,
-    wrongEligibleQuestionIds: repairIds.slice(0, WRONG_SNAPSHOT_CAP),
-    breadthEligibleQuestionIds: (blind?.unseenQuestionIds ?? []).slice(0, BREADTH_SNAPSHOT_CAP),
+    wrongEligibleQuestionIds,
+    breadthEligibleQuestionIds,
     yearScope,
+    ...tierSpec,
   }
 }
 
@@ -552,23 +933,178 @@ export async function getImprints(): Promise<Ng0717Imprint[]> {
   return imprints
 }
 
+// ── Tier claims + energy grants (add-neurons-prescription-tiers-and-sync) ────
+
+/** A tier newly claimed by THIS device's own transition (drives the toast). */
+export interface TierCrossing {
+  tier: 1 | 2 | 3 | 4
+  energy: number
+  familyId: string
+}
+
+/**
+ * Claim one tier if its write-once marker is absent, granting the flat energy
+ * ATOMICALLY within the same Dexie tx as the claim (design D3). The claim key is
+ * written ONLY if absent, and the `earned` grant fires in the SAME tx ONLY when
+ * THIS tx performed the absent→present transition — so a crash can never leave a
+ * claim without its energy. ⚠️ LOAD-BEARING IDEMPOTENCY POINT (pull-replay
+ * safety): a claim arriving via cross-device sync is written by the metaAdapter
+ * — NOT through this helper — so it marks the tier claimed (claim-floor) WITHOUT
+ * re-granting locally; the granted energy already rides the MAX-merged `earned`
+ * counter.
+ */
+async function claimTierIfAbsent(
+  date: string,
+  tier: 1 | 2 | 3 | 4,
+  now: number,
+): Promise<TierCrossing | null> {
+  const key = tier === 1 ? rewardKey(date) : tierClaimKey(date, tier)
+  // Date-derived + shared across devices (see grantFamilyForDate): required so a
+  // cross-device double-claim collapses under MAX-merge instead of paying two
+  // different families (the plan's own family/seed diverge before convergence).
+  const familyId = grantFamilyForDate(date)
+  const energy = TIER_ENERGY[tier]
+  let claimedNow = false
+  // ATOMIC claim + grant (add-neurons-prescription-tiers-and-sync fix): the FLAT
+  // grant into the MAX-merge `earned` counter happens INSIDE the same tx as the
+  // claim write, so a crash can never leave a claim marker without its energy
+  // (nor energy without a claim). Direct `earned + energy` — NOT
+  // `accrueMazeEnergy` — so no streak/mastery/acceleration/speed multiplier ever
+  // scales a tier reward. Because the family is date-derived + shared, two
+  // offline devices crossing the same tier write the same flat amount into the
+  // SAME family counter → MAX-merge collapses to ~one grant (forgiving-by-design).
+  await db.transaction('rw', db.meta, async () => {
+    if (await metaExists(key)) return
+    await db.meta.put({ key, value: JSON.stringify({ claimedAt: now, energy, familyId }) })
+    const k = earnedKey(familyId)
+    const cur = Number((await db.meta.get(k))?.value ?? '0') || 0
+    await db.meta.put({ key: k, value: String(cur + energy) })
+    claimedNow = true
+  })
+  if (!claimedNow) return null
+  return { tier, energy, familyId }
+}
+
+/**
+ * Recompute the derived tier from today's plan + progress keys and claim any
+ * newly-crossed tier (T1's marker = `reward:{date}`, carrying the +10 grant;
+ * T2–T4 = `tierClaim:{date}:{t}`). Hooked at the prescription-crediting tail,
+ * the cram record point, and the synapse-wire listener, so crossings credit at
+ * the moment they happen from any entry point. Returns the tiers THIS call
+ * newly claimed (for the verdict-moment toast). No-op without a plan.
+ */
+export async function recomputeAndClaimTiers(now: number = Date.now()): Promise<TierCrossing[]> {
+  const date = todayISO()
+  const plan = await metaGetJSON<PrescriptionPlan>(planKey(date))
+  if (!plan) return []
+  const [wrongDone, breadthDone, cramRescueCount, wireCount, t1Claimed, c2, c3, c4] =
+    await Promise.all([
+      countWithPrefix(WRONG_PREFIX(date)),
+      countWithPrefix(BREADTH_PREFIX(date)),
+      countWithPrefix(CRAM_RESCUE_PREFIX(date)),
+      countWithPrefix(WIRE_PREFIX(date)),
+      metaExists(rewardKey(date)),
+      metaExists(tierClaimKey(date, 2)),
+      metaExists(tierClaimKey(date, 3)),
+      metaExists(tierClaimKey(date, 4)),
+    ])
+  const claimedTiers = new Set<number>()
+  if (c2) claimedTiers.add(2)
+  if (c3) claimedTiers.add(3)
+  if (c4) claimedTiers.add(4)
+  const ladder = deriveTier(plan, {
+    wrongDone,
+    breadthDone,
+    cramRescueCount,
+    wireCount,
+    t1Claimed,
+    claimedTiers,
+  })
+  const t1Complete = wrongDone >= plan.wrongTarget && breadthDone >= plan.breadthTarget
+
+  const crossings: TierCrossing[] = []
+  // T1's claim is independent of the tier spec (legacy plans still earn the +10
+  // at completion); T2–T4 claims follow the derived ladder.
+  if (t1Complete && !t1Claimed) {
+    const c = await claimTierIfAbsent(date, 1, now)
+    if (c) crossings.push(c)
+  }
+  const derived = ladder?.derivedTier ?? 0
+  for (const tier of [2, 3, 4] as const) {
+    if (tier > derived || claimedTiers.has(tier)) continue
+    const c = await claimTierIfAbsent(date, tier, now)
+    if (c) crossings.push(c)
+  }
+  return crossings
+}
+
+/**
+ * Record a synapse wire key for today (write-once per (date, pairKey) → the
+ * same pair forming then strengthening counts once per day) and recompute the
+ * tier ladder. Called by the boot-time listener (prescription-wire.ts) AFTER
+ * its anti-farm arming check; exported for tests.
+ */
+export async function recordSynapseWire(
+  pairKey: string,
+  now: number = Date.now(),
+): Promise<TierCrossing[]> {
+  const date = todayISO()
+  const k = wireKey(date, pairKey)
+  if (!(await metaExists(k))) await db.meta.put({ key: k, value: '1' })
+  return recomputeAndClaimTiers(now)
+}
+
+/**
+ * Anti-farm basis check (design D6, implemented as the settlement-hook
+ * intersection — the CHOSEN mechanism): a settlement's counted repairs qualify
+ * for tier-countable synapse credit only when they intersect today's plan's
+ * frozen `wrongEligibleQuestionIds` — a pre-today wrong set by construction —
+ * so deliberately failing fresh questions today and immediately repairing them
+ * can never mint wire-key credit. Checked at the settlement hook point
+ * (OverviewPage's `creditConnectomeFromExpedition` call site) where the flipped
+ * question ids are known; the payload-poor synapse listener only sees the
+ * armed/disarmed result. (The `everWrong`-before-today gate was the fallback —
+ * not needed since the flipped ids are available at the hook point.)
+ */
+export async function hasPreTodayWrongBasis(
+  repairedQuestionIds: readonly string[],
+): Promise<boolean> {
+  if (repairedQuestionIds.length === 0) return false
+  const plan = await metaGetJSON<PrescriptionPlan>(planKey(todayISO()))
+  if (!plan) return false
+  const frozen = new Set(plan.wrongEligibleQuestionIds)
+  return repairedQuestionIds.some((id) => frozen.has(id))
+}
+
 /**
  * Record a quiz answer against today's prescription. Idempotent + deduped:
  * - 訂正錯題 counts a snapshot-wrong question answered correctly (write-once).
  * - 開發盲區 counts a snapshot-unseen question in the 盲區 family on first answer,
  *   correct OR wrong (write-once).
- * When both lines reach target, writes the write-once completion + reward keys.
- * No-op when today's plan does not exist yet.
+ * When both lines reach target, writes the write-once completion key; the tier
+ * recompute at the tail claims T1's reward (+10 grant) and any further crossed
+ * tier. No-op when today's plan does not exist yet.
  */
 export async function recordPrescriptionAnswer(
   questionId: string,
   family: string,
   isCorrect: boolean,
   now: number = Date.now(),
-): Promise<{ repairConsolidated: boolean; breadthConsolidated: boolean; justCompleted: boolean }> {
+): Promise<{
+  repairConsolidated: boolean
+  breadthConsolidated: boolean
+  justCompleted: boolean
+  tierCrossings: TierCrossing[]
+}> {
   const date = todayISO()
   const plan = await metaGetJSON<PrescriptionPlan>(planKey(date))
-  if (!plan) return { repairConsolidated: false, breadthConsolidated: false, justCompleted: false }
+  if (!plan)
+    return {
+      repairConsolidated: false,
+      breadthConsolidated: false,
+      justCompleted: false,
+      tierCrossings: [],
+    }
 
   // Each flag is true only when THIS answer newly credits the matching line — a snapshot
   // repair question consolidated (first correct today), a breadth-family question first
@@ -602,12 +1138,15 @@ export async function recordPrescriptionAnswer(
     countWithPrefix(BREADTH_PREFIX(date)),
   ])
   if (wrongDone >= plan.wrongTarget && breadthDone >= plan.breadthTarget) {
+    // Celebration-once (design D9): `justCompleted` is true ONLY on the LOCAL
+    // absent→present transition of `completed:{date}` — a device that learns of
+    // completion via a pulled bundle never sees it, so the 「今日處方箋完成」note
+    // + NG-0717 stage-up presentation play once per (account, day), on the
+    // first-completing device. The reward key is claimed (with its +10 grant)
+    // by the tier recompute at the tail below.
     if (!(await metaExists(completedKey(date)))) {
       await db.meta.put({ key: completedKey(date), value: JSON.stringify({ completedAt: now }) })
       justCompleted = true
-    }
-    if (!(await metaExists(rewardKey(date)))) {
-      await db.meta.put({ key: rewardKey(date), value: JSON.stringify({ claimedAt: now }) })
     }
     // NG-0717 lineage imprint: grow/advance today's 開發新連結 family (write-once per
     // (subject, date); touches derive from the prefix count). breadthFamilyId null →
@@ -618,7 +1157,10 @@ export async function recordPrescriptionAnswer(
       if (!(await metaExists(ik))) await db.meta.put({ key: ik, value: '1' })
     }
   }
-  return { repairConsolidated, breadthConsolidated, justCompleted }
+  // Tier-crossing hook (a): after the progress writes, recompute the derived
+  // tier and claim any newly-crossed tier — surfaced at the verdict moment.
+  const tierCrossings = await recomputeAndClaimTiers(now)
+  return { repairConsolidated, breadthConsolidated, justCompleted, tierCrossings }
 }
 
 /**
@@ -637,25 +1179,57 @@ export async function getTodayPlanSnapshotIds(): Promise<Set<string> | null> {
 
 /**
  * Record a cram-practice answer toward today's 考前救援 bonus (write-once per
- * date+question; correct OR wrong). LOCAL-ONLY; wiped with the prescription prefix.
- * No-op after the first answer for a given question today.
+ * date+question; correct OR wrong). SYNCED (write-once UNION, date-windowed);
+ * wiped with the prescription prefix. The key write is a no-op after the first
+ * answer for a given question today; the tail recompute is tier-crossing hook
+ * (b) — cram units count when T2 froze in cram-fallback mode (and toward T4's
+ * fallback stream), so a cram answer can cross a tier at the verdict moment.
  */
-export async function recordCramRescueAnswer(questionId: string): Promise<void> {
+export async function recordCramRescueAnswer(
+  questionId: string,
+  now: number = Date.now(),
+): Promise<{ tierCrossings: TierCrossing[] }> {
   const k = cramRescueKey(todayISO(), questionId)
   if (!(await metaExists(k))) await db.meta.put({ key: k, value: '1' })
+  return { tierCrossings: await recomputeAndClaimTiers(now) }
 }
 
 /** Full reactive-friendly status snapshot (reads meta; plan must already exist). */
 export async function getPrescriptionStatus(): Promise<PrescriptionStatus> {
   const date = todayISO()
-  const [plan, wrongDone, breadthDone, completedDayCount, cramRescueCount] = await Promise.all([
+  const [
+    plan,
+    wrongDone,
+    breadthDone,
+    completedDayCount,
+    cramRescueCount,
+    wireCount,
+    t1Claimed,
+    c2,
+    c3,
+    c4,
+  ] = await Promise.all([
     metaGetJSON<PrescriptionPlan>(planKey(date)),
     countWithPrefix(WRONG_PREFIX(date)),
     countWithPrefix(BREADTH_PREFIX(date)),
     getCompletedDayCount(),
     countWithPrefix(CRAM_RESCUE_PREFIX(date)),
+    countWithPrefix(WIRE_PREFIX(date)),
+    metaExists(rewardKey(date)),
+    metaExists(tierClaimKey(date, 2)),
+    metaExists(tierClaimKey(date, 3)),
+    metaExists(tierClaimKey(date, 4)),
   ])
-  return deriveStatus(plan, wrongDone, breadthDone, completedDayCount, cramRescueCount >= CRAM_RESCUE_TARGET)
+  const claimedTiers = new Set<number>()
+  if (c2) claimedTiers.add(2)
+  if (c3) claimedTiers.add(3)
+  if (c4) claimedTiers.add(4)
+  return deriveStatus(plan, wrongDone, breadthDone, completedDayCount, cramRescueCount >= CRAM_RESCUE_TARGET, {
+    cramRescueCount,
+    wireCount,
+    t1Claimed,
+    claimedTiers,
+  })
 }
 
 /** Pure status derivation (exported for tests). */
@@ -665,6 +1239,7 @@ export function deriveStatus(
   breadthDone: number,
   completedDayCount: number,
   cramRescueDone = false,
+  tierInputs?: TierProgressInputs,
 ): PrescriptionStatus {
   const wrongComplete = plan ? wrongDone >= plan.wrongTarget : false
   const breadthComplete = plan ? breadthDone >= plan.breadthTarget : false
@@ -676,6 +1251,14 @@ export function deriveStatus(
       : !breadthComplete
         ? 'breadth'
         : null
+  const tier = deriveTier(plan, {
+    wrongDone,
+    breadthDone,
+    cramRescueCount: tierInputs?.cramRescueCount ?? 0,
+    wireCount: tierInputs?.wireCount ?? 0,
+    t1Claimed: tierInputs?.t1Claimed ?? false,
+    claimedTiers: tierInputs?.claimedTiers ?? new Set(),
+  })
   return {
     plan,
     wrongDone,
@@ -688,6 +1271,7 @@ export function deriveStatus(
     ng0717Stage: ng0717Stage(completedDayCount),
     keepsakeUnlocked: completedDayCount >= NG0717_FULL_MATURITY,
     cramRescueDone,
+    tier,
   }
 }
 

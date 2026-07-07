@@ -5,7 +5,19 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { recordCorrectAnswer, recordIncorrectAnswer } from '../lib/services/connectome'
 import { recordQuestionResult } from '../lib/services/question-history'
-import { recordPrescriptionAnswer, recordCramRescueAnswer } from '../lib/services/prescription'
+import {
+  recordPrescriptionAnswer,
+  recordCramRescueAnswer,
+  type TierCrossing,
+} from '../lib/services/prescription'
+import {
+  TIER_T1_NAME,
+  TIER_T2_NAME,
+  TIER_T3_NAME,
+  TIER_T4_NAME,
+  TIER_REACHED_MARK,
+  TIER_ENERGY_LABEL,
+} from '../lib/calm-copy'
 import { flushFirstPullReveals } from '../lib/services/first-pull-reveal'
 import {
   scheduleSrsForAnswer,
@@ -71,6 +83,14 @@ interface Props {
      * (add-neurons-weakness-radar-and-error-repair). Empty when nothing was missed.
      */
     wrongIds: string[]
+    /**
+     * Question ids answered CORRECT this session (in the wrong-only 出征 pool
+     * every correct IS a wrong→correct repair) — the settlement hook intersects
+     * these with the prescription plan's frozen `wrongEligibleQuestionIds` to
+     * arm the synapse wire-key anti-farm gate
+     * (add-neurons-prescription-tiers-and-sync, design D6).
+     */
+    correctIds: string[]
   }) => void
   /**
    * Preserve the incoming pool order instead of shuffling (per
@@ -105,8 +125,10 @@ interface Props {
   /**
    * Credit today's 考前救援 bonus (add-neurons-cram-rescue-and-card-actions). Set by
    * the 考前猜題 (cram) practice entry: each answer (correct OR wrong) writes a
-   * write-once daily meta key so the optional post-完成 bonus can read it. LOCAL-only;
-   * no dayComplete / economy effect. Defaults to false.
+   * write-once daily meta key so the optional post-完成 bonus can read it. Synced
+   * (write-once UNION, date-windowed — add-neurons-prescription-tiers-and-sync);
+   * no dayComplete effect, no economy beyond the claim-gated tier grants its
+   * recompute may cross. Defaults to false.
    */
   creditCramRescue?: boolean
 }
@@ -299,6 +321,11 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   const [repairConsolidated, setRepairConsolidated] = useState(false)
   const [breadthConsolidated, setBreadthConsolidated] = useState(false)
   const [dayJustCompleted, setDayJustCompleted] = useState(false)
+  // Tier crossings THIS answer newly claimed (add-neurons-prescription-tiers-and-
+  // sync): returned by the prescription/cram record tails, surfaced as a
+  // non-punishing toast at the verdict moment (mirrors the 連結已固化 note
+  // pattern). Reset on Next.
+  const [tierCrossings, setTierCrossings] = useState<TierCrossing[]>([])
   const reducedMotion = useRespectsReducedMotion()
   const scrollContainerRef = useRef<HTMLDivElement | null>(null)
   // Active squad — drives the correct-answer celebration (empty → no-op).
@@ -317,6 +344,10 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   // pass (add-neurons-weakness-radar-and-error-repair, Feature 4). Deduped downstream
   // by buildSessionRepairPool.
   const wrongIdsRef = useRef<string[]>([])
+  // Ids answered CORRECT this session — the settlement hook intersects these with
+  // the plan's frozen wrong snapshot to arm the wire-key anti-farm gate
+  // (add-neurons-prescription-tiers-and-sync).
+  const correctIdsRef = useRef<string[]>([])
   const completedRef = useRef(false)
   // SRS snapshots for the just-answered question, captured in handlePick: the
   // pre-answer prev (so ✨/🤔 recompute from the same baseline) and the default
@@ -348,6 +379,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           correctBySubject: correctBySubjectRef.current,
           energyBySubject: energyBySubjectRef.current,
           wrongIds: wrongIdsRef.current,
+          correctIds: correctIdsRef.current,
         })
       }
     }
@@ -375,6 +407,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           correctCountRef.current += 1
           correctBySubjectRef.current[q.subject] =
             (correctBySubjectRef.current[q.subject] ?? 0) + 1
+          if (!correctIdsRef.current.includes(q.id)) correctIdsRef.current.push(q.id)
           // 純練習 (tidy-neurons-homepage-ui): 模考 / 題庫 答對不給能量 / walker /
           // variant / streak / connectome；只有 questionHistory + SRS 仍記（見下方）。
           // 當場回鍋 session-repair is also inert here (and skips SRS below).
@@ -465,14 +498,19 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
             if (presc.repairConsolidated) setRepairConsolidated(true)
             if (presc.breadthConsolidated) setBreadthConsolidated(true)
             if (presc.justCompleted) setDayJustCompleted(true)
+            if (presc.tierCrossings.length > 0)
+              setTierCrossings((prev) => [...prev, ...presc.tierCrossings])
           } catch (err) {
             console.error('[prescription] failed to record answer', err)
           }
           // 考前救援 bonus — cram practice entry only (correct OR wrong). Own channel,
-          // best-effort; write-once daily meta, no dayComplete / economy effect.
+          // best-effort; write-once daily meta, no dayComplete / economy effect
+          // beyond the claim-gated tier grants its recompute may cross.
           if (creditCramRescue) {
             try {
-              await recordCramRescueAnswer(q.id)
+              const rescue = await recordCramRescueAnswer(q.id)
+              if (rescue.tierCrossings.length > 0)
+                setTierCrossings((prev) => [...prev, ...rescue.tierCrossings])
             } catch (err) {
               console.error('[cram-rescue] failed to record answer', err)
             }
@@ -504,6 +542,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
     setRepairConsolidated(false)
     setBreadthConsolidated(false)
     setDayJustCompleted(false)
+    setTierCrossings([])
     setQueuedForReview(false)
     // Drop the answered question's SRS snapshots — the next question captures
     // its own in handlePick.
@@ -906,6 +945,17 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   <EmojiIcon char="🎉" size={13} decorative /> 今日處方箋完成 · 兩件小事都做完了
                 </p>
               )}
+              {/* Tier-crossing toasts (add-neurons-prescription-tiers-and-sync) —
+                  one non-punishing line per tier THIS answer newly claimed, at the
+                  verdict moment (mirrors the 連結已固化 note pattern). Fires from
+                  any entry point via the record tails. */}
+              {tierCrossings.map((c) => (
+                <p key={`tier-${c.tier}`} style={tierCrossNoteStyle}>
+                  <EmojiIcon char="⚡" size={13} decorative />{' '}
+                  {TIER_NAME_BY_TIER[c.tier]} {TIER_REACHED_MARK} · {TIER_ENERGY_LABEL} +
+                  {c.energy} → {c.familyId}
+                </p>
+              ))}
               {heroReactionBase && (
                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.1rem' }} aria-hidden>
                   <SpriteSheetPlayer
@@ -1565,6 +1615,21 @@ const dayCompletedNoteStyle: React.CSSProperties = {
   fontSize: '0.82rem',
   fontWeight: 700,
   color: '#7a5410',
+}
+
+// Tier-crossing note (add-neurons-prescription-tiers-and-sync) — a tier THIS
+// answer newly claimed, with its flat conduction-energy grant.
+const TIER_NAME_BY_TIER: Record<1 | 2 | 3 | 4, string> = {
+  1: TIER_T1_NAME,
+  2: TIER_T2_NAME,
+  3: TIER_T3_NAME,
+  4: TIER_T4_NAME,
+}
+const tierCrossNoteStyle: React.CSSProperties = {
+  margin: '-0.3rem 0 0.6rem',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  color: '#8a6a1a',
 }
 
 // Peripheral EEG spike-train burst on correct answer — sibling overlay, never

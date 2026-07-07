@@ -19,10 +19,10 @@
  * Spec: openspec/specs/neurons-daily-prescription/spec.md
  */
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { PrescriptionStatus } from '../lib/services/prescription'
-import { daysUntilExam } from '../lib/services/prescription'
+import type { PrescriptionStatus, TierRungStatus } from '../lib/services/prescription'
+import { daysUntilExam, TIER_ENERGY } from '../lib/services/prescription'
 import { todayISO } from '../lib/db'
 import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
 import { EmojiIcon } from './EmojiIcon'
@@ -34,6 +34,17 @@ import {
   CRAM_RESCUE_FLAVOR,
   NG0717_OPEN_HINT,
   NG0717_KEEPSAKE_LINE,
+  TIER_PANEL_LEAD,
+  TIER_T2_NAME,
+  TIER_T3_NAME,
+  TIER_T4_NAME,
+  TIER_T2_INVITE_WRONG,
+  TIER_T2_INVITE_BREADTH,
+  TIER_T2_INVITE_CRAM,
+  TIER_T3_INVITE,
+  TIER_T4_INVITE,
+  TIER_REACHED_MARK,
+  TIER_ENERGY_LABEL,
 } from '../lib/calm-copy'
 import { Ng0717BranchBuds, type EnrichedImprint } from './Ng0717BranchBuds'
 import ng0717Stage1 from '../assets/ng0717/stage1.png'
@@ -83,6 +94,24 @@ export function DailyPrescriptionCard({
   // 考前收斂 calm view expand state (device+session local; default collapsed). Only
   // used when dayComplete — mounting CramCalmView lazily loads cram.json on expand.
   const [calmOpen, setCalmOpen] = useState(false)
+  // T3 ephemeral glow (add-neurons-prescription-tiers-and-sync): a transient
+  // this-session-only effect fired when the DISPLAYED tier crosses ≥3 while the
+  // card is mounted. Never persisted — a reload / pull-rendered T3 state shows
+  // no glow (the ref seeds from the first observed value, so only a genuine
+  // in-session crossing triggers it).
+  const [t3Glow, setT3Glow] = useState(false)
+  const prevDisplayTierRef = useRef<number | null>(null)
+  const displayTier = status?.tier?.displayTier ?? null
+  useEffect(() => {
+    if (displayTier == null) return
+    const prev = prevDisplayTierRef.current
+    prevDisplayTierRef.current = displayTier
+    if (prev != null && prev < 3 && displayTier >= 3) {
+      setT3Glow(true)
+      const t = setTimeout(() => setT3Glow(false), 2600)
+      return () => clearTimeout(t)
+    }
+  }, [displayTier])
 
   // Loading / no-plan-yet: render nothing so the card never flashes an empty box.
   if (!status || !status.plan) return null
@@ -96,6 +125,7 @@ export function DailyPrescriptionCard({
     ng0717Stage,
     keepsakeUnlocked,
     cramRescueDone,
+    tier,
   } = status
   const wrongAutoSatisfied = plan.wrongTarget <= 0
   // No eligible 開發新連結 family this day (e.g. all in-scope connections seen).
@@ -215,7 +245,11 @@ export function DailyPrescriptionCard({
 
       {/* dayComplete → one coherent 收束 area: completion line + optional 考前救援
           bonus + 今晚收束 calm toggle. The bonus NEVER reads as 未完成/繼續 and does
-          not affect dayComplete or NG-0717 (flavor reward only). */}
+          not affect dayComplete or NG-0717 (flavor reward only). Celebration-once
+          (design D9): this whole area is a STATE render, not a celebration — the
+          「今日處方箋完成」note plays only in QuizModal on the local `justCompleted`
+          transition, so a device that learns of completion via a pulled bundle
+          renders this completed state silently with no second celebration. */}
       {dayComplete && (
         <div style={completeAreaStyle}>
           <p style={completeLineStyle}>
@@ -239,6 +273,62 @@ export function DailyPrescriptionCard({
             </button>
             {calmOpen && <CramCalmView />}
           </div>
+        </div>
+      )}
+
+      {/* Tier ladder panel (add-neurons-prescription-tiers-and-sync) — PROGRESSIVE
+          DISCLOSURE: renders ONLY once T1 (dayComplete) is done; before that there
+          are NO rows, NO locked placeholders, NO teasers (mirrors the 考前救援
+          visibility gate above). Un-reached rungs use invite tone only; reached
+          rungs use the claim-floor `displayTier` so a rung the player saw reached
+          never reads as lost. T3 carries the ephemeral glow; T4's ✓ a purely
+          cosmetic pulse (no power / stat — decoration only). */}
+      {dayComplete && tier && (tier.t2 || tier.t3 || tier.t4) && (
+        <div style={tierPanelStyle} aria-label="處方加深選項">
+          <p style={tierLeadStyle}>{TIER_PANEL_LEAD}</p>
+          {tier.t2 && (
+            <TierRow
+              emoji="🩹"
+              name={TIER_T2_NAME}
+              reached={tier.displayTier >= 2}
+              energy={TIER_ENERGY[2]}
+              rung={tier.t2}
+              invite={
+                tier.t2.kind === 'wrongOverflow'
+                  ? TIER_T2_INVITE_WRONG
+                  : tier.t2.kind === 'breadth'
+                    ? TIER_T2_INVITE_BREADTH
+                    : TIER_T2_INVITE_CRAM
+              }
+            />
+          )}
+          {tier.t3 && (
+            <TierRow
+              emoji="🔗"
+              name={TIER_T3_NAME}
+              reached={tier.displayTier >= 3}
+              energy={TIER_ENERGY[3]}
+              rung={tier.t3}
+              invite={TIER_T3_INVITE}
+              glow={t3Glow && !prefersReduced}
+            />
+          )}
+          {tier.t4 && (
+            <TierRow
+              emoji="⛰"
+              name={TIER_T4_NAME}
+              reached={tier.displayTier >= 4}
+              energy={TIER_ENERGY[4]}
+              rung={{
+                target: tier.t4.corrections.target,
+                done: tier.t4.corrections.done,
+                complete: tier.t4.complete,
+              }}
+              extraRung={tier.t4.synapses}
+              invite={TIER_T4_INVITE}
+              pulse={tier.displayTier >= 4 && !prefersReduced}
+            />
+          )}
         </div>
       )}
 
@@ -276,6 +366,59 @@ export function DailyPrescriptionCard({
         <EmojiIcon char="🗓" size={13} decorative /> {countdownText}
       </p>
     </section>
+  )
+}
+
+/**
+ * One tier rung row. Reached → acknowledgement + flat-energy note (claim-floor:
+ * `reached` derives from displayTier, so it never regresses within the day).
+ * Un-reached → capped progress numbers + invite-tone line (never a deficit).
+ * `glow` = the T3 ephemeral this-session effect; `pulse` = T4's purely cosmetic
+ * ✓ pulse (both suppressed under prefers-reduced-motion by the caller).
+ */
+function TierRow({
+  emoji,
+  name,
+  reached,
+  energy,
+  rung,
+  extraRung,
+  invite,
+  glow = false,
+  pulse = false,
+}: {
+  emoji: string
+  name: string
+  reached: boolean
+  energy: number
+  rung: TierRungStatus
+  /** T4's second condition (synapses) — rendered as a second progress chip. */
+  extraRung?: TierRungStatus
+  invite: string
+  glow?: boolean
+  pulse?: boolean
+}): JSX.Element {
+  const capped = (r: TierRungStatus): string => `${Math.min(r.done, r.target)}/${r.target}`
+  return (
+    <div style={glow ? { ...tierRowStyle, ...tierRowGlowStyle } : tierRowStyle}>
+      <div style={tierRowMainStyle}>
+        <span style={tierNameStyle}>
+          <EmojiIcon char={emoji} size={13} decorative /> {name}
+        </span>
+        {reached ? (
+          <span style={tierDoneStyle}>
+            <span style={pulse ? tierPulseMarkStyle : undefined}>{TIER_REACHED_MARK}</span>{' '}
+            {TIER_ENERGY_LABEL} +{energy}
+          </span>
+        ) : (
+          <span style={tierProgStyle}>
+            {capped(rung)}
+            {extraRung ? ` · 連結 ${capped(extraRung)}` : ''}
+          </span>
+        )}
+      </div>
+      {!reached && <p style={tierInviteStyle}>{invite}</p>}
+    </div>
   )
 }
 
@@ -483,6 +626,85 @@ const calmToggleStyle: React.CSSProperties = {
   fontSize: '0.8rem',
   cursor: 'pointer',
   padding: '0.15rem 0.3rem',
+}
+
+// ── Tier ladder panel (rendered only after dayComplete — progressive disclosure) ──
+const tierPanelStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.35rem',
+  padding: '0.5rem 0.6rem',
+  background: '#fbf3df',
+  border: '1px dashed #d8c39a',
+  borderRadius: '6px',
+}
+
+const tierLeadStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '0.78rem',
+  color: '#8c6d4a',
+  lineHeight: 1.4,
+}
+
+const tierRowStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.15rem',
+  padding: '0.35rem 0.5rem',
+  background: '#fffdf8',
+  border: '1px solid #e6d6b8',
+  borderRadius: '6px',
+  transition: 'box-shadow 0.6s ease',
+}
+
+// T3 ephemeral glow — transient box-shadow only (fades out via the row's
+// transition when the state clears; never persisted).
+const tierRowGlowStyle: React.CSSProperties = {
+  boxShadow: '0 0 10px 2px rgba(212, 160, 77, 0.75)',
+}
+
+const tierRowMainStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '0.5rem',
+}
+
+const tierNameStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.3rem',
+  fontSize: '0.84rem',
+  fontWeight: 600,
+  color: '#5a3f29',
+}
+
+const tierProgStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-pixel-num)',
+  fontSize: '0.9rem',
+  color: '#a85530',
+  whiteSpace: 'nowrap',
+}
+
+const tierDoneStyle: React.CSSProperties = {
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  color: '#4d8c4d',
+  whiteSpace: 'nowrap',
+}
+
+// T4 cosmetic pulse — purely decorative (keyframes in styles.css); carries no
+// exclusive power or stat.
+const tierPulseMarkStyle: React.CSSProperties = {
+  display: 'inline-block',
+  animation: 'tier-pulse 2.4s ease-in-out infinite',
+}
+
+const tierInviteStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: '0.74rem',
+  color: '#8c6d4a',
+  lineHeight: 1.4,
 }
 
 const mascotRowStyle: React.CSSProperties = {

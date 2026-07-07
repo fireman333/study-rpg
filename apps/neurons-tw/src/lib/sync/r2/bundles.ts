@@ -203,12 +203,31 @@
 //        omitting pushes cannot wipe v25 pins); a v25 client reading a v24 bundle
 //        sees pinnedAt absent = not pinned, local pins preserved. Worker is
 //        bundle-opaque (no Worker change).
+//   v26 — add-neurons-prescription-tiers-and-sync 2026-07-07: the 今日處方箋
+//        daily-quest state syncs cross-device as date-windowed meta families.
+//        `isSyncedMetaKey` gains the `isSyncedPrescriptionKey` matcher (single-
+//        sourced from the prescription service): `plan:` / `wrong:` / `breadth:`
+//        / `cramRescue:` + the NEW `wire:{date}:{pairKey}` (form-synapse
+//        objective) and `tierClaim:{date}:{2|3|4}` (tier-ladder claim markers)
+//        families sync within today ±1 local day; `completed:` / `reward:` sync
+//        for ALL dates (completedDayCount + NG-0717 maturation); `lightsOut:` /
+//        `localSeed` stay local-only. All synced families are write-once
+//        presence keys (first-write-wins = UNION) EXCEPT `plan:{date}`, whose
+//        divergence is reconciled by the earliest-createdAt-wins MIN-LWW
+//        post-pass in backfill/prescription-plan.ts (run on pull completion).
+//        Tier energy rides the existing `maze:<f>:earned` MAX-merge counters
+//        via write-once claims — no scalar-LWW energy anywhere. NO new adapter
+//        / Dexie bump (rides existing `meta`). Additive + reader-tolerant: a
+//        v25 client reading a v26 bundle drops the unrecognised prescription
+//        keys; a v26 client reading a v25 bundle preserves its local daily
+//        state (first-write-wins never deletes local keys absent from the
+//        incoming bundle). Worker is bundle-opaque (no Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 import { readAckResetAt, readLastSyncedUserId } from '../account-guard'
 
-export const SCHEMA_VERSION = 25
+export const SCHEMA_VERSION = 26
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

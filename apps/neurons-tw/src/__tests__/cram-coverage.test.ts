@@ -11,6 +11,18 @@ import {
   CRAM_RESCUE_FLAVOR,
   NG0717_OPEN_HINT,
   NG0717_KEEPSAKE_LINE,
+  TIER_T1_NAME,
+  TIER_T2_NAME,
+  TIER_T3_NAME,
+  TIER_T4_NAME,
+  TIER_PANEL_LEAD,
+  TIER_T2_INVITE_WRONG,
+  TIER_T2_INVITE_BREADTH,
+  TIER_T2_INVITE_CRAM,
+  TIER_T3_INVITE,
+  TIER_T4_INVITE,
+  TIER_REACHED_MARK,
+  TIER_ENERGY_LABEL,
 } from '../lib/calm-copy'
 
 const item = (leafId: string, sourceQuestionIds: string[]): CramPushItem => ({
@@ -66,8 +78,10 @@ describe('countCoveredConcepts', () => {
 })
 
 describe('prescription-card copy guard (honesty + anti-anxiety)', () => {
+  // 未達成 / 落後 joined the banned tokens with the tier ladder
+  // (add-neurons-prescription-tiers-and-sync — un-reached tiers use invite tone only).
   const banned =
-    /連續|掌握|覆蓋|覆蓋率|%|還差|剩下|還沒讀|保證|必中|今年一定考|會派上用場|繼續完成|下一步|未完成|第.*天完全體/
+    /連續|掌握|覆蓋|覆蓋率|%|還差|剩下|還沒讀|保證|必中|今年一定考|會派上用場|繼續完成|下一步|未完成|未達成|落後|第.*天完全體/
   const literals = [
     CALM_COVERAGE_PREFIX,
     CALM_COVERAGE_SUFFIX,
@@ -78,6 +92,19 @@ describe('prescription-card copy guard (honesty + anti-anxiety)', () => {
     CRAM_RESCUE_FLAVOR,
     NG0717_OPEN_HINT,
     NG0717_KEEPSAKE_LINE,
+    // Tier ladder static copy (add-neurons-prescription-tiers-and-sync).
+    TIER_T1_NAME,
+    TIER_T2_NAME,
+    TIER_T3_NAME,
+    TIER_T4_NAME,
+    TIER_PANEL_LEAD,
+    TIER_T2_INVITE_WRONG,
+    TIER_T2_INVITE_BREADTH,
+    TIER_T2_INVITE_CRAM,
+    TIER_T3_INVITE,
+    TIER_T4_INVITE,
+    TIER_REACHED_MARK,
+    TIER_ENERGY_LABEL,
   ]
 
   it('the calm-view lines are exactly the approved wording', () => {

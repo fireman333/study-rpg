@@ -601,6 +601,14 @@ body:has(.modal-backdrop) {
   100% { transform: translateX(44px) scale(1); }
 }
 
+/* T4 深度出征 cosmetic pulse (add-neurons-prescription-tiers-and-sync) — purely
+ * decorative ✓-mark pulse on the reached T4 rung; no power / stat. Applied inline
+ * only when not reduced-motion (the card gates via useRespectsReducedMotion). */
+@keyframes tier-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.25); opacity: 0.75; }
+}
+
 /* §3 node-reveal + §4 synapse-pulse one-shot rings (redesign-neurons-maze-static-render). The outer
  * wrapper is camera-positioned in JS; this inner ring expands + fades once over PING_MS, GPU-only
  * (no canvas reblit). currentColor drives both the border + glow; the kind class sets the hue. */

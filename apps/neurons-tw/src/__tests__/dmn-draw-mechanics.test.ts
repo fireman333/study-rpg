@@ -228,8 +228,8 @@ describe('grants/consumes entitlement projection (fix-neurons-dmn-draw-entitleme
 })
 
 describe('schema / synced-key allowlist', () => {
-  it('R2 SCHEMA_VERSION is 25 and the allowlist carries both projection counters', () => {
-    expect(SCHEMA_VERSION).toBe(25)
+  it('R2 SCHEMA_VERSION is 26 and the allowlist carries both projection counters', () => {
+    expect(SCHEMA_VERSION).toBe(26)
     expect(SYNCED_META_KEYS.has('dmnGrantsTotal')).toBe(true)
     expect(SYNCED_META_KEYS.has('dmnLifetimeDrawsConsumed')).toBe(true)
     expect(SYNCED_META_KEYS.has('dmnDrawsAvailable')).toBe(true)

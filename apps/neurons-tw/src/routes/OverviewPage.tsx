@@ -31,7 +31,9 @@ import {
   isLightsOutToday,
   setLightsOutToday,
   clearLightsOutToday,
+  hasPreTodayWrongBasis,
 } from '../lib/services/prescription'
+import { armPrescriptionWireCredit } from '../lib/services/prescription-wire'
 import { OnboardingHost } from '../components/OnboardingHost'
 import { SquadPreview } from '../components/SquadSurfaces'
 import { useReadingTimer } from '../lib/hooks/useReadingTimer'
@@ -657,6 +659,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     correctBySubject: Record<string, number>
     energyBySubject: Record<string, number>
     wrongIds: string[]
+    correctIds: string[]
   }): void => {
     onExpeditionComplete(s)
     // Bump the settlement token for this completion; the async credit below captures
@@ -668,12 +671,27 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     // questions (Feature 4). Skippable; sourced only from the current session; no SRS /
     // DMN effect (handled by the QuizModal `sessionRepair` prop). Empty ⇒ not offered.
     setRepairWrongIds(s.wrongIds.length > 0 ? s.wrongIds : null)
-    void creditConnectomeFromExpedition({
-      repairsBySubject: s.correctBySubject,
-      energyBySubject: s.energyBySubject,
-      sessionPool: s.total,
-    })
-      .then(async (result) => {
+    void (async () => {
+      // Anti-farm arming (add-neurons-prescription-tiers-and-sync, design D6): the
+      // settlement's counted repairs (this session's correct ids — in the wrong-only
+      // pool every correct IS a repair) qualify for tier-countable synapse credit
+      // only when they intersect the plan's frozen `wrongEligibleQuestionIds` (a
+      // pre-today wrong set by construction). Armed BEFORE the credit call — the
+      // synapse events are emitted synchronously inside it — and disarmed in the
+      // finally, so a farm settlement (only fresh today-wrongs repaired) mints no
+      // wire key.
+      try {
+        armPrescriptionWireCredit(await hasPreTodayWrongBasis(s.correctIds))
+      } catch (err) {
+        console.error('[prescription-wire] anti-farm basis check failed:', err)
+        armPrescriptionWireCredit(false)
+      }
+      try {
+        const result = await creditConnectomeFromExpedition({
+          repairsBySubject: s.correctBySubject,
+          energyBySubject: s.energyBySubject,
+          sessionPool: s.total,
+        })
         // Stale-guard: skip the recap open if this settlement was dismissed / superseded
         // (the recap close handlers + entering repair bump the token).
         if (settlementTokenRef.current !== token) return
@@ -688,8 +706,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
             setRitual({ streak: result.streak, nonce: Date.now() })
           }
         }
-      })
-      .catch((err) => console.error('[connectome] expedition credit failed:', err))
+      } catch (err) {
+        console.error('[connectome] expedition credit failed:', err)
+      } finally {
+        armPrescriptionWireCredit(false)
+      }
+    })()
   }
 
   // Dismiss the settlement recap (close / backdrop). Bumps the settlement token so a
