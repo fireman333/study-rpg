@@ -388,7 +388,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
             } catch (err) {
               console.error('[maze-feedback] failed to read energy state (before)', err)
             }
-            await recordCorrectAnswer(q.subject)
+            // Best-effort: an uninitialised familyMastery row (partial IndexedDB /
+            // init race) makes recordAttemptInTx throw. Log + swallow so a mastery
+            // failure never short-circuits the rest of handlePick (questionHistory /
+            // SRS / prescription below), mirroring the recordQuestionResult pattern.
+            try {
+              await recordCorrectAnswer(q.subject)
+            } catch (err) {
+              console.error('[connectome] failed to record correct answer', err)
+            }
             // Streak-scaled feedback: read the post-answer streak (recordCorrectAnswer
             // bumped it) → continuous intensity for the spike-train burst. Best-effort;
             // never break the answer flow.
@@ -424,7 +432,16 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           // familyMastery row) and session-repair tracking must not depend on it, or a
           // recording failure would silently drop the question from 當場回鍋 (Feature 4).
           if (!wrongIdsRef.current.includes(q.id)) wrongIdsRef.current.push(q.id)
-          if (!inert) await recordIncorrectAnswer(q.subject)
+          // Best-effort: an uninitialised familyMastery row makes recordAttemptInTx
+          // throw. Log + swallow so recordQuestionResult / SRS / prescription below
+          // still run (mirrors the recordQuestionResult pattern).
+          if (!inert) {
+            try {
+              await recordIncorrectAnswer(q.subject)
+            } catch (err) {
+              console.error('[connectome] failed to record incorrect answer', err)
+            }
+          }
         }
         // Record per-question result for the 錯題 sub-tabs. Best-effort —
         // never break the answer flow if the history write fails. STILL fires in

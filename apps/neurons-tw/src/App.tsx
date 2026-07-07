@@ -10,6 +10,7 @@ import LeaderboardPage from './routes/LeaderboardPage'
 import ConnectomeToastHost from './components/SynapseFormationToast'
 import VariantUnlockModal from './components/VariantUnlockModal'
 import { backfillAchievementsFromCurrentStats } from './lib/services/achievement'
+import { initMasteryForPack } from './lib/services/connectome'
 import { initializeDmnTrigger } from './lib/services/dmn-trigger'
 import { installConsoleErrorCapture } from './lib/services/console-error-buffer'
 import AchievementsPage from './routes/AchievementsPage'
@@ -57,6 +58,14 @@ export default function App(): JSX.Element {
         // (Collection 2.0: no variant-gacha subscriber — variants come from the
         // player-initiated pull on /collection.)
         initializeDmnTrigger()
+        // Seed familyMastery rows once at app boot — BEFORE any route mounts.
+        // OverviewPage ('/') also runs this on mount, but /bank and /cram deep-links
+        // mount QuizModal without OverviewPage, so answering there would throw an
+        // uninitialised-row error in recordAttemptInTx. Idempotent (only bulkAdds
+        // when the table is empty); best-effort so a seed failure never blocks boot.
+        await initMasteryForPack(pack).catch((e) => {
+          console.error('[mastery] boot-time seed failed', e)
+        })
         // Silent achievement backfill — write rows for predicates already
         // satisfied by current Dexie state (no toast / modal / reward).
         // Idempotent on subsequent boots.
