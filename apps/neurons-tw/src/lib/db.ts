@@ -238,12 +238,19 @@ export interface QuestionBookmarkTombstoneRow {
 }
 
 /**
- * Per-question binary modifier flags (Dexie v8+). Two flags coexist on one
- * row — easyMarked (「✨ 太簡單」) and guessedMarked (「🤔 我亂猜的」).
+ * Per-question binary modifier flags (Dexie v8+). Four flags coexist on one
+ * row — two post-correct (easyMarked「✨ 太簡單」/ guessedMarked「🤔 我亂猜的」)
+ * and two post-wrong error-cause modifiers (wrongAnswerMarked「👁 看錯」/
+ * insightMarked「💡 觀念洞」, add-neurons-weakness-radar-and-error-repair).
  *
- * Both can be true simultaneously. Row is created lazily on first flag set;
- * deletion is not supported (both flags → false keeps the row alive for
+ * All four can be true simultaneously. Row is created lazily on first flag set;
+ * deletion is not supported (all flags → false keeps the row alive for
  * cross-device LWW convergence). Per add-neurons-srs-binary-modifiers spec.
+ *
+ * The two error-cause fields are ADDITIVE non-indexed booleans — adding them
+ * needs no `.stores()` change and no `.version()` bump; older rows that omit
+ * them read as false. Every writer MUST preserve the flags it does not own
+ * (see question-flags.ts) and the R2 questionFlags adapter serializes all four.
  *
  * Future `add-neurons-srs-pipeline` will consume these as SRS scheduling
  * inputs (easy → longer interval, guessed → shorter / re-queue).
@@ -252,6 +259,10 @@ export interface QuestionFlagRow {
   questionId: string
   easyMarked: boolean
   guessedMarked: boolean
+  /** 👁 看錯 — careless miss; de-prioritises the question in review/出征. */
+  wrongAnswerMarked?: boolean
+  /** 💡 觀念洞 — genuine knowledge gap; prioritises + shortens next interval. */
+  insightMarked?: boolean
   updatedAt: number
 }
 

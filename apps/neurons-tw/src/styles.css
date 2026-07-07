@@ -327,6 +327,19 @@ body:has(.modal-backdrop) {
 @media (prefers-reduced-motion: reduce) {
   .neurons-axon-dot.is-frontier { animation: none; }
 }
+/* Weakness-pressure fill (add-neurons-weakness-radar-and-error-repair, Feature 1):
+   a weak family's bar breathes to draw the eye toward 特訓. JS also gates this via
+   the reducedMotion prop; the media query is a belt-and-suspenders no-pulse fallback. */
+.neurons-weakness-fill.is-weak {
+  animation: neurons-weakness-pulse 1.8s ease-in-out infinite;
+}
+@keyframes neurons-weakness-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neurons-weakness-fill.is-weak { animation: none; }
+}
 .neurons-axon-strip__count {
   flex: 0 0 auto;
   font-size: 0.68rem;

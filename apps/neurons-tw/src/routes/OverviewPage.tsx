@@ -47,8 +47,17 @@ import {
 import {
   buildWrongQuestionPool,
   buildQuickReviewPool,
+  buildSessionRepairPool,
   onExpeditionComplete,
 } from '../lib/services/expedition'
+import {
+  computeWeaknessPressure,
+  buildTargetedDrillPool,
+  type WeaknessDiagnostic,
+} from '../lib/services/weakness-pressure'
+import { useConceptTags } from '../lib/concept-tags'
+import { useAllFlags } from '../lib/services/question-flags'
+import { getQuickReviewQueue, dequeueQuickReview } from '../lib/services/quick-review-queue'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
 import { useMaze } from '../lib/maze/useMaze'
@@ -76,12 +85,26 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // Quick-review mini-batch: when true, the open expedition is capped to ≤5
   // wrong questions (DMN quick-review-batch event, realign-dmn-event-rewards-to-maze).
   const [quickReviewActive, setQuickReviewActive] = useState(false)
+  // 一鍵特訓 (add-neurons-weakness-radar-and-error-repair, Feature 1): a scoped ≤10-Q
+  // targeted drill launched from a weak family card. `undefined` = closed. Reuses the
+  // normal QuizModal recording + SRS path (it is a scoped launcher, not a new scorer).
+  const [targetedDrill, setTargetedDrill] = useState<{ familyId: string } | undefined>(undefined)
+  // 當場回鍋 session-repair pass (Feature 4): the just-finished expedition's wrong ids,
+  // surfaced at settlement as an optional one-time repair pass. `null` = not offered.
+  const [repairWrongIds, setRepairWrongIds] = useState<string[] | null>(null)
+  const [repairOpen, setRepairOpen] = useState(false)
   // 模考 moved off the homepage → 題庫 tab (tidy-neurons-homepage-ui); its picker +
   // pure-practice drill now live in QuestionBankPage. The ⚔️ 錯題出征 CTA now lives
   // in the merged ConnectomeStatCard (redesign-neurons-homepage-cta).
   // Settlement result of the last wrong-pool expedition → conduction ledger + ritual
   // (rework-neurons-connectome-expedition-driven).
   const [settlement, setSettlement] = useState<ExpeditionConnectomeResult | null>(null)
+  // Per-settlement token guarding the async connectome-credit race
+  // (add-neurons-weakness-radar-and-error-repair, Codex suggestion 1): each expedition
+  // completion bumps it; the late `creditConnectomeFromExpedition().then` compares its
+  // captured token and skips the stale `setSettlement` if the recap was dismissed or the
+  // player already entered the「當場回鍋」pass in the meantime.
+  const settlementTokenRef = useRef(0)
   // About-to-wire nudge for the settlement recap (polish-neurons-connectome-visual):
   // recomputed after each settlement.
   const [aboutToWire, setAboutToWire] = useState<AboutToWireHint | null>(null)
@@ -174,6 +197,15 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // per-family 🆕/🔄 chip badges).
   const questionHistory = useQuestionHistory()
 
+  // Error-cause flag lookup (add-neurons-weakness-radar-and-error-repair): questionId
+  // → { wrongAnswerMarked, insightMarked }. Feeds ALL review/expedition pool builders
+  // (due / wrong / quick-review / drill) so 觀念洞 sorts front + 看錯 sinks everywhere.
+  const questionFlags = useAllFlags()
+  const flagOf = useMemo(() => {
+    const byId = new Map(questionFlags.map((f) => [f.questionId, f]))
+    return (id: string) => byId.get(id)
+  }, [questionFlags])
+
   const quizPool = useMemo(() => {
     if (quizEntry === undefined) return []
     const { familyId, mode } = quizEntry
@@ -181,8 +213,8 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     const scoped = yearActive ? filterPoolByYear(byFamily, yearSet) : byFamily
     return mode === 'fresh'
       ? filterPoolByNewOnly(scoped, questionHistory)
-      : buildDueReviewPool(scoped, questionHistory)
-  }, [pack.questions, quizEntry, yearSet, yearActive, questionHistory])
+      : buildDueReviewPool(scoped, questionHistory, Date.now(), flagOf)
+  }, [pack.questions, quizEntry, yearSet, yearActive, questionHistory, flagOf])
 
   // Per-family 新題 (unseen) + 錯題 (due) counts for the FamilyPicker chip badges.
   const modeCountsByFamily = useMemo(
@@ -196,6 +228,29 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       ),
     [pack.questions, questionHistory, yearSet, yearActive],
   )
+
+  // Weakness-pressure diagnostic (add-neurons-weakness-radar-and-error-repair, Feature 1):
+  // pure derived per-family/per-concept "review-now" pressure. Reads questionHistory ×
+  // conceptTags; never touches familyMastery. Memoised — O(history) per recompute.
+  const conceptTags = useConceptTags()
+  const familyIds = useMemo(() => pack.subjects.map((s) => s.id), [pack.subjects])
+  const weakness: WeaknessDiagnostic = useMemo(
+    () => computeWeaknessPressure(questionHistory, conceptTags, familyIds),
+    [questionHistory, conceptTags, familyIds],
+  )
+  // 一鍵特訓 pool: family-scoped ≤10 high-weakness questions (wrong / low-ease / overdue),
+  // reusing the existing family-filter + the targeted-drill ranker. Materialised only
+  // while the drill is open.
+  const targetedDrillPool = useMemo(() => {
+    if (targetedDrill === undefined) return []
+    const scoped = filterPoolByFamily(pack.questions, targetedDrill.familyId)
+    return buildTargetedDrillPool(scoped, questionHistory, flagOf, 10)
+  }, [targetedDrill, pack.questions, questionHistory, flagOf])
+  // Session-repair pool: this session's wrong ids, each at most once (Feature 4).
+  const repairPool = useMemo(() => {
+    if (!repairOpen || !repairWrongIds) return []
+    return buildSessionRepairPool(pack.questions, questionHistory, repairWrongIds)
+  }, [repairOpen, repairWrongIds, pack.questions, questionHistory])
 
   // 出征 pool — all-subject currently-unmastered questions (lastResult==='wrong').
   // NOT year-filtered: it is the player's wrong set regardless of exam year.
@@ -215,10 +270,27 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   )
   const expeditionPool = useMemo(() => {
     if (!expeditionOpen) return []
-    return quickReviewActive
-      ? buildQuickReviewPool(pack.questions, questionHistory, 5)
-      : buildWrongQuestionPool(pack.questions, questionHistory)
-  }, [expeditionOpen, quickReviewActive, pack.questions, questionHistory])
+    // 出征 / 快速複習 orderings honour the error-cause flags (觀念洞 front / 看錯 back)
+    // via `flagOf` (add-neurons-weakness-radar-and-error-repair, Codex blocker fix).
+    if (!quickReviewActive) return buildWrongQuestionPool(pack.questions, questionHistory, flagOf)
+    // Quick-review draws from the transient device-local queue FIRST
+    // (add-neurons-weakness-radar-and-error-repair, Feature 2): enqueued questions
+    // lead, then the priority-ordered ≤5 wrong-pool mini-batch fills the rest (deduped, cap 5).
+    const queuedIds = getQuickReviewQueue()
+    const byId = new Map(pack.questions.map((q) => [q.id, q]))
+    const lead = queuedIds.map((id) => byId.get(id)).filter((q): q is (typeof pack.questions)[number] => Boolean(q))
+    const rest = buildQuickReviewPool(pack.questions, questionHistory, 5, flagOf)
+    const seen = new Set(lead.map((q) => q.id))
+    const merged = [...lead]
+    for (const q of rest) {
+      if (merged.length >= 5) break
+      if (!seen.has(q.id)) {
+        seen.add(q.id)
+        merged.push(q)
+      }
+    }
+    return merged.slice(0, 5)
+  }, [expeditionOpen, quickReviewActive, pack.questions, questionHistory, flagOf])
 
   useEffect(() => {
     initMasteryForPack(pack).catch(() => {
@@ -280,6 +352,15 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     setQuizEntry(undefined)
     setQuickReviewActive(false) // full expedition, not a quick-review mini-batch
     setExpeditionOpen(true)
+  }
+
+  // 一鍵特訓: open a family-scoped ≤10-Q targeted drill (Feature 1). Mutually
+  // exclusive with the other quiz entries.
+  const openTargetedDrill = (familyId: string): void => {
+    setQuizEntry(undefined)
+    setQuickReviewActive(false)
+    setExpeditionOpen(false)
+    setTargetedDrill({ familyId })
   }
 
   // DMN quick-review-batch: the toast CTA emits `dmn.quickReviewStart`; open the
@@ -559,14 +640,27 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     correct: number
     correctBySubject: Record<string, number>
     energyBySubject: Record<string, number>
+    wrongIds: string[]
   }): void => {
     onExpeditionComplete(s)
+    // Bump the settlement token for this completion; the async credit below captures
+    // it and only opens the recap if it is still current (not dismissed / not entered
+    // repair) — avoids a stale late `setSettlement` re-opening a closed recap.
+    settlementTokenRef.current += 1
+    const token = settlementTokenRef.current
+    // Offer the optional「當場回鍋」session-repair pass over THIS session's wrong
+    // questions (Feature 4). Skippable; sourced only from the current session; no SRS /
+    // DMN effect (handled by the QuizModal `sessionRepair` prop). Empty ⇒ not offered.
+    setRepairWrongIds(s.wrongIds.length > 0 ? s.wrongIds : null)
     void creditConnectomeFromExpedition({
       repairsBySubject: s.correctBySubject,
       energyBySubject: s.energyBySubject,
       sessionPool: s.total,
     })
       .then(async (result) => {
+        // Stale-guard: skip the recap open if this settlement was dismissed / superseded
+        // (the recap close handlers + entering repair bump the token).
+        if (settlementTokenRef.current !== token) return
         if (result.todayRepairs > 0) setSettlement(result)
         // Daily-completion ritual: fire once per day on the first effective completion
         // (polish-neurons-connectome-visual). Date-keyed ephemeral flag, NOT synced.
@@ -580,6 +674,22 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         }
       })
       .catch((err) => console.error('[connectome] expedition credit failed:', err))
+  }
+
+  // Dismiss the settlement recap (close / backdrop). Bumps the settlement token so a
+  // still-in-flight connectome credit's late `.then` won't re-open the recap.
+  const dismissSettlement = (): void => {
+    settlementTokenRef.current += 1
+    setSettlement(null)
+    setRepairWrongIds(null)
+  }
+
+  // Enter the「當場回鍋」session-repair pass from the recap. Also bumps the token so a
+  // late credit can't re-open the recap on top of the repair drill.
+  const enterSessionRepair = (): void => {
+    settlementTokenRef.current += 1
+    setSettlement(null)
+    setRepairOpen(true)
   }
 
   // Dynamic label for the actively-reading card (preserves the pause-reason feedback
@@ -711,6 +821,8 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         pack={pack}
         accrualByFamily={accrualByFamily}
         modeCountsByFamily={modeCountsByFamily}
+        weaknessByFamily={weakness.byFamily}
+        onTargetedDrill={openTargetedDrill}
         onStartQuiz={openFamilyQuiz}
         onFocusFamily={onFocusFamily}
         onToggleReading={onToggleReading}
@@ -741,6 +853,9 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         <QuizModal
           pool={expeditionPool}
           onClose={() => {
+            // A quick-review batch consumes the transient queue — drop the served ids
+            // so they don't lead the next batch again (Feature 2).
+            if (quickReviewActive) dequeueQuickReview(expeditionPool.map((q) => q.id))
             setExpeditionOpen(false)
             setQuickReviewActive(false)
           }}
@@ -748,68 +863,126 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         />
       )}
 
+      {/* 一鍵特訓 — family-scoped ≤10-Q targeted drill of high-weakness questions
+          (add-neurons-weakness-radar-and-error-repair, Feature 1). Normal recording +
+          SRS path (a scoped launcher, not a new scorer); no onComplete → no DMN credit. */}
+      {targetedDrill !== undefined && (
+        <QuizModal
+          pool={targetedDrillPool}
+          preserveOrder
+          onClose={() => setTargetedDrill(undefined)}
+        />
+      )}
+
+      {/* 當場回鍋 session-repair pass — this session's wrong questions, each once, with
+          NO SM-2 schedule change and NO DMN credit (Feature 4). Skippable. */}
+      {repairOpen && (
+        <QuizModal
+          pool={repairPool}
+          preserveOrder
+          sessionRepair
+          onClose={() => {
+            setRepairOpen(false)
+            setRepairWrongIds(null)
+          }}
+        />
+      )}
+
       {/* 模考 picker + pure-practice drill moved to the 題庫 tab (QuestionBankPage)
           per tidy-neurons-homepage-ui. */}
 
-      {settlement && (
+      {/* 出征結算 recap surface. Rendered whenever EITHER a connectome settlement exists
+          (todayRepairs > 0) OR this session has repairable wrong questions — so a
+          full-wrong / no-repair session (the player who most needs to re-drill) still
+          gets the「當場回鍋」entry. `todayRepairs` is a STAT shown inside, NOT the render
+          gate for the session-repair CTA (add-neurons-weakness-radar-and-error-repair,
+          Feature 4 — decoupled per Codex #3). */}
+      {!repairOpen && (settlement || (repairWrongIds !== null && repairWrongIds.length > 0)) && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label="出征結算"
           style={examMenuBackdropStyle}
-          onClick={() => setSettlement(null)}
+          onClick={dismissSettlement}
         >
           <div style={examMenuPanelStyle} onClick={(e) => e.stopPropagation()}>
             <h2 style={examMenuTitleStyle}>出征結算</h2>
-            <p style={{ margin: '0.25rem 0', fontWeight: 600 }}>
-              今日修復 {settlement.todayRepairs} 題
-              {settlement.effectiveCompletion
-                ? ` · ✓ 出征完成 · 連續 ${settlement.streak} 天`
-                : ' · 尚未達成有效完成（今日修復滿 5 題）'}
-            </p>
-            {settlement.newlyWired.length > 0 && (
-              <ul style={{ margin: '0.4rem 0', paddingLeft: '1.1rem' }}>
-                {settlement.newlyWired.map((w) => (
-                  <li key={w.pairKey}>
-                    {w.formed ? (
-                      <><EmojiIcon char="🔗" size={13} decorative /> 新連線</>
-                    ) : (
-                      <><EmojiIcon char="⚡" size={13} decorative /> 強化連線</>
-                    )}：{w.pairKey.replace('|', ' – ')}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {settlement.conductionFlows.length > 0 ? (
+            {settlement ? (
               <>
-                <p style={{ margin: '0.4rem 0 0.2rem', fontWeight: 600 }}>突觸傳導</p>
-                <ul style={{ margin: '0 0 0.4rem', paddingLeft: '1.1rem' }}>
-                  {settlement.conductionFlows.map((f, i) => (
-                    <li key={`${f.fromFamily}-${f.toFamily}-${i}`}>
-                      {f.fromFamily} → {f.toFamily} +{f.amount} 能量
-                    </li>
-                  ))}
-                </ul>
-                <p style={{ margin: '0.2rem 0', fontWeight: 600 }}>
-                  今日連線額外獲得 +
-                  {settlement.conductionFlows.reduce((a, f) => a + f.amount, 0)} 能量
+                <p style={{ margin: '0.25rem 0', fontWeight: 600 }}>
+                  今日修復 {settlement.todayRepairs} 題
+                  {settlement.effectiveCompletion
+                    ? ` · ✓ 出征完成 · 連續 ${settlement.streak} 天`
+                    : ' · 尚未達成有效完成（今日修復滿 5 題）'}
                 </p>
+                {settlement.newlyWired.length > 0 && (
+                  <ul style={{ margin: '0.4rem 0', paddingLeft: '1.1rem' }}>
+                    {settlement.newlyWired.map((w) => (
+                      <li key={w.pairKey}>
+                        {w.formed ? (
+                          <><EmojiIcon char="🔗" size={13} decorative /> 新連線</>
+                        ) : (
+                          <><EmojiIcon char="⚡" size={13} decorative /> 強化連線</>
+                        )}：{w.pairKey.replace('|', ' – ')}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {settlement.conductionFlows.length > 0 ? (
+                  <>
+                    <p style={{ margin: '0.4rem 0 0.2rem', fontWeight: 600 }}>突觸傳導</p>
+                    <ul style={{ margin: '0 0 0.4rem', paddingLeft: '1.1rem' }}>
+                      {settlement.conductionFlows.map((f, i) => (
+                        <li key={`${f.fromFamily}-${f.toFamily}-${i}`}>
+                          {f.fromFamily} → {f.toFamily} +{f.amount} 能量
+                        </li>
+                      ))}
+                    </ul>
+                    <p style={{ margin: '0.2rem 0', fontWeight: 600 }}>
+                      今日連線額外獲得 +
+                      {settlement.conductionFlows.reduce((a, f) => a + f.amount, 0)} 能量
+                    </p>
+                  </>
+                ) : (
+                  settlement.newlyWired.length === 0 && (
+                    <p style={{ margin: '0.4rem 0', color: '#5a3f29' }}>
+                      今日已修復，尚未形成跨科連線（需 ≥2 科各修復 ≥2 題）。
+                    </p>
+                  )
+                )}
+                {/* About-to-wire ghost line (polish-neurons-connectome-visual): nudge toward
+                    the closest pair. Honest empty state = render nothing when null. */}
+                {aboutToWire && (
+                  <p style={{ margin: '0.4rem 0', color: '#1d6f6a', fontWeight: 600 }}>
+                    💡 再修復 {aboutToWire.subjectB} {aboutToWire.remaining} 題，即可和 {aboutToWire.subjectA} 形成連線
+                  </p>
+                )}
               </>
             ) : (
-              settlement.newlyWired.length === 0 && (
-                <p style={{ margin: '0.4rem 0', color: '#5a3f29' }}>
-                  今日已修復，尚未形成跨科連線（需 ≥2 科各修復 ≥2 題）。
-                </p>
-              )
-            )}
-            {/* About-to-wire ghost line (polish-neurons-connectome-visual): nudge toward
-                the closest pair. Honest empty state = render nothing when null. */}
-            {aboutToWire && (
-              <p style={{ margin: '0.4rem 0', color: '#1d6f6a', fontWeight: 600 }}>
-                💡 再修復 {aboutToWire.subjectB} {aboutToWire.remaining} 題，即可和 {aboutToWire.subjectA} 形成連線
+              // No connectome settlement (0 today-repairs) but the session missed some —
+              // a repair-only recap so the entry is never gated away.
+              <p style={{ margin: '0.25rem 0', color: '#5a3f29' }}>
+                這場出征還有答錯的題目，趁記憶新鮮先回鍋修一遍。
               </p>
             )}
-            <button type="button" onClick={() => setSettlement(null)} style={examMenuOptionStyle}>
+            {/* 當場回鍋 session-repair CTA (Feature 4): re-answer THIS session's wrong
+                questions once, no SRS / DMN effect. Distinct from the DMN「快速複習」card
+                (historical pool + DMN-axis credit). Shown whenever the session missed some,
+                independent of todayRepairs. */}
+            {repairWrongIds !== null && repairWrongIds.length > 0 && (
+              <button
+                type="button"
+                onClick={enterSessionRepair}
+                style={sessionRepairBtnStyle}
+              >
+                <EmojiIcon char="🩹" size={14} decorative /> 當場回鍋 · 把這場錯的 {repairWrongIds.length} 題再答一次
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={dismissSettlement}
+              style={examMenuOptionStyle}
+            >
               關閉
             </button>
           </div>
@@ -907,6 +1080,23 @@ const examMenuOptionStyle: React.CSSProperties = {
   color: '#5a3f29',
   fontWeight: 600,
   fontSize: '0.95rem',
+  cursor: 'pointer',
+}
+
+// 當場回鍋 session-repair CTA — accent green (repair) so it reads distinct from the
+// neutral 關閉 button and the DMN「快速複習」card.
+const sessionRepairBtnStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.4rem',
+  padding: '0.7rem 0.9rem',
+  border: '2px solid #2f8f4e',
+  borderRadius: '6px',
+  background: '#e8f5e8',
+  color: '#2f6b3a',
+  fontWeight: 700,
+  fontSize: '0.92rem',
   cursor: 'pointer',
 }
 

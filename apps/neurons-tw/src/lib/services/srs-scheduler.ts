@@ -32,6 +32,7 @@ import {
   type BinaryReviewResult,
 } from '@study-rpg/core'
 import { db, type QuestionHistoryRow } from '../db'
+import { orderByErrorCausePriority, type FlagLookup } from './weakness-pressure'
 
 /** Per-family quiz entry mode: 🆕 新題 (never-answered) vs 🔄 錯題 (SRS review). */
 export type QuizMode = 'fresh' | 'review'
@@ -158,20 +159,28 @@ export async function restoreDefaultSrs(
  * Build the 錯題 review pool for an (already family + year-scoped) question pool:
  * questions whose history row is due (`nextDueAt <= now`), oldest-due first,
  * excluding image-option questions, capped at `SRS_DAILY_CAP`.
+ *
+ * When `flagOf` is supplied (add-neurons-weakness-radar-and-error-repair), the
+ * due list is re-ordered by error-cause priority (觀念洞 front / 看錯 back) while
+ * preserving the oldest-due-first tie-break within each bucket — applied BEFORE
+ * the cap so 觀念洞 is guaranteed into the kept prefix and 看錯 sinks. Omitting
+ * `flagOf` keeps the pure oldest-due order (backward-compatible).
  */
 export function buildDueReviewPool(
   pool: readonly Question[],
   history: readonly QuestionHistoryRow[],
   now: number = Date.now(),
+  flagOf?: FlagLookup,
 ): Question[] {
   const dueAt = new Map<string, number>()
   for (const h of history) {
     if (typeof h.nextDueAt === 'number' && h.nextDueAt <= now) dueAt.set(h.questionId, h.nextDueAt)
   }
-  return pool
+  const dueSorted = pool
     .filter((q) => !q.hasOptionImages && dueAt.has(q.id))
     .sort((a, b) => (dueAt.get(a.id) as number) - (dueAt.get(b.id) as number))
-    .slice(0, SRS_DAILY_CAP)
+  // Re-order by error-cause priority (stable within the oldest-due tie-break) THEN cap.
+  return orderByErrorCausePriority(dueSorted, (q) => q.id, flagOf).slice(0, SRS_DAILY_CAP)
 }
 
 export interface FamilyModeCounts {

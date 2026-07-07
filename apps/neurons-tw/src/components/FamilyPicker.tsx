@@ -15,7 +15,9 @@ import type { ContentPack, Subject } from '@study-rpg/core'
 import { EXAM_PAPER_ORDER, FAMILY_EXAM_PAPER, type ExamPaper } from '@study-rpg/content-neurons-tw'
 import { THEME_PIXEL_NEURONS } from '@study-rpg/theme-pixel-neurons'
 import type { FamilyModeCounts, QuizMode } from '../lib/services/srs-scheduler'
+import type { WeaknessPressure } from '../lib/services/weakness-pressure'
 import { useRepresentativeRows } from '../lib/services/representatives'
+import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion'
 import type { NeuronVariantRow } from '../lib/db'
 import MasteryChip from './MasteryChip'
 import VariantCollectionChip from './VariantCollectionChip'
@@ -51,6 +53,13 @@ interface Props {
   accrualByFamily?: Map<string, FamilyAccrual>
   /** Per-family 新題 (unseen) + 錯題 (due) counts for the two mode-chip badges. */
   modeCountsByFamily?: Map<string, FamilyModeCounts>
+  /** Per-family weakness-pressure (add-neurons-weakness-radar-and-error-repair, Feature 1):
+   *  a forward-looking「該複習」colour scale, visually + semantically DISTINCT from the
+   *  MasteryChip accuracy display + the variant chips (never replaces them). Undiagnosed
+   *  families render neutral. Undefined map ⇒ no indicator (feature off / no data). */
+  weaknessByFamily?: Map<string, WeaknessPressure>
+  /** 一鍵特訓: launch a family-scoped ≤10-Q targeted drill of high-weakness questions. */
+  onTargetedDrill?: (familyId: string) => void
   /** The card's explicit 🔍 聚焦 button flies the maze camera to that family (camera-only; the grid
    * never collapses — redesign-neurons-homepage-squad-and-maze-focus). */
   onFocusFamily?: (familyId: string) => void
@@ -82,6 +91,8 @@ export function FamilyPicker({
   onStartQuiz,
   accrualByFamily,
   modeCountsByFamily,
+  weaknessByFamily,
+  onTargetedDrill,
   onFocusFamily,
   onToggleReading,
   readingFamilyId,
@@ -92,6 +103,7 @@ export function FamilyPicker({
   mazeExpanded,
   mazeHintByFamily,
 }: Props): JSX.Element {
+  const reducedMotion = useRespectsReducedMotion()
   // Each family card's header sprite shows that family's REPRESENTATIVE variant (the one the player
   // picked in 圖鑑), kept in sync via the shared `representativeVariants` meta key; falls back to the
   // generic subject sprite when no representative is set.
@@ -146,6 +158,9 @@ export function FamilyPicker({
                     repRow={repByFamily.get(s.id)}
                     accrual={accrualByFamily?.get(s.id)}
                     counts={modeCountsByFamily?.get(s.id)}
+                    weakness={weaknessByFamily?.get(s.id)}
+                    onTargetedDrill={onTargetedDrill ? () => onTargetedDrill(s.id) : undefined}
+                    reducedMotion={reducedMotion}
                     mazeHint={mazeHintByFamily?.get(s.id)}
                     onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
                     onFocus={onFocusFamily ? () => onFocusFamily(s.id) : undefined}
@@ -204,6 +219,9 @@ function FamilyCard({
   repRow,
   accrual,
   counts,
+  weakness,
+  onTargetedDrill,
+  reducedMotion,
   mazeHint,
   onStartQuiz,
   onFocus,
@@ -218,6 +236,11 @@ function FamilyCard({
   repRow?: NeuronVariantRow
   accrual?: FamilyAccrual
   counts?: FamilyModeCounts
+  /** This family's weakness-pressure (Feature 1) → colour-scale indicator + 特訓 affordance. */
+  weakness?: WeaknessPressure
+  /** 一鍵特訓 launcher for this family (scoped ≤10-Q high-weakness drill). */
+  onTargetedDrill?: () => void
+  reducedMotion?: boolean
   mazeHint?: MazeFamilyHint
   onStartQuiz: (mode: QuizMode) => void
   /** The explicit 🔍 聚焦 button's handler — flies the maze camera to this family (camera-only). */
@@ -301,6 +324,18 @@ function FamilyCard({
         <MasteryChip familyId={family.id} displayName={family.displayName} />
         <VariantCollectionChip familyId={family.id} />
       </div>
+
+      {/* Weakness-pressure indicator (Feature 1): forward-looking「該複習」colour scale,
+          distinct from the MasteryChip accuracy above. Dim = weaker, bright = stronger;
+          undiagnosed = neutral grey (NOT the weakest colour). Offers 一鍵特訓 when weak. */}
+      {weakness && (
+        <WeaknessIndicator
+          weakness={weakness}
+          accent={accent}
+          onTargetedDrill={onTargetedDrill}
+          reducedMotion={reducedMotion}
+        />
+      )}
 
       <div style={modeChipRowStyle}>
         <button
@@ -406,6 +441,71 @@ function AxonProgressStrip({
       <span className="neurons-axon-strip__count" style={{ color: accent }} aria-hidden>
         {hint.complete ? '✦ ' : onSecondLap ? '↻ ' : ''}{hint.lit}/{hint.total}
       </span>
+    </div>
+  )
+}
+
+/**
+ * WeaknessIndicator — the family card's weakness-pressure colour scale + 一鍵特訓
+ * (add-neurons-weakness-radar-and-error-repair, Feature 1). A small bar whose
+ * fill colour interpolates weak (red/dim) → strong (green/bright) by the derived
+ * pressure, with a 特訓 button on the weak end. Deliberately visually distinct
+ * from the MasteryChip (a tier pill) so the two never read as the same number.
+ * Undiagnosed families render a neutral grey「未診斷」chip, NOT the weakest colour.
+ * `prefers-reduced-motion` drops the pulse on the weak state.
+ */
+function WeaknessIndicator({
+  weakness,
+  accent,
+  onTargetedDrill,
+  reducedMotion,
+}: {
+  weakness: WeaknessPressure
+  accent: string
+  onTargetedDrill?: () => void
+  reducedMotion?: boolean
+}): JSX.Element {
+  if (weakness.undiagnosed || weakness.pressure === undefined) {
+    return (
+      <div style={weaknessRowStyle}>
+        <span style={weaknessUndiagnosedChipStyle} title="尚無答題紀錄 — 先答幾題才能診斷弱點">
+          未診斷
+        </span>
+      </div>
+    )
+  }
+  const pressure = Math.min(1, Math.max(0, weakness.pressure))
+  // Strong (pressure→0) = bright green; weak (pressure→1) = dim red. Hue 130→8.
+  const hue = Math.round(130 - pressure * 122)
+  const light = Math.round(62 - pressure * 20) // dimmer as it weakens
+  const fillColor = `hsl(${hue}, 62%, ${light}%)`
+  // "Weak enough" to nudge a targeted drill (dogfood-tunable local threshold).
+  const isWeak = pressure >= 0.45
+  const pulse = isWeak && !reducedMotion
+  return (
+    <div style={weaknessRowStyle}>
+      <div
+        style={weaknessBarTrackStyle}
+        role="img"
+        aria-label={`弱點壓力 ${Math.round(pressure * 100)}%（越高越該複習）`}
+        title={`弱點壓力 ${Math.round(pressure * 100)}% · 越暗紅越弱、越亮綠越穩（與熟練度分開）`}
+      >
+        <div
+          className={pulse ? 'neurons-weakness-fill is-weak' : 'neurons-weakness-fill'}
+          style={{ ...weaknessBarFillStyle, width: `${Math.round(pressure * 100)}%`, background: fillColor }}
+        />
+      </div>
+      {isWeak && onTargetedDrill && (
+        <button
+          type="button"
+          onClick={onTargetedDrill}
+          style={weaknessDrillBtnStyle(accent)}
+          aria-label="一鍵特訓 — 針對這科最弱的題目開 10 題"
+          title="一鍵特訓 · 針對這科最弱的 ≤10 題（優先錯題 / 低熟練 / 逾期）"
+        >
+          <EmojiIcon char="🎯" size={12} decorative /> 特訓
+        </button>
+      )}
     </div>
   )
 }
@@ -555,6 +655,57 @@ const chipRowStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: '0.3rem',
   flexWrap: 'wrap',
+}
+
+// ── Weakness-pressure indicator (Feature 1) ──────────────────────────────────
+const weaknessRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.4rem',
+}
+
+const weaknessBarTrackStyle: React.CSSProperties = {
+  flex: 1,
+  height: 8,
+  borderRadius: 999,
+  background: '#ece3d0',
+  overflow: 'hidden',
+  border: '1px solid #d3c4a4',
+}
+
+const weaknessBarFillStyle: React.CSSProperties = {
+  height: '100%',
+  borderRadius: 999,
+  transition: 'width 0.3s ease',
+}
+
+const weaknessUndiagnosedChipStyle: React.CSSProperties = {
+  fontSize: '0.68rem',
+  fontWeight: 600,
+  color: '#8c8375',
+  background: '#f0ece2',
+  border: '1px dashed #c4b89e',
+  borderRadius: 999,
+  padding: '0.08rem 0.5rem',
+}
+
+function weaknessDrillBtnStyle(accent: string): React.CSSProperties {
+  return {
+    flex: '0 0 auto',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.2rem',
+    padding: '0.16rem 0.44rem',
+    borderRadius: '6px',
+    border: `1px solid ${accent}`,
+    background: accent,
+    color: '#fff',
+    fontSize: '0.7rem',
+    fontWeight: 700,
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+    lineHeight: 1.1,
+  }
 }
 
 const modeChipRowStyle: React.CSSProperties = {

@@ -818,11 +818,21 @@ const questionFlagsAdapter: TableAdapter<'questionFlags'> = {
           skipped++
           continue
         }
-        // Coerce booleans defensively — older clients may not set both fields.
+        // Four coexisting boolean flags (add-neurons-weakness-radar-and-error-repair):
+        // easyMarked / guessedMarked / wrongAnswerMarked / insightMarked. Coerce
+        // defensively — an older client omits the two error-cause fields entirely.
+        // PRESERVE-ON-OMISSION: when the incoming row omits a field (not present in
+        // its keys), keep the locally-set value rather than clearing it to false, so
+        // a peer that never learned about a flag can't wipe it. Only an explicitly
+        // present field overwrites. Additive — no R2 SCHEMA_VERSION bump.
+        const pick = (key: string, prev: boolean | undefined): boolean =>
+          key in row ? !!row[key] : (prev ?? false)
         await db.questionFlags.put({
           questionId,
-          easyMarked: !!row.easyMarked,
-          guessedMarked: !!row.guessedMarked,
+          easyMarked: pick('easyMarked', existing?.easyMarked),
+          guessedMarked: pick('guessedMarked', existing?.guessedMarked),
+          wrongAnswerMarked: pick('wrongAnswerMarked', existing?.wrongAnswerMarked),
+          insightMarked: pick('insightMarked', existing?.insightMarked),
           updatedAt,
         })
         applied++
