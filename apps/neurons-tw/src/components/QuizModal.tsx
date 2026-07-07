@@ -19,7 +19,14 @@ import { useRespectsReducedMotion } from '../lib/motion/useRespectsReducedMotion
 import { readMazeEnergyState, affordableSettles, walkerFraction } from '../lib/maze/economy'
 import { useQuizHotkeys, type QuizPhase } from '../lib/hooks/useQuizHotkeys'
 import { toggleBookmark, useIsBookmarked } from '../lib/services/bookmarks'
-import { toggleEasy, toggleGuessed, useFlag } from '../lib/services/question-flags'
+import {
+  toggleEasy,
+  toggleGuessed,
+  toggleWrongAnswer,
+  toggleInsight,
+  useFlag,
+} from '../lib/services/question-flags'
+import { enqueueQuickReview, isQueuedForQuickReview } from '../lib/services/quick-review-queue'
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { Explanation } from './Explanation'
@@ -57,6 +64,12 @@ interface Props {
     correctBySubject: Record<string, number>
     /** Per-subject maze energy earned this session (post-multiplier) — the conduction batch. */
     energyBySubject: Record<string, number>
+    /**
+     * Question ids answered WRONG this session (deduped downstream) — feeds the
+     * optional settlement「當場回鍋」session-repair pass
+     * (add-neurons-weakness-radar-and-error-repair). Empty when nothing was missed.
+     */
+    wrongIds: string[]
   }) => void
   /**
    * Preserve the incoming pool order instead of shuffling (per
@@ -77,6 +90,17 @@ interface Props {
    * false (養成 quiz / 出征 keep full rewards).
    */
   practice?: boolean
+  /**
+   * Session-repair「當場回鍋」pass (add-neurons-weakness-radar-and-error-repair,
+   * Feature 4). Implies practice-inert (no maze energy / walker / streak / connectome),
+   * AND — critically — records the result WITHOUT invoking the SRS scheduler, so a
+   * question's `interval` / `easeFactor` / `nextDueAt` / `attempts` / `correctCount`
+   * are preserved unchanged (`srsEffect: none`). It is an immediate retrieval-after-
+   * error correction, not a scheduled review. NO DMN-draw-axis credit (callers omit
+   * onComplete or ignore it). A correct answer earns only a UI-only「當場修復」stamp.
+   * Defaults to false.
+   */
+  sessionRepair?: boolean
   /**
    * Credit today's 考前救援 bonus (add-neurons-cram-rescue-and-card-actions). Set by
    * the 考前猜題 (cram) practice entry: each answer (correct OR wrong) writes a
@@ -226,7 +250,11 @@ function useOwnsLegendarySlot(familyId: string | undefined): boolean {
   return owns
 }
 
-export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false, creditCramRescue = false }: Props): JSX.Element {
+export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false, sessionRepair = false, creditCramRescue = false }: Props): JSX.Element {
+  // Session-repair is practice-inert PLUS SRS-inert. `inert` gates the maze /
+  // energy / streak / connectome side-effects that both practice and session-repair
+  // suppress; `sessionRepair` alone additionally suppresses the SRS scheduler.
+  const inert = practice || sessionRepair
   // Build session pool ONCE at mount and freeze it — a quiz session is an
   // immutable ordered sequence. The caller's `pool` prop ref churns whenever
   // `questionHistory` updates: the `useQuestionHistory` liveQuery emits a NEW
@@ -284,6 +312,10 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   // energy earned per subject (the conduction batch). Forwarded via onComplete.
   const correctBySubjectRef = useRef<Record<string, number>>({})
   const energyBySubjectRef = useRef<Record<string, number>>({})
+  // Ids answered WRONG this session — feeds the settlement「當場回鍋」session-repair
+  // pass (add-neurons-weakness-radar-and-error-repair, Feature 4). Deduped downstream
+  // by buildSessionRepairPool.
+  const wrongIdsRef = useRef<string[]>([])
   const completedRef = useRef(false)
   // SRS snapshots for the just-answered question, captured in handlePick: the
   // pre-answer prev (so ✨/🤔 recompute from the same baseline) and the default
@@ -303,20 +335,23 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   const handleClose = useCallback(() => {
     if (!completedRef.current) {
       completedRef.current = true
-      // 純練習 (模考/題庫) never credits the session-end reward seam (the DMN draw
-      // axis) — self-enforce the "純練習 ⇒ no game reward" invariant here rather than
-      // relying on callers to also omit onComplete. (tidy-neurons-homepage-ui)
-      if (!practice) {
+      // 純練習 (模考/題庫) AND 當場回鍋 session-repair never credit the session-end reward
+      // seam (the DMN draw axis) — self-enforce the "inert ⇒ no game reward" invariant
+      // here rather than relying on callers to also omit onComplete. `inert = practice ||
+      // sessionRepair`; session-repair already omits onComplete, so this is defence-in-
+      // depth against a future caller mis-wiring it. (tidy-neurons-homepage-ui + Codex #2)
+      if (!inert) {
         onComplete?.({
           total: sessionPool.length,
           correct: correctCountRef.current,
           correctBySubject: correctBySubjectRef.current,
           energyBySubject: energyBySubjectRef.current,
+          wrongIds: wrongIdsRef.current,
         })
       }
     }
     onClose()
-  }, [onClose, onComplete, sessionPool.length, practice])
+  }, [onClose, onComplete, sessionPool.length, inert])
 
   const q: Question | undefined = sessionPool[idx]
   const exhausted = idx >= sessionPool.length
@@ -341,7 +376,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
             (correctBySubjectRef.current[q.subject] ?? 0) + 1
           // 純練習 (tidy-neurons-homepage-ui): 模考 / 題庫 答對不給能量 / walker /
           // variant / streak / connectome；只有 questionHistory + SRS 仍記（見下方）。
-          if (!practice) {
+          // 當場回鍋 session-repair is also inert here (and skips SRS below).
+          if (!inert) {
             // Capture maze-energy state around the accrual so the feedback strip can show
             // the gain + detect a settle-threshold crossing (the homepage useMaze performs
             // the actual settle/pull). `recordCorrectAnswer` MUST run exactly once; the
@@ -352,7 +388,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
             } catch (err) {
               console.error('[maze-feedback] failed to read energy state (before)', err)
             }
-            await recordCorrectAnswer(q.subject)
+            // Best-effort: an uninitialised familyMastery row (partial IndexedDB /
+            // init race) makes recordAttemptInTx throw. Log + swallow so a mastery
+            // failure never short-circuits the rest of handlePick (questionHistory /
+            // SRS / prescription below), mirroring the recordQuestionResult pattern.
+            try {
+              await recordCorrectAnswer(q.subject)
+            } catch (err) {
+              console.error('[connectome] failed to record correct answer', err)
+            }
             // Streak-scaled feedback: read the post-answer streak (recordCorrectAnswer
             // bumped it) → continuous intensity for the spike-train burst. Best-effort;
             // never break the answer flow.
@@ -383,49 +427,72 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
             }
           }
         } else {
-          if (!practice) await recordIncorrectAnswer(q.subject)
+          // Track this session's wrong ids for the settlement session-repair pass FIRST,
+          // BEFORE the maze/mastery write — that write can throw (e.g. an uninitialised
+          // familyMastery row) and session-repair tracking must not depend on it, or a
+          // recording failure would silently drop the question from 當場回鍋 (Feature 4).
+          if (!wrongIdsRef.current.includes(q.id)) wrongIdsRef.current.push(q.id)
+          // Best-effort: an uninitialised familyMastery row makes recordAttemptInTx
+          // throw. Log + swallow so recordQuestionResult / SRS / prescription below
+          // still run (mirrors the recordQuestionResult pattern).
+          if (!inert) {
+            try {
+              await recordIncorrectAnswer(q.subject)
+            } catch (err) {
+              console.error('[connectome] failed to record incorrect answer', err)
+            }
+          }
         }
         // Record per-question result for the 錯題 sub-tabs. Best-effort —
-        // never break the answer flow if the history write fails.
+        // never break the answer flow if the history write fails. STILL fires in
+        // session-repair (so everWrong / lastResult stay truthful) — only the SRS
+        // scheduler is skipped below (srsEffect: none).
         try {
           await recordQuestionResult(q.id, q.subject, isCorrect)
         } catch (err) {
           console.error('[question-history] failed to record result', err)
         }
-        // 今日處方箋 progress — this is the single shared answer-resolution point,
-        // so it fires for BOTH the 出征 expedition and family 🆕新題 answers.
-        // Best-effort + no-op when today's plan doesn't exist; never break the flow.
-        try {
-          const presc = await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
-          if (presc.repairConsolidated) setRepairConsolidated(true)
-          if (presc.breadthConsolidated) setBreadthConsolidated(true)
-          if (presc.justCompleted) setDayJustCompleted(true)
-        } catch (err) {
-          console.error('[prescription] failed to record answer', err)
-        }
-        // 考前救援 bonus — cram practice entry only (correct OR wrong). Own channel,
-        // best-effort; write-once daily meta, no dayComplete / economy effect.
-        if (creditCramRescue) {
+        // 當場回鍋 session-repair: record-only — no prescription / cram / SRS / DMN /
+        // reward crediting. It is an immediate retrieval-after-error correction, not a
+        // scheduled review or a new expedition (per D4).
+        if (!sessionRepair) {
+          // 今日處方箋 progress — this is the single shared answer-resolution point,
+          // so it fires for BOTH the 出征 expedition and family 🆕新題 answers.
+          // Best-effort + no-op when today's plan doesn't exist; never break the flow.
           try {
-            await recordCramRescueAnswer(q.id)
+            const presc = await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
+            if (presc.repairConsolidated) setRepairConsolidated(true)
+            if (presc.breadthConsolidated) setBreadthConsolidated(true)
+            if (presc.justCompleted) setDayJustCompleted(true)
           } catch (err) {
-            console.error('[cram-rescue] failed to record answer', err)
+            console.error('[prescription] failed to record answer', err)
           }
-        }
-        // Update the SRS schedule for this question — runs on EVERY answer
-        // regardless of mode (二階 skipSrs semantics). Best-effort, own channel.
-        try {
-          const sched = await scheduleSrsForAnswer(q.id, q.subject, isCorrect)
-          prevSrsRef.current = sched.prev
-          defaultPostSrsRef.current = sched.result
-        } catch (err) {
-          console.error('[srs] failed to schedule review', err)
+          // 考前救援 bonus — cram practice entry only (correct OR wrong). Own channel,
+          // best-effort; write-once daily meta, no dayComplete / economy effect.
+          if (creditCramRescue) {
+            try {
+              await recordCramRescueAnswer(q.id)
+            } catch (err) {
+              console.error('[cram-rescue] failed to record answer', err)
+            }
+          }
+          // Update the SRS schedule for this question — runs on EVERY answer
+          // regardless of mode (二階 skipSrs semantics), EXCEPT session-repair (which
+          // preserves interval / easeFactor / nextDueAt / attempts / correctCount).
+          // Best-effort, own channel.
+          try {
+            const sched = await scheduleSrsForAnswer(q.id, q.subject, isCorrect)
+            prevSrsRef.current = sched.prev
+            defaultPostSrsRef.current = sched.result
+          } catch (err) {
+            console.error('[srs] failed to schedule review', err)
+          }
         }
       } finally {
         setBusy(false)
       }
     },
-    [picked, busy, q, practice, creditCramRescue],
+    [picked, busy, q, inert, sessionRepair, creditCramRescue],
   )
 
   const handleNext = useCallback(() => {
@@ -436,6 +503,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
     setRepairConsolidated(false)
     setBreadthConsolidated(false)
     setDayJustCompleted(false)
+    setQueuedForReview(false)
     // Drop the answered question's SRS snapshots — the next question captures
     // its own in handlePick.
     prevSrsRef.current = null
@@ -498,6 +566,63 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   )
   const handleToggleEasy = useCallback(() => runFlagToggle('easy'), [runFlagToggle])
   const handleToggleGuessed = useCallback(() => runFlagToggle('guessed'), [runFlagToggle])
+  // 👁「看錯」/ 💡「觀念洞」error-cause modifiers — post-WRONG counterpart to ✨/🤔
+  // (add-neurons-weakness-radar-and-error-repair). 看錯 only persists the flag
+  // (review de-prioritisation is read-side). 觀念洞 additionally shortens the next
+  // interval via the guessed-style收斂 (reviewCardBinaryGuessed), WITHOUT touching
+  // everWrong; toggling off restores the default post-answer schedule.
+  const runWrongCauseToggle = useCallback(
+    async (kind: 'wrong' | 'insight') => {
+      const cur = sessionPool[idx]
+      if (!cur) return
+      const toggleFn = kind === 'wrong' ? toggleWrongAnswer : toggleInsight
+      let on = false
+      try {
+        on = await toggleFn(cur.id)
+      } catch (err) {
+        console.error(`[question-flags] toggle ${kind} failed`, err)
+        return
+      }
+      // Only 觀念洞 adjusts the schedule (prioritise + shorten interval). 看錯 leaves
+      // the SRS schedule alone — its effect is purely review-ordering de-prioritisation.
+      if (kind !== 'insight') return
+      try {
+        if (on) await applyGuessedModifier(cur.id, prevSrsRef.current)
+        else if (defaultPostSrsRef.current) await restoreDefaultSrs(cur.id, defaultPostSrsRef.current)
+      } catch (err) {
+        console.error('[srs] insight modifier failed', err)
+      }
+    },
+    [sessionPool, idx],
+  )
+  const handleToggleWrongAnswer = useCallback(() => runWrongCauseToggle('wrong'), [runWrongCauseToggle])
+  const handleToggleInsight = useCallback(() => runWrongCauseToggle('insight'), [runWrongCauseToggle])
+  // 加入快速複習: enqueue the just-missed question into the transient device-local
+  // queue (localStorage; no synced table / schema bump). Tracks enqueued state so
+  // the CTA can reflect it. Reset per-question in handleNext.
+  const [queuedForReview, setQueuedForReview] = useState(false)
+  const handleAddToQuickReview = useCallback(() => {
+    const cur = sessionPool[idx]
+    if (!cur) return
+    try {
+      enqueueQuickReview(cur.id)
+      setQueuedForReview(true)
+    } catch (err) {
+      console.error('[quick-review] enqueue failed', err)
+    }
+  }, [sessionPool, idx])
+  // Whether the just-answered question is correct — mirrors the reveal-region
+  // isCorrect (computed again below for render). Drives which modifier pair the
+  // 2/3 hotkeys target: correct → ✨/🤔, wrong → 看錯/觀念洞 (分時互斥, task 4.1).
+  const answeredCorrect = useMemo(() => {
+    const cur = sessionPool[idx]
+    if (!cur || picked === null) return false
+    return (
+      cur.disputed === true ||
+      picked === cur.answer ||
+      (cur.acceptedAnswers?.includes(picked) ?? false)
+    )
+  }, [sessionPool, idx, picked])
   useQuizHotkeys({
     isOpen: sessionPool[idx] !== undefined && idx < sessionPool.length,
     phase,
@@ -511,8 +636,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
     },
     onAdvance: handleNext,
     onToggleBookmark: handleToggleBookmark,
-    onToggleEasy: handleToggleEasy,
-    onToggleGuessed: handleToggleGuessed,
+    // 分時互斥: the 2/3 hotkeys drive whichever modifier pair is currently visible.
+    onToggleEasy: answeredCorrect ? handleToggleEasy : handleToggleWrongAnswer,
+    onToggleGuessed: answeredCorrect ? handleToggleGuessed : handleToggleInsight,
   })
 
   // An empty session pool (e.g. year filter × family yields 0 questions) must
@@ -753,6 +879,14 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   </span>
                 )}
               </p>
+              {/* 當場回鍋 session-repair: a UI-only「當場修復」stamp on a correct retry.
+                  No synced field / schema bump — purely derived from sessionRepair × isCorrect
+                  (add-neurons-weakness-radar-and-error-repair, Feature 4). */}
+              {sessionRepair && isCorrect && (
+                <p style={repairStampStyle}>
+                  <EmojiIcon char="🩹" size={13} decorative /> 當場修復 · 這題剛才錯的，現在對了
+                </p>
+              )}
               {repairConsolidated && !dayJustCompleted && (
                 <p style={repairConsolidatedStyle}>
                   <EmojiIcon char="🩹" size={13} decorative /> 連結已固化 · 這條原本不穩的連結，穩了
@@ -793,6 +927,19 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                   reducedMotion={reducedMotion}
                 />
               )}
+              {/* Error-cause replay (add-neurons-weakness-radar-and-error-repair, Feature 2):
+                  after a WRONG answer, actively surface 你選了 X（迷思）+ 正解 Y（關鍵） from the
+                  existing per-option optionExplanations — no need to expand the passive 簡答. A
+                  correct answer never renders it; a missing side degrades gracefully (omitted). */}
+              {!isCorrect && (
+                <ErrorCauseReplay
+                  question={q}
+                  chosenKey={picked}
+                  correctKeys={acceptedKeys}
+                  queued={queuedForReview || isQueuedForQuickReview(q.id)}
+                  onAddToQuickReview={handleAddToQuickReview}
+                />
+              )}
               {/* Tested concept labels (post-reveal only). Tap → new tab to 題庫 prefilled with the
                   concept, preserving this answering session in the original tab. */}
               <ConceptLabelRow labels={conceptLabels} hrefFor={conceptBankHref} />
@@ -819,8 +966,11 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           {revealed && (
             <FlagButtons
               questionId={q.id}
+              isCorrect={isCorrect}
               onEasy={handleToggleEasy}
               onGuessed={handleToggleGuessed}
+              onWrongAnswer={handleToggleWrongAnswer}
+              onInsight={handleToggleInsight}
             />
           )}
           {revealed ? (
@@ -847,20 +997,61 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
 }
 
 /**
- * ✨ 太簡單 + 🤔 我亂猜的 toggle buttons — answered phase only. Persist the
- * binary flag AND adjust the SRS schedule via the lifted handlers (which read
- * the question's pre-answer SRS snapshot). Per add-neurons-quiz-mode-chips-and-srs.
+ * Answered-phase modifier buttons — TIME-SLICED by outcome
+ * (add-neurons-weakness-radar-and-error-repair, task 4.1):
+ *   correct → ✨ 太簡單 / 🤔 我亂猜的 (SRS-adjusting, per add-neurons-quiz-mode-chips-and-srs)
+ *   wrong   → 👁 看錯 / 💡 觀念洞 (error-cause; 觀念洞 shortens interval, 看錯 de-prioritises)
+ * The player never sees all four at once. All persist to the coexisting four-flag
+ * `questionFlags` row; each toggle preserves the flags it does not own.
  */
 function FlagButtons({
   questionId,
+  isCorrect,
   onEasy,
   onGuessed,
+  onWrongAnswer,
+  onInsight,
 }: {
   questionId: string
+  isCorrect: boolean
   onEasy: () => void
   onGuessed: () => void
+  onWrongAnswer: () => void
+  onInsight: () => void
 }): JSX.Element {
-  const { easyMarked, guessedMarked } = useFlag(questionId)
+  const { easyMarked, guessedMarked, wrongAnswerMarked, insightMarked } = useFlag(questionId)
+  if (!isCorrect) {
+    // Post-wrong error-cause modifiers.
+    return (
+      <>
+        <button
+          type="button"
+          style={wrongAnswerMarked ? flagWrongActiveStyle : flagWrongStyle}
+          onClick={onWrongAnswer}
+          aria-pressed={wrongAnswerMarked}
+          aria-label={wrongAnswerMarked ? '取消 👁 看錯 標記 (2)' : '標記 👁 看錯 (2)'}
+          title={wrongAnswerMarked ? '取消 👁 看錯 標記（鍵盤 2）' : '標記 👁 看錯 · 這題只是看錯了（鍵盤 2）'}
+        >
+          <EmojiIcon char="👁" size={16} decorative />
+          <span className="flag-btn-label">看錯</span>
+          <span className="quiz-hotkey-badge" aria-hidden>₂</span>
+        </button>
+        <button
+          type="button"
+          style={insightMarked ? flagInsightActiveStyle : flagInsightStyle}
+          onClick={onInsight}
+          aria-pressed={insightMarked}
+          aria-label={insightMarked ? '取消 💡 觀念洞 標記 (3)' : '標記 💡 觀念洞 (3)'}
+          title={insightMarked ? '取消 💡 觀念洞 標記（鍵盤 3）' : '標記 💡 觀念洞 · 這題觀念沒懂（鍵盤 3）'}
+        >
+          <EmojiIcon char="💡" size={16} decorative />
+          <span className="flag-btn-label">觀念洞</span>
+          <span className="quiz-hotkey-badge" aria-hidden>₃</span>
+        </button>
+      </>
+    )
+  }
+  // Post-correct ✨/🤔 modifiers.
   return (
     <>
       <button
@@ -888,6 +1079,77 @@ function FlagButtons({
         <span className="quiz-hotkey-badge" aria-hidden>₃</span>
       </button>
     </>
+  )
+}
+
+/**
+ * Error-cause replay (add-neurons-weakness-radar-and-error-repair, Feature 2):
+ * after a wrong answer, actively show the chosen distractor's explanation (框成
+ * 迷思) + the correct option's explanation (框成 關鍵), both sourced from the
+ * existing `optionExplanations`. A missing side is omitted (graceful degrade),
+ * never an empty block. Carries the「加入快速複習」CTA (transient device-local queue).
+ */
+function ErrorCauseReplay({
+  question,
+  chosenKey,
+  correctKeys,
+  queued,
+  onAddToQuickReview,
+}: {
+  question: Question
+  chosenKey: string | null
+  correctKeys: string[]
+  queued: boolean
+  onAddToQuickReview: () => void
+}): JSX.Element | null {
+  const oe = question.optionExplanations
+  const chosenExpl = chosenKey && oe ? oe[chosenKey] : undefined
+  // The correct option to explain = the first accepted key that has an explanation.
+  const correctKey = oe ? correctKeys.find((k) => k in oe) : undefined
+  const correctExpl = correctKey && oe ? oe[correctKey] : undefined
+  // Nothing to replay AND no explanations to show → omit entirely (no empty block).
+  if (!chosenExpl && !correctExpl) {
+    // Still offer the quick-review CTA — the player may want to revisit even when
+    // no 簡答 exists — but skip the empty replay card.
+    return (
+      <div style={errorReplayCtaOnlyStyle}>
+        <QuickReviewCta queued={queued} onAdd={onAddToQuickReview} />
+      </div>
+    )
+  }
+  return (
+    <div style={errorReplayStyle}>
+      {chosenExpl && chosenKey && (
+        <div style={errorReplayMisconceptionStyle}>
+          <span style={errorReplayTagMisStyle}>你選了 {chosenKey}</span>
+          <span style={errorReplayBodyStyle}>{chosenExpl}</span>
+        </div>
+      )}
+      {correctExpl && correctKey && (
+        <div style={errorReplayKeyStyle}>
+          <span style={errorReplayTagKeyStyle}>正解 {correctKey}</span>
+          <span style={errorReplayBodyStyle}>{correctExpl}</span>
+        </div>
+      )}
+      <QuickReviewCta queued={queued} onAdd={onAddToQuickReview} />
+    </div>
+  )
+}
+
+/**「加入快速複習」button — reflects enqueued state; idempotent enqueue upstream. */
+function QuickReviewCta({ queued, onAdd }: { queued: boolean; onAdd: () => void }): JSX.Element {
+  return (
+    <button
+      type="button"
+      style={queued ? quickReviewCtaAddedStyle : quickReviewCtaStyle}
+      onClick={onAdd}
+      disabled={queued}
+      aria-label={queued ? '已加入快速複習' : '加入快速複習'}
+      title={queued ? '已加入下次快速複習' : '加入下次快速複習（本機暫存）'}
+    >
+      <EmojiIcon char={queued ? '🩹' : '🔍'} size={14} decorative />
+      {queued ? ' 已加入快速複習' : ' 加入快速複習'}
+    </button>
   )
 }
 
@@ -1264,6 +1526,14 @@ const resultLineStyle: React.CSSProperties = {
   flexWrap: 'wrap',
 }
 
+// 當場修復 stamp — UI-only recognition for a session-repair correct retry.
+const repairStampStyle: React.CSSProperties = {
+  margin: '-0.2rem 0 0.6rem',
+  fontSize: '0.84rem',
+  fontWeight: 700,
+  color: '#2f8f4e',
+}
+
 // Scoped「連結已固化」note — only when today's 處方 repair pool is consolidated.
 const repairConsolidatedStyle: React.CSSProperties = {
   margin: '-0.3rem 0 0.6rem',
@@ -1419,6 +1689,116 @@ const flagGuessedActiveStyle: React.CSSProperties = {
   background: '#e6eef5',
   color: '#6a9bc4',
   border: '1px solid #6a9bc4',
+}
+
+// 👁 看錯 — muted grey accent (de-prioritise semantics).
+const flagWrongStyle: React.CSSProperties = {
+  ...flagBtnBaseStyle,
+  background: 'transparent',
+  color: '#7a7266',
+  border: '1px solid #b8ae9e',
+}
+
+const flagWrongActiveStyle: React.CSSProperties = {
+  ...flagBtnBaseStyle,
+  background: '#eeeae2',
+  color: '#6a6153',
+  border: '1px solid #8c8375',
+}
+
+// 💡 觀念洞 — amber accent (prioritise + shorten interval semantics).
+const flagInsightStyle: React.CSSProperties = {
+  ...flagBtnBaseStyle,
+  background: 'transparent',
+  color: '#b07d1a',
+  border: '1px solid #d4b06a',
+}
+
+const flagInsightActiveStyle: React.CSSProperties = {
+  ...flagBtnBaseStyle,
+  background: '#fbf0d8',
+  color: '#a8720f',
+  border: '1px solid #c99a2e',
+}
+
+// ── Error-cause replay (Feature 2) ──────────────────────────────────────────
+const errorReplayStyle: React.CSSProperties = {
+  margin: '0.2rem 0 0.6rem',
+  padding: '0.55rem 0.7rem',
+  background: '#fbf5ea',
+  border: '1px solid #e0cfa8',
+  borderRadius: '6px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.45rem',
+}
+
+const errorReplayCtaOnlyStyle: React.CSSProperties = {
+  margin: '0.2rem 0 0.6rem',
+}
+
+const errorReplayMisconceptionStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '0.45rem',
+  alignItems: 'baseline',
+  borderLeft: '3px solid #c44d4d',
+  paddingLeft: '0.5rem',
+}
+
+const errorReplayKeyStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '0.45rem',
+  alignItems: 'baseline',
+  borderLeft: '3px solid #2f8f4e',
+  paddingLeft: '0.5rem',
+}
+
+const errorReplayTagMisStyle: React.CSSProperties = {
+  flexShrink: 0,
+  fontWeight: 700,
+  fontSize: '0.8rem',
+  color: '#c44d4d',
+  fontFamily: 'var(--font-legible)',
+}
+
+const errorReplayTagKeyStyle: React.CSSProperties = {
+  flexShrink: 0,
+  fontWeight: 700,
+  fontSize: '0.8rem',
+  color: '#2f8f4e',
+  fontFamily: 'var(--font-legible)',
+}
+
+const errorReplayBodyStyle: React.CSSProperties = {
+  fontSize: '0.86rem',
+  lineHeight: 1.55,
+  color: '#3a2a1a',
+  fontFamily: 'var(--font-legible)',
+  overflowWrap: 'anywhere',
+}
+
+const quickReviewCtaStyle: React.CSSProperties = {
+  alignSelf: 'flex-start',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.25rem',
+  padding: '0.35rem 0.7rem',
+  borderRadius: '6px',
+  border: '1px solid #6a9bc4',
+  background: '#fff',
+  color: '#4d6dc4',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  fontFamily: 'var(--font-legible)',
+  cursor: 'pointer',
+}
+
+const quickReviewCtaAddedStyle: React.CSSProperties = {
+  ...quickReviewCtaStyle,
+  background: '#e8f5e8',
+  border: '1px solid #4d8c4d',
+  color: '#2f6b3a',
+  cursor: 'default',
 }
 
 const baseBtnStyle: React.CSSProperties = {

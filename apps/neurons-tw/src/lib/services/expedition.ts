@@ -13,6 +13,7 @@
 import type { Question } from '@study-rpg/core'
 import type { QuestionHistoryRow } from '../db'
 import { creditExpeditionDraws } from './dmn-trigger'
+import { orderByErrorCausePriority, type FlagLookup } from './weakness-pressure'
 
 /**
  * Build the cross-subject expedition pool: questions whose latest result is
@@ -20,18 +21,26 @@ import { creditExpeditionDraws } from './dmn-trigger'
  * history rows. NOT year- or family-filtered: 出征 is your wrong set regardless
  * of subject or exam year.
  *
+ * When `flagOf` is supplied (add-neurons-weakness-radar-and-error-repair), the
+ * wrong list is re-ordered by error-cause priority (觀念洞 front / 看錯 back)
+ * while preserving corpus order within each bucket. Omitting it keeps the pure
+ * corpus order (backward-compatible).
+ *
  * @param pool    - Source pool, typically `pack.questions`.
  * @param history - `questionHistory` rows (typically from `useQuestionHistory`).
+ * @param flagOf  - optional questionId → error-cause flag hint.
  */
 export function buildWrongQuestionPool(
   pool: readonly Question[],
   history: readonly QuestionHistoryRow[],
+  flagOf?: FlagLookup,
 ): Question[] {
   const wrongIds = new Set(
     history.filter((h) => h.lastResult === 'wrong').map((h) => h.questionId),
   )
   if (wrongIds.size === 0) return []
-  return pool.filter((q) => wrongIds.has(q.id))
+  const wrong = pool.filter((q) => wrongIds.has(q.id))
+  return orderByErrorCausePriority(wrong, (q) => q.id, flagOf)
 }
 
 /**
@@ -39,13 +48,57 @@ export function buildWrongQuestionPool(
  * the wrong-question pool, opened by the DMN `quick-review-batch` event. Pure +
  * testable. Returns at most `n` currently-wrong questions (fewer if fewer exist,
  * empty if none). Clears flow through the same `onExpeditionComplete` path.
+ *
+ * When `flagOf` is supplied the wrong pool is priority-ordered (觀念洞 front /
+ * 看錯 back) BEFORE the slice, so 觀念洞 questions make it into the kept ≤n and
+ * 看錯 questions are pushed out (add-neurons-weakness-radar-and-error-repair).
  */
 export function buildQuickReviewPool(
   pool: readonly Question[],
   history: readonly QuestionHistoryRow[],
   n = 5,
+  flagOf?: FlagLookup,
 ): Question[] {
-  return buildWrongQuestionPool(pool, history).slice(0, Math.max(0, n))
+  // buildWrongQuestionPool already applies the priority order → slice keeps the
+  // 觀念洞-first prefix (order-then-slice, per Codex blocker).
+  return buildWrongQuestionPool(pool, history, flagOf).slice(0, Math.max(0, n))
+}
+
+/**
+ * Session-repair pool (add-neurons-weakness-radar-and-error-repair, Feature 4):
+ * the「當場回鍋」pass offered at expedition settlement. Takes ONLY the questions
+ * the player got wrong in the just-finished session (`sessionWrongIds`) and
+ * presents each at most once. Pure + testable.
+ *
+ * Deliberately DISTINCT from `buildQuickReviewPool` (the DMN quick-review-batch):
+ * this sources the current session's wrong set — NOT the historical wrong pool —
+ * and its answers carry NO SM-2 schedule change and NO DMN-draw-axis credit (the
+ * caller records the result without invoking `scheduleSrsForAnswer`). See D4.
+ *
+ * @param pool            - Source pool, typically `pack.questions`.
+ * @param history         - `questionHistory` rows (used to confirm the id was answered).
+ * @param sessionWrongIds - Question ids the player answered wrong this session.
+ */
+export function buildSessionRepairPool(
+  pool: readonly Question[],
+  history: readonly QuestionHistoryRow[],
+  sessionWrongIds: readonly string[],
+): Question[] {
+  // Dedupe the session's wrong ids (a question is presented at most once) and
+  // intersect with rows that actually have an answer record — a defensive guard so
+  // a stray id never conjures an un-answered question into the repair pass.
+  const answered = new Set(history.map((h) => h.questionId))
+  const wrongOnce = new Set(sessionWrongIds.filter((id) => answered.has(id)))
+  if (wrongOnce.size === 0) return []
+  const emitted = new Set<string>()
+  const out: Question[] = []
+  for (const q of pool) {
+    if (wrongOnce.has(q.id) && !emitted.has(q.id)) {
+      emitted.add(q.id)
+      out.push(q)
+    }
+  }
+  return out
 }
 
 /**

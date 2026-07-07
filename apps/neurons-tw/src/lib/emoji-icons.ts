@@ -52,6 +52,9 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   ['🆕', '1f195.png'],
   ['🔄', '1f504.png'],
   ['🌙', '1f319.png'],
+  // Error-cause modifiers (add-neurons-weakness-radar-and-error-repair): 👁 看錯.
+  // 💡 觀念洞 reuses the existing 1f4a1.png row above.
+  ['👁', '1f441.png'],
 ]
 
 const ICON_MAP = new Map(ICON_FILES)
