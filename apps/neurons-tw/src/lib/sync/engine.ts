@@ -141,6 +141,15 @@ export class SyncEngine {
       // cross-device 412 resolves to a deferred outcome (not a throw).
       const result = await pushBundleSerialized(this.supabase, this.db, this.user.id, {
         deferOnConflict: true,
+        // A 412/409/428 recovery pull inside pushBundle used to bypass
+        // onPullComplete entirely, so the LWW/MAX backfill families never
+        // reconciled the recovery snapshot — the deferred re-push then clobbered
+        // newer cloud LWW values with stale local state (e.g. a rescue
+        // `plan: null` abandoned on another device resurrected). Thread the same
+        // hook the normal pull path (pullNow) fires.
+        onRecoveryPull: async (pull) => {
+          await this.onPullComplete?.(pull)
+        },
       })
 
       if (result.status === 'deferred') {

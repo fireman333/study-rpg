@@ -12,6 +12,8 @@
 import type { NeuronsDB } from '../db'
 import { NEURONS_ADAPTERS, SYNCED_META_KEYS } from './tables'
 import { PRESCRIPTION_META_PREFIX } from '../services/prescription'
+import { RESCUE_META_PREFIX } from '../services/rescue/rescue-sync-keys'
+import { clearRescueLocalCache } from '../services/rescue/rescue-store'
 import { clearAllPersistedEtags } from './r2/etag'
 import { clearPresignCache } from './r2/client'
 
@@ -102,6 +104,12 @@ export async function clearLocalSyncedData(db: NeuronsDB): Promise<void> {
         // (add-neurons-imprint-keepsake-sync added the imprint delete;
         // fix-neurons-account-switch-prescription-wipe widened it to the full namespace.)
         await db.meta.where('key').startsWith(PRESCRIPTION_META_PREFIX).delete()
+        // The single-subject-rescue namespace (`rescue:v1:*`) is likewise
+        // account-OWNED: the plan envelope, run-scoped confidence, and stop-loss
+        // overrides are the outgoing account's exam state and must not bleed into
+        // the next account (add-neurons-rescue-r2-sync). Device-local rescue
+        // telemetry (localStorage) is outside this Dexie scope by construction.
+        await db.meta.where('key').startsWith(RESCUE_META_PREFIX).delete()
       } else {
         await db.table(name).clear()
       }
@@ -116,6 +124,11 @@ export async function clearLocalSyncedData(db: NeuronsDB): Promise<void> {
   // (services/account-reset.ts calls clearLocalSyncedData).
   clearAllPersistedEtags()
   clearPresignCache()
+  // Drop the outgoing account's device-local rescue plan-envelope cache so the
+  // next account never warm-boots a stale plan (the Dexie rescue rows were wiped
+  // above; this clears the synchronous localStorage boot cache). The migration
+  // marker + device-local telemetry are intentionally preserved.
+  clearRescueLocalCache()
 }
 
 /**

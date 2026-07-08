@@ -222,12 +222,32 @@
 //        keys; a v26 client reading a v25 bundle preserves its local daily
 //        state (first-write-wins never deletes local keys absent from the
 //        incoming bundle). Worker is bundle-opaque (no Worker change).
+//   v27 — add-neurons-rescue-r2-sync 2026-07-08: the 單科考前救急 plan / confidence
+//        / override state syncs cross-device as a NEW registered meta key family.
+//        `isSyncedMetaKey` gains the `isSyncedRescueKey` matcher (single-sourced
+//        from the rescue service): `rescue:v1:plan` (a timestamped envelope,
+//        always synced) + run-scoped `rescue:v1:conf:{planCreatedAt}:{qid}` and
+//        `rescue:v1:ovr:{planCreatedAt}:{conceptId}` keys, synced iff the
+//        embedded planCreatedAt is within a trailing 14-day run-sync window
+//        (+1-day forward skew). Merge is NOT write-once: the plan envelope is
+//        latest-action-wins LWW on `updatedAt` (explicit `plan: null` clears, no
+//        tombstone), confidence is per-key LWW on `at`, override is per-key LWW
+//        on `setAt` — all reconciled by the backfill/rescue.ts post-pass (the
+//        metaAdapter first-write-wins is only a transport default). Rescue
+//        telemetry stays device-local (localStorage) and NEVER enters the
+//        bundle. NO new adapter / Dexie bump (rides existing `meta`, non-indexed
+//        keys). Additive + reader-tolerant: a v26 client reading a v27 bundle
+//        drops the unrecognised rescue keys (its later omitting pushes cannot
+//        wipe v27 state — first-write-wins never deletes local keys absent from
+//        the incoming bundle); a v27 client reading a v26 bundle finds no rescue
+//        keys and preserves its local rescue state. Worker is bundle-opaque (no
+//        Worker change).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 import { readAckResetAt, readLastSyncedUserId } from '../account-guard'
 
-export const SCHEMA_VERSION = 26
+export const SCHEMA_VERSION = 27
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'

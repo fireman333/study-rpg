@@ -5,8 +5,10 @@
  * (portaled to <body>, like SpeedReviewPage, to escape the AnimatedRoutes transform)
  * that owns the whole rescue flow: setup → D-scaled diagnostic blitz → overview
  * (RescueScore + 戰情圖 + stop-loss re-read) → today's queue / exam-morning quick-scan.
- * All rescue state is device-local (rescue-store); answering reuses QuizModal in its
- * rescue submit mode (pre-reveal two-button confidence). Zero Dexie/R2 schema.
+ * The plan / confidence / overrides sync cross-device via the R2 `neurons` bundle
+ * (add-neurons-rescue-r2-sync) when signed in; only telemetry stays device-local.
+ * Answering reuses QuizModal in its rescue submit mode (pre-reveal two-button
+ * confidence). Zero Dexie bump (rides the existing `meta` kv).
  *
  * Spec: openspec/changes/add-neurons-single-subject-rescue/specs/
  *       neurons-single-subject-rescue/spec.md (+ neurons-homepage / neurons-weakness-radar deltas)
@@ -35,6 +37,9 @@ import {
   markBlitzDone,
   appendTelemetry,
   exportTelemetry,
+  shouldShowReconcileNote,
+  markPlanKnown,
+  useRescueHydrated,
   type RescuePlan,
 } from '../lib/services/rescue/rescue-store'
 import { computeRescueD, rescuePhase } from '../lib/services/rescue/rescue-lifecycle'
@@ -51,6 +56,8 @@ import {
   interleaveByBlock,
   type WarMapConcept,
 } from '../lib/services/rescue/rescue-session'
+import { useAuth } from '../lib/auth/AuthContext'
+import { useSyncContext } from '../lib/sync/SyncProvider'
 
 interface Props {
   pack: ContentPack
@@ -85,6 +92,26 @@ const WAR_BAND_LABEL: Record<WarMapConcept['band'], string> = {
 export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Element | null {
   const plan = useRescuePlan()
   const state = useRescueState()
+  const { status } = useAuth()
+  // Signed in → the plan / confidence / overrides sync cross-device; otherwise
+  // they only live on this device. Drives the storage-scope copy (no chip — the
+  // app already shows a global sync chip).
+  const synced = status === 'authed'
+  const syncCtx = useSyncContext()
+  const rescueHydrated = useRescueHydrated()
+  // Review-B1 gate: while the local mirror hasn't hydrated, or an authed
+  // device's startup force-pull hasn't landed yet (fresh sign-in / cold boot),
+  // a cloud plan may still be inbound — starting a rescue NOW could silently
+  // restart the run it's about to receive. Hold the setup CTA on「同步中…」.
+  // An unseeded sync provider (`status == null`, before useSync's effect mounts)
+  // is ALSO pending — the first pull definitely hasn't landed yet (Codex fix-review
+  // low: the null-provider window). Fails open on pull error (offline: state ===
+  // 'error') and once the first pull lands (lastPullAt set), so it never sticks.
+  const startupSyncPending =
+    !rescueHydrated ||
+    (synced &&
+      (syncCtx?.status == null ||
+        (syncCtx.status.lastPullAt === null && syncCtx.status.state !== 'error')))
   const history = useQuestionHistory()
   const flags = useAllFlags()
   const conceptTags = useConceptTags()
@@ -108,13 +135,49 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
   )
   const [setupExam, setSetupExam] = useState<string>(() => addDaysISO(todayISO(), 3))
   const [setupMinutes, setSetupMinutes] = useState<number>(30)
+  // 救急 = last-minute sprint: cap the exam date at today+14 so the plan's whole
+  // life fits inside the `isSyncedRescueKey` 14-day run-sync window (a longer
+  // "rescue" would silently stop syncing confidence from day 15 — review quick-fix).
+  const maxExamISO = addDaysISO(todayISO(), 14)
+  // Whether the user has interacted with the setup form THIS viewing — an
+  // untouched setup carries no intent, so a plan landing via the startup pull
+  // may take the scene over (review-B1); once touched, we never yank the form.
+  const [setupTouched, setSetupTouched] = useState(false)
   const [confirmReplace, setConfirmReplace] = useState<RescuePlan | null>(null)
   const [confirmAbandon, setConfirmAbandon] = useState(false)
+  // One-time "continued from another device" hint: shown when the active plan
+  // arrived via sync (not started on this device) — at mount, or when the
+  // startup pull lands one mid-viewing (review-B1) — then marked acknowledged
+  // so it never repeats. (add-neurons-rescue-r2-sync Focus-2)
+  const [reconcileNote, setReconcileNote] = useState<boolean>(() => {
+    const p = getActivePlan()
+    return p ? shouldShowReconcileNote(p.createdAt) : false
+  })
+  useEffect(() => {
+    const p = getActivePlan()
+    if (p && reconcileNote) markPlanKnown(p.createdAt)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // If the plan vanished (archived / abandoned) while we're past setup, close out.
   useEffect(() => {
     if (!plan && phase !== 'setup') onClose()
   }, [plan, phase, onClose])
+
+  // Review-B1 (cross-device takeover): `phase` freezes at mount, so a plan that
+  // lands AFTER mount (startup force-pull on a freshly signed-in device) used to
+  // leave the scene stuck in setup — one tap on 開始救急 then minted a fresh run
+  // whose newer `updatedAt` LWW-clobbered the cloud run (silent restart). When a
+  // plan appears while the user hasn't touched the setup form, hand the scene to
+  // it (same phase decision as mount: overview when its blitz is done).
+  useEffect(() => {
+    if (phase !== 'setup' || !plan || setupTouched) return
+    if (shouldShowReconcileNote(plan.createdAt)) {
+      setReconcileNote(true)
+      markPlanKnown(plan.createdAt)
+    }
+    setPhase(isBlitzDone(plan.createdAt) ? 'overview' : 'blitz')
+  }, [phase, plan, setupTouched])
 
   const subjectId = plan?.familyId ?? ''
   // Header + copy use the 科目 (subject) name — which IS the subject `id` in neurons —
@@ -240,6 +303,14 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
       return
     }
     setConfirmReplace(null)
+    if (res.resumed) {
+      // Same family already has a live run (possibly pulled from another
+      // device): CONTINUE it — no fresh createdAt, no blitz re-run, no
+      // confidence re-scope (review-B1).
+      appendTelemetry({ kind: 'plan-resumed', familyId: res.plan.familyId })
+      setPhase(isBlitzDone(res.plan.createdAt) ? 'overview' : 'blitz')
+      return
+    }
     appendTelemetry({
       kind: 'plan-started',
       familyId: setupFamily,
@@ -347,7 +418,10 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
               <select
                 style={inputStyle}
                 value={setupFamily}
-                onChange={(e) => setSetupFamily(e.target.value)}
+                onChange={(e) => {
+                  setSetupTouched(true)
+                  setSetupFamily(e.target.value)
+                }}
               >
                 {pack.subjects.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -363,7 +437,16 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                 type="date"
                 value={setupExam}
                 min={todayISO()}
-                onChange={(e) => setSetupExam(e.target.value)}
+                max={maxExamISO}
+                onChange={(e) => {
+                  setSetupTouched(true)
+                  // Clamp typed-in dates too (the picker honours max, manual
+                  // keyboard entry doesn't in every browser). ISO compares
+                  // lexicographically. 14 天上限對齊 isSyncedRescueKey 的
+                  // run-sync window — 更遠的「救急」第 15 天起信心會靜默停同步。
+                  const v = e.target.value
+                  setSetupExam(v && v > maxExamISO ? maxExamISO : v)
+                }}
               />
             </label>
             <label style={labelStyle}>
@@ -371,7 +454,10 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
               <select
                 style={inputStyle}
                 value={setupMinutes}
-                onChange={(e) => setSetupMinutes(Number(e.target.value))}
+                onChange={(e) => {
+                  setSetupTouched(true)
+                  setSetupMinutes(Number(e.target.value))
+                }}
               >
                 {[15, 20, 30, 45, 60, 90].map((m) => (
                   <option key={m} value={m}>
@@ -382,7 +468,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
             </label>
             {confirmReplace && (
               <div style={warnBoxStyle}>
-                目前已在救「{confirmReplace.familyId}」。一次只能救一科 —— 要換成這科嗎？（舊計畫的答題結果都保留）
+                目前正在救「{confirmReplace.familyId}」。一次專心救一科，換成這科的話，這個帳號其他已登入裝置也會一起換過來（已答的題目與進度都保留）。
                 <div style={rowStyle}>
                   <button style={primaryBtnStyle} onClick={() => doStart(true)}>
                     換成這科
@@ -394,11 +480,19 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
               </div>
             )}
             {!confirmReplace && (
-              <button style={primaryBtnStyle} onClick={() => doStart(false)} disabled={!setupFamily}>
-                開始救急 →
+              <button
+                style={startupSyncPending ? primaryBtnDisabledStyle : primaryBtnStyle}
+                onClick={() => doStart(false)}
+                disabled={!setupFamily || startupSyncPending}
+              >
+                {startupSyncPending ? '同步中…' : '開始救急 →'}
               </button>
             )}
-            <p style={deviceCopyStyle}>救急計畫與信心紀錄存於本裝置。</p>
+            <p style={deviceCopyStyle}>
+              {synced
+                ? '已登入，救急計畫與信心紀錄會跨裝置同步；診斷紀錄只留在這台。'
+                : '未登入，目前只存在這台裝置；登入後救急計畫與信心紀錄會跨裝置同步。'}
+            </p>
           </div>
         )}
 
@@ -408,6 +502,9 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
               <p style={loadingStyle}>載入救急資料中…</p>
             ) : (
               <>
+                {reconcileNote && (
+                  <p style={reconcileNoteStyle}>這份救急計畫來自另一台裝置，已在這裡接續。</p>
+                )}
                 {/* RescueScore + qualitative return */}
                 <div style={scoreCardStyle}>
                   <div>
@@ -504,21 +601,36 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                   </div>
                 ))}
 
-                <p style={deviceCopyStyle}>救急計畫與信心紀錄存於本裝置。</p>
+                <p style={deviceCopyStyle}>
+                  {synced
+                    ? '已登入，救急計畫與信心紀錄會跨裝置同步；診斷紀錄只留在這台。'
+                    : '未登入，目前只存在這台裝置；登入後救急計畫與信心紀錄會跨裝置同步。'}
+                </p>
                 <div style={overviewFootRowStyle}>
-                  <button style={linkBtnStyle} onClick={() => setPhase('setup')}>
+                  <button
+                    style={linkBtnStyle}
+                    onClick={() => {
+                      // Deliberate entry into setup with a live plan — mark the
+                      // form as touched so the review-B1 auto-takeover effect
+                      // never yanks the user straight back to overview.
+                      setSetupTouched(true)
+                      setPhase('setup')
+                    }}
+                  >
                     換一科救急
-                  </button>
-                  <button style={linkBtnStyle} onClick={doExport}>
-                    ⬇ 匯出救急紀錄
                   </button>
                   <button style={linkBtnStyle} onClick={() => setConfirmAbandon(true)}>
                     放棄計畫
                   </button>
+                  <button style={exportLinkBtnStyle} onClick={doExport}>
+                    匯出診斷紀錄 JSON
+                  </button>
                 </div>
                 {confirmAbandon && (
                   <div style={warnBoxStyle}>
-                    放棄後只清掉「計畫殼」，你已答的題目與進度都保留。確定放棄？
+                    {synced
+                      ? '放棄後這個帳號其他已登入裝置也會退出這個計畫；你已答的題目與進度都保留。確定放棄？'
+                      : '放棄後會退出這個計畫；你已答的題目與進度都保留。確定放棄？'}
                     <div style={rowStyle}>
                       <button style={primaryBtnStyle} onClick={doAbandon}>
                         確定放棄
@@ -664,7 +776,22 @@ const linkBtnStyle: React.CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'inherit',
 }
+// Export is a secondary / dogfood affordance — smaller + dimmer than the other links.
+const exportLinkBtnStyle: React.CSSProperties = {
+  ...linkBtnStyle,
+  color: '#8a7a52',
+  fontSize: '0.74rem',
+  textDecoration: 'none',
+  opacity: 0.75,
+  marginLeft: 'auto',
+}
 const deviceCopyStyle: React.CSSProperties = { margin: 0, color: '#a08a5e', fontSize: '0.78rem' }
+// One-time cross-device reconcile hint — quiet, low-pressure.
+const reconcileNoteStyle: React.CSSProperties = {
+  margin: '0 0 2px',
+  color: '#7a9a6e',
+  fontSize: '0.76rem',
+}
 const loadingStyle: React.CSSProperties = { color: '#8c7a55', margin: '2rem auto' }
 const warnBoxStyle: React.CSSProperties = {
   background: '#fbeee0',
