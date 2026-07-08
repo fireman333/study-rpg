@@ -17,7 +17,7 @@
  *   pnpm --filter @study-rpg/content-neurons-tw verify:cram
  */
 
-import { readFileSync, readdirSync } from 'node:fs'
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import type { CramData } from '../src/cram/cram-types'
@@ -27,6 +27,12 @@ const PKG = join(__dirname, '..')
 const FRAGMENTS_DIR = join(PKG, 'src', 'cram', 'fragments')
 
 const EXPECTED_SUBJECTS = 11
+// One-page 進場前一張紙 speed-review PDF (add-neurons-5min-speed-review §2). Rendered out-of-band
+// by scripts/render-speed-review-pdf.mjs (headless Chrome, NOT in CI — same discipline as the
+// hand-committed 醫學一/醫學二 A4 blobs). Gate the committed blob's presence + non-trivial size so a
+// missing/blank render can't silently ship a 404 download.
+const SPEED_REVIEW_PDF = join(PKG, 'src', 'cram', 'pdf', '考前速看-5分鐘.pdf')
+const SPEED_REVIEW_PDF_MIN_BYTES = 5 * 1024
 const HONESTY_FORBIDDEN = ['命中率', '保證', '必中', '100%', '今年一定考']
 
 interface Question {
@@ -129,6 +135,17 @@ function main(): void {
   }
   if (dualTagged > 0) failures.push(`alias UNSAFE: ${dualTagged} qid(s) tagged with BOTH 微生物學 and 免疫學 leaves`)
 
+  // 6. 進場前一張紙 speed-review PDF present + non-trivial (committed out-of-band render).
+  let speedPdfBytes = 0
+  if (!existsSync(SPEED_REVIEW_PDF)) {
+    failures.push(`speed-review PDF missing: ${SPEED_REVIEW_PDF} — run \`pnpm --filter @study-rpg/content-neurons-tw run render:speed-review-pdf\``)
+  } else {
+    speedPdfBytes = statSync(SPEED_REVIEW_PDF).size
+    if (speedPdfBytes < SPEED_REVIEW_PDF_MIN_BYTES) {
+      failures.push(`speed-review PDF too small (${speedPdfBytes}B < ${SPEED_REVIEW_PDF_MIN_BYTES}B) — likely a blank render`)
+    }
+  }
+
   // ── Report ──
   const totalBlocks = cram.books.reduce((n, b) => n + b.subjects.reduce((m, s) => m + s.blocks.length, 0), 0)
   const totalPush = cram.books.reduce((n, b) => n + b.subjects.reduce((m, s) => m + s.push.length, 0), 0)
@@ -138,6 +155,7 @@ function main(): void {
   console.log(`sourceQuestionIds checked: ${checked} (missing ${missing.length})`)
   console.log(`subjects: ${subjectCount}`)
   console.log(`alias guard: 微生物學 ${microLeaves.size} leaves / 免疫學 ${immuLeaves.size} leaves / overlap ${overlap.length} / dual-tagged qids ${dualTagged}`)
+  console.log(`speed-review PDF: ${speedPdfBytes > 0 ? `${(speedPdfBytes / 1024).toFixed(1)} KB` : 'MISSING'}`)
 
   if (failures.length > 0) {
     console.error(`\nFAIL (${failures.length}):`)
