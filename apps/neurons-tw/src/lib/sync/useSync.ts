@@ -25,6 +25,7 @@ import { runOnPullComplete } from './backfill'
 import { autoPushLeaderboardOnSync } from '../services/neurons-leaderboard'
 import { NEURONS_ADAPTERS } from './tables'
 import { adoptAccount, evaluateAccountGate, readLastSyncedUserId, writeLastSyncedUserId } from './account-guard'
+import { consumeRescueMigrationPush } from '../services/rescue/rescue-store'
 
 // Phase 1 (eliminate-cross-device-r2-412-storm): 3s → 12s (matches 二階's ~10s)
 // so concurrent devices push less often → fewer cross-device ETag collisions.
@@ -124,6 +125,12 @@ export function useSync(): {
     // OR use Dexie's `on('changes')` (Observable API). For simplicity we just
     // hook each table's `creating/updating/deleting` callbacks via Dexie hooks.
     attachTableHooks(db, () => engine.schedulePush())
+
+    // If the boot-time rescue localStorage→meta migration seeded synced rows
+    // BEFORE these hooks attached, its writes never fired schedulePush — flush
+    // them now so a migrated plan doesn't linger local until the next unrelated
+    // write (add-neurons-rescue-r2-sync review quick-fix). One-shot consume.
+    if (consumeRescueMigrationPush()) engine.schedulePush()
 
     // Tab focus → pull
     const onVisibility = () => {

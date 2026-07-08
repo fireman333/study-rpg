@@ -84,6 +84,14 @@ interface Props {
   mazeExpanded?: boolean
   /** Per-family maze tract progress → each card's derived axon node-track (no extra canvas). */
   mazeHintByFamily?: Map<string, MazeFamilyHint>
+  /** 單科考前救急 (add-neurons-single-subject-rescue): the family with an active rescue plan
+   * (or null). Its card replaces the WeaknessIndicator row with a rescue chip, and its
+   * one-tap targeted drill is absorbed into the rescue queue (per neurons-weakness-radar delta). */
+  rescuePlanFamilyId?: string | null
+  /** Rescue chip data for the active-plan family (countdown D + RescueScore). */
+  rescueChip?: { d: number; score: number } | null
+  /** Open the rescue scene — from the header entry (no family) or a card's rescue chip (its family). */
+  onOpenRescue?: (familyId?: string) => void
 }
 
 export function FamilyPicker({
@@ -102,6 +110,9 @@ export function FamilyPicker({
   mazeSlot,
   mazeExpanded,
   mazeHintByFamily,
+  rescuePlanFamilyId,
+  rescueChip,
+  onOpenRescue,
 }: Props): JSX.Element {
   const reducedMotion = useRespectsReducedMotion()
   // Each family card's header sprite shows that family's REPRESENTATIVE variant (the one the player
@@ -121,9 +132,25 @@ export function FamilyPicker({
     <section style={pickerSectionStyle} aria-label="選 family 直接答題">
       <header style={headerRowStyle}>
         <h2 style={pickerHeaderStyle}><EmojiIcon char="📚" size={16} /> 選 family 直接練習</h2>
-        <span style={headerHintStyle}>
-          {pack.subjects.length} family · 出征一起修復跨科錯題 → wire 連線
-        </span>
+        <div style={headerRightStyle}>
+          <span style={headerHintStyle}>
+            {pack.subjects.length} family · 出征一起修復跨科錯題 → wire 連線
+          </span>
+          {/* 考前救急 header entry — always-on, NOT gated by the per-card pressure≥0.45 drill
+              threshold (neurons-homepage delta): the subjects most needing rescue (thin history
+              / exam-imminent) must still be reachable. One header-level entry naturally carries
+              the "one rescue at a time" constraint. */}
+          {onOpenRescue && (
+            <button
+              type="button"
+              style={rescueEntryBtnStyle}
+              onClick={() => onOpenRescue()}
+              title="鎖定一科、綁定考試日，倒數衝刺最大化單科分數"
+            >
+              <EmojiIcon char="⏱️" size={13} decorative /> 考前救急
+            </button>
+          )}
+        </div>
       </header>
 
       {/* The ONE embedded maze stacks ABOVE the year-filter chips + card grid on ALL viewports
@@ -160,6 +187,8 @@ export function FamilyPicker({
                     counts={modeCountsByFamily?.get(s.id)}
                     weakness={weaknessByFamily?.get(s.id)}
                     onTargetedDrill={onTargetedDrill ? () => onTargetedDrill(s.id) : undefined}
+                    rescueChip={rescuePlanFamilyId === s.id ? rescueChip ?? undefined : undefined}
+                    onOpenRescue={onOpenRescue ? () => onOpenRescue(s.id) : undefined}
                     reducedMotion={reducedMotion}
                     mazeHint={mazeHintByFamily?.get(s.id)}
                     onStartQuiz={(mode) => onStartQuiz(s.id, mode)}
@@ -221,6 +250,8 @@ function FamilyCard({
   counts,
   weakness,
   onTargetedDrill,
+  rescueChip,
+  onOpenRescue,
   reducedMotion,
   mazeHint,
   onStartQuiz,
@@ -240,6 +271,10 @@ function FamilyCard({
   weakness?: WeaknessPressure
   /** 一鍵特訓 launcher for this family (scoped ≤10-Q high-weakness drill). */
   onTargetedDrill?: () => void
+  /** Rescue chip data when this family has an active rescue plan (replaces the weakness row). */
+  rescueChip?: { d: number; score: number }
+  /** Open the rescue scene for this family (the chip's 今日佇列 CTA = the absorbed drill entry). */
+  onOpenRescue?: () => void
   reducedMotion?: boolean
   mazeHint?: MazeFamilyHint
   onStartQuiz: (mode: QuizMode) => void
@@ -325,16 +360,21 @@ function FamilyCard({
         <VariantCollectionChip familyId={family.id} />
       </div>
 
-      {/* Weakness-pressure indicator (Feature 1): forward-looking「該複習」colour scale,
-          distinct from the MasteryChip accuracy above. Dim = weaker, bright = stronger;
-          undiagnosed = neutral grey (NOT the weakest colour). Offers 一鍵特訓 when weak. */}
-      {weakness && (
-        <WeaknessIndicator
-          weakness={weakness}
-          accent={accent}
-          onTargetedDrill={onTargetedDrill}
-          reducedMotion={reducedMotion}
-        />
+      {/* Card 變身 (add-neurons-single-subject-rescue): an active rescue plan replaces this
+          family's WeaknessIndicator row (and its absorbed one-tap 特訓) with a rescue chip
+          surfacing the countdown + RescueScore + 今日佇列 CTA. Only the active-plan family;
+          every other card keeps its normal weakness indicator. Reverts on archive/abandon. */}
+      {rescueChip ? (
+        <RescueChip d={rescueChip.d} score={rescueChip.score} accent={accent} onOpen={onOpenRescue} />
+      ) : (
+        weakness && (
+          <WeaknessIndicator
+            weakness={weakness}
+            accent={accent}
+            onTargetedDrill={onTargetedDrill}
+            reducedMotion={reducedMotion}
+          />
+        )
       )}
 
       <div style={modeChipRowStyle}>
@@ -510,7 +550,91 @@ function WeaknessIndicator({
   )
 }
 
+/**
+ * RescueChip — replaces the WeaknessIndicator row on the family with an active rescue
+ * plan (add-neurons-single-subject-rescue). Surfaces the countdown, RescueScore, and a
+ * 今日佇列 CTA; tapping it opens the rescue scene (its 今日佇列 = the absorbed targeted-
+ * drill entry, so the family never runs two selection algorithms at once).
+ */
+function RescueChip({
+  d,
+  score,
+  accent,
+  onOpen,
+}: {
+  d: number
+  score: number
+  accent: string
+  onOpen?: () => void
+}): JSX.Element {
+  const countdown = d <= 0 ? '考試日' : `D-${d}`
+  return (
+    <button
+      type="button"
+      style={rescueChipStyle(accent)}
+      onClick={onOpen}
+      aria-label={`考前救急進行中 · ${countdown} · RescueScore ${score} · 開啟今日佇列`}
+      title="考前救急進行中 — 開啟今日佇列"
+    >
+      <EmojiIcon char="⏱️" size={12} decorative />
+      <span style={rescueChipStrongStyle}>{countdown}</span>
+      <span style={rescueChipDimStyle}>· RescueScore {score} ·</span>
+      <span style={rescueChipCtaStyle(accent)}>今日佇列 →</span>
+    </button>
+  )
+}
+
 // ─── Styles ───────────────────────────────────────────────────────────────────
+const headerRightStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.6rem',
+  flexWrap: 'wrap',
+}
+
+const rescueEntryBtnStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.3rem',
+  padding: '0.3rem 0.7rem',
+  borderRadius: 999,
+  border: '1px solid #d4a04d',
+  background: '#fdf2e0',
+  color: '#8a5a1f',
+  fontSize: '0.8rem',
+  fontWeight: 700,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  lineHeight: 1,
+}
+
+const rescueChipStyle = (accent: string): React.CSSProperties => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.35rem',
+  flexWrap: 'wrap',
+  width: '100%',
+  padding: '0.4rem 0.6rem',
+  borderRadius: 8,
+  border: `1px solid ${accent}`,
+  background: '#fdf2e0',
+  color: '#5a3f29',
+  fontSize: '0.8rem',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  boxSizing: 'border-box',
+})
+const rescueChipStrongStyle: React.CSSProperties = {
+  fontWeight: 800,
+  color: '#8a5a1f',
+  fontVariantNumeric: 'tabular-nums',
+}
+const rescueChipDimStyle: React.CSSProperties = { color: '#8c7a55', fontVariantNumeric: 'tabular-nums' }
+const rescueChipCtaStyle = (accent: string): React.CSSProperties => ({
+  marginLeft: 'auto',
+  fontWeight: 700,
+  color: accent,
+})
 
 const pickerSectionStyle: React.CSSProperties = {
   background: '#f4ecd8',

@@ -41,6 +41,7 @@ import {
   useFlag,
 } from '../lib/services/question-flags'
 import { enqueueQuickReview, useIsPinned } from '../lib/services/quick-review-queue'
+import { recordConfidence, appendTelemetry } from '../lib/services/rescue/rescue-store'
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { Explanation } from './Explanation'
@@ -132,6 +133,17 @@ interface Props {
    * recompute may cross. Defaults to false.
    */
   creditCramRescue?: boolean
+  /**
+   * Rescue-only two-button pre-reveal submit affordance (add-neurons-single-subject-
+   * rescue, D3). When set, picking an option only STAGES it (highlight); the player
+   * then taps 「確定・有把握」/「確定・猜的」 to submit, so the confidence tap IS the
+   * submit and is captured BEFORE correctness is revealed (device-local `recordConfidence`).
+   * This is a submit AFFORDANCE only — answers still flow through the same `handlePick`
+   * scoring path (no new scoring path); it does NOT change any reward/economy wiring.
+   * The rescue session deliberately omits `creditCramRescue`/prescription crediting so
+   * no synced prescription meta is written (the device-local invariant). Defaults to false.
+   */
+  rescueSubmit?: boolean
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -274,7 +286,7 @@ function useOwnsLegendarySlot(familyId: string | undefined): boolean {
   return owns
 }
 
-export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false, sessionRepair = false, creditCramRescue = false }: Props): JSX.Element {
+export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false, sessionRepair = false, creditCramRescue = false, rescueSubmit = false }: Props): JSX.Element {
   // Session-repair is practice-inert PLUS SRS-inert. `inert` gates the maze /
   // energy / streak / connectome side-effects that both practice and session-repair
   // suppress; `sessionRepair` alone additionally suppresses the SRS scheduler.
@@ -491,35 +503,42 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         // reward crediting. It is an immediate retrieval-after-error correction, not a
         // scheduled review or a new expedition (per D4).
         if (!sessionRepair) {
-          // 今日處方箋 progress — this is the single shared answer-resolution point,
-          // so it fires for BOTH the 出征 expedition and family 🆕新題 answers.
-          // Best-effort + no-op when today's plan doesn't exist; never break the flow.
-          try {
-            const presc = await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
-            if (presc.repairConsolidated) setRepairConsolidated(true)
-            if (presc.breadthConsolidated) setBreadthConsolidated(true)
-            if (presc.justCompleted) setDayJustCompleted(true)
-            if (presc.tierCrossings.length > 0)
-              setTierCrossings((prev) => [...prev, ...presc.tierCrossings])
-          } catch (err) {
-            console.error('[prescription] failed to record answer', err)
-          }
-          // 考前救援 bonus — cram practice entry only (correct OR wrong). Own channel,
-          // best-effort; write-once daily meta, no dayComplete / economy effect
-          // beyond the claim-gated tier grants its recompute may cross.
-          if (creditCramRescue) {
+          // 單科考前救急 (add-neurons-single-subject-rescue, §6.3): rescue answers
+          // record to questionHistory + SRS ONLY — they must NOT credit the daily-
+          // prescription / cram-rescue economy (which writes synced prescription meta),
+          // or the device-local rescue invariant breaks. Skip both channels in rescue
+          // mode; SRS below still runs (rescue IS a scheduled review, unlike session-repair).
+          if (!rescueSubmit) {
+            // 今日處方箋 progress — this is the single shared answer-resolution point,
+            // so it fires for BOTH the 出征 expedition and family 🆕新題 answers.
+            // Best-effort + no-op when today's plan doesn't exist; never break the flow.
             try {
-              const rescue = await recordCramRescueAnswer(q.id)
-              if (rescue.tierCrossings.length > 0)
-                setTierCrossings((prev) => [...prev, ...rescue.tierCrossings])
+              const presc = await recordPrescriptionAnswer(q.id, q.subject, isCorrect)
+              if (presc.repairConsolidated) setRepairConsolidated(true)
+              if (presc.breadthConsolidated) setBreadthConsolidated(true)
+              if (presc.justCompleted) setDayJustCompleted(true)
+              if (presc.tierCrossings.length > 0)
+                setTierCrossings((prev) => [...prev, ...presc.tierCrossings])
             } catch (err) {
-              console.error('[cram-rescue] failed to record answer', err)
+              console.error('[prescription] failed to record answer', err)
+            }
+            // 考前救援 bonus — cram practice entry only (correct OR wrong). Own channel,
+            // best-effort; write-once daily meta, no dayComplete / economy effect
+            // beyond the claim-gated tier grants its recompute may cross.
+            if (creditCramRescue) {
+              try {
+                const rescue = await recordCramRescueAnswer(q.id)
+                if (rescue.tierCrossings.length > 0)
+                  setTierCrossings((prev) => [...prev, ...rescue.tierCrossings])
+              } catch (err) {
+                console.error('[cram-rescue] failed to record answer', err)
+              }
             }
           }
           // Update the SRS schedule for this question — runs on EVERY answer
           // regardless of mode (二階 skipSrs semantics), EXCEPT session-repair (which
           // preserves interval / easeFactor / nextDueAt / attempts / correctCount).
-          // Best-effort, own channel.
+          // Best-effort, own channel. Rescue answers DO schedule SRS (per §6.3).
           try {
             const sched = await scheduleSrsForAnswer(q.id, q.subject, isCorrect)
             prevSrsRef.current = sched.prev
@@ -532,7 +551,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
         setBusy(false)
       }
     },
-    [picked, busy, q, inert, sessionRepair, creditCramRescue],
+    [picked, busy, q, inert, sessionRepair, creditCramRescue, rescueSubmit],
   )
 
   const handleNext = useCallback(() => {
@@ -556,6 +575,21 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'auto' })
     }
   }, [])
+
+  // Rescue-only two-button submit (add-neurons-single-subject-rescue, D3): the
+  // player has STAGED an option (highlighted); tapping 有把握 / 猜的 records the
+  // pre-reveal confidence device-local, THEN runs the normal `handlePick` scoring
+  // path. Confidence is captured BEFORE correctness is revealed — the whole
+  // hypercorrection ×1.5 lever + its telemetry ride on this ordering.
+  const submitWithConfidence = useCallback(
+    (signal: 'sure' | 'guess') => {
+      if (highlighted === null || picked !== null || busy || !q) return
+      recordConfidence(q.id, signal)
+      appendTelemetry({ kind: 'confidence-tap', questionId: q.id, signal })
+      void handlePick(highlighted)
+    },
+    [highlighted, picked, busy, q, handlePick],
+  )
 
   // Esc to close
   useEffect(() => {
@@ -675,6 +709,12 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
     scrollContainerRef,
     setHighlightedKey: setHighlighted,
     onSubmit: (key) => {
+      // Rescue mode: Enter only STAGES the choice — submitting requires an explicit
+      // 有把握 / 猜的 confidence tap (footer buttons), so confidence is never skipped.
+      if (rescueSubmit) {
+        setHighlighted(key)
+        return
+      }
       setHighlighted(null)
       void handlePick(key)
     },
@@ -896,7 +936,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                 <button
                   key={key}
                   style={style}
-                  onClick={() => handlePick(key)}
+                  onClick={() => (rescueSubmit ? setHighlighted(key) : handlePick(key))}
                   disabled={picked !== null}
                   aria-pressed={isHighlighted}
                 >
@@ -1046,6 +1086,32 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                 <span className="quiz-hotkey-badge quiz-hotkey-badge--enter" aria-hidden>
                   ↵
                 </span>
+              </button>
+            </>
+          ) : rescueSubmit ? (
+            <>
+              <button
+                type="button"
+                style={highlighted !== null && !busy ? confidenceSureStyle : confidenceDisabledStyle}
+                disabled={highlighted === null || busy}
+                onClick={() => submitWithConfidence('sure')}
+                aria-label="送出答案：有把握"
+                title="送出這個答案 · 我有把握"
+              >
+                ✅ 確定・有把握
+              </button>
+              <button
+                type="button"
+                style={highlighted !== null && !busy ? confidenceGuessStyle : confidenceDisabledStyle}
+                disabled={highlighted === null || busy}
+                onClick={() => submitWithConfidence('guess')}
+                aria-label="送出答案：沒把握、用猜的"
+                title="送出這個答案 · 我是用猜的"
+              >
+                🎲 確定・猜的
+              </button>
+              <button style={secondaryBtnStyle} onClick={handleClose}>
+                結束
               </button>
             </>
           ) : (
@@ -1915,4 +1981,23 @@ const secondaryBtnStyle: React.CSSProperties = {
   ...baseBtnStyle,
   background: 'transparent',
   color: '#5a3f29',
+}
+
+// Rescue two-button pre-reveal submit (add-neurons-single-subject-rescue). 有把握
+// = confident (solid gold, same weight as the primary action); 猜的 = tentative
+// (softer warm fill). Both fall back to a muted disabled style until an option is
+// staged, so the player must select before a confidence tap can submit.
+const confidenceSureStyle: React.CSSProperties = { ...primaryBtnStyle }
+const confidenceGuessStyle: React.CSSProperties = {
+  ...baseBtnStyle,
+  background: '#f1e7d3',
+  color: '#5a3f29',
+  border: '1px solid #c4a878',
+}
+const confidenceDisabledStyle: React.CSSProperties = {
+  ...baseBtnStyle,
+  background: '#efe7d6',
+  color: '#a89a7d',
+  cursor: 'not-allowed',
+  opacity: 0.6,
 }

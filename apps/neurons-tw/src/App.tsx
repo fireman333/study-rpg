@@ -13,6 +13,7 @@ import { backfillAchievementsFromCurrentStats } from './lib/services/achievement
 import { initMasteryForPack } from './lib/services/connectome'
 import { initializeDmnTrigger } from './lib/services/dmn-trigger'
 import { initializePrescriptionWireListener } from './lib/services/prescription-wire'
+import { ensureRescueHydrated } from './lib/services/rescue/rescue-store'
 import { installConsoleErrorCapture } from './lib/services/console-error-buffer'
 import AchievementsPage from './routes/AchievementsPage'
 import AchievementToastHost from './components/AchievementToastHost'
@@ -64,6 +65,11 @@ export default function App(): JSX.Element {
         // objective, add-neurons-prescription-tiers-and-sync) — subscribes to the
         // expedition co-repair events; idempotent on StrictMode double-mount.
         initializePrescriptionWireListener()
+        // Hydrate the single-subject-rescue store: run the one-time localStorage
+        // → synced-meta migration, load the mirror from db.meta, and subscribe a
+        // liveQuery that reconciles cross-device pulls. Idempotent / best-effort
+        // (StrictMode-safe); never blocks boot (add-neurons-rescue-r2-sync).
+        void ensureRescueHydrated()
         // Seed familyMastery rows once at app boot — BEFORE any route mounts.
         // OverviewPage ('/') also runs this on mount, but /bank and /cram deep-links
         // mount QuizModal without OverviewPage, so answering there would throw an

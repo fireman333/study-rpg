@@ -14,6 +14,7 @@ import { backfillActiveSquadLWW } from './active-squad'
 import { backfillFirstPullFamiliesUnion } from './first-pull'
 import { backfillDmnDailyCounters } from './dmn-daily'
 import { backfillPrescriptionPlanMinLWW } from './prescription-plan'
+import { backfillRescueLWW } from './rescue'
 
 export async function runOnPullComplete(
   db: NeuronsDB,
@@ -87,6 +88,19 @@ export async function runOnPullComplete(
     await backfillPrescriptionPlanMinLWW(db, incomingMeta)
   } catch (err) {
     console.warn('[sync.backfill] step 1f (prescription-plan) failed', err)
+  }
+
+  // Step 1g — Single-subject rescue LWW reconcile: plan-envelope
+  // latest-action-wins (explicit-null clears), per-key confidence / override
+  // LWW. The meta adapter is first-write-wins; this enforces the family's real
+  // merge. Per add-neurons-rescue-r2-sync. No cross-step dependency.
+  try {
+    const incomingMeta = pull.snapshot
+      ? extractBundleMetaMap(pull.snapshot.data)
+      : {}
+    await backfillRescueLWW(db, incomingMeta)
+  } catch (err) {
+    console.warn('[sync.backfill] step 1g (rescue) failed', err)
   }
 
   // Step 2 — Achievement backfill. Silent (no toast / no reward dispatch).

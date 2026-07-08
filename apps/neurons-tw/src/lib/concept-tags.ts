@@ -61,6 +61,11 @@ export function conceptBankHref(zh: string): string {
   return `${import.meta.env.BASE_URL}bank?concept=${encodeURIComponent(zh)}`
 }
 
+/** Resolve a single concept leaf id to its canonical Chinese label (empty if unknown). */
+export function conceptLabel(subjectId: string, leafId: string): string {
+  return zhByKey[`${subjectId}::${leafId}`] ?? ''
+}
+
 /** Resolve a question's tags to display labels (unknown ids dropped, order preserved). */
 export function conceptLabelsFor(q: Question, tags: ConceptTagMap): ConceptLabel[] {
   const ids = tags[q.id]

@@ -17,6 +17,11 @@ import { PER_FAMILY_CELEBRATION_KEYS } from '../services/maze-celebration'
 // both keeps the sync filter and the key mints from ever drifting.
 // prescription.ts imports nothing from lib/sync → no cycle.
 import { IMPRINT_PREFIX, isSyncedPrescriptionKey } from '../services/prescription'
+// Single source of the single-subject-rescue synced-key family (minted by the
+// rescue service): the plan envelope + run-scoped, run-sync-windowed conf/ovr
+// matcher `isSyncedRescueKey` (add-neurons-rescue-r2-sync). rescue-sync-keys.ts
+// is pure (no lib/sync import) → no cycle.
+import { isSyncedRescueKey } from '../services/rescue/rescue-sync-keys'
 
 /**
  * Per-family maze economy keys (redesign-neurons-maze-rotjs-grid) — 11 families ×
@@ -504,16 +509,18 @@ export const IMPRINT_SYNC_PREFIX = IMPRINT_PREFIX
 /**
  * Whether a meta key participates in cross-device sync: the enumerated allowlist OR a
  * registered key-family matcher (the imprint prefix; the prescription daily-quest
- * date-windowed matcher — add-neurons-prescription-tiers-and-sync). Used by BOTH the
- * metaAdapter snapshot (which rows enter the bundle) and its apply (which incoming
- * rows are accepted), so the two directions can never diverge — this is the ONLY
- * membership test on the meta sync path.
+ * date-windowed matcher — add-neurons-prescription-tiers-and-sync; the single-subject
+ * rescue family — add-neurons-rescue-r2-sync). Used by BOTH the metaAdapter snapshot
+ * (which rows enter the bundle) and its apply (which incoming rows are accepted), so
+ * the two directions can never diverge — this is the ONLY membership test on the meta
+ * sync path.
  */
 export function isSyncedMetaKey(key: string): boolean {
   return (
     SYNCED_META_KEYS.has(key) ||
     key.startsWith(IMPRINT_SYNC_PREFIX) ||
-    isSyncedPrescriptionKey(key)
+    isSyncedPrescriptionKey(key) ||
+    isSyncedRescueKey(key)
   )
 }
 

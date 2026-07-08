@@ -89,10 +89,37 @@ export async function pushBundle(
      * conflicted reset still throws (the empty reset bundle must actually land).
      */
     deferOnConflict?: boolean
+    /**
+     * Fired after a conflict-recovery pull (the 412/409 and 428 paths) merges
+     * NEW cloud state — same gating as the engine's own pullNow (`applied` set,
+     * not `notModified`, not `blobMissing`). The sync engine threads its
+     * `onPullComplete` here so the LWW/MAX backfill families (rescue plan
+     * envelope, prescription plan, representatives, active-squad, counters…)
+     * reconcile the recovery snapshot BEFORE the next snapshot is built.
+     * Without it the recovery pull only runs the transport-default apply
+     * (meta = first-write-wins-skip), so a device holding stale LWW state
+     * would re-push it and clobber the newer cloud value straight back (e.g.
+     * a rescue `plan: null` abandoned elsewhere resurrected by a stale
+     * active plan). Error-isolated: a throwing hook never breaks the push.
+     */
+    onRecoveryPull?: (result: PullBundleResult) => void | Promise<void>
   },
 ): Promise<PushBundleResult> {
   let lastErr: unknown = null
   let lastStatus: number | null = null
+
+  // Recovery pull (conflict paths): refresh from the winning writer, then run
+  // the caller's backfill hook on the merged snapshot (see onRecoveryPull).
+  const recoveryPull = async (): Promise<void> => {
+    const pulled = await pullBundle(supabase, db, userId, { conditional: false })
+    if (opts?.onRecoveryPull && pulled.applied && !pulled.notModified && !pulled.blobMissing) {
+      try {
+        await opts.onRecoveryPull(pulled)
+      } catch (err) {
+        console.warn('[sync:pushR2:neurons] onRecoveryPull hook failed', err)
+      }
+    }
+  }
 
   for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
     try {
@@ -133,7 +160,7 @@ export async function pushBundle(
         // attempt carries a fresh `If-Match`. On the LAST attempt skip the
         // backoff sleep — no retry will consume it; the jittered debounce IS the
         // backoff (Fork D).
-        await pullBundle(supabase, db, userId, { conditional: false })
+        await recoveryPull()
         lastStatus = res.status
         if (attempt >= MAX_PUSH_RETRIES) break
         await sleep(jitter(BACKOFF_MS[attempt - 1] ?? 4000))
@@ -141,7 +168,7 @@ export async function pushBundle(
       }
 
       if (res.status === 428 && !known) {
-        await pullBundle(supabase, db, userId, { conditional: false })
+        await recoveryPull()
         lastStatus = res.status
         if (attempt >= MAX_PUSH_RETRIES) break
         await sleep(jitter(BACKOFF_MS[attempt - 1] ?? 4000))
