@@ -11,6 +11,7 @@
  * Data is lazy-fetched cram.json (useCram); questions resolve from the loaded ContentPack.
  */
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { ContentPack, Question } from '@study-rpg/core'
 import type { CramBlock, CramPushItem } from '@study-rpg/content-neurons-tw'
 import { useCram } from '../lib/cram'
@@ -38,6 +39,7 @@ function Inline({ html }: { html: string }): JSX.Element {
 }
 
 export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
+  const navigate = useNavigate()
   const cram = useCram()
   const questionById = useMemo(() => {
     const m = new Map<string, Question>()
@@ -88,6 +90,11 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
 
   return (
     <div style={pageStyle}>
+      {/* ── 5-minute speed-review entry (add-neurons-5min-speed-review) ── */}
+      <button style={speedReviewCtaStyle} onClick={() => navigate('/cram/5min')}>
+        ⏳ 5 分鐘速看版 · 進場前把 11 科精華滑一遍
+      </button>
+
       {/* ── Download PDF row (top, under subtab) ── */}
       <div style={downloadRowStyle}>
         <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
@@ -401,5 +408,6 @@ const sourceQBtnStyle: React.CSSProperties = { border: '1px solid #d8c39a', back
 const reviewWrapStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.5rem 0.6rem', background: '#fff' }
 const moreNoteStyle: React.CSSProperties = { margin: '0.3rem 0 0', fontSize: '0.74rem', color: '#a08a5a', fontFamily: 'var(--font-legible)' }
 const practiceCtaStyle: React.CSSProperties = { marginTop: '0.5rem', border: '1px solid #b58900', background: '#b58900', color: '#fff', borderRadius: 6, padding: '0.35rem 0.9rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
+const speedReviewCtaStyle: React.CSSProperties = { display: 'block', width: '100%', textAlign: 'center', border: '2px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 8, padding: '0.6rem 0.9rem', margin: '0 0 0.9rem', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
 const downloadRowStyle: React.CSSProperties = { display: 'flex', gap: '0.6rem', flexWrap: 'wrap', margin: '0 0 1rem' }
 const downloadBtnStyle: React.CSSProperties = { border: '1px solid #8c6d4a', background: '#f4ecd8', color: '#5a3d1a', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', textDecoration: 'none', fontFamily: 'var(--font-legible)' }

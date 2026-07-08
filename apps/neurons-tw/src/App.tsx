@@ -22,6 +22,7 @@ import BookmarksPage from './routes/BookmarksPage'
 import CollectionPage from './routes/CollectionPage'
 import { QuestionBankPage } from './routes/QuestionBankPage'
 import { CramPage } from './routes/CramPage'
+import { SpeedReviewPage } from './routes/SpeedReviewPage'
 import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import { CustomTooltipHost } from './components/CustomTooltipHost'
@@ -128,6 +129,13 @@ export default function App(): JSX.Element {
           <AnimatedRoutes pack={pack} />
         </main>
         </div>
+        {/* Full-screen 5-min speed-review scene — a route OUTSIDE AnimatedRoutes so its
+            portal mount is NOT gated by the route-wipe's AnimatePresence mode="wait" exit
+            (which broke in-app nav; direct-URL / F5 were unaffected). Renders nothing when
+            the path doesn't match; the scene itself portals to <body>. */}
+        <Routes>
+          <Route path="/cram/5min" element={<SpeedReviewPage />} />
+        </Routes>
       </BrowserRouter>
       </PdfPanelProvider>
       </SyncProvider>
@@ -176,6 +184,11 @@ function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
             <Route path="/bank" element={<QuestionBankPage pack={pack} />} />
             <Route path="/cram" element={<CramPage pack={pack} />} />
           </Route>
+          {/* /cram/5min renders its full-screen scene via the separate <Routes> below (outside
+              AnimatePresence). Here it maps to an empty placeholder so the animated layer has a
+              concrete incoming child — a null match leaves AnimatePresence mode="wait" unable to
+              finish exiting the previous page (CramPage would linger mounted behind the scene). */}
+          <Route path="/cram/5min" element={<span aria-hidden />} />
           {/* Relocated into /collection (finalize-mock-variant-catalog); keep a redirect for any old link. */}
           <Route path="/mock-collection" element={<Navigate to="/collection" replace />} />
           <Route path="/motion-demo" element={<MotionDemoPage />} />
