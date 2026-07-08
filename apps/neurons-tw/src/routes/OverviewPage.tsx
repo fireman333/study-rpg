@@ -60,6 +60,11 @@ import {
 } from '../lib/services/weakness-pressure'
 import { useConceptTags } from '../lib/concept-tags'
 import { useAllFlags } from '../lib/services/question-flags'
+import { RescueScene } from '../components/RescueScene'
+import { useRescuePlan } from '../lib/services/rescue/rescue-store'
+import { computeRescueD } from '../lib/services/rescue/rescue-lifecycle'
+import { computeConceptMastery, computeRescueScore } from '../lib/services/rescue/rescue-score'
+import { buildConceptYield } from '../lib/services/rescue/rescue-session'
 import { dequeueQuickReview } from '../lib/services/quick-review-queue'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
@@ -96,6 +101,12 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // surfaced at settlement as an optional one-time repair pass. `null` = not offered.
   const [repairWrongIds, setRepairWrongIds] = useState<string[] | null>(null)
   const [repairOpen, setRepairOpen] = useState(false)
+  // 單科考前救急 (add-neurons-single-subject-rescue): a device-local, one-family last-minute
+  // rescue overlay. `rescueInitialFamily` preselects the setup family (from a card chip) or is
+  // undefined (from the header entry). The active plan is read reactively for the card 變身.
+  const [rescueOpen, setRescueOpen] = useState(false)
+  const [rescueInitialFamily, setRescueInitialFamily] = useState<string | undefined>(undefined)
+  const rescuePlan = useRescuePlan()
   // 模考 moved off the homepage → 題庫 tab (tidy-neurons-homepage-ui); its picker +
   // pure-practice drill now live in QuestionBankPage. The ⚔️ 錯題出征 CTA now lives
   // in the merged ConnectomeStatCard (redesign-neurons-homepage-cta).
@@ -241,6 +252,20 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     () => computeWeaknessPressure(questionHistory, conceptTags, familyIds),
     [questionHistory, conceptTags, familyIds],
   )
+  // Rescue chip for the active-plan family only (cheap — one family): D countdown +
+  // RescueScore. Yield uses the corpus-percentile fallback (no cram fetch on the homepage);
+  // the scene itself refines with cram tiers. Null when no plan is active.
+  const rescueChip = useMemo(() => {
+    if (!rescuePlan) return null
+    const scoped = filterPoolByFamily(pack.questions, rescuePlan.familyId)
+    const conceptYield = buildConceptYield([], scoped, conceptTags)
+    const scopedHistory = questionHistory.filter((h) => h.family === rescuePlan.familyId)
+    const mastery = computeConceptMastery(scopedHistory, conceptTags)
+    return {
+      d: computeRescueD(rescuePlan.examDate, todayISO()),
+      score: computeRescueScore(mastery, conceptYield),
+    }
+  }, [rescuePlan, pack.questions, conceptTags, questionHistory])
   // 一鍵特訓 pool: family-scoped ≤10 high-weakness questions (wrong / low-ease / overdue),
   // reusing the existing family-filter + the targeted-drill ranker. Materialised only
   // while the drill is open.
@@ -379,6 +404,13 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     setQuickReviewActive(false)
     setExpeditionOpen(false)
     setTargetedDrill({ familyId })
+  }
+
+  // 考前救急: open the rescue scene. From the header entry `familyId` is undefined (setup
+  // defaults to the first / active family); from a card's rescue chip it is that family.
+  const openRescue = (familyId?: string): void => {
+    setRescueInitialFamily(familyId)
+    setRescueOpen(true)
   }
 
   // DMN quick-review-batch: the toast CTA emits `dmn.quickReviewStart`; open the
@@ -872,10 +904,24 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         mazeExpanded={mazeExpanded}
         mazeSlot={mazeSlot}
         mazeHintByFamily={mazeHintByFamily}
+        rescuePlanFamilyId={rescuePlan?.familyId ?? null}
+        rescueChip={rescueChip}
+        onOpenRescue={openRescue}
       />
 
       {/* Lofi 電台 — 收合式、OFF-by-default 彩蛋，塞在迷宮/科目格下方 (add-neurons-lofi-radio) */}
       <RadioWidget />
+
+      {/* 單科考前救急 overlay (add-neurons-single-subject-rescue): device-local, one family at a
+          time. Owns its own setup → blitz → overview → session flow; answers reuse QuizModal's
+          rescue submit mode. Closing reverts the card/drill absorption via the plan-null signal. */}
+      {rescueOpen && (
+        <RescueScene
+          pack={pack}
+          initialFamilyId={rescueInitialFamily}
+          onClose={() => setRescueOpen(false)}
+        />
+      )}
 
       {quizEntry !== undefined && expeditionOpen === false && (
         <QuizModal
