@@ -25,6 +25,8 @@ import { runOnPullComplete } from './backfill'
 import { autoPushLeaderboardOnSync } from '../services/neurons-leaderboard'
 import { NEURONS_ADAPTERS } from './tables'
 import { adoptAccount, evaluateAccountGate, readLastSyncedUserId, writeLastSyncedUserId } from './account-guard'
+import { clearEtag } from './r2/etag'
+import { createAdoptionCloudWins } from './adoption-cloud-wins'
 import { consumeRescueMigrationPush } from '../services/rescue/rescue-store'
 
 // Phase 1 (eliminate-cross-device-r2-412-storm): 3s → 12s (matches 二階's ~10s)
@@ -83,8 +85,23 @@ export function useSync(): {
       setSwitchPending(true)
       return // no engine, no hooks — resolved via confirm()/cancel()
     }
-    if (decision === 'proceed-and-write') writeLastSyncedUserId(user.id)
+    if (decision === 'proceed-and-write') {
+      writeLastSyncedUserId(user.id)
+      // Codex pre-ship finding 2: on adoption this device must NOT carry a stale
+      // If-Match ETag for this user — otherwise a slow startup pull could let the
+      // first push land (overwriting the account's cloud plan) before cloud-wins
+      // runs. Clearing forces the first push to send `If-None-Match: *` → an existing
+      // cloud blob 412s → recovery pull → cloud-wins protects the plan.
+      clearEtag(user.id)
+    }
     setSwitchPending(false)
+
+    // Anonymous → authed adoption (cloud-wins-B, add-neurons-rescue-anon-authed-claim):
+    // a 'proceed-and-write' gate means this device's marker was null (first-ever sync
+    // here). The account's cloud rescue plan must win over any anonymous local plan so
+    // anonymous rescue can't LWW-clobber the account's real plan. Protection is bounded
+    // to the first reconcile (a definitive pull OR a landed push) — see the helper.
+    const adoptionCloudWins = createAdoptionCloudWins(decision === 'proceed-and-write')
 
     const engine = createSyncEngine({
       supabase,
@@ -92,7 +109,8 @@ export function useSync(): {
       user,
       debounceMs: DEBOUNCE_MS,
       onPullComplete: async (result) => {
-        await runOnPullComplete(db, result)
+        const rescueCloudPlanWins = adoptionCloudWins.consumeForPull()
+        await runOnPullComplete(db, result, { rescueCloudPlanWins })
       },
       // After every successful push, refresh the leaderboard row for opted-in
       // players so rank tracks gameplay without manual 同步. Best-effort: a
@@ -100,6 +118,12 @@ export function useSync(): {
       // writes NO synced Dexie table (no last_pushed_at) — otherwise it would
       // re-trigger schedulePush and loop forever. See autoPushLeaderboardOnSync.
       onPushComplete: async () => {
+        // A landed push reconciles the account's cloud state → stop cloud-wins. With
+        // clearEtag on adoption the first push uses If-None-Match:*, so a landed push
+        // proves the cloud blob did not pre-exist (no account plan to protect); an
+        // existing plan would 412 → recovery pull consumes protection instead. Closes
+        // the errored-startup + empty-cloud residual (Codex re-review 2).
+        adoptionCloudWins.onPushLanded()
         try {
           await autoPushLeaderboardOnSync({
             userId: user.id,
@@ -118,7 +142,15 @@ export function useSync(): {
     // Initial pull on mount — retained on the engine (S3) so the first push
     // awaits it (bounded) and sends If-Match with a warm ETag instead of the
     // guaranteed cold-start If-None-Match:* 412.
-    engine.beginStartupForcePull()
+    //
+    // Bound cloud-wins to the startup pull's settlement: a definitive cloud read
+    // (non-null: applied / notModified / blobMissing) clears protection; an error
+    // (null) keeps it so a later recovery/visibility pull can still protect an
+    // existing cloud plan. Prevents the flag leaking to a later pull for a
+    // genuinely-new (blobMissing) account (Codex pre-ship finding 1).
+    void engine.beginStartupForcePull().then((res) => {
+      adoptionCloudWins.onStartupSettled(res !== null)
+    })
 
     // Subscribe to Dexie changes via the `on('versionchange'|'populate'|...)` API
     // is not granular enough — use polling via setInterval (single low-cost timer)

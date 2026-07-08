@@ -19,6 +19,10 @@ import { backfillRescueLWW } from './rescue'
 export async function runOnPullComplete(
   db: NeuronsDB,
   pull: PullBundleResult,
+  // `rescueCloudPlanWins` is set ONLY for the first pull after an anonymous →
+  // authed adoption, so the account's cloud rescue plan wins over an anonymous
+  // local plan (see backfillRescueLWW). Absent/false on every subsequent pull.
+  opts?: { rescueCloudPlanWins?: boolean },
 ): Promise<void> {
   // Step 1 — MAX-merge counters. Must run BEFORE step 2 (achievement
   // predicates depend on counter state).
@@ -98,7 +102,7 @@ export async function runOnPullComplete(
     const incomingMeta = pull.snapshot
       ? extractBundleMetaMap(pull.snapshot.data)
       : {}
-    await backfillRescueLWW(db, incomingMeta)
+    await backfillRescueLWW(db, incomingMeta, { cloudPlanWins: opts?.rescueCloudPlanWins })
   } catch (err) {
     console.warn('[sync.backfill] step 1g (rescue) failed', err)
   }
