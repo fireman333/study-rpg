@@ -110,8 +110,14 @@ export class SyncEngine {
    * push always observes a non-null promise. Never rejects (a failed warm-up must
    * not break pushes; `pullNow` records its own error / state).
    */
-  beginStartupForcePull(): void {
-    this.startupForcePull = this.pullNow({ force: true }).catch(() => {})
+  beginStartupForcePull(): Promise<PullBundleResult | null> {
+    const p = this.pullNow({ force: true })
+    // Void view retained for the first push to await (bounded); nulled after.
+    this.startupForcePull = p.then(() => {}).catch(() => {})
+    // Result view so the caller can tell whether the startup pull DEFINITIVELY
+    // read cloud state (non-null: applied / notModified / blobMissing) vs errored
+    // (null) — used to bound the one-shot anonymous-adoption cloud-wins window.
+    return p
   }
 
   async pushNow(): Promise<void> {
@@ -187,8 +193,8 @@ export class SyncEngine {
     }
   }
 
-  async pullNow(opts?: { force?: boolean }): Promise<void> {
-    if (this.state === 'paused') return
+  async pullNow(opts?: { force?: boolean }): Promise<PullBundleResult | null> {
+    if (this.state === 'paused') return null
     this.state = 'pulling'
     try {
       const result = await pullBundle(this.supabase, this.db, this.user.id, {
@@ -208,10 +214,14 @@ export class SyncEngine {
           console.warn('[sync] onPullComplete failed', err)
         }
       }
+      // Returned so callers can distinguish a definitive cloud read (applied /
+      // notModified / blobMissing) from an error (null) — see beginStartupForcePull.
+      return result
     } catch (err) {
       this.lastError = (err as { message?: string })?.message ?? 'unknown'
       this.state = 'error'
       console.warn('[sync] pull failed', err)
+      return null
     }
   }
 

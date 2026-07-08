@@ -21,6 +21,7 @@ import {
   RESCUE_OVR_KEY_PREFIX,
   isSyncedRescueKey,
   isValidPlanEnvelopeRaw,
+  parsePlanEnvelope,
   pickPlanEnvelopeLWW,
   pickConfLWW,
   pickOvrLWW,
@@ -29,6 +30,9 @@ import {
 export async function backfillRescueLWW(
   db: NeuronsDB,
   bundleMeta: Record<string, unknown>,
+  // `cloudPlanWins` is set ONLY for the first pull after an anonymous → authed
+  // adoption (marker was null → 'proceed-and-write'). See the plan-envelope block.
+  opts?: { cloudPlanWins?: boolean },
 ): Promise<{ updated: number }> {
   let updated = 0
   const confKeys: string[] = []
@@ -51,7 +55,18 @@ export async function backfillRescueLWW(
       const incomingRaw = bundleMeta[RESCUE_PLAN_KEY]
       if (typeof incomingRaw === 'string') {
         const localRow = await db.meta.get(RESCUE_PLAN_KEY)
-        const next = pickPlanEnvelopeLWW(localRow?.value, incomingRaw)
+        // Anonymous → authed adoption (cloud-wins). On the FIRST pull after signing
+        // into an account (marker was null → 'proceed-and-write'), if the CLOUD
+        // envelope carries a non-null (active) plan, the account's cloud plan is
+        // authoritative: take it verbatim instead of LWW, so an anonymous local plan
+        // with a later `updatedAt` can never clobber the account's real rescue state.
+        // A cloud null/absent plan falls through to normal LWW, so a genuinely-new
+        // account still carries the anonymous plan over. (add-neurons-rescue-anon-authed-claim)
+        const cloudActivePlanWins =
+          opts?.cloudPlanWins === true && parsePlanEnvelope(incomingRaw)?.plan != null
+        const next = cloudActivePlanWins
+          ? incomingRaw
+          : pickPlanEnvelopeLWW(localRow?.value, incomingRaw)
         if (next !== null && next !== localRow?.value) {
           await db.meta.put({ key: RESCUE_PLAN_KEY, value: next })
           updated++

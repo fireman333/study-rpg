@@ -208,6 +208,47 @@ describe('backfillRescueLWW (post-pass convergence)', () => {
   })
 })
 
+// ── anonymous → authed adoption: cloud-wins-B (add-neurons-rescue-anon-authed-claim) ──
+describe('backfillRescueLWW — anonymous→authed adoption (cloud-wins-B)', () => {
+  beforeEach(async () => {
+    await db.delete()
+    await db.open()
+  })
+
+  it('adoption pull: a cloud ACTIVE plan wins over a later-updatedAt anonymous local plan', async () => {
+    const localAnon = mkEnv(mkPlan({ familyId: '生理學' }), 500) // anonymous, later action
+    const cloudActive = mkEnv(mkPlan({ familyId: '解剖學' }), 100) // account's real plan, earlier
+    await db.meta.put({ key: RESCUE_PLAN_KEY, value: localAnon })
+    await backfillRescueLWW(db, { [RESCUE_PLAN_KEY]: cloudActive }, { cloudPlanWins: true })
+    // the account's cloud plan is authoritative despite its older updatedAt — the
+    // anonymous local plan can NOT LWW-clobber it (this is the whole fix).
+    expect((await db.meta.get(RESCUE_PLAN_KEY))?.value).toBe(cloudActive)
+  })
+
+  it('a NORMAL (non-adoption) pull keeps LWW: a later local plan is NOT clobbered by an earlier cloud plan', async () => {
+    const localLater = mkEnv(mkPlan({ familyId: '生理學' }), 500)
+    const cloudEarlier = mkEnv(mkPlan({ familyId: '解剖學' }), 100)
+    await db.meta.put({ key: RESCUE_PLAN_KEY, value: localLater })
+    await backfillRescueLWW(db, { [RESCUE_PLAN_KEY]: cloudEarlier }) // no opts → default LWW unchanged
+    expect((await db.meta.get(RESCUE_PLAN_KEY))?.value).toBe(localLater)
+  })
+
+  it('adoption with no cloud plan key: anonymous local plan carries over (genuinely-new account)', async () => {
+    const localAnon = mkEnv(mkPlan(), 500)
+    await db.meta.put({ key: RESCUE_PLAN_KEY, value: localAnon })
+    await backfillRescueLWW(db, {}, { cloudPlanWins: true }) // cloud silent on rescue
+    expect((await db.meta.get(RESCUE_PLAN_KEY))?.value).toBe(localAnon)
+  })
+
+  it('adoption with a cloud NULL plan does not force-win: normal LWW keeps the later local plan', async () => {
+    const localAnon = mkEnv(mkPlan(), 500)
+    const cloudNull = mkEnv(null, 100) // account has no active plan — nothing to protect
+    await db.meta.put({ key: RESCUE_PLAN_KEY, value: localAnon })
+    await backfillRescueLWW(db, { [RESCUE_PLAN_KEY]: cloudNull }, { cloudPlanWins: true })
+    expect((await db.meta.get(RESCUE_PLAN_KEY))?.value).toBe(localAnon)
+  })
+})
+
 // ── migration (localStorage → synced meta) ────────────────────────────────────
 describe('migrateRescueLocalState (one-time, idempotent)', () => {
   beforeEach(async () => {
