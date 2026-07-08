@@ -496,7 +496,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
             )}
             <p style={deviceCopyStyle}>
               {synced
-                ? '已登入，救急計畫與信心紀錄會跨裝置同步；診斷紀錄只留在這台。'
+                ? '已登入，救急計畫與信心紀錄會跨裝置同步。'
                 : '未登入，目前只存在這台裝置；登入後救急計畫與信心紀錄會跨裝置同步。'}
             </p>
           </div>
@@ -609,7 +609,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
 
                 <p style={deviceCopyStyle}>
                   {synced
-                    ? '已登入，救急計畫與信心紀錄會跨裝置同步；診斷紀錄只留在這台。'
+                    ? '已登入，救急計畫與信心紀錄會跨裝置同步。'
                     : '未登入，目前只存在這台裝置；登入後救急計畫與信心紀錄會跨裝置同步。'}
                 </p>
                 <div style={overviewFootRowStyle}>
