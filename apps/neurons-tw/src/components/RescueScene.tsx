@@ -120,9 +120,15 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
   // Auto-archive a plan whose exam has passed (reverts absorption via the plan-null signal).
+  // Cross-device safety (mirrors the B1 startRescue gate on the same `startupSyncPending`):
+  // archiveIfDue writes a fresh-`updatedAt` `plan: null` that LWW-wins account-wide. Running it
+  // before the startup force-pull lands would let a stale device null-clobber another device's
+  // newer active run (2026-07-08 re-check finding). Hold until the first pull has landed;
+  // offline fails open via `startupSyncPending`, leaving only the inherent offline-LWW residual.
   useEffect(() => {
+    if (startupSyncPending) return
     archiveIfDue(todayISO())
-  }, [])
+  }, [startupSyncPending])
 
   const [phase, setPhase] = useState<Phase>(() => {
     const p = getActivePlan()
