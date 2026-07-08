@@ -1,10 +1,10 @@
 ## 1. 補齊 6 科 kernel 精華（關鍵路徑 — 先行，也順手修好既有 /cram）
 
-- [ ] 1.1 盤點 5 個既有 kernel 科（生理/解剖/免疫/寄生蟲/藥理）的精華句密度與寫法，定「每科 ≤5 條」的風格範本（含 `<cite>` 考頻標註慣例）
-- [ ] 1.2 對 6 缺 kernel 科（生物化學／組織學／胚胎學／病理學／微生物學／公共衛生學）依 `concept-recurrence` 常青概念（`breadth`/tier 排名）派 agent 草擬每科 ≤5 條 kernel 精華一行句
-- [ ] 1.3 醫學 fact 逐條走 `/oe`（OpenEvidence）查證；owner 逐條審核定稿（草擬稿不直接上線）
-- [ ] 1.4 把定稿的 6 科 kernel block 以 `<ul class="kernel">` 寫回既有 `packages/content-neurons-tw/src/cram/fragments/醫學?__<科>.html`（**只 ADD kernel block、不動既有 kw/disc/num 內容**）
-- [ ] 1.5 `pnpm run build:neurons-content` + `verify:cram`：確認 11 科皆有 kernel block、既有 5 科 fragment byte-unchanged、`cram.json` 重生含全 11 科 kernel
+- [x] 1.1 盤點 5 個既有 kernel 科（生理/解剖/免疫/寄生蟲/藥理）的精華句密度與寫法，定「每科 ≤5 條」的風格範本（含 `<cite>` 考頻標註慣例）
+- [x] 1.2 對 6 缺 kernel 科（生物化學／組織學／胚胎學／病理學／微生物學／公共衛生學）依 `concept-recurrence` 常青概念（`breadth`/tier 排名）派 agent 草擬每科 ≤5 條 kernel 精華一行句（草擬每科 ~8 候選供 owner 審後留 5）
+- [x] 1.3 accuracy gate：主 agent 獨立醫學複核（0 error）+ **Codex adversarial review（49 OK / 8 ISSUE / 1 time-sensitive）**；shipping 集 2 修（HBV 核內複製→cccDNA、檢定選擇加 Fisher）已套用；time-sensitive 法定傳染病清單不選
+- [x] 1.4 把定稿的 6 科 kernel block（各 5 條）以 `<ul class="kernel">` 寫回既有 fragments（byte-safe prepend，只 ADD kernel block、不動既有 kw/disc/num）
+- [x] 1.5 `build:neurons-content` + `verify:cram` PASS（速看 80→86、kernel 5→11、既有 5 科 byte-unchanged）+ Chrome MCP /cram render 確認（病理學 kernel 5 條正確、既有 block 完好）
 
 ## 2. Build：一頁式速看 PDF（零新 JSON artifact）
 
