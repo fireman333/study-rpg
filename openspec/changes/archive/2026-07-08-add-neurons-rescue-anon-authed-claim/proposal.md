@@ -1,6 +1,6 @@
 # Guard anonymous → authed rescue adoption with a claim prompt
 
-> **狀態：QUEUED / proposal-stage only.** 這是 2026-07-08 rescue R2 同步 dual-review（Fable × Codex）產出的 follow-up。proposal 先落地當 queue；`design.md` / spec delta / `tasks.md` 待 owner 對 UX 與 scope 決策後再寫（curator rule：spec scenario 需 owner 確認措辭才寫）。
+> **狀態：DECIDED (cloud-wins-B) + implemented, verify green.** owner 於 2026-07-08 選定 **B（雲端優先、無 UI）**。`design.md` / spec delta / `tasks.md` 已寫；code + 4 新 tests + 1081-suite green + typecheck clean。剩：spec 措辭 owner 確認 → archive → commit + merge/deploy（owner-gated）→ 真機驗。
 
 ## Why
 
@@ -14,12 +14,13 @@ Rescue 狀態刻意 account-owned（`openspec/specs/neurons-single-subject-rescu
 
 **兩位 reviewer 都獨立確認此洞為真**，但對急迫度分歧（見下方 Open Questions）——本 proposal 先把它變成可追蹤的 queued change，急迫度由 owner 定。
 
-## What Changes（草案方向，待 owner 確認）
+## What Changes（cloud-wins-B，已實作）
 
-Fable 提的便宜版（rescue 特化，成本低）：**首次登入且雲端已有 rescue envelope 時，彈一個 claim 選擇「保留雲端 / 用本機」**，在 sync 收編本機匿名 rescue 資料**之前**攔一道。Codex 版更嚴：任何 rescue meta 存在且 ownership marker 缺席時，在 mount sync 前先做 adopt/discard gate。
+**首次登入的第一次 pull（marker 為 null 的 `proceed-and-write` 收編路徑）**：若帳號雲端 rescue plan envelope 帶 **非 null（active）plan**，雲端計畫為準 → verbatim 取代本機 envelope、**不看 `updatedAt`**，匿名本機計畫（即使 `updatedAt` 較新）無法 LWW 蓋掉帳號真實計畫。雲端 plan **absent 或 explicit-null** → 走正常 LWW → 全新帳號仍帶匿名進度過去。
 
-- 不改 LWW / merge 語意本身，只在「匿名 rescue envelope 首次進 authed 帳號」這個邊界加一道人工選擇。
-- 預期零 schema 改動（純攔截既有收編流程 + 一個 modal）。
+- 純 merge-端最小改動：`useSync` 設一次性 adoption flag（consumed on first pull）→ `runOnPullComplete` → `backfillRescueLWW` 的 `cloudPlanWins` opt。無 UI、無 modal。
+- 順序安全既有保障：startup force-pull 先於第一次 push（S3），cloud-wins 先落地 → 匿名計畫永不被上傳蓋雲端。
+- **零 schema 改動**（不 bump Dexie / R2 SCHEMA_VERSION / SYNCED_META_KEYS；純 merge 決策）。機制細節見 design.md。
 
 ## Capabilities
 
@@ -32,11 +33,11 @@ Fable 提的便宜版（rescue 特化，成本低）：**首次登入且雲端�
 - **Code**：`account-guard.ts` / `useSync.ts`（首登 gate 分支）+ 一個 claim modal + `rescue-store.ts`（判斷「本機有匿名 rescue envelope」的 helper）。範圍待 design.md 收斂。
 - **真機驗證**：首登 anon→authed 收編行為只能在部署後真機測（localhost dev R2 push 不可用）。
 
-## Open Questions（owner 決策後才寫 design/spec/tasks）
+## Decisions（2026-07-08，owner）
 
-1. **急迫度**：Codex = High「不該繼續 deferred」；Fable = P3「洞真但觸發窄——需『新裝置匿名玩過救急 → 才登入既有帳號』；owner 已登入，單人 dogfood 近期機率低」。→ 現在做，還是排在後面？
-2. **Scope**：只做 rescue 特化的 claim prompt（Fable，便宜），還是做通用的「匿名 progress 首登收編 gate」（Codex，較大、會碰 `neurons-cloud-sync` 既有 anonymous-merge 語意）？
-3. **UX 落點**：claim 選擇在 sign-in flow 彈，還是進 rescue scene 時彈？copy 怎麼寫（「這個帳號雲端已有救急計畫，要保留雲端還是改用這台的？」）。
+1. **急迫度**：現在做（此 session 隨 re-check 一起收）。
+2. **Scope**：**B — rescue 特化的 cloud-wins（無 prompt）**。不採 A（claim prompt，觸發過窄、UI 不划算）、不採 C（通用匿名收編 gate，over-scoped、會碰 `neurons-cloud-sync` anonymous-merge 不變量）。
+3. **UX 落點**：無 UI（純 merge 決策）。代價：帳號雲端已有 active 計畫時，靜默丟掉匿名本機 cram plan（ephemeral、低害）；owner 明確接受。
 
 ## Provenance
 
