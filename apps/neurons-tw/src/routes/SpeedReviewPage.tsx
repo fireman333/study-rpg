@@ -173,6 +173,13 @@ export function SpeedReviewPage(): JSX.Element | null {
                 <button style={startBtnStyle} onClick={close}>
                   回考前猜題
                 </button>
+                <a
+                  href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`}
+                  download
+                  style={pdfLinkStyle}
+                >
+                  ⬇ 下載這張速看（一頁 PDF）
+                </a>
               </div>
             </section>
           </div>
@@ -320,6 +327,13 @@ const startBtnStyle: React.CSSProperties = {
   borderRadius: 8,
   fontWeight: 700,
   cursor: 'pointer',
+}
+const pdfLinkStyle: React.CSSProperties = {
+  display: 'inline-block',
+  margin: '0.2rem 1rem 1.2rem',
+  fontSize: '0.8rem',
+  color: '#a08a5e',
+  textDecoration: 'underline',
 }
 const loadingStyle: React.CSSProperties = { margin: 'auto', color: '#8c7a55' }
 const footerStyle: React.CSSProperties = {

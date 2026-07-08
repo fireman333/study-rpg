@@ -103,6 +103,9 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
         <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學二.pdf`} download style={downloadBtnStyle}>
           ⬇ 下載 醫學二 A4 PDF
         </a>
+        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`} download style={downloadBtnStyle}>
+          ⬇ 下載 5 分鐘速看 一頁 PDF
+        </a>
       </div>
 
       {/* ── Persistent honesty header ── */}

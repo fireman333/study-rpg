@@ -23,7 +23,8 @@
     "build:concept-recurrence": "tsx scripts/build-concept-recurrence.ts",
     "build:concept-keyword-prepass": "tsx scripts/build-concept-keyword-prepass.ts",
     "build:cram": "tsx scripts/build-cram.ts",
-    "verify:cram": "tsx scripts/verify-cram.ts"
+    "verify:cram": "tsx scripts/verify-cram.ts",
+    "render:speed-review-pdf": "tsx scripts/render-speed-review-pdf.mjs"
   },
   "peerDependencies": {
     "@study-rpg/core": "workspace:*"
