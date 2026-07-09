@@ -30,18 +30,34 @@ import type { OverrideState } from './rescue-stoploss'
 // ── key namespace ────────────────────────────────────────────────────────────
 /** Account-OWNED prefix — every rescue synced key lives under this. */
 export const RESCUE_META_PREFIX = 'rescue:v1:'
-/** The single plan-envelope key (always synced). */
+/** LEGACY single plan-envelope key (pre-multi-subject). NOT synced by the
+ *  matcher any more — v28 never snapshots it; it survives only as migration
+ *  input: the device-local hydrate reads it from `db.meta`, and the one-time
+ *  CLOUD legacy migration reads it from the RAW pulled bundle meta in the rescue
+ *  backfill (bypassing this matcher, which would otherwise skip it). */
 export const RESCUE_PLAN_KEY = 'rescue:v1:plan'
+/** Per-family plan key prefix — one active plan per family (`rescue:v1:plan:{familyId}`). */
+export const RESCUE_PLAN_KEY_PREFIX = 'rescue:v1:plan:'
 /** Run-scoped confidence key prefix. */
 export const RESCUE_CONF_KEY_PREFIX = 'rescue:v1:conf:'
 /** Run-scoped override key prefix. */
 export const RESCUE_OVR_KEY_PREFIX = 'rescue:v1:ovr:'
 
-export function rescueConfKey(planCreatedAt: number, questionId: string): string {
-  return `${RESCUE_CONF_KEY_PREFIX}${planCreatedAt}:${questionId}`
+/** Per-family plan key mint. */
+export function rescuePlanKey(familyId: string): string {
+  return `${RESCUE_PLAN_KEY_PREFIX}${familyId}`
 }
-export function rescueOvrKey(planCreatedAt: number, conceptId: string): string {
-  return `${RESCUE_OVR_KEY_PREFIX}${planCreatedAt}:${conceptId}`
+/** Confidence key — run-scoped AND family-scoped (`{planCreatedAt}:{familyId}:{questionId}`).
+ *  The family segment guards against two coexisting plans sharing a `planCreatedAt`
+ *  (a `Date.now()` mint) — a run-only scope could otherwise collide across subjects. */
+export function rescueConfKey(planCreatedAt: number, familyId: string, questionId: string): string {
+  return `${RESCUE_CONF_KEY_PREFIX}${planCreatedAt}:${familyId}:${questionId}`
+}
+/** Override key — run-scoped AND family-scoped (`{planCreatedAt}:{familyId}:{conceptId}`).
+ *  The family segment is load-bearing: 68 conceptIds are shared across subjects,
+ *  so without it two coexisting plans stop-lossing the same concept would collide. */
+export function rescueOvrKey(planCreatedAt: number, familyId: string, conceptId: string): string {
+  return `${RESCUE_OVR_KEY_PREFIX}${planCreatedAt}:${familyId}:${conceptId}`
 }
 
 // ── run-sync window (dogfood-tunable) ────────────────────────────────────────
@@ -57,27 +73,41 @@ export const RESCUE_RUN_SYNC_FORWARD_SKEW_MS = 1 * DAY_MS
  * Whether a `rescue:v1:*` meta key participates in cross-device sync. Used by
  * BOTH the metaAdapter snapshot and its apply (via `isSyncedMetaKey`), so the
  * two directions never diverge. Membership:
- *   - `rescue:v1:plan` → always;
- *   - `rescue:v1:conf:{planCreatedAt}:…` / `rescue:v1:ovr:{planCreatedAt}:…`
+ *   - `rescue:v1:plan:{familyId}` → always (one per active family);
+ *   - `rescue:v1:conf:{planCreatedAt}:{familyId}:…` /
+ *     `rescue:v1:ovr:{planCreatedAt}:{familyId}:…`
  *     → iff `planCreatedAt ∈ [now − 14d, now + 1d]`;
- *   - any other `rescue:v1:*` key (e.g. a future telemetry key) → NEVER.
+ *   - the LEGACY single `rescue:v1:plan` (no family segment) → NEVER (v28 does
+ *     not snapshot it; a cloud legacy key is recovered by the backfill's
+ *     raw-bundle migration read, not this matcher);
+ *   - any other `rescue:v1:*` key (e.g. a telemetry key) → NEVER.
  */
 export function isSyncedRescueKey(key: string, now: number = Date.now()): boolean {
-  if (key === RESCUE_PLAN_KEY) return true
+  // Legacy single key is intentionally NOT synced (see doc + cloud migration).
+  if (key === RESCUE_PLAN_KEY) return false
+  if (key.startsWith(RESCUE_PLAN_KEY_PREFIX)) return true
   const prefix = key.startsWith(RESCUE_CONF_KEY_PREFIX)
     ? RESCUE_CONF_KEY_PREFIX
     : key.startsWith(RESCUE_OVR_KEY_PREFIX)
       ? RESCUE_OVR_KEY_PREFIX
       : null
   if (prefix === null) return false
+  // Per-family shape guard: conf/ovr keys are `{createdAt}:{familyId}:{id}` — at
+  // least 3 segments with a non-empty familyId. Reject the legacy v27 2-segment
+  // shape `{createdAt}:{id}` (no family scope) so a pre-multi key is never
+  // admitted; without the family segment it could collide across coexisting
+  // subjects. (Codex/Fable review fix 1)
+  const parts = key.slice(prefix.length).split(':')
+  if (parts.length < 3 || parts[1] === '') return false
   const createdAt = parseRunCreatedAt(key, prefix)
   if (createdAt === null) return false
   return createdAt >= now - RESCUE_RUN_SYNC_WINDOW_MS && createdAt <= now + RESCUE_RUN_SYNC_FORWARD_SKEW_MS
 }
 
-/** Extract the embedded `planCreatedAt` epoch-ms from a conf/ovr key. `null` if
- *  malformed (question/concept ids never contain the leading `{createdAt}:`
- *  segment separator, so parsing the first token is unambiguous). */
+/** Extract the embedded `planCreatedAt` epoch-ms (the FIRST segment) from a
+ *  conf/ovr key `{createdAt}:{familyId}:{id}`. `null` if malformed. The first
+ *  token is always the numeric createdAt, so parsing the leading token is
+ *  unambiguous even though the key now carries a family segment after it. */
 export function parseRunCreatedAt(key: string, prefix: string): number | null {
   const rest = key.slice(prefix.length) // '{createdAt}:{id}'
   const cut = rest.indexOf(':')

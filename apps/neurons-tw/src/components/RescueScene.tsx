@@ -13,7 +13,7 @@
  * Spec: openspec/changes/add-neurons-single-subject-rescue/specs/
  *       neurons-single-subject-rescue/spec.md (+ neurons-homepage / neurons-weakness-radar deltas)
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { ContentPack } from '@study-rpg/core'
 import { QuizModal } from './QuizModal'
@@ -26,29 +26,37 @@ import { filterPoolByFamily } from '../lib/services/quiz-pool'
 import { todayISO } from '../lib/db'
 import {
   useRescuePlan,
+  useRescuePlans,
   useRescueState,
   getActivePlan,
+  getActivePlans,
   startRescue,
+  editRescuePlan,
   abandonRescue,
   archiveIfDue,
   touchLastStudied,
   setOverride,
+  recordConfidence,
   isBlitzDone,
   markBlitzDone,
+  deferBlitzDone,
+  deferTouchLastStudied,
+  flushPendingRescueLifecycle,
   appendTelemetry,
   exportTelemetry,
   shouldShowReconcileNote,
   markPlanKnown,
   useRescueHydrated,
-  type RescuePlan,
 } from '../lib/services/rescue/rescue-store'
 import { computeRescueD, rescuePhase } from '../lib/services/rescue/rescue-lifecycle'
+import { computeConceptMastery, computeRescueScore } from '../lib/services/rescue/rescue-score'
 import { isOverrideExpired } from '../lib/services/rescue/rescue-stoploss'
 import { findCramSubject, resolveConceptRereadCard } from '../lib/services/rescue/rescue-reread'
 import type { ConfidenceSignal } from '../lib/services/rescue/rescue-priority'
 import {
   buildBlitzPool,
   buildWarMap,
+  buildConceptYield,
   assembleRescueQueue,
   computeReadiness,
   buildQuickScanPool,
@@ -61,16 +69,29 @@ import { useSyncContext } from '../lib/sync/SyncProvider'
 
 interface Props {
   pack: ContentPack
-  /** Preselect this family in setup, or the family to resume if it has an active plan. */
+  /** A card chip passes its family → open that family's scene directly; the header entry
+   *  passes undefined → open the multi-plan overview list (or setup when no plan is active). */
   initialFamilyId?: string
   onClose: () => void
 }
 
-type Phase = 'setup' | 'overview' | 'blitz' | 'session' | 'quickscan'
+// 'list' = the multi-plan overview (add-neurons-multi-subject-rescue); 'overview' remains the
+// per-plan RescueScore / 戰情圖 / stop-loss view for the currently-viewed family.
+type Phase = 'list' | 'setup' | 'overview' | 'blitz' | 'session' | 'quickscan'
 
 const DAY_MS = 86_400_000
 function addDaysISO(iso: string, days: number): string {
   return new Date(Date.parse(`${iso}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10)
+}
+
+/** Fixed 國考第一階 exam date for this cycle (design D5 / open-Q). Post-cycle reuse falls back to
+ *  today+3 once the fixed date is past; always clamped inside the +14 run-sync window ceiling. */
+const FIXED_EXAM_ISO = '2026-07-17'
+function defaultExamISO(): string {
+  const today = todayISO()
+  if (FIXED_EXAM_ISO < today) return addDaysISO(today, 3)
+  const max = addDaysISO(today, 14)
+  return FIXED_EXAM_ISO > max ? max : FIXED_EXAM_ISO
 }
 
 const RETURN_COPY: Record<string, string> = {
@@ -90,7 +111,15 @@ const WAR_BAND_LABEL: Record<WarMapConcept['band'], string> = {
 }
 
 export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Element | null {
-  const plan = useRescuePlan()
+  // The family whose scene is open (null → the overview list / setup). Every downstream
+  // memo + lifecycle write scopes to this family; there is NO mid-session cross-subject
+  // switcher (切科 = back to the list). A card chip opens its family directly; the header
+  // entry opens the list (or setup when no plan is active).
+  const [viewingFamily, setViewingFamily] = useState<string | null>(() =>
+    initialFamilyId && getActivePlan(initialFamilyId) ? initialFamilyId : null,
+  )
+  const plan = useRescuePlan(viewingFamily ?? '')
+  const plans = useRescuePlans()
   const state = useRescueState()
   const { status } = useAuth()
   // Signed in → the plan / confidence / overrides sync cross-device; otherwise
@@ -119,6 +148,22 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
 
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
+  // The run (familyId + createdAt) FROZEN at the moment the current answering phase opened.
+  // A confidence tap records under THIS run, not a write-time `getActivePlan()` resolve, so a
+  // plan sync-replaced mid-session (new createdAt) can't misfile the tap under the new run —
+  // `recordConfidence` no-ops on a createdAt mismatch (Codex/Fable review fix 2).
+  const activeRunRef = useRef<{ familyId: string; createdAt: number } | null>(null)
+  const captureRun = (familyId: string, createdAt: number): void => {
+    activeRunRef.current = { familyId, createdAt }
+  }
+  // A card-chip / direct entry can boot straight into an answering phase (blitz) via the
+  // phase initializer, which runs no transition handler — capture the run once on mount.
+  useEffect(() => {
+    if (!initialFamilyId) return
+    const p = getActivePlan(initialFamilyId)
+    if (p) captureRun(initialFamilyId, p.createdAt)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   // Auto-archive a plan whose exam has passed (reverts absorption via the plan-null signal).
   // Cross-device safety (mirrors the B1 startRescue gate on the same `startupSyncPending`):
   // archiveIfDue writes a fresh-`updatedAt` `plan: null` that LWW-wins account-wide. Running it
@@ -129,17 +174,30 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
     if (startupSyncPending) return
     archiveIfDue(todayISO())
   }, [startupSyncPending])
+  // Flush any DEFERRED lifecycle write (blitz completion / study-touch) once the startup pull
+  // has landed. The pending state is MODULE-LEVEL (rescue-store) so it also survives this
+  // scene unmounting before the pull lands — the sync layer fires the same flush on startup
+  // settlement. This mounted effect covers the ~1s status-poll lag between the pull landing
+  // and `startupSyncPending` flipping (Codex/Fable review fix 3).
+  useEffect(() => {
+    if (startupSyncPending) return
+    flushPendingRescueLifecycle()
+  }, [startupSyncPending])
 
   const [phase, setPhase] = useState<Phase>(() => {
-    const p = getActivePlan()
-    if (!p) return 'setup'
-    return isBlitzDone(p.createdAt) ? 'overview' : 'blitz'
+    if (initialFamilyId) {
+      const p = getActivePlan(initialFamilyId)
+      if (p) return isBlitzDone(initialFamilyId, p.createdAt) ? 'overview' : 'blitz'
+      return 'setup'
+    }
+    return getActivePlans().length > 0 ? 'list' : 'setup'
   })
-  // Setup form state.
+  // Setup form state. Default family = the card-chip family, else the first subject WITHOUT an
+  // active plan (so「＋ 新增計畫」lands on something new), else the first subject.
   const [setupFamily, setSetupFamily] = useState<string>(
-    initialFamilyId ?? getActivePlan()?.familyId ?? pack.subjects[0]?.id ?? '',
+    () => initialFamilyId ?? pack.subjects.find((s) => !getActivePlan(s.id))?.id ?? pack.subjects[0]?.id ?? '',
   )
-  const [setupExam, setSetupExam] = useState<string>(() => addDaysISO(todayISO(), 3))
+  const [setupExam, setSetupExam] = useState<string>(() => defaultExamISO())
   const [setupMinutes, setSetupMinutes] = useState<number>(30)
   // 救急 = last-minute sprint: cap the exam date at today+14 so the plan's whole
   // life fits inside the `isSyncedRescueKey` 14-day run-sync window (a longer
@@ -149,41 +207,42 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
   // untouched setup carries no intent, so a plan landing via the startup pull
   // may take the scene over (review-B1); once touched, we never yank the form.
   const [setupTouched, setSetupTouched] = useState(false)
-  const [confirmReplace, setConfirmReplace] = useState<RescuePlan | null>(null)
   const [confirmAbandon, setConfirmAbandon] = useState(false)
-  // One-time "continued from another device" hint: shown when the active plan
-  // arrived via sync (not started on this device) — at mount, or when the
-  // startup pull lands one mid-viewing (review-B1) — then marked acknowledged
-  // so it never repeats. (add-neurons-rescue-r2-sync Focus-2)
+  // One-time "continued from another device" hint: shown when the viewed plan arrived via
+  // sync (not started on this device) — set when a plan's scene is opened — then marked
+  // acknowledged so it never repeats. (add-neurons-rescue-r2-sync Focus-2)
   const [reconcileNote, setReconcileNote] = useState<boolean>(() => {
-    const p = getActivePlan()
+    if (!initialFamilyId) return false
+    const p = getActivePlan(initialFamilyId)
     return p ? shouldShowReconcileNote(p.createdAt) : false
   })
   useEffect(() => {
-    const p = getActivePlan()
+    if (!viewingFamily) return
+    const p = getActivePlan(viewingFamily)
     if (p && reconcileNote) markPlanKnown(p.createdAt)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // If the plan vanished (archived / abandoned) while we're past setup, close out.
+  // If the viewed plan vanished (archived / abandoned) while inside its scene, fall back to
+  // the overview list (or setup when no plan remains) — NOT close the whole scene, so other
+  // families' plans stay reachable.
   useEffect(() => {
-    if (!plan && phase !== 'setup') onClose()
-  }, [plan, phase, onClose])
-
-  // Review-B1 (cross-device takeover): `phase` freezes at mount, so a plan that
-  // lands AFTER mount (startup force-pull on a freshly signed-in device) used to
-  // leave the scene stuck in setup — one tap on 開始救急 then minted a fresh run
-  // whose newer `updatedAt` LWW-clobbered the cloud run (silent restart). When a
-  // plan appears while the user hasn't touched the setup form, hand the scene to
-  // it (same phase decision as mount: overview when its blitz is done).
-  useEffect(() => {
-    if (phase !== 'setup' || !plan || setupTouched) return
-    if (shouldShowReconcileNote(plan.createdAt)) {
-      setReconcileNote(true)
-      markPlanKnown(plan.createdAt)
+    const perPlan = phase === 'overview' || phase === 'blitz' || phase === 'session' || phase === 'quickscan'
+    if (perPlan && !plan) {
+      setViewingFamily(null)
+      setReconcileNote(false)
+      setPhase(getActivePlans().length > 0 ? 'list' : 'setup')
     }
-    setPhase(isBlitzDone(plan.createdAt) ? 'overview' : 'blitz')
-  }, [phase, plan, setupTouched])
+  }, [plan, phase])
+
+  // Review-B1 (cross-device takeover): a fresh device cold-boots with no plans → 'setup', then
+  // the startup force-pull lands cloud plans. If the user hasn't touched the setup form, hand
+  // the scene to the overview list rather than let a tap on 開始救急 mint a fresh (clobbering)
+  // run. Only an UNtouched initial setup is redirected (a deliberate 新增計畫 sets touched).
+  useEffect(() => {
+    if (phase !== 'setup' || setupTouched) return
+    if (plans.length > 0) setPhase('list')
+  }, [phase, setupTouched, plans.length])
 
   const subjectId = plan?.familyId ?? ''
   // Header + copy use the 科目 (subject) name — which IS the subject `id` in neurons —
@@ -197,9 +256,10 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
   const push = cramSubject?.push ?? []
   const histById = useMemo(() => new Map(history.map((h) => [h.questionId, h])), [history])
   const flagById = useMemo(() => new Map(flags.map((f) => [f.questionId, f])), [flags])
+  // Confidence + overrides scope to the VIEWING family's active run (per-family maps).
   const confidenceById = useMemo<Map<string, ConfidenceSignal>>(
-    () => new Map(Object.entries(state.confidence)),
-    [state.confidence],
+    () => new Map(Object.entries(viewingFamily ? state.confidenceByFamily[viewingFamily] ?? {} : {})),
+    [state.confidenceByFamily, viewingFamily],
   )
   const conceptStats = useMemo(
     () => (plan ? buildConceptStatsToday(subjectQuestions, history, conceptTags) : new Map()),
@@ -208,12 +268,13 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
   const overrideConcepts = useMemo(() => {
     const now = Date.now()
     const s = new Set<string>()
-    for (const [cid, ov] of Object.entries(state.overrides)) {
+    const overrides = viewingFamily ? state.overridesByFamily[viewingFamily] ?? {} : {}
+    for (const [cid, ov] of Object.entries(overrides)) {
       const attempts = conceptStats.get(cid)?.attemptsToday ?? 0
       if (!isOverrideExpired(ov, now, attempts)) s.add(cid)
     }
     return s
-  }, [state.overrides, conceptStats])
+  }, [state.overridesByFamily, viewingFamily, conceptStats])
 
   const assembled = useMemo(() => {
     if (!plan) return null
@@ -298,25 +359,76 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
     [assembled, cramSubject],
   )
 
+  // Overview-list cards — D + RescueScore for EVERY active plan (multiple coexist). Each plan's
+  // score is computed independently over its family-scoped pool + history (corpus-percentile
+  // Yield fallback; the per-plan scene refines with cram tiers on open).
+  const planCards = useMemo(
+    () =>
+      plans.map((p) => {
+        const scoped = filterPoolByFamily(pack.questions, p.familyId)
+        const conceptYield = buildConceptYield([], scoped, conceptTags)
+        const scopedHistory = history.filter((h) => h.family === p.familyId)
+        const mastery = computeConceptMastery(scopedHistory, conceptTags)
+        return {
+          familyId: p.familyId,
+          accent: pack.subjects.find((s) => s.id === p.familyId)?.color ?? '#8c6d4a',
+          d: computeRescueD(p.examDate, todayISO()),
+          score: computeRescueScore(mastery, conceptYield),
+        }
+      }),
+    [plans, pack.questions, pack.subjects, conceptTags, history],
+  )
+
+  // Scene-bound confidence sink (add-neurons-multi-subject-rescue, D5): bound to the run
+  // (familyId + createdAt) FROZEN when this answering phase opened, so a tap in family A's
+  // scene records under A's run scope — never B's, and never the wrong run if A was
+  // sync-replaced mid-session. QuizModal never resolves the active plan itself. Stable
+  // identity (reads the ref, no deps) so re-renders don't re-bind it (Codex/Fable review fix 2).
+  const onRescueConfidence = useCallback((qid: string, signal: 'sure' | 'guess') => {
+    const run = activeRunRef.current
+    if (run) recordConfidence(run.familyId, run.createdAt, qid, signal)
+  }, [])
+
   // ── actions ──
-  const doStart = (replace = false): void => {
-    const res = startRescue(
-      { familyId: setupFamily, examDate: setupExam, dailyMinutes: setupMinutes },
-      { replace },
-    )
-    if (!res.ok) {
-      setConfirmReplace(res.current)
+  // Open a family's per-plan scene (from the list, a chip, or a resume). Never mints a new run.
+  const openPlan = (familyId: string): void => {
+    const p = getActivePlan(familyId)
+    if (!p) return
+    captureRun(familyId, p.createdAt)
+    setViewingFamily(familyId)
+    if (shouldShowReconcileNote(p.createdAt)) {
+      setReconcileNote(true)
+      markPlanKnown(p.createdAt)
+    } else {
+      setReconcileNote(false)
+    }
+    setPhase(isBlitzDone(familyId, p.createdAt) ? 'overview' : 'blitz')
+  }
+  // Back to the overview list (切科 exit) — or setup when no plan remains.
+  const backToList = (): void => {
+    setViewingFamily(null)
+    setReconcileNote(false)
+    setPhase(getActivePlans().length > 0 ? 'list' : 'setup')
+  }
+  // Deliberately open setup to add a NEW plan (from the list). Preselect a family without a plan
+  // and mark the form touched so the untouched auto-takeover effect doesn't bounce back to the list.
+  const goToSetup = (): void => {
+    setSetupFamily(pack.subjects.find((s) => !getActivePlan(s.id))?.id ?? pack.subjects[0]?.id ?? '')
+    setSetupExam(defaultExamISO())
+    setSetupTouched(true)
+    setPhase('setup')
+  }
+  // Start a NEW plan for setupFamily (guarded: duplicate subject → open it instead; the button is
+  // also disabled while startupSyncPending so a stale device can't mint a clobbering run).
+  const doStart = (): void => {
+    if (startupSyncPending) return
+    if (getActivePlan(setupFamily)) {
+      openPlan(setupFamily)
       return
     }
-    setConfirmReplace(null)
-    if (res.resumed) {
-      // Same family already has a live run (possibly pulled from another
-      // device): CONTINUE it — no fresh createdAt, no blitz re-run, no
-      // confidence re-scope (review-B1).
-      appendTelemetry({ kind: 'plan-resumed', familyId: res.plan.familyId })
-      setPhase(isBlitzDone(res.plan.createdAt) ? 'overview' : 'blitz')
-      return
-    }
+    const res = startRescue({ familyId: setupFamily, examDate: setupExam, dailyMinutes: setupMinutes })
+    if (res.ok) captureRun(setupFamily, res.plan.createdAt)
+    setViewingFamily(setupFamily)
     appendTelemetry({
       kind: 'plan-started',
       familyId: setupFamily,
@@ -325,41 +437,74 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
     })
     setPhase('blitz')
   }
+  // Edit an existing plan's exam date / minutes in place (no new run) then open it.
+  const doEditPlan = (): void => {
+    if (startupSyncPending) return
+    editRescuePlan(setupFamily, { examDate: setupExam, dailyMinutes: setupMinutes })
+    appendTelemetry({
+      kind: 'plan-edited',
+      familyId: setupFamily,
+      examDate: setupExam,
+      dailyMinutes: setupMinutes,
+    })
+    openPlan(setupFamily)
+  }
   const finishBlitz = (): void => {
-    if (plan) markBlitzDone(plan.createdAt)
+    if (plan && viewingFamily) {
+      if (startupSyncPending) {
+        // DEFER the envelope write until the startup pull lands (module-level state in
+        // rescue-store, flushed on startup settlement + by the mounted flush effect). Dropping
+        // it would permanently lose blitzDoneAt on a cold boot → immediate re-run of the blitz.
+        deferBlitzDone(viewingFamily, plan.createdAt)
+      } else {
+        markBlitzDone(viewingFamily, plan.createdAt)
+        touchLastStudied(viewingFamily)
+      }
+    }
     appendTelemetry({ kind: 'diagnostic-completed', count: blitzPool.length })
-    touchLastStudied()
     setPhase('overview')
   }
   const openSession = (): void => {
     if (daySet.length === 0) return
+    if (viewingFamily && plan) captureRun(viewingFamily, plan.createdAt)
     appendTelemetry({ kind: 'priority-selected', count: daySet.length, phase: phaseKind })
     setPhase('session')
   }
   const finishSession = (): void => {
-    touchLastStudied()
+    // DEFER the study-touch while the startup pull is in flight (consistent with the blitz
+    // defer), so a stale device doesn't drop the bump nor clobber a newer cloud run.
+    if (viewingFamily) {
+      if (startupSyncPending) deferTouchLastStudied(viewingFamily)
+      else touchLastStudied(viewingFamily)
+    }
     setPhase('overview')
   }
   const openQuickScan = (): void => {
     if (quickScanPool.length === 0) return
+    if (viewingFamily && plan) captureRun(viewingFamily, plan.createdAt)
     appendTelemetry({ kind: 'quick-scan-opened', count: quickScanPool.length })
     setPhase('quickscan')
   }
   const finishQuickScan = (): void => {
     appendTelemetry({ kind: 'quick-scan-completed' })
-    touchLastStudied()
+    if (viewingFamily) {
+      if (startupSyncPending) deferTouchLastStudied(viewingFamily)
+      else touchLastStudied(viewingFamily)
+    }
     setPhase('overview')
   }
   const doOverride = (conceptId: string): void => {
-    setOverride(conceptId, {
+    if (!viewingFamily) return
+    setOverride(viewingFamily, conceptId, {
       setAt: Date.now(),
       attemptsAtOverride: conceptStats.get(conceptId)?.attemptsToday ?? 0,
     })
     appendTelemetry({ kind: 'manual-override', conceptId })
   }
   const doAbandon = (): void => {
-    abandonRescue()
-    onClose()
+    if (viewingFamily && !startupSyncPending) abandonRescue(viewingFamily)
+    setConfirmAbandon(false)
+    backToList()
   }
   const doExport = (): void => {
     try {
@@ -380,27 +525,52 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
   // Answering phases render QuizModal (its own fixed overlay) instead of scene chrome.
   if (phase === 'blitz' && plan) {
     return createPortal(
-      <QuizModal pool={blitzPool} rescueSubmit preserveOrder onClose={finishBlitz} />,
+      <QuizModal
+        pool={blitzPool}
+        rescueSubmit
+        preserveOrder
+        onRescueConfidence={onRescueConfidence}
+        onClose={finishBlitz}
+      />,
       document.body,
     )
   }
   if (phase === 'session' && plan) {
     return createPortal(
-      <QuizModal pool={daySet} rescueSubmit preserveOrder onClose={finishSession} />,
+      <QuizModal
+        pool={daySet}
+        rescueSubmit
+        preserveOrder
+        onRescueConfidence={onRescueConfidence}
+        onClose={finishSession}
+      />,
       document.body,
     )
   }
   if (phase === 'quickscan' && plan) {
     return createPortal(
-      <QuizModal pool={quickScanPool} rescueSubmit preserveOrder onClose={finishQuickScan} />,
+      <QuizModal
+        pool={quickScanPool}
+        rescueSubmit
+        preserveOrder
+        onRescueConfidence={onRescueConfidence}
+        onClose={finishQuickScan}
+      />,
       document.body,
     )
   }
 
   const conceptsLoading = phase === 'overview' && Object.keys(conceptTags).length === 0
+  // Setup guardrails (add-neurons-multi-subject-rescue, D6): duplicate subject → open / edit
+  // (never restart); soft nudge once adding would put ≥3 plans in flight; hard cap disables a
+  // NEW plan at 5 (opening / editing / abandoning existing plans stays available).
+  const setupIsDup = !!getActivePlan(setupFamily)
+  const activeCount = plans.length
+  const wouldExceedCap = !setupIsDup && activeCount >= 5
+  const showSoftNudge = !setupIsDup && activeCount >= 2
 
   return createPortal(
-    <div style={sceneStyle} role="dialog" aria-modal="true" aria-label="單科考前救急">
+    <div style={sceneStyle} role="dialog" aria-modal="true" aria-label="考前救急">
       <header style={headerStyle}>
         <span style={titleStyle}>
           <EmojiIcon char="⏱️" size={16} decorative /> 考前救急
@@ -432,6 +602,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                 {pack.subjects.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.id}
+                    {getActivePlan(s.id) ? '（已在救急中）' : ''}
                   </option>
                 ))}
               </select>
@@ -472,28 +643,88 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                 ))}
               </select>
             </label>
-            {confirmReplace && (
+            {showSoftNudge && (
+              <p style={fallbackNoteStyle}>
+                ⚠️ 同時進行 3 科以上救急，每天總時間會拉高——先確認排得完再新增。
+              </p>
+            )}
+            {setupIsDup ? (
               <div style={warnBoxStyle}>
-                目前正在救「{confirmReplace.familyId}」。一次專心救一科，換成這科的話，這個帳號其他已登入裝置也會一起換過來（已答的題目與進度都保留）。
+                「{setupFamily}」已經在救急中。可以直接開啟，或用上面的考試日／分鐘更新這個計畫（不會重來、已答進度都保留）。
                 <div style={rowStyle}>
-                  <button style={primaryBtnStyle} onClick={() => doStart(true)}>
-                    換成這科
+                  <button style={primaryBtnStyle} onClick={() => openPlan(setupFamily)}>
+                    開啟這科救急 →
                   </button>
-                  <button style={ghostBtnStyle} onClick={() => setConfirmReplace(null)}>
-                    取消
+                  <button
+                    style={startupSyncPending ? ghostBtnDisabledStyle : ghostBtnStyle}
+                    onClick={doEditPlan}
+                    disabled={startupSyncPending}
+                  >
+                    {startupSyncPending ? '同步中…' : '更新計畫'}
                   </button>
                 </div>
               </div>
-            )}
-            {!confirmReplace && (
+            ) : wouldExceedCap ? (
+              <div style={warnBoxStyle}>
+                同時最多 5 科救急。先完成或放棄一科，再新增下一科。
+                <div style={rowStyle}>
+                  <button style={primaryBtnStyle} onClick={backToList}>
+                    ← 回計畫清單
+                  </button>
+                </div>
+              </div>
+            ) : (
               <button
                 style={startupSyncPending ? primaryBtnDisabledStyle : primaryBtnStyle}
-                onClick={() => doStart(false)}
+                onClick={doStart}
                 disabled={!setupFamily || startupSyncPending}
               >
                 {startupSyncPending ? '同步中…' : '開始救急 →'}
               </button>
             )}
+            {activeCount > 0 && !setupIsDup && !wouldExceedCap && (
+              <button style={linkBtnStyle} onClick={backToList}>
+                ← 回計畫清單
+              </button>
+            )}
+            <p style={deviceCopyStyle}>
+              {synced
+                ? '已登入，救急計畫與信心紀錄會跨裝置同步。'
+                : '未登入，目前只存在這台裝置；登入後救急計畫與信心紀錄會跨裝置同步。'}
+            </p>
+          </div>
+        )}
+
+        {phase === 'list' && (
+          <div style={overviewWrapStyle}>
+            <h2 style={h2Style}>考前救急計畫</h2>
+            {planCards.length === 0 ? (
+              <p style={fallbackNoteStyle}>目前沒有進行中的救急計畫。</p>
+            ) : (
+              planCards.map((c) => (
+                <button
+                  key={c.familyId}
+                  style={planListCardStyle(c.accent)}
+                  onClick={() => openPlan(c.familyId)}
+                  aria-label={`開啟 ${c.familyId} 救急 · ${c.d <= 0 ? '考試日' : `D-${c.d}`} · RescueScore ${c.score}`}
+                >
+                  <span style={planListNameStyle(c.accent)}>{c.familyId}</span>
+                  <span style={planListMetaStyle}>
+                    <span style={planListDStyle}>{c.d <= 0 ? '考試日' : `D-${c.d}`}</span>
+                    <span style={planListScoreStyle}>RescueScore {c.score}</span>
+                  </span>
+                  <span style={planListCtaStyle(c.accent)}>今日佇列 →</span>
+                </button>
+              ))
+            )}
+            <button
+              style={activeCount >= 5 ? primaryBtnDisabledStyle : primaryBtnStyle}
+              onClick={goToSetup}
+              disabled={activeCount >= 5}
+              title={activeCount >= 5 ? '同時最多 5 科，先完成或放棄一科' : undefined}
+            >
+              {activeCount >= 5 ? '已達 5 科上限' : '＋ 新增計畫'}
+            </button>
             <p style={deviceCopyStyle}>
               {synced
                 ? '已登入，救急計畫與信心紀錄會跨裝置同步。'
@@ -613,17 +844,9 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                     : '未登入，目前只存在這台裝置；登入後救急計畫與信心紀錄會跨裝置同步。'}
                 </p>
                 <div style={overviewFootRowStyle}>
-                  <button
-                    style={linkBtnStyle}
-                    onClick={() => {
-                      // Deliberate entry into setup with a live plan — mark the
-                      // form as touched so the review-B1 auto-takeover effect
-                      // never yanks the user straight back to overview.
-                      setSetupTouched(true)
-                      setPhase('setup')
-                    }}
-                  >
-                    換一科救急
+                  {/* 切科 = back to the multi-plan list (no mid-session cross-subject switcher). */}
+                  <button style={linkBtnStyle} onClick={backToList}>
+                    ← 計畫清單
                   </button>
                   <button style={linkBtnStyle} onClick={() => setConfirmAbandon(true)}>
                     放棄計畫
@@ -638,8 +861,12 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                       ? '放棄後這個帳號其他已登入裝置也會退出這個計畫；你已答的題目與進度都保留。確定放棄？'
                       : '放棄後會退出這個計畫；你已答的題目與進度都保留。確定放棄？'}
                     <div style={rowStyle}>
-                      <button style={primaryBtnStyle} onClick={doAbandon}>
-                        確定放棄
+                      <button
+                        style={startupSyncPending ? primaryBtnDisabledStyle : primaryBtnStyle}
+                        onClick={doAbandon}
+                        disabled={startupSyncPending}
+                      >
+                        {startupSyncPending ? '同步中…' : '確定放棄'}
                       </button>
                       <button style={ghostBtnStyle} onClick={() => setConfirmAbandon(false)}>
                         取消
@@ -773,6 +1000,56 @@ const ghostBtnStyle: React.CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'inherit',
 }
+const ghostBtnDisabledStyle: React.CSSProperties = {
+  ...ghostBtnStyle,
+  color: '#a89a7d',
+  borderColor: '#e0d4b8',
+  cursor: 'not-allowed',
+}
+// ── Overview-list plan cards (multi-subject list phase) ──
+const planListCardStyle = (accent: string): React.CSSProperties => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.6rem',
+  flexWrap: 'wrap',
+  width: '100%',
+  padding: '0.7rem 0.9rem',
+  background: '#fbf6e9',
+  border: `2px solid ${accent}`,
+  borderRadius: 10,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  textAlign: 'left',
+  boxSizing: 'border-box',
+})
+const planListNameStyle = (accent: string): React.CSSProperties => ({
+  fontWeight: 800,
+  fontSize: '1rem',
+  color: accent,
+})
+const planListMetaStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.6rem',
+  color: '#7a5a2f',
+  fontSize: '0.84rem',
+  fontVariantNumeric: 'tabular-nums',
+}
+const planListDStyle: React.CSSProperties = {
+  fontWeight: 700,
+  color: '#8a5a1f',
+  background: '#efe4c6',
+  border: '1px solid #d4a04d',
+  borderRadius: 999,
+  padding: '0.1rem 0.55rem',
+}
+const planListScoreStyle: React.CSSProperties = { color: '#8c7a55', fontWeight: 600 }
+const planListCtaStyle = (accent: string): React.CSSProperties => ({
+  marginLeft: 'auto',
+  fontWeight: 700,
+  color: accent,
+  fontSize: '0.86rem',
+})
 const linkBtnStyle: React.CSSProperties = {
   background: 'none',
   border: 'none',

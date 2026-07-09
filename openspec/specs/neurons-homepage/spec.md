@@ -356,8 +356,6 @@ Each homepage family card's header sprite SHALL render that family's **represent
 - **WHEN** the player changes a family's representative on `/collection` and returns to the homepage
 - **THEN** that family's card sprite SHALL reflect the new representative (the binding is reactive via the shared meta key)
 
-
-
 ### Requirement: Homepage SHALL surface a collapsible 今日處方箋 card above the merged stat card
 
 The homepage (`/`) SHALL render a `DailyPrescriptionCard` (per `neurons-daily-prescription`) as the **topmost homepage surface, directly above the merged daily-loop stat card**. Placing it above the stat card SHALL preserve the existing relative order of the merged stat card → read-only squad preview → (family grid + embedded maze) surfaces beneath it (it adds a surface above the stat card; it does NOT reorder those existing surfaces among themselves). The card SHALL be **collapsible / expandable**: the collapsed state SHALL show a slim single-row strip (a summary of the two lines' progress + the「已固化 X 天」indicator + an affordance to start/expand), and the expanded state SHALL show the two prescription lines with their progress (e.g. `訂正錯題 2/4`, `開發盲區 5/8`), the single 「開始今日處方」 CTA, the「已固化 X 天」cumulative indicator, and the NG-0717 收藏神經元 at its derived maturation stage. The collapse/expand state SHALL persist device-local (a `meta` flag, NOT added to `SYNCED_META_KEYS`), defaulting to expanded on first view. The card SHALL degrade under `prefers-reduced-motion` (no mascot/arc animation, static end-state), and SHALL render correctly under direct-URL navigation and F5 as an SPA route.
@@ -453,7 +451,7 @@ The homepage's full cross-subject 錯題出征 expedition pool SHALL lead with t
 
 ### Requirement: FamilyPicker SHALL offer a header-level always-on 考前救急 entry independent of the weakness gate
 
-The homepage `FamilyPicker` region SHALL render a header-level, always-visible "考前救急" entry affordance that opens the single-subject rescue setup (choose family + exam date + daily-minutes budget, per `neurons-single-subject-rescue`). This entry SHALL NOT be gated by the `pressure >= 0.45` threshold that governs the per-card one-tap targeted-drill button (per `neurons-weakness-radar`), because the subjects most in need of rescue (thin history, or currently strong-looking but exam-imminent) would otherwise have no reachable entry. Being a single header-level affordance SHALL naturally express the "one rescue at a time" constraint (no per-card rescue buttons on the 11 family cards).
+The homepage `FamilyPicker` region SHALL render a header-level, always-visible "考前救急" entry affordance that opens the **rescue-plans overview** (a list of the currently-active plans plus an "＋ 新增計畫" action; per `neurons-single-subject-rescue`). When no plan is active the entry MAY open setup directly. Adding a plan opens setup (choose family + exam date + daily-minutes budget). This entry SHALL NOT be gated by the `pressure >= 0.45` threshold that governs the per-card one-tap targeted-drill button (per `neurons-weakness-radar`), because the subjects most in need of rescue (thin history, or currently strong-looking but exam-imminent) would otherwise have no reachable entry. The header entry SHALL be the single top-level entry point for rescue (no per-card rescue-start buttons on the 11 family cards); it SHALL NOT imply a one-rescue-at-a-time constraint — multiple plans may coexist and each active family surfaces its own card chip (per the card-chip requirement).
 
 #### Scenario: Rescue entry is reachable even for a green / undiagnosed family
 
@@ -461,23 +459,31 @@ The homepage `FamilyPicker` region SHALL render a header-level, always-visible "
 - **WHEN** the homepage renders
 - **THEN** the header-level "考前救急" entry SHALL still be present and able to start a rescue for that family
 
-#### Scenario: Rescue entry opens setup, not an immediate drill
+#### Scenario: Rescue entry opens the overview, and adding a plan opens setup
 
-- **WHEN** the player taps the header "考前救急" entry
-- **THEN** it SHALL open the rescue setup (family + exam date + daily minutes), not launch a zero-setup drill
+- **WHEN** the player taps the header "考前救急" entry with at least one active plan
+- **THEN** it SHALL open the rescue-plans overview listing the active plans plus an add-new-plan action
+- **AND** choosing add-new-plan SHALL open setup (family + exam date + daily minutes), not launch a zero-setup drill
 
 ### Requirement: A family card with an active rescue plan SHALL render a rescue chip in place of its weakness indicator
 
-WHEN a family has an active rescue plan (per `neurons-single-subject-rescue`), its `FamilyPicker` card SHALL replace the WeaknessIndicator row with a rescue chip that surfaces the countdown, RescueScore, and a "今日佇列" CTA (e.g. "D-3 · RescueScore 62 · 今日佇列"). This override SHALL apply only to the one family with the active plan; all other family cards SHALL render their normal weakness indicator unchanged. When the plan is archived or abandoned, the card SHALL revert to the normal weakness indicator.
+WHEN a family has an active rescue plan (per `neurons-single-subject-rescue`), its `FamilyPicker` card SHALL replace the WeaknessIndicator row with a rescue chip that surfaces the countdown, RescueScore, and a "今日佇列" CTA (e.g. "D-3 · RescueScore 62 · 今日佇列"). This override SHALL apply to **every** family that has an active plan — each such card renders its own rescue chip independently; a family with no active plan SHALL render its normal weakness indicator unchanged. Tapping a card's rescue chip SHALL open that family's own rescue scene instance. When a family's plan is archived or abandoned, only that family's card SHALL revert to the normal weakness indicator.
 
-#### Scenario: Active-rescue family card shows the rescue chip
+#### Scenario: Every active-rescue family card shows its own rescue chip
 
-- **GIVEN** an active rescue plan for family A
+- **GIVEN** active rescue plans for families A and B
 - **WHEN** the `FamilyPicker` grid renders
-- **THEN** family A's card SHALL show a rescue chip with countdown, RescueScore, and a 今日佇列 CTA
-- **AND** every other family card SHALL render its normal weakness indicator unchanged
+- **THEN** both A's and B's cards SHALL each show their own rescue chip (countdown, RescueScore, 今日佇列 CTA)
+- **AND** every family without an active plan SHALL render its normal weakness indicator unchanged
 
-#### Scenario: Card reverts after the plan ends
+#### Scenario: Tapping a chip opens that family's scene
+
+- **GIVEN** active plans for families A and B
+- **WHEN** the player taps family A's rescue chip
+- **THEN** the rescue scene SHALL open bound to family A's plan (not B's)
+
+#### Scenario: Card reverts after its plan ends
 
 - **WHEN** family A's rescue plan is archived or abandoned
-- **THEN** family A's card SHALL revert to rendering its normal weakness indicator
+- **THEN** family A's card SHALL revert to rendering its normal weakness indicator, while family B's chip (if still active) is unaffected
+

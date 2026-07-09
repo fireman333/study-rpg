@@ -41,7 +41,7 @@ import {
   useFlag,
 } from '../lib/services/question-flags'
 import { enqueueQuickReview, useIsPinned } from '../lib/services/quick-review-queue'
-import { recordConfidence, appendTelemetry } from '../lib/services/rescue/rescue-store'
+import { appendTelemetry } from '../lib/services/rescue/rescue-store'
 import { useActiveSquad } from '../lib/services/study-squad'
 import { SpriteSheetPlayer } from './SpriteSheetPlayer'
 import { Explanation } from './Explanation'
@@ -144,6 +144,15 @@ interface Props {
    * no synced prescription meta is written (the device-local invariant). Defaults to false.
    */
   rescueSubmit?: boolean
+  /**
+   * Scene-bound pre-reveal confidence sink (add-neurons-multi-subject-rescue, D5).
+   * RescueScene injects a callback ALREADY bound to that scene's `{planCreatedAt,
+   * familyId}`, so a confidence tap in family A's scene can never be recorded under
+   * family B's run scope. QuizModal MUST NOT resolve the active plan itself (multiple
+   * plans coexist — "the active plan" is undefined). Called from `submitWithConfidence`
+   * with `(questionId, signal)`; no-op / omitted outside rescue mode. Defaults to undefined.
+   */
+  onRescueConfidence?: (questionId: string, signal: 'sure' | 'guess') => void
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -286,7 +295,7 @@ function useOwnsLegendarySlot(familyId: string | undefined): boolean {
   return owns
 }
 
-export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false, sessionRepair = false, creditCramRescue = false, rescueSubmit = false }: Props): JSX.Element {
+export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, practice = false, sessionRepair = false, creditCramRescue = false, rescueSubmit = false, onRescueConfidence }: Props): JSX.Element {
   // Session-repair is practice-inert PLUS SRS-inert. `inert` gates the maze /
   // energy / streak / connectome side-effects that both practice and session-repair
   // suppress; `sessionRepair` alone additionally suppresses the SRS scheduler.
@@ -584,11 +593,15 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
   const submitWithConfidence = useCallback(
     (signal: 'sure' | 'guess') => {
       if (highlighted === null || picked !== null || busy || !q) return
-      recordConfidence(q.id, signal)
+      // Scene-bound sink — RescueScene already bound this to the viewing family's
+      // `{planCreatedAt, familyId}` (add-neurons-multi-subject-rescue, D5). QuizModal
+      // never resolves "the active plan" (multiple coexist). Telemetry stays global +
+      // device-local (not per-family — it never enters the synced meta path).
+      onRescueConfidence?.(q.id, signal)
       appendTelemetry({ kind: 'confidence-tap', questionId: q.id, signal })
       void handlePick(highlighted)
     },
-    [highlighted, picked, busy, q, handlePick],
+    [highlighted, picked, busy, q, handlePick, onRescueConfidence],
   )
 
   // Esc to close

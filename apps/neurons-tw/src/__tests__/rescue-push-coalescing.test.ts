@@ -72,7 +72,8 @@ describe('rescue confidence taps — push coalescing (quick-fix 3)', () => {
     // Every write is a db.meta put → Dexie hook → schedulePush.
     const started = startRescue({ familyId: '藥理學', examDate: '2026-07-12', dailyMinutes: 30 })
     expect(started.ok).toBe(true)
-    for (let i = 1; i <= 8; i++) recordConfidence(`q${i}`, i % 2 ? 'sure' : 'guess')
+    const createdAt = started.ok ? started.plan.createdAt : 0
+    for (let i = 1; i <= 8; i++) recordConfidence('藥理學', createdAt, `q${i}`, i % 2 ? 'sure' : 'guess')
 
     // Flush the fire-and-forget meta puts (transactions queue in order).
     await db.meta.toArray()

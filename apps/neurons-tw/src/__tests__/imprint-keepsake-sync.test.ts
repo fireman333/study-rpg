@@ -47,8 +47,8 @@ afterEach(() => {
 })
 
 describe('NG-0717 imprint keepsake sync (v24)', () => {
-  it('SCHEMA_VERSION is 27 (additive bumps: v24 imprints, v25 pinnedAt, v26 prescription daily-quest, v27 rescue sync)', () => {
-    expect(SCHEMA_VERSION).toBe(27)
+  it('SCHEMA_VERSION is 28 (additive bumps: v24 imprints, v25 pinnedAt, v26 prescription daily-quest, v27 rescue sync, v28 multi-subject rescue)', () => {
+    expect(SCHEMA_VERSION).toBe(28)
   })
 
   it('the synced prefix is the single-sourced imprint key prefix (no drift)', () => {

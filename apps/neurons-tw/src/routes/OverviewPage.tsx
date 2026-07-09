@@ -61,7 +61,7 @@ import {
 import { useConceptTags } from '../lib/concept-tags'
 import { useAllFlags } from '../lib/services/question-flags'
 import { RescueScene } from '../components/RescueScene'
-import { useRescuePlan } from '../lib/services/rescue/rescue-store'
+import { useRescuePlans } from '../lib/services/rescue/rescue-store'
 import { computeRescueD } from '../lib/services/rescue/rescue-lifecycle'
 import { computeConceptMastery, computeRescueScore } from '../lib/services/rescue/rescue-score'
 import { buildConceptYield } from '../lib/services/rescue/rescue-session'
@@ -106,7 +106,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   // undefined (from the header entry). The active plan is read reactively for the card 變身.
   const [rescueOpen, setRescueOpen] = useState(false)
   const [rescueInitialFamily, setRescueInitialFamily] = useState<string | undefined>(undefined)
-  const rescuePlan = useRescuePlan()
+  const rescuePlans = useRescuePlans()
   // 模考 moved off the homepage → 題庫 tab (tidy-neurons-homepage-ui); its picker +
   // pure-practice drill now live in QuestionBankPage. The ⚔️ 錯題出征 CTA now lives
   // in the merged ConnectomeStatCard (redesign-neurons-homepage-cta).
@@ -252,20 +252,23 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     () => computeWeaknessPressure(questionHistory, conceptTags, familyIds),
     [questionHistory, conceptTags, familyIds],
   )
-  // Rescue chip for the active-plan family only (cheap — one family): D countdown +
-  // RescueScore. Yield uses the corpus-percentile fallback (no cram fetch on the homepage);
-  // the scene itself refines with cram tiers. Null when no plan is active.
-  const rescueChip = useMemo(() => {
-    if (!rescuePlan) return null
-    const scoped = filterPoolByFamily(pack.questions, rescuePlan.familyId)
-    const conceptYield = buildConceptYield([], scoped, conceptTags)
-    const scopedHistory = questionHistory.filter((h) => h.family === rescuePlan.familyId)
-    const mastery = computeConceptMastery(scopedHistory, conceptTags)
-    return {
-      d: computeRescueD(rescuePlan.examDate, todayISO()),
-      score: computeRescueScore(mastery, conceptYield),
+  // Per-family rescue chip map (add-neurons-multi-subject-rescue): D countdown + RescueScore
+  // for EVERY active plan (multiple coexist). Yield uses the corpus-percentile fallback (no cram
+  // fetch on the homepage); the scene itself refines with cram tiers. Empty when no plan is active.
+  const rescueChipByFamily = useMemo(() => {
+    const m = new Map<string, { d: number; score: number }>()
+    for (const plan of rescuePlans) {
+      const scoped = filterPoolByFamily(pack.questions, plan.familyId)
+      const conceptYield = buildConceptYield([], scoped, conceptTags)
+      const scopedHistory = questionHistory.filter((h) => h.family === plan.familyId)
+      const mastery = computeConceptMastery(scopedHistory, conceptTags)
+      m.set(plan.familyId, {
+        d: computeRescueD(plan.examDate, todayISO()),
+        score: computeRescueScore(mastery, conceptYield),
+      })
     }
-  }, [rescuePlan, pack.questions, conceptTags, questionHistory])
+    return m
+  }, [rescuePlans, pack.questions, conceptTags, questionHistory])
   // 一鍵特訓 pool: family-scoped ≤10 high-weakness questions (wrong / low-ease / overdue),
   // reusing the existing family-filter + the targeted-drill ranker. Materialised only
   // while the drill is open.
@@ -904,8 +907,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         mazeExpanded={mazeExpanded}
         mazeSlot={mazeSlot}
         mazeHintByFamily={mazeHintByFamily}
-        rescuePlanFamilyId={rescuePlan?.familyId ?? null}
-        rescueChip={rescueChip}
+        rescueChipByFamily={rescueChipByFamily}
         onOpenRescue={openRescue}
       />
 

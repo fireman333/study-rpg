@@ -26,6 +26,7 @@ import { CramPage } from './routes/CramPage'
 import { SpeedReviewPage } from './routes/SpeedReviewPage'
 import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
+import SyncReloadToast from './components/SyncReloadToast'
 import { CustomTooltipHost } from './components/CustomTooltipHost'
 import HelpMenu from './components/HelpMenu'
 import { PdfPanelProvider } from './components/PdfPanelProvider'
@@ -106,6 +107,7 @@ export default function App(): JSX.Element {
         <AchievementToastHost />
         <AchievementUnlockModal />
         <DmnQuickReviewToast />
+        <SyncReloadToast />
         <CustomTooltipHost />
         <HelpMenu />
         <PdfPanelHost />

@@ -242,12 +242,21 @@
 //        the incoming bundle); a v27 client reading a v26 bundle finds no rescue
 //        keys and preserves its local rescue state. Worker is bundle-opaque (no
 //        Worker change).
+//   v28 — add-neurons-multi-subject-rescue 2026-07-09: rescue plan key becomes
+//        per-family `rescue:v1:plan:{familyId}`, and conf/ovr keys gain a
+//        `{familyId}` segment (`rescue:v1:{conf,ovr}:{planCreatedAt}:{familyId}:…`),
+//        so multiple rescue plans coexist. The LEGACY single `rescue:v1:plan` is
+//        no longer synced (the matcher rejects it); a cloud legacy key is migrated
+//        by the backfill reading it from raw bundle meta. This bump is LOAD-BEARING
+//        (not merely reader-tolerant): a v27 whole-snapshot push omits the
+//        per-family keys, so the presign Worker's 409 downgrade guard MUST fence it
+//        or the per-family keys would be erased. NO Dexie bump (rides `meta`).
 
 import type { NeuronsDB } from '../../db'
 import { NEURONS_ADAPTERS } from '../tables'
 import { readAckResetAt, readLastSyncedUserId } from '../account-guard'
 
-export const SCHEMA_VERSION = 27
+export const SCHEMA_VERSION = 28
 export const BUNDLE_APP_VERSION = '0.4.0'
 
 const CLIENT_ID_KEY = 'neurons-rpg.sync.clientId'
