@@ -1,42 +1,48 @@
 /**
- * Single-subject rescue — R2-synced store (rides the `meta` kv, zero Dexie bump).
+ * Multi-subject rescue — R2-synced store (rides the `meta` kv, zero Dexie bump).
  *
- * Holds the rescue mode's mutable state: the active plan envelope, pre-reveal
+ * Holds the rescue mode's mutable state: PER-FAMILY plan envelopes, pre-reveal
  * confidence taps, and stop-loss override flags all persist in the Dexie `meta`
  * table under the `rescue:v1:` namespace and sync cross-device via the existing
- * R2 `neurons` bundle (add-neurons-rescue-r2-sync). Only telemetry stays
- * device-local (localStorage, append-only). A rescue sprint is exactly「這個帳號、
- * 這幾天」，最常在 iPhone / iPad 交替使用 — so the plan shell + confidence + overrides
- * must follow the account, not the device.
+ * R2 `neurons` bundle (add-neurons-multi-subject-rescue). Multiple plans coexist,
+ * at most one per family, each under `rescue:v1:plan:{familyId}`. Only telemetry
+ * stays device-local (localStorage, append-only). A rescue sprint is exactly
+ *「這個帳號、這幾天」，最常在 iPhone / iPad 交替使用 — so the plan shells + confidence +
+ * overrides must follow the account, not the device.
  *
  * Architecture (design D10):
  *   - `db.meta` is the SYNCED authority; a `db.meta.put` fires the Dexie push
  *     hook (`meta` is in NEURONS_ADAPTERS) → schedulePush → R2.
- *   - An in-memory mirror is the SYNCHRONOUS read source for the
- *     `useSyncExternalStore` facade; every mutation updates it optimistically
- *     then write-throughs to `db.meta`.
- *   - A localStorage cache of the plan envelope gives a zero-flash synchronous
- *     boot (the phase decision reads `getActivePlan()` before Dexie loads).
+ *   - An in-memory mirror (`envelopes: Map<familyId, PlanEnvelope>`) is the
+ *     SYNCHRONOUS read source for the `useSyncExternalStore` facade; every
+ *     mutation updates it optimistically then write-throughs to `db.meta`.
+ *   - A localStorage cache of the envelope MAP gives a zero-flash synchronous
+ *     boot (the phase decision reads `getActivePlan(familyId)` before Dexie loads).
  *   - A Dexie `liveQuery` reconciles the mirror + cache from `db.meta` on any
  *     cross-tab write or cross-device pull, then notifies listeners.
  *
  * Merge semantics live in `rescue-sync-keys.ts` (LWW pickers) + `backfill/
- * rescue.ts` (post-pass); this store only mints keys + writes.
+ * rescue.ts` (post-pass, iterating every incoming `rescue:v1:plan:*` key); this
+ * store only mints keys + writes.
  *
- * Spec: neurons-single-subject-rescue "SHALL sync via R2 ... lifecycle-managed".
+ * Spec: neurons-single-subject-rescue "Rescue plans SHALL sync per-family as
+ * coexisting latest-action-wins LWW envelopes, lifecycle-managed".
  */
 
 import { useSyncExternalStore } from 'react'
 import { liveQuery, type Subscription } from 'dexie'
 import { db } from '../../db'
 import { shouldArchiveRescue } from './rescue-lifecycle'
+import { resolvePendingBlitzFlush, type PendingBlitzDone } from './rescue-blitz-defer'
 import type { ConfidenceSignal } from './rescue-priority'
 import type { OverrideState } from './rescue-stoploss'
 import {
   RESCUE_META_PREFIX,
   RESCUE_PLAN_KEY,
+  RESCUE_PLAN_KEY_PREFIX,
   RESCUE_CONF_KEY_PREFIX,
   RESCUE_OVR_KEY_PREFIX,
+  rescuePlanKey,
   rescueConfKey,
   rescueOvrKey,
   parsePlanEnvelope,
@@ -50,14 +56,18 @@ export type { RescuePlan } from './rescue-sync-keys'
 export {
   RESCUE_META_PREFIX,
   RESCUE_PLAN_KEY,
+  rescuePlanKey,
   rescueConfKey,
   rescueOvrKey,
   isSyncedRescueKey,
 } from './rescue-sync-keys'
 
-/** localStorage cache of the plan envelope — zero-flash synchronous boot only;
- *  `db.meta` remains the synced authority. */
-const ENV_CACHE_KEY = 'neurons:rescue:env:v1'
+/** localStorage cache of the per-family envelope MAP — zero-flash synchronous
+ *  boot only; `db.meta` remains the synced authority. */
+const ENVS_CACHE_KEY = 'neurons:rescue:envs:v1'
+/** LEGACY single-envelope cache (pre-multi-subject) — read once as a back-compat
+ *  warm so an upgrading user mid-rescue doesn't flash an empty scene for one boot. */
+const LEGACY_ENV_CACHE_KEY = 'neurons:rescue:env:v1'
 /** Device-local telemetry (append-only, exportable; NOT synced). */
 const TELEMETRY_KEY = 'neurons:rescue:telemetry:v1'
 /** One-time migration marker — survives account wipe so the legacy shell is
@@ -83,18 +93,20 @@ export interface RescueTelemetryEvent {
 }
 
 export interface RescueState {
-  plan: RescuePlan | null
-  /** questionId → pre-reveal confidence tap for the ACTIVE run. */
-  confidence: Record<string, ConfidenceSignal>
-  /** conceptId → stop-loss override for the ACTIVE run. */
-  overrides: Record<string, OverrideState>
+  /** All ACTIVE (non-null) plans, one per family, sorted by `createdAt` asc. */
+  plans: RescuePlan[]
+  /** familyId → (questionId → pre-reveal confidence tap) for that family's ACTIVE run. */
+  confidenceByFamily: Record<string, Record<string, ConfidenceSignal>>
+  /** familyId → (conceptId → stop-loss override) for that family's ACTIVE run. */
+  overridesByFamily: Record<string, Record<string, OverrideState>>
   telemetry: RescueTelemetryEvent[]
 }
 
-const EMPTY: RescueState = { plan: null, confidence: {}, overrides: {}, telemetry: [] }
+const EMPTY: RescueState = { plans: [], confidenceByFamily: {}, overridesByFamily: {}, telemetry: [] }
 
 // ── in-memory mirror (synchronous read source) ───────────────────────────────
-let envelope: PlanEnvelope | null = null
+/** familyId → plan envelope (may hold an explicit-null plan for a cleared family). */
+const envelopes = new Map<string, PlanEnvelope>()
 /** full conf/ovr meta key → raw JSON value (all runs; readers scope by active plan). */
 const confRows = new Map<string, string>()
 const ovrRows = new Map<string, string>()
@@ -103,19 +115,46 @@ const listeners = new Set<() => void>()
 /** Cached facade snapshot — stable reference between mutations for useSyncExternalStore. */
 let snapshot: RescueState = EMPTY
 
-// ── localStorage helpers (fail-open) ─────────────────────────────────────────
-function readEnvCache(): PlanEnvelope | null {
-  try {
-    const raw = localStorage.getItem(ENV_CACHE_KEY)
-    return raw ? parsePlanEnvelope(raw) : null
-  } catch {
-    return null
-  }
+/** Strictly-increasing `createdAt` mint (same-device +1ms de-dup): two plans
+ *  started in the same millisecond never share a run scope (design D1). */
+let lastMintedCreatedAt = 0
+function mintCreatedAt(): number {
+  let now = Date.now()
+  if (now <= lastMintedCreatedAt) now = lastMintedCreatedAt + 1
+  lastMintedCreatedAt = now
+  return now
 }
-function writeEnvCache(env: PlanEnvelope | null): void {
+
+// ── localStorage helpers (fail-open) ─────────────────────────────────────────
+/** Read the per-family envelope cache; back-compat warm from the legacy single
+ *  cache when the plural one is absent (one-boot upgrade grace). */
+function readEnvCache(): Map<string, PlanEnvelope> {
+  const out = new Map<string, PlanEnvelope>()
   try {
-    if (env) localStorage.setItem(ENV_CACHE_KEY, JSON.stringify(env))
-    else localStorage.removeItem(ENV_CACHE_KEY)
+    const raw = localStorage.getItem(ENVS_CACHE_KEY)
+    if (raw) {
+      const obj = JSON.parse(raw) as Record<string, unknown>
+      if (obj && typeof obj === 'object') {
+        for (const [familyId, envValue] of Object.entries(obj)) {
+          const env = parsePlanEnvelope(typeof envValue === 'string' ? envValue : JSON.stringify(envValue))
+          if (env) out.set(familyId, env)
+        }
+      }
+      return out
+    }
+    const legacyRaw = localStorage.getItem(LEGACY_ENV_CACHE_KEY)
+    const legacyEnv = legacyRaw ? parsePlanEnvelope(legacyRaw) : null
+    if (legacyEnv?.plan?.familyId) out.set(legacyEnv.plan.familyId, legacyEnv)
+  } catch {
+    /* private mode — cache simply doesn't warm the next boot */
+  }
+  return out
+}
+function writeEnvCache(): void {
+  try {
+    const obj: Record<string, PlanEnvelope> = {}
+    for (const [familyId, env] of envelopes) obj[familyId] = env
+    localStorage.setItem(ENVS_CACHE_KEY, JSON.stringify(obj))
   } catch {
     /* private mode — cache simply doesn't warm the next boot */
   }
@@ -171,24 +210,34 @@ export function markPlanKnown(createdAt: number): void {
 
 // ── snapshot recompute + notify ──────────────────────────────────────────────
 function computeSnapshot(): RescueState {
-  const plan = envelope?.plan ?? null
-  const confidence: Record<string, ConfidenceSignal> = {}
-  const overrides: Record<string, OverrideState> = {}
-  if (plan) {
-    const confPrefix = `${RESCUE_CONF_KEY_PREFIX}${plan.createdAt}:`
+  const plans: RescuePlan[] = []
+  const confidenceByFamily: Record<string, Record<string, ConfidenceSignal>> = {}
+  const overridesByFamily: Record<string, Record<string, OverrideState>> = {}
+  for (const [familyId, env] of envelopes) {
+    const plan = env.plan
+    if (!plan) continue
+    plans.push(plan)
+    // The prefix is minted through the SAME key function so it can never drift
+    // from the writer (empty id → the trailing-colon prefix).
+    const confPrefix = rescueConfKey(plan.createdAt, familyId, '')
+    const conf: Record<string, ConfidenceSignal> = {}
     for (const [key, raw] of confRows) {
       if (!key.startsWith(confPrefix)) continue
       const rec = parseConfRecord(raw)
-      if (rec) confidence[key.slice(confPrefix.length)] = rec.signal
+      if (rec) conf[key.slice(confPrefix.length)] = rec.signal
     }
-    const ovrPrefix = `${RESCUE_OVR_KEY_PREFIX}${plan.createdAt}:`
+    confidenceByFamily[familyId] = conf
+    const ovrPrefix = rescueOvrKey(plan.createdAt, familyId, '')
+    const ovr: Record<string, OverrideState> = {}
     for (const [key, raw] of ovrRows) {
       if (!key.startsWith(ovrPrefix)) continue
       const rec = parseOvrRecord(raw)
-      if (rec) overrides[key.slice(ovrPrefix.length)] = { setAt: rec.setAt, attemptsAtOverride: rec.attemptsAtOverride }
+      if (rec) ovr[key.slice(ovrPrefix.length)] = { setAt: rec.setAt, attemptsAtOverride: rec.attemptsAtOverride }
     }
+    overridesByFamily[familyId] = ovr
   }
-  return { plan, confidence, overrides, telemetry: readTelemetry() }
+  plans.sort((a, b) => a.createdAt - b.createdAt)
+  return { plans, confidenceByFamily, overridesByFamily, telemetry: readTelemetry() }
 }
 function notify(): void {
   snapshot = computeSnapshot()
@@ -201,10 +250,11 @@ function putMeta(key: string, value: string): void {
     console.error('[rescue] meta write failed', key, err)
   })
 }
-function writeEnvelope(env: PlanEnvelope): void {
-  envelope = env
-  writeEnvCache(env)
-  putMeta(RESCUE_PLAN_KEY, JSON.stringify(env))
+/** Write a family's whole envelope (mirror + cache + db.meta) and notify. */
+function writeEnvelope(familyId: string, env: PlanEnvelope): void {
+  envelopes.set(familyId, env)
+  writeEnvCache()
+  putMeta(rescuePlanKey(familyId), JSON.stringify(env))
   notify()
 }
 
@@ -212,19 +262,24 @@ function writeEnvelope(env: PlanEnvelope): void {
 export function getRescueState(): RescueState {
   return snapshot
 }
-export function getActivePlan(): RescuePlan | null {
-  return envelope?.plan ?? null
+/** The ACTIVE plan for one family (null if none / cleared). */
+export function getActivePlan(familyId: string): RescuePlan | null {
+  return envelopes.get(familyId)?.plan ?? null
 }
-export function getConfidence(questionId: string): ConfidenceSignal {
-  const plan = getActivePlan()
+/** All ACTIVE plans (stable ref between changes). */
+export function getActivePlans(): RescuePlan[] {
+  return snapshot.plans
+}
+export function getConfidence(familyId: string, questionId: string): ConfidenceSignal {
+  const plan = getActivePlan(familyId)
   if (!plan) return undefined
-  const raw = confRows.get(rescueConfKey(plan.createdAt, questionId))
+  const raw = confRows.get(rescueConfKey(plan.createdAt, familyId, questionId))
   return raw ? (parseConfRecord(raw)?.signal ?? undefined) : undefined
 }
-export function getOverride(conceptId: string): OverrideState | undefined {
-  const plan = getActivePlan()
+export function getOverride(familyId: string, conceptId: string): OverrideState | undefined {
+  const plan = getActivePlan(familyId)
   if (!plan) return undefined
-  const raw = ovrRows.get(rescueOvrKey(plan.createdAt, conceptId))
+  const raw = ovrRows.get(rescueOvrKey(plan.createdAt, familyId, conceptId))
   const rec = raw ? parseOvrRecord(raw) : null
   return rec ? { setAt: rec.setAt, attemptsAtOverride: rec.attemptsAtOverride } : undefined
 }
@@ -235,78 +290,115 @@ export interface StartRescueInput {
   examDate: string
   dailyMinutes: number
 }
-export type StartRescueResult =
-  | { ok: true; plan: RescuePlan; resumed?: boolean }
-  | { ok: false; needsConfirm: true; current: RescuePlan }
+export type StartRescueResult = { ok: true; plan: RescuePlan; resumed?: boolean }
 
 /**
- * Start (or replace) a rescue plan. One-at-a-time ACCOUNT-WIDE: if a DIFFERENT
- * family already has an active plan (possibly created on another device) and
- * `replace` is not set, returns `needsConfirm` so the UI can prompt. Starting a
- * new plan mints a fresh `createdAt` which re-scopes all confidence / override
- * reads — the previous run's keys are simply ignored (no delete writes).
+ * Start a rescue plan for a family. Multiple families coexist independently
+ * (design D1) — starting B while A is active does NOT replace A. A SAME-family
+ * live plan with no explicit `replace` → CONTINUE the existing run (`resumed:
+ * true`, zero writes): minting a fresh `createdAt` would be a silent restart
+ * whose later `updatedAt` LWW-wins over the cloud run, wiping its blitz marker +
+ * run-scoped confidence/overrides for that family. Only an explicit `replace`
+ * (deliberate reset) mints a new run. A new run mints a strictly-increasing
+ * `createdAt` (same-device +1ms de-dup) which re-scopes that family's
+ * confidence/override reads — the previous run's keys are simply ignored.
  *
- * SAME family with a live plan and no explicit `replace` → CONTINUE the existing
- * run (`resumed: true`, zero writes). Minting a fresh `createdAt` here would be a
- * silent restart: the new envelope's later `updatedAt` LWW-wins over the cloud
- * run, wiping its blitz marker + run-scoped confidence/overrides account-wide
- * (the exact cross-device takeover window review-B1 closed). Only an explicit
- * replace (換科 confirm / deliberate reset) mints a new run.
+ * The coexistence cap (soft-3 / hard-5) is enforced at the UI setup layer, not
+ * here (the store still resumes / edits an EXISTING family unconditionally).
  */
 export function startRescue(input: StartRescueInput, opts?: { replace?: boolean }): StartRescueResult {
-  const current = getActivePlan()
+  const current = getActivePlan(input.familyId)
   if (current && !opts?.replace) {
-    if (current.familyId !== input.familyId) {
-      return { ok: false, needsConfirm: true, current }
-    }
     return { ok: true, plan: current, resumed: true }
   }
-  const now = Date.now()
-  const plan: RescuePlan = { ...input, createdAt: now, lastStudiedAt: now }
+  const now = mintCreatedAt()
+  const plan: RescuePlan = {
+    familyId: input.familyId,
+    examDate: input.examDate,
+    dailyMinutes: input.dailyMinutes,
+    createdAt: now,
+    lastStudiedAt: now,
+  }
   // A locally-started plan is "known" — its reconcile note never fires here.
   addKnownPlan(now)
-  writeEnvelope({ plan, updatedAt: now })
+  writeEnvelope(input.familyId, { plan, updatedAt: now })
   return { ok: true, plan }
 }
 
-/** Abandon the active plan — writes an explicit `plan: null` envelope (LWW-null,
- *  propagates the clear to every device). Reverts absorption via the plan-null signal. */
-export function abandonRescue(): void {
-  if (!getActivePlan()) return
-  writeEnvelope({ plan: null, updatedAt: Date.now() })
-}
-
-/** Auto-archive if `examDate + 1 day` has been reached. Returns whether it archived. */
-export function archiveIfDue(todayISO: string): boolean {
-  const plan = getActivePlan()
-  if (plan && shouldArchiveRescue(plan.examDate, todayISO)) {
-    writeEnvelope({ plan: null, updatedAt: Date.now() })
-    return true
-  }
-  return false
-}
-
-export function touchLastStudied(now: number = Date.now()): void {
-  const plan = getActivePlan()
+/**
+ * Edit an active plan's exam date / daily-minutes in place (same run — the
+ * `createdAt` and run-scoped confidence/overrides are preserved). Rewrites that
+ * family's envelope with a fresh `updatedAt` so the edit propagates cross-device.
+ */
+export function editRescuePlan(
+  familyId: string,
+  patch: { examDate?: string; dailyMinutes?: number },
+): void {
+  const plan = getActivePlan(familyId)
   if (!plan) return
-  writeEnvelope({ plan: { ...plan, lastStudiedAt: now }, updatedAt: now })
+  const now = Date.now()
+  const next: RescuePlan = {
+    ...plan,
+    ...(patch.examDate !== undefined ? { examDate: patch.examDate } : {}),
+    ...(patch.dailyMinutes !== undefined ? { dailyMinutes: patch.dailyMinutes } : {}),
+  }
+  writeEnvelope(familyId, { plan: next, updatedAt: now })
+}
+
+/** Abandon one family's active plan — writes an explicit `plan: null` envelope
+ *  (LWW-null, propagates the clear to every device) for THAT family only. */
+export function abandonRescue(familyId: string): void {
+  if (!getActivePlan(familyId)) return
+  writeEnvelope(familyId, { plan: null, updatedAt: Date.now() })
+}
+
+/**
+ * Auto-archive EVERY plan whose `examDate + 1 day` has been reached (design D7:
+ * iterate all plans, archive each at its own exam date; missing one lets an
+ * expired plan linger, over-eager clearing wipes a sibling). Returns whether it
+ * archived any.
+ */
+export function archiveIfDue(todayISO: string): boolean {
+  const due: string[] = []
+  for (const [familyId, env] of envelopes) {
+    if (env.plan && shouldArchiveRescue(env.plan.examDate, todayISO)) due.push(familyId)
+  }
+  for (const familyId of due) writeEnvelope(familyId, { plan: null, updatedAt: Date.now() })
+  return due.length > 0
+}
+
+export function touchLastStudied(familyId: string, now: number = Date.now()): void {
+  const plan = getActivePlan(familyId)
+  if (!plan) return
+  writeEnvelope(familyId, { plan: { ...plan, lastStudiedAt: now }, updatedAt: now })
 }
 
 // ── per-run mutations ─────────────────────────────────────────────────────────
-export function recordConfidence(questionId: string, signal: ConfidenceSignal): void {
-  const plan = getActivePlan()
-  if (!plan || signal === undefined) return
-  const key = rescueConfKey(plan.createdAt, questionId)
+/**
+ * Record a pre-reveal confidence tap under an EXPLICIT run scope (`planCreatedAt`)
+ * captured when the answering session opened — NOT resolved at write time. If the
+ * family's plan was sync-replaced (new createdAt) or abandoned (null) mid-session,
+ * the tap no-ops rather than landing under the wrong run (Codex/Fable review fix 2).
+ */
+export function recordConfidence(
+  familyId: string,
+  planCreatedAt: number,
+  questionId: string,
+  signal: ConfidenceSignal,
+): void {
+  const plan = getActivePlan(familyId)
+  if (!plan || plan.createdAt !== planCreatedAt || signal === undefined) return
+  const key = rescueConfKey(planCreatedAt, familyId, questionId)
   const value = JSON.stringify({ signal, at: Date.now() })
   confRows.set(key, value)
   putMeta(key, value)
   notify()
 }
 
-export function setOverride(conceptId: string, override: OverrideState): void {
-  const plan = getActivePlan()
+export function setOverride(familyId: string, conceptId: string, override: OverrideState): void {
+  const plan = getActivePlan(familyId)
   if (!plan) return
-  const key = rescueOvrKey(plan.createdAt, conceptId)
+  const key = rescueOvrKey(plan.createdAt, familyId, conceptId)
   const value = JSON.stringify({ setAt: override.setAt, attemptsAtOverride: override.attemptsAtOverride })
   ovrRows.set(key, value)
   putMeta(key, value)
@@ -332,15 +424,62 @@ export function exportTelemetry(): string {
 // device pulling a plan whose `blitzDoneAt` is set rebuilds its queue from the
 // synced questionHistory + confidence instead of re-running the diagnostic.
 // Replacing a plan (new createdAt, blitzDoneAt absent) naturally re-arms it.
-export function markBlitzDone(planCreatedAt: number): void {
-  const plan = getActivePlan()
+export function markBlitzDone(familyId: string, planCreatedAt: number): void {
+  const plan = getActivePlan(familyId)
   if (!plan || plan.createdAt !== planCreatedAt) return
   const now = Date.now()
-  writeEnvelope({ plan: { ...plan, blitzDoneAt: now }, updatedAt: now })
+  writeEnvelope(familyId, { plan: { ...plan, blitzDoneAt: now }, updatedAt: now })
 }
-export function isBlitzDone(planCreatedAt: number): boolean {
-  const plan = getActivePlan()
+export function isBlitzDone(familyId: string, planCreatedAt: number): boolean {
+  const plan = getActivePlan(familyId)
   return !!plan && plan.createdAt === planCreatedAt && plan.blitzDoneAt != null
+}
+
+// ── deferred lifecycle writes (startup-pull gate) ────────────────────────────
+// A blitz completion / study-touch that fires while the startup force-pull is
+// still in flight (`startupSyncPending`) must be DEFERRED, not dropped — a
+// dropped `blitzDoneAt` makes a second device re-run the diagnostic. This state
+// is MODULE-LEVEL (not a RescueScene component ref) so it survives the scene
+// unmounting before the pull lands; `flushPendingRescueLifecycle` is invoked
+// both by the sync layer on startup-pull settlement (survives unmount) and by
+// the scene's `startupSyncPending → false` effect (covers the status-poll lag).
+// (Codex/Fable review fix 3)
+let pendingBlitzDone: PendingBlitzDone | null = null
+const pendingTouch = new Set<string>()
+
+/** Defer a blitz completion until the startup pull lands (latest one wins per boot). */
+export function deferBlitzDone(familyId: string, planCreatedAt: number): void {
+  pendingBlitzDone = { familyId, createdAt: planCreatedAt }
+}
+/** Defer a study-touch (lastStudiedAt bump) until the startup pull lands. */
+export function deferTouchLastStudied(familyId: string): void {
+  pendingTouch.add(familyId)
+}
+/** Whether any lifecycle write is currently deferred (test/inspection helper). */
+export function hasPendingRescueLifecycle(): boolean {
+  return pendingBlitzDone !== null || pendingTouch.size > 0
+}
+/**
+ * Flush every deferred lifecycle write now that the startup pull has settled.
+ * Idempotent — a no-op when nothing is pending. The blitz flush reuses
+ * `resolvePendingBlitzFlush`'s replaced/abandoned guard (a stale createdAt must
+ * not resurrect a dead run's marker); a touch flushes only onto a still-active plan.
+ */
+export function flushPendingRescueLifecycle(): void {
+  const blitz = pendingBlitzDone
+  pendingBlitzDone = null
+  if (blitz) {
+    const flush = resolvePendingBlitzFlush(blitz, false, getActivePlan(blitz.familyId))
+    if (flush) {
+      markBlitzDone(flush.familyId, flush.createdAt)
+      touchLastStudied(flush.familyId)
+    }
+  }
+  const touches = [...pendingTouch]
+  pendingTouch.clear()
+  for (const familyId of touches) {
+    if (getActivePlan(familyId)) touchLastStudied(familyId)
+  }
 }
 
 // ── hydration: mirror ← db.meta + liveQuery reconcile + one-time migration ────
@@ -375,37 +514,50 @@ export function consumeRescueMigrationPush(): boolean {
   return pending
 }
 
-/** Load the mirror from a batch of `rescue:v1:*` meta rows (authoritative). */
+/** Load the mirror from a batch of `rescue:v1:*` meta rows (authoritative).
+ *  Only per-family plan keys (`rescue:v1:plan:{familyId}`) feed `envelopes`; the
+ *  legacy single `rescue:v1:plan` (no family segment) is ignored — it is handled
+ *  by the one-time migration, never loaded as an active plan. */
 function loadFromRows(rows: Array<{ key: string; value: string }>): void {
-  envelope = null
+  envelopes.clear()
   confRows.clear()
   ovrRows.clear()
   for (const row of rows) {
-    if (row.key === RESCUE_PLAN_KEY) {
-      envelope = parsePlanEnvelope(row.value)
+    if (row.key.startsWith(RESCUE_PLAN_KEY_PREFIX)) {
+      const env = parsePlanEnvelope(row.value)
+      if (env) envelopes.set(row.key.slice(RESCUE_PLAN_KEY_PREFIX.length), env)
     } else if (row.key.startsWith(RESCUE_CONF_KEY_PREFIX)) {
       confRows.set(row.key, row.value)
     } else if (row.key.startsWith(RESCUE_OVR_KEY_PREFIX)) {
       ovrRows.set(row.key, row.value)
     }
   }
-  writeEnvCache(envelope)
+  writeEnvCache()
 }
 
 /**
- * One-time migration of the legacy device-local blob (`neurons:rescue:v1`) into
- * the synced meta keys (design D9). Conservative timestamp: seeds `updatedAt` /
- * `at` from `plan.lastStudiedAt` so any genuinely newer cloud action wins over
- * the migrated shell. Idempotent — a device-local marker prevents re-seeding
- * (so an account-switch wipe can never resurrect the outgoing account's shell).
- * The legacy blob is KEPT as a read-only rollback fallback (owner open-Q #5).
+ * One-time migration of the legacy SINGLE-plan state into the per-family keys
+ * (design D9 + multi-subject migration). Two legacy sources:
+ *   (a) a `db.meta` legacy `rescue:v1:plan` row (written by a pre-multi build on
+ *       THIS device) → migrated into `rescue:v1:plan:{plan.familyId}`, then the
+ *       legacy row is deleted (v28 never snapshots it);
+ *   (b) the device-local `neurons:rescue:v1` blob (pre-sync) → seeded into the
+ *       per-family key + run-scoped conf/ovr keys.
+ * A legacy `plan: null` envelope (no familyId) is DISCARDED — it is never used to
+ * clear a per-family plan. Per family, the seed only writes when that family has
+ * no envelope yet (so a newer cloud/local plan is never clobbered). Conservative
+ * timestamp: `updatedAt` / `at` seed from `plan.lastStudiedAt` so any genuinely
+ * newer cloud action wins over the migrated shell. Idempotent — a device-local
+ * marker prevents re-seeding (so an account-switch wipe can never resurrect the
+ * outgoing account's shell). Runs BEFORE the first push (whole-snapshot vacuum
+ * guard). The legacy blob is KEPT as a read-only rollback fallback.
  */
 export async function migrateRescueLocalState(): Promise<void> {
   let alreadyMigrated = false
   try {
     alreadyMigrated = localStorage.getItem(MIGRATED_KEY) === '1'
   } catch {
-    /* fail-open: treat as not migrated; the db-envelope guard below still holds */
+    /* fail-open: treat as not migrated; the per-family guards below still hold */
   }
   if (alreadyMigrated) return
   // Mark FIRST so a mid-migration crash / re-entrancy never re-seeds.
@@ -428,49 +580,78 @@ export async function migrateRescueLocalState(): Promise<void> {
     legacy = null
   }
   // Migrate telemetry into its own key first (device-local, not synced — happens
-  // regardless of whether the plan shell is seeded or discarded below).
+  // regardless of whether a plan shell is seeded or discarded below).
   if (legacy?.telemetry && Array.isArray(legacy.telemetry) && readTelemetry().length === 0) {
     writeTelemetry(legacy.telemetry.slice(-TELEMETRY_CAP))
   }
 
-  // If the cloud already holds a plan envelope (pulled before migration), discard
-  // the local shell — answers never depended on it.
-  const existing = await db.meta.get(RESCUE_PLAN_KEY)
-  if (existing) return
+  let seededAny = false
 
-  const plan = legacy?.plan
-  if (!plan || typeof plan.createdAt !== 'number') return
-
-  const seedAt = typeof plan.lastStudiedAt === 'number' ? plan.lastStudiedAt : plan.createdAt
-  let blitzDoneAt: number | undefined
+  // (a) db.meta legacy single key → per-family (this device's own pre-multi plan).
   try {
-    if (localStorage.getItem(LEGACY_BLITZ_KEY) === String(plan.createdAt)) blitzDoneAt = seedAt
-  } catch {
-    /* ignore */
+    const legacyRow = await db.meta.get(RESCUE_PLAN_KEY)
+    if (legacyRow) {
+      const env = parsePlanEnvelope(legacyRow.value)
+      if (env?.plan && typeof env.plan.familyId === 'string') {
+        const famKey = rescuePlanKey(env.plan.familyId)
+        const existingFam = await db.meta.get(famKey)
+        if (!existingFam) {
+          await db.meta.put({ key: famKey, value: JSON.stringify(env) })
+          seededAny = true
+        }
+      }
+      // Discard the legacy single row (a `plan: null` legacy or a migrated one):
+      // v28 never snapshots it, and it must never clear a per-family plan.
+      await db.meta.delete(RESCUE_PLAN_KEY)
+    }
+  } catch (err) {
+    console.error('[rescue] db.meta legacy migration failed', err)
   }
-  const migratedPlan: RescuePlan = {
-    familyId: plan.familyId,
-    examDate: plan.examDate,
-    dailyMinutes: plan.dailyMinutes,
-    createdAt: plan.createdAt,
-    lastStudiedAt: plan.lastStudiedAt ?? plan.createdAt,
-    ...(blitzDoneAt !== undefined ? { blitzDoneAt } : {}),
+
+  // (b) localStorage legacy blob → per-family (only when that family has no
+  // envelope yet; conservative seed timestamp so a newer cloud plan wins).
+  const plan = legacy?.plan
+  if (plan && typeof plan.createdAt === 'number' && typeof plan.familyId === 'string') {
+    const famKey = rescuePlanKey(plan.familyId)
+    const existingFam = await db.meta.get(famKey)
+    if (!existingFam) {
+      const seedAt = typeof plan.lastStudiedAt === 'number' ? plan.lastStudiedAt : plan.createdAt
+      let blitzDoneAt: number | undefined
+      try {
+        if (localStorage.getItem(LEGACY_BLITZ_KEY) === String(plan.createdAt)) blitzDoneAt = seedAt
+      } catch {
+        /* ignore */
+      }
+      const migratedPlan: RescuePlan = {
+        familyId: plan.familyId,
+        examDate: plan.examDate,
+        dailyMinutes: plan.dailyMinutes,
+        createdAt: plan.createdAt,
+        lastStudiedAt: plan.lastStudiedAt ?? plan.createdAt,
+        ...(blitzDoneAt !== undefined ? { blitzDoneAt } : {}),
+      }
+      await db.meta.put({ key: famKey, value: JSON.stringify({ plan: migratedPlan, updatedAt: seedAt }) })
+      for (const [qid, signal] of Object.entries(legacy?.confidence ?? {})) {
+        if (signal !== 'sure' && signal !== 'guess') continue
+        await db.meta.put({
+          key: rescueConfKey(plan.createdAt, plan.familyId, qid),
+          value: JSON.stringify({ signal, at: seedAt }),
+        })
+      }
+      for (const [cid, ov] of Object.entries(legacy?.overrides ?? {})) {
+        if (!ov || typeof ov.setAt !== 'number') continue
+        await db.meta.put({
+          key: rescueOvrKey(plan.createdAt, plan.familyId, cid),
+          value: JSON.stringify({ setAt: ov.setAt, attemptsAtOverride: ov.attemptsAtOverride ?? 0 }),
+        })
+      }
+      seededAny = true
+    }
   }
-  await db.meta.put({ key: RESCUE_PLAN_KEY, value: JSON.stringify({ plan: migratedPlan, updatedAt: seedAt }) })
-  for (const [qid, signal] of Object.entries(legacy?.confidence ?? {})) {
-    if (signal !== 'sure' && signal !== 'guess') continue
-    await db.meta.put({ key: rescueConfKey(plan.createdAt, qid), value: JSON.stringify({ signal, at: seedAt }) })
-  }
-  for (const [cid, ov] of Object.entries(legacy?.overrides ?? {})) {
-    if (!ov || typeof ov.setAt !== 'number') continue
-    await db.meta.put({
-      key: rescueOvrKey(plan.createdAt, cid),
-      value: JSON.stringify({ setAt: ov.setAt, attemptsAtOverride: ov.attemptsAtOverride ?? 0 }),
-    })
-  }
+
   // Rows were seeded — flag the engine mount to schedule an explicit push (the
   // puts above may predate the Dexie push hooks; see consumeRescueMigrationPush).
-  migrationPushPending = true
+  if (seededAny) migrationPushPending = true
 }
 
 /**
@@ -482,10 +663,11 @@ export async function ensureRescueHydrated(): Promise<void> {
   if (hydrateStarted) return
   hydrateStarted = true
   // Warm the mirror synchronously from the localStorage envelope cache so the
-  // first render already has the plan (zero-flash) before the async load lands.
+  // first render already has the plans (zero-flash) before the async load lands.
   const cached = readEnvCache()
-  if (cached) {
-    envelope = cached
+  if (cached.size > 0) {
+    envelopes.clear()
+    for (const [familyId, env] of cached) envelopes.set(familyId, env)
     snapshot = computeSnapshot()
   }
   try {
@@ -526,7 +708,8 @@ export async function ensureRescueHydrated(): Promise<void> {
  */
 export function clearRescueLocalCache(): void {
   try {
-    localStorage.removeItem(ENV_CACHE_KEY)
+    localStorage.removeItem(ENVS_CACHE_KEY)
+    localStorage.removeItem(LEGACY_ENV_CACHE_KEY)
   } catch {
     /* ignore */
   }
@@ -540,16 +723,26 @@ export function subscribeRescue(fn: () => void): () => void {
   }
 }
 
-/** Live-reactive active plan (re-renders on any same-tab / cross-device rescue change). */
-export function useRescuePlan(): RescuePlan | null {
+/** Live-reactive active plan for ONE family (re-renders on any same-tab /
+ *  cross-device rescue change). */
+export function useRescuePlan(familyId: string): RescuePlan | null {
   return useSyncExternalStore(
     subscribeRescue,
-    () => snapshot.plan,
+    () => getActivePlan(familyId),
     () => null,
   )
 }
 
-/** Live-reactive full rescue state (plan + confidence + overrides + telemetry). */
+/** Live-reactive list of ALL active plans (stable ref between changes). */
+export function useRescuePlans(): RescuePlan[] {
+  return useSyncExternalStore(
+    subscribeRescue,
+    () => snapshot.plans,
+    () => EMPTY.plans,
+  )
+}
+
+/** Live-reactive full rescue state (plans + per-family confidence/overrides + telemetry). */
 export function useRescueState(): RescueState {
   return useSyncExternalStore(subscribeRescue, getRescueState, () => EMPTY)
 }
@@ -559,16 +752,20 @@ export async function __resetRescueStoreForTests(): Promise<void> {
   hydrateStarted = false
   hydrated = false
   migrationPushPending = false
+  lastMintedCreatedAt = 0
+  pendingBlitzDone = null
+  pendingTouch.clear()
   if (liveSub) {
     liveSub.unsubscribe()
     liveSub = null
   }
-  envelope = null
+  envelopes.clear()
   confRows.clear()
   ovrRows.clear()
   snapshot = EMPTY
   try {
-    localStorage.removeItem(ENV_CACHE_KEY)
+    localStorage.removeItem(ENVS_CACHE_KEY)
+    localStorage.removeItem(LEGACY_ENV_CACHE_KEY)
     localStorage.removeItem(TELEMETRY_KEY)
     localStorage.removeItem(MIGRATED_KEY)
     localStorage.removeItem(LEGACY_KEY)

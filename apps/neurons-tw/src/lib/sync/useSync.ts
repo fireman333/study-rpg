@@ -27,7 +27,7 @@ import { NEURONS_ADAPTERS } from './tables'
 import { adoptAccount, evaluateAccountGate, readLastSyncedUserId, writeLastSyncedUserId } from './account-guard'
 import { clearEtag } from './r2/etag'
 import { createAdoptionCloudWins } from './adoption-cloud-wins'
-import { consumeRescueMigrationPush } from '../services/rescue/rescue-store'
+import { consumeRescueMigrationPush, flushPendingRescueLifecycle } from '../services/rescue/rescue-store'
 
 // Phase 1 (eliminate-cross-device-r2-412-storm): 3s → 12s (matches 二階's ~10s)
 // so concurrent devices push less often → fewer cross-device ETag collisions.
@@ -150,6 +150,12 @@ export function useSync(): {
     // genuinely-new (blobMissing) account (Codex pre-ship finding 1).
     void engine.beginStartupForcePull().then((res) => {
       adoptionCloudWins.onStartupSettled(res !== null)
+      // Flush any rescue lifecycle write (blitz completion / study-touch) that was
+      // DEFERRED while this startup pull was in flight. Driven here — not only by the
+      // RescueScene effect — so a deferred write survives the scene unmounting before the
+      // pull settles (Codex/Fable review fix 3). Runs on every settlement (success, 304,
+      // blob-missing, or error → offline fail-open); idempotent when nothing is pending.
+      flushPendingRescueLifecycle()
     })
 
     // Subscribe to Dexie changes via the `on('versionchange'|'populate'|...)` API

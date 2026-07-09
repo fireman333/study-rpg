@@ -42,9 +42,12 @@ import {
 } from '../lib/sync/r2/bundles'
 import { runOnPullComplete } from '../lib/sync/backfill'
 import { db } from '../lib/db'
-import { RESCUE_PLAN_KEY, type RescuePlan } from '../lib/services/rescue/rescue-sync-keys'
+import { rescuePlanKey, type RescuePlan } from '../lib/services/rescue/rescue-sync-keys'
 
 const fakeSupabase = {} as never
+
+// Per-family plan key for this test's family (multi-subject rescue).
+const PLAN_KEY = rescuePlanKey('藥理學')
 
 const T1 = Date.now() - 60_000 // stale local action
 const T2 = Date.now() - 1_000 // newer cloud action (the abandon)
@@ -68,7 +71,7 @@ function cloudBundle(): BundleSnapshot {
       app_version: '0.4.0',
     },
     data: {
-      meta: [{ key: RESCUE_PLAN_KEY, value: newerClearedEnv }],
+      meta: [{ key: PLAN_KEY, value: newerClearedEnv }],
     },
   }
 }
@@ -101,7 +104,7 @@ beforeEach(async () => {
   await db.delete()
   await db.open()
   // This device still holds the stale ACTIVE plan the other device abandoned.
-  await db.meta.put({ key: RESCUE_PLAN_KEY, value: staleActiveEnv })
+  await db.meta.put({ key: PLAN_KEY, value: staleActiveEnv })
 })
 
 describe('push 412 → recovery pull runs the LWW backfill (onRecoveryPull)', () => {
@@ -123,13 +126,13 @@ describe('push 412 → recovery pull runs the LWW backfill (onRecoveryPull)', ()
     // The LWW backfill ran on the recovery snapshot: the newer explicit
     // `plan: null` replaced the stale active envelope (the transport-default
     // first-write-wins apply alone would have skipped it).
-    expect((await db.meta.get(RESCUE_PLAN_KEY))?.value).toBe(newerClearedEnv)
+    expect((await db.meta.get(PLAN_KEY))?.value).toBe(newerClearedEnv)
 
     // …so the NEXT push snapshot (the deferred retry) carries the null — the
     // stale active plan can no longer clobber the cloud abandon.
     const next = await buildBundleSnapshot(db)
     const metaRows = next.data.meta as Array<{ key: string; value: string }>
-    expect(metaRows.find((r) => r.key === RESCUE_PLAN_KEY)?.value).toBe(newerClearedEnv)
+    expect(metaRows.find((r) => r.key === PLAN_KEY)?.value).toBe(newerClearedEnv)
   })
 
   it('control: WITHOUT the hook the recovery pull keeps the stale plan (the hazard the hook closes)', async () => {
@@ -140,7 +143,7 @@ describe('push 412 → recovery pull runs the LWW backfill (onRecoveryPull)', ()
     expect(result).toMatchObject({ status: 'deferred' })
     // Transport default (first-write-wins-skip) left the stale ACTIVE envelope
     // in place — this is the pre-fix behaviour whose re-push resurrects it.
-    expect((await db.meta.get(RESCUE_PLAN_KEY))?.value).toBe(staleActiveEnv)
+    expect((await db.meta.get(PLAN_KEY))?.value).toBe(staleActiveEnv)
   })
 
   it('a throwing hook never breaks the push path (error-isolated)', async () => {

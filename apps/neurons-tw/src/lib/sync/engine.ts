@@ -7,6 +7,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { User } from '@supabase/supabase-js'
 import type { NeuronsDB } from '../db'
 import { pullBundle, pushBundleSerialized, type PullBundleResult } from './r2/engine-r2'
+import { signalSchemaDowngradeReload } from './sync-reload-signal'
 
 export type SyncState = 'idle' | 'pushing' | 'pulling' | 'paused' | 'error'
 
@@ -187,8 +188,16 @@ export class SyncEngine {
       }
     } catch (err) {
       this.consecutiveDefers = 0
-      this.lastError = (err as { message?: string })?.message ?? 'unknown'
+      const msg = (err as { message?: string })?.message ?? 'unknown'
+      this.lastError = msg
       this.state = 'error'
+      // Stale-tab schema-downgrade (a v(n-1) build pushing over a v(n) cloud
+      // blob → presign 409): surface a one-time reload prompt so the heavy
+      // per-tap 409 stream stops at the source. The error stays in lastError so
+      // the sync light remains 🔴 until the reload (design D4).
+      if (msg.includes('r2_schema_downgrade_refused_by_server')) {
+        signalSchemaDowngradeReload()
+      }
       console.warn('[sync] push failed', err)
     }
   }

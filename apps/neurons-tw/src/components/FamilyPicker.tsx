@@ -84,13 +84,13 @@ interface Props {
   mazeExpanded?: boolean
   /** Per-family maze tract progress → each card's derived axon node-track (no extra canvas). */
   mazeHintByFamily?: Map<string, MazeFamilyHint>
-  /** 單科考前救急 (add-neurons-single-subject-rescue): the family with an active rescue plan
-   * (or null). Its card replaces the WeaknessIndicator row with a rescue chip, and its
-   * one-tap targeted drill is absorbed into the rescue queue (per neurons-weakness-radar delta). */
-  rescuePlanFamilyId?: string | null
-  /** Rescue chip data for the active-plan family (countdown D + RescueScore). */
-  rescueChip?: { d: number; score: number } | null
-  /** Open the rescue scene — from the header entry (no family) or a card's rescue chip (its family). */
+  /** 考前救急 (add-neurons-multi-subject-rescue): per-family rescue chip data (countdown D +
+   * RescueScore) for EVERY family with an active plan. Each such card replaces its
+   * WeaknessIndicator row with its own rescue chip; a family absent from the map keeps its
+   * normal weakness indicator. Multiple plans coexist — this is a per-family map, not one id. */
+  rescueChipByFamily?: Map<string, { d: number; score: number }>
+  /** Open the rescue scene — from the header entry (no family → overview list) or a card's
+   * rescue chip (its family → that family's scene). */
   onOpenRescue?: (familyId?: string) => void
 }
 
@@ -110,8 +110,7 @@ export function FamilyPicker({
   mazeSlot,
   mazeExpanded,
   mazeHintByFamily,
-  rescuePlanFamilyId,
-  rescueChip,
+  rescueChipByFamily,
   onOpenRescue,
 }: Props): JSX.Element {
   const reducedMotion = useRespectsReducedMotion()
@@ -187,7 +186,7 @@ export function FamilyPicker({
                     counts={modeCountsByFamily?.get(s.id)}
                     weakness={weaknessByFamily?.get(s.id)}
                     onTargetedDrill={onTargetedDrill ? () => onTargetedDrill(s.id) : undefined}
-                    rescueChip={rescuePlanFamilyId === s.id ? rescueChip ?? undefined : undefined}
+                    rescueChip={rescueChipByFamily?.get(s.id)}
                     onOpenRescue={onOpenRescue ? () => onOpenRescue(s.id) : undefined}
                     reducedMotion={reducedMotion}
                     mazeHint={mazeHintByFamily?.get(s.id)}
