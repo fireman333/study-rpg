@@ -27,25 +27,28 @@ const SUBJECT_META: Record<string, { order: number; title: string }> = {
   解剖學: { order: 0, title: '解剖學 考前講義' },
 }
 
-// ── Per-chapter quiz plan ─────────────────────────────────────────────────────────────────
+// ── Region → blueprint-chapter map ────────────────────────────────────────────────────────
 // The authored handout splits a subject into `.hdt-region` sections, but exam questions are
 // tagged at the canonical blueprint-chapter granularity (concept-recurrence.json `chapters[]`).
-// 解剖學 has 8 regions but only 4 blueprint chapters, so several regions share a chapter. To avoid
-// attaching an identical question pool to multiple region headers, we emit ONE quiz entry per
-// blueprint chapter, anchored to that chapter's LAST region (its natural "章末" stopping point).
-// Regions not listed here (e.g. hdt-overview) render no CTA. leafIds/sourceQuestionIds are derived
-// at build time from the already-built concept maps — no LLM, no network, no headless browser.
-const CHAPTER_QUIZ_PLAN: Record<string, { regionId: string; chapterId: string }[]> = {
-  解剖學: [
-    { regionId: 'hdt-neuro-brainstem', chapterId: 'neuroanatomy' },
-    { regionId: 'hdt-head-neck', chapterId: 'head-and-neck' },
-    { regionId: 'hdt-pelvis-perineum', chapterId: 'chest-abdomen-pelvis' },
-    { regionId: 'hdt-extremities', chapterId: 'upper-lower-extremities' },
-  ],
+// 解剖學 has 8 regions but only 4 blueprint chapters, so several regions share a chapter. We emit
+// ONE quiz entry per blueprint chapter, anchored to that chapter's LAST region (its natural "章末"
+// stopping point); the earlier member regions render a signpost pointing to it. Regions absent from
+// this map (e.g. hdt-overview) get neither a CTA nor a signpost. leafIds/sourceQuestionIds are
+// derived at build time from the already-built concept maps — no LLM, no network, no headless browser.
+const REGION_TO_CHAPTER: Record<string, Record<string, string>> = {
+  解剖學: {
+    'hdt-neuro-central': 'neuroanatomy',
+    'hdt-neuro-brainstem': 'neuroanatomy',
+    'hdt-head-neck': 'head-and-neck',
+    'hdt-thorax': 'chest-abdomen-pelvis',
+    'hdt-abdomen': 'chest-abdomen-pelvis',
+    'hdt-pelvis-perineum': 'chest-abdomen-pelvis',
+    'hdt-extremities': 'upper-lower-extremities',
+  },
 }
 
 interface ConceptRecurrence {
-  chapters: { subjectId: string; chapterId: string }[]
+  chapters: { subjectId: string; chapterId: string; zh: string }[]
   concepts: { subjectId: string; chapterId: string; leafId: string }[]
 }
 
@@ -71,33 +74,52 @@ function buildChapterQuizzes(
   rec: ConceptRecurrence,
   leafToQids: Map<string, string[]>,
 ): HandoutChapterQuiz[] | undefined {
-  const plan = CHAPTER_QUIZ_PLAN[subjectId]
-  if (!plan) return undefined
+  const regionChapters = REGION_TO_CHAPTER[subjectId]
+  if (!regionChapters) return undefined
 
-  const regionIds = new Set([...html.matchAll(/<section class="hdt-region" id="([^"]+)"/g)].map((m) => m[1]))
-  const chapterIds = new Set(rec.chapters.filter((c) => c.subjectId === subjectId).map((c) => c.chapterId))
+  const subjectChapters = rec.chapters.filter((c) => c.subjectId === subjectId)
+  const chapterIds = new Set(subjectChapters.map((c) => c.chapterId))
+  const chapterZh = new Map(subjectChapters.map((c) => [c.chapterId, c.zh]))
   const leavesByChapter = new Map<string, string[]>()
   for (const c of rec.concepts) {
     if (c.subjectId !== subjectId) continue
     ;(leavesByChapter.get(c.chapterId) ?? leavesByChapter.set(c.chapterId, []).get(c.chapterId)!).push(c.leafId)
   }
 
-  return plan.map(({ regionId, chapterId }) => {
-    if (!regionIds.has(regionId)) {
-      console.error(`✗ chapterQuiz plan: ${subjectId}.html has no region id="${regionId}"`)
-      process.exit(1)
-    }
+  // Group regions by blueprint chapter in document order (the last member becomes the CTA anchor).
+  const orderedRegionIds = [...html.matchAll(/<section class="hdt-region" id="([^"]+)"/g)].map((m) => m[1])
+  const groups = new Map<string, string[]>()
+  for (const rid of orderedRegionIds) {
+    const chapterId = regionChapters[rid]
+    if (!chapterId) continue // e.g. hdt-overview — no quiz, no signpost
     if (!chapterIds.has(chapterId)) {
-      console.error(`✗ chapterQuiz plan: unknown chapterId "${chapterId}" for ${subjectId} (concept-recurrence drift?)`)
+      console.error(`✗ chapterQuiz: unknown chapterId "${chapterId}" for ${subjectId}/${rid} (concept-recurrence drift?)`)
       process.exit(1)
     }
+    ;(groups.get(chapterId) ?? groups.set(chapterId, []).get(chapterId)!).push(rid)
+  }
+  // Any region mapped in REGION_TO_CHAPTER but absent from the HTML is a drift error.
+  for (const rid of Object.keys(regionChapters)) {
+    if (!orderedRegionIds.includes(rid)) {
+      console.error(`✗ chapterQuiz: ${subjectId}.html has no region id="${rid}" (REGION_TO_CHAPTER drift?)`)
+      process.exit(1)
+    }
+  }
+
+  return [...groups.entries()].map(([chapterId, memberRegionIds]) => {
     const leafIds = leavesByChapter.get(chapterId) ?? []
     const sourceQuestionIds = [...new Set(leafIds.flatMap((l) => leafToQids.get(l) ?? []))]
     if (leafIds.length === 0 || sourceQuestionIds.length === 0) {
-      console.error(`✗ chapterQuiz plan: ${subjectId}/${chapterId} resolved 0 leaves or 0 questions`)
+      console.error(`✗ chapterQuiz: ${subjectId}/${chapterId} resolved 0 leaves or 0 questions`)
       process.exit(1)
     }
-    return { regionId, leafIds, sourceQuestionIds }
+    return {
+      regionId: memberRegionIds[memberRegionIds.length - 1], // CTA anchors to the chapter's last region
+      label: chapterZh.get(chapterId) ?? chapterId,
+      memberRegionIds,
+      leafIds,
+      sourceQuestionIds,
+    }
   })
 }
 

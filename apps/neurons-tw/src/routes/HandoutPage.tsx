@@ -82,6 +82,17 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
     () => new Map((active?.chapterQuizzes ?? []).map((q) => [q.regionId, q])),
     [active?.chapterQuizzes],
   )
+  // Signpost: a member region whose chapter's 測驗 CTA lives at a LATER region points forward to it,
+  // so every content chapter's end has an affordance without duplicating the shared question pool.
+  const signpostByRegion = useMemo(() => {
+    const m = new Map<string, { targetRegionId: string; label: string }>()
+    for (const cq of active?.chapterQuizzes ?? []) {
+      for (const rid of cq.memberRegionIds) {
+        if (rid !== cq.regionId) m.set(rid, { targetRegionId: cq.regionId, label: cq.label })
+      }
+    }
+    return m
+  }, [active?.chapterQuizzes])
 
   const close = useCallback(() => navigate('/cram'), [navigate])
 
@@ -302,11 +313,19 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
               {regions.map((r) => (
                 <div key={r.id} className="hdt-region-block">
                   <div dangerouslySetInnerHTML={{ __html: r.html }} />
-                  {quizByRegion.has(r.id) && (
+                  {quizByRegion.has(r.id) ? (
                     <button type="button" className="hdt-quiz-cta" onClick={() => openChapterQuiz(r.id)}>
                       📝 測驗本章
                     </button>
-                  )}
+                  ) : signpostByRegion.has(r.id) ? (
+                    <button
+                      type="button"
+                      className="hdt-quiz-signpost"
+                      onClick={() => jumpTo(signpostByRegion.get(r.id)!.targetRegionId)}
+                    >
+                      本節題目併入下方「{signpostByRegion.get(r.id)!.label}」整章測驗 →
+                    </button>
+                  ) : null}
                 </div>
               ))}
               <footer style={creditStyle}>
@@ -531,6 +550,12 @@ const SCENE_CSS = `
   padding: 0.5rem 1.1rem; font: 700 0.9rem/1 var(--font-legible); cursor: pointer;
 }
 .hdt-quiz-cta:hover { background: ${GREEN_DK}; }
+.hdt-quiz-signpost {
+  display: inline-block; margin: 0.2rem 0 2.4rem; border: 0; background: transparent;
+  color: #8a7a55; font: 0.82rem/1.4 var(--font-legible); cursor: pointer; text-align: left;
+  padding: 0.3rem 0; border-bottom: 1px dashed #cbbd93;
+}
+.hdt-quiz-signpost:hover { color: ${GREEN_DK}; border-bottom-color: ${GREEN}; }
 
 .hdt-scene .hdt-region { scroll-margin-top: 8px; margin: 0 0 2.2rem; }
 .hdt-scene .hdt-region-block:first-child .hdt-region__head { margin-top: 0; }
@@ -617,7 +642,7 @@ const SCENE_CSS = `
     display: block !important; background: #fff !important;
   }
   .hdt-scene header, .hdt-sidebar, .hdt-toc-toggle, .hdt-print-btn, .hdt-fab, .hdt-drawer,
-  .hdt-progress, .hdt-quiz-cta { display: none !important; }
+  .hdt-progress, .hdt-quiz-cta, .hdt-quiz-signpost { display: none !important; }
   .hdt-layout, .hdt-scroll { display: block !important; overflow: visible !important; height: auto !important; min-height: 0 !important; }
   .hdt-content { max-width: none !important; margin: 0 !important; padding: 0 !important; }
   .hdt-scene article { font-size: 10.5pt; line-height: 1.55; color: #111 !important; }

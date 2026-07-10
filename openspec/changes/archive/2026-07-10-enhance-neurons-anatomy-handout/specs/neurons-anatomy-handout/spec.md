@@ -31,22 +31,27 @@ The handout scene SHALL provide chapter navigation as a vertical list of chapter
 
 ### Requirement: 每章測驗入口
 
-The handout scene SHALL render a「測驗本章」control at the end of each chapter region that maps to exam questions. Chapter-to-question routing SHALL be carried by typed data on the content contract (`HandoutSubject.chapterQuizzes`, an array of `{ regionId, leafIds[], sourceQuestionIds? }`) and SHALL NOT be embedded in the authored teaching HTML. Activating the control SHALL launch the existing `QuizModal` in practice mode over that chapter's question pool (mirroring the /cram「答1題看看」on-ramp: no progression side effects beyond the existing practice-mode wrong→錯題本→出征 flow), or, when a usable in-scene pool cannot be built, SHALL fall back to the existing `/bank` deep-link scoped to that chapter's concepts. Regions without mapped questions (e.g. the overview 攻略地圖) SHALL NOT render a測驗 control.
+The handout scene SHALL render a「測驗本章」control at the end of each blueprint chapter that maps to exam questions. Chapter-to-question routing SHALL be carried by typed data on the content contract (`HandoutSubject.chapterQuizzes`, an array of `{ regionId, label, memberRegionIds[], leafIds[], sourceQuestionIds? }`) and SHALL NOT be embedded in the authored teaching HTML. Because exam questions are tagged at blueprint-chapter granularity, several authored regions MAY share one chapter; in that case the「測驗本章」control SHALL anchor to the chapter's LAST region (`regionId`) and each earlier member region SHALL render a lightweight signpost (labelled with the chapter's `label`) that scrolls to that control, so no two regions launch an identical question pool. Activating the control SHALL launch the existing `QuizModal` in practice mode over that chapter's question pool (mirroring the /cram「答1題看看」on-ramp: no progression side effects beyond the existing practice-mode wrong→錯題本→出征 flow), or, when a usable in-scene pool cannot be built, SHALL fall back to the existing `/bank` deep-link. Regions mapped to no blueprint chapter (e.g. the overview 攻略地圖) SHALL render neither a測驗 control nor a signpost.
 
-#### Scenario: 每個有題章節末尾出現測驗鈕
+#### Scenario: 每個 blueprint 章節末尾出現測驗鈕
 
-- **WHEN** 使用者讀到某個對映到題目的章節末尾
-- **THEN** 該章節末尾出現「測驗本章」控制項
+- **WHEN** 使用者讀到某個對映到題目的 blueprint 章節的最後一個 region 末尾
+- **THEN** 該處出現「測驗本章」控制項
 
 #### Scenario: 點擊開啟該章 practice quiz
 
 - **WHEN** 使用者點擊某章的「測驗本章」
-- **THEN** 以既有 `QuizModal`（practice 模式）開啟該章題庫池，或在無法建立場景內題池時導向該章概念的既有 `/bank` 深連結
+- **THEN** 以既有 `QuizModal`（practice 模式）開啟該章題庫池，或在無法建立場景內題池時導向既有 `/bank`
+
+#### Scenario: 共用章節的前段 region 顯示指路 signpost
+
+- **WHEN** 某 region 與其他 region 共用同一 blueprint chapter，且該章測驗鈕位於較後的 region
+- **THEN** 該前段 region 末尾顯示帶章節 label 的指路 signpost，點擊捲動至測驗鈕所在 region，而非另開一份相同題池
 
 #### Scenario: 概覽章節不顯示測驗鈕
 
-- **WHEN** 章節無對映題目（例如攻略地圖概覽章）
-- **THEN** 該章節末尾不顯示「測驗本章」控制項
+- **WHEN** 章節未對映任何 blueprint chapter（例如攻略地圖概覽章）
+- **THEN** 該章節末尾既不顯示「測驗本章」控制項，也不顯示指路 signpost
 
 #### Scenario: quiz 路由不進入授權 HTML
 

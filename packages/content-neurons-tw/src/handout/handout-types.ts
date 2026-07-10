@@ -14,13 +14,20 @@
 
 /**
  * A per-chapter quiz mapping — carried as TYPED data (not embedded in the authored HTML) so the
- * handout scene can render a「測驗本章」CTA at the end of a chapter and open a quiz over its
- * questions. `regionId` is the `.hdt-region` anchor id the CTA attaches to; it is the shared
- * contract between TOC, scroll-spy, quiz, and deep-link. `leafIds` are the chapter's concept leaves;
- * `sourceQuestionIds` are the exam question ids resolved from them at build time.
+ * handout scene can render a「測驗本章」CTA at the end of a blueprint chapter and open a quiz over
+ * its questions. Exam questions are tagged at blueprint-chapter granularity, so several authored
+ * regions can share one chapter; the CTA anchors to the chapter's LAST region (`regionId`), and the
+ * earlier member regions render a lightweight signpost pointing to it (using `label`).
+ *  - `regionId`: the `.hdt-region` anchor the CTA attaches to (the chapter's last region). Shared
+ *    contract between TOC, scroll-spy, quiz, and deep-link.
+ *  - `label`: the blueprint chapter's display name (for the signpost text).
+ *  - `memberRegionIds`: every region in this chapter, in document order (last = `regionId`).
+ *  - `leafIds`: the chapter's concept leaves; `sourceQuestionIds`: exam ids resolved from them at build.
  */
 export interface HandoutChapterQuiz {
   regionId: string
+  label: string
+  memberRegionIds: string[]
   leafIds: string[]
   sourceQuestionIds?: string[]
 }
