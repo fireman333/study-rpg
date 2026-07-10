@@ -101,6 +101,9 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
         <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`} download style={downloadBtnStyle}>
           ⬇ 下載 5 分鐘速看 一頁 PDF
         </a>
+        <button style={handoutEntryBtnStyle} onClick={() => navigate('/cram/handout')}>
+          考前講義(beta)
+        </button>
         <button style={speedReviewEntryBtnStyle} onClick={() => navigate('/cram/5min')}>
           五分鐘速看版
         </button>
@@ -409,8 +412,10 @@ const sourceQBtnStyle: React.CSSProperties = { border: '1px solid #d8c39a', back
 const reviewWrapStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.5rem 0.6rem', background: '#fff' }
 const moreNoteStyle: React.CSSProperties = { margin: '0.3rem 0 0', fontSize: '0.74rem', color: '#a08a5a', fontFamily: 'var(--font-legible)' }
 const practiceCtaStyle: React.CSSProperties = { marginTop: '0.5rem', border: '1px solid #b58900', background: '#b58900', color: '#fff', borderRadius: 6, padding: '0.35rem 0.9rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
-// Same dimensions as downloadBtnStyle, emphasized with a gold fill (it's an entry, not a download).
-// marginLeft:auto pushes it to the right edge of the flex row, separating it from the 3 download buttons.
-const speedReviewEntryBtnStyle: React.CSSProperties = { marginLeft: 'auto', border: '1px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
+// Two right-aligned entry buttons (not downloads). The handout button carries marginLeft:auto to
+// push the pair to the right edge, separating them from the 3 download buttons; the speed-review
+// button sits immediately to its right. Distinct fills: 考前講義 = anatomy-green, 速看 = gold.
+const handoutEntryBtnStyle: React.CSSProperties = { marginLeft: 'auto', border: '1px solid #6a8c3f', background: 'linear-gradient(#a7c76a, #8bb04e)', color: '#243611', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
+const speedReviewEntryBtnStyle: React.CSSProperties = { border: '1px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
 const downloadRowStyle: React.CSSProperties = { display: 'flex', gap: '0.6rem', flexWrap: 'wrap', margin: '0 0 1rem' }
 const downloadBtnStyle: React.CSSProperties = { border: '1px solid #8c6d4a', background: '#f4ecd8', color: '#5a3d1a', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', textDecoration: 'none', fontFamily: 'var(--font-legible)' }

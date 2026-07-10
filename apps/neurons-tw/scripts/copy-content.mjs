@@ -25,7 +25,7 @@ for (const file of ['meta.json', 'subjects.json', 'questions.json']) {
 // Concept-tag artifacts (add-neurons-concept-tags §4.5): per-question tags for search + labels,
 // and the recurrence dataset for downstream 押題. cram.json (add-neurons-cram-tab): the 考前猜題
 // dataset, lazy-fetched by /cram (not via getContentPack). Optional — skip if not yet built.
-for (const file of ['concept-tags.json', 'concept-recurrence.json', 'cram.json']) {
+for (const file of ['concept-tags.json', 'concept-recurrence.json', 'cram.json', 'handout.json']) {
   const src = resolve(SRC_DIR, file)
   if (existsSync(src)) copyFileSync(src, resolve(DEST_DIR, file))
 }
