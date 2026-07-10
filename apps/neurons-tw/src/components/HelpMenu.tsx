@@ -596,6 +596,37 @@ const SECTIONS: Section[] = [
     ),
   },
   {
+    id: 'rescue',
+    icon: '⏱️',
+    title: '考前救急',
+    body: (
+      <>
+        <p>
+          考前時間有限時用。<strong>鎖一或多科</strong>、綁定<strong>考試日</strong>與
+          <strong>每天可讀分鐘</strong>，系統每天幫你排出「最能救分」的錯題佇列：已經會的、
+          以及沒救的低頻題會自動略過，把時間集中在高頻又還救得動的地方。
+        </p>
+        <p>
+          入口在首頁的「<strong>⏱️ 考前救急</strong>」。進去後先跑一次<strong>診斷突襲</strong>摸底，
+          結果整理成紅／黃／灰三段<strong>戰情圖</strong>（紅＝高頻弱點，優先處理）。
+        </p>
+        <p>
+          答題用<strong>兩顆按鈕</strong>送出：「確定・有把握」或「確定・猜的」——
+          在看到答案<strong>之前</strong>先標信心。<strong>有把握卻答錯</strong>的題最需要修正，
+          會被排到隔天最前面。
+        </p>
+        <p>
+          <strong>RescueScore</strong> 與「續讀回報」（夯／普通／低迷）反映你目前手上握有多少高頻材料，
+          <strong>不是預測考試分數</strong>。卡在同一觀念太久，系統會先建議<strong>重讀</strong>再練，避免鑽牛角尖。
+        </p>
+        <p>
+          <strong>多科可以並存</strong>，各自的考試日與佇列分開算。考試日<strong>當天早上</strong>有一份
+          約 15 分鐘的速掃（前一天修正過的重點 + 高頻卡）。登入 Google 後計畫與進度<strong>跨裝置同步</strong>。
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'leaderboard',
     icon: '🏆',
     title: '排行榜',
@@ -673,7 +704,7 @@ const CATEGORIES: HelpCategory[] = [
     id: 'questions-review',
     icon: '📚',
     label: '題目與複習',
-    sectionIds: ['question-bank', 'bookmark', 'wrong-review', 'source-pdf'],
+    sectionIds: ['question-bank', 'bookmark', 'wrong-review', 'rescue', 'source-pdf'],
   },
   {
     id: 'expedition-repair',

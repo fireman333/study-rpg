@@ -728,3 +728,32 @@ body:has(.modal-backdrop) {
     transform: none;
   }
 }
+
+/* CramPage (考前猜題) action buttons — two semantic rows: 3 PDF downloads, then the
+ * 講義/速看 entry pair. Replaces a single flex-wrap row whose marginLeft:auto collapsed
+ * on wrap (created a big gap + split the entry pair). Narrow screens stack each group's
+ * buttons full-width so long labels never overflow ~375px. */
+.cram-action-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+.cram-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+@media (max-width: 480px) {
+  .cram-action-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cram-action-group > a,
+  .cram-action-group > button {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}

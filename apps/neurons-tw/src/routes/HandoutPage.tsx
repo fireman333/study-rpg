@@ -457,7 +457,7 @@ const chromeBtnStyle: React.CSSProperties = {
   padding: '0.2rem 0.6rem',
   fontSize: '0.78rem',
   cursor: 'pointer',
-  fontFamily: 'var(--font-legible)',
+  fontFamily: 'var(--font-pixel-cjk)',
   whiteSpace: 'nowrap',
 }
 const closeBtnStyle: React.CSSProperties = {
@@ -483,7 +483,7 @@ const subjectBtnStyle: React.CSSProperties = {
   padding: '0.25rem 0.7rem',
   fontSize: '0.82rem',
   cursor: 'pointer',
-  fontFamily: 'var(--font-legible)',
+  fontFamily: 'var(--font-pixel-cjk)',
 }
 const subjectBtnActiveStyle: React.CSSProperties = { background: GREEN, color: '#fff' }
 const contentWrapStyle: React.CSSProperties = {
