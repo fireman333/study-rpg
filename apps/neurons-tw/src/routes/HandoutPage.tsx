@@ -432,7 +432,7 @@ const headerStyle: React.CSSProperties = {
   borderBottom: `2px solid ${GREEN}`,
   background: '#eef2e2',
 }
-const titleStyle: React.CSSProperties = { fontWeight: 700, color: GREEN_DK, fontSize: '1rem' }
+const titleStyle: React.CSSProperties = { fontFamily: 'var(--font-pixel-cjk)', fontWeight: 700, color: GREEN_DK, fontSize: '1rem' }
 const betaChipStyle: React.CSSProperties = {
   fontSize: '0.66rem',
   fontWeight: 700,
@@ -515,7 +515,9 @@ const loadingStyle: React.CSSProperties = { margin: '2rem auto', textAlign: 'cen
 
 // ── CSS for layout / nav / print + the authored teaching HTML (scoped under .hdt-scene) ──
 const SCENE_CSS = `
-.hdt-scene article { font-family: var(--font-legible); color: #33301f; line-height: 1.75; font-size: 0.95rem; }
+/* Body reading text = legible (Noto Sans TC), aligned with the quiz/詳解 exam text. Headings below
+   override back to the pixel font. (The authored content lives in .hdt-content, not an <article>.) */
+.hdt-content { font-family: var(--font-legible); color: #33301f; line-height: 1.75; font-size: 0.95rem; }
 
 /* progress bar */
 .hdt-progress { height: 3px; background: #e0d7bf; flex: 0 0 auto; }
@@ -560,17 +562,17 @@ const SCENE_CSS = `
 .hdt-scene .hdt-region { scroll-margin-top: 8px; margin: 0 0 2.2rem; }
 .hdt-scene .hdt-region-block:first-child .hdt-region__head { margin-top: 0; }
 .hdt-scene .hdt-region__head {
-  font-size: 1.15rem; color: #fff; background: ${GREEN}; border-radius: 8px;
-  padding: 0.5rem 0.8rem; margin: 1.6rem 0 0.9rem; font-weight: 700;
+  font-family: var(--font-pixel-cjk); font-size: 1.15rem; color: #fff; background: ${GREEN};
+  border-radius: 8px; padding: 0.5rem 0.8rem; margin: 1.6rem 0 0.9rem; font-weight: 700;
 }
 .hdt-scene .hdt-intro {
   background: #f7f3e4; border-left: 4px solid ${GREEN}; border-radius: 0 6px 6px 0;
   padding: 0.55rem 0.8rem; margin: 0 0 1rem; color: #4a4028; font-size: 0.9rem;
 }
 .hdt-scene .hdt-topic { margin: 0 0 1.3rem; }
-.hdt-scene .hdt-topic > h3 { font-size: 1rem; color: ${GREEN_DK}; margin: 1.1rem 0 0.35rem; font-weight: 700; }
+.hdt-scene .hdt-topic > h3 { font-family: var(--font-pixel-cjk); font-size: 1rem; color: ${GREEN_DK}; margin: 1.1rem 0 0.35rem; font-weight: 700; }
 .hdt-scene .hdt-teach { margin: 0 0 0.5rem; color: #453d29; }
-.hdt-scene h3.hdt-h { font-size: 0.98rem; color: ${GREEN_DK}; margin: 1.2rem 0 0.45rem; font-weight: 700; }
+.hdt-scene h3.hdt-h { font-family: var(--font-pixel-cjk); font-size: 0.98rem; color: ${GREEN_DK}; margin: 1.2rem 0 0.45rem; font-weight: 700; }
 .hdt-scene ul.hdt-must { margin: 0.2rem 0 0.6rem; padding-left: 1.25rem; }
 .hdt-scene ul.hdt-must > li { margin: 0.3rem 0; }
 .hdt-scene ul.hdt-must > li > b { color: ${GREEN_DK}; }
@@ -623,8 +625,7 @@ const SCENE_CSS = `
     top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 70vh; border-right: none;
     border-top: 2px solid ${GREEN}; border-radius: 14px 14px 0 0; box-shadow: 0 -2px 16px rgba(40,36,24,0.25);
   }
-  .hdt-content { padding: 0.8rem 0.85rem 5rem; }
-  .hdt-scene article { font-size: 0.93rem; line-height: 1.72; }
+  .hdt-content { padding: 0.8rem 0.85rem 5rem; font-size: 0.93rem; line-height: 1.72; }
   .hdt-scene table.hdt-tbl { font-size: 0.8rem; }
 }
 
@@ -644,8 +645,7 @@ const SCENE_CSS = `
   .hdt-scene header, .hdt-sidebar, .hdt-toc-toggle, .hdt-print-btn, .hdt-fab, .hdt-drawer,
   .hdt-progress, .hdt-quiz-cta, .hdt-quiz-signpost { display: none !important; }
   .hdt-layout, .hdt-scroll { display: block !important; overflow: visible !important; height: auto !important; min-height: 0 !important; }
-  .hdt-content { max-width: none !important; margin: 0 !important; padding: 0 !important; }
-  .hdt-scene article { font-size: 10.5pt; line-height: 1.55; color: #111 !important; }
+  .hdt-content { max-width: none !important; margin: 0 !important; padding: 0 !important; font-size: 10.5pt; line-height: 1.55; color: #111 !important; }
   .hdt-scene .hdt-region { break-inside: auto; page-break-inside: auto; margin-bottom: 12pt; }
   .hdt-scene .hdt-region__head {
     break-after: avoid; page-break-after: avoid; color: #111 !important;
