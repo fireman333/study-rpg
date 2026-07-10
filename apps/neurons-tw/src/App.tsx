@@ -144,7 +144,7 @@ export default function App(): JSX.Element {
             the path doesn't match; the scene itself portals to <body>. */}
         <Routes>
           <Route path="/cram/5min" element={<SpeedReviewPage />} />
-          <Route path="/cram/handout" element={<HandoutPage />} />
+          <Route path="/cram/handout" element={<HandoutPage pack={pack} />} />
         </Routes>
       </BrowserRouter>
       </PdfPanelProvider>
