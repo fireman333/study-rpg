@@ -144,7 +144,7 @@ export function FamilyPicker({
               type="button"
               style={rescueEntryBtnStyle}
               onClick={() => onOpenRescue()}
-              title="鎖定一科、綁定考試日，倒數衝刺最大化單科分數"
+              title="鎖定一科、綁定考試日，考前聚焦最大化單科分數"
             >
               <EmojiIcon char="⏱️" size={13} decorative /> 考前救急
             </button>

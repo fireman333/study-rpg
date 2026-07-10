@@ -13,6 +13,7 @@ import {
 } from '../lib/services/connectome'
 import LeaderboardPromoBanner from '../components/LeaderboardPromoBanner'
 import QuizHotkeysAnnouncementBanner from '../components/QuizHotkeysAnnouncementBanner'
+import RescuePromoBanner from '../components/RescuePromoBanner'
 import { QuizModal } from '../components/QuizModal'
 import { FamilyPicker, type FamilyAccrual, type MazeFamilyHint } from '../components/FamilyPicker'
 import MazeGrid from '../components/maze/MazeGrid'
@@ -813,6 +814,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
   return (
     <>
+      <RescuePromoBanner onOpen={() => openRescue()} />
       <QuizHotkeysAnnouncementBanner />
       <LeaderboardPromoBanner />
       <OnboardingHost />

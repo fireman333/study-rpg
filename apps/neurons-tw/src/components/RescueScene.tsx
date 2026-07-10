@@ -306,7 +306,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
         : null,
     [assembled, history, conceptTags],
   )
-  // 戰情圖 sections: split the labelled concepts into 紅先攻 / 黃待鞏固 / 灰未診斷, each
+  // 戰情圖 sections: split the labelled concepts into 紅優先 / 黃待鞏固 / 灰未診斷, each
   // capped for a <5s pre-exam glance. Red is sorted hi-confidence-wrong first (the worst
   // leak surfaces at the very top). Concepts without a resolvable label are dropped.
   const warSections = useMemo(() => {
@@ -319,7 +319,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
     const yellow = labeled.filter((c) => c.band === 'yellow')
     const grey = labeled.filter((c) => c.band === 'grey')
     return [
-      { band: 'red' as const, label: '先攻高頻弱點', items: red, cap: 6 },
+      { band: 'red' as const, label: '優先高頻弱點', items: red, cap: 6 },
       { band: 'yellow' as const, label: '待鞏固', items: yellow, cap: 4 },
       { band: 'grey' as const, label: '尚未診斷', items: grey, cap: 3 },
     ]
@@ -587,7 +587,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
       <div style={bodyStyle}>
         {phase === 'setup' && (
           <div style={cardStyle}>
-            <h2 style={h2Style}>鎖定一科，倒數衝刺</h2>
+            <h2 style={h2Style}>鎖定一科，考前聚焦</h2>
             <p style={subCopyStyle}>選一科、設考試日與每天可投入的分鐘數，之後每天替你排最高回報的題。</p>
             <label style={labelStyle}>
               救哪一科
@@ -777,7 +777,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                   <p style={fallbackNoteStyle}>考前夜只鞏固已練過的，不塞全新難題。</p>
                 )}
 
-                {/* 戰情圖 — three labelled sections (紅先攻 / 黃待鞏固 / 灰未診斷), each capped
+                {/* 戰情圖 — three labelled sections (紅優先 / 黃待鞏固 / 灰未診斷), each capped
                     with a +N overflow so nothing is silently truncated. */}
                 <div style={warMapCardStyle}>
                   <div style={warMapHeadRowStyle}>
@@ -817,7 +817,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                 {rereadCards.map((card) => (
                   <div key={card.conceptId} style={stopLossCardStyle}>
                     <div style={stopLossHeadStyle}>
-                      ⚠️ 卡關了：{card.conceptZh ?? conceptLabel(subjectId, card.conceptId) ?? '這個觀念'}
+                      ⚠️ 暫時卡住：{card.conceptZh ?? conceptLabel(subjectId, card.conceptId) ?? '這個觀念'}
                     </div>
                     <p style={stopLossBodyStyle}>
                       這塊暫時卡住，先重讀 30 秒再回來測，通常比硬刷省力。

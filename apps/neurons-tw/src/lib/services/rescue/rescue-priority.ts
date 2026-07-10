@@ -93,6 +93,19 @@ export interface RescueScoreInputs {
   estTimeSec: number
 }
 
+// ─── Confidence signal helpers (shared: band precedence + multiplier) ────────
+/**
+ * High-confidence signal for THIS question: an explicit pre-reveal 'sure' tap this
+ * run, else the persisted `easyMarked` flag as a cold-start prior.
+ */
+export function isHighConfidence(inp: RescueScoreInputs): boolean {
+  return inp.confidence === 'sure' || (inp.confidence === undefined && inp.flag?.easyMarked === true)
+}
+/** Low-confidence signal: explicit 'guess' tap this run, else `guessedMarked` prior. */
+export function isLowConfidence(inp: RescueScoreInputs): boolean {
+  return inp.confidence === 'guess' || (inp.confidence === undefined && inp.flag?.guessedMarked === true)
+}
+
 function isMastered(h: QuestionHistoryRow, now: number): boolean {
   if (h.lastResult !== 'correct') return false
   const notDue = !(typeof h.nextDueAt === 'number' && h.nextDueAt <= now)
@@ -110,7 +123,14 @@ export function movabilityBandOf(inp: RescueScoreInputs, now: number): Movabilit
   if (isMastered(h, now)) return 'mastered'
   if (h.lastResult === 'wrong') {
     const wrongCount = Math.max(0, (h.attempts ?? 0) - (h.correctCount ?? 0))
-    if (wrongCount >= UNRECOVERABLE_MIN_WRONG && inp.stopLossedOnce) return 'unrecoverable'
+    // Band precedence: a high-confidence-wrong question stays learnable even after
+    // repeated misses + stop-loss. Per spec, hi-conf-wrong IS a "Wrong, un-corrected,
+    // learnable" question that additionally earns the ×1.5 hypercorrection weight and
+    // "SHALL additionally be scheduled for extra review" — so it must NOT be reclassified
+    // as unrecoverable and triage-dropped, or its ×1.5 (confidenceMultiplier) could never
+    // apply. (spec: neurons-single-subject-rescue, Movability + Confidence requirements)
+    if (wrongCount >= UNRECOVERABLE_MIN_WRONG && inp.stopLossedOnce && !isHighConfidence(inp))
+      return 'unrecoverable'
     return 'wrong-learnable'
   }
   // Correct but not mastered (only-correct-once or correct-but-unsure).
@@ -137,12 +157,8 @@ export function movabilityValue(band: MovabilityBand, inp: RescueScoreInputs): n
 // ─── Confidence multiplier (SOLE home of the ×1.5) ───────────────────────────
 export function confidenceMultiplier(inp: RescueScoreInputs): number {
   const h = inp.history
-  const highConf =
-    inp.confidence === 'sure' || (inp.confidence === undefined && inp.flag?.easyMarked === true)
-  const lowConf =
-    inp.confidence === 'guess' || (inp.confidence === undefined && inp.flag?.guessedMarked === true)
-  if (h?.lastResult === 'wrong' && highConf) return 1.5 // hypercorrection
-  if (h?.lastResult === 'correct' && lowConf) return 1.1
+  if (h?.lastResult === 'wrong' && isHighConfidence(inp)) return 1.5 // hypercorrection
+  if (h?.lastResult === 'correct' && isLowConfidence(inp)) return 1.1
   return 1.0
 }
 

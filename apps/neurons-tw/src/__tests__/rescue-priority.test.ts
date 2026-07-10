@@ -133,6 +133,43 @@ describe('Movability bands', () => {
   })
 })
 
+describe('Band precedence: high-confidence-wrong escapes unrecoverable + triage (L1)', () => {
+  // Shape that WOULD classify as unrecoverable low-yield (wrong≥3 + stop-lossed + low band).
+  const unrecoverableShape = (p: Partial<RescueScoreInputs> = {}): RescueScoreInputs =>
+    inputs({
+      history: hist({ lastResult: 'wrong', attempts: 4, correctCount: 0 }),
+      stopLossedOnce: true,
+      yieldBand: 'low',
+      ...p,
+    })
+
+  it('an explicit "sure" tap keeps a wrong≥3 + stop-lossed low-yield question learnable, not unrecoverable', () => {
+    const inp = unrecoverableShape({ confidence: 'sure' })
+    expect(movabilityBandOf(inp, NOW)).toBe('wrong-learnable')
+    expect(movabilityValue(movabilityBandOf(inp, NOW), inp)).toBe(1.0)
+  })
+
+  it('is NOT triage-dropped, so the ×1.5 hypercorrection can actually apply (spec: extra review)', () => {
+    const inp = unrecoverableShape({ confidence: 'sure' })
+    expect(isTriageDropped(inp, NOW)).toBe(false)
+    expect(confidenceMultiplier(inp)).toBe(1.5)
+    expect(priorityOf(q(), inp, NOW)).toBeGreaterThan(0)
+  })
+
+  it('the easyMarked flag prior (no live tap) also rescues it from unrecoverable', () => {
+    const flag = { easyMarked: true, guessedMarked: false, updatedAt: NOW } as QuestionFlagRow
+    const inp = unrecoverableShape({ confidence: undefined, flag })
+    expect(movabilityBandOf(inp, NOW)).toBe('wrong-learnable')
+  })
+
+  it('REGRESSION: low-confidence ("guess" / none) wrong≥3 + stop-lossed is STILL unrecoverable (escape is hi-conf only)', () => {
+    expect(movabilityBandOf(unrecoverableShape({ confidence: 'guess' }), NOW)).toBe('unrecoverable')
+    const none = unrecoverableShape({ confidence: undefined })
+    expect(movabilityBandOf(none, NOW)).toBe('unrecoverable')
+    expect(isTriageDropped(none, NOW)).toBe(true) // low-yield unrecoverable still dropped
+  })
+})
+
 describe('Confidence multiplier (single source of the ×1.5)', () => {
   it('high-confidence-wrong → ×1.5 (hypercorrection)', () => {
     const inp = inputs({ history: hist({ lastResult: 'wrong' }), confidence: 'sure' as ConfidenceSignal })

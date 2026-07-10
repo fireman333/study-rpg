@@ -20,7 +20,6 @@ import { getTodayPlanSnapshotIds } from '../lib/services/prescription'
 import { orderPracticePool } from '../lib/cram-practice-pool'
 import { QuestionReviewCard } from '../components/QuestionReviewCard'
 import { QuizModal } from '../components/QuizModal'
-import { EmojiIcon } from '../components/EmojiIcon'
 
 const STAT_STAMP = '統計至 115-1'
 const SOURCE_PREVIEW_CAP = 6
@@ -90,29 +89,34 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
 
   return (
     <div style={pageStyle}>
-      {/* ── Download PDF row + 五分鐘速看版 entry (rightmost, emphasized) ── */}
-      <div style={downloadRowStyle}>
-        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
-          ⬇ 下載 醫學一 A4 PDF
-        </a>
-        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學二.pdf`} download style={downloadBtnStyle}>
-          ⬇ 下載 醫學二 A4 PDF
-        </a>
-        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`} download style={downloadBtnStyle}>
-          ⬇ 下載 5 分鐘速看 一頁 PDF
-        </a>
-        <button style={handoutEntryBtnStyle} onClick={() => navigate('/cram/handout')}>
-          考前講義(beta)
-        </button>
-        <button style={speedReviewEntryBtnStyle} onClick={() => navigate('/cram/5min')}>
-          五分鐘速看版
-        </button>
+      {/* ── Action buttons: 3 PDF downloads (row 1) + 講義/速看 entries (row 2). Two
+           semantic groups; layout + RWD live in styles.css (.cram-action-row). ── */}
+      <div className="cram-action-row">
+        <div className="cram-action-group">
+          <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
+            ⬇ 下載 醫學一 A4 PDF
+          </a>
+          <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學二.pdf`} download style={downloadBtnStyle}>
+            ⬇ 下載 醫學二 A4 PDF
+          </a>
+          <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`} download style={downloadBtnStyle}>
+            ⬇ 下載 5 分鐘速看 一頁 PDF
+          </a>
+        </div>
+        <div className="cram-action-group">
+          <button style={handoutEntryBtnStyle} onClick={() => navigate('/cram/handout')}>
+            考前講義(beta)
+          </button>
+          <button style={speedReviewEntryBtnStyle} onClick={() => navigate('/cram/5min')}>
+            五分鐘速看版
+          </button>
+        </div>
       </div>
 
       {/* ── Persistent honesty header ── */}
       <header style={disclaimerStyle}>
         <p style={disclaimerLineStyle}>
-          <EmojiIcon char="⚖️" size={14} decorative /> 此清單依歷屆<b>出現頻率</b>排序，供考前收斂用。
+          此清單依歷屆<b>出現頻率</b>排序，供考前收斂用。
           <b>頻率高 ≠ 今年一定考</b>；請當作投報率參考，不是預測。
         </p>
         <div style={disclaimerMetaStyle}>
@@ -364,7 +368,7 @@ function CramBlockView({ block }: { block: CramBlock }): JSX.Element {
 const pageStyle: React.CSSProperties = { maxWidth: 960, margin: '1.5rem auto', padding: '0 1.25rem', fontFamily: 'var(--font-pixel-cjk)' }
 const loadingStyle: React.CSSProperties = { textAlign: 'center', color: '#8c6d4a', padding: '2rem', fontFamily: 'var(--font-legible)' }
 const disclaimerStyle: React.CSSProperties = { background: '#f4ecd8', border: '1px solid #c9ad7f', borderRadius: 8, padding: '0.7rem 0.9rem', marginBottom: '1rem' }
-const disclaimerLineStyle: React.CSSProperties = { margin: 0, fontSize: '0.82rem', color: '#4a3a22', lineHeight: 1.6, fontFamily: 'var(--font-legible)' }
+const disclaimerLineStyle: React.CSSProperties = { margin: 0, fontSize: '0.82rem', color: '#4a3a22', lineHeight: 1.7, fontFamily: 'var(--font-pixel-cjk)' }
 const disclaimerMetaStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }
 const methodBtnStyle: React.CSSProperties = { border: '1px solid #c9ad7f', background: '#fff8e8', borderRadius: 999, padding: '0.1rem 0.6rem', fontSize: '0.76rem', cursor: 'pointer', color: '#7a5a2a', fontFamily: 'var(--font-legible)' }
 const stampStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#8c6d4a', fontFamily: 'var(--font-legible)' }
@@ -372,7 +376,7 @@ const methodBodyStyle: React.CSSProperties = { marginTop: '0.5rem', fontSize: '0
 const chipRowStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }
 const chipGroupStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.3rem' }
 const chipGroupLabelStyle: React.CSSProperties = { fontSize: '0.76rem', color: '#5a3d1a', fontWeight: 700, marginRight: '0.2rem', whiteSpace: 'nowrap' }
-const filterChipStyle: React.CSSProperties = { fontSize: '0.76rem', border: '1px solid #d8c39a', background: '#efe4cc', color: '#7a5a2a', borderRadius: 999, padding: '0.2rem 0.6rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }
+const filterChipStyle: React.CSSProperties = { fontSize: '0.76rem', border: '1px solid #d8c39a', background: '#efe4cc', color: '#7a5a2a', borderRadius: 999, padding: '0.2rem 0.6rem', cursor: 'pointer', fontFamily: 'var(--font-pixel-cjk)' }
 const filterChipActiveStyle: React.CSSProperties = { background: '#b58900', color: '#fff', borderColor: '#b58900', fontWeight: 600 }
 const subjectCardStyle: React.CSSProperties = { border: '1px solid #c9ad7f', borderRadius: 8, marginBottom: '0.5rem', overflow: 'hidden', background: '#fffdf7' }
 const subjectBodyStyle: React.CSSProperties = { padding: '0.6rem 0.8rem' }
@@ -412,10 +416,9 @@ const sourceQBtnStyle: React.CSSProperties = { border: '1px solid #d8c39a', back
 const reviewWrapStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.5rem 0.6rem', background: '#fff' }
 const moreNoteStyle: React.CSSProperties = { margin: '0.3rem 0 0', fontSize: '0.74rem', color: '#a08a5a', fontFamily: 'var(--font-legible)' }
 const practiceCtaStyle: React.CSSProperties = { marginTop: '0.5rem', border: '1px solid #b58900', background: '#b58900', color: '#fff', borderRadius: 6, padding: '0.35rem 0.9rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
-// Two right-aligned entry buttons (not downloads). The handout button carries marginLeft:auto to
-// push the pair to the right edge, separating them from the 3 download buttons; the speed-review
-// button sits immediately to its right. Distinct fills: 考前講義 = anatomy-green, 速看 = gold.
-const handoutEntryBtnStyle: React.CSSProperties = { marginLeft: 'auto', border: '1px solid #6a8c3f', background: 'linear-gradient(#a7c76a, #8bb04e)', color: '#243611', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
-const speedReviewEntryBtnStyle: React.CSSProperties = { border: '1px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
-const downloadRowStyle: React.CSSProperties = { display: 'flex', gap: '0.6rem', flexWrap: 'wrap', margin: '0 0 1rem' }
-const downloadBtnStyle: React.CSSProperties = { border: '1px solid #8c6d4a', background: '#f4ecd8', color: '#5a3d1a', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', textDecoration: 'none', fontFamily: 'var(--font-legible)' }
+// Two entry buttons (not downloads): 考前講義 = anatomy-green, 速看 = gold. They live in
+// their own group row; layout + RWD are in styles.css (.cram-action-row, two-row semantic
+// grouping that stays sane on narrow screens — replaced a fragile marginLeft:auto). Pixel font.
+const handoutEntryBtnStyle: React.CSSProperties = { border: '1px solid #6a8c3f', background: 'linear-gradient(#a7c76a, #8bb04e)', color: '#243611', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-pixel-cjk)' }
+const speedReviewEntryBtnStyle: React.CSSProperties = { border: '1px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-pixel-cjk)' }
+const downloadBtnStyle: React.CSSProperties = { border: '1px solid #8c6d4a', background: '#f4ecd8', color: '#5a3d1a', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', textDecoration: 'none', fontFamily: 'var(--font-pixel-cjk)' }
