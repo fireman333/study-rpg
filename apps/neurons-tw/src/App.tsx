@@ -24,6 +24,7 @@ import CollectionPage from './routes/CollectionPage'
 import { QuestionBankPage } from './routes/QuestionBankPage'
 import { CramPage } from './routes/CramPage'
 import { SpeedReviewPage } from './routes/SpeedReviewPage'
+import { HandoutPage } from './routes/HandoutPage'
 import ShoutoutBoardPage from './routes/ShoutoutBoardPage'
 import DmnQuickReviewToast from './components/DmnQuickReviewToast'
 import SyncReloadToast from './components/SyncReloadToast'
@@ -143,6 +144,7 @@ export default function App(): JSX.Element {
             the path doesn't match; the scene itself portals to <body>. */}
         <Routes>
           <Route path="/cram/5min" element={<SpeedReviewPage />} />
+          <Route path="/cram/handout" element={<HandoutPage />} />
         </Routes>
       </BrowserRouter>
       </PdfPanelProvider>
@@ -197,6 +199,8 @@ function AnimatedRoutes({ pack }: { pack: ContentPack }): JSX.Element {
               concrete incoming child — a null match leaves AnimatePresence mode="wait" unable to
               finish exiting the previous page (CramPage would linger mounted behind the scene). */}
           <Route path="/cram/5min" element={<span aria-hidden />} />
+          {/* /cram/handout — same OUTSIDE-AnimatedRoutes scene pattern as /cram/5min. */}
+          <Route path="/cram/handout" element={<span aria-hidden />} />
           {/* Relocated into /collection (finalize-mock-variant-catalog); keep a redirect for any old link. */}
           <Route path="/mock-collection" element={<Navigate to="/collection" replace />} />
           <Route path="/motion-demo" element={<MotionDemoPage />} />
