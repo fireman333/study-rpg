@@ -28,7 +28,7 @@ For non-trivial changes, prefer this order over ad-hoc edits:
 /simplify                   # code-quality review (global skill)
 /opsx:verify                # OpenSpec 3-dim check (completeness / correctness / coherence)
 /verify                     # end-to-end check (global skill, e.g. Chrome MCP for web apps)
-/opsx:archive               # merge delta into main specs (slash workflow has sync gate)
+/opsx:archive               # merge delta into main specs (agent-driven, partial-delta-safe)
 auto-git commit             # only after archive — see auto-git skill rules
 ```
 
