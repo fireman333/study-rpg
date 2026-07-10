@@ -254,4 +254,4 @@ export type {
 
 // 考前講義(beta) data model (add-neurons-anatomy-handout). handout.json is lazy-fetched by the
 // /cram/handout scene (not bundled via getContentPack); these are the shared shape types.
-export type { HandoutSubject, HandoutData } from './handout/handout-types'
+export type { HandoutSubject, HandoutData, HandoutChapterQuiz } from './handout/handout-types'
