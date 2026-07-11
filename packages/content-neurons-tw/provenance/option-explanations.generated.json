@@ -117,7 +117,7 @@
   "flags": []
  },
  "104-1-醫學一-公共衛生學-Q92": {
-  "sourceHash": "f648975222ed706bb10396e17e02c40c75bc8c1c038c2dc7fe86a3729fcb3551",
+  "sourceHash": "4921c43c1c62d8eb0e73a516f34b978af717dd6931a2a55c907e0ee7c13a02a4",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.005Z",
@@ -247,30 +247,32 @@
   "flags": []
  },
  "104-1-醫學一-寄生蟲學-Q77": {
-  "sourceHash": "ab0283af226334473761664e4b2dafc534c2f0b9303ef4da5a83475f9e4c093c",
+  "sourceHash": "e34ad40e6f2c895f681ce5644e735986891b5d762513b9f3447b003ed3deede6",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.005Z",
   "optionExplanations": {
-   "A": "①③為錯誤感染途徑，惟答案中列示的選項內容有誤。",
-   "B": "蟲卵和生殖節片是感染跳蚤的方式，不是人類的感染途徑；誤食帶蟲跳蚤才是人類感染方式。",
-   "C": "①③為錯誤感染途徑，惟答案中列示的選項內容有誤。",
-   "D": "詳解明確說蟲卵和生殖節片只感染跳蚤，非人類感染途徑。"
+   "A": "②誤食帶蟲跳蚤才是人類正確感染途徑，不屬錯誤，故①②不對。",
+   "B": "①誤食蟲卵與③誤食生殖節片皆只感染跳蚤而非人類，屬錯誤途徑，故答案①③。",
+   "C": "②誤食帶蟲跳蚤為人類正確感染方式，不屬錯誤途徑，故②③不對。",
+   "D": "②誤食帶蟲跳蚤是人類正確感染途徑，不屬錯誤，故非全部皆錯。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-corpus-repair-2026-07-11"
  },
  "104-1-醫學一-寄生蟲學-Q78": {
-  "sourceHash": "b06ff5c5940bf3bebf0eaa038e4919e856c29e071131062f7594d8c984e5fd08",
+  "sourceHash": "859b090f731c96cf236ec39f1e16be7334cbb5722efe4075b7368aada0ae7c05",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.005Z",
   "optionExplanations": {
-   "A": "①血尿正確（蟲卵刺激引起）；③膀胱癌正確（蟲卵引起肉芽腫與hyperplasia導致癌化）。",
-   "B": "①③正確為恰當；②嗜酸性白血球尿未在詳解中支持，故此選項有誤。",
-   "C": "詳解未提及此選項內容，無法確認正確性。",
-   "D": "詳解明確指出病變源自蟲卵而非成蟲刺激，故此選項不全面。"
+   "A": "血尿與尿中嗜酸性白血球皆為埃及血吸蟲膀胱感染典型表現，故僅①②正確。",
+   "B": "③膀胱癌由蟲卵堆積引起肉芽腫與癌化，非成蟲刺激，敘述有誤，故①③非正解。",
+   "C": "③將膀胱癌歸因於成蟲刺激有誤，實為蟲卵所致，故②③不正確。",
+   "D": "③錯誤，膀胱病變與癌化由蟲卵肉芽腫引起而非成蟲刺激，故非全部正確。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-corpus-repair-2026-07-11"
  },
  "104-1-醫學一-寄生蟲學-Q79": {
   "sourceHash": "a095e66bf41924558dcce231fe207f95d47de7e8f9e545984f47b36a68239dd0",
@@ -42146,7 +42148,7 @@
   "flags": []
  },
  "112-1-醫學二-寄生蟲學-Q35": {
-  "sourceHash": "fb449015ce419664a81a19f77bb41d90a0d8cd874f0450f73854a586f4b31f45",
+  "sourceHash": "adaad1a05b9e959e7b680ad93cbdb1419cd7388c63ff7e18bdc731176b71e8de",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.070Z",
@@ -47218,17 +47220,18 @@
   "flags": []
  },
  "113-1-醫學二-寄生蟲學-Q29": {
-  "sourceHash": "e160a0d18352f274669b875c681a7d7a267e0197150cc4448ebebf927fea2fe5",
+  "sourceHash": "d2cd67d365282cd595d58be34969766a15075a62767e61002f35c19eae6f4fe0",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.078Z",
   "optionExplanations": {
-   "A": "ћ正確但选项遗漏ќў两项",
-   "B": "ќў正确但遗漏ћ项",
-   "C": "ћќў皆正确，符合詳解",
-   "D": "և错误，鞭蟲免疫低下非必致命"
+   "A": "含正確的①犬蛔蟲眼部幼蟲移行，但③鞭蟲於免疫低下者未必致死且遺漏②④，故A不對。",
+   "B": "②下肢象皮病與④蛔蟲異位寄生雖正確，卻遺漏同樣正確的①，故B不完整。",
+   "C": "①眼部幼蟲移行、②下肢象皮病、④異位寄生皆正確，③鞭蟲非必致死，故答案①②④。",
+   "D": "③「鞭蟲於免疫低下者必造成死亡」敘述過於絕對而有誤，故非全部正確。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-corpus-repair-2026-07-11"
  },
  "113-1-醫學二-寄生蟲學-Q30": {
   "sourceHash": "43f845e663020e0ae7165ea6a4fb374fbb131991f38a817f948bcfebd7a45c48",
@@ -47257,7 +47260,7 @@
   "flags": []
  },
  "113-1-醫學二-寄生蟲學-Q32": {
-  "sourceHash": "cce647fe6512da7c205ed74d3660f760a64280d23b6714de0fe69bb34d1e7fc4",
+  "sourceHash": "9206d8f756a53434811e75fb6d7a665236007dece07c2345396834f92fa4f784",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.078Z",
@@ -47738,7 +47741,7 @@
   "flags": []
  },
  "113-1-醫學二-病理學-Q79": {
-  "sourceHash": "e43425eb38507409eec63e1ac851cc371ee4fe0d17bc9f5b4a4e87e27b48ee9b",
+  "sourceHash": "f521453fb718f7ed4acf7448d64d1a151340d71cbcb1f0762252e3003e090b2f",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.079Z",
@@ -55015,11 +55018,12 @@
   "generatedAt": "2026-06-28T14:45:27.092Z",
   "optionExplanations": {
    "A": "布氏羅德西亞錐蟲為血鞭毛蟲，引起睡眠病。",
-   "B": "枯西氏錐蟲為血鞭毛蟲，引起卡格氏症。",
+   "B": "枯西氏錐蟲為血鞭毛蟲，引起查加斯氏病（Chagas disease）。",
    "C": "唇形鞭毛蟲寄生於腸胃道，非血鞭毛蟲，屬腔道鞭毛蟲。",
    "D": "熱帶利什曼原蟲為血鞭毛蟲，引起皮膚型利什曼病。"
   },
-  "flags": []
+  "flags": [],
+  "source": "+chagas-term-2026-07-11"
  },
  "114-2-醫學二-寄生蟲學-Q35": {
   "sourceHash": "1ff78544e2797aa5f9d3ba882d9d75837a1564887c5683fa12053d5a2262fbbc",
