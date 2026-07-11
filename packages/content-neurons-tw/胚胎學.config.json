@@ -1,0 +1,42 @@
+[
+  {
+    "regionId": "hdt-early-dev",
+    "title": "早期發育與三胚層",
+    "targetDepth": "full",
+    "leafIds": [
+      "gametogenesis-fertilization",
+      "early-cleavage-implantation",
+      "germ-layers-gastrulation"
+    ]
+  },
+  {
+    "regionId": "hdt-pharyngeal-cardio",
+    "title": "咽弓與心血管發育",
+    "targetDepth": "full",
+    "leafIds": [
+      "pharyngeal-arches",
+      "cardiovascular-development"
+    ]
+  },
+  {
+    "regionId": "hdt-neural-bodywall-msk",
+    "title": "神經・體壁・骨骼肌肉發育",
+    "targetDepth": "full",
+    "leafIds": [
+      "neural-tube-development",
+      "body-wall-diaphragm-development",
+      "limb-axial-musculoskeletal-development"
+    ]
+  },
+  {
+    "regionId": "hdt-viscera-senses",
+    "title": "內臟與感官系統發育",
+    "targetDepth": "full",
+    "leafIds": [
+      "GI-development",
+      "respiratory-development",
+      "urogenital-development",
+      "special-sense-integument-development"
+    ]
+  }
+]

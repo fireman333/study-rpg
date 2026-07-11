@@ -580,6 +580,12 @@ const SCENE_CSS = `
   margin-left: 0.35em; font-size: 0.72em; color: #a08a5e; font-style: normal;
   vertical-align: super; white-space: nowrap;
 }
+/* 考選部-vs-國際教科書 divergence note (kept 考選部 answer + flagged textbook difference) */
+.hdt-scene .hdt-intl {
+  display: block; margin: 0.3rem 0 0.7rem; padding: 0.3rem 0.6rem;
+  font-size: 0.8rem; line-height: 1.5; color: #6b5d3a;
+  background: #fbf4dd; border-left: 3px solid #d9b64e; border-radius: 3px;
+}
 .hdt-scene table.hdt-tbl {
   width: 100%; border-collapse: collapse; margin: 0.4rem 0 1rem; font-size: 0.86rem;
   display: block; overflow-x: auto;
