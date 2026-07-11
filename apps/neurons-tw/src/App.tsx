@@ -223,6 +223,7 @@ const SUBTAB_GROUPS = {
   bank: [
     { to: '/bank', label: '題庫' },
     { to: '/cram', label: '考前猜題' },
+    { to: '/cram/handout', label: '考前講義' },
   ],
   collection: [
     { to: '/collection', label: '神經元圖鑑' },
