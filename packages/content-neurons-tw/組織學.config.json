@@ -1,0 +1,76 @@
+[
+  {
+    "regionId": "hdt-cell-basics",
+    "title": "細胞與組織學技術",
+    "targetDepth": "full",
+    "leafIds": [
+      "cell-biology-organelles-and-cytoskeleton",
+      "microscopy-and-tissue-preparation-techniques"
+    ]
+  },
+  {
+    "regionId": "hdt-epithelium",
+    "title": "上皮組織",
+    "targetDepth": "full",
+    "leafIds": [
+      "epithelial-tissue-classification-and-lining",
+      "epithelial-surface-specializations-and-junctions",
+      "glandular-epithelium-and-secretion-mechanisms"
+    ]
+  },
+  {
+    "regionId": "hdt-connective",
+    "title": "結締組織（含血液·骨·軟骨）",
+    "targetDepth": "full",
+    "leafIds": [
+      "connective-tissue-proper-fibers-and-fibroblasts",
+      "cartilage-histology",
+      "bone-histology-and-ossification",
+      "blood-cells-and-hematopoiesis"
+    ]
+  },
+  {
+    "regionId": "hdt-muscle-neural",
+    "title": "肌肉與神經組織",
+    "targetDepth": "full",
+    "leafIds": [
+      "muscle-tissue-comparative-histology",
+      "nervous-tissue-neuron-and-glia"
+    ]
+  },
+  {
+    "regionId": "hdt-cardio-resp-skin-lymph",
+    "title": "循環·呼吸·皮膚·淋巴系統",
+    "targetDepth": "full",
+    "leafIds": [
+      "vascular-histology-arteries-veins-capillaries",
+      "respiratory-system-histology",
+      "integumentary-system-skin-histology",
+      "lymphoid-organs-histology"
+    ]
+  },
+  {
+    "regionId": "hdt-digestive",
+    "title": "消化系統組織學",
+    "targetDepth": "full",
+    "leafIds": [
+      "digestive-system-oral-cavity-tongue-and-teeth",
+      "digestive-system-salivary-glands",
+      "digestive-system-esophagus-and-stomach",
+      "digestive-system-small-and-large-intestine",
+      "digestive-system-liver-gallbladder-and-pancreas"
+    ]
+  },
+  {
+    "regionId": "hdt-uro-repro-endo-senses",
+    "title": "泌尿·生殖·內分泌·感官系統",
+    "targetDepth": "full",
+    "leafIds": [
+      "urinary-system-histology",
+      "male-reproductive-system-histology",
+      "female-reproductive-system-histology",
+      "endocrine-system-histology",
+      "special-senses-eye-and-ear-histology"
+    ]
+  }
+]
