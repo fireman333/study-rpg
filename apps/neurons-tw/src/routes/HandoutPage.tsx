@@ -4,8 +4,8 @@
  *
  * A full-screen, vertically scrollable, TEACHING-style study handout — deeper and more
  * beginner-friendly than the cram-tab discriminator sheets or the 5-min speed review.
- * Meant to be read over the last week before an exam. beta ships 解剖學 only; the loader
- * returns a subjects[] array so more families can be added with zero code change.
+ * Meant to be read over the last week before an exam. Ships 解剖學 (chapter-keyed) + 組織學
+ * (region-keyed) today; the loader returns a subjects[] array so more families add with zero code change.
  *
  * Same full-screen-scene discipline as SpeedReviewPage: createPortal to <body> to escape the
  * AnimatedRoutes Framer transform; the route is registered OUTSIDE AnimatedRoutes (with an
@@ -305,7 +305,7 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
           ) : (
             <div className="hdt-content" style={contentWrapStyle}>
               <div style={introNoteStyle}>
-                這是<b>教學型考前講義</b>：第一次唸也看得懂，依解剖分區整理高頻重點，適合考前一週系統複習。
+                這是<b>教學型考前講義</b>：第一次唸也看得懂，依各科組織／系統分區整理高頻重點，適合考前一週系統複習。
                 依歷屆出現頻率收斂 —— 頻率高 ≠ 今年一定考。
               </div>
               {/* Authored, build-trusted teaching HTML split into region blocks so a per-chapter
@@ -315,7 +315,7 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
                   <div dangerouslySetInnerHTML={{ __html: r.html }} />
                   {quizByRegion.has(r.id) ? (
                     <button type="button" className="hdt-quiz-cta" onClick={() => openChapterQuiz(r.id)}>
-                      📝 測驗本章
+                      📝 {quizByRegion.get(r.id)!.memberRegionIds.length === 1 ? '測驗本區' : '測驗本章'}
                     </button>
                   ) : signpostByRegion.has(r.id) ? (
                     <button

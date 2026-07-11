@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 
 import { fileURLToPath } from 'node:url'
 import { dirname, join, basename } from 'node:path'
 import type { HandoutData, HandoutSubject, HandoutChapterQuiz } from '../src/handout/handout-types'
+import { buildRegionKeyedQuizzes, type RegionConfig } from '../src/handout/build-region-quizzes'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = join(__dirname, '..')
@@ -25,6 +26,7 @@ const DIST = join(PKG, 'dist')
 // Display order + titles. Any fragment without an entry falls back to `${id} 考前講義`.
 const SUBJECT_META: Record<string, { order: number; title: string }> = {
   解剖學: { order: 0, title: '解剖學 考前講義' },
+  組織學: { order: 1, title: '組織學 考前講義' },
 }
 
 // ── Region → blueprint-chapter map ────────────────────────────────────────────────────────
@@ -35,6 +37,9 @@ const SUBJECT_META: Record<string, { order: number; title: string }> = {
 // stopping point); the earlier member regions render a signpost pointing to it. Regions absent from
 // this map (e.g. hdt-overview) get neither a CTA nor a signpost. leafIds/sourceQuestionIds are
 // derived at build time from the already-built concept maps — no LLM, no network, no headless browser.
+//
+// @deprecated legacy chapter-keyed path. NEW subjects use `<subjectId>.config.json` (region-keyed,
+// one 測驗本區 per content region) — do NOT add entries here; see buildRegionKeyedQuizzes.
 const REGION_TO_CHAPTER: Record<string, Record<string, string>> = {
   解剖學: {
     'hdt-neuro-central': 'neuroanatomy',
@@ -63,6 +68,30 @@ function loadDist<T>(name: string): T {
 }
 
 /**
+ * Thin build wrapper around the pure `buildRegionKeyedQuizzes`: reads the region config + derives the
+ * canonical leaf set and HTML region ids, then converts any thrown contract violation into a loud
+ * `process.exit(1)` (mirroring the chapter-keyed guards). The pure logic lives in
+ * src/handout/build-region-quizzes.ts so the region-config contract is unit-testable (verify-handout).
+ */
+function regionKeyedQuizzesFromConfig(
+  subjectId: string,
+  html: string,
+  rec: ConceptRecurrence,
+  leafToQids: Map<string, string[]>,
+  configPath: string,
+): HandoutChapterQuiz[] {
+  const config = JSON.parse(readFileSync(configPath, 'utf8')) as RegionConfig[]
+  const canonicalLeaves = new Set(rec.concepts.filter((c) => c.subjectId === subjectId).map((c) => c.leafId))
+  const htmlRegionIds = [...html.matchAll(/<section class="hdt-region" id="([^"]+)"/g)].map((m) => m[1])
+  try {
+    return buildRegionKeyedQuizzes(subjectId, config, canonicalLeaves, htmlRegionIds, leafToQids)
+  } catch (e) {
+    console.error(`✗ regionQuiz: ${(e as Error).message}`)
+    process.exit(1)
+  }
+}
+
+/**
  * Derive the chapterQuizzes for one subject from the concept maps. Returns undefined when the
  * subject has no quiz plan. Fails loudly on drift (region absent from HTML, unknown chapterId,
  * or a mapped chapter with zero leaves / questions) so a corpus rename can't silently ship an
@@ -74,6 +103,11 @@ function buildChapterQuizzes(
   rec: ConceptRecurrence,
   leafToQids: Map<string, string[]>,
 ): HandoutChapterQuiz[] | undefined {
+  // Region-keyed path (subjects with a `<subjectId>.config.json`, e.g. 組織學): one quiz per content
+  // region. Additive — falls through to the legacy chapter-keyed path below when no config exists.
+  const configPath = join(PKG, `${subjectId}.config.json`)
+  if (existsSync(configPath)) return regionKeyedQuizzesFromConfig(subjectId, html, rec, leafToQids, configPath)
+
   const regionChapters = REGION_TO_CHAPTER[subjectId]
   if (!regionChapters) return undefined
 

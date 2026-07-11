@@ -25,6 +25,7 @@
     "build:cram": "tsx scripts/build-cram.ts",
     "verify:cram": "tsx scripts/verify-cram.ts",
     "build:handout": "tsx scripts/build-handout.ts",
+    "verify:handout": "tsx scripts/verify-handout.ts",
     "render:speed-review-pdf": "tsx scripts/render-speed-review-pdf.mjs"
   },
   "peerDependencies": {

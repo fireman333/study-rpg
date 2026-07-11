@@ -1,3 +1,6 @@
 dist/
 node_modules/
 *.tsbuildinfo
+scripts/handout-pipeline/packets/
+scripts/handout-pipeline/fragments/
+scripts/handout-pipeline/_exemplar-region.html

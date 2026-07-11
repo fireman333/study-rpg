@@ -18,6 +18,10 @@
  * its questions. Exam questions are tagged at blueprint-chapter granularity, so several authored
  * regions can share one chapter; the CTA anchors to the chapter's LAST region (`regionId`), and the
  * earlier member regions render a lightweight signpost pointing to it (using `label`).
+ *
+ * The SAME shape also models the region-keyed subjects (e.g. 組織學, built from `<subjectId>.config.json`):
+ * there each entry maps to a SINGLE region (`memberRegionIds.length === 1`), so the scene renders a
+ * 測驗本區 CTA and NO signpost. No shape change is needed — single- vs multi-region is `memberRegionIds`.
  *  - `regionId`: the `.hdt-region` anchor the CTA attaches to (the chapter's last region). Shared
  *    contract between TOC, scroll-spy, quiz, and deep-link.
  *  - `label`: the blueprint chapter's display name (for the signpost text).
