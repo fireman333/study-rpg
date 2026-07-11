@@ -27,6 +27,7 @@ const DIST = join(PKG, 'dist')
 const SUBJECT_META: Record<string, { order: number; title: string }> = {
   解剖學: { order: 0, title: '解剖學 考前講義' },
   組織學: { order: 1, title: '組織學 考前講義' },
+  胚胎學: { order: 2, title: '胚胎學 考前講義' },
 }
 
 // ── Region → blueprint-chapter map ────────────────────────────────────────────────────────

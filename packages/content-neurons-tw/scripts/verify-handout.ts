@@ -96,12 +96,20 @@ if (!existsSync(distPath)) {
     if (!q.some((e) => e.memberRegionIds.length > 1))
       failures.push('dist: 解剖學 has no multi-region entry — legacy chapter-keyed / signpost path may have regressed')
   }
+  const embryo = data.subjects.find((s) => s.subjectId === '胚胎學')
+  if (!embryo) failures.push('dist: 胚胎學 subject missing')
+  else {
+    const q = embryo.chapterQuizzes ?? []
+    if (q.length !== 4) failures.push(`dist: 胚胎學 expected 4 region quizzes, got ${q.length}`)
+    if (!q.every((e) => e.memberRegionIds.length === 1)) failures.push('dist: a 胚胎學 entry is not single-region')
+    if (!q.every((e) => (e.sourceQuestionIds?.length ?? 0) > 0)) failures.push('dist: a 胚胎學 region has an empty question pool')
+  }
 }
 
 // ── Report ──
 console.log('=== verify-handout ===')
 console.log('guard fixtures: 7 violations + happy path (cover overlap) exercised')
-console.log('built output: 組織學 region-keyed + 解剖學 chapter-keyed checked')
+console.log('built output: 組織學 + 胚胎學 region-keyed + 解剖學 chapter-keyed checked')
 if (failures.length > 0) {
   console.error(`\nFAIL (${failures.length}):`)
   for (const f of failures) console.error(`  - ${f}`)
