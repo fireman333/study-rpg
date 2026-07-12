@@ -85,9 +85,25 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
   const rescueChipByFamily = useRescueChips(rescuePlans, pack.questions, conceptTags, history)
   const [rescueOpen, setRescueOpen] = useState(false)
   const [rescueInitialFamily, setRescueInitialFamily] = useState<string | undefined>(undefined)
+  // startInSetup drives the「＋ 新增計畫」add-plan entry (fold-rescue-list-into-exam-prep-hub).
+  const [rescueStartInSetup, setRescueStartInSetup] = useState(false)
   const openRescue = (familyId?: string): void => {
     setRescueInitialFamily(familyId)
+    setRescueStartInSetup(false)
     setRescueOpen(true)
+  }
+  // Hub「＋ 新增計畫」: open RescueScene straight into add-new-plan setup (no initial family).
+  const openRescueSetup = (): void => {
+    setRescueInitialFamily(undefined)
+    setRescueStartInSetup(true)
+    setRescueOpen(true)
+  }
+  // Reset the load-bearing startInSetup flag on close: a stale `true` when the strip has fallen
+  // back to the empty-state CTA (last plan abandoned cross-device) would skip the untouched-setup
+  // B1 protection on the next open. (Family-chip opens are immune via RescueScene's !initialFamilyId guard.)
+  const closeRescue = (): void => {
+    setRescueOpen(false)
+    setRescueStartInSetup(false)
   }
   // Today's prescription snapshot ids (read-only; null when no plan yet) — used to
   // serve snapshot questions first in cram practice so the prescription payoff fires.
@@ -167,6 +183,19 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                 </button>
               )
             })}
+            {/* Low-key「＋ 新增計畫」add affordance — shown only below the 5-plan hard cap
+                (the cap is enforced by absence). Opens rescue setup directly (add-new-plan,
+                preselecting a subject without a plan), not a plan-list overlay. */}
+            {rescuePlans.length < 5 && (
+              <button
+                type="button"
+                style={rescueStripAddBtnStyle}
+                onClick={openRescueSetup}
+                title="新增一科考前救急計畫"
+              >
+                ＋ 新增計畫
+              </button>
+            )}
           </>
         ) : (
           <button type="button" style={rescueStripEmptyBtnStyle} onClick={() => openRescue()}>
@@ -407,7 +436,12 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
           so the strip / leaf 救急 buttons open it without leaving /cram (add-neurons-exam-prep-hub).
           Only one RescueScene is visible at a time (/ and /cram never mount together). */}
       {rescueOpen && (
-        <RescueScene pack={pack} initialFamilyId={rescueInitialFamily} onClose={() => setRescueOpen(false)} />
+        <RescueScene
+          pack={pack}
+          initialFamilyId={rescueInitialFamily}
+          startInSetup={rescueStartInSetup}
+          onClose={closeRescue}
+        />
       )}
     </div>
   )
@@ -599,6 +633,8 @@ const rescueStripStrongStyle: React.CSSProperties = { fontWeight: 800, color: '#
 const rescueStripMetaStyle: React.CSSProperties = { fontSize: '0.72rem', color: '#8c7a55', fontVariantNumeric: 'tabular-nums' }
 const rescueStripCtaStyle: React.CSSProperties = { fontWeight: 700, color: '#d4a04d' }
 const rescueStripEmptyBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700, border: '1px solid #d4a04d', background: '#fdf2e0', color: '#8a5a1f', borderRadius: 999, padding: '0.3rem 0.75rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', textAlign: 'left', lineHeight: 1.4 }
+// Low-key add affordance — dashed / transparent so it reads「add」not another plan chip.
+const rescueStripAddBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.74rem', fontWeight: 700, border: '1px dashed #d4a04d', background: 'transparent', color: '#8a5a1f', borderRadius: 8, padding: '0.22rem 0.55rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }
 const subjectGroupStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.8rem' }
 const subjectGridStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.5rem' }
 const subjectTileStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.3rem', border: '1px solid #d8c39a', background: '#fffdf7', borderRadius: 8, padding: '0.5rem 0.55rem', cursor: 'pointer' }

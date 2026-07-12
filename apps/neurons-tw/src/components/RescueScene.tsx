@@ -72,13 +72,23 @@ import { useSyncContext } from '../lib/sync/SyncProvider'
 
 interface Props {
   pack: ContentPack
-  /** A card chip passes its family → open that family's scene directly; the header entry
-   *  passes undefined → open the multi-plan overview list (or setup when no plan is active). */
+  /** A card chip passes its family → open that family's scene directly; a bare entry
+   *  (no family, no startInSetup) opens the fallback multi-plan overview list (or setup
+   *  when no plan is active). */
   initialFamilyId?: string
+  /** Hub「＋ 新增計畫」entry (fold-rescue-list-into-exam-prep-hub): boot straight into
+   *  add-new-plan setup even when other plans are active. The single conscious crossing of
+   *  the「don't touch RescueScene internals」boundary — see the phase + setupTouched
+   *  initializers. Ignored when `initialFamilyId` is set. */
+  startInSetup?: boolean
   onClose: () => void
 }
 
-// 'list' = the multi-plan overview (add-neurons-multi-subject-rescue); 'overview' remains the
+// 'list' = the multi-plan overview (add-neurons-multi-subject-rescue). Since
+// fold-rescue-list-into-exam-prep-hub it is FALLBACK-ONLY (the hub rescue status strip is the
+// homepage-reachable plan list): reached only as the mid-scene plan-vanish safety net and the
+// in-scene 切科 / back-to-list exit — NOT a homepage entry destination. Keep it (do not delete
+// in a dead-code audit): deleting it degrades the cross-device abandon UX. 'overview' remains the
 // per-plan RescueScore / 戰情圖 / stop-loss view for the currently-viewed family.
 type Phase = 'list' | 'setup' | 'overview' | 'blitz' | 'session' | 'quickscan'
 
@@ -113,7 +123,7 @@ const WAR_BAND_LABEL: Record<WarMapConcept['band'], string> = {
   grey: '尚未診斷',
 }
 
-export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Element | null {
+export function RescueScene({ pack, initialFamilyId, startInSetup, onClose }: Props): JSX.Element | null {
   // The family whose scene is open (null → the overview list / setup). Every downstream
   // memo + lifecycle write scopes to this family; there is NO mid-session cross-subject
   // switcher (切科 = back to the list). A card chip opens its family directly; the header
@@ -193,6 +203,11 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
       if (p) return isBlitzDone(initialFamilyId, p.createdAt) ? 'overview' : 'blitz'
       return 'setup'
     }
+    // Hub「＋ 新增計畫」entry (fold-rescue-list-into-exam-prep-hub): boot straight into
+    // add-new-plan setup even with active plans present. Placed after the initialFamilyId
+    // block so it only applies to the no-family entry (the setupTouched initializer keeps
+    // the untouched-setup redirect from bouncing it to 'list').
+    if (startInSetup) return 'setup'
     return getActivePlans().length > 0 ? 'list' : 'setup'
   })
   // Setup form state. Default family = the card-chip family, else the first subject WITHOUT an
@@ -209,7 +224,10 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
   // Whether the user has interacted with the setup form THIS viewing — an
   // untouched setup carries no intent, so a plan landing via the startup pull
   // may take the scene over (review-B1); once touched, we never yank the form.
-  const [setupTouched, setSetupTouched] = useState(false)
+  // The hub「＋」add-plan entry (startInSetup) inits touched=true — the SAME
+  // deliberate-add semantics as goToSetup — so the untouched-setup redirect below
+  // doesn't bounce it to 'list'. Existing undefined / familyId entries keep it false.
+  const [setupTouched, setSetupTouched] = useState(Boolean(startInSetup && !initialFamilyId))
   const [confirmAbandon, setConfirmAbandon] = useState(false)
   // One-time "continued from another device" hint: shown when the viewed plan arrived via
   // sync (not started on this device) — set when a plan's scene is opened — then marked
@@ -748,6 +766,9 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
           </div>
         )}
 
+        {/* Fallback-only multi-plan list (fold-rescue-list-into-exam-prep-hub): reached via
+            vanish-fallback / in-scene 切科, NOT as a homepage entry — the hub rescue strip is
+            the plan list. Retained on purpose (see the Phase type comment). */}
         {phase === 'list' && (
           <div style={overviewWrapStyle}>
             <h2 style={h2Style}>考前救急計畫</h2>
