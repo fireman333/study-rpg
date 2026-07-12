@@ -1,8 +1,9 @@
 /**
  * LeaderboardSettingsControls — opt-out toggle, nickname edit, manual push.
  *
- * Manual push button is the interim push trigger before add-neurons-deploy
- * wires cloud sync. Disabled for 3 seconds after click to prevent rate-storm.
+ * Cloud sync auto-pushes the leaderboard row on every sync (onPushComplete →
+ * autoPushLeaderboardOnSync); the manual push button is an on-demand refresh.
+ * Disabled for 3 seconds after click to prevent rate-storm.
  *
  * Spec: openspec/specs/neurons-leaderboard/spec.md
  *   "Opt-out toggle SHALL hide row from snapshots without deleting D1 row"
@@ -250,7 +251,7 @@ export default function LeaderboardSettingsControls({ userId, accessToken }: Pro
         {cooldownActive ? `${cooldownSecondsRemaining} 秒後可再按` : '立即更新排行榜'}
       </button>
       <p style={mutedSmallStyle}>
-        手動上傳是雲端同步未接前的暫時做法。日後 add-neurons-deploy 接上 cloud sync 後將自動推送。
+        排行榜會在每次雲端同步後自動更新；此按鈕可立即手動觸發一次。
       </p>
     </div>
   )
