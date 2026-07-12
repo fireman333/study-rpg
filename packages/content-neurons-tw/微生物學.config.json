@@ -1,0 +1,123 @@
+[
+  {
+    "regionId": "hdt-bacteriology-general",
+    "title": "細菌學通論（構造・毒素・抗生素・代謝遺傳）",
+    "targetDepth": "full",
+    "leafIds": [
+      "bacterial-structure-and-cell-envelope",
+      "exotoxin-endotoxin-mechanisms",
+      "antimicrobial-mechanisms-and-resistance",
+      "bacterial-metabolism-and-genetics"
+    ]
+  },
+  {
+    "regionId": "hdt-gram-positive-cocci",
+    "title": "革蘭氏陽性球菌（葡萄球菌・鏈球菌）",
+    "targetDepth": "full",
+    "leafIds": [
+      "staph-aureus",
+      "strep-pyogenes-groupA",
+      "strep-agalactiae-groupB",
+      "strep-pneumoniae"
+    ]
+  },
+  {
+    "regionId": "hdt-gram-positive-rods-anaerobes",
+    "title": "革蘭氏陽性桿菌與梭菌／厭氧菌",
+    "targetDepth": "full",
+    "leafIds": [
+      "coryneform-and-filamentous-gram-positive-rods",
+      "bacillus-species-anthracis-cereus",
+      "listeria-monocytogenes",
+      "clostridium-tetani-and-botulinum",
+      "clostridium-perfringens-septicum-difficile",
+      "endogenous-flora-opportunists-enterococcus-bacteroides"
+    ]
+  },
+  {
+    "regionId": "hdt-gram-negative-enterics",
+    "title": "革蘭氏陰性桿菌與腸道／呼吸道病原",
+    "targetDepth": "brief",
+    "leafIds": [
+      "enterobacteriaceae-ecoli-pathotypes",
+      "salmonella-and-shigella",
+      "vibrio-species",
+      "campylobacter-helicobacter",
+      "pseudomonas-aeruginosa",
+      "fastidious-gram-negative-respiratory-rods",
+      "legionella-pneumophila"
+    ]
+  },
+  {
+    "regionId": "hdt-mycobacteria-atypical",
+    "title": "分枝桿菌與非典型／胞內菌（含螺旋體・立克次體）",
+    "targetDepth": "full",
+    "leafIds": [
+      "mycobacterium-tuberculosis-and-ntm",
+      "mycobacterium-leprae",
+      "spirochetes-syphilis-leptospira-lyme",
+      "chlamydia-trachomatis",
+      "rickettsia-ehrlichia-and-zoonotic-bacteria",
+      "mycoplasma-ureaplasma"
+    ]
+  },
+  {
+    "regionId": "hdt-virology-general-highyield",
+    "title": "病毒學通論與高頻病毒（皰疹・肝炎・HIV）",
+    "targetDepth": "full",
+    "leafIds": [
+      "viral-replication-antivirals-and-diagnostics",
+      "viral-pathogenesis-and-oncogenic-mechanisms",
+      "herpesviridae",
+      "hepatitis-viruses",
+      "retroviridae-hiv-htlv"
+    ]
+  },
+  {
+    "regionId": "hdt-rna-viruses-highyield",
+    "title": "高頻 RNA 病毒（登革・流感・腸病毒・麻疹）",
+    "targetDepth": "full",
+    "leafIds": [
+      "picornaviridae-enterovirus-polio",
+      "orthomyxoviridae-influenza",
+      "paramyxoviridae",
+      "flaviviridae-arbovirus"
+    ]
+  },
+  {
+    "regionId": "hdt-rna-viruses-tail",
+    "title": "RNA 病毒長尾（冠狀・狂犬・腸胃炎・德國麻疹・出血熱）",
+    "targetDepth": "brief",
+    "leafIds": [
+      "coronaviridae",
+      "rhabdoviridae-rabies",
+      "viral-gastroenteritis-rotavirus-norovirus",
+      "togaviridae-rubella",
+      "bunya-arena-filoviridae-hemorrhagic-fever"
+    ]
+  },
+  {
+    "regionId": "hdt-dna-viruses-prions",
+    "title": "DNA 病毒各論與普里昂",
+    "targetDepth": "brief",
+    "leafIds": [
+      "papillomaviridae-and-polyomaviridae",
+      "other-dna-viruses-pox-adeno",
+      "parvoviridae-b19",
+      "prions"
+    ]
+  },
+  {
+    "regionId": "hdt-mycology",
+    "title": "真菌學（抗黴菌藥・雙型性・伺機性）",
+    "targetDepth": "full",
+    "leafIds": [
+      "fungal-morphology-and-classification",
+      "antifungal-agents-and-mechanisms",
+      "dimorphic-systemic-fungi",
+      "opportunistic-yeast-like-fungi",
+      "superficial-and-subcutaneous-mycoses",
+      "aspergillus-and-mucormycosis"
+    ]
+  }
+]

@@ -44,7 +44,6 @@ const NICKNAME_MAX_CODEPOINTS = 12;
 
 const TIER_MIN = 1;
 const TIER_MAX = 4;
-const DOCTOR_COUNT_MAX = 50;
 
 // === Achievement badge constants (v15 add-achievement-system) ===
 const BADGES_CSV_MAX_LEN = 60;
@@ -291,7 +290,13 @@ async function handleUpsert(
     console.warn("[leaderboard] dropped upsert: reputation oob", { user: userSub, rep });
     return jsonResponse({ ok: true, dropped: "rep_oob" }, 200, headers);
   }
-  if (!Number.isInteger(doctor) || doctor < 0 || doctor > DOCTOR_COUNT_MAX) {
+  // No upper bound on doctor_count: the roster grows unbounded via daily
+  // recruitment gacha (no in-game cap), so a fixed ceiling silently froze
+  // mature saves whose every upsert was dropped once they crossed it (a save
+  // with 64 doctors sat stale for weeks under an old cap of 50). Reject only
+  // non-integer / negative — matching reputation / total_study / total_correct,
+  // which are likewise unbounded above.
+  if (!Number.isInteger(doctor) || doctor < 0) {
     console.warn("[leaderboard] dropped upsert: doctor_count oob", { user: userSub, doctor });
     return jsonResponse({ ok: true, dropped: "doctor_oob" }, 200, headers);
   }

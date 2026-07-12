@@ -104,6 +104,30 @@ if (!existsSync(distPath)) {
     if (!q.every((e) => e.memberRegionIds.length === 1)) failures.push('dist: a 胚胎學 entry is not single-region')
     if (!q.every((e) => (e.sourceQuestionIds?.length ?? 0) > 0)) failures.push('dist: a 胚胎學 region has an empty question pool')
   }
+
+  // Newly-built region-keyed subjects (mirror the 組織學/胚胎學 guard): present + one single-region
+  // 區測驗 per content region + non-empty pools.
+  const REGION_KEYED_SUBJECTS: { id: string; regionCount: number }[] = [
+    { id: '生理學', regionCount: 12 },
+    { id: '藥理學', regionCount: 17 },
+    { id: '病理學', regionCount: 14 },
+    { id: '寄生蟲學', regionCount: 6 },
+    { id: '微生物學', regionCount: 10 },
+    { id: '生物化學', regionCount: 13 },
+    { id: '公共衛生學', regionCount: 8 },
+    { id: '免疫學', regionCount: 7 },
+  ]
+  for (const { id, regionCount } of REGION_KEYED_SUBJECTS) {
+    const subject = data.subjects.find((s) => s.subjectId === id)
+    if (!subject) {
+      failures.push(`dist: ${id} subject missing`)
+      continue
+    }
+    const q = subject.chapterQuizzes ?? []
+    if (q.length !== regionCount) failures.push(`dist: ${id} expected ${regionCount} region quizzes, got ${q.length}`)
+    if (!q.every((e) => e.memberRegionIds.length === 1)) failures.push(`dist: a ${id} entry is not single-region`)
+    if (!q.every((e) => (e.sourceQuestionIds?.length ?? 0) > 0)) failures.push(`dist: a ${id} region has an empty question pool`)
+  }
 }
 
 // ── Report ──

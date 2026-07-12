@@ -1,0 +1,165 @@
+[
+  {
+    "regionId": "hdt-cell-injury-inflammation-repair",
+    "title": "細胞傷害、發炎與組織修復",
+    "targetDepth": "full",
+    "leafIds": [
+      "cellular-adaptation",
+      "acute-inflammation-mediators",
+      "cell-injury-reversible-irreversible",
+      "necrosis-types",
+      "wound-healing-fibrosis"
+    ]
+  },
+  {
+    "regionId": "hdt-hemodynamic-disorders",
+    "title": "血液動力學障礙（栓塞・梗塞・休克）",
+    "targetDepth": "full",
+    "leafIds": [
+      "shock-infarct",
+      "thrombosis-embolism"
+    ]
+  },
+  {
+    "regionId": "hdt-immunity-infection-genetics",
+    "title": "免疫、感染與遺傳疾病",
+    "targetDepth": "full",
+    "leafIds": [
+      "bacterial-spirochete-infections",
+      "viral-infection-pathology",
+      "chromosomal-numerical-disorders",
+      "hypersensitivity-reactions",
+      "autoimmune-connective-tissue-disease"
+    ]
+  },
+  {
+    "regionId": "hdt-neoplasia",
+    "title": "腫瘤學總論",
+    "targetDepth": "full",
+    "leafIds": [
+      "carcinogenesis-oncogenes-tumor-suppressors",
+      "carcinogens-environmental-toxicology",
+      "tumor-biology-hallmarks",
+      "epidemiology-cancer-risk-inference"
+    ]
+  },
+  {
+    "regionId": "hdt-cardiovascular",
+    "title": "心臟病理（含動脈粥狀硬化）",
+    "targetDepth": "brief",
+    "leafIds": [
+      "myocardial-infarction",
+      "congenital-heart-disease",
+      "endocarditis",
+      "cardiomyopathy",
+      "atherosclerosis"
+    ]
+  },
+  {
+    "regionId": "hdt-hematolymphoid",
+    "title": "造血與淋巴系統病理",
+    "targetDepth": "brief",
+    "leafIds": [
+      "bleeding-disorders-coagulopathy",
+      "anemia-classification",
+      "cll-and-spleen-thymus-disorders",
+      "non-hodgkin-lymphoma",
+      "acute-leukemia",
+      "myeloproliferative-neoplasms",
+      "hodgkin-lymphoma",
+      "plasma-cell-disorders-multiple-myeloma"
+    ]
+  },
+  {
+    "regionId": "hdt-respiratory",
+    "title": "呼吸系統病理",
+    "targetDepth": "brief",
+    "leafIds": [
+      "lung-carcinoma",
+      "ards-diffuse-alveolar-damage",
+      "pulmonary-vascular-disease",
+      "interstitial-lung-disease",
+      "pneumonia-classification",
+      "copd-emphysema-chronic-bronchitis",
+      "pleural-disease-atelectasis"
+    ]
+  },
+  {
+    "regionId": "hdt-hepatobiliary-pancreas",
+    "title": "肝膽胰病理",
+    "targetDepth": "full",
+    "leafIds": [
+      "viral-hepatitis",
+      "autoimmune-cholestatic-liver-disease",
+      "gallbladder-biliary-pancreatic-inflammation"
+    ]
+  },
+  {
+    "regionId": "hdt-git-luminal",
+    "title": "消化道病理（口腔・胃食道・腸道）",
+    "targetDepth": "full",
+    "leafIds": [
+      "oral-and-salivary-gland-lesions",
+      "gastritis-peptic-ulcer",
+      "inflammatory-bowel-disease",
+      "colorectal-neoplasia-and-polyposis"
+    ]
+  },
+  {
+    "regionId": "hdt-renal-endocrine",
+    "title": "腎臟泌尿與內分泌病理",
+    "targetDepth": "full",
+    "leafIds": [
+      "tubulointerstitial-disease",
+      "glomerulonephritis",
+      "pituitary-adrenal-disease",
+      "thyroid-disease",
+      "parathyroid-disease",
+      "diabetes-mellitus-pathology"
+    ]
+  },
+  {
+    "regionId": "hdt-female-reproductive-breast",
+    "title": "女性生殖與乳房病理",
+    "targetDepth": "full",
+    "leafIds": [
+      "cervical-dysplasia-hpv",
+      "gestational-trophoblastic-disease",
+      "ovarian-germ-cell-sex-cord-tumors",
+      "breast-benign-lesions"
+    ]
+  },
+  {
+    "regionId": "hdt-male-reproductive",
+    "title": "男性生殖系統病理",
+    "targetDepth": "full",
+    "leafIds": [
+      "testicular-germ-cell-tumors",
+      "testicular-epididymal-inflammation-cryptorchidism",
+      "prostate-disease"
+    ]
+  },
+  {
+    "regionId": "hdt-neuro",
+    "title": "神經系統病理",
+    "targetDepth": "brief",
+    "leafIds": [
+      "cerebral-herniation",
+      "peripheral-nerve-injury-repair",
+      "cns-infection",
+      "cns-tumors",
+      "neurodegenerative-disease"
+    ]
+  },
+  {
+    "regionId": "hdt-msk-eye-skin",
+    "title": "骨骼肌肉、眼與皮膚病理",
+    "targetDepth": "brief",
+    "leafIds": [
+      "metabolic-bone-disease-and-osteoarthritis",
+      "bone-tumors",
+      "ophthalmic-pathology",
+      "skin-immunobullous-inflammatory"
+    ]
+  }
+]

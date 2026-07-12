@@ -1,0 +1,100 @@
+[
+  {
+    "regionId": "hdt-biostatistics",
+    "title": "生物統計",
+    "targetDepth": "full",
+    "leafIds": [
+      "confidence-interval-hypothesis-testing",
+      "t-test-anova",
+      "correlation-and-regression",
+      "descriptive-statistics-measurement-scales",
+      "nonparametric-and-chi-square-tests",
+      "probability-and-sampling-distribution"
+    ]
+  },
+  {
+    "regionId": "hdt-epi-study-design",
+    "title": "流行病學研究設計",
+    "targetDepth": "full",
+    "leafIds": [
+      "cohort-and-observational-study-design",
+      "case-control-study-design",
+      "randomized-controlled-trial",
+      "ecological-study-design"
+    ]
+  },
+  {
+    "regionId": "hdt-epi-measures-screening",
+    "title": "疾病測量、偏差、篩檢、監測與人口指標",
+    "targetDepth": "full",
+    "leafIds": [
+      "disease-frequency-measures",
+      "bias-confounding-effect-modification",
+      "screening-test-validity",
+      "infectious-disease-epidemiology",
+      "demography-population-health-indicators"
+    ]
+  },
+  {
+    "regionId": "hdt-environmental-health",
+    "title": "環境衛生",
+    "targetDepth": "full",
+    "leafIds": [
+      "environmental-risk-assessment",
+      "air-pollutants-classification",
+      "air-quality-index-and-monitoring",
+      "climate-change-and-greenhouse-gases",
+      "water-quality-and-treatment",
+      "food-safety-and-foodborne-hazards"
+    ]
+  },
+  {
+    "regionId": "hdt-occupational-medicine",
+    "title": "職業醫學",
+    "targetDepth": "brief",
+    "leafIds": [
+      "occupational-exposure-limits",
+      "occupational-environmental-heavy-metals",
+      "ergonomics-and-physical-hazards",
+      "radiation-hazards",
+      "occupational-carcinogens",
+      "pneumoconiosis-and-dust-hazards"
+    ]
+  },
+  {
+    "regionId": "hdt-health-systems",
+    "title": "衛生行政、醫療體系與健保制度",
+    "targetDepth": "full",
+    "leafIds": [
+      "health-care-financing-expenditure",
+      "national-health-insurance-taiwan",
+      "health-insurance-payment-systems",
+      "health-administration-organization",
+      "hospital-management-tools",
+      "long-term-care"
+    ]
+  },
+  {
+    "regionId": "hdt-medical-law-ethics",
+    "title": "醫事法規與醫學倫理",
+    "targetDepth": "brief",
+    "leafIds": [
+      "physician-act-and-medical-practice-law",
+      "medical-ethics-informed-consent"
+    ]
+  },
+  {
+    "regionId": "hdt-promotion-prevention",
+    "title": "健康促進、行為科學與預防醫學",
+    "targetDepth": "full",
+    "leafIds": [
+      "health-promotion-program-evaluation",
+      "healthy-settings-community-health-literacy",
+      "individual-behavior-change-models",
+      "interpersonal-and-mass-media-theories",
+      "social-determinants-of-health",
+      "three-levels-five-stages-prevention",
+      "substance-abuse-and-harm-reduction"
+    ]
+  }
+]

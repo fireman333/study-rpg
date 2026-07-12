@@ -1,0 +1,65 @@
+[
+  {
+    "regionId": "hdt-nematodes",
+    "title": "線蟲",
+    "targetDepth": "full",
+    "leafIds": [
+      "intestinal-nematodes-soil-transmitted",
+      "foodborne-tissue-nematodes",
+      "lymphatic-and-subcutaneous-filariasis",
+      "angiostrongyliasis-and-larva-migrans"
+    ]
+  },
+  {
+    "regionId": "hdt-trematodes",
+    "title": "吸蟲",
+    "targetDepth": "full",
+    "leafIds": [
+      "liver-and-intestinal-flukes",
+      "schistosomiasis",
+      "paragonimiasis-and-ectopic-lesions"
+    ]
+  },
+  {
+    "regionId": "hdt-cestodes",
+    "title": "絛蟲",
+    "targetDepth": "full",
+    "leafIds": [
+      "echinococcosis-and-small-tapeworms",
+      "taeniasis-and-cysticercosis",
+      "diphyllobothriasis-and-sparganosis"
+    ]
+  },
+  {
+    "regionId": "hdt-luminal-freeliving-protozoa",
+    "title": "原蟲（一）：腸道、腔道與自由生活原蟲",
+    "targetDepth": "full",
+    "leafIds": [
+      "free-living-amoebae-and-flagellates",
+      "intestinal-luminal-amoebae"
+    ]
+  },
+  {
+    "regionId": "hdt-blood-tissue-protozoa",
+    "title": "原蟲（二）：血液與組織原蟲",
+    "targetDepth": "full",
+    "leafIds": [
+      "malaria-plasmodium",
+      "leishmaniasis",
+      "trypanosomiasis",
+      "babesiosis",
+      "toxoplasmosis"
+    ]
+  },
+  {
+    "regionId": "hdt-arthropod-vectors",
+    "title": "病媒節肢動物與外寄生蟲",
+    "targetDepth": "full",
+    "leafIds": [
+      "louse-flea-mechanical-vectors",
+      "tick-borne-disease",
+      "scrub-typhus-chigger-mite",
+      "dust-mite-allergy"
+    ]
+  }
+]

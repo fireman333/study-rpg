@@ -1,0 +1,188 @@
+[
+  {
+    "regionId": "hdt-general-principles",
+    "title": "藥理總論（藥物動力學・受體・交互作用）",
+    "targetDepth": "full",
+    "leafIds": [
+      "pharmacokinetics-adme",
+      "receptor-pharmacodynamics",
+      "drug-drug-interaction-cyp"
+    ]
+  },
+  {
+    "regionId": "hdt-autonomic",
+    "title": "自主神經系統藥物（膽鹼性・腎上腺素性）",
+    "targetDepth": "full",
+    "leafIds": [
+      "cholinergic-agonists-ache-inhibitors",
+      "antimuscarinic-respiratory-copd",
+      "antimuscarinic-central-antiparkinson-antiemetic",
+      "antimuscarinic-genitourinary-eye",
+      "neuromuscular-blocking-drugs",
+      "alpha-adrenergic-agonists",
+      "beta-adrenergic-agonists",
+      "alpha-adrenergic-antagonists"
+    ]
+  },
+  {
+    "regionId": "hdt-antihypertensives",
+    "title": "利尿劑與抗高血壓藥物",
+    "targetDepth": "full",
+    "leafIds": [
+      "diuretics",
+      "vasodilator-ccb-antihypertensives",
+      "raas-antihypertensives",
+      "beta-blockers-cardiovascular"
+    ]
+  },
+  {
+    "regionId": "hdt-cardiac",
+    "title": "心臟藥物（心衰・心律不整・缺血・肺高壓）",
+    "targetDepth": "full",
+    "leafIds": [
+      "heart-failure-drugs",
+      "antiarrhythmic-drugs",
+      "antianginal-drugs",
+      "pulmonary-hypertension-drugs"
+    ]
+  },
+  {
+    "regionId": "hdt-hemostasis",
+    "title": "止血與抗栓藥物",
+    "targetDepth": "full",
+    "leafIds": [
+      "anticoagulants",
+      "antiplatelet-drugs",
+      "thrombolytics-antifibrinolytics"
+    ]
+  },
+  {
+    "regionId": "hdt-lipid-heme-immuno",
+    "title": "血脂・造血・免疫調節藥物",
+    "targetDepth": "full",
+    "leafIds": [
+      "lipid-lowering-drugs",
+      "hematopoietic-growth-factors",
+      "immunosuppressants"
+    ]
+  },
+  {
+    "regionId": "hdt-reproductive-adrenal",
+    "title": "生殖・腎上腺・腦下垂體荷爾蒙",
+    "targetDepth": "full",
+    "leafIds": [
+      "sex-hormones-antagonists",
+      "glucocorticoids",
+      "pituitary-growth-hormone-axis",
+      "vasopressin-adh-drugs"
+    ]
+  },
+  {
+    "regionId": "hdt-metabolic-hormones",
+    "title": "代謝內分泌藥物（糖尿病・甲狀腺・骨代謝）",
+    "targetDepth": "full",
+    "leafIds": [
+      "antidiabetic-drugs",
+      "thyroid-drugs",
+      "calcium-bone-metabolism-drugs"
+    ]
+  },
+  {
+    "regionId": "hdt-gi-respiratory",
+    "title": "胃腸道與呼吸道藥物",
+    "targetDepth": "full",
+    "leafIds": [
+      "gi-motility-antiemetics",
+      "peptic-ulcer-drugs",
+      "asthma-anti-inflammatory-drugs",
+      "bronchodilators"
+    ]
+  },
+  {
+    "regionId": "hdt-autacoid-antiinflammatory",
+    "title": "自泌素與抗發炎藥物",
+    "targetDepth": "full",
+    "leafIds": [
+      "prostaglandins-uterine-drugs",
+      "nsaids-cox-inhibitors",
+      "histamine-serotonin-autacoid-pharmacology",
+      "gout-drugs",
+      "anti-rheumatic-biologics"
+    ]
+  },
+  {
+    "regionId": "hdt-cns-gaba",
+    "title": "抗癲癇・鎮靜安眠・成癮藥物（GABA／神經興奮性）",
+    "targetDepth": "full",
+    "leafIds": [
+      "antiepileptic-drugs",
+      "sedative-hypnotics-benzodiazepines",
+      "substance-use-alcohol-pharmacology"
+    ]
+  },
+  {
+    "regionId": "hdt-anesthesia-opioid",
+    "title": "麻醉與鴉片類止痛藥物",
+    "targetDepth": "full",
+    "leafIds": [
+      "anesthetics-general-and-local",
+      "opioid-analgesics"
+    ]
+  },
+  {
+    "regionId": "hdt-psychiatric-neurodegen",
+    "title": "精神・神經退化・偏頭痛藥物",
+    "targetDepth": "brief",
+    "leafIds": [
+      "antidepressant-drugs",
+      "antipsychotic-drugs",
+      "antiparkinsonian-drugs",
+      "migraine-drugs",
+      "alzheimer-disease-drugs"
+    ]
+  },
+  {
+    "regionId": "hdt-antibiotics-core",
+    "title": "抗生素 I（細胞壁與蛋白質合成抑制劑）",
+    "targetDepth": "brief",
+    "leafIds": [
+      "penicillins",
+      "cephalosporins",
+      "carbapenems-and-monobactams",
+      "vancomycin-glycopeptides",
+      "aminoglycosides",
+      "tetracyclines",
+      "macrolides-clindamycin"
+    ]
+  },
+  {
+    "regionId": "hdt-antimicrobials-other",
+    "title": "抗生素 II・抗結核・抗黴菌・抗病毒",
+    "targetDepth": "brief",
+    "leafIds": [
+      "sulfonamides-trimethoprim",
+      "antimycobacterial-drugs",
+      "antifungal-drugs",
+      "antiviral-drugs-herpes-hiv-hbv"
+    ]
+  },
+  {
+    "regionId": "hdt-antineoplastics",
+    "title": "抗腫瘤藥物",
+    "targetDepth": "full",
+    "leafIds": [
+      "targeted-anticancer-mab-tki",
+      "anticancer-alkylating-antimetabolite",
+      "anticancer-antimitotic-antibiotic"
+    ]
+  },
+  {
+    "regionId": "hdt-toxicology-antidotes",
+    "title": "毒理學與解毒劑",
+    "targetDepth": "full",
+    "leafIds": [
+      "specific-antidotes-non-metal",
+      "heavy-metal-poisoning-chelators"
+    ]
+  }
+]

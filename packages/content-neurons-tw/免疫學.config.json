@@ -1,0 +1,81 @@
+[
+  {
+    "regionId": "hdt-innate-immunity-and-components",
+    "title": "先天免疫與免疫系統組成",
+    "targetDepth": "full",
+    "leafIds": [
+      "lymphoid-organs-and-cell-trafficking",
+      "innate-vs-adaptive-immunity-overview",
+      "phagocytes-and-innate-effector-cells",
+      "complement-system",
+      "pattern-recognition-receptors-tlr-nlr",
+      "type-i-interferon-antiviral-response"
+    ]
+  },
+  {
+    "regionId": "hdt-antigen-recognition-and-lymphocyte-development",
+    "title": "抗原辨認與淋巴球發育",
+    "targetDepth": "full",
+    "leafIds": [
+      "tcr-mhc-restricted-antigen-recognition",
+      "tcr-and-bcr-gene-rearrangement-v-d-j",
+      "b-and-t-lymphocyte-developmental-checkpoints"
+    ]
+  },
+  {
+    "regionId": "hdt-adaptive-effector-t-and-b-cells",
+    "title": "適應性免疫效應：T 與 B 細胞",
+    "targetDepth": "full",
+    "leafIds": [
+      "cd4-t-helper-subset-differentiation",
+      "cytotoxic-lymphocyte-killing-mechanisms-ctl-nk",
+      "immunoglobulin-structure-and-fc-function",
+      "tfh-cells-and-germinal-center-b-cell-help",
+      "antibody-class-switch-and-somatic-hypermutation"
+    ]
+  },
+  {
+    "regionId": "hdt-tolerance-hypersensitivity-autoimmunity",
+    "title": "免疫耐受、過敏與自體免疫",
+    "targetDepth": "full",
+    "leafIds": [
+      "self-tolerance-central-and-peripheral",
+      "type-i-hypersensitivity-ige-and-allergy",
+      "hypersensitivity-types-ii-iii-iv",
+      "autoimmune-disease-mechanisms",
+      "autoimmune-biologics-and-immunotherapy",
+      "hygiene-hypothesis"
+    ]
+  },
+  {
+    "regionId": "hdt-host-defense-and-immunodeficiency",
+    "title": "宿主防禦與免疫缺損",
+    "targetDepth": "full",
+    "leafIds": [
+      "immunodeficiency-primary-and-acquired",
+      "hyper-igm-and-hyper-ige-syndromes",
+      "mucosal-immunity-iga-and-microbiota",
+      "mycobacterial-defense-and-il12-ifng-axis"
+    ]
+  },
+  {
+    "regionId": "hdt-transplant-and-immunosuppression",
+    "title": "移植免疫與免疫抑制",
+    "targetDepth": "brief",
+    "leafIds": [
+      "transplant-rejection-hyperacute-acute-chronic",
+      "gvhd-and-immune-privileged-sites",
+      "immunosuppressive-drugs-and-corticosteroids"
+    ]
+  },
+  {
+    "regionId": "hdt-tumor-immunology-and-vaccines",
+    "title": "腫瘤免疫、疫苗與免疫治療",
+    "targetDepth": "full",
+    "leafIds": [
+      "cancer-immunosurveillance-and-immunoediting",
+      "cancer-immunotherapy-checkpoint-and-monoclonal-antibody",
+      "vaccine-types-and-immunology"
+    ]
+  }
+]
