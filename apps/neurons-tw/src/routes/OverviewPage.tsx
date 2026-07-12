@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
 import {
@@ -108,6 +108,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const [rescueInitialFamily, setRescueInitialFamily] = useState<string | undefined>(undefined)
   const rescuePlans = useRescuePlans()
   const location = useLocation()
+  const navigate = useNavigate()
   // 模考 moved off the homepage → 題庫 tab (tidy-neurons-homepage-ui); its picker +
   // pure-practice drill now live in QuestionBankPage. The ⚔️ 錯題出征 CTA now lives
   // in the merged ConnectomeStatCard (redesign-neurons-homepage-cta).
@@ -398,8 +399,9 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     setTargetedDrill({ familyId })
   }
 
-  // 考前救急: open the rescue scene. From the header entry `familyId` is undefined (setup
-  // defaults to the first / active family); from a card's rescue chip it is that family.
+  // 考前救急: open a specific family's rescue scene. Since fold-rescue-list-into-exam-prep-hub the
+  // header entry no longer calls this (it navigates to /cram); this now only serves a card's rescue
+  // chip and the `?rescue=<familyId>` return-loop below — both pass a concrete family.
   const openRescue = (familyId?: string): void => {
     setRescueInitialFamily(familyId)
     setRescueOpen(true)
@@ -915,6 +917,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         mazeHintByFamily={mazeHintByFamily}
         rescueChipByFamily={rescueChipByFamily}
         onOpenRescue={openRescue}
+        onOpenExamHub={() => navigate('/cram')}
       />
 
       {/* Lofi 電台 — 收合式、OFF-by-default 彩蛋，塞在迷宮/科目格下方 (add-neurons-lofi-radio) */}

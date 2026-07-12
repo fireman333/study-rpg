@@ -89,9 +89,13 @@ interface Props {
    * WeaknessIndicator row with its own rescue chip; a family absent from the map keeps its
    * normal weakness indicator. Multiple plans coexist — this is a per-family map, not one id. */
   rescueChipByFamily?: Map<string, { d: number; score: number }>
-  /** Open the rescue scene — from the header entry (no family → overview list) or a card's
-   * rescue chip (its family → that family's scene). */
-  onOpenRescue?: (familyId?: string) => void
+  /** Open a specific family's rescue scene directly — used by a card's rescue chip
+   * (fold-rescue-list-into-exam-prep-hub: the header entry no longer calls this; it now
+   * navigates to the hub via onOpenExamHub). */
+  onOpenRescue?: (familyId: string) => void
+  /** Navigate to the 考前中心 hub (/cram) — the header「考前救急」entry's action
+   * (fold-rescue-list-into-exam-prep-hub); the hub's rescue status strip is the plan list. */
+  onOpenExamHub?: () => void
 }
 
 export function FamilyPicker({
@@ -112,6 +116,7 @@ export function FamilyPicker({
   mazeHintByFamily,
   rescueChipByFamily,
   onOpenRescue,
+  onOpenExamHub,
 }: Props): JSX.Element {
   const reducedMotion = useRespectsReducedMotion()
   // Each family card's header sprite shows that family's REPRESENTATIVE variant (the one the player
@@ -137,14 +142,15 @@ export function FamilyPicker({
           </span>
           {/* 考前救急 header entry — always-on, NOT gated by the per-card pressure≥0.45 drill
               threshold (neurons-homepage delta): the subjects most needing rescue (thin history
-              / exam-imminent) must still be reachable. One header-level entry naturally carries
-              the "one rescue at a time" constraint. */}
-          {onOpenRescue && (
+              / exam-imminent) must still be reachable. Since fold-rescue-list-into-exam-prep-hub
+              this navigates to the 考前中心 hub (whose rescue strip is the plan list), rather than
+              opening a homepage overlay; it stays the single top-level homepage rescue entry. */}
+          {onOpenExamHub && (
             <button
               type="button"
               style={rescueEntryBtnStyle}
-              onClick={() => onOpenRescue()}
-              title="鎖定一科、綁定考試日，考前聚焦最大化單科分數"
+              onClick={onOpenExamHub}
+              title="到考前中心，鎖定一科、綁定考試日，考前聚焦最大化單科分數"
             >
               <EmojiIcon char="⏱️" size={13} decorative /> 考前救急
             </button>
