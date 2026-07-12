@@ -1,0 +1,167 @@
+[
+  {
+    "regionId": "hdt-amino-acid-protein",
+    "title": "胺基酸與蛋白質結構功能",
+    "targetDepth": "full",
+    "leafIds": [
+      "amino-acid-structure-properties",
+      "protein-secondary-tertiary-structure-and-folding",
+      "protein-quaternary-structure-and-chaperones",
+      "hemoglobin-myoglobin-oxygen-binding",
+      "protein-purification-analysis-methods"
+    ]
+  },
+  {
+    "regionId": "hdt-enzyme-vitamin-coenzyme",
+    "title": "酵素學、維生素與輔酶",
+    "targetDepth": "full",
+    "leafIds": [
+      "enzyme-kinetics-michaelis-menten",
+      "enzyme-catalytic-mechanism-classification",
+      "water-soluble-vitamins-b-c",
+      "fat-soluble-vitamins-adek",
+      "nucleotide-coenzyme-derivatives"
+    ]
+  },
+  {
+    "regionId": "hdt-carb-lipid-membrane",
+    "title": "醣類、脂質與生物膜結構",
+    "targetDepth": "brief",
+    "leafIds": [
+      "carbohydrate-structure-glycosidic-bonds",
+      "membrane-lipid-composition-structure",
+      "membrane-transport-mechanisms",
+      "membrane-protein-topology-transport"
+    ]
+  },
+  {
+    "regionId": "hdt-carbohydrate-metabolism",
+    "title": "醣類代謝",
+    "targetDepth": "full",
+    "leafIds": [
+      "glycolysis-pathway-regulation",
+      "gluconeogenesis-pathway-regulation",
+      "glycogen-metabolism-synthesis-degradation",
+      "pentose-phosphate-pathway",
+      "cancer-metabolism-warburg-effect",
+      "glutathione-redox-function"
+    ]
+  },
+  {
+    "regionId": "hdt-tca-oxphos",
+    "title": "丙酮酸、TCA 循環與氧化磷酸化",
+    "targetDepth": "full",
+    "leafIds": [
+      "pyruvate-dehydrogenase-complex",
+      "tca-cycle-enzymes-intermediates",
+      "electron-transport-chain-complexes",
+      "oxidative-phosphorylation-atp-synthase"
+    ]
+  },
+  {
+    "regionId": "hdt-lipid-metabolism",
+    "title": "脂質代謝",
+    "targetDepth": "brief",
+    "leafIds": [
+      "fatty-acid-beta-oxidation",
+      "fatty-acid-lipogenesis-biosynthesis",
+      "ketone-body-metabolism",
+      "cholesterol-bile-acid-metabolism",
+      "phospholipid-sphingolipid-metabolism",
+      "eicosanoid-biosynthesis-function",
+      "lipoprotein-metabolism"
+    ]
+  },
+  {
+    "regionId": "hdt-nitrogen-metabolism",
+    "title": "含氮化合物代謝",
+    "targetDepth": "full",
+    "leafIds": [
+      "purine-pyrimidine-nucleotide-metabolism",
+      "amino-acid-catabolism-inborn-errors",
+      "urea-cycle-ammonia-transport",
+      "transamination-nitrogen-shuttle",
+      "amino-acid-derived-biogenic-molecules",
+      "one-carbon-metabolism-folate",
+      "heme-porphyrin-metabolism"
+    ]
+  },
+  {
+    "regionId": "hdt-dna-structure-replication-repair",
+    "title": "核酸結構、DNA 複製與修復",
+    "targetDepth": "full",
+    "leafIds": [
+      "nucleic-acid-primary-secondary-structure",
+      "dna-replication-machinery-ecoli",
+      "dna-polymerase-replication-fidelity",
+      "dna-replication-machinery-eukaryotic",
+      "dna-topoisomerase-supercoiling",
+      "dna-repair-pathways",
+      "homologous-site-specific-recombination"
+    ]
+  },
+  {
+    "regionId": "hdt-transcription-gene-regulation",
+    "title": "轉錄與基因表現調控",
+    "targetDepth": "full",
+    "leafIds": [
+      "transcription-rna-polymerase-mechanism",
+      "rna-processing-splicing-stability",
+      "operon-gene-regulation-prokaryotic",
+      "dna-methylation-chromatin-epigenetics",
+      "eukaryotic-transcription-factor-motifs"
+    ]
+  },
+  {
+    "regionId": "hdt-translation-protein-fate",
+    "title": "轉譯、轉譯後修飾與蛋白質降解",
+    "targetDepth": "full",
+    "leafIds": [
+      "translation-initiation-mechanism",
+      "translation-elongation-termination",
+      "genetic-code-wobble-hypothesis",
+      "aminoacyl-trna-synthetase-function",
+      "protein-post-translational-modification",
+      "ubiquitin-proteasome-degradation"
+    ]
+  },
+  {
+    "regionId": "hdt-molecular-biology-techniques",
+    "title": "分子生物技術與核酸標的藥物",
+    "targetDepth": "brief",
+    "leafIds": [
+      "cloning-vectors-and-gene-transfer",
+      "molecular-analysis-techniques",
+      "pcr-sequencing-molecular-techniques",
+      "reverse-transcriptase-retroviral-biology",
+      "antibiotics-nucleic-acid-protein-synthesis-inhibitors",
+      "antimetabolite-antiviral-nucleoside-drugs"
+    ]
+  },
+  {
+    "regionId": "hdt-signaling-receptors-second-messengers",
+    "title": "訊息傳遞（一）：GPCR、第二傳訊者與核受體",
+    "targetDepth": "full",
+    "leafIds": [
+      "nuclear-receptor-steroid-hormone-signaling",
+      "gpcr-structure-signaling",
+      "gpcr-camp-pka-signaling",
+      "plc-ip3-dag-calcium-signaling",
+      "guanylyl-cyclase-cgmp-signaling"
+    ]
+  },
+  {
+    "regionId": "hdt-kinase-cellcycle-apoptosis",
+    "title": "訊息傳遞（二）：受體激酶、細胞週期與凋亡",
+    "targetDepth": "brief",
+    "leafIds": [
+      "receptor-tyrosine-kinase-signaling",
+      "ras-mapk-signaling-oncogenes",
+      "pi3k-akt-signaling",
+      "jak-stat-cytokine-signaling",
+      "insulin-signaling-metabolic-effects",
+      "cell-cycle-cyclin-cdk-regulation",
+      "apoptosis-signaling-pathways"
+    ]
+  }
+]

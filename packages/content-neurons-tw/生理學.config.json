@@ -1,0 +1,157 @@
+[
+  {
+    "regionId": "hdt-cell-membrane",
+    "title": "細胞生理與膜運輸",
+    "targetDepth": "full",
+    "leafIds": [
+      "membrane-transport-mechanisms",
+      "membrane-potential-and-equilibrium",
+      "cell-organelle-function-and-apoptosis",
+      "cell-membrane-composition-and-fluidity",
+      "astrocyte-and-glial-function",
+      "enzyme-kinetics-and-catalysis"
+    ]
+  },
+  {
+    "regionId": "hdt-neuro-core",
+    "title": "神經傳導與中樞整合",
+    "targetDepth": "full",
+    "leafIds": [
+      "synaptic-transmission-and-neurotransmitters",
+      "autonomic-nervous-system-organization-and-effects",
+      "higher-cortical-and-limbic-function",
+      "hypothalamic-regulatory-functions",
+      "motor-control-hierarchy-and-motor-neuron-disorders",
+      "proprioception-and-spinal-reflexes",
+      "sleep-stages-and-eeg",
+      "cerebellar-function"
+    ]
+  },
+  {
+    "regionId": "hdt-senses",
+    "title": "感覺系統（特殊感覺＋體感覺）",
+    "targetDepth": "brief",
+    "leafIds": [
+      "vision-retina-and-phototransduction",
+      "visual-pathway-and-lesion-localization",
+      "hearing-and-vestibular-function",
+      "somatosensory-pathways-and-referred-pain",
+      "olfaction-and-gustation",
+      "sensory-receptor-coding-and-adaptation"
+    ]
+  },
+  {
+    "regionId": "hdt-muscle",
+    "title": "肌肉生理",
+    "targetDepth": "full",
+    "leafIds": [
+      "skeletal-muscle-excitation-contraction-coupling",
+      "smooth-muscle-physiology-and-muscle-type-comparison",
+      "skeletal-muscle-mechanics-and-energetics",
+      "muscle-fiber-types-and-fatigue"
+    ]
+  },
+  {
+    "regionId": "hdt-blood",
+    "title": "血液生理",
+    "targetDepth": "brief",
+    "leafIds": [
+      "hemostasis-and-coagulation-cascade",
+      "hemoglobin-oxygen-binding-and-acid-base-buffering",
+      "erythropoiesis-and-red-cell-physiology",
+      "white-blood-cells-and-phagocytes",
+      "blood-groups-and-transfusion-reactions"
+    ]
+  },
+  {
+    "regionId": "hdt-cardiovascular",
+    "title": "心血管生理",
+    "targetDepth": "full",
+    "leafIds": [
+      "arterial-blood-pressure-and-baroreflex",
+      "cardiac-output-contractility-and-venous-return",
+      "cardiac-cycle-and-heart-sounds",
+      "vascular-hemodynamics-and-local-blood-flow-regulation",
+      "cardiac-action-potential-mechanisms",
+      "electrocardiogram-interpretation",
+      "capillary-fluid-exchange-and-lymphatics"
+    ]
+  },
+  {
+    "regionId": "hdt-respiratory",
+    "title": "呼吸生理",
+    "targetDepth": "full",
+    "leafIds": [
+      "mechanics-of-breathing",
+      "ventilation-perfusion-and-gas-diffusion",
+      "co2-transport-and-acid-base-interpretation",
+      "chemoreceptor-control-and-altitude-exercise-adaptation",
+      "lung-volumes-and-capacities",
+      "obstructive-and-restrictive-lung-disease-physiology",
+      "respiratory-control-center-and-muscles"
+    ]
+  },
+  {
+    "regionId": "hdt-renal",
+    "title": "腎臟與體液生理",
+    "targetDepth": "full",
+    "leafIds": [
+      "sodium-and-potassium-handling-along-nephron",
+      "adh-regulation-water-balance-and-osmolarity-disorders",
+      "gfr-and-renal-clearance-calculation",
+      "countercurrent-mechanism-and-urine-concentration",
+      "renal-autoregulation-and-tubuloglomerular-feedback",
+      "glucose-handling-in-renal-tubule",
+      "renal-acid-base-regulation"
+    ]
+  },
+  {
+    "regionId": "hdt-digestive",
+    "title": "消化生理",
+    "targetDepth": "full",
+    "leafIds": [
+      "gi-hormones-and-regulatory-peptides",
+      "gi-motility-patterns",
+      "bile-formation-and-lipid-vitamin-absorption",
+      "gastric-acid-secretion-and-regulation",
+      "enteric-nervous-system-and-reflexes",
+      "carbohydrate-and-protein-digestion-absorption"
+    ]
+  },
+  {
+    "regionId": "hdt-endocrine-pituitary-thyroid",
+    "title": "內分泌 I：腦下垂體軸・甲狀腺・鈣磷",
+    "targetDepth": "full",
+    "leafIds": [
+      "hypothalamic-pituitary-axis-overview",
+      "thyroid-hormone-synthesis-and-action",
+      "growth-hormone-and-prolactin-regulation",
+      "calcium-phosphate-homeostasis-pth-vitamin-d"
+    ]
+  },
+  {
+    "regionId": "hdt-endocrine-adrenal-pancreas",
+    "title": "內分泌 II：腎上腺・胰島與能量代謝",
+    "targetDepth": "full",
+    "leafIds": [
+      "cortisol-actions-cushing-syndrome-and-circadian-regulation",
+      "mineralocorticoid-aldosterone-regulation",
+      "adrenal-cortex-steroidogenesis",
+      "stress-response-and-catecholamine-hormones",
+      "insulin-secretion-action-and-energy-metabolism"
+    ]
+  },
+  {
+    "regionId": "hdt-reproductive",
+    "title": "生殖生理",
+    "targetDepth": "brief",
+    "leafIds": [
+      "menstrual-cycle-and-menopause-physiology",
+      "testicular-function-and-spermatogenesis",
+      "ovarian-folliculogenesis-and-oogenesis",
+      "pregnancy-labor-and-lactation-physiology",
+      "sex-differentiation-and-embryonic-development",
+      "male-hpg-axis-and-disorders"
+    ]
+  }
+]

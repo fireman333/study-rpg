@@ -28,6 +28,14 @@ const SUBJECT_META: Record<string, { order: number; title: string }> = {
   解剖學: { order: 0, title: '解剖學 考前講義' },
   組織學: { order: 1, title: '組織學 考前講義' },
   胚胎學: { order: 2, title: '胚胎學 考前講義' },
+  生理學: { order: 3, title: '生理學 考前講義' },
+  藥理學: { order: 4, title: '藥理學 考前講義' },
+  病理學: { order: 5, title: '病理學 考前講義' },
+  寄生蟲學: { order: 6, title: '寄生蟲學 考前講義' },
+  微生物學: { order: 7, title: '微生物學 考前講義' },
+  生物化學: { order: 8, title: '生物化學 考前講義' },
+  公共衛生學: { order: 9, title: '公共衛生學 考前講義' },
+  免疫學: { order: 10, title: '免疫學 考前講義' },
 }
 
 // ── Region → blueprint-chapter map ────────────────────────────────────────────────────────
@@ -189,6 +197,10 @@ for (const [qid, leaves] of Object.entries(conceptTags)) {
     ;(leafToQids.get(leaf) ?? leafToQids.set(leaf, []).get(leaf)!).push(qid)
   }
 }
+// qid → home subject, so each subject's 區測驗 pool can be scoped to its own questions. A few leaves
+// straddle two subjects' domains (e.g. 細胞膜運輸 spans 生理學/生物化學); without this, the global
+// leafToQids would leak the other subject's questions into this handout's pool. Mirrors mine.mjs.
+const qSubject = new Map(loadDist<{ id: string; subject: string }[]>('questions.json').map((q) => [q.id, q.subject]))
 
 const subjects: HandoutSubject[] = fragFiles
   .map((f) => {
@@ -196,7 +208,12 @@ const subjects: HandoutSubject[] = fragFiles
     const html = readFileSync(join(FRAG_DIR, f), 'utf8').trim()
     lint(subjectId, html)
     const meta = SUBJECT_META[subjectId]
-    const chapterQuizzes = buildChapterQuizzes(subjectId, html, rec, leafToQids)
+    // Scope the pool to this subject's own questions (no-op for subjects whose leaves don't overlap
+    // another subject's domain; trims the 生理學↔生物化學 cross-domain leak on 細胞膜 leaves).
+    const subjectLeafToQids = new Map(
+      [...leafToQids].map(([leaf, qids]): [string, string[]] => [leaf, qids.filter((qid) => qSubject.get(qid) === subjectId)]),
+    )
+    const chapterQuizzes = buildChapterQuizzes(subjectId, html, rec, subjectLeafToQids)
     return { subjectId, title: meta?.title ?? `${subjectId} 考前講義`, html, chapterQuizzes, _order: meta?.order ?? 99 }
   })
   .sort((a, b) => a._order - b._order)
