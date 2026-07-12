@@ -8,6 +8,12 @@
  */
 import type { HandoutChapterQuiz } from './handout-types'
 
+/**
+ * HTML `.hdt-region` ids that intentionally carry no quiz / config entry — the 一週攻略地圖 study-strategy
+ * overview at the top of each subject. Exempt from the config↔HTML drift check (they have no leaves).
+ */
+export const NON_QUIZ_REGION_IDS = new Set(['hdt-overview'])
+
 export interface RegionConfig {
   regionId: string
   title: string
@@ -49,12 +55,15 @@ export function buildRegionKeyedQuizzes(
     if (!assigned.has(leaf))
       throw new Error(`${subjectId} canonical leaf "${leaf}" unassigned to any region (leaf partition incomplete → orphan questions)`)
 
-  // Bidirectional config ↔ HTML region-id drift.
+  // Bidirectional config ↔ HTML region-id drift. Non-quiz regions (the 一週攻略地圖 overview) are
+  // exempt from needing a config entry — they carry no leaves / no 測驗本區 CTA (mirrors the
+  // chapter-keyed path, which `continue`s on an unmapped region id like hdt-overview).
   const configIds = new Set(config.map((r) => r.regionId))
   for (const r of config)
     if (!htmlRegionIds.includes(r.regionId)) throw new Error(`config region "${r.regionId}" has no HTML .hdt-region (${subjectId})`)
   for (const rid of htmlRegionIds)
-    if (!configIds.has(rid)) throw new Error(`HTML region "${rid}" has no config entry (${subjectId})`)
+    if (!configIds.has(rid) && !NON_QUIZ_REGION_IDS.has(rid))
+      throw new Error(`HTML region "${rid}" has no config entry (${subjectId})`)
 
   return config.map((r) => {
     const sourceQuestionIds = [...new Set(r.leafIds.flatMap((l) => leafToQids.get(l) ?? []))]

@@ -623,6 +623,33 @@ const SECTIONS: Section[] = [
           <strong>多科可以並存</strong>，各自的考試日與佇列分開算。考試日<strong>當天早上</strong>有一份
           約 15 分鐘的速掃（前一天修正過的重點 + 高頻卡）。登入 Google 後計畫與進度<strong>跨裝置同步</strong>。
         </p>
+        <p>
+          戰情圖上的每個<strong>概念</strong>都可以點 —— 點下去直接跳到該科<strong>考前講義</strong>的對應章節，
+          補完概念再按「<strong>← 回救急</strong>」回到戰情圖繼續測，形成「診斷 → 補讀 → 再測」的閉環。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'handout',
+    icon: '📖',
+    title: '考前講義',
+    body: (
+      <>
+        <p>
+          <strong>教學型</strong>的長文講義，<strong>第一次唸也看得懂</strong>：依各科的組織／系統分區整理高頻重點，
+          適合<strong>考前一週</strong>系統複習。入口在「<strong>題庫</strong>」分頁的「<strong>考前講義</strong>」。
+        </p>
+        <p>
+          每科開頭有一張「<strong>🗺️ 一週攻略地圖</strong>」——建議的唸書順序與各區重點；內文依章節分區，
+          每一區底下可以「<strong>測驗本區／本章</strong>」直接練該區的考古題。科目選單依<strong>考卷順序</strong>排列
+          （醫學一在前、醫學二在後）。
+        </p>
+        <p>
+          跟<strong>考前救急</strong>是搭配的：在戰情圖點一個弱點概念，會直接開到這裡的對應章節；讀完按「
+          <strong>← 回救急</strong>」回去繼續測。<strong>救急負責診斷「該讀哪裡」，講義負責「為什麼、怎麼記」</strong>，
+          兩邊交替效果最好。內容依歷屆頻率收斂 —— <strong>頻率高 ≠ 今年一定考</strong>。
+        </p>
       </>
     ),
   },
@@ -704,7 +731,7 @@ const CATEGORIES: HelpCategory[] = [
     id: 'questions-review',
     icon: '📚',
     label: '題目與複習',
-    sectionIds: ['question-bank', 'bookmark', 'wrong-review', 'rescue', 'source-pdf'],
+    sectionIds: ['question-bank', 'bookmark', 'wrong-review', 'rescue', 'handout', 'source-pdf'],
   },
   {
     id: 'expedition-repair',
