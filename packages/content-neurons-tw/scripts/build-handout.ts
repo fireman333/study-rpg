@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join, basename } from 'node:path'
 import type { HandoutData, HandoutSubject, HandoutChapterQuiz } from '../src/handout/handout-types'
 import { buildRegionKeyedQuizzes, type RegionConfig } from '../src/handout/build-region-quizzes'
+import { injectLeafAnchors, type LeafAnchorResult } from '../src/handout/leaf-anchor-gate'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = join(__dirname, '..')
@@ -96,6 +97,37 @@ function regionKeyedQuizzesFromConfig(
     return buildRegionKeyedQuizzes(subjectId, config, canonicalLeaves, htmlRegionIds, leafToQids)
   } catch (e) {
     console.error(`✗ regionQuiz: ${(e as Error).message}`)
+    process.exit(1)
+  }
+}
+
+/**
+ * Canonical (region-bearing) leaf set for a subject — the leaf-anchor gate's validation domain.
+ * Pluggable seam: config-keyed subjects (the 10 with a `<subjectId>.config.json`) take the union of
+ * their config leafIds (each is region-bearing by the region-keyed partition contract); the legacy
+ * chapter-keyed 解剖學 (no config) derives its set from concept-recurrence — all of its leaves map to
+ * a REGION_TO_CHAPTER chapter, so they are all region-bearing. Add a new adapter branch here (not in
+ * the gate) if a future subject uses neither shape.
+ */
+function canonicalLeavesForSubject(subjectId: string, rec: ConceptRecurrence): Set<string> {
+  const configPath = join(PKG, `${subjectId}.config.json`)
+  if (existsSync(configPath)) {
+    const config = JSON.parse(readFileSync(configPath, 'utf8')) as RegionConfig[]
+    return new Set(config.flatMap((r) => r.leafIds))
+  }
+  return new Set(rec.concepts.filter((c) => c.subjectId === subjectId).map((c) => c.leafId))
+}
+
+/**
+ * Thin build wrapper around the pure `injectLeafAnchors`: converts a contract violation (unknown leaf
+ * token / duplicate primary anchor) into a loud `process.exit(1)`, mirroring the region-drift guards.
+ * The pure logic lives in src/handout/leaf-anchor-gate.ts so it is unit-testable.
+ */
+function gateLeafAnchors(subjectId: string, html: string, canonicalLeaves: Set<string>): LeafAnchorResult {
+  try {
+    return injectLeafAnchors(subjectId, html, canonicalLeaves)
+  } catch (e) {
+    console.error(`✗ leaf-anchor gate: ${(e as Error).message}`)
     process.exit(1)
   }
 }
@@ -202,11 +234,19 @@ for (const [qid, leaves] of Object.entries(conceptTags)) {
 // leafToQids would leak the other subject's questions into this handout's pool. Mirrors mine.mjs.
 const qSubject = new Map(loadDist<{ id: string; subject: string }[]>('questions.json').map((q) => [q.id, q.subject]))
 
+const coverageReport: { subjectId: string; anchored: number; total: number }[] = []
 const subjects: HandoutSubject[] = fragFiles
   .map((f) => {
     const subjectId = basename(f, '.html')
-    const html = readFileSync(join(FRAG_DIR, f), 'utf8').trim()
-    lint(subjectId, html)
+    const rawHtml = readFileSync(join(FRAG_DIR, f), 'utf8').trim()
+    lint(subjectId, rawHtml)
+    // Leaf-anchor gate (INDEPENDENT of the region drift check): validate `data-leaf-ids` tokens +
+    // inject stable topic ids. The transformed html (ids added, data-leaf-ids passed through) is what
+    // ships in handout.json and drives the (subject, leaf) resolver.
+    const canonicalLeaves = canonicalLeavesForSubject(subjectId, rec)
+    const gated = gateLeafAnchors(subjectId, rawHtml, canonicalLeaves)
+    const html = gated.html
+    coverageReport.push({ subjectId, anchored: gated.anchoredLeaves.length, total: gated.totalLeaves })
     const meta = SUBJECT_META[subjectId]
     // Scope the pool to this subject's own questions (no-op for subjects whose leaves don't overlap
     // another subject's domain; trims the 生理學↔生物化學 cross-domain leak on 細胞膜 leaves).
@@ -232,3 +272,10 @@ console.log(
     .map((s) => `${s.subjectId} (${(s.html.length / 1024).toFixed(0)}KB, ${s.chapterQuizzes?.length ?? 0} 章測驗)`)
     .join(', ')}`,
 )
+// Leaf-anchor coverage (anchored primary / region-bearing leaves). NEVER a fail — a leaf with no
+// primary topic anchor degrades to region-level resolution; the number just makes the gap visible.
+console.log('  leaf-anchor coverage (anchored primary / region-bearing leaves):')
+for (const c of [...coverageReport].sort((a, b) => a.subjectId.localeCompare(b.subjectId))) {
+  const pct = c.total > 0 ? Math.round((c.anchored / c.total) * 100) : 0
+  console.log(`    ${c.subjectId}: ${c.anchored}/${c.total} (${pct}%)`)
+}

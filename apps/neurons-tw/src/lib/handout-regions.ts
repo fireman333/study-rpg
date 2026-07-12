@@ -36,6 +36,59 @@ export function resolveLeafToRegion(
   return null
 }
 
+/**
+ * Two-segment (subject, leaf) resolution outcome for a `?leaf=` deep-link (neurons-unit-correspondence).
+ *  - `anchor`   — the leaf has a primary topic sub-anchor in the rendered subject → scroll to it.
+ *  - `region`   — no anchor, but the leaf maps to a region in this subject → scroll to that region.
+ *  - `unavailable` — no anchor and no region (cross-subject leak / 送分 / disputed) → inline note.
+ */
+export type LeafResolution =
+  | { kind: 'anchor'; anchorId: string }
+  | { kind: 'region'; regionId: string; isChapter: boolean }
+  | { kind: 'unavailable' }
+
+/**
+ * Find a leaf's PRIMARY topic sub-anchor id in the currently-rendered handout DOM. Subject-scoped BY
+ * CONSTRUCTION — the scene renders only the active subject, so the `[data-leaf-ids~="…"]` query can
+ * never cross subjects (a `leafId` is NOT unique across subjects; 68 are shared). Returns the element
+ * id or null. DOM-dependent (jsdom / browser); returns null with no DOM. The `~=` selector matches a
+ * whitespace-separated token, so a multi-value `data-leaf-ids` resolves the right topic.
+ */
+export function findLeafAnchorId(
+  leafId: string,
+  root: ParentNode | null = typeof document === 'undefined' ? null : document,
+): string | null {
+  if (!root || !leafId) return null
+  try {
+    // leafIds are `[a-z0-9-]` slugs; escape defensively so an unexpected char can't break the selector.
+    const el = root.querySelector(`[data-leaf-ids~="${leafId.replace(/["\\]/g, '\\$&')}"]`) as HTMLElement | null
+    return el?.id || null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Two-segment `(subject, leaf)` resolver for the handout `?leaf=` deep-link. Cascade:
+ *   1. leaf's primary topic anchor (DOM, subject-scoped)  →
+ *   2. leaf's region (resolveLeafToRegion over the SUBJECT'S OWN chapterQuizzes)  →
+ *   3. unavailable.
+ * NEVER a global `leafId → anchor` map. `findAnchor` is injected (defaults to `findLeafAnchorId`) so
+ * the cascade is unit-testable under the `node` test env (no DOMParser). Callers MUST treat
+ * `unavailable` as "no section" — never a region 0 / subject 0 fallback.
+ */
+export function resolveLeafTarget(
+  leafId: string,
+  chapterQuizzes: HandoutChapterQuiz[] | undefined,
+  findAnchor: (leafId: string) => string | null = findLeafAnchorId,
+): LeafResolution {
+  const anchorId = findAnchor(leafId)
+  if (anchorId) return { kind: 'anchor', anchorId }
+  const region = resolveLeafToRegion(chapterQuizzes, leafId)
+  if (region) return { kind: 'region', regionId: region.regionId, isChapter: region.isChapter }
+  return { kind: 'unavailable' }
+}
+
 export interface HandoutRegion {
   id: string
   /** Heading text WITH its authored leading emoji (as shown in-content). */

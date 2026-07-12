@@ -10,7 +10,7 @@
  * The user-facing label is 考古; the internal cram.json field is still `push` (unchanged).
  * Data is lazy-fetched cram.json (useCram); questions resolve from the loaded ContentPack.
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { ContentPack, Question } from '@study-rpg/core'
 import type { CramBlock, CramPushItem } from '@study-rpg/content-neurons-tw'
@@ -46,8 +46,20 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
     return m
   }, [pack.questions])
 
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null)
-  const [drawerFor, setDrawerFor] = useState<string | null>(null) // `${subjectId}::${leafId}`
+  // `?subject=` / `?push=` deep-link from the handout「本單元猜題」reverse link (neurons-unit-
+  // correspondence): auto-select the subject + open that leaf's 押題 drawer, resolved synchronously so
+  // the first render already targets the right subject. Read-only URL query; zero persistent state.
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(() =>
+    typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('subject'),
+  )
+  const [drawerFor, setDrawerFor] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    const p = new URLSearchParams(window.location.search)
+    const subj = p.get('subject')
+    const push = p.get('push')
+    return subj && push ? `${subj}::${push}` : null // `${subjectId}::${leafId}`
+  })
+  const pushScrollConsumedRef = useRef(false)
   const [methodOpen, setMethodOpen] = useState(false)
   const [practice, setPractice] = useState<{ pool: Question[]; label: string } | null>(null)
 
@@ -70,6 +82,20 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
       alive = false
     }
   }, [])
+
+  // Scroll the deep-linked 押題 into view once (after cram loads + the subject panel renders). Keyed by
+  // the `push-<leafId>` li id; guarded so it fires once. Deferred one paint so the 62-item list + the
+  // auto-opened evidence drawer have laid out before we measure (an eager scroll lands short).
+  useEffect(() => {
+    if (pushScrollConsumedRef.current || !cram || !drawerFor) return
+    const leaf = drawerFor.split('::')[1]
+    if (!leaf || !document.getElementById(`push-${leaf}`)) return
+    pushScrollConsumedRef.current = true
+    const t = window.setTimeout(() => {
+      document.getElementById(`push-${leaf}`)?.scrollIntoView({ behavior: 'auto', block: 'center' })
+    }, 250)
+    return () => window.clearTimeout(t)
+  }, [cram, drawerFor])
 
   if (!cram) {
     return (
@@ -176,7 +202,11 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
             {active.blocks.length > 0 && (
               <div style={blocksWrapStyle}>
                 {active.blocks.map((b, i) => (
-                  <CramBlockView key={i} block={b} />
+                  <CramBlockView
+                    key={i}
+                    block={b}
+                    onOpenHandout={() => navigate(`/cram/handout?subject=${encodeURIComponent(active.subjectId)}`)}
+                  />
                 ))}
               </div>
             )}
@@ -203,13 +233,25 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                 const tier = TIER_STYLE[item.tier] ?? TIER_STYLE['穩定考點']
                 const covered = item.sourceQuestionIds.some((id) => consolidatedIds.has(id))
                 return (
-                  <li key={item.leafId} style={pushItemStyle}>
+                  <li key={item.leafId} id={`push-${item.leafId}`} style={pushItemStyle}>
                     <div style={pushRowStyle}>
                       <span style={pushZhStyle}>{item.zh}</span>
                       <span style={{ ...tierChipStyle, color: tier.color, background: tier.bg }}>
                         {tier.icon} {item.tier}
                       </span>
                       {covered && <span style={coveredChipStyle}>✓ 已固化過</span>}
+                      {/* Leaf-level deep-link to this unit's teaching handout (push is leaf-native). */}
+                      <button
+                        type="button"
+                        style={pushHandoutBtnStyle}
+                        onClick={() =>
+                          navigate(
+                            `/cram/handout?subject=${encodeURIComponent(item.subjectId)}&leaf=${encodeURIComponent(item.leafId)}`,
+                          )
+                        }
+                      >
+                        📖 看講義
+                      </button>
                     </div>
                     <button
                       type="button"
@@ -293,7 +335,7 @@ function CramEvidenceDrawer({
 }
 
 /** Render one 速看 CramBlock by kind. */
-function CramBlockView({ block }: { block: CramBlock }): JSX.Element {
+function CramBlockView({ block, onOpenHandout }: { block: CramBlock; onOpenHandout: () => void }): JSX.Element {
   return (
     <div style={blockStyle}>
       <h4 style={blockHeadingStyle}>{block.heading}</h4>
@@ -360,6 +402,12 @@ function CramBlockView({ block }: { block: CramBlock }): JSX.Element {
           ))}
         </div>
       )}
+      {/* Subject-level (NOT unit-level) deep-link to the teaching handout: 速看 is a cross-concept
+          discriminator table, so a single-leaf binding would give false precision (neurons-unit-
+          correspondence D5). Muted footer link. */}
+      <button type="button" style={blockHandoutLinkStyle} onClick={onOpenHandout}>
+        📖 開啟本科講義
+      </button>
     </div>
   )
 }
@@ -390,6 +438,9 @@ const pushItemStyle: React.CSSProperties = { border: '1px solid #e2d4b0', border
 const pushRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }
 const pushZhStyle: React.CSSProperties = { fontSize: '0.88rem', color: '#2a2118', fontFamily: 'var(--font-legible)', fontWeight: 600 }
 const tierChipStyle: React.CSSProperties = { fontSize: '0.7rem', borderRadius: 999, padding: '0.05rem 0.45rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
+// 押題 → 講義 (leaf-level) + 速看 → 講義 (subject-level) deep-link affordances (neurons-unit-correspondence).
+const pushHandoutBtnStyle: React.CSSProperties = { marginLeft: 'auto', fontSize: '0.72rem', border: '1px solid #6a8c3f', background: '#eef4e2', color: '#4c6a2b', borderRadius: 999, padding: '0.1rem 0.55rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
+const blockHandoutLinkStyle: React.CSSProperties = { marginTop: '0.5rem', border: 0, background: 'transparent', color: '#4c6a2b', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)', padding: '0.1rem 0', borderBottom: '1px dashed #6a8c3f' }
 // Positive coverage imprint — shown only on covered items; never a count/%/denominator.
 const coveredChipStyle: React.CSSProperties = { fontSize: '0.68rem', color: '#2f6b45', background: '#d5ecd9', border: '1px solid #a9d4b5', borderRadius: 999, padding: '0.05rem 0.4rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
 const countChipStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #d8c39a', background: '#f8f2e2', borderRadius: 6, padding: '0.15rem 0.5rem', fontSize: '0.76rem', color: '#5a4a33', cursor: 'pointer', fontFamily: 'var(--font-legible)', width: '100%', textAlign: 'left' }
