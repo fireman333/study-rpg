@@ -210,7 +210,13 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
 
     const saved = Number(localStorage.getItem(lastReadKey(active.subjectId)) || 0)
     root.scrollTo({ top: Number.isFinite(saved) ? saved : 0 })
-  }, [active?.subjectId, regions.length, jumpTo])
+    // `mounted` MUST be a dep: the scroll container (scrollRef) only renders once `mounted` is true
+    // (portal). On a client-side nav from a rescue chip the handout bundle is already module-cached,
+    // so `active` + `regions` are ready on the FIRST (mounted=false) render — the effect runs once
+    // with a null root, bails BEFORE consuming the deep-link, and without `mounted` in deps never
+    // re-runs → the deep-link silently lands on top. (Full-page loads dodged this only because the
+    // bundle arrives via async fetch AFTER mount, so regions.length flips 0→N post-mount.)
+  }, [active?.subjectId, regions.length, jumpTo, mounted])
 
   // Reverse link「本單元猜題」(neurons-unit-correspondence): after the subject's teaching HTML is in
   // the DOM (dangerouslySetInnerHTML) and cram has loaded, imperatively append a cram deep-link button
@@ -247,7 +253,9 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
       document.getElementById(landedTargetRef.current)?.scrollIntoView({ behavior: 'auto', block: 'start' })
       landedTargetRef.current = null
     }
-  }, [active?.subjectId, regions.length, cramPushLeaves])
+    // `mounted` dep for the same reason as the deep-link effect: on a cached-bundle client-side nav
+    // the scroll container isn't attached on the first render, so re-run once it mounts.
+  }, [active?.subjectId, regions.length, cramPushLeaves, mounted])
 
   // Cancel the one-shot post-injection re-scroll the moment the user genuinely interacts (wheel /
   // touch / key) — programmatic `scrollIntoView`/`scrollTo` never fire these, so the landing
