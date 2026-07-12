@@ -7,7 +7,8 @@
  * is exercised by the browser e2e pass instead (vitest runs under the `node` environment here).
  */
 import { describe, it, expect } from 'vitest'
-import { stripLeadingEmoji, deriveToc, type HandoutRegion } from '../lib/handout-regions'
+import { stripLeadingEmoji, deriveToc, resolveLeafToRegion, type HandoutRegion } from '../lib/handout-regions'
+import type { HandoutChapterQuiz } from '@study-rpg/content-neurons-tw'
 
 describe('stripLeadingEmoji', () => {
   it('strips the leading emoji from every authored 解剖學 region heading', () => {
@@ -55,5 +56,48 @@ describe('deriveToc', () => {
 
   it('returns an empty list for no regions', () => {
     expect(deriveToc([])).toEqual([])
+  })
+})
+
+describe('resolveLeafToRegion', () => {
+  // A region-keyed subject (組織學-style): each chapterQuiz maps to exactly ONE region.
+  const regionKeyed: HandoutChapterQuiz[] = [
+    { regionId: 'hdt-cell', label: '細胞', memberRegionIds: ['hdt-cell'], leafIds: ['organelles', 'membrane-transport'] },
+    { regionId: 'hdt-epi', label: '上皮', memberRegionIds: ['hdt-epi'], leafIds: ['epithelium'] },
+  ]
+  // A chapter-keyed subject (解剖學-style): a chapter bundles >1 region; CTA anchors the LAST
+  // region (`regionId`), so the deep-link target must be the HEAD (`memberRegionIds[0]`).
+  const chapterKeyed: HandoutChapterQuiz[] = [
+    {
+      regionId: 'hdt-neuro-cortex', // chapter END (CTA)
+      label: '神經解剖',
+      memberRegionIds: ['hdt-neuro-tracts', 'hdt-neuro-cortex'],
+      leafIds: ['ascending-tracts', 'cortex'],
+    },
+  ]
+
+  it('region-keyed leaf → its single region, isChapter false', () => {
+    expect(resolveLeafToRegion(regionKeyed, 'epithelium')).toEqual({ regionId: 'hdt-epi', isChapter: false })
+    expect(resolveLeafToRegion(regionKeyed, 'organelles')).toEqual({ regionId: 'hdt-cell', isChapter: false })
+  })
+
+  it('chapter-keyed leaf → the chapter HEAD (memberRegionIds[0]), not the CTA regionId, isChapter true', () => {
+    expect(resolveLeafToRegion(chapterKeyed, 'cortex')).toEqual({ regionId: 'hdt-neuro-tracts', isChapter: true })
+    expect(resolveLeafToRegion(chapterKeyed, 'ascending-tracts')).toEqual({ regionId: 'hdt-neuro-tracts', isChapter: true })
+  })
+
+  it('unresolved leaf (no chapter owns it) → null, never a fallback', () => {
+    expect(resolveLeafToRegion(regionKeyed, 'disputed-only-leaf')).toBeNull()
+    expect(resolveLeafToRegion(undefined, 'anything')).toBeNull()
+    expect(resolveLeafToRegion([], 'anything')).toBeNull()
+  })
+
+  it('is subject-scoped: the same leafId resolves per the passed subject\'s quizzes, not globally', () => {
+    // 'membrane-transport' is a leaf shared across 生理/生化; each subject passes its OWN quizzes.
+    const physiology: HandoutChapterQuiz[] = [
+      { regionId: 'hdt-phys-transport', label: '運輸', memberRegionIds: ['hdt-phys-transport'], leafIds: ['membrane-transport'] },
+    ]
+    expect(resolveLeafToRegion(regionKeyed, 'membrane-transport')).toEqual({ regionId: 'hdt-cell', isChapter: false })
+    expect(resolveLeafToRegion(physiology, 'membrane-transport')).toEqual({ regionId: 'hdt-phys-transport', isChapter: false })
   })
 })

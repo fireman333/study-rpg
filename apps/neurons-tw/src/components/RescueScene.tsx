@@ -15,10 +15,13 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
 import type { ContentPack } from '@study-rpg/core'
 import { QuizModal } from './QuizModal'
 import { EmojiIcon } from './EmojiIcon'
 import { useCram } from '../lib/cram'
+import { loadHandout } from '../lib/handout'
+import { resolveLeafToRegion } from '../lib/handout-regions'
 import { useConceptTags, conceptLabel } from '../lib/concept-tags'
 import { useQuestionHistory } from '../lib/services/question-history'
 import { useAllFlags } from '../lib/services/question-flags'
@@ -324,6 +327,52 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
       { band: 'grey' as const, label: '尚未診斷', items: grey, cap: 3 },
     ]
   }, [warMap, subjectId])
+
+  // 戰情圖 → 考前講義 deep-link (add-neurons-handout-rescue-deeplink). A tapped concept lazily loads
+  // the (module-cached, ~3 MB) handout bundle, resolves its leaf → region for THIS subject, then
+  // navigates. `handoutBusy` drives per-chip aria-busy; `handoutNote` surfaces the two null cases
+  // (no region vs bundle load failure); `handoutNavRef` guards a rapid double-tap across chips.
+  const navigate = useNavigate()
+  const [handoutBusy, setHandoutBusy] = useState<string | null>(null)
+  const [handoutNote, setHandoutNote] = useState<{ conceptId: string; zh: string; kind: 'no-region' | 'load-fail' } | null>(null)
+  const handoutNavRef = useRef(false)
+
+  const openConceptHandout = useCallback(
+    async (conceptId: string, zh: string): Promise<void> => {
+      if (handoutNavRef.current) return // double-tap guard: a resolution is already in flight
+      handoutNavRef.current = true
+      setHandoutNote(null)
+      setHandoutBusy(conceptId)
+      const data = await loadHandout()
+      if (!data) {
+        // Bundle failed to load — a retryable state, NOT the escape hatch (the handout top would
+        // fail on the same bundle). loadHandout resets its inflight so the retry actually re-fetches.
+        setHandoutNote({ conceptId, zh, kind: 'load-fail' })
+        setHandoutBusy(null)
+        handoutNavRef.current = false
+        return
+      }
+      const subj = data.subjects.find((s) => s.subjectId === subjectId)
+      const hit = subj ? resolveLeafToRegion(subj.chapterQuizzes, conceptId) : null
+      if (!hit) {
+        // Loaded fine but this leaf owns no region (e.g. a 送分/disputed-only leaf) — stay put with an
+        // escape hatch to the subject's handout top. Never navigate to a wrong region / region 0.
+        setHandoutNote({ conceptId, zh, kind: 'no-region' })
+        setHandoutBusy(null)
+        handoutNavRef.current = false
+        return
+      }
+      // Success: dismiss the overlay (hygiene; the route unmount also tears it down) then navigate.
+      onClose()
+      navigate(`/cram/handout?subject=${encodeURIComponent(subjectId)}&section=${encodeURIComponent(hit.regionId)}&from=rescue`)
+    },
+    [subjectId, navigate, onClose],
+  )
+
+  const openSubjectHandoutTop = useCallback((): void => {
+    onClose()
+    navigate(`/cram/handout?subject=${encodeURIComponent(subjectId)}&from=rescue`)
+  }, [subjectId, navigate, onClose])
 
   const d = plan ? computeRescueD(plan.examDate, todayISO()) : 0
   const phaseKind = plan ? rescuePhase(plan.examDate, todayISO()) : 'active'
@@ -782,7 +831,7 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                 <div style={warMapCardStyle}>
                   <div style={warMapHeadRowStyle}>
                     <span style={warMapTitleStyle}>戰情圖</span>
-                    <span style={warMapHintStyle}>先看紅色，尤其 ‼（有把握卻答錯）</span>
+                    <span style={warMapHintStyle}>先看紅色 ‼ · 點概念開講義</span>
                   </div>
                   {warSections.every((s) => s.items.length === 0) ? (
                     <p style={fallbackNoteStyle}>完成診斷題後，這裡會顯示紅／黃／灰弱點分布。</p>
@@ -797,11 +846,19 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                           </div>
                           <div style={warGridStyle}>
                             {sec.items.slice(0, sec.cap).map((c) => (
-                              <span key={c.conceptId} style={warChipStyle} title={WAR_BAND_LABEL[c.band]}>
+                              <button
+                                key={c.conceptId}
+                                type="button"
+                                style={sec.band === 'red' ? warChipRedBtnStyle : warChipBtnStyle}
+                                title={WAR_BAND_LABEL[c.band]}
+                                aria-label={`開啟講義：${c.zh}`}
+                                aria-busy={handoutBusy === c.conceptId}
+                                onClick={() => void openConceptHandout(c.conceptId, c.zh)}
+                              >
                                 {c.hiConfWrong && <span style={hiConfMarkStyle}>‼</span>}
                                 <i style={{ ...warDotStyle, background: WAR_BAND_COLOR[c.band] }} />
                                 {c.zh}
-                              </span>
+                              </button>
                             ))}
                             {sec.items.length > sec.cap && (
                               <span style={warMoreChipStyle}>+{sec.items.length - sec.cap}</span>
@@ -812,6 +869,32 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
                     )
                   )}
                 </div>
+
+                {/* 講義 deep-link outcome note: no-region → escape hatch to the subject handout top;
+                    load-fail → retry (never route to a handout that would fail on the same bundle). */}
+                {handoutNote && (
+                  <div style={handoutNoteStyle}>
+                    {handoutNote.kind === 'no-region' ? (
+                      <>
+                        <span>「{handoutNote.zh}」暫無對應講義段落。</span>
+                        <button type="button" style={handoutNoteBtnStyle} onClick={openSubjectHandoutTop}>
+                          開啟該科講義
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span>講義載入失敗。</span>
+                        <button
+                          type="button"
+                          style={handoutNoteBtnStyle}
+                          onClick={() => void openConceptHandout(handoutNote.conceptId, handoutNote.zh)}
+                        >
+                          重試
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* stop-loss re-read interstitial — below the map (an interrupt, not the nav) */}
                 {rereadCards.map((card) => (
@@ -1179,6 +1262,45 @@ const warChipStyle: React.CSSProperties = {
   padding: '0.2rem 0.6rem',
   fontSize: '0.82rem',
   color: '#4a3f28',
+}
+// Tappable chip (add-neurons-handout-rescue-deeplink): a button reset over the chip look so a tap
+// opens the 講義. Red (highest-priority) concepts get a stronger affordance.
+const warChipBtnStyle: React.CSSProperties = {
+  ...warChipStyle,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  lineHeight: 1.2,
+  textAlign: 'left',
+}
+const warChipRedBtnStyle: React.CSSProperties = {
+  ...warChipBtnStyle,
+  background: '#f6e4d8',
+  borderColor: '#cc9999',
+  boxShadow: '0 1px 0 rgba(196,77,77,0.22)',
+}
+const handoutNoteStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  flexWrap: 'wrap',
+  marginTop: '0.5rem',
+  padding: '0.5rem 0.7rem',
+  background: '#f0ece2',
+  border: '1px solid #d8c39a',
+  borderRadius: 10,
+  fontSize: '0.82rem',
+  color: '#5a4a2f',
+}
+const handoutNoteBtnStyle: React.CSSProperties = {
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  fontSize: '0.8rem',
+  fontWeight: 700,
+  color: '#4a3f28',
+  background: '#e2d6b8',
+  border: '1px solid #cbbb95',
+  borderRadius: 999,
+  padding: '0.2rem 0.7rem',
 }
 const warDotStyle: React.CSSProperties = { width: 9, height: 9, borderRadius: '50%', display: 'inline-block' }
 const hiConfMarkStyle: React.CSSProperties = { color: '#c44d4d', fontWeight: 800 }

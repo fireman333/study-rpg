@@ -23,7 +23,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import type { ContentPack, Question } from '@study-rpg/core'
-import { useHandout } from '../lib/handout'
+import { useHandout, orderSubjectsByExamPaper } from '../lib/handout'
 import type { HandoutSubject } from '../lib/handout'
 import { deriveRegions, deriveToc } from '../lib/handout-regions'
 import type { HandoutTocEntry } from '../lib/handout-regions'
@@ -43,7 +43,18 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
   const navigate = useNavigate()
   const data = useHandout()
   const [mounted, setMounted] = useState(false)
-  const [subjectId, setSubjectId] = useState<string | null>(null)
+  // Read `?subject=` SYNCHRONOUSLY on first render (add-neurons-handout-rescue-deeplink): the
+  // deep-link is consume-once and regions derive from `active` on the very first render, so a
+  // cross-subject deep-link must pick its subject before that — a useEffect would derive
+  // subjects[0] first and silently mis-land on the default subject's last-read position.
+  const [subjectId, setSubjectId] = useState<string | null>(() =>
+    typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('subject'),
+  )
+  // Whether we arrived from a rescue war-map chip — surfaces a 「← 回救急」 return control that
+  // closes the diagnose → read → re-test loop back to that subject's 戰情圖 (URL-transient, zero state).
+  const [fromRescue] = useState(() =>
+    typeof window === 'undefined' ? false : new URLSearchParams(window.location.search).get('from') === 'rescue',
+  )
   const [tocOpen, setTocOpen] = useState(false)
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
@@ -64,7 +75,8 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
     }
   }, [])
 
-  const subjects: HandoutSubject[] = data?.subjects ?? []
+  // Order the subject picker by exam-paper sequence (醫學一 then 醫學二) — see orderSubjectsByExamPaper.
+  const subjects: HandoutSubject[] = useMemo(() => orderSubjectsByExamPaper(data?.subjects ?? []), [data?.subjects])
   const active: HandoutSubject | null =
     subjects.find((s) => s.subjectId === subjectId) ?? subjects[0] ?? null
 
@@ -134,10 +146,15 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
     if (!root) return
     const deepLink = deepLinkConsumedRef.current ? null : readDeepLinkSection()
     deepLinkConsumedRef.current = true
-    if (deepLink && document.getElementById(deepLink)) {
+    const deepLinkEl = deepLink ? document.getElementById(deepLink) : null
+    if (deepLink && deepLinkEl) {
       // Instant jump (not smooth): a resume/share link should land directly on the target, and it
       // runs in the layout-ready useEffect so it needs no rAF (which would be throttled if hidden).
       jumpTo(deepLink, false)
+      // Transient landing cue so a deep-link that lands mid-document answers "did I arrive?" —
+      // pure visual, zero state (CSS `:target` is unreliable under replaceState).
+      deepLinkEl.classList.add('hdt-region--landed')
+      window.setTimeout(() => deepLinkEl.classList.remove('hdt-region--landed'), 2000)
       return
     }
     const saved = Number(localStorage.getItem(lastReadKey(active.subjectId)) || 0)
@@ -245,6 +262,15 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
         <span style={titleStyle}>📖 考前講義</span>
         <span style={betaChipStyle}>beta</span>
         {active && <span style={subjectChipStyle}>{active.subjectId}</span>}
+        {fromRescue && active && (
+          <button
+            type="button"
+            style={chromeBtnStyle}
+            onClick={() => navigate(`/?rescue=${encodeURIComponent(active.subjectId)}`)}
+          >
+            ← 回救急
+          </button>
+        )}
         {toc.length > 0 && (
           <button
             type="button"
@@ -560,6 +586,11 @@ const SCENE_CSS = `
 .hdt-quiz-signpost:hover { color: ${GREEN_DK}; border-bottom-color: ${GREEN}; }
 
 .hdt-scene .hdt-region { scroll-margin-top: 8px; margin: 0 0 2.2rem; }
+/* Transient deep-link landing cue (add-neurons-handout-rescue-deeplink): a brief highlight that
+   fades on its own; removed after 2s in JS. Reduced-motion users still get the (static) fade. */
+.hdt-scene .hdt-region--landed { animation: hdt-land 2s ease-out; border-radius: 8px; }
+@keyframes hdt-land { from { background: rgba(216, 195, 154, 0.55); } to { background: transparent; } }
+@media print { .hdt-scene .hdt-region--landed { animation: none; background: transparent; } }
 .hdt-scene .hdt-region-block:first-child .hdt-region__head { margin-top: 0; }
 .hdt-scene .hdt-region__head {
   font-family: var(--font-pixel-cjk); font-size: 1.15rem; color: #fff; background: ${GREEN};

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { liveQuery } from 'dexie'
 import type { ContentPack } from '@study-rpg/core'
 import {
@@ -108,6 +109,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   const [rescueOpen, setRescueOpen] = useState(false)
   const [rescueInitialFamily, setRescueInitialFamily] = useState<string | undefined>(undefined)
   const rescuePlans = useRescuePlans()
+  const location = useLocation()
   // 模考 moved off the homepage → 題庫 tab (tidy-neurons-homepage-ui); its picker +
   // pure-practice drill now live in QuestionBankPage. The ⚔️ 錯題出征 CTA now lives
   // in the merged ConnectomeStatCard (redesign-neurons-homepage-cta).
@@ -416,6 +418,22 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     setRescueInitialFamily(familyId)
     setRescueOpen(true)
   }
+
+  // Rescue return deep-link (add-neurons-handout-rescue-deeplink): the 考前講義「← 回救急」button
+  // lands here with `?rescue=<familyId>` to reopen that subject's 戰情圖 (war map restored from the
+  // persisted plan). Keyed on `location.search` (NOT mount) because the handout is a portal route
+  // over a possibly-still-mounted OverviewPage — a mount-only effect would miss the client-side nav.
+  // Consume, then strip the param (replaceState is silent to react-router, so this won't re-fire).
+  // URL-transient — zero persistent state, no sync-carve-out contact.
+  useEffect(() => {
+    const familyId = new URLSearchParams(location.search).get('rescue')
+    if (!familyId) return
+    setRescueInitialFamily(familyId)
+    setRescueOpen(true)
+    const url = new URL(window.location.href)
+    url.searchParams.delete('rescue')
+    window.history.replaceState(null, '', url.pathname + url.search + url.hash)
+  }, [location.search])
 
   // DMN quick-review-batch: the toast CTA emits `dmn.quickReviewStart`; open the
   // expedition modal capped to ≤5 wrong questions. Clears credit the expedition
