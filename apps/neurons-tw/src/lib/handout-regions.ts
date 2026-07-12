@@ -6,6 +6,35 @@
  * each mapped chapter and (b) drive a sidebar TOC + scroll-spy. Kept side-effect-free (DOMParser
  * only) so it is unit-testable under jsdom without mounting the portal scene.
  */
+import type { HandoutChapterQuiz } from '@study-rpg/content-neurons-tw'
+
+export interface ResolvedRegion {
+  regionId: string
+  /** true when the leaf lives in a multi-region (chapter-keyed) chapter — target is the chapter HEAD. */
+  isChapter: boolean
+}
+
+/**
+ * Resolve a concept leaf → its handout region for ONE subject (rescue 戰情圖 → 講義 deep-link,
+ * add-neurons-handout-rescue-deeplink). Forward lookup over the subject's own `chapterQuizzes`; the
+ * caller MUST pass only the selected subject's quizzes — a `leafId` is NOT unique across subjects,
+ * so a global map would mis-jump. For a chapter-keyed chapter (`memberRegionIds.length > 1`) the
+ * target is the chapter HEAD (`memberRegionIds[0]`), NOT `regionId` (which anchors the chapter-END
+ * quiz CTA). Returns null when no chapter owns the leaf (e.g. a 送分/disputed-only leaf absent from
+ * the recurrence-derived region config) — callers MUST treat null as "no section", never fall back
+ * to region 0.
+ */
+export function resolveLeafToRegion(
+  chapterQuizzes: HandoutChapterQuiz[] | undefined,
+  leafId: string,
+): ResolvedRegion | null {
+  for (const cq of chapterQuizzes ?? []) {
+    if (cq.leafIds.includes(leafId)) {
+      return { regionId: cq.memberRegionIds[0] ?? cq.regionId, isChapter: cq.memberRegionIds.length > 1 }
+    }
+  }
+  return null
+}
 
 export interface HandoutRegion {
   id: string
