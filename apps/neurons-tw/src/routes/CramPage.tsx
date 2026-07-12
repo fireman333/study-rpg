@@ -20,6 +20,12 @@ import { getTodayPlanSnapshotIds } from '../lib/services/prescription'
 import { orderPracticePool } from '../lib/cram-practice-pool'
 import { QuestionReviewCard } from '../components/QuestionReviewCard'
 import { QuizModal } from '../components/QuizModal'
+import { EmojiIcon } from '../components/EmojiIcon'
+// 考前中心 hub (add-neurons-exam-prep-hub): rescue status strip + in-place RescueScene.
+import { useConceptTags } from '../lib/concept-tags'
+import { useRescuePlans } from '../lib/services/rescue/rescue-store'
+import { useRescueChips } from '../lib/services/rescue/useRescueChips'
+import { RescueScene } from '../components/RescueScene'
 
 const STAT_STAMP = '統計至 115-1'
 const SOURCE_PREVIEW_CAP = 6
@@ -70,6 +76,19 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
     () => new Set(history.filter((h) => h.lastResult === 'correct').map((h) => h.questionId)),
     [history],
   )
+
+  // 考前中心 hub rescue status strip: same per-family chip signal as the homepage (shared
+  // selector), and an in-place RescueScene overlay so 可點進場 opens the SAME plan without
+  // leaving /cram or route-izing the overlay (add-neurons-exam-prep-hub, design D2/D3).
+  const conceptTags = useConceptTags()
+  const rescuePlans = useRescuePlans()
+  const rescueChipByFamily = useRescueChips(rescuePlans, pack.questions, conceptTags, history)
+  const [rescueOpen, setRescueOpen] = useState(false)
+  const [rescueInitialFamily, setRescueInitialFamily] = useState<string | undefined>(undefined)
+  const openRescue = (familyId?: string): void => {
+    setRescueInitialFamily(familyId)
+    setRescueOpen(true)
+  }
   // Today's prescription snapshot ids (read-only; null when no plan yet) — used to
   // serve snapshot questions first in cram practice so the prescription payoff fires.
   const [snapshotIds, setSnapshotIds] = useState<Set<string> | null>(null)
@@ -113,30 +132,47 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
   const activeBook = cram.books.find((b) => b.subjects.some((s) => s.subjectId === activeId))
   const active = activeBook?.subjects.find((s) => s.subjectId === activeId) ?? null
 
+  // subjectId → display name, for the rescue status strip chips (cheap; runs post early-return).
+  const subjectNameById = new Map<string, string>()
+  for (const b of cram.books) for (const s of b.subjects) subjectNameById.set(s.subjectId, s.name)
+
   return (
     <div style={pageStyle}>
-      {/* ── Action buttons: 3 PDF downloads (row 1) + 講義/速看 entries (row 2). Two
-           semantic groups; layout + RWD live in styles.css (.cram-action-row). ── */}
-      <div className="cram-action-row">
-        <div className="cram-action-group">
-          <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
-            ⬇ 下載 醫學一 A4 PDF
-          </a>
-          <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學二.pdf`} download style={downloadBtnStyle}>
-            ⬇ 下載 醫學二 A4 PDF
-          </a>
-          <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`} download style={downloadBtnStyle}>
-            ⬇ 下載 5 分鐘速看 一頁 PDF
-          </a>
-        </div>
-        <div className="cram-action-group">
-          <button style={handoutEntryBtnStyle} onClick={() => navigate('/cram/handout')}>
-            考前講義(beta)
+      {/* ── 救急狀態條: reflects active rescue plans; click a chip to open the SAME RescueScene
+           in place (add-neurons-exam-prep-hub). No active plan → a create-rescue entry. ── */}
+      <div style={rescueStripStyle}>
+        {rescuePlans.length > 0 ? (
+          <>
+            <span style={rescueStripLabelStyle}>
+              <EmojiIcon char="⏱️" size={14} decorative /> 考前救急
+            </span>
+            {rescuePlans.map((plan) => {
+              const chip = rescueChipByFamily.get(plan.familyId)
+              const countdown = chip ? (chip.d <= 0 ? '考試日' : `D-${chip.d}`) : ''
+              return (
+                <button
+                  key={plan.familyId}
+                  type="button"
+                  style={rescueStripChipStyle}
+                  onClick={() => openRescue(plan.familyId)}
+                  title="開啟今日佇列"
+                >
+                  <span style={rescueStripStrongStyle}>{subjectNameById.get(plan.familyId) ?? plan.familyId}</span>
+                  {chip && (
+                    <span style={rescueStripMetaStyle}>
+                      {countdown} · RescueScore {chip.score}
+                    </span>
+                  )}
+                  <span style={rescueStripCtaStyle}>今日佇列 →</span>
+                </button>
+              )
+            })}
+          </>
+        ) : (
+          <button type="button" style={rescueStripEmptyBtnStyle} onClick={() => openRescue()}>
+            <EmojiIcon char="⏱️" size={14} decorative /> 建立考前救急 —— 鎖科目、綁考試日，排最能救分的題
           </button>
-          <button style={speedReviewEntryBtnStyle} onClick={() => navigate('/cram/5min')}>
-            五分鐘速看版
-          </button>
-        </div>
+        )}
       </div>
 
       {/* ── Persistent honesty header ── */}
@@ -161,25 +197,59 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
         )}
       </header>
 
-      {/* ── Subject filter chips (single-select, grouped by paper) ── */}
-      <div style={chipRowStyle} aria-label="科目篩選">
+      {/* ── Subject card grid (single-select picker; each card carries a 講義(beta) mini +
+           猜題 access; selecting surfaces that subject's 猜題 panel directly below) ── */}
+      <div role="group" aria-label="科目">
         {cram.books.map((book) => (
-          <div key={book.book} style={chipGroupStyle}>
+          <div key={book.book} style={subjectGroupStyle}>
             <span style={chipGroupLabelStyle}>{book.book}</span>
-            {book.subjects.map((s) => {
-              const isActive = s.subjectId === activeId
-              return (
-                <button
-                  key={s.subjectId}
-                  type="button"
-                  aria-pressed={isActive}
-                  style={{ ...filterChipStyle, ...(isActive ? filterChipActiveStyle : null) }}
-                  onClick={() => setSelectedSubject(s.subjectId)}
-                >
-                  {s.name}
-                </button>
-              )
-            })}
+            <div style={subjectGridStyle}>
+              {book.subjects.map((s) => {
+                const isActive = s.subjectId === activeId
+                const chip = rescueChipByFamily.get(s.subjectId)
+                return (
+                  <div
+                    key={s.subjectId}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isActive}
+                    style={{ ...subjectTileStyle, ...(isActive ? subjectTileActiveStyle : null) }}
+                    onClick={() => setSelectedSubject(s.subjectId)}
+                    onKeyDown={(e) => {
+                      // Only the tile itself selects on Enter/Space — let keydown from the nested
+                      // 講義(beta) button reach its own native activation (keydown bubbles; without
+                      // this guard, focusing 講義 + Enter would preventDefault the button AND select
+                      // the subject instead of opening the handout).
+                      if (e.target !== e.currentTarget) return
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelectedSubject(s.subjectId)
+                      }
+                    }}
+                  >
+                    <div style={tileHeadStyle}>
+                      <span style={tileNameStyle}>{s.name}</span>
+                      {chip && (
+                        <span style={tileRescueChipStyle}>
+                          <EmojiIcon char="⏱️" size={11} decorative /> {chip.d <= 0 ? '考試日' : `D-${chip.d}`}
+                        </span>
+                      )}
+                    </div>
+                    <span style={tileMetaStyle}>考古 {s.push.length} · 速看 {s.blocks.length}</span>
+                    <button
+                      type="button"
+                      style={tileHandoutMiniStyle}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        navigate(`/cram/handout?subject=${encodeURIComponent(s.subjectId)}`)
+                      }}
+                    >
+                      <EmojiIcon char="📖" size={13} decorative /> 講義(beta)
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         ))}
       </div>
@@ -225,13 +295,16 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
             </button>
 
             {/* 考古清單 (依重現度) */}
-            <h3 style={sectionLabelStyle}>🎯 考古清單（依重現度）</h3>
+            <h3 style={sectionLabelStyle}>
+              <EmojiIcon char="🎯" size={14} decorative /> 考古清單（依重現度）
+            </h3>
             <ul style={pushListStyle}>
               {active.push.map((item) => {
                 const dkey = `${active.subjectId}::${item.leafId}`
                 const drawerOpen = drawerFor === dkey
                 const tier = TIER_STYLE[item.tier] ?? TIER_STYLE['穩定考點']
                 const covered = item.sourceQuestionIds.some((id) => consolidatedIds.has(id))
+                const rchip = rescueChipByFamily.get(item.subjectId) // family rescue chip (if active plan)
                 return (
                   <li key={item.leafId} id={`push-${item.leafId}`} style={pushItemStyle}>
                     <div style={pushRowStyle}>
@@ -250,8 +323,30 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                           )
                         }
                       >
-                        📖 看講義
+                        <EmojiIcon char="📖" size={12} decorative /> 看講義
                       </button>
+                      {/* leaf context toolbar (cram-side, add-neurons-exam-prep-hub): 看講義 (above)
+                          + 練題 + 救急狀態 for this unit — the family-level rescue chip only, never
+                          per-leaf 戰情圖 band into content. Reuses existing deep-links / practice. */}
+                      <button
+                        type="button"
+                        style={leafToolBtnStyle}
+                        onClick={() => {
+                          const pool = orderPracticePool(resolve(item.sourceQuestionIds), snapshotIds)
+                          if (pool.length > 0) setPractice({ pool, label: item.zh })
+                        }}
+                      >
+                        <EmojiIcon char="✏️" size={12} decorative /> 練題
+                      </button>
+                      {rchip && (
+                        <button
+                          type="button"
+                          style={leafRescueBtnStyle}
+                          onClick={() => openRescue(item.subjectId)}
+                        >
+                          <EmojiIcon char="⏱️" size={12} decorative /> 救急 {rchip.d <= 0 ? '考試日' : `D-${rchip.d}`}
+                        </button>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -281,9 +376,38 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
         </article>
       )}
 
+      {/* ── 五分鐘速看: first-class entry card below the subject grid. Cross-11-subject,
+           zero-decision (no picker / no config) — open → swipe → out the door. ── */}
+      <button type="button" style={fiveMinCardStyle} onClick={() => navigate('/cram/5min')}>
+        <span style={fiveMinTitleStyle}>
+          <EmojiIcon char="⏳" size={16} decorative /> 五分鐘速看版
+        </span>
+        <span style={fiveMinSubStyle}>進考場前，11 科最高投報率精華一頁掃完</span>
+      </button>
+
+      {/* ── A4 PDF downloads (sunk to the bottom) ── */}
+      <div style={pdfSectionStyle}>
+        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
+          ⬇ 下載 醫學一 A4 PDF
+        </a>
+        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學二.pdf`} download style={downloadBtnStyle}>
+          ⬇ 下載 醫學二 A4 PDF
+        </a>
+        <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`} download style={downloadBtnStyle}>
+          ⬇ 下載 5 分鐘速看 一頁 PDF
+        </a>
+      </div>
+
       {/* Practice on-ramp — existing QuizModal in practice mode (no progression, wrong→錯題本→出征) */}
       {practice && (
         <QuizModal pool={practice.pool} practice preserveOrder creditCramRescue onClose={() => setPractice(null)} />
+      )}
+
+      {/* 考前救急 in place: same RescueScene overlay + same global plan store, mounted from the hub
+          so the strip / leaf 救急 buttons open it without leaving /cram (add-neurons-exam-prep-hub).
+          Only one RescueScene is visible at a time (/ and /cram never mount together). */}
+      {rescueOpen && (
+        <RescueScene pack={pack} initialFamilyId={rescueInitialFamily} onClose={() => setRescueOpen(false)} />
       )}
     </div>
   )
@@ -406,7 +530,7 @@ function CramBlockView({ block, onOpenHandout }: { block: CramBlock; onOpenHando
           discriminator table, so a single-leaf binding would give false precision (neurons-unit-
           correspondence D5). Muted footer link. */}
       <button type="button" style={blockHandoutLinkStyle} onClick={onOpenHandout}>
-        📖 開啟本科講義
+        <EmojiIcon char="📖" size={12} decorative /> 開啟本科講義
       </button>
     </div>
   )
@@ -421,26 +545,22 @@ const disclaimerMetaStyle: React.CSSProperties = { display: 'flex', alignItems: 
 const methodBtnStyle: React.CSSProperties = { border: '1px solid #c9ad7f', background: '#fff8e8', borderRadius: 999, padding: '0.1rem 0.6rem', fontSize: '0.76rem', cursor: 'pointer', color: '#7a5a2a', fontFamily: 'var(--font-legible)' }
 const stampStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#8c6d4a', fontFamily: 'var(--font-legible)' }
 const methodBodyStyle: React.CSSProperties = { marginTop: '0.5rem', fontSize: '0.78rem', color: '#4a3a22', lineHeight: 1.7, background: '#fff8e8', border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.55rem 0.7rem', fontFamily: 'var(--font-legible)' }
-const chipRowStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }
-const chipGroupStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.3rem' }
 const chipGroupLabelStyle: React.CSSProperties = { fontSize: '0.76rem', color: '#5a3d1a', fontWeight: 700, marginRight: '0.2rem', whiteSpace: 'nowrap' }
-const filterChipStyle: React.CSSProperties = { fontSize: '0.76rem', border: '1px solid #d8c39a', background: '#efe4cc', color: '#7a5a2a', borderRadius: 999, padding: '0.2rem 0.6rem', cursor: 'pointer', fontFamily: 'var(--font-pixel-cjk)' }
-const filterChipActiveStyle: React.CSSProperties = { background: '#b58900', color: '#fff', borderColor: '#b58900', fontWeight: 600 }
 const subjectCardStyle: React.CSSProperties = { border: '1px solid #c9ad7f', borderRadius: 8, marginBottom: '0.5rem', overflow: 'hidden', background: '#fffdf7' }
 const subjectBodyStyle: React.CSSProperties = { padding: '0.6rem 0.8rem' }
 const panelHeaderStyle: React.CSSProperties = { display: 'flex', alignItems: 'baseline', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.6rem' }
 const subjectNameStyle: React.CSSProperties = { fontWeight: 700, fontSize: '0.95rem', color: '#4a3a22' }
 const bookNoteStyle: React.CSSProperties = { fontSize: '0.74rem', color: '#8c6d4a', fontWeight: 400, fontFamily: 'var(--font-legible)' }
 const subjectCountChipStyle: React.CSSProperties = { fontSize: '0.7rem', color: '#8c6d4a', background: '#efe4cc', borderRadius: 999, padding: '0.05rem 0.5rem', fontFamily: 'var(--font-legible)' }
-const sectionLabelStyle: React.CSSProperties = { fontSize: '0.82rem', color: '#7a5410', margin: '0.2rem 0 0.5rem' }
+const sectionLabelStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.82rem', color: '#7a5410', margin: '0.2rem 0 0.5rem' }
 const pushListStyle: React.CSSProperties = { listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }
 const pushItemStyle: React.CSSProperties = { border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.45rem 0.6rem', background: '#fff' }
 const pushRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }
 const pushZhStyle: React.CSSProperties = { fontSize: '0.88rem', color: '#2a2118', fontFamily: 'var(--font-legible)', fontWeight: 600 }
 const tierChipStyle: React.CSSProperties = { fontSize: '0.7rem', borderRadius: 999, padding: '0.05rem 0.45rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
 // 押題 → 講義 (leaf-level) + 速看 → 講義 (subject-level) deep-link affordances (neurons-unit-correspondence).
-const pushHandoutBtnStyle: React.CSSProperties = { marginLeft: 'auto', fontSize: '0.72rem', border: '1px solid #6a8c3f', background: '#eef4e2', color: '#4c6a2b', borderRadius: 999, padding: '0.1rem 0.55rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
-const blockHandoutLinkStyle: React.CSSProperties = { marginTop: '0.5rem', border: 0, background: 'transparent', color: '#4c6a2b', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)', padding: '0.1rem 0', borderBottom: '1px dashed #6a8c3f' }
+const pushHandoutBtnStyle: React.CSSProperties = { marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', border: '1px solid #6a8c3f', background: '#eef4e2', color: '#4c6a2b', borderRadius: 999, padding: '0.1rem 0.55rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
+const blockHandoutLinkStyle: React.CSSProperties = { marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', border: 0, background: 'transparent', color: '#4c6a2b', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)', padding: '0.1rem 0', borderBottom: '1px dashed #6a8c3f' }
 // Positive coverage imprint — shown only on covered items; never a count/%/denominator.
 const coveredChipStyle: React.CSSProperties = { fontSize: '0.68rem', color: '#2f6b45', background: '#d5ecd9', border: '1px solid #a9d4b5', borderRadius: 999, padding: '0.05rem 0.4rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
 const countChipStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #d8c39a', background: '#f8f2e2', borderRadius: 6, padding: '0.15rem 0.5rem', fontSize: '0.76rem', color: '#5a4a33', cursor: 'pointer', fontFamily: 'var(--font-legible)', width: '100%', textAlign: 'left' }
@@ -467,9 +587,30 @@ const sourceQBtnStyle: React.CSSProperties = { border: '1px solid #d8c39a', back
 const reviewWrapStyle: React.CSSProperties = { marginTop: '0.35rem', border: '1px solid #e2d4b0', borderRadius: 6, padding: '0.5rem 0.6rem', background: '#fff' }
 const moreNoteStyle: React.CSSProperties = { margin: '0.3rem 0 0', fontSize: '0.74rem', color: '#a08a5a', fontFamily: 'var(--font-legible)' }
 const practiceCtaStyle: React.CSSProperties = { marginTop: '0.5rem', border: '1px solid #b58900', background: '#b58900', color: '#fff', borderRadius: 6, padding: '0.35rem 0.9rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-legible)' }
-// Two entry buttons (not downloads): 考前講義 = anatomy-green, 速看 = gold. They live in
-// their own group row; layout + RWD are in styles.css (.cram-action-row, two-row semantic
-// grouping that stays sane on narrow screens — replaced a fragile marginLeft:auto). Pixel font.
-const handoutEntryBtnStyle: React.CSSProperties = { border: '1px solid #6a8c3f', background: 'linear-gradient(#a7c76a, #8bb04e)', color: '#243611', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-pixel-cjk)' }
-const speedReviewEntryBtnStyle: React.CSSProperties = { border: '1px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-pixel-cjk)' }
 const downloadBtnStyle: React.CSSProperties = { border: '1px solid #8c6d4a', background: '#f4ecd8', color: '#5a3d1a', borderRadius: 6, padding: '0.4rem 0.8rem', fontSize: '0.82rem', textDecoration: 'none', fontFamily: 'var(--font-pixel-cjk)' }
+
+// ─── 考前中心 hub styles (add-neurons-exam-prep-hub) ─────────────────────────────────────────────
+// Rescue strip mirrors the homepage RescueChip palette (#fdf2e0 / #d4a04d / #8a5a1f)
+// so 考前救急 reads the same across homepage cards and the hub (add-neurons-exam-prep-hub).
+const rescueStripStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', padding: '0.5rem 0.6rem', background: '#fbf3e6', border: '1px solid #e0c088', borderRadius: 8 }
+const rescueStripLabelStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8rem', fontWeight: 700, color: '#8a5a1f', marginRight: '0.2rem', fontFamily: 'var(--font-pixel-cjk)' }
+const rescueStripChipStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', border: '1px solid #d4a04d', background: '#fdf2e0', color: '#5a3f29', borderRadius: 8, padding: '0.25rem 0.6rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }
+const rescueStripStrongStyle: React.CSSProperties = { fontWeight: 800, color: '#8a5a1f' }
+const rescueStripMetaStyle: React.CSSProperties = { fontSize: '0.72rem', color: '#8c7a55', fontVariantNumeric: 'tabular-nums' }
+const rescueStripCtaStyle: React.CSSProperties = { fontWeight: 700, color: '#d4a04d' }
+const rescueStripEmptyBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 700, border: '1px solid #d4a04d', background: '#fdf2e0', color: '#8a5a1f', borderRadius: 999, padding: '0.3rem 0.75rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', textAlign: 'left', lineHeight: 1.4 }
+const subjectGroupStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.8rem' }
+const subjectGridStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.5rem' }
+const subjectTileStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.3rem', border: '1px solid #d8c39a', background: '#fffdf7', borderRadius: 8, padding: '0.5rem 0.55rem', cursor: 'pointer' }
+const subjectTileActiveStyle: React.CSSProperties = { border: '1px solid #b58900', background: '#fff3d0', boxShadow: '0 0 0 1px #b58900 inset' }
+const tileHeadStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.3rem' }
+const tileNameStyle: React.CSSProperties = { fontSize: '0.86rem', fontWeight: 700, color: '#4a3a22' }
+const tileRescueChipStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.15rem', fontSize: '0.66rem', color: '#8a5a1f', background: '#fdf2e0', border: '1px solid #d4a04d', borderRadius: 999, padding: '0.02rem 0.35rem', whiteSpace: 'nowrap', fontFamily: 'var(--font-legible)' }
+const tileMetaStyle: React.CSSProperties = { fontSize: '0.7rem', color: '#8c6d4a', fontFamily: 'var(--font-legible)' }
+const tileHandoutMiniStyle: React.CSSProperties = { alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', border: '1px solid #6a8c3f', background: 'linear-gradient(#a7c76a, #8bb04e)', color: '#243611', borderRadius: 6, padding: '0.15rem 0.5rem', cursor: 'pointer', fontWeight: 700, fontFamily: 'var(--font-pixel-cjk)' }
+const leafToolBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', border: '1px solid #b58900', background: '#fff3d0', color: '#7a5410', borderRadius: 999, padding: '0.1rem 0.5rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
+const leafRescueBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', border: '1px solid #d4a04d', background: '#fdf2e0', color: '#8a5a1f', borderRadius: 999, padding: '0.1rem 0.5rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
+const fiveMinCardStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.15rem', width: '100%', textAlign: 'left', border: '1px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 8, padding: '0.7rem 0.9rem', cursor: 'pointer', margin: '0.4rem 0 1rem' }
+const fiveMinTitleStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.95rem', fontWeight: 700, fontFamily: 'var(--font-pixel-cjk)' }
+const fiveMinSubStyle: React.CSSProperties = { fontSize: '0.76rem', color: '#7a5a2a', fontFamily: 'var(--font-legible)' }
+const pdfSectionStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: '0.4rem', paddingTop: '0.8rem', borderTop: '1px dashed #d8c39a' }

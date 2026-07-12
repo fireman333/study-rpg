@@ -6,17 +6,15 @@
 ## Requirements
 ### Requirement: 考前講義入口按鈕
 
-The `/cram`（考前猜題）page SHALL render a 「考前講義(beta)」entry button in the top action row, positioned to the LEFT of the「五分鐘速看版」button. The button SHALL use a background color visually distinct from the 五分鐘速看版 gold button (an anatomy-green family fill), and SHALL open the handout scene at route `/cram/handout`.
+Within the 考前中心 hub (per `neurons-exam-prep-hub`), each subject card SHALL carry a per-subject 講義 entry (a 「講義(beta)」 mini entry, dropping the 「考前」 prefix to avoid label soup inside the 考前中心 hub) that opens that subject's handout via subject-scoped deep-link `/cram/handout?subject=…`. The 講義 entry SHALL use a background color visually distinct from the 五分鐘速看 gold accent (an anatomy-green family fill). This replaces the former single 「考前講義(beta)」button in the flat action row (which sat to the LEFT of the「五分鐘速看版」button); the handout scene at route `/cram/handout` is unchanged.
 
-#### Scenario: 按鈕呈現於速看版左側
+#### Scenario: 每張科目卡帶講義入口
+- **WHEN** 使用者在考前中心 hub 看到某科的科目卡
+- **THEN** 該卡帶一個「講義(beta)」mini 入口，底色為解剖學綠系（非金色）
 
-- **WHEN** 使用者開啟 `/cram` 頁面
-- **THEN** 動作排出現「考前講義(beta)」按鈕，位於「五分鐘速看版」按鈕左側，底色為解剖學綠系（非金色）
-
-#### Scenario: 點擊開啟講義場景
-
-- **WHEN** 使用者點擊「考前講義(beta)」按鈕
-- **THEN** 導向 `/cram/handout` 並開啟全螢幕講義場景
+#### Scenario: 點擊開啟該科講義場景
+- **WHEN** 使用者點擊某科目卡的「講義(beta)」入口
+- **THEN** 導向 `/cram/handout?subject=…` 並開啟全螢幕講義場景、落在該科
 
 ### Requirement: 全螢幕教學型講義場景
 
@@ -445,20 +443,6 @@ For a subject that declares a per-subject region config (`<subject>.config.json`
 
 - **WHEN** 使用者讀到免疫學任一內容區末尾
 - **THEN** 該區末尾出現一顆「測驗本區」測驗鈕，題池為該區 leaves 的免疫學題目 union；不顯示 signpost
-
-### Requirement: 題庫分頁的考前講義入口
-
-The 題庫 top-nav tab's sub-tab bar SHALL include a 「考前講義」sub-tab as its third entry, after 題庫 (`/bank`) and 考前猜題 (`/cram`), navigating to `/cram/handout`. Activating it SHALL open the existing full-screen handout scene. While the route is `/cram/handout`, the 題庫 top-nav tab SHALL remain the active top-nav tab. This is an additional entry point; the existing 考前講義(beta) button on the `/cram` page is unchanged.
-
-#### Scenario: 題庫分頁列出考前講義為第三個 sub-tab
-
-- **WHEN** 使用者位於題庫分頁列（`/bank` 或 `/cram`）
-- **THEN** 分頁列依序顯示 題庫 / 考前猜題 / 考前講義 三個 pill，第三個「考前講義」指向 `/cram/handout`
-
-#### Scenario: 點擊考前講義開啟講義場景且題庫 tab 維持選中
-
-- **WHEN** 使用者點擊「考前講義」sub-tab
-- **THEN** 導向 `/cram/handout` 並開啟全螢幕講義場景，且題庫 top-nav tab 仍為選中狀態（透過既有 `/cram/` 前綴比對）
 
 ### Requirement: 多科講義選擇器依 EXAM_PAPER_ORDER 排序
 
