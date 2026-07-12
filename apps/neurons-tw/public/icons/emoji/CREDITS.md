@@ -44,6 +44,14 @@ This pack was assembled for `pixelate-neurons-emoji` (2026-06-07):
   formula + ImageMagick post-process (corner floodfill chroma-key → trim → point
   resize 60px → extent 64×64 → 16-color): 📌 `1f4cc` (pushpin). Renders the
   「置頂下次出征」CTA (formerly「加入快速複習」🔍) as pixel-art.
+- **3 icons added** 2026-07-12 for the HelpMenu 說明選單 backfill (fix reported raw
+  emoji), same codex CLI `gpt-image-2` formula + ImageMagick post-process (4-corner
+  floodfill chroma-key → trim → point resize 60px → extent 64×64 → 16-color): 📄
+  `1f4c4` (page/document) / ♻ `267b` (recycling arrows) / 🗺 `1f5fa` (folded map).
+  The 📄 原始詳解 PDF + ♻ 重置帳號 section icons rendered as native glyphs next to
+  pixelated siblings; 🗺 一週攻略地圖 appears in the 考前講義 body. Also wired the
+  remaining raw body-prose emoji in HelpMenu (all already in the pack) through
+  `<EmojiIcon>`.
 
 ## Style anchor (codex prompt formula)
 

@@ -25,9 +25,15 @@ const shortFamilyLabel = (displayName: string): string => displayName.replace(/\
 export default function ConnectorSection({ pack }: { pack: ContentPack }): JSX.Element {
   const { entries, unlockedCount } = useConnectors()
 
+  // Label a connected family as 科目（cell-type）, e.g. 藥理學（VTA Dopaminergic）, so the
+  // player can tell WHICH 科目 the connection bridges — the family/cell-type persona alone
+  // dropped the subject. Mirrors CollectionPage.familyDisplayLabel for visual consistency.
   const labelOf = useMemo(() => {
     const byId = new Map(pack.subjects.map((s) => [s.id, shortFamilyLabel(s.displayName)]))
-    return (id: string): string => byId.get(id) ?? id
+    return (id: string): string => {
+      const cellType = byId.get(id)
+      return cellType && cellType !== id ? `${id}（${cellType}）` : id
+    }
   }, [pack.subjects])
 
   // Open collection (mirrors the per-family variant sections): render ONLY the
