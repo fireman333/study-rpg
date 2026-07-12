@@ -266,7 +266,13 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
           <button
             type="button"
             style={chromeBtnStyle}
-            onClick={() => navigate(`/?rescue=${encodeURIComponent(active.subjectId)}`)}
+            // Full navigation via BASE_URL, NOT react-router navigate('/?…'): under a basename
+            // (prod `/neurons`) navigate resolves the root to "/neurons?…" (no trailing slash),
+            // which fails to match the "/" route → blank page. BASE_URL keeps the slash
+            // ("/neurons/?…" · "/?…" on localhost), the form verified to boot + consume ?rescue=.
+            onClick={() => {
+              window.location.assign(`${import.meta.env.BASE_URL}?rescue=${encodeURIComponent(active.subjectId)}`)
+            }}
           >
             ← 回救急
           </button>
