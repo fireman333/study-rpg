@@ -192,7 +192,7 @@ The handout scene SHALL provide a print/PDF control that invokes the browser's n
 
 ### Requirement: 閱讀進度與章節深連結
 
-The handout scene SHALL surface reading progress derived from the internal scroll container's position, and SHALL persist the last read scroll position per subject in `localStorage` so that reopening the same subject restores the prior position. The scene SHALL support entering a specific chapter via a deep-link (`#<region-id>` hash or `?section=<region-id>` query), scrolling to that region on load. All persistence SHALL be device-local `localStorage` only and SHALL NOT touch Dexie, R2, or the sync engine.
+The handout scene SHALL surface reading progress derived from the internal scroll container's position, and SHALL persist the last read scroll position per subject in `localStorage` so that reopening the same subject restores the prior position. The scene SHALL support entering a specific chapter via a deep-link (`#<region-id>` hash or `?section=<region-id>` query), scrolling to that region on load. The scene SHALL additionally accept a `?subject=<subject-id>` query that selects the target subject; this subject selection SHALL be resolved **synchronously on first render** (e.g. via a `useState` initializer that reads the query), so that a cross-subject deep-link derives its regions from the correct subject on the first render rather than from the default first subject — this prevents a consume-once deep-link from mis-landing on the default subject's last-read position when the requested subject is not the first one. When a `?section=<region-id>` deep-link resolves and scrolls to its target region, the scene SHALL briefly highlight the landed region (a transient visual cue that adds then removes a class after a short delay), with no persistent state written. All persistence SHALL be device-local `localStorage` only and SHALL NOT touch Dexie, R2, or the sync engine.
 
 #### Scenario: 呈現閱讀進度
 
@@ -208,6 +208,16 @@ The handout scene SHALL surface reading progress derived from the internal scrol
 
 - **WHEN** 使用者以 `#<region-id>` 或 `?section=<region-id>` 開啟講義
 - **THEN** 載入後自動捲動到該 region 章節
+
+#### Scenario: 跨科深連結落在正確 subject 的 region
+
+- **WHEN** 使用者以 `?subject=<subject-id>&section=<region-id>` 開啟講義，且該 subject 不是預設第一科
+- **THEN** 首次 render 即以該 `subject-id` 選定的科目 derive regions，並捲動到該科的 `<region-id>` 章節（不落在預設第一科的上次閱讀位置）
+
+#### Scenario: 深連結落點短暫 highlight
+
+- **WHEN** `?section=<region-id>` 深連結解析並捲動到目標 region
+- **THEN** 該 region 短暫顯示視覺 highlight（加 class、短延遲後移除），且不寫入任何持久狀態
 
 #### Scenario: 進度持久化不進雲端
 
@@ -443,4 +453,18 @@ The 題庫 top-nav tab's sub-tab bar SHALL include a 「考前講義」sub-tab a
 
 - **WHEN** 使用者點擊「考前講義」sub-tab
 - **THEN** 導向 `/cram/handout` 並開啟全螢幕講義場景，且題庫 top-nav tab 仍為選中狀態（透過既有 `/cram/` 前綴比對）
+
+### Requirement: 多科講義選擇器依 EXAM_PAPER_ORDER 排序
+
+The multi-subject handout picker SHALL order its subjects by the exam-paper sequence defined in `EXAM_PAPER_ORDER` (the single source of truth also consumed by `FamilyPicker` and `CollectionPage`), rendering 醫學一 subjects before 醫學二 subjects: 醫學一 = 解剖學 → 胚胎學 → 組織學 → 生理學 → 生物化學; 醫學二 = 微生物學 → 免疫學 → 寄生蟲學 → 公共衛生學 → 藥理學 → 病理學. The ordering SHALL be derived at runtime from `EXAM_PAPER_ORDER`, NOT from a separate build-time subject-order constant. Any subject not listed in `EXAM_PAPER_ORDER` SHALL be appended after the ordered subjects (extras fallback), never dropped. The default subject (when no `?subject=` deep-link is present) SHALL be the first subject of this ordering.
+
+#### Scenario: 選擇器依 paper 順序、醫學一先於醫學二
+
+- **WHEN** 講義科目選擇器 render 全 11 科
+- **THEN** 順序 SHALL 為 解剖學 → 胚胎學 → 組織學 → 生理學 → 生物化學 → 微生物學 → 免疫學 → 寄生蟲學 → 公共衛生學 → 藥理學 → 病理學（醫學一整組先於醫學二整組）
+
+#### Scenario: 未列於 EXAM_PAPER_ORDER 的科目不遺漏
+
+- **WHEN** 某 subject 存在於 handout.json 但不在 `EXAM_PAPER_ORDER`
+- **THEN** 它 SHALL 綴在已排序科目之後呈現，而非被 silently drop
 
