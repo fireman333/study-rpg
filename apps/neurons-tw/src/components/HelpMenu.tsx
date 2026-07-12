@@ -126,7 +126,7 @@ function AccountResetControl(): JSX.Element {
       ) : (
         <p>
           <button type="button" style={helpResetButtonStyle} onClick={() => setConfirmOpen(true)}>
-            ♻ 重置此帳號進度
+            <EmojiIcon char="♻" size={14} decorative /> 重置此帳號進度
           </button>
         </p>
       )}
@@ -134,7 +134,7 @@ function AccountResetControl(): JSX.Element {
         <div style={resetOverlayStyle} role="dialog" aria-modal="true" aria-labelledby="account-reset-title">
           <div style={resetCardStyle}>
             <h2 id="account-reset-title" style={resetTitleStyle}>
-              ♻ 重置此帳號進度
+              <EmojiIcon char="♻" size={14} decorative /> 重置此帳號進度
             </h2>
             <p style={resetBodyStyle}>
               即將清除這個帳號的：<strong>雲端存檔</strong>、<strong>本機遊戲進度</strong>
@@ -270,7 +270,7 @@ function GuidedReplayControl(): JSX.Element {
   return (
     <p>
       第一次玩會有一段互動導覽：先用歡迎卡講一遍核心循環，再一步步用聚光燈框出
-      📖 閱讀、答題、腦圖、儀表板，直到你抽出第一隻神經元。想重看可以按這裡：{' '}
+      <EmojiIcon char="📖" size={14} decorative /> 閱讀、答題、腦圖、儀表板，直到你抽出第一隻神經元。想重看可以按這裡：{' '}
       <button
         type="button"
         onClick={requestReplayGuided}
@@ -287,7 +287,7 @@ function SourcePdfHelpBody(): JSX.Element {
   return (
     <>
       <p>
-        答題詳解下方會出現「📄 看原始詳解 PDF」，會自動從陽明官方 Google Drive 載入該題所在頁，
+        答題詳解下方會出現「<EmojiIcon char="📄" size={14} decorative /> 看原始詳解 PDF」，會自動從陽明官方 Google Drive 載入該題所在頁，
         手機 / Safari 也能用 —— 不用下載、不用授權資料夾。第一次開某份會稍等載入，之後就會直接從本機快取開啟。
         本 App 不提供 PDF、只連到官方來源（陽明國考考古題小組）。
       </p>
@@ -346,8 +346,8 @@ const SECTIONS: Section[] = [
         </p>
         <p>
           <strong>答題後階段</strong>：按 <kbd>Enter</kbd> 或 <kbd>Space</kbd> 進入下一題；
-          按 <kbd>1</kbd> 收藏、<kbd>2</kbd> 標 ✨ 太簡單、<kbd>3</kbd> 標 🤔 我亂猜的
-          （✨ / 🤔 之後用來篩選複習）。
+          按 <kbd>1</kbd> 收藏、<kbd>2</kbd> 標 <EmojiIcon char="✨" size={14} decorative /> 太簡單、<kbd>3</kbd> 標 <EmojiIcon char="🤔" size={14} decorative /> 我亂猜的
+          （<EmojiIcon char="✨" size={14} decorative /> / <EmojiIcon char="🤔" size={14} decorative /> 之後用來篩選複習）。
           按答案後 150 ms 內的 Enter 會被忽略，避免「送出 + 立刻 advance」二連跳。
         </p>
         <p>
@@ -369,13 +369,13 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          答題時按右下角 <strong>⭐ 收藏</strong> 按鈕，或在答完後按 <kbd>1</kbd> 鍵
+          答題時按右下角 <strong><EmojiIcon char="⭐" size={14} decorative /> 收藏</strong> 按鈕，或在答完後按 <kbd>1</kbd> 鍵
           加入 / 取消收藏。所有收藏統一在 <a href="/bookmarks">收藏</a> 頁面整理。
         </p>
         <p>
           收藏會跨裝置同步（需登入 Google）。每張卡片附「重新作答」按鈕可單題複習。
-          卡片可顯示 ✨ / 🤔 標記，<a href="/bookmarks">收藏</a> 頁面可按 family
-          + ✨ / 🤔 篩選。
+          卡片可顯示 <EmojiIcon char="✨" size={14} decorative /> / <EmojiIcon char="🤔" size={14} decorative /> 標記，<a href="/bookmarks">收藏</a> 頁面可按 family
+          + <EmojiIcon char="✨" size={14} decorative /> / <EmojiIcon char="🤔" size={14} decorative /> 篩選。
         </p>
       </>
     ),
@@ -388,7 +388,7 @@ const SECTIONS: Section[] = [
       <>
         <p>
           <a href="/bank">/bank</a> 是歷年國考全題庫的瀏覽器，可按
-          <strong>科別 / 年份 / 次別 / 冊別</strong>篩選找特定主題，每題附 🐞 回報按鈕。
+          <strong>科別 / 年份 / 次別 / 冊別</strong>篩選找特定主題，每題附 <EmojiIcon char="🐞" size={14} decorative /> 回報按鈕。
         </p>
         <p>想針對特定範圍練習、或翻找之前做過的題目時就來這。</p>
       </>
@@ -409,7 +409,7 @@ const SECTIONS: Section[] = [
           清完出征裡的錯題會發 DMN 抽卡 — 清越多、抽越多。
         </p>
         <p>
-          想單純練整份考卷？到 <a href="/bank">題庫</a> tab 的 <strong>📋 模考</strong>
+          想單純練整份考卷？到 <a href="/bank">題庫</a> tab 的 <strong><EmojiIcon char="📋" size={14} decorative /> 模考</strong>
           （指定年份 + 次別 + 冊別，整冊 ~100 題依序作答）。模考是
           <strong>純練習</strong>：不給能量、不抽神經元、不長連線、也不發 DMN 抽卡，
           但答錯仍記入錯題清單，可之後出征修復。
@@ -426,11 +426,11 @@ const SECTIONS: Section[] = [
       <>
         <p>
           <a href="/bookmarks">/bookmarks</a> 頁面三個 tab：
-          <strong>手動收藏</strong>（你按 ⭐ 的）、
+          <strong>手動收藏</strong>（你按 <EmojiIcon char="⭐" size={14} decorative /> 的）、
           <strong>目前未答對</strong>（最近一次答錯）、
           <strong>歷史曾錯</strong>（曾經答錯過的全部、永久保留）。
         </p>
-        <p>「歷史曾錯」永遠不會自動消失，方便長期追蹤弱點。共用同一條 filter（科目 / 年份 / ✨ 🤔 標記）。</p>
+        <p>「歷史曾錯」永遠不會自動消失，方便長期追蹤弱點。共用同一條 filter（科目 / 年份 / <EmojiIcon char="✨" size={14} decorative /> <EmojiIcon char="🤔" size={14} decorative /> 標記）。</p>
       </>
     ),
   },
@@ -451,7 +451,7 @@ const SECTIONS: Section[] = [
         </p>
         <p>
           11 科 × 10 第一路線 slot = 110 隻，加上每科二回目位置變體再 +110，合計 <strong>220 隻</strong>為完整收集
-          （二回目機制詳見「🌟 首答 + 二回目」）。進度顯示在頂部 status chip 的「🧬 變體 X / 220」。
+          （二回目機制詳見「<EmojiIcon char="🌟" size={14} decorative /> 首答 + 二回目」）。進度顯示在頂部 status chip 的「<EmojiIcon char="🧬" size={14} decorative /> 變體 X / 220」。
         </p>
       </>
     ),
@@ -527,7 +527,7 @@ const SECTIONS: Section[] = [
           抽到的卡同時觸發一次性事件 + 進入永久收集。
         </p>
         <p>
-          <strong>出征觸發</strong>：每場 ⚔️ 出征清掉約 25% / 50% 目前錯題各 +1 draw（每日上限 2）。
+          <strong>出征觸發</strong>：每場 <EmojiIcon char="⚔️" size={14} decorative /> 出征清掉約 25% / 50% 目前錯題各 +1 draw（每日上限 2）。
           清越多錯題、抽得越多——把弱點變成抽卡機會。
         </p>
         <p>
@@ -607,7 +607,7 @@ const SECTIONS: Section[] = [
           以及沒救的低頻題會自動略過，把時間集中在高頻又還救得動的地方。
         </p>
         <p>
-          入口在首頁的「<strong>⏱️ 考前救急</strong>」，或「<strong>題庫</strong>」→「<strong>考前中心</strong>」頂端的救急狀態條。進去後先跑一次<strong>診斷突襲</strong>摸底，
+          入口在首頁的「<strong><EmojiIcon char="⏱️" size={14} decorative /> 考前救急</strong>」，或「<strong>題庫</strong>」→「<strong>考前中心</strong>」頂端的救急狀態條。進去後先跑一次<strong>診斷突襲</strong>摸底，
           結果整理成紅／黃／灰三段<strong>戰情圖</strong>（紅＝高頻弱點，優先處理）。
         </p>
         <p>
@@ -638,10 +638,10 @@ const SECTIONS: Section[] = [
       <>
         <p>
           <strong>教學型</strong>的長文講義，<strong>第一次唸也看得懂</strong>：依各科的組織／系統分區整理高頻重點，
-          適合<strong>考前一週</strong>系統複習。入口在「<strong>題庫</strong>」分頁的「<strong>考前中心</strong>」→ 各科卡片的「<strong>📖 講義(beta)</strong>」。
+          適合<strong>考前一週</strong>系統複習。入口在「<strong>題庫</strong>」分頁的「<strong>考前中心</strong>」→ 各科卡片的「<strong><EmojiIcon char="📖" size={14} decorative /> 講義(beta)</strong>」。
         </p>
         <p>
-          每科開頭有一張「<strong>🗺️ 一週攻略地圖</strong>」——建議的唸書順序與各區重點；內文依章節分區，
+          每科開頭有一張「<strong><EmojiIcon char="🗺️" size={14} decorative /> 一週攻略地圖</strong>」——建議的唸書順序與各區重點；內文依章節分區，
           每一區底下可以「<strong>測驗本區／本章</strong>」直接練該區的考古題。科目選單依<strong>考卷順序</strong>排列
           （醫學一在前、醫學二在後）。
         </p>

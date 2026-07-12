@@ -64,6 +64,14 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   ['⏱', '23f1.png'],
   ['✏', '270f.png'],
   ['⏳', '23f3.png'],
+  // HelpMenu 說明選單 backfill (fix reported raw emoji in HelpMenu): the 📄 原始詳解
+  // PDF section icon + ♻ 重置帳號 section icon rendered as native glyphs next to
+  // pixelated siblings; 🗺 一週攻略地圖 appears in the 考前講義 body. Bare codepoints
+  // (normalize() strips FE0F). Generated via the same codex gpt-image-2 + ImageMagick
+  // formula as the rest of the pack (see public/icons/emoji/CREDITS.md).
+  ['📄', '1f4c4.png'],
+  ['♻', '267b.png'],
+  ['🗺', '1f5fa.png'],
 ]
 
 const ICON_MAP = new Map(ICON_FILES)

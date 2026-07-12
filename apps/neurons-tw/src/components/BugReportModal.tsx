@@ -6,7 +6,7 @@
  * Captures category + severity + free-text + per-field opt-out auto-context,
  * then inserts into Supabase `bug_reports` with app='neurons-tw'.
  */
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import {
   NEURONS_BUG_REPORT_CATEGORIES,
   BUG_REPORT_SEVERITIES,
@@ -83,6 +83,25 @@ export default function BugReportModal({ open, onClose }: Props): JSX.Element | 
   const [optOuts, setOptOuts] = useState<AutoContextOptOuts>({})
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null)
+
+  // Reset to a fresh form each time the modal opens. This component stays mounted
+  // (renders null when closed), so without this the previous submission's success
+  // screen (result.ok) persists and reopening lands on 「已送出」 — the player had to
+  // reload to file another report (回報 bug: 連續回報停在上次的回報完成畫面).
+  useEffect(() => {
+    if (!open) return
+    setCategory('app-stability')
+    setSeverity('annoying')
+    setWhatDoing('')
+    setWhatHappened('')
+    setWhatExpected('')
+    setRepro('')
+    setContact('')
+    setAllowFollowup(false)
+    setOptOuts({})
+    setSubmitting(false)
+    setResult(null)
+  }, [open])
 
   if (!open) return null
 
