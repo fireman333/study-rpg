@@ -58,6 +58,12 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   // 置頂下次出征 CTA (refold-neurons-quick-review-into-expedition): 📌 pushpin,
   // generated to match the pack so the renamed pin CTA renders pixel-art.
   ['📌', '1f4cc.png'],
+  // 考前中心 hub (add-neurons-exam-prep-hub): ⏱ 救急 / ✏ 練題 / ⏳ 五分鐘速看. Bare
+  // codepoints (normalize() strips FE0F). Adding ⏱ also upgrades the homepage /
+  // FamilyPicker / RescueScene ⏱ from native fallback to pixel-art (shared manifest).
+  ['⏱', '23f1.png'],
+  ['✏', '270f.png'],
+  ['⏳', '23f3.png'],
 ]
 
 const ICON_MAP = new Map(ICON_FILES)

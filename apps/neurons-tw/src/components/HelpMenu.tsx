@@ -607,7 +607,7 @@ const SECTIONS: Section[] = [
           以及沒救的低頻題會自動略過，把時間集中在高頻又還救得動的地方。
         </p>
         <p>
-          入口在首頁的「<strong>⏱️ 考前救急</strong>」。進去後先跑一次<strong>診斷突襲</strong>摸底，
+          入口在首頁的「<strong>⏱️ 考前救急</strong>」，或「<strong>題庫</strong>」→「<strong>考前中心</strong>」頂端的救急狀態條。進去後先跑一次<strong>診斷突襲</strong>摸底，
           結果整理成紅／黃／灰三段<strong>戰情圖</strong>（紅＝高頻弱點，優先處理）。
         </p>
         <p>
@@ -638,7 +638,7 @@ const SECTIONS: Section[] = [
       <>
         <p>
           <strong>教學型</strong>的長文講義，<strong>第一次唸也看得懂</strong>：依各科的組織／系統分區整理高頻重點，
-          適合<strong>考前一週</strong>系統複習。入口在「<strong>題庫</strong>」分頁的「<strong>考前講義</strong>」。
+          適合<strong>考前一週</strong>系統複習。入口在「<strong>題庫</strong>」分頁的「<strong>考前中心</strong>」→ 各科卡片的「<strong>📖 講義(beta)</strong>」。
         </p>
         <p>
           每科開頭有一張「<strong>🗺️ 一週攻略地圖</strong>」——建議的唸書順序與各區重點；內文依章節分區，

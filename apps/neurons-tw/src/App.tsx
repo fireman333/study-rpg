@@ -222,8 +222,12 @@ const BANK_GROUP_PATHS = ['/bank', '/cram']
 const SUBTAB_GROUPS = {
   bank: [
     { to: '/bank', label: '題庫' },
-    { to: '/cram', label: '考前猜題' },
-    { to: '/cram/handout', label: '考前講義' },
+    // add-neurons-exam-prep-hub: 3→2 subtab. /cram is now the consolidated 考前中心 hub
+    // (rescue strip + subject cards carrying 講義/猜題 + 5min card + PDF). 考前講義 is no
+    // longer a standalone subtab — reached from within the hub via each subject card's 講義
+    // entry. The /cram/handout route itself is unchanged (BANK_GROUP_PATHS /cram prefix +
+    // startsWith keeps 題庫 highlighted on /cram, /cram/handout, /cram/5min).
+    { to: '/cram', label: '考前中心' },
   ],
   collection: [
     { to: '/collection', label: '神經元圖鑑' },

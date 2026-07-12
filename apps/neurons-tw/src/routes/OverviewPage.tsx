@@ -64,9 +64,7 @@ import { useConceptTags } from '../lib/concept-tags'
 import { useAllFlags } from '../lib/services/question-flags'
 import { RescueScene } from '../components/RescueScene'
 import { useRescuePlans } from '../lib/services/rescue/rescue-store'
-import { computeRescueD } from '../lib/services/rescue/rescue-lifecycle'
-import { computeConceptMastery, computeRescueScore } from '../lib/services/rescue/rescue-score'
-import { buildConceptYield } from '../lib/services/rescue/rescue-session'
+import { useRescueChips } from '../lib/services/rescue/useRescueChips'
 import { dequeueQuickReview } from '../lib/services/quick-review-queue'
 import { dmnUiEvents } from '../lib/services/dmn-event-dispatcher'
 import { ALL_YEARS, effectiveYearSet, useYearFilter } from '../lib/services/year-filter'
@@ -255,23 +253,11 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     () => computeWeaknessPressure(questionHistory, conceptTags, familyIds),
     [questionHistory, conceptTags, familyIds],
   )
-  // Per-family rescue chip map (add-neurons-multi-subject-rescue): D countdown + RescueScore
-  // for EVERY active plan (multiple coexist). Yield uses the corpus-percentile fallback (no cram
-  // fetch on the homepage); the scene itself refines with cram tiers. Empty when no plan is active.
-  const rescueChipByFamily = useMemo(() => {
-    const m = new Map<string, { d: number; score: number }>()
-    for (const plan of rescuePlans) {
-      const scoped = filterPoolByFamily(pack.questions, plan.familyId)
-      const conceptYield = buildConceptYield([], scoped, conceptTags)
-      const scopedHistory = questionHistory.filter((h) => h.family === plan.familyId)
-      const mastery = computeConceptMastery(scopedHistory, conceptTags)
-      m.set(plan.familyId, {
-        d: computeRescueD(plan.examDate, todayISO()),
-        score: computeRescueScore(mastery, conceptYield),
-      })
-    }
-    return m
-  }, [rescuePlans, pack.questions, conceptTags, questionHistory])
+  // Per-family rescue chip map (D countdown + RescueScore) for EVERY active plan (multiple
+  // coexist per add-neurons-multi-subject-rescue). Extracted to a shared hook
+  // (add-neurons-exam-prep-hub) so the 考前中心 hub's rescue status strip shows the same
+  // signal without duplicating the computation.
+  const rescueChipByFamily = useRescueChips(rescuePlans, pack.questions, conceptTags, questionHistory)
   // 一鍵特訓 pool: family-scoped ≤10 high-weakness questions (wrong / low-ease / overdue),
   // reusing the existing family-filter + the targeted-drill ranker. Materialised only
   // while the drill is open.
@@ -832,7 +818,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
 
   return (
     <>
-      <RescuePromoBanner onOpen={() => openRescue()} />
+      <RescuePromoBanner />
       <QuizHotkeysAnnouncementBanner />
       <LeaderboardPromoBanner />
       <OnboardingHost />

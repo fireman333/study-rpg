@@ -171,7 +171,7 @@ export function SpeedReviewPage(): JSX.Element | null {
                 <h2 style={introTitleStyle}>掃完了 💪</h2>
                 <p style={introLineStyle}>深呼吸，進去考吧。</p>
                 <button style={startBtnStyle} onClick={close}>
-                  回考前猜題
+                  回考前中心
                 </button>
                 <a
                   href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-5分鐘.pdf`}

@@ -1,26 +1,22 @@
 /**
- * RescuePromoBanner — dismissible promo on OverviewPage surfacing the 考前救急
- * (last-minute exam rescue) mode. Versioned localStorage key (`-v1`) so future
- * major copy changes can force re-appearance by bumping the suffix.
+ * RescuePromoBanner — dismissible promo on OverviewPage. Repurposed
+ * (add-neurons-exam-prep-hub) from a standalone 考前救急 promo into a 考前中心 hub
+ * entry banner: it now advertises the consolidated hub (猜題 / 講義 / 救急 / 五分鐘速看)
+ * and navigates to `/cram` rather than opening a duplicate rescue overlay. The homepage
+ * rescue CTA + FamilyPicker header entry + `?rescue=` return-loop are untouched.
  *
- * Rescue is a full-screen overlay (not a route), so the CTA calls back into
- * OverviewPage's openRescue() rather than navigating.
- *
- * Spec: openspec/specs/neurons-single-subject-rescue/spec.md
- *   "Homepage SHALL surface an always-on 考前救急 entry"
+ * Versioned localStorage key bumped `-v1` → `-v2` so the new hub message surfaces once
+ * to users who dismissed the old rescue-only banner.
  */
 
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { EmojiIcon } from './EmojiIcon'
 
-const DISMISS_KEY = 'neurons-rescue-promo-banner-dismissed-v1'
+const DISMISS_KEY = 'neurons-rescue-promo-banner-dismissed-v2'
 
-interface Props {
-  /** Opens the rescue overview (OverviewPage.openRescue with no family). */
-  onOpen: () => void
-}
-
-export default function RescuePromoBanner({ onOpen }: Props): JSX.Element | null {
+export default function RescuePromoBanner(): JSX.Element | null {
+  const navigate = useNavigate()
   const [dismissed, setDismissed] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -48,16 +44,15 @@ export default function RescuePromoBanner({ onOpen }: Props): JSX.Element | null
     <div style={bannerStyle}>
       <div style={textBlockStyle}>
         <div style={headlineStyle}>
-          <EmojiIcon char="⏱️" size={18} /> 考前救急：鎖科目，把時間花在最能救分的題
+          <EmojiIcon char="🎯" size={18} /> 考前中心：猜題・講義・救急・五分鐘速看，一站到齊
         </div>
         <div style={subStyle}>
-          綁定考試日與每天可讀分鐘，系統每天排出最高投報率的錯題；多科可並存。詳見右上{' '}
-          <EmojiIcon char="❓" size={13} decorative /> →「考前救急」。
+          臨考前把該做的事一次做完 —— 各科押題與速看、單元講義、鎖科救急、五分鐘掃描，都在題庫 →「考前中心」。
         </div>
       </div>
       <div style={actionsStyle}>
-        <button type="button" onClick={onOpen} style={ctaStyle}>
-          開始救急
+        <button type="button" onClick={() => navigate('/cram')} style={ctaStyle}>
+          前往考前中心
         </button>
         <button
           type="button"
