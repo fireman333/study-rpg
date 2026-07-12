@@ -6,7 +6,7 @@
   <h2 class="hdt-region__head">🧬 細胞生理與膜運輸</h2>
   <p class="hdt-intro">細胞生理與膜運輸是整份生理學講義的地基——後面每一區系統生理，說到底都建立在「細胞怎麼跟外界交換物質」與「怎麼維持膜內外電位差」這兩個問題上。這一區在近二十年考古題裡出現超過四十題，命題密度全科數一數二，核心骨架有三條：第一條是「物質怎麼過膜」——簡單擴散、促進性擴散、初級主動運輸、次級主動運輸四種機制的驅動力與能量來源要分得清楚，考選部特別愛用「鈉鉀幫浦先建立梯度、次級主動運輸再借力使力」的組合出題，也愛把各種命名交換器（Na-Ca exchanger、Cl-HCO3 exchanger）放在頂膜／基底外側膜互換出誘答；第二條是「膜電位怎麼決定」——單一離子的平衡電位（用 Nernst equation 算）跟細胞實際的靜止膜電位（受所有通透離子共同決定，用 GHK equation 算，最接近鉀離子平衡電位）是兩件不同的事，命題者最愛考「打開某離子通道後膜電位會往哪裡動」；第三條是胞器功能與細胞凋亡，偏記憶題但每年穩定出現一到兩題。滲透壓與張力的分野（osmolarity vs tonicity）也在這一區打底，後面腎臟區的體液間隔調節會直接沿用這條線，先在這裡把「等張、低張、高張只看不能穿膜的溶質濃度」這個原則記熟，後面會省不少力氣。膜組成流動性、神經膠細胞功能、酵素動力學三個小主題題數較少，用重點一行帶過即可，不必展開機制推導。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="membrane-transport-mechanisms">
     <h3>膜運輸四大機制與滲透張力（Membrane Transport Mechanisms and Osmotic Tonicity）</h3>
     <p class="hdt-teach">物質過細胞膜的方式依是否需要蛋白質、是否耗能分成四大類：簡單擴散（simple diffusion）不需蛋白質，靠脂溶性或小分子直接穿越雙脂層，適用氣體（O2、CO2）、脂溶性物質、極性不帶電小分子；促進性擴散（facilitated diffusion）與離子通道則需要蛋白質協助但不耗能，順濃度梯度移動。葡萄糖這種極性大分子雖然是順著濃度梯度移動，仍然過不了脂雙層，必須靠GLUT等載體蛋白幫忙，這是簡單擴散與促進性擴散最容易被搞混的地方。初級主動運輸（primary active transport）直接水解ATP、逆濃度梯度搬運，鈉鉀幫浦、鈣幫浦都屬此類；次級主動運輸（secondary active transport）則是先用初級主動運輸建立好某離子（通常是鈉）的電化學梯度，再讓這個離子順著自己的梯度移動、同時提供位能把另一物質逆濃度梯度搬運——同向運輸（symport/cotransport）搬運物質與鈉同方向，反向運輸（antiport/countertransport）則相反方向。分辨的關鍵永遠是：驅動用的鈉離子本身一定是順著自己的梯度（高濃度到低濃度）移動提供能量，被搬運的物質才可能逆梯度（低濃度到高濃度）移動。滲透與張力的原語也在這裡打底：張力（tonicity）只看「不能穿透細胞膜的溶質」濃度，等張＝300 mOsmol/L，容積滲透濃度（osmolarity）則是溶質總濃度——兩者常常不相等，考選部最愛用能自由穿膜的小分子（如尿素）製造陷阱。</p>
     <ul class="hdt-must">
@@ -36,7 +36,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="membrane-potential-and-equilibrium">
     <h3>膜電位與離子平衡電位（Membrane Potential and Ion Equilibrium Potentials）</h3>
     <p class="hdt-teach">膜電位分兩個層次要分清楚：平衡電位（equilibrium potential）是「單一離子」在達到電化學平衡時，膜兩側的電位差——用Nernst equation計算，只跟該離子在膜內外的濃度比有關；靜止膜電位（resting membrane potential, RMP）則是「細胞實際量到的」膜電位，由所有通透離子依各自通透度加權決定（用Goldman-Hodgkin-Katz, GHK equation計算）。因為靜止時細胞膜對鉀離子的通透性遠大於鈉、氯離子（靠滲漏性鉀離子通道），RMP因此最接近鉀離子的平衡電位，但不會完全相等（鈉、氯的通透度也不是零）。考選部常給的參考數值：鈉離子平衡電位E_Na約+60 mV上下、鉀離子平衡電位E_K約−90 mV上下、氯離子平衡電位E_Cl約−70 mV上下，神經元RMP多落在−70至−90 mV之間、比較靠近E_K——這些數值題目常直接給定，不要自己套錯方向。任何一個離子通道打開，膜電位都會被拉往「那個離子的平衡電位」移動：打開的通道平衡電位比目前RMP更負就造成過極化（hyperpolarization），比RMP更正就造成去極化（depolarization），先抓住「電位往平衡電位靠攏」這條大原則就好。動作電位的overshoot（衝過0 mV的正電位段）對應鈉離子通透性暴增（鈉通道大量開啟）；undershoot（比RMP更負的過極化段）則對應鉀離子通透性仍偏高（鉀通道關得慢）。傳導速度上，神經纖維愈粗、內電阻愈小；有髓鞘者靠跳躍式傳導（saltatory conduction）大幅加速，兩個因素相乘，最快的組合是粗且有髓鞘的神經纖維。</p>
     <ul class="hdt-must">
@@ -53,7 +53,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="cell-organelle-function-and-apoptosis">
     <h3>胞器功能與細胞凋亡（Organelle Function and Apoptosis）</h3>
     <p class="hdt-teach">這一葉考的多半是單一胞器功能的記憶題，但每年穩定出現一到兩題。粒線體是雙層膜胞器，膜間腔（intermembrane space）因電子傳遞鏈把氫離子從基質打出、氫離子濃度較高，所以帶正電、pH較低（較酸）；基質（matrix）則因氫離子被打出而帶負電、pH較高（較鹼）——這正是化學滲透理論（chemiosmotic theory）建立ATP合成動力的基礎。要注意電子傳遞鏈本身是在粒線體<b>內膜</b>上進行，不是直接在基質內；基質內主要進行的是檸檬酸循環，提供NADH/FADH2給內膜上的電子傳遞鏈使用。高基氏體除了修飾、分類粗糙內質網送來的蛋白質之外，也是prohormone（激素前驅物）轉化為具活性hormone的主要場所（透過post-translational modification）。細胞凋亡（apoptosis）是程式性細胞死亡，核心事件是各種caspases被<b>活化</b>（不是抑制）、DNA遭剪切酶剪成片段（DNA fragmentation），細胞膜保持完整、細胞碎片被巨噬細胞吞噬清除，因此不會引起嚴重發炎反應、也不會像壞死（necrosis）那樣細胞腫脹脹破——這組對比是apoptosis vs necrosis最核心的辨異點。平滑內質網釋放鈣離子的關鍵是IP3受器與IP3結合（不是鈣幫浦活化——鈣幫浦的作用方向反而是把鈣打回內質網）；細胞膜去極化才會誘發平滑肌/心肌的內質網釋鈣，過極化不會。細胞分裂時中心體發出的紡錘絲由微管（microtubule）組成，跟纖毛、鞭毛用的骨架材料相同。</p>
     <ul class="hdt-must">
@@ -65,7 +65,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="cell-membrane-composition-and-fluidity astrocyte-and-glial-function enzyme-kinetics-and-catalysis">
     <h3>壓縮考點：膜組成流動性・神經膠細胞・酵素動力學（Compressed: Membrane Composition, Glial Cells, Enzyme Kinetics）</h3>
     <p class="hdt-teach">以下三個子題在生理學考古題裡breadth與題數都偏低，用一行式重點帶過即可，不必展開機制推導。</p>
     <ul class="hdt-must">
@@ -152,7 +152,7 @@
 
   <h3 class="hdt-h">🔌 傳導・自律半場</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="synaptic-transmission-and-neurotransmitters">
     <h3>突觸傳遞：神經傳導物質的合成、釋放與清除（Synaptic Transmission: Neurotransmitter Release and Clearance）</h3>
     <p class="hdt-teach">神經傳導物質從突觸前神經末梢釋放的標準步驟是：動作電位傳到末梢→電位型鈣離子通道打開→Ca²⁺流入→Ca²⁺與SNARE蛋白（synaptobrevin、syntaxin、SNAP-25）結合，觸發囊泡膜與細胞膜融合→胞吐釋出神經傳導物質。整段突觸延遲其實只有約0.2毫秒，遠比一般人直覺想像的短。多數神經傳導物質（乙醯膽鹼、兒茶酚胺、血清素、甘胺酸、GABA、ATP、催產素、組織胺）都先儲存在突觸前囊泡裡等待釋放，但一氧化氮（NO）是唯一的例外——它由精胺酸與氧分子即時合成、極不穩定、生成後直接擴散穿過細胞膜，不會被打包進囊泡儲存。臨床上有三種毒素／藥物剛好分別作用在這條釋放路徑的不同步驟，是考選部最愛拿來互相誘答的三兄弟：肉毒桿菌毒素破壞SNARE蛋白（阻斷釋放本身）、有機磷毒劑（如沙林）抑制乙醯膽鹼酯酶（阻斷分解、造成ACh堆積）、重症肌無力則是受體本身被自體抗體攻擊（神經釋放正常，但骨骼肌接收端的菸鹼型受體減少）。</p>
     <ul class="hdt-must">
@@ -182,7 +182,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="autonomic-nervous-system-organization-and-effects">
     <h3>自主神經系統：解剖組織與神經傳導物質規則（Autonomic Nervous System: Organization and Neurotransmitter Rules）</h3>
     <p class="hdt-teach">自律神經系統分交感（胸腰部門，thoracolumbar）與副交感（頭薦部門，craniosacral）兩支，節前神經元細胞本體除了位於部分腦神經運動核之外，交感的節前細胞本體集中在脊髓側角的中間外側柱（intermediolateral column, IML，T1–L2/3節段）。神經傳導物質的規則有一個乾淨的骨架加上幾個高頻例外：<b>節前神經元（不論交感或副交感）一律釋放ACh，作用在節後神經元的菸鹼型受體</b>；<b>副交感節後神經元釋放ACh，作用在標的器官的蕈毒鹼型受體</b>；<b>交感節後神經元多數釋放NE，作用在腎上腺素性受體（α、β）</b>——但這條規則有三個必須背熟的例外：支配汗腺的交感節後神經元改釋放ACh（作用蕈毒鹼型受體）；支配腎血管平滑肌的交感節後神經元釋放dopamine（作用dopamine受體）；腎上腺髓質本身等同一個特化的交感神經節，是被交感節前神經元直接支配（釋放ACh、作用菸鹼型受體），髓質細胞本身就是「節後神經元」的功能等價物，直接把Epi/NE釋入血液。神經節的解剖位置也剛好相反：交感神經節靠近脊髓（節前短、節後長），副交感神經節則靠近或就在標的器官內（節前長、節後短）。</p>
     <ul class="hdt-must">
@@ -213,7 +213,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="proprioception-and-spinal-reflexes">
     <h3>本體感覺與脊髓反射（Proprioception and Spinal Reflexes）</h3>
     <p class="hdt-teach">骨骼肌內有兩種各司其職的張力／長度感受器，是考選部反覆出題的核心配對：<b>肌梭（muscle spindle）</b>偵測肌肉「長度」變化，訊號經Ia型感覺神經傳入，屬慢適應（tonic receptor，適應極慢，跟頸動脈竇壓力受器同類）；<b>高爾基腱器官（Golgi tendon organ）</b>偵測肌腱「張力」大小，訊號經Ib型感覺神經傳入。兩者引發的反射弧突觸數不同：肌梭引發的牽張反射（如膝跳反射）是<b>單突觸</b>反射（Ia直接接到α運動神經元）；高爾基腱器官引發的反向牽張反射是<b>雙突觸</b>反射（Ib先經中間神經元再抑制α運動神經元，造成肌肉放鬆）。γ運動神經元專門支配肌梭內的梭內肌纖維，興奮時使肌梭本身收縮（不影響梭外肌纖維、不會讓整條肌肉收縮），目的是維持肌梭對長度變化的敏感度；α與γ運動神經元的「共同活化」（alpha-gamma coactivation）確保肌肉在主動收縮的同時，肌梭仍能持續偵測長度變化，不會因梭內肌鬆弛而喪失偵測能力。</p>
     <ul class="hdt-must">
@@ -226,7 +226,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="motor-control-hierarchy-and-motor-neuron-disorders">
     <h3>運動控制階層與運動神經元病變（Motor Control Hierarchy and Motor Neuron Disorders）</h3>
     <p class="hdt-teach">隨意動作的控制是一條由上到下的階層：大腦前額葉皮質聯絡區將運動想法傳給<b>基底核與小腦後葉</b>共同計畫動作程序，計畫結果經丘腦（腹前核VA、腹外核VL）轉接到初級運動皮質（area 4）、前運動皮質（area 6）、輔助運動皮質（area 6），再下行到<b>脊髓</b>——脊髓前角的α運動神經元是這條階層最下端、直接連接肌肉的執行層級（也是唯一同時稱為「下運動神經元」的層級）。下行路徑分兩大類：<b>椎體徑（皮質脊髓徑）</b>負責隨意精細動作，其中側皮質脊髓徑（約90%在延腦交叉）掌控手指等遠端肌肉的精細動作，腹側皮質脊髓徑掌控頸部軀幹的近端動作；<b>椎體外徑</b>負責下意識的姿勢與張力調節，包含紅核脊髓徑（加強屈肌、只控上肢）、網狀脊髓徑（軸肌張力性姿勢維持，橋腦網狀脊髓徑傾向引起伸肌收縮）、四疊體脊髓徑（頭頸反射性姿勢）、前庭脊髓徑（加強伸肌、平衡姿勢）。基底核對運動皮質活性的調控走兩條反向路徑：<b>直接路徑</b>經兩個負調控（putamen→GPi抑制→丘腦抑制），淨效果是<b>解除抑制、促進</b>運動皮質活性；<b>間接路徑</b>經三個負調控加一個正調控（putamen→GPe抑制→STN抑制→GPi興奮（唯一glutamate正調控）→丘腦抑制），淨效果是<b>抑制</b>運動皮質活性。</p>
     <ul class="hdt-must">
@@ -243,7 +243,7 @@
 
   <h3 class="hdt-h">🧭 中樞・整合半場</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="higher-cortical-and-limbic-function">
     <h3>高階皮質功能：語言、記憶與情緒酬賞迴路（Higher Cortical Function: Language, Memory, and the Reward Circuit）</h3>
     <p class="hdt-teach">語言功能是頭頸部與神經系統重疊度最高的一節：Broca區（額葉，語言運動區）負責語言「產出」，受損表現為說話不流利、文法錯亂但理解正常；Wernicke區（顳葉，語言感覺區）負責語言「理解」，受損表現為說話流利但內容無意義、答非所問；弓狀束連接兩區，受損造成傳導性失語症（可理解、可流利說話，但無法複誦聽到的語句）；角回（angular gyrus，頂葉）受損造成命名性失語症（能形容物體特徵卻說不出名稱）。這些語言中樞絕大多數人（含大部分左撇子）都位於<b>左（優勢）半球</b>，而人臉辨識與負向情緒辨識的優勢半球通常在<b>右半球</b>（梭狀回、杏仁核）——語言與人臉/情緒辨識常常分屬不同半球，是这一節的核心X-vs-Y。記憶系統分兩條路：外顯記憶（陳述性，含語意記憶＋情節記憶，依賴海馬迴形成、之後鞏固到大腦皮質長期儲存）與內隱記憶（程序性，含動作技能，依賴小腦與基底核，不需海馬迴）；雙側海馬迴切除的病人會出現嚴重的順向失憶（無法形成新的陳述性記憶），但程序性技能（如騎腳踏車）與童年往事（已鞏固到皮質）都不受影響。中腦邊緣多巴胺路徑（mesolimbic pathway，由腹側被蓋區投射到依核、杏仁核、海馬）主司酬賞與成癮行為，與恐懼（杏仁核）、視覺、平衡感無關。</p>
     <ul class="hdt-must">
@@ -260,7 +260,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="hypothalamic-regulatory-functions">
     <h3>下視丘調節功能：體溫、生物時鐘與體液平衡（Hypothalamic Regulation: Thermoregulation, Circadian Rhythm, and Fluid Balance）</h3>
     <p class="hdt-teach">下視丘是體內恆定的總調節中樞，各核區各司其職，是這一節唯一真正需要建立心智地圖的內容：<b>視交叉上核（SCN）</b>是人體生物時鐘的主要節律點，接收視網膜下視丘徑（retinohypothalamic tract）的光訊息，驅動松果體分泌褪黑激素（受光激活時褪黑激素分泌受抑制）；<b>視前區（preoptic area）</b>掌管體溫調節與睡眠誘發（睡眠時活性高於清醒時）；<b>視上核與室旁核</b>合成抗利尿激素（ADH／vasopressin）與催產素；<b>弓狀核（arcuate nucleus）</b>掌管食慾調節，內有兩群拮抗的神經元——POMC神經元製造α-MSH（抑制食慾）、另一群製造NPY與AgRP（促進食慾），瘦素（leptin）刺激POMC神經元、增加α-MSH來抑制食慾。體液滲透壓調節有清楚的閾值順序：血液滲透壓上升到約280 mOsm/kg即啟動ADH分泌（先發生），要到約295 mOsm/kg才會觸發口渴感（後發生）——身體優先靠ADH保水，口渴閾值高於ADH閾值。晝夜節律賀爾蒙互為鏡像：皮質醇（cortisol）／ACTH在清晨達高峰、褪黑激素則在夜間達高峰，兩者的節律都受SCN控制。</p>
     <ul class="hdt-must">
@@ -276,7 +276,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="sleep-stages-and-eeg">
     <h3>睡眠週期與腦電圖（Sleep Stages and Electroencephalography）</h3>
     <p class="hdt-teach">腦波依放電頻率由高到低排列成beta（>12 Hz，睜眼清醒高度警覺，如專心作答時）＞alpha（8–12 Hz，閉眼放鬆清醒）＞theta（4–8 Hz，昏昏欲睡）＞delta（<4 Hz，熟睡），這條頻率階梯是這一節最基本的骨架。非快速動眼期（NREM）依此階梯逐漸變慢：NREM第一期（alpha轉theta的過渡期）→NREM第二期（以K複合波與睡眠紡錘波為特徵性標記）→NREM第三期（delta波為主的深睡期）。快速動眼期（REM）則反常地呈現接近清醒的beta樣快波（腦波與清醒時最相似），同時伴隨PGO棘波（pontogeniculo-occipital spikes）與骨骼肌張力降到全睡眠週期最低點（肌肉迷走，muscle atonia）、動眼與可回憶夢境的機率也最高。維持清醒與睡眠轉換的網狀活化系統（RAS）由多群神經核共同組成：橋腦膽鹼激導神經元（cholinergic，pedunculopontine與laterodorsal tegmental nucleus）在清醒與REM期活性都高、慢波睡眠時降低；藍斑核的正腎上腺素神經元與背縫核的血清素神經元則是清醒時活性最高、無論NREM或REM都會下降。</p>
     <ul class="hdt-must">
@@ -288,7 +288,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="cerebellar-function">
     <h3>小腦功能（重點速記）</h3>
     <p class="hdt-teach">小腦近年出題頻率較低（全科僅5題），用精簡方式帶過即可：小腦皮質由外而內分子層、蒲肯野細胞層、顆粒層三層；輸入訊號（climbing fiber、mossy fiber）興奮蒲肯野細胞，蒲肯野細胞本身是<b>抑制性（GABA）</b>輸出到小腦深部核，深部核才是小腦真正的輸出端；顆粒細胞是小腦皮質<b>唯一的興奮性（glutamate）</b>神經元，其餘（蒲肯野、高爾基、籃狀細胞）都是GABA抑制性。</p>
     <ul class="hdt-must">
@@ -434,7 +434,7 @@
   <h2 class="hdt-region__head">👁️👂 感覺系統（特殊感覺＋體感覺）</h2>
   <p class="hdt-intro">這一區把「特殊感覺」（視覺、聽覺與前庭平衡、嗅覺、味覺）跟「體感覺」（觸壓本體感覺、痛溫覺的上行路徑＋轉移痛）收在一起，份量不大但陷阱密度很高，多半是「方向反了就整題錯」的題型。核心骨架有三條：①視覺與嗅覺的第二信使／離子通道方向常被出題者故意顛倒（暗態去極化、見光過極化——記反了整條光傳導機轉全盤皆錯）；②視覺傳導路徑「病灶在哪、視野缺什麼」是歷屆極高頻的定位題，關鍵是先分清顳側/鼻側視網膜各自對應哪半邊視野；③體感覺兩條上行路徑（背柱-內側蹄系 vs 前外側系統）在哪一層交叉不一樣，這決定了單側脊髓病灶會出現什麼樣「觸覺跟痛溫覺分離」的臨床表現。讀法建議：先把視網膜構造與光傳導的方向記熟，再往上接視覺傳導路徑的病灶定位，接著讀聽覺／前庭（構造對應功能的配對題最多），最後嗅覺、味覺、體感覺三塊份量較輕、可以快速掃過。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="vision-retina-and-phototransduction">
     <h3>視覺一：視網膜構造與光傳導（Retina Structure and Phototransduction）</h3>
     <p class="hdt-teach">視網膜是一個「反著長」的構造：光線要先穿過神經節細胞層、雙極細胞層，最後才抵達最外側的感光細胞（視錐與視桿）本身。光傳導的核心是離子通道方向——<b>黑暗中去極化、見光後過極化</b>，這跟大部分神經生理直覺相反，是這一題型最常被顛倒的地方。感光色素視紫質（rhodopsin）被光活化後啟動一連串酵素反應，最終讓通道關閉、細胞過極化，減少釋放興奮性神經傳導物質給下游的雙極細胞。</p>
     <ul class="hdt-must">
@@ -450,7 +450,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="visual-pathway-and-lesion-localization">
     <h3>視覺二：視覺傳導路徑與病灶定位（Visual Pathway and Lesion Localization）</h3>
     <p class="hdt-teach">視覺傳導的骨架是視網膜→視神經→視交叉（鼻側纖維交叉）→視徑→外側膝狀體（LGN）→視放射→枕葉視覺皮質；瞳孔對光反射則走完全不同的一條路，不經過LGN。命題者最愛用「病灶在哪、視野缺什麼」出定位題，訣竅是先分清楚顳側視網膜對應鼻側（內側）視野、鼻側視網膜對應顳側（外側）視野，再記住交叉只發生在視交叉這一站，之後就一路維持同側傳導。</p>
     <ul class="hdt-must">
@@ -464,7 +464,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="hearing-and-vestibular-function">
     <h3>聽覺與前庭平衡功能（Hearing and Vestibular Function）</h3>
     <p class="hdt-teach">聽覺傳導骨架＝外耳收音→鼓膜→三塊聽小骨槓桿放大→卵圓窗→耳蝸基底膜行波→柯蒂氏器毛細胞去極化→耳蝸神經→中樞聽覺路徑（雙側投射到聽覺皮質）；前庭系統則另外分工——三半規管管旋轉（動態平衡），橢圓囊與球囊管直線加速度（靜態平衡）。這一區的考點多半是「構造對應功能」的配對題，方向或部位記反就整題錯。</p>
     <ul class="hdt-must">
@@ -480,7 +480,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="somatosensory-pathways-and-referred-pain">
     <h3>體感覺傳導路徑與轉移痛（Somatosensory Pathways and Referred Pain）</h3>
     <p class="hdt-teach">體感覺上行路徑分兩條，命題者最愛考「誰在哪裡交叉」：背柱-內側蹄系系統（DC-ML）管精細觸覺、震動覺、本體感覺，交叉發生在延腦（位置高）；前外側系統（含脊髓丘腦徑）管痛覺、溫度覺，交叉發生在脊髓節段當下（位置低）。這個交叉層級差異，正是解讀單側脊髓病灶為何會出現「觸覺與痛溫覺分離喪失」的關鍵。</p>
     <ul class="hdt-must">
@@ -492,7 +492,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="olfaction-and-gustation">
     <h3>嗅覺與味覺（Olfaction and Gustation）</h3>
     <p class="hdt-teach">嗅覺與味覺常被拿來跟視覺對照第二信使機制：嗅覺走cAMP路徑、視覺走cGMP路徑，方向剛好相反，是常見的平行陷阱；味覺神經支配則是舌頭「前2/3一般感覺與味覺分屬兩條不同神經」的經典地雷。</p>
     <ul class="hdt-must">
@@ -506,7 +506,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="sensory-receptor-coding-and-adaptation">
     <h3>感覺受器編碼與適應（Sensory Receptor Coding and Adaptation，低頻補充）</h3>
     <p class="hdt-teach">這個主題份量最輕、近十年僅約4題，但常被拿來當其他感覺題的干擾選項：刺激強度靠什麼參數編碼、受器適應快慢如何分類，掃過重點即可。</p>
     <ul class="hdt-must">
@@ -602,7 +602,7 @@
   <h2 class="hdt-region__head">💪 肌肉生理：從神經衝動到肌絲滑動的完整訊號鏈</h2>
   <p class="hdt-intro">肌肉生理是生理學裡「機轉最連貫」的一區——從運動神經末梢釋放乙醯膽鹼開始，一路到肌絲滑動產生張力，中間每一步都可以獨立出題，是這一區在歷屆考題裡反覆出現的原因（單是興奮收縮偶合就佔了十八題）。這一區的骨架分成四段：先是神經肌肉接合處把神經訊號轉成骨骼肌自己的動作電位，接著興奮收縮偶合把動作電位轉成細胞內鈣離子濃度上升，再來是橫橋循環把鈣離子訊號轉成實際的肌絲滑動與張力，最後才是骨骼肌纖維依收縮速度、耐力分成紅肌白肌的性質差異。命題者最愛問的正是「這一步發生在哪個構造、由哪個受器負責」，以及骨骼肌、心肌、平滑肌三者在同一機轉步驟上「哪裡一樣、哪裡不一樣」——把三型肌肉比較表刻進腦裡，這一區的分數幾乎可以全拿。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="skeletal-muscle-excitation-contraction-coupling">
     <h3>骨骼肌興奮收縮偶合（Skeletal Muscle Excitation-Contraction Coupling）</h3>
     <p class="hdt-teach">骨骼肌的收縮訊號鏈起點在神經肌肉接合處（neuromuscular junction）：運動神經末梢的動作電位到達後，觸發突觸小泡與細胞膜融合（此步驟仰賴SNARE蛋白），釋放乙醯膽鹼（ACh）到突觸間隙，ACh 與骨骼肌肌細胞膜（肌漿膜）上的 nicotinic 受體（一種配體門控陽離子通道）結合，Na⁺ 內流造成局部去極化，稱為終板電位（end plate potential, EPP）——這是發生在肌細胞膜上、屬於興奮性的局部電位，不是動作電位、也不發生在神經元本身。EPP 若振幅夠大，會誘發鄰近肌膜的電壓門控鈉通道打開，產生真正的動作電位，沿肌纖維表面與橫小管（T-tubule）向內傳導。橫小管膜上的 dihydropyridine 受體（DHP receptor，本質是 L-type 電壓敏感鈣離子通道）感應到這個電位變化後，以物理牽動的方式打開緊鄰的肌漿網（SR）終池上的 ryanodine 受體（RyR1）——骨骼肌這一步不需要靠 DHP 本身放入的胞外鈣離子，純粹是機械式的構型連動，這點是骨骼肌與心肌最大的分野。RyR1 打開後，SR 大量釋出儲存的 Ca²⁺ 進入細胞質，Ca²⁺ 與細肌絲上的 troponin C 結合，使 tropomyosin 構型改變、移位，露出 actin 上原本被擋住的 myosin 結合位，橫橋循環（cross-bridge cycle）才正式啟動。</p>
     <ul class="hdt-must">
@@ -617,7 +617,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="smooth-muscle-physiology-and-muscle-type-comparison">
     <h3>平滑肌生理與三型肌肉之比較（Smooth Muscle Physiology and Muscle Type Comparison）</h3>
     <p class="hdt-teach">平滑肌的收縮訊號鏈與骨骼肌、心肌走的是完全不同的路：平滑肌細胞膜上沒有橫小管（T-tubule），細肌絲上也沒有 troponin（但仍有 tropomyosin），因此 Ca²⁺ 無法走「troponin→tropomyosin 位移」這條路。取而代之的是，Ca²⁺（主要來自胞外經肌細胞膜鈣通道內流，只有少量來自平滑肌本身較不發達的肌漿網）與細胞質內游離的攜鈣素（calmodulin）結合，這個 Ca²⁺-calmodulin 複合體活化肌凝蛋白輕鏈激酶（myosin light-chain kinase, MLCK），MLCK 消耗 ATP 將 myosin 輕鏈磷酸化後，myosin 才能與 actin 形成橫橋、啟動收縮；要讓平滑肌放鬆，則要靠肌凝蛋白輕鏈磷酸酶（myosin light-chain phosphatase）將 myosin 輕鏈去磷酸化，抑制橫橋循環。平滑肌又依細胞間是否有間隙連結（gap junction）分成兩型：單一單位（single-unit，又稱內臟平滑肌）細胞間以 gap junction 相連形成合體，具自發性節律電位、被牽張時即使無神經支配也會收縮；多單位（multi-unit）平滑肌細胞間彼此獨立，無自發性去極化，需要神經個別支配才能維持張力，收縮強度也受自主神經與激素調節。平滑肌另一個特點是終生保有分裂增生的能力，與骨骼肌、心肌成年後主要靠肥大不同。</p>
     <ul class="hdt-must">
@@ -631,7 +631,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="skeletal-muscle-mechanics-and-energetics">
     <h3>骨骼肌力學與能量代謝（Skeletal Muscle Mechanics and Energetics）</h3>
     <p class="hdt-teach">骨骼肌的單次收縮（twitch）依張力與長度變化方式分成等長收縮（isometric，長度不變、張力變化）與等張收縮（isotonic，張力不變、長度縮短）。同一條肌肉相比，等長收縮的收縮潛伏期（latent period）比等張收縮短，但完成一次收縮所需的總時間反而比等張收縮長——因為等張收縮要先經過一段等長期把張力拉到等於負重，才開始縮短，所以潛伏期較長，但一旦開始縮短、速度較快，總時程反而較短。在等張收縮的情境下比較不同負重：負重越重，張力必須拉得越大才能舉起物體，所以潛伏期越長、縮短速度越慢，但收縮期間（twitch duration）反而越短。長度-張力關係（length-tension relation）方面，肌纖維在放鬆長度（即最適長度，optimal length）時能產生最大張力，此時粗肌絲橫橋與細肌絲重疊、可結合的位置數目最多；被拉得比最適長度更長時，橫橋重疊減少、主動張力下降，但被動張力（來自結締組織等彈性成分）會隨拉長而增加。能量代謝方面，運動剛開始的最初幾秒鐘，ATP 再生速度最快的來源是磷酸肌酸（creatine phosphate）直接把高能磷酸基轉給 ADP；磷酸肌酸存量有限，僅能撐約 5–8 秒的最大收縮強度，之後才依序仰賴糖解作用（glycolysis，較快但效率較低、產生乳酸）與有氧磷酸化（oxidative phosphorylation，最慢但持續力最強）接力供能。</p>
     <ul class="hdt-must">
@@ -643,7 +643,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="muscle-fiber-types-and-fatigue">
     <h3>肌纖維類型與疲勞特性（Muscle Fiber Types and Fatigue Characteristics）</h3>
     <p class="hdt-teach">骨骼肌纖維依收縮速度與能量代謝方式分成三型：Type I（慢氧化肌，slow oxidative fibers，即紅肌）、Type IIA（快氧化糖解肌，fast-oxidative glycolytic fibers，中間肌）、Type IIB/IIX（快糖解肌，fast-glycolytic fibers，即白肌）。紅肌粒線體多、肌紅蛋白含量高、微血管密度高、以有氧的氧化磷酸化為主要產能方式，收縮速度慢、肌凝蛋白 ATPase 活性低，但耐力最好、最不易疲勞；白肌則相反，纖維直徑較粗、糖解酵素活性高、以無氧糖解為主要產能方式，收縮速度快、ATPase 活性高，能快速產生大力量但也最快疲勞、堆積乳酸。三型間還有一項容易忽略的比較：把平滑肌也放進來看，平滑肌 myosin 的 ATPase 活性其實比白肌更低，是所有肌肉裡收縮速度最慢的，因為平滑肌雖然收縮慢，但可以長時間維持張力而不耗竭。運動時肌纖維的招募順序遵循「由小到大」的原則：支配紅肌的運動神經元本體較小、興奮閾值較低，因此在低強度運動（如站立）時最先被徵召；隨著運動強度增加（走路、快跑），才依序徵召中間肌、最後才是白肌。</p>
     <ul class="hdt-must">
@@ -728,7 +728,7 @@
   <h2 class="hdt-region__head">🩸 血液生理｜凝血瀑布 × 攜氧曲線 × 血球代謝</h2>
   <p class="hdt-intro">血液生理在生理學題庫裡分量不算最大（5 個小主題、約 43 題），但其中兩個主題——止血與凝血機制、血紅素氧結合與血液酸鹼緩衝——是歷屆考題裡反覆出現的固定班底，光這兩塊就佔了全區六成以上的題量（11 + 16 ／ 43）。這一區最有效率的讀法是「兩張錨表打底，其餘三個小主題快速過」：先把凝血瀑布的三條路徑（內源／外源／共同）＋維生素K依賴因子清單背熟，再把O2-Hb解離曲線的右移／左移因子（Bohr effect、2,3-BPG、胎兒血紅素）背熟；紅血球生成（EPO／B12／鐵代謝）、白血球分類、ABO血型則是機制單純、背過就拿分的小主題，不需要深究複雜推導。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="hemostasis-and-coagulation-cascade">
     <h3>止血與凝血機制（Hemostasis and Coagulation Cascade）</h3>
     <p class="hdt-teach">止血分兩階段：血小板先靠vWF與膠原蛋白結合完成初期黏附（不是靠凝血因子瀑布），接著凝血因子的瀑布反應才登場加固血塊。凝血瀑布本身分三條路徑，最終都匯流到同一個終點——凝血酶把纖維蛋白原轉成纖維蛋白。</p>
     <ul class="hdt-must">
@@ -744,7 +744,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="hemoglobin-oxygen-binding-and-acid-base-buffering">
     <h3>血紅素氧結合、血氧運輸與血液酸鹼緩衝（Hemoglobin-Oxygen Binding, Gas Transport, and Acid-Base Buffering）</h3>
     <p class="hdt-teach">這是本區題量最大的主題，核心是O2-Hb解離曲線「誰讓它右移、誰讓它左移」，加上CO2三種運輸形式與血液酸鹼緩衝的角色分工。方向題是這一段最容易失分的地方——升高的CO2/H⁺/2,3-BPG/溫度全部是促進O2「釋放」而非「結合」。</p>
     <ul class="hdt-must">
@@ -762,7 +762,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="erythropoiesis-and-red-cell-physiology">
     <h3>紅血球生成與生理特性（Erythropoiesis and Red Blood Cell Physiology）</h3>
     <p class="hdt-teach">這段考的是紅血球「怎麼來、怎麼活、怎麼被回收」：生成靠腎臟EPO＋骨髓＋B12/鐵，代謝上靠犧牲粒線體與細胞核換取更大氣體交換表面積，回收時血紅素分解變成膽紅素進入消化系統。</p>
     <ul class="hdt-must">
@@ -778,7 +778,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="white-blood-cells-and-phagocytes">
     <h3>白血球與吞噬細胞（White Blood Cells and Phagocytes）</h3>
     <p class="hdt-teach">這段考點集中在「哪種白血球分化自哪種前驅細胞」與「血中相對豐度排序」兩條軸線，機制單純，讀熟即可拿分。</p>
     <ul class="hdt-must">
@@ -791,7 +791,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="blood-groups-and-transfusion-reactions">
     <h3>血型與輸血反應（Blood Groups and Transfusion Reactions）</h3>
     <p class="hdt-teach">低頻小主題，只考ABO相容性原則與輸血反應的抗體-抗原機轉，讀一次就能拿分。</p>
     <ul class="hdt-must">
@@ -863,7 +863,7 @@
 
   <h3 class="hdt-h">🫀 第一場：心臟幫浦——心動週期・動作電位・心電圖・心輸出量調控</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="cardiac-cycle-and-heart-sounds">
     <h3>心動週期與心音（Cardiac Cycle and Heart Sounds）</h3>
     <p class="hdt-teach">心動週期最有效的讀法是把 Wiggers diagram 的六個分期跟「瓣膜此刻開還關」綁在一起記，因為房室瓣（二尖瓣／三尖瓣）與半月瓣（主動脈瓣／肺動脈瓣）永遠只有一組在開，兩組同時都關的時候就是等容期。心室收縮從等容心室收縮期開始：房室瓣先關閉（產生第一心音 S1），此時心室容積不變但壓力急遽上升，直到超過主動脈壓，主動脈瓣才被推開，進入射血期，心室容積快速下降、主動脈壓升到最高。心室一開始舒張，主動脈壓仍暫時高於心室壓，主動脈瓣關閉（產生第二心音 S2），這個瞬間會有血流反沖撞擊瓣膜與主動脈根部的彈性回彈，在主動脈壓力波上留下一個先降後升的重搏凹跡（dicrotic notch）——這正是等容心室舒張期開始的訊號。之後房室瓣打開，心室快速充盈、再慢速充盈（diastasis），最後心房收縮把剩餘血液推入心室，完成一次循環。壓力大小關係全程只要記住「動脈壓要嘛最高、要嘛被心室壓超過」這條主軸：等容收縮期是主動脈壓＞心室壓＞心房壓；等容舒張期則是心室壓仍≥心房壓（房室瓣尚未打開）。瓣膜的機械完整性也在這裡整合：乳突肌與腱索的功能是在心室收縮時「拉住」房室瓣、防止瓣膜被血流沖翻，斷裂或麻痺會造成血液逆流回心房而非瓣膜狹窄或打不開。</p>
     <ul class="hdt-must">
@@ -880,7 +880,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="cardiac-action-potential-mechanisms">
     <h3>心肌動作電位機制（Cardiac Action Potential Mechanisms — Ventricular and Pacemaker）</h3>
     <p class="hdt-teach">心室肌細胞的動作電位分五期，跟神經／骨骼肌最大的不同就是多了一段拉長的高原期：第0期是快鈉通道開啟、Na⁺快速流入，膜電位由靜止的約−90 mV迅速衝到約+20～25 mV（去極化）；第1期快鈉通道隨即關閉、部分鉀通道打開造成短暫的初始再極化；第2期是高原期的核心機制——L-type鈣通道打開讓Ca²⁺持續流入，同時鉀通道也開著讓K⁺流出，兩股電流互相抵銷，膜電位因此維持在接近去極化的水準而不迅速下降；第3期鈣通道關閉、鉀通透性持續，K⁺淨流出造成快速再極化，回到第4期穩定的靜止膜電位。這段拉長的不反應期（時間長度約等於高原期）正是心肌不會像骨骼肌一樣被強直收縮的關鍵。竇房結（SA node）等節律點細胞則完全是另一套邏輯：它沒有快鈉通道，第0期的去極化主升段是靠<b>L-type鈣通道</b>開啟、Ca²⁺流入完成的（升幅較平緩，只到約+5～10 mV，遠不如心室肌的+20～25 mV）；第3期一樣是鉀通道開啟造成再極化；最特別的是第4期——SA node的靜止膜電位並不穩定（約−60 mV），會靠funny current（If，HCN通道，主要是Na⁺流入）加上T-type鈣通道緩慢自發去極化到閾值，這正是心臟能自發規律放電的起搏機制。自主神經對節律點的調控是走cAMP路徑：交感神經經β1受體、Gs蛋白活化adenylyl cyclase使cAMP上升，加速funny current與鈣通道活性、加快心跳、增加傳導速度與收縮力；副交感神經經M2受體、Gi蛋白抑制adenylyl cyclase使cAMP下降，同時增加鉀通透性造成過極化，減慢心跳與房室結傳導。</p>
     <ul class="hdt-must">
@@ -896,7 +896,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="electrocardiogram-interpretation">
     <h3>心電圖判讀（Electrocardiogram Interpretation）</h3>
     <p class="hdt-teach">心電圖的每個波都直接對應到前一個主題的離子事件，把兩者疊在一起記最省力：P波＝心房去極化（心房開始收縮，落在心室舒張期晚期，不在收縮期），QRS複合波＝心室去極化（對應心室肌動作電位第0期），ST segment＝心室動作電位高原期（第2期），T波＝心室再極化（第3期，落在射血期後段，此時心室仍在收縮，不是舒張期）。心房的再極化訊號其實藏在QRS複合波之中，因為訊號幅度小、被巨大的心室去極化訊號蓋過去，不會單獨顯現。房室結的傳導延遲在PR interval上看得最清楚：延遲愈久，PR interval愈長。一級房室傳導阻斷是PR interval單純延長（＞0.20秒）但每個P波後仍跟著QRS；二級Mobitz I是PR interval漸進延長直到某次QRS脫落；Mobitz II是PR interval固定但偶爾QRS突然消失；三級則是P波與QRS完全各自獨立、互不相關。心房顫動時心房內產生大量混亂訊號，P波因此不明顯（不會比正常人更清楚），但這些訊號仍經AV node傳到心室，QRS波形正常，只是AV node對混亂訊號有篩選性（decremental conduction）的傳遞特性，造成R-R間隔不規則；心室跳動速率可以正常、過快或過慢，並非一定下降。血鉀濃度也會直接改變T波型態，這是急診心電圖的常見延伸考點。</p>
     <ul class="hdt-must">
@@ -908,7 +908,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="cardiac-output-contractility-and-venous-return">
     <h3>心輸出量、收縮力與靜脈回流（前負荷）調控（Cardiac Output, Contractility, and Venous Return Regulation）</h3>
     <p class="hdt-teach">心搏量（SV）＝心室舒張末期容積（EDV，正常約120 mL）－心室收縮末期容積（ESV，正常約50 mL），正常SV約70 mL，受前負荷、後負荷、收縮力三個因子調控，這三者的方向性是這一leaf的核心：前負荷（preload）≈EDV，由靜脈回流量決定，Frank-Starling定律說EDV上升會讓心肌纖維被拉得更長、SV立即隨之上升；後負荷（afterload）≈動脈壓，後負荷上升會讓心室更難把血液推出去，ESV因此上升、SV反而下降；收縮力（contractility）則是不靠前負荷或後負荷、獨立提升每次收縮力道的能力，主要由交感神經經β1受體、cAMP路徑上調Ca²⁺內流來實現。心肌細胞的鈣循環是收縮力機轉的核心：動作電位傳來時L-type鈣通道打開，少量Ca²⁺流入觸發肌漿網上的雷恩諾鹼受體（ryanodine receptor）釋放更大量的Ca²⁺（鈣誘發鈣釋放），Ca²⁺與肌旋轉素（troponin）結合啟動收縮；舒張時Ca²⁺離開troponin，主要靠肌漿網上的鈣幫浦（SERCA）把Ca²⁺送回肌漿網（活化SERCA可加速心肌放鬆、增加心室充血期時間比例），部分則靠鈉鈣交換器（Na⁺-Ca²⁺ exchanger, NCX）把Ca²⁺排到細胞外換入Na⁺，最後鈉鉀幫浦再把多出的Na⁺排出以維持梯度。強心配醣體（如ouabain、毛地黃）的機轉就是抑制鈉鉀幫浦，讓胞內Na⁺濃度上升、削弱NCX賴以排鈣的鈉梯度，使胞內Ca²⁺濃度上升、收縮力增加——這條鏈也解釋了為什麼「抑制鈉鉀幫浦」會被考成「增加心肌收縮力」的正確選項。全身血量與靜脈系統的調控則決定了前負荷的供給端：失血、姿態改變會透過交感神經收縮靜脈、RAAS促進水鈉滯留來維持靜脈回流；心衰竭時心臟打不出血液，血液滯留在靜脈與微血管系統，靜脈壓上升、微血管濾出增加，這正是心衰竭周邊水腫的機轉核心。</p>
     <ul class="hdt-must">
@@ -927,7 +927,7 @@
 
   <h3 class="hdt-h">🩸 第二場：血管血流——血壓調控・局部血流・微血管交換</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="arterial-blood-pressure-and-baroreflex">
     <h3>動脈血壓調控與感壓反射（Arterial Blood Pressure Regulation and Baroreflex）</h3>
     <p class="hdt-teach">循環系統的公式常被拿來跟電學的歐姆定律類比：MAP（平均動脈壓）＝CO（心輸出量）×TPR（總周邊阻力），對應V＝IR。臨床上更實用的估算公式是MAP＝（SBP＋2×DBP）／3＝DBP＋1/3脈搏壓，MAP之所以比較接近DBP，是因為心動週期中舒張期時間比收縮期長（約2:1的加權）。脈搏壓＝SBP－DBP，主要隨心搏量與動脈順應性變化：心搏量增加會使脈搏壓上升；動脈粥狀硬化使血管壁失去彈性、順應性下降，會讓收縮壓與脈搏壓明顯上升，舒張壓則不一定跟著上升（晚期甚至可能下降）。感壓反射（baroreflex）是短期血壓調控最快速的機制：頸動脈竇的感壓受器經舌咽神經（CN IX）、主動脈弓的感壓受器經迷走神經（CN X），兩路訊號都終止於延腦的孤立束核（NTS），不是視丘。當血壓上升，感壓受器放電頻率增加，經NTS抑制交感神經、興奮副交感神經，造成血管舒張、心跳減慢、心輸出量下降，把血壓拉回正常；血壓下降（如姿態性低血壓、失血）時則反向操作：放電頻率降低、交感興奮、副交感受抑制，造成血管收縮、心跳加快、收縮力與心搏量上升。若把感壓受器的神經路徑整條切除，會失去這條負回饋煞車，短期內血壓反而顯著升高。顱內壓上升時的Cushing現象也是同一套邏輯串接而成：顱骨無法擴張、腦組織被壓迫、腦血流下降、代謝廢物在腦間質液堆積，強力刺激交感神經使周邊血管收縮、血壓上升（目的是維持腦灌流壓CPP＝MAP－ICP），血壓升高又觸發感壓反射、反射性地讓心跳下降——最終呈現「血壓上升、心跳下降」的典型三合一表現。</p>
     <ul class="hdt-must">
@@ -944,7 +944,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="vascular-hemodynamics-and-local-blood-flow-regulation">
     <h3>血管血流動力學與局部血流自動調節（Vascular Hemodynamics and Local Blood Flow Autoregulation）</h3>
     <p class="hdt-teach">血管阻力遵循Poiseuille定律：R∝（黏滯度×血管長度）／半徑⁴，半徑對阻力的影響是四次方關係，對阻力的變化最敏感——半徑加倍，阻力降為原本的1/16，流量則增為16倍，這也是小動脈（阻力血管）能精準微調全身血流分佈的原因。全身血液的分布並不平均：靜脈系統平時容納約54%的血液，是血管系統最大的容積儲存庫；動脈約11%，微血管僅約5%卻擁有全身血管中最大的總橫切面積、血流速度也因此是全身最慢（正好利於物質交換）；靜脈的順應性也優於動脈，低壓時能承受相當大的體積變化。血管平滑肌的自主神經支配有一條重要的例外規則：血管平滑肌只受<b>交感神經</b>支配（α1受體收縮、骨骼肌與肝臟血管的β2受體舒張），<b>副交感神經不支配大部分周邊血管</b>，看到「副交感刺激使血管收縮或舒張」的選項可以直接刪除。局部血流的自動調節則是不靠中樞神經、單靠局部代謝產物運作的機制：某器官血流一旦下降，局部代謝廢物（CO2、H⁺、腺苷酸、K⁺等）隨即堆積，這些物質都是血管舒張因子，會讓局部小動脈舒張、把血流拉回來（代謝性自動調節）；若把某肢體的血流暫時阻斷後再放開，會出現血流暴增到阻斷前5倍以上的反應性充血（reactive hyperemia），與運動時代謝需求上升驅動的主動性充血（active hyperemia）是不同的兩種現象；小動脈管壁另有肌原反應（myogenic response）——血管因壓力增加而被拉扯時會反射性收縮，避免組織被過度灌流。冠狀動脈血流的節律則反過來：主要血流出現在<b>心舒張期</b>，因為心收縮期時主動脈瓣瓣葉部分遮蔽冠狀動脈開口、加上收縮中的心肌直接壓迫血管，兩者都限制血流，等到舒張期心肌放鬆、主動脈壓仍夠高時，血流才能順利灌注心肌。腦部的血流自動調節能力又比肝臟強得多，動脈血中CO2濃度上升會使腦脊髓液pH下降、引發腦血管明顯擴張，這條機制在過度換氣（CO2下降）時會反向造成腦血管收縮。</p>
     <ul class="hdt-must">
@@ -960,7 +960,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="capillary-fluid-exchange-and-lymphatics">
     <h3>微血管液體交換與淋巴系統（Capillary Fluid Exchange (Starling Forces) and Lymphatics）</h3>
     <p class="hdt-teach">微血管液體要往哪個方向移動，取決於四個力量的拔河，也就是Starling forces：淨過濾壓（NFP）＝（微血管靜水壓－組織間液靜水壓）－（血漿膠體滲透壓－組織間液膠體滲透壓）。NFP為正值時，液體淨流出微血管進入組織間隙（過濾）；為負值時，液體淨流入微血管（再吸收）。四個變數裡，微血管靜水壓（由心臟輸出的血壓推動）與組織間液膠體滲透壓是把液體往外推的力量，血漿膠體滲透壓（主要由白蛋白貢獻）與組織間液靜水壓則是把液體往內拉的力量。微血管前小動脈（precapillary arterioles）若收縮，會降低微血管靜水壓、使淨過濾壓與過濾速率跟著下降；血漿膠體滲透壓若因白蛋白流失而降低，則會讓淨過濾壓上升、組織液增加，淋巴回流量也隨之增加——這正是低白蛋白血症水腫與心衰竭水腫在機轉上的差異：前者是滲透壓端出問題，後者是靜水壓端（靜脈壓上升）出問題。多出來的組織液最終要靠淋巴系統收回循環系統，淋巴的推動力有三個來源：淋巴管本身平滑肌的自發性節律收縮（把淋巴液往心臟方向推）、周邊骨骼肌收縮時對淋巴管的擠壓（骨骼肌泵）、以及淋巴管內單向瓣膜防止逆流；交感神經興奮同樣會促使淋巴管平滑肌收縮，加速而非減緩淋巴液流速，這是一個常見的誘答方向。</p>
     <ul class="hdt-must">
@@ -1074,7 +1074,7 @@
 
   <h3 class="hdt-h">🌬️ 半場一：呼吸力學與容積</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="mechanics-of-breathing">
     <h3>呼吸力學：肋膜壓、彈性回復力與作功（Mechanics of Breathing）</h3>
     <p class="hdt-teach">呼吸的本質是壓力梯度驅動氣流：肋膜內壓（intrapleural pressure, Pip）在正常平靜呼吸的吸氣與呼氣兩個階段都維持負壓——這是因為肺臟的彈性回復力（想往內縮）與胸壁的擴張傾向（想往外撐）互相拉扯，在肋膜腔裡形成一個持續的負壓夾層；也正因如此，肺泡壓－肋膜壓（跨肺壓，transpulmonary pressure）在正常呼吸全程都是正值，維持肺臟撐開不塌陷。平靜吸氣是主動過程：膈神經興奮讓橫膈膜收縮、外肋間肌同時收縮，胸廓體積增加使Pip更負、肺泡壓下降到低於大氣壓，空氣因此被「吸」入肺；平靜呼氣則完全被動，單純靠吸氣時儲存的彈性位能回彈完成，不需要任何肌肉主動收縮。用力呼氣時情況不同：內肋間肌與腹肌主動收縮把胸廓往內壓縮，此時Pip不再侷限於負壓，甚至可以超過大氣壓力——這是用力呼氣與平靜呼氣最關鍵的力學差異。整個呼吸循環中，肺泡壓（Palv）的最高點出現在呼氣「中途」，而非呼氣剛開始或吸氣剛結束的瞬間，因為此時胸腔縮小的驅動力最強、尚未接近吐氣末的壓力回歸點。</p>
     <ul class="hdt-must">
@@ -1089,7 +1089,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="lung-volumes-and-capacities">
     <h3>肺容積與肺容量（Lung Volumes and Capacities）</h3>
     <p class="hdt-teach">肺容積由小到大堆疊成肺容量，記憶的骨架是四個基本容積（潮氣容積TV、吸氣儲備容積IRV、呼氣儲備容積ERV、肺餘容積RV）與由它們組合而成的四個容量（吸氣容量IC=TV+IRV、功能肺餘容量FRC=ERV+RV、肺活量VC=IRV+TV+ERV、總肺容量TLC=VC+RV）。這裡有個容易忽略但常考的關鍵：<b>凡是含有肺餘容積（RV）的容量——RV本身、FRC、TLC——都無法直接用肺量計（spirometer）測得</b>，因為受試者不可能把氣吐到肺餘容積以下，必須改用氦氣稀釋法、氮氣沖洗法或體積描記法間接推算。單次呼吸氮氣沖洗試驗（single breath nitrogen washout）正是這類間接測量的經典應用：受試者吸飽100% O2後緩慢吐氣並測量呼出氣中氮氣濃度，隨肺容積變化畫出四期曲線，第III期與第IV期交界處即為「關閉容積」（closing volume）——代表肺底部小氣道開始關閉的那個肺容積點，臨床上用來偵測早期小氣道疾病。除了肺容積量測，這一葉也涵蓋通氣量的計算：分辨「肺通氣量（TV×呼吸頻率）」與「肺泡通氣量（(TV−死腔)×呼吸頻率）」是常見陷阱，只有後者反映真正參與氣體交換的有效通氣。</p>
     <ul class="hdt-must">
@@ -1101,7 +1101,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="respiratory-control-center-and-muscles">
     <h3>呼吸調控中樞與呼吸肌（Respiratory Control Centers and Muscles）</h3>
     <p class="hdt-teach">呼吸節律的發源地在延腦：背側呼吸群（DRG）是平靜呼吸時的主要吸氣訊號來源，腹側呼吸群（VRG）平靜時不活動，只有在劇烈呼吸（運動、用力呼氣）時才被徵召，同時提供吸氣與呼氣兩種神經元訊號；pre-Bötzinger complex則被認為是延腦呼吸節律的起搏點，破壞它會導致呼吸完全停止。橋腦上方的呼吸調節區（pneumotaxic center）功能是「抑制吸氣」，把吸氣時間限制在合理長度；迷走神經傳入的肺牽張反射訊號（Hering-Breuer reflex）也扮演同樣的吸氣抑制角色。這兩條「抑制吸氣」的路徑一旦同時或個別被破壞（切斷迷走神經、或破壞pneumotaxic center），吸氣訊號失去煞車，就會出現長吸氣（apneusis）這種異常呼吸型態——但破壞DRG或pre-Bötzinger complex這類節律本身的產生中樞，後果是呼吸停止而非長吸氣，兩者機制截然不同不可混淆。呼吸肌的分工也很明確：橫膈膜（膈神經支配）與外肋間肌是主要吸氣肌，內肋間肌與腹肌則是用力呼氣時才動用的呼氣肌，平靜呼氣完全不需要肌肉主動收縮。</p>
     <ul class="hdt-must">
@@ -1114,7 +1114,7 @@
 
   <h3 class="hdt-h">🔄 半場二：氣體交換與臨床病理</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="ventilation-perfusion-and-gas-diffusion">
     <h3>換氣灌流比與氣體擴散限制（Ventilation-Perfusion Relationships and Diffusion Limitation）</h3>
     <p class="hdt-teach">正常人整體的換氣量（V）約4L/min、肺血流量（Q）約5L/min，V/Q比值約0.8；但這個比值在肺內並非均勻分布——站立時受重力影響，肺底的通氣量與灌流量都比肺尖大，但<b>灌流量受重力影響的幅度遠大於通氣量</b>，結果是肺底V/Q比值反而較低（灌流相對過剩），肺尖V/Q比值較高（換氣相對過剩，PO2較高、PCO2較低，甚至可以高於體循環動脈血的氧分壓）。這個區域差異也解釋了站立時吸氣起始時空氣優先進入哪裡：肺尖因肺組織重量牽引使肋膜內壓在吸氣起始時已經比肺底更負，肺尖肺泡於是已經比較撐開（順應性曲線落在較平坦、不易再擴張的區段），肺底肺泡則相對較小、順應性較高（曲線陡峭段），因此新一口氣優先灌入肺底。局部V/Q配對還有一套精細的自我校正機制：當某處細支氣管被異物阻塞、或某處肺小動脈被血栓阻塞時，身體會分別透過血管收縮（減少灌流配合減少的通氣）或支氣管收縮（減少通氣配合減少的灌流），把該區V/Q比值拉回接近正常，避免整體氣體交換效率被局部病灶拖累。氣體從肺泡進入微血管血液的速率則分成「灌流限制性」與「擴散限制性」兩種模式：正常情況下O2、CO2、N2O的擴散速度都遠快於血流速度，決定交換效率的瓶頸是血流量本身（灌流限制性）；但一氧化碳（CO）因為與血紅素親和力極高，微血管中CO分壓幾乎不會上升、擴散梯度持續存在，永遠屬於擴散限制性；當擴散膜本身增厚（如肺水腫、肺纖維化）時，正常應屬灌流限制性的O2也會轉為擴散限制性。</p>
     <ul class="hdt-must">
@@ -1128,7 +1128,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="co2-transport-and-acid-base-interpretation">
     <h3>二氧化碳運輸與酸鹼血氣判讀（CO2 Transport and Acid-Base Blood Gas Interpretation）</h3>
     <p class="hdt-teach">血液中的CO2以三種形式運輸：直接溶於血漿（佔比最少）、與血紅素結合成碳醯胺基血紅素（HbCO2，佔次多）、以碳酸氫根（HCO3−）形式運送（佔最多，約六到七成）。第三種形式的機轉稱為氯移（chloride shift）：CO2擴散進紅血球後，經碳酸酐酶催化與水結合成碳酸，解離出H+與HCO3−；HCO3−接著經紅血球膜上的Cl−-HCO3−<b>反向運輸蛋白（antiporter，不是共同轉運蛋白）</b>被送出到血漿（同時Cl−進入紅血球），這正是CO2運輸時血漿HCO3−濃度上升的來源。到了肺部微血管，整個反應方向逆轉（反轉氯移，reverse chloride shift）：HCO3−從血漿被送回紅血球（同時Cl−離開紅血球），與H+重新結合成碳酸再分解回CO2與水後呼出——因此肺部微血管內的紅血球細胞內HCO3−濃度，反而比周邊組織微血管內的紅血球更高。氧氣與CO2運輸之間還有一個獨立於波爾效應（Bohr effect，由PCO2/pH差異驅動O2-Hb親和力改變）之外的交互作用，稱為霍爾丹效應（Haldane effect）：即使兩份血液的PCO2完全相同，O2分壓較高（Hb氧飽和度較高）的那一份，其碳醯胺基血紅素比例會較低——因為O2結合Hb會降低Hb對CO2的結合能力，這與波爾效應是兩個不同、互補的機制，不可混淆成因。中樞化學感受器對CO2的感應也是間接的：CO2本身能自由穿透血腦障壁進入延腦周圍的腦脊髓液，在CSF中經碳酸酐酶轉化成碳酸並解離出H+，是這個H+（而非CO2本身，也不是體循環血液中生成、無法穿透血腦障壁的H+）直接刺激中樞化學感受器。</p>
     <ul class="hdt-must">
@@ -1143,7 +1143,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="chemoreceptor-control-and-altitude-exercise-adaptation">
     <h3>化學感受器換氣調控與高山／運動呼吸適應（Chemoreceptor Control and Altitude/Exercise Adaptation）</h3>
     <p class="hdt-teach">換氣的化學調控分成中樞與周邊兩套系統：中樞化學感受器位於延腦，感應CSF中的H+濃度（來源是CO2穿過血腦障壁後的碳酸解離），在正常生理狀況下是驅動每分鐘換氣量最主要的一套系統；周邊化學感受器則是頸動脈體（經舌咽神經傳入）與主動脈體（經迷走神經傳入），主要感應體動脈血的氧分壓下降（缺氧），也對H+濃度上升與PCO2上升有反應。頸動脈體內負責偵測氧氣濃度的是第一型細胞（glomus cell，第二型細胞sustentacular cell僅負責支持），其偵測機轉是：血氧濃度下降時，細胞膜上的氧氣敏感性鉀離子通道被抑制，鉀外流減少使細胞膜去極化，進而引發神經傳導物質釋放、活化傳入神經纖維產生動作電位。高海拔環境（急性）動脈氧分壓下降時，最主要的立即生理反應就是這套周邊化學感受器路徑被活化，導致每分鐘通氣量增加；經過數天適應（如登高山七天）後，血比容因紅血球生成素（EPO）增加而上升、肺泡通氣量因持續的缺氧驅動而增加，但動脈二氧化碳分壓不會跟著升高——反而因為持續過度換氣而下降。要注意的是，最大化每分鐘總通氣量需要低氧與高二氧化碳兩種刺激同時出現、彼此加成，單一刺激（僅低氧或僅高二氧化碳）的效果都不如兩者並存時強。</p>
     <ul class="hdt-must">
@@ -1155,7 +1155,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="obstructive-and-restrictive-lung-disease-physiology">
     <h3>阻塞性與限制性肺疾病生理（Obstructive and Restrictive Lung Disease Physiology）</h3>
     <p class="hdt-teach">肺氣腫（emphysema）是阻塞性肺病的代表：終末細支氣管以遠（含肺泡）的彈性纖維被發炎破壞，使肺泡壁塌陷融合成不正常增大的大氣囊。這個「彈性纖維被破壞」的核心病理直接推導出一連串常被考選部拿來出反向誘答的生理變化：彈性回縮力<b>下降</b>（不是增加，纖維被破壞後肺更難自然縮回）；肺順應性<b>上升</b>（同樣的壓力變化能撐出更大的容積變化，因為牽扯阻力變小）；吐氣時失去彈性回縮力的協助，呼氣氣流速度因此<b>下降</b>，氣體滯留在肺內，使功能肺餘容量與總肺容量都<b>增加</b>（過度充氣，桶狀胸的解剖基礎）；肺泡壁破壞導致氣體交換表面積減少，擴散容積因此<b>下降</b>（並非增加）；終末細支氣管及肺泡受損也造成生理無效腔中的肺泡死腔增加（V/Q mismatch），血氧飽和度因此<b>下降</b>而非維持不變。因為氣道阻力增加、彈性回縮力又不足以協助吐氣，COPD病人若要達到與正常人相同的通氣量，肋膜內壓在每次呼吸中的變化幅度必須<b>比正常人更大</b>（需要更費力才能克服增加的阻力）。與阻塞性肺病方向相反的是限制性肺病，肺纖維化是其代表：肺組織彈性喪失、變得僵硬難以撐開（順應性下降、彈性回縮力增加），肺活量與功能肺餘容量都<b>減少</b>（與肺氣腫的FRC增加恰成對比），患者為了在僵硬的肺上減少呼吸作功，常會呈現淺快呼吸型態；FEV1雖然也會下降，但因FVC等比例下降，FEV1/FVC比值大致維持正常（不像阻塞性肺病FEV1/FVC比值明顯下降）——這正是分辨阻塞性與限制性肺病最核心的判讀依據。</p>
     <ul class="hdt-must">
@@ -1272,7 +1272,7 @@
 
   <h3 class="hdt-h">🚰 過濾・清除・轉運半場</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="sodium-and-potassium-handling-along-nephron">
     <h3>各段腎小管鈉離子再吸收與轉運蛋白定位（Sodium Reabsorption Along the Nephron: Transporter Localization）</h3>
     <p class="hdt-teach">鈉離子沿腎元的再吸收路徑，是全區最愛出「哪個轉運蛋白在哪一段、在哪一側細胞膜」配對題的地帶。大原則是：管腔側（apical membrane）的轉運蛋白依節段而異、逐段負責不同任務；基底外側膜（basolateral membrane）則整條腎小管統一都是鈉鉀幫浦（Na⁺-K⁺-ATPase），負責把細胞內的鈉打進組織間液、建立細胞內低鈉環境，作為所有次級主動運輸的能量來源。近曲小管（PCT）負責再吸收最大宗的濾過鈉，管腔側靠Na⁺-葡萄糖（SGLT）、Na⁺-胺基酸協同轉運蛋白、以及Na⁺/H⁺反向運輸子（NHE3，同時分泌H⁺）；此段對水高通透（AQP1），鈉與水同步等滲再吸收，管腔液離開近曲小管時滲透壓仍與血漿相同。亨氏環上升粗支（TAL）靠管腔側的鈉-鉀-氯協同轉運蛋白（Na⁺-K⁺-2Cl⁻, NKCC2）——這是全區最常見的誘答點：NKCC2位在管腔側（apical），不是基底外側膜，反覆出現在歷屆考題裡；此段完全不透水，是尿液被稀釋的關鍵段落。遠曲小管前段靠鈉-氯協同轉運蛋白（NCC），同樣不透水。遠曲小管後段與集尿管主細胞的管腔側靠上皮鈉離子通道（ENaC）——這是全段腎小管唯一一個被動運輸的鈉再吸收機制，受醛固酮調控。</p>
     <ul class="hdt-must">
@@ -1302,7 +1302,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="gfr-and-renal-clearance-calculation">
     <h3>腎絲球過濾率與清除率標記物（GFR and Renal Clearance Markers）</h3>
     <p class="hdt-teach">腎小管對物質的處理只有三個方向：<b>過濾（filtration）</b>是血液→過濾液（僅發生在腎絲球），<b>再吸收（reabsorption）</b>是過濾液→血液（可發生在近曲小管到集尿管的任何一段），<b>分泌（secretion）</b>是血液→過濾液（同樣可發生在近曲小管到集尿管任何一段）。判斷一個物質「淨效果」是被再吸收還是分泌，最簡單的方法是比較「理論濾過總量（血漿濃度×GFR）」與「實際尿液排出總量（尿液濃度×尿流量）」：排出量遠小於濾過量代表淨再吸收，排出量遠大於濾過量代表淨分泌。清除率公式C=U×V/P（U＝尿液濃度，V＝尿流速，P＝血漿濃度）是這一節的核心工具，不同標記物因為被腎小管處理的方式不同，清除率會準確反映GFR、高估GFR、或低估GFR。腎絲球過濾率本身由淨過濾壓（net filtration pressure）驅動：NFP=(P_GC+π_BC)−(P_BC+π_GC)，其中鮑氏囊淨水壓（P_BC）升高（如泌尿道阻塞）會直接降低NFP、進而降低GFR。腎絲球旁的腎間質細胞（mesangial cell）收縮則透過降低濾過係數（Kf）來降低GFR，多數血管收縮物質（endothelin、angiotensin II、norepinephrine）都會造成間質細胞收縮，唯獨dopamine造成間質細胞舒張，方向相反。</p>
     <ul class="hdt-must">
@@ -1316,7 +1316,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="glucose-handling-in-renal-tubule renal-autoregulation-and-tubuloglomerular-feedback">
     <h3>壓縮考點：腎小管葡萄糖再吸收・腎小管腎絲球回饋（TGF）與自動調節（Compressed: Glucose Handling and Tubuloglomerular Feedback）</h3>
     <p class="hdt-teach">以下兩個子題在生理學考古題裡breadth與題數都偏低，用重點一行帶過即可，不必展開機制推導。</p>
     <ul class="hdt-must">
@@ -1329,7 +1329,7 @@
 
   <h3 class="hdt-h">🧂 濃縮・調節半場</h3>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="adh-regulation-water-balance-and-osmolarity-disorders">
     <h3>抗利尿激素（ADH）分泌調控與水通道作用機制（ADH Regulation and Aquaporin-2 Mechanism）</h3>
     <p class="hdt-teach">抗利尿激素（ADH，即vasopressin）是體液滲透壓恆定的第一道防線，也是「最典型神經激素（neurohormone）」的教科書範例——由下視丘視上核（supraoptic nucleus）與室旁核（paraventricular nucleus）的神經細胞合成，經神經軸突運送到腦下垂體後葉，由神經末梢直接分泌入血（後葉本身是神經組織延伸，不像前葉那樣是真正的內分泌腺體）。血漿滲透壓是ADH分泌最主要的觸發訊號：滲透壓上升到約280~285 mOsm/kg即啟動ADH分泌，這個閾值比觸發口渴感的閾值（約295~304 mOsm/kg）更低——代表身體優先靠ADH保水濃縮尿液，口渴感是較晚才啟動的第二道防線。除了滲透壓，血容積不足（hypovolemia）、糖皮質素缺乏（cortisol正常時會負回饋抑制ADH）、甲狀腺低下、壓力（如術後低血鈉）都能刺激ADH分泌。ADH的作用機轉是與遠曲小管後段/集尿管主細胞基底外側膜的V2受體結合，經Gs蛋白活化adenylyl cyclase→cAMP上升→PKA磷酸化，使原本儲存在細胞質內的AQP2水通道插入管腔側細胞膜，大幅提升水分再吸收；ADH另有V1受體作用於血管平滑肌造成血管收縮。整段作用只發生在遠曲小管後段與集尿管，<b>不作用於近端腎小管</b>。</p>
     <ul class="hdt-must">
@@ -1354,7 +1354,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="countercurrent-mechanism-and-urine-concentration">
     <h3>逆流機制與尿液濃縮稀釋（Countercurrent Mechanism and Urine Concentration）</h3>
     <p class="hdt-teach">逆流機制（countercurrent mechanism）是腎臟建立、維持髓質垂直滲透壓梯度、最終濃縮尿液的核心機轉，主要靠亨氏環與直血管（vasa recta）兩組平行、走向相反的管道合作完成。亨氏環下降枝（descending limb）對水有高通透性（AQP1）、幾乎不透鈉氯，管腔液隨著往下流逐漸與周圍越來越高滲的髓質達到平衡，滲透壓<b>逐漸上升</b>——是尿液的「濃縮段」；亨氏環上升粗支則完全相反，<b>不透水</b>但主動再吸收Na⁺/K⁺/Cl⁻（經NKCC2），管腔液隨著往上流逐漸失去溶質，滲透壓<b>逐漸下降</b>——是尿液的「稀釋段」，管腔液滲透壓在此段末端（接近遠曲小管交界處）達到全腎元的最低點。這個「下降支濃縮、上升支稀釋」的相反過程加上主動運輸持續把離子打進髓質間質，就是<b>逆流倍增（countercurrent multiplication）</b>——建立起皮質約300 mOsm到內髓質可達1200 mOsm的垂直梯度。維持這個梯度不被血流沖淡，靠的是直血管的<b>逆流交換（countercurrent exchange）</b>：U型血管的下行支讓水離開、鹽進入，上行支則讓水回血管帶走、鹽留在間質，是被動過程，功能是「保留」梯度而非「創造」梯度——逆流倍增（創造梯度，主動）與逆流交換（保留梯度，被動）是這一節最核心的X-vs-Y。尿素也參與髓質梯度建立：ADH會提高集尿管髓質段尿素轉運蛋白（UT-A1、UT-A3）表現，讓尿素再吸收進髓質間質、貢獻滲透壓，UT-A1約佔尿素再吸收的70%。</p>
     <ul class="hdt-must">
@@ -1367,7 +1367,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="renal-acid-base-regulation">
     <h3>壓縮考點：腎臟酸鹼平衡調節（Compressed: Renal Acid-Base Regulation）</h3>
     <p class="hdt-teach">腎臟酸鹼調節在生理學考古題出現頻率較低，核心原則是「留鹼排酸」，用重點式列出即可；完整的代謝性/呼吸性酸鹼四象限、代償方向、anion gap與Winter's formula統一收在〈呼吸生理〉區的整合表，這裡只補腎臟端排酸的三條路徑。</p>
     <ul class="hdt-must">
@@ -1470,7 +1470,7 @@
   <h2 class="hdt-region__head">🍽️ 消化生理</h2>
   <p class="hdt-intro">消化生理這一區的骨架其實不複雜——就是「一群激素＋一套神經反射」聯手指揮「胃酸分泌、腸胃蠕動、膽汁與吸收」這三件事。腸胃道激素表（gastrin/CCK/secretin/GIP/motilin/somatostatin/VIP）是全區投報率最高的部分，幾乎每年都會出現，而且常常直接考「來源細胞—刺激因子—作用」三欄配對，把這張表背熟就能拿下一大塊分數。其餘主題（胃酸三期調控、蠕動模式、腸神經叢、醣類蛋白質吸收、膽汁與脂質吸收）則多半是圍繞著這幾個激素在不同情境下的下游效應打轉，讀的時候建議先把「一餐食物從口腔到迴腸末端」的時間軸走一遍，再回頭把每個節點該登場的激素、神經反射、轉運蛋白對號入座——命題者最愛考的正是「這個情境該登場的是誰、不是誰」這種一字之差的辨異題。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="gi-hormones-and-regulatory-peptides">
     <h3>腸胃道激素與調控胜肽（GI Hormones and Regulatory Peptides）</h3>
     <p class="hdt-teach">腸胃道激素的核心邏輯很簡單：胃期的兩位主角（gastrin）促進消化，腸期的三位主角（secretin、CCK、GIP）則轉頭抑制胃、把資源讓給小腸接手。gastrin 由胃竇附近的 G cell 分泌，是唯一「促進」胃酸分泌與胃腸黏膜增生的胃期激素；secretin、CCK、GIP 三者則有志一同地抑制胃酸分泌與胃排空，只是各自被不同的十二指腸內容物觸發（酸、脂肪、葡萄糖），也各自身兼不同的下游任務（中和胃酸、促胰酵素+排膽汁、促胰島素）。此外還有兩位「非典型」選手：motilin 只在空腹期出場，VIP 則根本不是內分泌細胞分泌的激素，而是神經元直接釋放的 neurocrine。把這七個角色的「來源—刺激—作用」三欄背熟，是這一區投報率最高的一步。</p>
     <ul class="hdt-must">
@@ -1486,7 +1486,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="gastric-acid-secretion-and-regulation">
     <h3>胃酸分泌與三期調控（Gastric Acid Secretion and Regulation）</h3>
     <p class="hdt-teach">胃酸的生成發生在壁細胞（parietal cell），核心是頂端面（apical membrane）的 H⁺-K⁺-ATPase 質子幫浦，消耗 ATP 把 H⁺ 打進胃腔；H⁺ 的來源仰賴碳酸酐酶（carbonic anhydrase，主要為 CA II）把 CO₂+H₂O 轉成 H₂CO₃ 再解離成 H⁺ 與 HCO₃⁻，HCO₃⁻ 則從底側面的陰離子交換器（anion exchanger，主要為 AE2）換出到血液中，造成餐後血液偏鹼的「鹼潮（alkaline tide）」現象。整個胃酸分泌的時間軸傳統上分成腦期、胃期、腸期三期，前兩期促進、腸期抑制——這三期的觸發物與傳出路徑是這一區的核心骨架，命題者常问「哪一項不屬於某一期」。</p>
     <ul class="hdt-must">
@@ -1501,7 +1501,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="gi-motility-patterns">
     <h3>腸胃道運動模式（GI Motility Patterns）</h3>
     <p class="hdt-teach">消化道的平滑肌收縮模式依部位與進食狀態分成好幾種：食道靠蠕動波（peristaltic wave）推送食團；小腸進食後主要靠分節收縮（segmentation）混合食糜，空腹期則換成複合位移運動（MMC）打掃殘渣；大腸則有自己專屬的集團運動（mass movement）。這些收縮模式背後的基礎電節律（slow wave）由卡氏間質細胞（interstitial cells of Cajal, ICC）當起搏器產生，但 slow wave 本身通常不足以觸發收縮，要疊加動作電位（spike potential）才會真的收縮。胃排空的快慢則取決於食糜的張力與組成，脂肪是抑制胃排空最強的因子。</p>
     <ul class="hdt-must">
@@ -1517,7 +1517,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="enteric-nervous-system-and-reflexes">
     <h3>腸神經系統與相關反射（Enteric Nervous System and Reflexes）</h3>
     <p class="hdt-teach">腸神經系統（enteric nervous system）是自主神經系統的第三分支，本身具備一定程度的自主運作能力，由兩套壁內神經叢構成：位於環肌與縱肌之間的<b>腸肌神經叢（myenteric plexus，又稱 Auerbach's plexus）</b>管運動，位於黏膜下層的<b>黏膜下神經叢（submucosal plexus，又稱 Meissner's plexus）</b>管分泌——口訣「your GI tract is a mess, ma'am」正好對應（mess=meissner=secrete、ma'am=myenteric=motility）。腸肌神經叢病變是食道遲緩不能症的根本原因；直腸的壓力訊息與排便反射則是這套系統最常被考的臨床應用。</p>
     <ul class="hdt-must">
@@ -1530,7 +1530,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="carbohydrate-and-protein-digestion-absorption">
     <h3>醣類與蛋白質消化吸收（Carbohydrate and Protein Digestion/Absorption）</h3>
     <p class="hdt-teach">即使完全不分泌唾液，醣類、脂肪、蛋白質三大營養素仍可被消化——因為胰臟與小腸刷狀緣的酵素本來就是各營養素的主力消化來源，唾液澱粉酶只是提前開工而已。蛋白質消化的關鍵是分清楚「內切酶（endopeptidase）」與「外切酶（exopeptidase）」：胰蛋白酶、胰凝乳蛋白酶、彈性酶都是切胜肽鏈內部的內切酶，胺基胜肽酶才是從兩端修剪的外切酶。醣類吸收的關鍵則是三種單糖各自的轉運蛋白：葡萄糖與半乳糖走 Na⁺依賴型的 SGLT1，果糖走促進性擴散的 GLUT5——這條分野是最愛考的辨異點。</p>
     <ul class="hdt-must">
@@ -1545,7 +1545,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="bile-formation-and-lipid-vitamin-absorption">
     <h3>膽汁生成與脂質／脂溶性維生素吸收（Bile Formation and Lipid/Fat-Soluble Vitamin Absorption）</h3>
     <p class="hdt-teach">膽汁本身不含消化酵素，它的任務純粹是「乳化＋運送」：膽鹽是兩性分子（同時具親水與親脂性），先把大油滴乳化成小油滴增加脂肪酶作用面積，再與單酸甘油酯、脂肪酸、脂溶性維生素合成微膠粒（micelle）運送到腸上皮細胞表面讓其擴散進入細胞。長鏈脂肪酸在細胞內重新組成三酸甘油酯、包成乳糜微粒後走淋巴管，短中鏈脂肪酸則直接擴散進入肝門靜脈——這條分野是常見誘答。膽鹽本身在迴腸末端被回收（腸肝循環），迴腸切除會同時打亂膽鹽循環與維生素B12吸收，因此臨床上最容易先表現為貧血。</p>
     <ul class="hdt-must">
@@ -1643,7 +1643,7 @@
   <h2 class="hdt-region__head">🦋 內分泌 I：腦下垂體軸・甲狀腺・鈣磷</h2>
   <p class="hdt-intro">內分泌 I 把「下視丘—腦垂體」這條軸線拆成四塊來唸：先建立軸線本身的總覽骨架（下視丘釋放/抑制激素→腦垂體前葉 tropic hormone→目標腺體→回饋），再套進兩條具體的下游軸——甲狀腺（碘化學＋合成七步驟＋負回饋）與生長激素／泌乳素（唯二不算 tropic hormone、直接作用標的組織的前葉激素，且泌乳素是唯一只受下視丘抑制、沒有已知強效正向釋放激素的例外）；鈣磷恆定則自成一個小三角系統（副甲狀腺素、活性維生素D、抑鈣素）獨立運作，但常跟骨代謝、腎生理串題。這一區合計62題，是全科數一數二密集的內分泌命題範圍，命題者最愛的手法是給一個臨床情境（甲亢、腦垂體腫瘤、副甲狀腺誤切）反推是哪條軸線、哪個方向出了問題——讀的時候不要死背激素清單，而是把每條軸線「上游→下游→回饋」的箭頭方向記熟，尤其副甲狀腺素對鈣磷是「同時作用、方向相反」（升鈣降磷），這是全區最容易翻車的一格。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="hypothalamic-pituitary-axis-overview">
     <h3>下視丘—腦垂體軸總論（Hypothalamic-Pituitary Axis Overview）</h3>
     <p class="hdt-teach">腦垂體分成解剖起源完全不同的前葉與後葉，這個起源差異是理解整條軸線的關鍵：前葉（腺垂體）不是神經組織，胚胎源自口咽外胚層（Rathke氏囊），透過下視丘—腦垂體門脈系統接收下視丘分泌的釋放／抑制激素，再自行合成、分泌六種前葉激素（GH、TSH、ACTH、FSH、LH、PRL）；後葉（神經垂體）本身就是下視丘神經元的延伸，不合成任何激素，只負責儲存、釋放由視上核（supraoptic nucleus）製造的ADH與視旁核（paraventricular nucleus）製造的催產素。這個「前葉受門脈調控、後葉是神經延伸」的架構，解釋了為什麼腦垂體前葉腫瘤手術切除只影響前葉六種激素、後葉ADH完全不受波及。前葉六激素中，TSH、ACTH、FSH、LH四個統稱為tropic hormone——顧名思義是刺激另一個內分泌腺體釋放激素，而不是直接作用在最終標的器官；GH與PRL則是唯二不屬於tropic hormone、直接作用在標的組織的前葉激素。</p>
     <ul class="hdt-must">
@@ -1660,7 +1660,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="thyroid-hormone-synthesis-and-action">
     <h3>甲狀腺素合成與作用（Thyroid Hormone Synthesis and Action）</h3>
     <p class="hdt-teach">甲狀腺素的合成幾乎全發生在濾泡細胞（follicular cell）與濾泡腔內的膠體（colloid）之間：碘離子先靠Na⁺/I⁻共同運輸蛋白（由Na⁺/K⁺-ATPase提供驅動力）主動攝入濾泡細胞（iodide trapping），氧化後碘化到甲狀球蛋白（thyroglobulin）上的酪胺酸殘基，生成單碘酪胺酸（MIT）與雙碘酪胺酸（DIT）；MIT、DIT本身沒有活性，要靠縮合反應（coupling）——一個MIT加一個DIT縮合成T3，兩個DIT縮合成T4——才產生有活性的激素，儲存在膠體中，受TSH刺激時再經胞吞、蛋白水解釋放進血液。這條路徑的重點不是死背步驟名稱，而是抓住「碘化與縮合都發生在細胞外的膠體，MIT/DIT/T3/T4的差異只在碘原子數與縮合方式」。甲狀腺分泌的激素以T4為主（每天約80μg），但T4作用其實比T3弱：因為T4與血漿蛋白（尤其TBG）親和力強、游離態比例低，而T3與蛋白親和力較弱、游離態比例較高、與受體親和力也更強，所以周邊組織約有一半的T4會經脫碘酶轉換成活性更強的T3才真正發揮作用。</p>
     <ul class="hdt-must">
@@ -1679,7 +1679,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="growth-hormone-and-prolactin-regulation">
     <h3>生長激素與泌乳素調控（Growth Hormone and Prolactin Regulation）</h3>
     <p class="hdt-teach">生長激素（GH）與泌乳素（PRL）結構同源（連同人類胎盤泌乳素hPL），都兼具促生長與泌乳、升血糖的家族特性，但下視丘對兩者的調控邏輯完全相反：GH受GHRH（+）與體抑素somatostatin（−）雙向調控，是典型的「一正一負」系統；PRL則只受多巴胺（PIF，dopamine）單向抑制，下視丘沒有已知的強效PRL釋放激素（候選者可能是TRH）——這個不對稱正是「腦垂體柄切斷後只有PRL不減反增」的機制基礎。GH的作用分直接與間接兩路：直接作用類似對抗胰島素（升血糖、促進脂肪分解、減少肌肉組織利用葡萄糖），間接則透過刺激肝臟分泌IGF-1（=somatomedin C）促進細胞分裂與蛋白質合成，兩條路徑合稱GH的生長效應。臨床上鑑別身材矮小的原因，關鍵在於「激素濃度」與「激素作用」要分開看——GH受體缺損的病人GH濃度可以完全正常，因為問題出在標的細胞收不到訊號，不是分泌不足。</p>
     <ul class="hdt-must">
@@ -1696,7 +1696,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="calcium-phosphate-homeostasis-pth-vitamin-d">
     <h3>鈣磷恆定與副甲狀腺素／維生素D（Calcium-Phosphate Homeostasis, PTH and Vitamin D）</h3>
     <p class="hdt-teach">血鈣、血磷的恆定靠腸道、骨骼、腎臟三個「緩衝器官」協同運作，主要由副甲狀腺素（PTH）與活性維生素D兩個激素驅動，抑鈣素（calcitonin）扮演次要角色。PTH的作用可以用「促D、破骨、腎留鈣」三個字訣記憶：促進腎臟1α-hydroxylase活化維生素D、促進蝕骨細胞活性釋出骨中的鈣磷、增加遠曲小管／集尿管對鈣的再吸收同時抑制近曲小管對磷的再吸收——三條路徑加總的淨效果是<b>升血鈣、降血磷</b>，這個「同時作用、方向相反」的特性是全區最容易翻車的一格。維生素D的活化是一條三站接力：皮膚的7-dehydrocholesterol經紫外線照射轉為cholecalciferol（維生素D3）→肝臟的25-hydroxylase加一個羥基變成25-hydroxycholecalciferol（主要儲存／循環形式，尚無活性）→腎臟的1α-hydroxylase（受PTH刺激）再加一個羥基變成1,25-dihydroxycholecalciferol（calcitriol，唯一有活性的形式）；活性維生素D與PTH方向不同，是同時促進腸道對鈣「與」磷的吸收，不像PTH把鈣磷推向相反方向。蝕骨細胞（osteoclast）源自造血幹細胞／單核球系（macrophage家族），受造骨細胞分泌的RANKL活化、OPG抑制；造骨細胞（osteoblast）則負責分泌第一型膠原蛋白構成骨基質。</p>
     <ul class="hdt-must">
@@ -1800,7 +1800,7 @@
   <h2 class="hdt-region__head">⚡ 內分泌 II：腎上腺・胰島與能量代謝</h2>
   <p class="hdt-intro">腎上腺與胰臟是內分泌生理裡「壓力」與「能量代謝」兩條主軸的匯合點，這一區66題全部圍繞著五個主題轉：腎上腺皮質從外到內分成三帶，各自分泌一種類固醇（絲球帶醛固酮、束狀帶皮質醇、網狀帶雄性素），髓質再疊上一層兒茶酚胺；胰臟內分泌部則用胰島素與升糖素這對作用方向相反的荷爾蒙即時調控血糖。五個主題彼此環環相扣——血鉀濃度同時牽動醛固酮與胰島素分泌，壓力狀態下皮質醇對兒茶酚胺有允許作用（permissive action），糖尿病失控演變成酮酸中毒時又要回頭用酸鹼生理判讀血氣。讀這一區最有效的骨架是先把「哪一帶／哪一種細胞分泌什麼、受什麼調控」釘死，再用「誰的作用方向與誰相反」（insulin vs glucagon、aldosterone vs ANP、cortisol 不促進肌肉葡萄糖攝取）把配對記牢——考選部最愛出的正是「這句敘述的作用方向反了沒有」這種一字之差的陷阱題。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="insulin-secretion-action-and-energy-metabolism">
     <h3>胰島素分泌、作用與能量代謝（Insulin Secretion, Action, and Energy Metabolism）</h3>
     <p class="hdt-teach">胰臟β細胞偵測血糖靠的是一種對葡萄糖親和力特別低的轉運蛋白GLUT2：只有血糖真的夠高，葡萄糖才會大量經GLUT2進入β細胞代謝成ATP，關閉細胞膜上的ATP敏感性鉀離子通道，細胞因鉀離子無法外流而去極化，觸發電位依賴性鈣離子通道開啟，鈣離子內流才是真正扣下扳機、讓胰島素從分泌囊泡釋出的最後一步——磺醯脲類降血糖藥正是直接關閉這個K<sub>ATP</sub>通道達到促泌效果。胰島素作用有快慢兩種時間尺度：數秒內的急性作用包括GLUT4轉位增加葡萄糖攝取、活化Na⁺/K⁺幫浦讓鉀離子快速進入細胞，蛋白質合成則要啟動轉譯機制，屬於較慢的長期作用。全身組織對胰島素的依賴程度不一，這是這個leaf最愛設陷阱的地方：肌肉與脂肪組織仰賴GLUT4，是胰島素的主要作用標的；腦神經細胞用的卻是GLUT1與GLUT3，兩者都不受胰島素調控，代表低血糖時腦部仍能優先取得葡萄糖（glucose sparing），也代表「胰島素促進腦神經細胞葡萄糖吸收」這句話永遠是錯的。</p>
     <p class="hdt-teach">代謝面，胰島素整體效果是「降血糖＋促儲存」：抑制肝臟糖質新生與肝醣分解、促進肌肉肝醣合成、促進脂肪細胞儲存三酸甘油酯、促進蛋白質合成，並且抑制生酮作用（機轉是抑制脂肪分解，減少生酮所需的游離脂肪酸原料）。當胰島素分泌或作用不足時，上述每一項都反向發生：肝醣分解與糖質新生上升、脂肪分解上升造成游離脂肪酸與酮體大量增加、血糖持續升高造成滲透性利尿——這一連串變化就是糖尿病酮酸中毒（DKA）的生理基礎，本質上是代謝性酸中毒而非呼吸性酸中毒。與胰島素相對的升糖素由α細胞分泌，受低血糖、胺基酸、運動、交感神經刺激而分泌增加，作用是促進肝醣分解、糖質新生、脂肪分解，三者方向都與胰島素相反。半夜血糖偏低時，身體優先靠腎上腺分泌腎上腺素維持血糖恆定，這一段與下方兒茶酚胺主題彼此呼應。</p>
@@ -1818,7 +1818,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="mineralocorticoid-aldosterone-regulation">
     <h3>礦皮質素／醛固酮調控（Mineralocorticoid / Aldosterone Regulation）</h3>
     <p class="hdt-teach">醛固酮由腎上腺皮質最外層的絲球帶分泌，主要受腎素-血管收縮素-醛固酮系統（RAAS）與血鉀濃度調控，ACTH只是次要角色——這解釋了為什麼腦下垂體腫瘤手術切除ACTH來源後，四個主要激素中醛固酮受到的影響最小。RAAS完整路徑是：血壓下降或腎灌流不足時，近腎絲球器分泌腎素，把肝臟製造的血管收縮素原水解成血管收縮素I，再經血管收縮素轉化酶（ACE，主要分布在肺微血管內皮）轉成有活性的血管收縮素II——這也是為什麼考選部愛問「哪個步驟最需要肺臟參與」。血管收縮素II一方面直接讓小動脈收縮升高周邊阻力，一方面刺激絲球帶分泌醛固酮；交感神經也能經β1受器直接刺激近腎絲球細胞分泌腎素，是自律神經系統參與RAAS調控的入口。</p>
     <p class="hdt-teach">醛固酮作用在遠曲小管與集尿管的主細胞：促進管腔膜鈉離子通道（ENaC）表現增加，活化基底膜Na⁺/K⁺幫浦把鈉打進血液、鉀離子被拉進細胞內驅動鉀分泌到管腔——口訣是「留鈉留水留碳酸氫根、排氫排鉀」（氯離子隨鈉一起被動再吸收，並非排出）。醛固酮分泌不足時，細胞外液體積與總血量都會顯著下降、心輸出量也隨之下降（不是上升）、鉀離子濃度顯著上升，原發性腎上腺機能不足的典型電解質表現正是低血鈉合併高血鉀；原發性高醛固酮血症（Conn's syndrome）則相反：高血壓、低血鉀、葡萄糖耐受不良，但血鈉通常不會流失。心房利鈉胜肽（ANP）作用方向與醛固酮相反，是唯一會「增加」鈉排泄的內分泌訊號。</p>
@@ -1836,7 +1836,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="cortisol-actions-cushing-syndrome-and-circadian-regulation">
     <h3>皮質醇作用、庫欣氏症候群與激素晝夜節律（Cortisol Actions, Cushing Syndrome, and Circadian Regulation）</h3>
     <p class="hdt-teach">皮質醇由腎上腺皮質中層束狀帶分泌，受下視丘-腦下垂體-腎上腺軸（HPA axis）調控：下視丘分泌CRH刺激腦下垂體前葉分泌ACTH，ACTH再刺激束狀帶合成並釋放皮質醇；因為皮質醇是脂溶性類固醇，合成後直接擴散出細胞，不需經分泌囊泡儲存與胞吐。臨床上要評估腎上腺皮質功能，血中皮質醇濃度本身就是最具代表性的指標。ACTH與α-黑色素細胞刺激素（α-MSH）、β-脂促素同源自POMC（proopiomelanocortin）裂解，CRH則不是POMC的產物——這個共同來源解釋了一個經典徵象：ACTH分泌過多（腦下垂體ACTH分泌腫瘤、異位性ACTH分泌）時會伴隨皮膚色素沉積；若是腎上腺皮質腫瘤自主分泌皮質醇，皮質醇負回饋抑制ACTH，反而不會有色素沉積。</p>
     <p class="hdt-teach">庫欣氏症候群成因分ACTH依賴型（腦下垂體ACTH分泌腫瘤、下視丘CRH分泌過量、異位性ACTH分泌症候群）與非依賴型：先天性腎上腺增生症（CAH）是腎上腺自身合成酵素缺陷（最常見21-β hydroxylase缺乏）造成，與ACTH過度分泌無關——此酵素缺乏會讓皮質醇與皮質酮合成都下降、ACTH代償性增加、前驅物被迫轉向雄性素合成路徑。ACTH與皮質醇的分泌都受晝夜生物時鐘調控（主要中樞是下視丘視交叉上核SCN），峰值在清晨、入夜睡眠時最低，恰與褪黑激素的節律相反；胰島素分泌則相對不隨晝夜節律明顯改變。皮質醇的生理作用環繞著「抗壓力、抗發炎、升血糖」：促進肝臟糖質新生、促進骨骼肌蛋白質分解、促進脂肪分解，但不促進骨骼肌吸收葡萄糖；也抑制發炎與免疫、抑制生長。皮質醇對兒茶酚胺的心血管與產熱作用有允許作用（permissive action），這一點專屬於皮質醇本身，循環中的ACTH沒有這種允許效果。</p>
@@ -1854,7 +1854,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="adrenal-cortex-steroidogenesis">
     <h3>腎上腺皮質類固醇生成（Adrenal Cortex Steroidogenesis）</h3>
     <p class="hdt-teach">腎上腺皮質三帶各自分泌不同的類固醇產物：最外層絲球帶分泌醛固酮，中層束狀帶分泌皮質醇，最內層網狀帶分泌雄性素（主要是脫氫異雄固酮DHEA及其硫酸鹽DHEAS）；髓質不屬皮質，分泌兒茶酚胺。所有這些皮質類固醇激素都源自同一種前驅物——膽固醇，而不是三酸甘油酯。類固醇生成的第一個、也是速率決定步驟，是把膽固醇從粒線體外膜運送到內膜，負責這一步的是類固醇生成急性調控蛋白（StAR），此基因缺失會導致先天性脂質性腎上腺增生症；低密度／高密度脂蛋白受器負責的是脂蛋白進入細胞這個更早的步驟，膽固醇酯酶負責把儲存型膽固醇酯水解成游離膽固醇，兩者都不是StAR的功能。膽固醇進入粒線體後，先被cholesterol side-chain cleavage enzyme代謝成孕烯醇酮，這一步真正發生在粒線體內；皮質醇合成細胞主要分布在束狀帶，合成場所是粒線體與平滑內質網，不是粗糙內質網。ACTH刺激皮質醇合成以cAMP為第二信使，活化蛋白激酶A（不是蛋白激酶C）去磷酸化並活化cholesteryl ester hydrolase，把儲存在脂滴中的膽固醇酯釋出游離膽固醇。</p>
     <ul class="hdt-must">
@@ -1868,7 +1868,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="stress-response-and-catecholamine-hormones">
     <h3>壓力反應與兒茶酚胺激素（Stress Response and Catecholamine Hormones）</h3>
     <p class="hdt-teach">腎上腺髓質由嗜鉻細胞構成，接受的神經支配是自律神經生理上的重要例外：一般節後交感神經元才直接支配標的器官，但腎上腺髓質是被節前交感神經元（不是節後）直接支配、以乙醯膽鹼經菸鹼受體活化——這與汗腺的交感膽鹼性支配、腎β1受器促renin並列自律受體地圖的三大經典例外。嗜鉻細胞合成兒茶酚胺的最後一步，是把正腎上腺素甲基化轉換成腎上腺素，負責這一步的酵素是苯基乙醇胺N-甲基轉移酶（PNMT），幾乎專一表現於腎上腺髓質。腎上腺素與正腎上腺素的升壓機轉方向不同：腎上腺素以β1受器加強心肌收縮力與心跳速率、提高心輸出量為主（其對血管的α與β2效果大致互相抵銷）；正腎上腺素以α受器為主（α>>β），造成血管收縮、周邊阻力上升而升壓，血壓上升後常引發反射性心跳減慢。</p>
     <p class="hdt-teach">壓力反應時，下視丘神經細胞分泌CRH，同步活化交感神經系統——ACTH濃度上升與交感活化是同步發生、彼此獨立的兩條路徑；糖皮質素的分泌增加速度比正腎上腺素慢（兒茶酚胺是神經直接釋放的秒級反應，糖皮質素要走HPA軸胜肽合成級聯）。壓力反應中脂肪分解作用的主要驅動者是腎上腺素，而非糖皮質素；切除交感神經的動物會顯著喪失完整的壓力備戰反應。半夜血糖偏低、或登高山缺氧需維持腦部清醒時，身體優先靠腎上腺分泌腎上腺素、促進肝臟肝醣分解來供應葡萄糖，這是兒茶酚胺與胰島素/升糖素主題交會的常考臨床情境。</p>
@@ -1954,7 +1954,7 @@
   <h2 class="hdt-region__head">🌸 生殖生理：月經週期、男性HPG軸與性別分化</h2>
   <p class="hdt-intro">生殖生理在生理學裡屬於精悍的小區塊，六個小主題共 39 題歷屆考古，但「激素—細胞—回饋方向」這條軸線密度極高——同一組激素（estrogen、FSH、LH、testosterone）在月經週期、精子生成、性別分化三個不同情境下反覆出現，方向一混淆就整題答錯。這一區最重要的兩條記憶骨架是：①女性月經週期中 estrogen 大多數時候是負回饋，只有排卵前一小段窗口反轉成正回饋；②男女兩性各自的「兩種細胞—兩種促性腺激素」配對（女性 theca 細胞配 LH／granulosa 細胞配 FSH，男性 Leydig 細胞配 LH／Sertoli 細胞配 FSH）。把這兩條軸線抓穩，剩下的臨床情境題（Klinefelter's syndrome、高泌乳激素血症、性別分化異常）多半只是這兩條軸線的應用延伸。</p>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="menstrual-cycle-and-menopause-physiology ovarian-folliculogenesis-and-oogenesis">
     <h3>月經週期與卵巢濾泡發育（Menstrual Cycle and Ovarian Folliculogenesis）</h3>
     <p class="hdt-teach">月經週期的骨架是「濾泡期 estrogen 主導、排卵前正回饋觸發 LH surge、黃體期 progesterone 主導」三段式時間軸，抓住這條軸線就能解掉本主題多數題目。卵巢兩型細胞協力合成雌激素的「兩種細胞—兩種性促素學說」（theca 細胞受 LH 刺激、granulosa 細胞受 FSH 刺激）是另一個必背骨架，命題常用 FSH 或 LH 單獨缺乏的情境來測這套機制是否真的理解，而不只是背名詞。</p>
     <ul class="hdt-must">
@@ -1973,7 +1973,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="testicular-function-and-spermatogenesis male-hpg-axis-and-disorders">
     <h3>睪丸功能、精子生成與男性HPG軸（Testicular Function, Spermatogenesis, and Male HPG Axis）</h3>
     <p class="hdt-teach">男性生殖生理的骨架是「下視丘 GnRH → 腦下垂體 LH／FSH → 兩種睪丸細胞」的軸線：LH 配對 Leydig 細胞（分泌睪固酮），FSH 配對 Sertoli 細胞（支持精子生成、分泌 inhibin B）。這條配對關係是本主題出題密度最高的軸線，搭配 Klinefelter's syndrome、高泌乳激素血症等臨床情境反覆重複測試同一組概念。</p>
     <ul class="hdt-must">
@@ -1991,7 +1991,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="pregnancy-labor-and-lactation-physiology">
     <h3>妊娠、分娩與泌乳生理（Pregnancy, Labor, and Lactation Physiology）</h3>
     <p class="hdt-teach">妊娠與泌乳這一段考點相對分散，但每個激素幾乎都只考一件事：抓住「prolactin 管生成、oxytocin 管排出」與「estrogen 增敏、progesterone 降敏」這兩組配對，就能解掉大部分題目；受精防止多重受精的機轉、胎兒循環（靜脈導管）各自獨立考過整題，屬於投報率高的單一事實。</p>
     <ul class="hdt-must">
@@ -2007,7 +2007,7 @@
     </ul>
   </div>
 
-  <div class="hdt-topic">
+  <div class="hdt-topic" data-leaf-ids="sex-differentiation-and-embryonic-development">
     <h3>性別分化與胚胎發育（Sex Differentiation and Embryonic Development）</h3>
     <p class="hdt-teach">性別分化的骨架是三個因子各司其職：SRY 基因決定要不要長出睪丸、MIS 決定副中腎管留不留、雄性素（testosterone／DHT）決定男性內外生殖器要不要分化出來——記熟這三條「因子—標的—作用」的對應關係，就能解掉這一小節絕大多數的排列組合題。</p>
     <ul class="hdt-must">

@@ -25,7 +25,8 @@ import { useNavigate } from 'react-router-dom'
 import type { ContentPack, Question } from '@study-rpg/core'
 import { useHandout, orderSubjectsByExamPaper } from '../lib/handout'
 import type { HandoutSubject } from '../lib/handout'
-import { deriveRegions, deriveToc } from '../lib/handout-regions'
+import { useCram } from '../lib/cram'
+import { deriveRegions, deriveToc, resolveLeafTarget, findLeafAnchorId } from '../lib/handout-regions'
 import type { HandoutTocEntry } from '../lib/handout-regions'
 import { QuizModal } from '../components/QuizModal'
 
@@ -39,9 +40,16 @@ function readDeepLinkSection(): string | null {
   return fromQuery || fromHash || null
 }
 
+/** Read a ?leaf=<leafId> unit-correspondence deep-link target (once, on entry; precedes ?section=). */
+function readDeepLinkLeaf(): string | null {
+  if (typeof window === 'undefined') return null
+  return new URLSearchParams(window.location.search).get('leaf') || null
+}
+
 export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null {
   const navigate = useNavigate()
   const data = useHandout()
+  const cram = useCram()
   const [mounted, setMounted] = useState(false)
   // Read `?subject=` SYNCHRONOUSLY on first render (add-neurons-handout-rescue-deeplink): the
   // deep-link is consume-once and regions derive from `active` on the very first render, so a
@@ -59,12 +67,18 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [quizPool, setQuizPool] = useState<Question[] | null>(null)
+  // A `?leaf=` deep-link whose leaf has neither a topic anchor nor a region in this subject (cross-
+  // subject leak / 送分 / disputed) → surface an inline note + escape hatch; NEVER scroll to region 0.
+  const [leafUnavailable, setLeafUnavailable] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const closeBtnRef = useRef<HTMLButtonElement | null>(null)
   const drawerRef = useRef<HTMLDivElement | null>(null)
   const prevFocusRef = useRef<Element | null>(null)
   const deepLinkConsumedRef = useRef(false)
+  // The id a deep-link landed on, so the reverse-link injection (which adds nodes ABOVE a deep target
+  // and would shift it out of view) can re-correct the scroll ONCE after it runs. Cleared on use.
+  const landedTargetRef = useRef<string | null>(null)
 
   // Capture the pre-open focus so we can restore it when the scene unmounts.
   useEffect(() => {
@@ -106,6 +120,20 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
     return m
   }, [active?.chapterQuizzes])
 
+  // The active subject's leafIds that have a matching 押題 in cram — drives the reverse「本單元猜題」
+  // affordance (講義 topic → 押題). null while cram is still loading; a leaf with no 押題 gets no link
+  // (no dead link, per neurons-unit-correspondence). Subject-scoped: same-name leaves stay in-subject.
+  // leafId → 押題 zh label for the active subject (Map, not Set: the zh distinguishes each unit's
+  // reverse-link on a multi-value topic).
+  const cramPushLeaves = useMemo<Map<string, string> | null>(() => {
+    if (!cram || !active) return null
+    for (const book of cram.books) {
+      const subj = book.subjects.find((s) => s.subjectId === active.subjectId)
+      if (subj) return new Map(subj.push.map((p) => [p.leafId, p.zh]))
+    }
+    return new Map<string, string>()
+  }, [cram, active?.subjectId])
+
   const close = useCallback(() => navigate('/cram'), [navigate])
 
   const jumpTo = useCallback((id: string, smooth = true) => {
@@ -144,22 +172,120 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
     if (!active || regions.length === 0) return
     const root = scrollRef.current
     if (!root) return
-    const deepLink = deepLinkConsumedRef.current ? null : readDeepLinkSection()
-    deepLinkConsumedRef.current = true
-    const deepLinkEl = deepLink ? document.getElementById(deepLink) : null
-    if (deepLink && deepLinkEl) {
-      // Instant jump (not smooth): a resume/share link should land directly on the target, and it
-      // runs in the layout-ready useEffect so it needs no rAF (which would be throttled if hidden).
-      jumpTo(deepLink, false)
-      // Transient landing cue so a deep-link that lands mid-document answers "did I arrive?" —
-      // pure visual, zero state (CSS `:target` is unreliable under replaceState).
-      deepLinkEl.classList.add('hdt-region--landed')
-      window.setTimeout(() => deepLinkEl.classList.remove('hdt-region--landed'), 2000)
-      return
+
+    // Instant jump (not smooth) + transient landing cue; runs in the layout-ready useEffect so it
+    // needs no rAF (which would be throttled if hidden). Zero state (CSS `:target` is unreliable
+    // under replaceState). Returns false when the target id is not in the DOM.
+    const landOn = (id: string): boolean => {
+      const el = document.getElementById(id)
+      if (!el) return false
+      jumpTo(id, false)
+      landedTargetRef.current = id // let the reverse-link injection re-correct after it shifts layout
+      el.classList.add('hdt-region--landed')
+      window.setTimeout(() => el.classList.remove('hdt-region--landed'), 2000)
+      return true
     }
+
+    if (!deepLinkConsumedRef.current) {
+      deepLinkConsumedRef.current = true
+      // `?leaf=` takes precedence over `?section=` / `#hash`. Two-segment (subject, leaf) resolution
+      // (neurons-unit-correspondence): primary topic anchor → region fallback → inline unavailable.
+      const leaf = readDeepLinkLeaf()
+      if (leaf) {
+        // Subject-scoped: query only THIS subject's rendered container (`root`), never global
+        // `document` — a `leafId` is not unique across subjects, so a residual other-subject topic
+        // in the DOM must not resolve here.
+        const res = resolveLeafTarget(leaf, active.chapterQuizzes, (l) => findLeafAnchorId(l, root))
+        if (res.kind === 'anchor' && landOn(res.anchorId)) return
+        if (res.kind === 'region' && landOn(res.regionId)) return
+        // unavailable (or an anchor/region that vanished from the DOM) → inline note + escape hatch.
+        // NEVER fall back to region 0 / subject 0.
+        setLeafUnavailable(true)
+        root.scrollTo({ top: 0 })
+        return
+      }
+      const section = readDeepLinkSection()
+      if (section && landOn(section)) return
+    }
+
     const saved = Number(localStorage.getItem(lastReadKey(active.subjectId)) || 0)
     root.scrollTo({ top: Number.isFinite(saved) ? saved : 0 })
   }, [active?.subjectId, regions.length, jumpTo])
+
+  // Reverse link「本單元猜題」(neurons-unit-correspondence): after the subject's teaching HTML is in
+  // the DOM (dangerouslySetInnerHTML) and cram has loaded, imperatively append a cram deep-link button
+  // to each TAGGED topic whose leaf has a matching 押題. Re-runs on subject switch (React replaces the
+  // region innerHTML, wiping injected nodes); idempotent within a subject via the existing-node guard.
+  useEffect(() => {
+    const root = scrollRef.current
+    if (!root || !active || regions.length === 0 || !cramPushLeaves) return
+    const topics = root.querySelectorAll<HTMLElement>('.hdt-topic[data-leaf-ids]')
+    let injectedAny = false
+    topics.forEach((topic) => {
+      if (topic.querySelector('.hdt-cram-link')) return // already injected for this render
+      const leaves = (topic.getAttribute('data-leaf-ids') || '').split(/\s+/).filter(Boolean)
+      const pushLeaves = leaves.filter((l) => cramPushLeaves.has(l))
+      if (pushLeaves.length === 0) return // no matching 押題 → no dead link
+      // Multi-value topic: one reverse-link PER 押題-bearing leaf, each pointing at its own unit —
+      // a `find()`-first would send every leaf's deep-link to the first unit (wrong unit on shared
+      // topics). Single-value topics keep the plain label; multi-value ones name each unit's zh.
+      const multi = pushLeaves.length > 1
+      for (const leaf of pushLeaves) {
+        const btn = document.createElement('button')
+        btn.type = 'button'
+        btn.className = 'hdt-cram-link'
+        btn.dataset.cramSubject = active.subjectId
+        btn.dataset.cramLeaf = leaf
+        btn.textContent = multi ? `🎯 ${cramPushLeaves.get(leaf)}猜題 →` : '🎯 本單元猜題 →'
+        topic.appendChild(btn)
+        injectedAny = true
+      }
+    })
+    // Injecting nodes above a deep deep-link target shifts it; re-scroll ONCE to keep the landing
+    // accurate (guarded so it only fires right after arrival, before the user scrolls away).
+    if (injectedAny && landedTargetRef.current) {
+      document.getElementById(landedTargetRef.current)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+      landedTargetRef.current = null
+    }
+  }, [active?.subjectId, regions.length, cramPushLeaves])
+
+  // Cancel the one-shot post-injection re-scroll the moment the user genuinely interacts (wheel /
+  // touch / key) — programmatic `scrollIntoView`/`scrollTo` never fire these, so the landing
+  // correction can't fight a reader who has already scrolled away while cram.json loaded.
+  useEffect(() => {
+    const root = scrollRef.current
+    if (!root) return
+    const cancelReScroll = () => {
+      landedTargetRef.current = null
+    }
+    root.addEventListener('wheel', cancelReScroll, { passive: true })
+    root.addEventListener('touchstart', cancelReScroll, { passive: true })
+    root.addEventListener('keydown', cancelReScroll)
+    return () => {
+      root.removeEventListener('wheel', cancelReScroll)
+      root.removeEventListener('touchstart', cancelReScroll)
+      root.removeEventListener('keydown', cancelReScroll)
+    }
+  }, [mounted])
+
+  // Delegated click for the injected reverse-link buttons (they live inside dangerouslySetInnerHTML,
+  // so they can't be React onClick). Reads the target from data-* so it needs no `active` closure.
+  useEffect(() => {
+    const root = scrollRef.current
+    if (!root) return
+    const onClick = (e: MouseEvent) => {
+      const btn = (e.target as HTMLElement | null)?.closest?.('.hdt-cram-link') as HTMLElement | null
+      if (!btn) return
+      const subj = btn.dataset.cramSubject
+      const leaf = btn.dataset.cramLeaf
+      if (!subj || !leaf) return
+      navigate(`/cram?subject=${encodeURIComponent(subj)}&push=${encodeURIComponent(leaf)}`)
+    }
+    root.addEventListener('click', onClick)
+    return () => root.removeEventListener('click', onClick)
+    // `mounted` gates the portal (and thus scrollRef): without it the effect would run only on the
+    // pre-mount render when scrollRef is null and never re-attach (navigate is a stable ref).
+  }, [navigate, mounted])
 
   // Reading progress + debounced last-read persistence (device-local only; never synced).
   useEffect(() => {
@@ -311,7 +437,13 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
               type="button"
               aria-pressed={s.subjectId === active?.subjectId}
               style={{ ...subjectBtnStyle, ...(s.subjectId === active?.subjectId ? subjectBtnActiveStyle : null) }}
-              onClick={() => setSubjectId(s.subjectId)}
+              // Manually switching subject clears a stale unavailable note (it belongs to the deep-
+              // linked leaf, not the newly-picked subject). Kept off a subjectId effect so it can't
+              // clobber the deep-link effect's set on first mount (same-commit ordering).
+              onClick={() => {
+                setSubjectId(s.subjectId)
+                setLeafUnavailable(false)
+              }}
             >
               {s.subjectId}
             </button>
@@ -340,6 +472,21 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
                 這是<b>教學型考前講義</b>：第一次唸也看得懂，依各科組織／系統分區整理高頻重點，適合考前一週系統複習。
                 依歷屆出現頻率收斂 —— 頻率高 ≠ 今年一定考。
               </div>
+              {leafUnavailable && (
+                <div className="hdt-leaf-unavailable" role="status">
+                  <span>這個單元暫無對應的講義段落，可改讀整科講義。</span>
+                  <button
+                    type="button"
+                    className="hdt-leaf-unavailable__cta"
+                    onClick={() => {
+                      setLeafUnavailable(false)
+                      scrollRef.current?.scrollTo({ top: 0 })
+                    }}
+                  >
+                    開啟該科講義
+                  </button>
+                </div>
+              )}
               {/* Authored, build-trusted teaching HTML split into region blocks so a per-chapter
                   quiz CTA can be React-rendered after each mapped chapter (no input; cram trust model). */}
               {regions.map((r) => (
@@ -606,8 +753,28 @@ const SCENE_CSS = `
   background: #f7f3e4; border-left: 4px solid ${GREEN}; border-radius: 0 6px 6px 0;
   padding: 0.55rem 0.8rem; margin: 0 0 1rem; color: #4a4028; font-size: 0.9rem;
 }
-.hdt-scene .hdt-topic { margin: 0 0 1.3rem; }
+.hdt-scene .hdt-topic { margin: 0 0 1.3rem; scroll-margin-top: 8px; }
 .hdt-scene .hdt-topic > h3 { font-family: var(--font-pixel-cjk); font-size: 1rem; color: ${GREEN_DK}; margin: 1.1rem 0 0.35rem; font-weight: 700; }
+/* Reverse link「本單元猜題」(neurons-unit-correspondence) — a subtle text-button appended at the end
+   of a topic that has a matching 押題; injected imperatively (lives inside dangerouslySetInnerHTML). */
+.hdt-scene .hdt-cram-link {
+  display: inline-block; margin: 0.1rem 0 0.4rem; border: 0; background: transparent;
+  color: ${GREEN_DK}; font: 700 0.8rem/1.4 var(--font-legible); cursor: pointer;
+  padding: 0.15rem 0; border-bottom: 1px dashed ${GREEN};
+}
+.hdt-scene .hdt-cram-link:hover { color: ${GREEN}; border-bottom-style: solid; }
+/* Inline unavailable note + escape hatch for a ?leaf= with no anchor/region (never region 0). */
+.hdt-scene .hdt-leaf-unavailable {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+  background: #fbf4dd; border: 1px solid #d9b64e; border-radius: 8px;
+  padding: 0.55rem 0.8rem; margin: 0 0 1.2rem; color: #6b5d3a; font-size: 0.86rem;
+  font-family: var(--font-legible); line-height: 1.6;
+}
+.hdt-scene .hdt-leaf-unavailable__cta {
+  border: 1px solid ${GREEN}; background: ${GREEN}; color: #fff; border-radius: 6px;
+  padding: 0.3rem 0.7rem; font: 700 0.8rem/1 var(--font-legible); cursor: pointer; white-space: nowrap;
+}
+.hdt-scene .hdt-leaf-unavailable__cta:hover { background: ${GREEN_DK}; }
 .hdt-scene .hdt-teach { margin: 0 0 0.5rem; color: #453d29; }
 .hdt-scene h3.hdt-h { font-family: var(--font-pixel-cjk); font-size: 0.98rem; color: ${GREEN_DK}; margin: 1.2rem 0 0.45rem; font-weight: 700; }
 .hdt-scene ul.hdt-must { margin: 0.2rem 0 0.6rem; padding-left: 1.25rem; }
@@ -686,7 +853,7 @@ const SCENE_CSS = `
     display: block !important; background: #fff !important;
   }
   .hdt-scene header, .hdt-sidebar, .hdt-toc-toggle, .hdt-print-btn, .hdt-fab, .hdt-drawer,
-  .hdt-progress, .hdt-quiz-cta, .hdt-quiz-signpost { display: none !important; }
+  .hdt-progress, .hdt-quiz-cta, .hdt-quiz-signpost, .hdt-cram-link, .hdt-leaf-unavailable { display: none !important; }
   .hdt-layout, .hdt-scroll { display: block !important; overflow: visible !important; height: auto !important; min-height: 0 !important; }
   .hdt-content { max-width: none !important; margin: 0 !important; padding: 0 !important; font-size: 10.5pt; line-height: 1.55; color: #111 !important; }
   .hdt-scene .hdt-region { break-inside: auto; page-break-inside: auto; margin-bottom: 12pt; }

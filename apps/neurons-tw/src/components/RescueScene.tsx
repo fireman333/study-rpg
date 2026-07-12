@@ -363,8 +363,12 @@ export function RescueScene({ pack, initialFamilyId, onClose }: Props): JSX.Elem
         return
       }
       // Success: dismiss the overlay (hygiene; the route unmount also tears it down) then navigate.
+      // Carry the LEAF (not the resolved region): the handout's (subject, leaf) resolver lands at leaf
+      // granularity — the leaf's primary topic sub-anchor when present, else its region. `hit` is used
+      // ONLY as the mapped-vs-unmapped gate; region vs chapter stays an internal resolver detail
+      // (add-neurons-handout-unit-correspondence).
       onClose()
-      navigate(`/cram/handout?subject=${encodeURIComponent(subjectId)}&section=${encodeURIComponent(hit.regionId)}&from=rescue`)
+      navigate(`/cram/handout?subject=${encodeURIComponent(subjectId)}&leaf=${encodeURIComponent(conceptId)}&from=rescue`)
     },
     [subjectId, navigate, onClose],
   )

@@ -255,3 +255,7 @@ export type {
 // 考前講義(beta) data model (add-neurons-anatomy-handout). handout.json is lazy-fetched by the
 // /cram/handout scene (not bundled via getContentPack); these are the shared shape types.
 export type { HandoutSubject, HandoutData, HandoutChapterQuiz } from './handout/handout-types'
+
+// Leaf-anchor gate (add-neurons-handout-unit-correspondence) — the pure topic→leaf sub-anchor
+// validator/injector, exported so the app's unit tests can assert its loud-fail contract.
+export { injectLeafAnchors, type LeafAnchorResult } from './handout/leaf-anchor-gate'
