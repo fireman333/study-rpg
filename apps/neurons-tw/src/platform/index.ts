@@ -1,14 +1,12 @@
 /**
  * Platform adapter for source-PDF provenance.
  *
- * WEB (add-neurons-pdf-drive-autofetch): the booklet bytes are fetched on demand straight from the
- * publisher's official Google Drive (Drive REST API, referrer-restricted public key) and cached in a
- * device-local byte-store (Cache API v1). No folder grant, no manual download, no File System Access —
- * so it works on desktop AND mobile / Safari. The app's own infra is never in the byte path.
- *
- * DESKTOP (Tauri) is delegated to tauriBackend behind this same surface via VITE_TARGET; it is being
- * removed in a separate follow-up change. Nothing here throws into the UI — failures come back as
- * OpenResult / PlatformStatus so the caller degrades to the inline explanation + the official link.
+ * The booklet bytes are fetched on demand straight from the publisher's official Google Drive
+ * (Drive REST API, referrer-restricted public key) and cached in a device-local byte-store
+ * (Cache API v1). No folder grant, no manual download, no File System Access — so it works on
+ * desktop AND mobile / Safari. The app's own infra is never in the byte path. Nothing here throws
+ * into the UI — failures come back as OpenResult / PlatformStatus so the caller degrades to the
+ * inline explanation + the official link.
  */
 import type { OpenResult, PlatformStatus, ProvenanceEntry } from './types'
 import { loadProvenanceMap, lookupEntry } from './provenance'
@@ -17,15 +15,6 @@ import { fetchBooklet, officialDriveUrl, isSuspectedEdgeThrottle } from './drive
 import { noteDriveSuccess } from './pdfCooldown'
 
 export type { OpenResult, PlatformStatus, ProvenanceEntry } from './types'
-
-// Statically replaced by Vite (define) at build/dev, so the web build constant-folds the
-// desktop branches to `if (false)` and tree-shakes the dynamic import + its @tauri-apps deps.
-const DESKTOP = import.meta.env.VITE_TARGET === 'desktop'
-
-/** True only in a desktop (Tauri) build. Web build → always false. */
-export function isDesktop(): boolean {
-  return DESKTOP
-}
 
 /**
  * Whether this platform can open a source PDF at all. Web can always fetch + render (the action
@@ -36,15 +25,13 @@ export function isLocalPdfSupported(): boolean {
   return true
 }
 
-/** Current capability/grant state. Web needs no grant → always 'ready'; desktop delegates. */
+/** Current capability/grant state. Web needs no grant → always 'ready'. */
 export async function getStatus(): Promise<PlatformStatus> {
-  if (DESKTOP) return (await import('./tauriBackend')).getStatus()
   return 'ready'
 }
 
-/** Desktop folder grant; web needs none (auto-fetch), so this is a no-op returning 'ready'. */
+/** Web needs no folder grant (auto-fetch), so this is a no-op returning 'ready'. */
 export async function grantFolder(): Promise<PlatformStatus> {
-  if (DESKTOP) return (await import('./tauriBackend')).grantFolder()
   return 'ready'
 }
 
@@ -52,8 +39,8 @@ export async function grantFolder(): Promise<PlatformStatus> {
 export async function hasProvenance(questionId: string): Promise<boolean> {
   const entry = lookupEntry(await loadProvenanceMap(), questionId)
   if (!entry) return false
-  // Desktop resolves by content fingerprint; web needs a Drive file id to fetch.
-  return DESKTOP ? true : !!entry.driveFileId
+  // Web needs a Drive file id to fetch.
+  return !!entry.driveFileId
 }
 
 /** Injectable seams so the web fetch+cache path is unit-testable (all default to production). */
@@ -68,14 +55,12 @@ export interface WebOpenDeps {
 /**
  * Open this question's source PDF at its mapped page.
  *
- * Web: resolve the booklet's Drive id from the map → serve from the byte-cache if present, else
- * fetch it from Drive and cache it → return a blob URL for the docked viewer at `page`. On any
- * fetch failure return a non-blocking reason + the official Drive link as fallback (No Silent
- * Errors); the inline 詳解 always remains. Desktop delegates to the Tauri backend.
+ * Resolve the booklet's Drive id from the map → serve from the byte-cache if present, else fetch
+ * it from Drive and cache it → return a blob URL for the docked viewer at `page`. On any fetch
+ * failure return a non-blocking reason + the official Drive link as fallback (No Silent Errors);
+ * the inline 詳解 always remains.
  */
 export async function openExplanation(questionId: string, deps: WebOpenDeps = {}): Promise<OpenResult> {
-  if (DESKTOP) return (await import('./tauriBackend')).openExplanation(questionId)
-
   const entry = lookupEntry(await loadProvenanceMap(), questionId)
   if (!entry) return { ok: false, reason: 'unmapped' }
   if (!entry.driveFileId || !entry.bookletKey) return { ok: false, reason: 'unmapped' }
@@ -128,14 +113,13 @@ async function openWebBooklet(entry: ProvenanceEntry, deps: WebOpenDeps): Promis
   return { ok: true, page: entry.page, url: createUrl(blob), file: entry.file }
 }
 
-/** Revoke a resolved source URL when the viewer closes (no-op for non-blob Tauri URLs). */
+/** Revoke a resolved source URL when the viewer closes (no-op for non-blob URLs). */
 export function releaseExplanationUrl(url: string): void {
   if (url.startsWith('blob:')) URL.revokeObjectURL(url)
 }
 
-/** Open an external URL in the system browser (desktop: Tauri opener; web: a new tab). */
+/** Open an external URL in the system browser (a new tab). */
 export async function openExternalUrl(url: string): Promise<void> {
-  if (DESKTOP) return (await import('./tauriBackend')).openExternalUrl(url)
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
@@ -145,7 +129,7 @@ export async function openExternalUrl(url: string): Promise<void> {
  * any failure is ignored (the store going unused is already harmless).
  */
 export function cleanupLegacyPdfStorage(): void {
-  if (DESKTOP || typeof indexedDB === 'undefined') return
+  if (typeof indexedDB === 'undefined') return
   const FLAG = 'neurons.pdf.legacyFolderStoreCleaned.v1'
   try {
     if (localStorage.getItem(FLAG) === '1') return
