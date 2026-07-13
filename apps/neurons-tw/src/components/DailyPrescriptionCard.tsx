@@ -244,7 +244,7 @@ export function DailyPrescriptionCard({
       </div>
 
       {/* dayComplete → one coherent 收束 area: completion line + optional 考前救援
-          bonus + 今晚收束 calm toggle. The bonus NEVER reads as 未完成/繼續 and does
+          bonus + 今天留下的連結 calm toggle. The bonus NEVER reads as 未完成/繼續 and does
           not affect dayComplete or NG-0717 (flavor reward only). Celebration-once
           (design D9): this whole area is a STATE render, not a celebration — the
           「今日處方箋完成」note plays only in QuizModal on the local `justCompleted`
@@ -269,7 +269,7 @@ export function DailyPrescriptionCard({
               onClick={() => setCalmOpen((v) => !v)}
               aria-expanded={calmOpen}
             >
-              {calmOpen ? '▴ 今晚收束' : '▾ 今晚收束'}
+              {calmOpen ? '▴ 今天留下的連結' : '▾ 今天留下的連結'}
             </button>
             {calmOpen && <CramCalmView />}
           </div>
@@ -350,7 +350,7 @@ export function DailyPrescriptionCard({
           <span style={mascotNameStyle}>NG-0717 · {spriteLabel}</span>
           <span style={mascotCountStyle}>已固化 {completedDayCount} 天</span>
           {keepsakeUnlocked ? (
-            <span style={keepsakeStyle}>💠 成熟印記 · {NG0717_KEEPSAKE_LINE}</span>
+            <span style={keepsakeStyle}><EmojiIcon char="💠" size={13} decorative /> 成熟印記 · {NG0717_KEEPSAKE_LINE}</span>
           ) : (
             <span style={mascotHintStyle}>{NG0717_OPEN_HINT}</span>
           )}

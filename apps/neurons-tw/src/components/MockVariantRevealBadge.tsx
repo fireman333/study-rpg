@@ -21,7 +21,11 @@ export function MockVariantRevealBadge({ result }: { result: MockRollResult }): 
       )}
       <div>
         <p style={captionStyle}>
-          {result.isNew ? '🎉 收集到新的模擬考神經元！' : '✨ 模擬考神經元 +1'}
+          {result.isNew ? (
+            <><EmojiIcon char="🎉" size={14} decorative /> 收集到新的模擬考神經元！</>
+          ) : (
+            <><EmojiIcon char="✨" size={14} decorative /> 模擬考神經元 +1</>
+          )}
         </p>
         <p style={nameStyle}>
           <span style={{ ...rarityStyle, color }}>{result.rarity}</span>

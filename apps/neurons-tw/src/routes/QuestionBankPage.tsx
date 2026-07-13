@@ -498,7 +498,7 @@ export function QuestionBankPage({ pack }: { pack: ContentPack }): JSX.Element {
                 </span>
               </button>
               <button type="button" onClick={() => void chooseMock()} style={examRowStyle}>
-                <span>📝 模擬考試</span>
+                <span><EmojiIcon char="📝" size={14} decorative /> 模擬考試</span>
                 <span style={examBadgeStyle}>整卷 {mockPaperPool.length} 題</span>
               </button>
             </div>

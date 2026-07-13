@@ -52,6 +52,18 @@ This pack was assembled for `pixelate-neurons-emoji` (2026-06-07):
   pixelated siblings; 🗺 一週攻略地圖 appears in the 考前講義 body. Also wired the
   remaining raw body-prose emoji in HelpMenu (all already in the pack) through
   `<EmojiIcon>`.
+- **8 icons added** 2026-07-13 for the 首頁 + 考前中心 backfill, same codex CLI
+  `gpt-image-2` formula + ImageMagick post-process (corner chroma-key → trim → point
+  resize 60px → extent 64×64 → 16-color): 🗂 `1f5c2` (card-index tray with colored
+  divider tabs) / 🌲 `1f332` (evergreen fir) / ❄ `2744` (snowflake) / 💠 `1f4a0`
+  (diamond-with-dot gem) / ✅ `2705` (green check button) / ⛰ `26f0` (snow-capped
+  mountain) / 🎉 `1f389` (party popper) / 📝 `1f4dd` (memo + pencil). These cover the
+  今日處方箋 range chip (🗂) + 成熟印記 (💠), the 考前中心 tier chips (🌲 常青必掃 / ❄
+  經典但降溫), the 今日處方 tier ladder (✅ 今日完成 / ⛰ 深度出征 / 🎉 完成慶祝) and the
+  模擬考 📝 headers/CTAs — all previously native glyphs beside pixelated siblings. Same
+  pass also wired the still-raw homepage glyphs 🌙 (今天到此為止 / 今天已收工) / 🧠 (腦圖
+  toggle + teaser) / 💡 (連線提示) and the 考前中心 ✨ 近年新寵 tier chip — all already
+  in the pack — through `<EmojiIcon>`.
 
 ## Style anchor (codex prompt formula)
 

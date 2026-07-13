@@ -31,11 +31,11 @@ const STAT_STAMP = '統計至 115-1'
 const SOURCE_PREVIEW_CAP = 6
 
 // Tier presentation — honest labels; 經典但降溫 explicitly flagged as cooling.
-const TIER_STYLE: Record<string, { color: string; bg: string; icon: string }> = {
+const TIER_STYLE: Record<string, { color: string; bg: string; icon: string; suffix?: string }> = {
   常青必掃: { color: '#7a5410', bg: '#f3dfa6', icon: '🌲' },
   穩定考點: { color: '#5a4a33', bg: '#e6dcc2', icon: '◆' },
   近年新寵: { color: '#2f6b45', bg: '#d5ecd9', icon: '✨' },
-  經典但降溫: { color: '#6a6a6a', bg: '#e4e4e4', icon: '❄️ 降溫' },
+  經典但降溫: { color: '#6a6a6a', bg: '#e4e4e4', icon: '❄️', suffix: '降溫' },
 }
 
 /** Render build-trusted inline HTML (sanitized to <b> only in build-cram). */
@@ -339,7 +339,8 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                     <div style={pushRowStyle}>
                       <span style={pushZhStyle}>{item.zh}</span>
                       <span style={{ ...tierChipStyle, color: tier.color, background: tier.bg }}>
-                        {tier.icon} {item.tier}
+                        <EmojiIcon char={tier.icon} size={12} decorative />
+                        {tier.suffix ? ` ${tier.suffix}` : ''} {item.tier}
                       </span>
                       {covered && <span style={coveredChipStyle}>✓ 已固化過</span>}
                       {/* Leaf-level deep-link to this unit's teaching handout (push is leaf-native). */}

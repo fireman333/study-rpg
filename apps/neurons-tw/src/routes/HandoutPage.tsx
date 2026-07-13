@@ -29,6 +29,7 @@ import { useCram } from '../lib/cram'
 import { deriveRegions, deriveToc, resolveLeafTarget, findLeafAnchorId } from '../lib/handout-regions'
 import type { HandoutTocEntry } from '../lib/handout-regions'
 import { QuizModal } from '../components/QuizModal'
+import { EmojiIcon } from '../components/EmojiIcon'
 
 const lastReadKey = (subjectId: string) => `handout:${subjectId}:scrollTop`
 
@@ -502,7 +503,7 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
                   <div dangerouslySetInnerHTML={{ __html: r.html }} />
                   {quizByRegion.has(r.id) ? (
                     <button type="button" className="hdt-quiz-cta" onClick={() => openChapterQuiz(r.id)}>
-                      📝 {quizByRegion.get(r.id)!.memberRegionIds.length === 1 ? '測驗本區' : '測驗本章'}
+                      <EmojiIcon char="📝" size={13} decorative /> {quizByRegion.get(r.id)!.memberRegionIds.length === 1 ? '測驗本區' : '測驗本章'}
                     </button>
                   ) : signpostByRegion.has(r.id) ? (
                     <button

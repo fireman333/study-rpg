@@ -31,7 +31,7 @@ export function CramCalmView(): JSX.Element {
   }, [cram, history])
 
   return (
-    <div style={calmStyle} aria-label="考前收束">
+    <div style={calmStyle} aria-label="今天留下的連結">
       {coverageCount != null && (
         <p style={calmLineStyle}>
           {CALM_COVERAGE_PREFIX}

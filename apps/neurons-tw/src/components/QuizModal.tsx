@@ -760,7 +760,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           </header>
           <div style={bodyStyle}>
             <p style={{ textAlign: 'center', color: '#5a3f29', margin: '2rem 0' }}>
-              🎉 你已經答完本次 session 的所有題目（{sessionPool.length} 題）。<br />
+              <EmojiIcon char="🎉" size={14} decorative /> 你已經答完本次 session 的所有題目（{sessionPool.length} 題）。<br />
               關閉後重新開啟可以再來一輪。
             </p>
           </div>
