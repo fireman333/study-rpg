@@ -23,6 +23,8 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { submitBugReport } from '../lib/services/bug-report'
 import { QuizModal } from '../components/QuizModal'
 import { QuestionReviewCard } from '../components/QuestionReviewCard'
+import { BookmarkToggleButton } from '../components/BookmarkToggleButton'
+import { LocalPdfButton } from '../components/LocalPdfButton'
 import { MockExamRunner, type MockResumeState } from '../components/MockExamRunner'
 import { useQuestionHistory } from '../lib/services/question-history'
 import {
@@ -645,9 +647,16 @@ function QuestionEntry({
         question={q}
         header={header}
         showFigure
+        showPdfButton={false}
         conceptLabels={conceptLabelsFor(q, conceptTags)}
         onConceptClick={onConceptClick}
       />
+      {/* 收藏 + 原始詳解 side by side — mirrors the 收藏頁 錯題 list row (收藏 left, PDF right).
+          LocalPdfButton self-gates to null when the question has no mapped PDF. */}
+      <div style={entryActionsStyle}>
+        <BookmarkToggleButton questionId={q.id} family={q.subject} />
+        <LocalPdfButton questionId={q.id} actionRowItem />
+      </div>
     </li>
   )
 }
@@ -910,6 +919,13 @@ const entryStyle: React.CSSProperties = {
   border: '2px solid #c9ad7f',
   borderRadius: '6px',
   padding: '0.8rem 1rem',
+}
+const entryActionsStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '0.5rem',
+  marginTop: '0.6rem',
 }
 const entryHeadStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }
 const entryIdStyle: React.CSSProperties = { fontSize: '0.78rem', color: '#8c6d4a', fontWeight: 700 }

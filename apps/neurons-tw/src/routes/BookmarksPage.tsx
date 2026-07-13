@@ -16,7 +16,9 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { ContentPack, Question } from '@study-rpg/core'
+import { BookmarkToggleButton } from '../components/BookmarkToggleButton'
 import { EmojiIcon } from '../components/EmojiIcon'
+import { LocalPdfButton } from '../components/LocalPdfButton'
 import { QuestionReviewCard } from '../components/QuestionReviewCard'
 import { useConceptTags, conceptLabelsFor } from '../lib/concept-tags'
 import { reclassifiedFamily } from '../lib/question-family'
@@ -182,6 +184,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         question={q}
         header={header}
         showFigure
+        showPdfButton={false}
         conceptLabels={conceptLabelsFor(q, conceptTags)}
         onConceptClick={(zh) => navigate(`/bank?concept=${encodeURIComponent(zh)}`)}
       />
@@ -202,6 +205,10 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         {rows.slice(0, MAX_RENDER).map((row) => (
           <li key={row.questionId} style={rowStyle}>
             {renderQuestionContent(row.questionId, row.lastAnsweredAt)}
+            <div style={rowActionsStyle}>
+              <BookmarkToggleButton questionId={row.questionId} family={row.family} />
+              <LocalPdfButton questionId={row.questionId} actionRowItem />
+            </div>
           </li>
         ))}
       </ul>
@@ -372,6 +379,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
                   <button type="button" style={unbookmarkBtnStyle} onClick={() => handleRemove(b.questionId)} aria-label="取消收藏">
                     ★ 取消收藏
                   </button>
+                  <LocalPdfButton questionId={b.questionId} actionRowItem />
                 </div>
               </li>
             ))}
@@ -659,6 +667,8 @@ const missingStyle: React.CSSProperties = {
 
 const rowActionsStyle: React.CSSProperties = {
   display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
   gap: '0.5rem',
   marginTop: 'auto',
 }

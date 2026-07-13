@@ -856,6 +856,12 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           @media (max-width: 600px) {
             .bookmark-btn-label { display: none; }
             .flag-btn-label { display: none; }
+            /* Collapse to icon-only so the busy footer fits one row on phones:
+               原始詳解 → 📄, 下一題 → →. Scoped to the footer so the shared
+               原始詳解 button keeps its full label on 收藏頁 / 題庫. */
+            .quiz-modal-footer .pdf-btn-label { display: none; }
+            .quiz-modal-footer .next-btn-label { display: none; }
+            .quiz-modal-footer .next-hotkey-badge { display: none; }
           }
         `}</style>
         <header style={headerStyle}>
@@ -1061,7 +1067,6 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
               <ConceptLabelRow labels={conceptLabels} hrefFor={conceptBankHref} />
               {q.explanation && (
                 <>
-                  <LocalPdfButton questionId={q.id} />
                   {SHOW_INLINE_EXPLANATION && q.optionExplanations && (
                     <details style={explanationStyle} open>
                       <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 簡答</summary>
@@ -1077,8 +1082,13 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
           )}
         </div>
 
-        <footer style={footerStyle}>
-          <BookmarkButton question={q} hotkeyVisible={revealed} />
+        <footer className="quiz-modal-footer" style={footerStyle}>
+          <div style={footerLeftActionsStyle}>
+            <BookmarkButton question={q} hotkeyVisible={revealed} />
+            {/* 原始詳解 PDF — post-reveal only (opening it before answering spoils the answer);
+                LocalPdfButton self-gates to null when the question has no mapped PDF. */}
+            {revealed && <LocalPdfButton questionId={q.id} actionRowItem />}
+          </div>
           {revealed && (
             <FlagButtons
               questionId={q.id}
@@ -1089,18 +1099,22 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
               onInsight={handleToggleInsight}
             />
           )}
+          {/* No 結束 button in the answering footer — the top-right ✕ and clicking the
+              backdrop both close the modal, so it was redundant clutter (removing it
+              also lets the footer fit one row on phones). */}
           {revealed ? (
-            <>
-              <button style={secondaryBtnStyle} onClick={handleClose}>
-                結束
-              </button>
-              <button style={primaryBtnStyle} onClick={handleNext} autoFocus>
-                下一題 →
-                <span className="quiz-hotkey-badge quiz-hotkey-badge--enter" aria-hidden>
-                  ↵
-                </span>
-              </button>
-            </>
+            <button
+              style={primaryBtnStyle}
+              onClick={handleNext}
+              autoFocus
+              aria-label="下一題"
+              title="下一題（Enter）"
+            >
+              <span className="next-btn-label">下一題 </span>→
+              <span className="quiz-hotkey-badge quiz-hotkey-badge--enter next-hotkey-badge" aria-hidden>
+                ↵
+              </span>
+            </button>
           ) : rescueSubmit ? (
             <>
               <button
@@ -1123,15 +1137,8 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
               >
                 🎲 確定・猜的
               </button>
-              <button style={secondaryBtnStyle} onClick={handleClose}>
-                結束
-              </button>
             </>
-          ) : (
-            <button style={secondaryBtnStyle} onClick={handleClose}>
-              結束
-            </button>
-          )}
+          ) : null}
         </footer>
       </div>
     </div>
@@ -1791,12 +1798,23 @@ const footerStyle: React.CSSProperties = {
   flexWrap: 'wrap',
 }
 
-// BookmarkButton — left-aligned in footer, gets `margin-right: auto` to push
-// the action buttons (結束 / 下一題) to the right. Subtle visual weight so it
-// doesn't compete with the primary action.
+// Footer left group — holds 收藏 + 原始詳解 side by side; `margin-right: auto`
+// pushes the flag buttons + 下一題 to the right. Content-width (no flex-grow) so on
+// narrow screens the two buttons stay on one line and the whole group wraps as a
+// unit, instead of stacking 原始詳解 under 收藏. flex-wrap only serves the rare
+// 原始詳解 fail block (flexBasis:100% → its own row).
+const footerLeftActionsStyle: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '0.6rem',
+  marginRight: 'auto',
+}
+
+// BookmarkButton — left-aligned in footer within footerLeftActionsStyle. Subtle
+// visual weight so it doesn't compete with the primary action.
 const bookmarkBtnStyle: React.CSSProperties = {
   position: 'relative',
-  marginRight: 'auto',
   padding: '0.4rem 0.9rem',
   borderRadius: '6px',
   border: '1px solid #c4a878',

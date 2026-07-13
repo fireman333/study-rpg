@@ -31,12 +31,17 @@ export function QuestionReviewCard({
   question: q,
   header,
   showFigure = true,
+  showPdfButton = true,
   conceptLabels,
   onConceptClick,
 }: {
   question: Question
   header?: ReactNode
   showFigure?: boolean
+  /** When false, suppress the in-card 原始詳解 PDF button. Surfaces that render the
+   *  PDF button beside their own action row (收藏頁 footer) pass false to avoid a
+   *  duplicate. 題庫 / 考前 omit it → button stays in the card as before. */
+  showPdfButton?: boolean
   /** Tested concept labels for this question (add-neurons-concept-tags §5.2). */
   conceptLabels?: ConceptLabel[]
   /** When provided, labels are a search shortcut (tap → 導 /bank + prefill). Omit for
@@ -65,7 +70,7 @@ export function QuestionReviewCard({
       <ConceptLabelRow labels={conceptLabels ?? []} onConceptClick={onConceptClick} />
       {q.explanation && (
         <>
-          <LocalPdfButton questionId={q.id} />
+          {showPdfButton && <LocalPdfButton questionId={q.id} />}
           {SHOW_INLINE_EXPLANATION && q.optionExplanations && (
             <details style={explanationStyle} open>
               <summary style={explanationSummaryStyle}><EmojiIcon char="📖" size={15} /> 簡答</summary>
