@@ -154,11 +154,11 @@ const out = { version: 'v1', sourceHash, count: mapped, entries: sortedEntries }
 mkdirSync(OUT_DIR, { recursive: true })
 writeFileSync(OUT_FILE, JSON.stringify(out, null, 2) + '\n', 'utf8')
 
-// Copy the committed desktop-guided-download artifacts into the gitignored public/ dir so the
-// app fetches them at runtime, same as the map above (add-neurons-guided-pdf-onboarding).
-// These are COMMITTED sources (built offline from the owner's PDFs / link list) — CI can't
-// regenerate them, so the build only copies; it never rebuilds them.
-for (const name of ['fingerprint-manifest.json', 'booklet-drive-links.json']) {
+// Copy the committed booklet→Drive-link map into the gitignored public/ dir so the app fetches
+// it at runtime, same as the map above (add-neurons-pdf-drive-autofetch). This is a COMMITTED
+// source (built offline from the owner's link list) — CI can't regenerate it, so the build only
+// copies; it never rebuilds it.
+for (const name of ['booklet-drive-links.json']) {
   const src = resolve(PKG, 'provenance', name)
   if (existsSync(src)) copyFileSync(src, resolve(OUT_DIR, name))
   else console.warn(`[provenance-map] WARN missing committed artifact: ${name}`)

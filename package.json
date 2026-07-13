@@ -11,8 +11,6 @@
   "scripts": {
     "dev": "pnpm --filter @study-rpg/neurons-tw dev",
     "dev:neurons": "pnpm --filter @study-rpg/neurons-tw dev",
-    "dev:tauri": "pnpm --filter @study-rpg/neurons-tw dev:tauri",
-    "build:tauri": "pnpm --filter @study-rpg/neurons-tw build:tauri",
     "build": "pnpm -r build",
     "build:neurons": "pnpm --filter @study-rpg/neurons-tw build",
     "build:neurons-content": "pnpm --filter @study-rpg/content-neurons-tw build",

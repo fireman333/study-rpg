@@ -6,7 +6,7 @@ import {
   loadProvenanceMap,
   __resetProvenanceCache,
 } from '../platform/provenance'
-import { isDesktop, isLocalPdfSupported, hasProvenance, openExplanation } from '../platform'
+import { isLocalPdfSupported, hasProvenance, openExplanation } from '../platform'
 import type { ProvenanceMapFile } from '../platform/types'
 
 const MAP: ProvenanceMapFile = {
@@ -80,9 +80,8 @@ describe('loadProvenanceMap — lazy fetch + cache + graceful failure', () => {
 })
 
 describe('web adapter — available on every browser, gated only on a resolved mapping', () => {
-  it('is supported on the web (NOT FSA-gated) and is not the desktop build', () => {
+  it('is supported on the web (NOT FSA-gated)', () => {
     expect(isLocalPdfSupported()).toBe(true)
-    expect(isDesktop()).toBe(false)
   })
 
   it('hasProvenance is true for a Drive-resolved question, false otherwise', async () => {
