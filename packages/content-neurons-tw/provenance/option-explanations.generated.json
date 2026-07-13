@@ -43760,7 +43760,7 @@
   "flags": []
  },
  "112-2-醫學一-生理學-Q66": {
-  "sourceHash": "df3728e519ccd1946fbda5d75a999cdaaacb68fb2f6c63d0e8c6b3f2405dceb5",
+  "sourceHash": "c8d938f9c60b6d86306f06f9b811fb2b48854f688d87b25f59919245f96b809d",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.073Z",
@@ -56182,7 +56182,7 @@
   "pdfScale": 2.5
  },
  "104-1-醫學二-藥理學-Q52": {
-  "sourceHash": "bb117d080115a03224ec42cd8f0e2804ea09c377e568031a9279e5fda4bae05d",
+  "sourceHash": "128fc2ca01a60ee28768ff3e6cf9d3dd073674bbeb4502606c62fc856067e063",
   "model": "claude-sonnet-4-6",
   "promptVersion": "backfill-v1",
   "generatedAt": "2026-06-29T01:44:09.732Z",
