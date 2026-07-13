@@ -255,7 +255,7 @@ function GroupNavLink({ to, label, group }: { to: string; label: string; group: 
 function SubTabLayout({ group }: { group: keyof typeof SUBTAB_GROUPS }): JSX.Element {
   return (
     <>
-      <nav style={subTabBarStyle} aria-label={group === 'collection' ? '圖鑑分頁' : group === 'bank' ? '題庫分頁' : '社群分頁'}>
+      <nav style={subTabBarStyle} className="neurons-chip-row--scroll" aria-label={group === 'collection' ? '圖鑑分頁' : group === 'bank' ? '題庫分頁' : '社群分頁'}>
         {SUBTAB_GROUPS[group].map((t) => (
           <NavLink key={t.to} to={t.to} style={navLinkStyle} end>
             {({ isActive }) => (

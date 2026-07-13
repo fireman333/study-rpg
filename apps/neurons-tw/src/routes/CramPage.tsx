@@ -156,7 +156,13 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
     <div style={pageStyle}>
       {/* ── 救急狀態條: reflects active rescue plans; click a chip to open the SAME RescueScene
            in place (add-neurons-exam-prep-hub). No active plan → a create-rescue entry. ── */}
-      <div style={rescueStripStyle}>
+      <div
+        style={rescueStripStyle}
+        // Scroll-rail only when plan chips exist (label + up to 5 wide chips + add → one
+        // scrollable row instead of 3-5 lines). Empty state is one long-sentence button —
+        // no rail there, or flex-shrink:0 would force it to a horizontal scroll.
+        className={rescuePlans.length > 0 ? 'neurons-chip-row neurons-chip-row--scroll' : 'neurons-chip-row'}
+      >
         {rescuePlans.length > 0 ? (
           <>
             <span style={rescueStripLabelStyle}>
@@ -336,47 +342,52 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
                 const rchip = rescueChipByFamily.get(item.subjectId) // family rescue chip (if active plan)
                 return (
                   <li key={item.leafId} id={`push-${item.leafId}`} style={pushItemStyle}>
-                    <div style={pushRowStyle}>
-                      <span style={pushZhStyle}>{item.zh}</span>
+                    <div style={pushRowStyle} className="cram-push-row">
+                      <span style={pushZhStyle} className="cram-push-zh">{item.zh}</span>
                       <span style={{ ...tierChipStyle, color: tier.color, background: tier.bg }}>
                         <EmojiIcon char={tier.icon} size={12} decorative />
                         {tier.suffix ? ` ${tier.suffix}` : ''} {item.tier}
                       </span>
                       {covered && <span style={coveredChipStyle}>✓ 已固化過</span>}
-                      {/* Leaf-level deep-link to this unit's teaching handout (push is leaf-native). */}
-                      <button
-                        type="button"
-                        style={pushHandoutBtnStyle}
-                        onClick={() =>
-                          navigate(
-                            `/cram/handout?subject=${encodeURIComponent(item.subjectId)}&leaf=${encodeURIComponent(item.leafId)}`,
-                          )
-                        }
-                      >
-                        <EmojiIcon char="📖" size={12} decorative /> 看講義
-                      </button>
-                      {/* leaf context toolbar (cram-side, add-neurons-exam-prep-hub): 看講義 (above)
-                          + 練題 + 救急狀態 for this unit — the family-level rescue chip only, never
-                          per-leaf 戰情圖 band into content. Reuses existing deep-links / practice. */}
-                      <button
-                        type="button"
-                        style={leafToolBtnStyle}
-                        onClick={() => {
-                          const pool = orderPracticePool(resolve(item.sourceQuestionIds), snapshotIds)
-                          if (pool.length > 0) setPractice({ pool, label: item.zh })
-                        }}
-                      >
-                        <EmojiIcon char="✏️" size={12} decorative /> 練題
-                      </button>
-                      {rchip && (
+                      {/* The 看講義 / 練題 / 救急 actions are grouped so they stay on ONE row (never
+                          split across lines) once the long CJK concept label takes the row above on
+                          phones (converge-neurons-filter-row-rwd). marginLeft:auto removed → no ragged gap. */}
+                      <div className="cram-push-actions">
+                        {/* Leaf-level deep-link to this unit's teaching handout (push is leaf-native). */}
                         <button
                           type="button"
-                          style={leafRescueBtnStyle}
-                          onClick={() => openRescue(item.subjectId)}
+                          style={pushHandoutBtnStyle}
+                          onClick={() =>
+                            navigate(
+                              `/cram/handout?subject=${encodeURIComponent(item.subjectId)}&leaf=${encodeURIComponent(item.leafId)}`,
+                            )
+                          }
                         >
-                          <EmojiIcon char="⏱️" size={12} decorative /> 救急 {rchip.d <= 0 ? '考試日' : `D-${rchip.d}`}
+                          <EmojiIcon char="📖" size={12} decorative /> 看講義
                         </button>
-                      )}
+                        {/* leaf context toolbar (cram-side, add-neurons-exam-prep-hub): 看講義 (above)
+                            + 練題 + 救急狀態 for this unit — the family-level rescue chip only, never
+                            per-leaf 戰情圖 band into content. Reuses existing deep-links / practice. */}
+                        <button
+                          type="button"
+                          style={leafToolBtnStyle}
+                          onClick={() => {
+                            const pool = orderPracticePool(resolve(item.sourceQuestionIds), snapshotIds)
+                            if (pool.length > 0) setPractice({ pool, label: item.zh })
+                          }}
+                        >
+                          <EmojiIcon char="✏️" size={12} decorative /> 練題
+                        </button>
+                        {rchip && (
+                          <button
+                            type="button"
+                            style={leafRescueBtnStyle}
+                            onClick={() => openRescue(item.subjectId)}
+                          >
+                            <EmojiIcon char="⏱️" size={12} decorative /> 救急 {rchip.d <= 0 ? '考試日' : `D-${rchip.d}`}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -416,7 +427,7 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
       </button>
 
       {/* ── A4 PDF downloads (sunk to the bottom) ── */}
-      <div style={pdfSectionStyle}>
+      <div style={pdfSectionStyle} className="neurons-chip-row neurons-chip-row--scroll">
         <a href={`${import.meta.env.BASE_URL}content/neurons-tw/cram-pdf/考前速看-醫學一.pdf`} download style={downloadBtnStyle}>
           ⬇ 下載 醫學一 A4 PDF
         </a>
@@ -594,7 +605,7 @@ const pushRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center
 const pushZhStyle: React.CSSProperties = { fontSize: '0.88rem', color: '#2a2118', fontFamily: 'var(--font-legible)', fontWeight: 600 }
 const tierChipStyle: React.CSSProperties = { fontSize: '0.7rem', borderRadius: 999, padding: '0.05rem 0.45rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
 // 押題 → 講義 (leaf-level) + 速看 → 講義 (subject-level) deep-link affordances (neurons-unit-correspondence).
-const pushHandoutBtnStyle: React.CSSProperties = { marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', border: '1px solid #6a8c3f', background: '#eef4e2', color: '#4c6a2b', borderRadius: 999, padding: '0.1rem 0.55rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
+const pushHandoutBtnStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.72rem', border: '1px solid #6a8c3f', background: '#eef4e2', color: '#4c6a2b', borderRadius: 999, padding: '0.1rem 0.55rem', cursor: 'pointer', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
 const blockHandoutLinkStyle: React.CSSProperties = { marginTop: '0.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', border: 0, background: 'transparent', color: '#4c6a2b', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-legible)', padding: '0.1rem 0', borderBottom: '1px dashed #6a8c3f' }
 // Positive coverage imprint — shown only on covered items; never a count/%/denominator.
 const coveredChipStyle: React.CSSProperties = { fontSize: '0.68rem', color: '#2f6b45', background: '#d5ecd9', border: '1px solid #a9d4b5', borderRadius: 999, padding: '0.05rem 0.4rem', fontFamily: 'var(--font-legible)', whiteSpace: 'nowrap' }
@@ -627,7 +638,9 @@ const downloadBtnStyle: React.CSSProperties = { border: '1px solid #8c6d4a', bac
 // ─── 考前中心 hub styles (add-neurons-exam-prep-hub) ─────────────────────────────────────────────
 // Rescue strip mirrors the homepage RescueChip palette (#fdf2e0 / #d4a04d / #8a5a1f)
 // so 考前救急 reads the same across homepage cards and the hub (add-neurons-exam-prep-hub).
-const rescueStripStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', padding: '0.5rem 0.6rem', background: '#fbf3e6', border: '1px solid #e0c088', borderRadius: 8 }
+// Layout (display/flex-wrap) lives in `.neurons-chip-row` (added conditionally when plan
+// chips exist) so the ≤768px scroll-rail can win; keep only visual/spacing props here.
+const rescueStripStyle: React.CSSProperties = { alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', padding: '0.5rem 0.6rem', background: '#fbf3e6', border: '1px solid #e0c088', borderRadius: 8 }
 const rescueStripLabelStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8rem', fontWeight: 700, color: '#8a5a1f', marginRight: '0.2rem', fontFamily: 'var(--font-pixel-cjk)' }
 const rescueStripChipStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', border: '1px solid #d4a04d', background: '#fdf2e0', color: '#5a3f29', borderRadius: 8, padding: '0.25rem 0.6rem', cursor: 'pointer', fontFamily: 'var(--font-legible)' }
 const rescueStripStrongStyle: React.CSSProperties = { fontWeight: 800, color: '#8a5a1f' }
@@ -650,4 +663,6 @@ const leafRescueBtnStyle: React.CSSProperties = { display: 'inline-flex', alignI
 const fiveMinCardStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.15rem', width: '100%', textAlign: 'left', border: '1px solid #b8933c', background: 'linear-gradient(#f6e6b8, #efd88f)', color: '#4a3712', borderRadius: 8, padding: '0.7rem 0.9rem', cursor: 'pointer', margin: '0.4rem 0 1rem' }
 const fiveMinTitleStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.95rem', fontWeight: 700, fontFamily: 'var(--font-pixel-cjk)' }
 const fiveMinSubStyle: React.CSSProperties = { fontSize: '0.76rem', color: '#7a5a2a', fontFamily: 'var(--font-legible)' }
-const pdfSectionStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: '0.4rem', paddingTop: '0.8rem', borderTop: '1px dashed #d8c39a' }
+// Layout lives in `.neurons-chip-row` so the ≤768px scroll-rail wins (3 wide download
+// anchors → one scrollable row instead of 2-3 lines).
+const pdfSectionStyle: React.CSSProperties = { gap: '0.4rem', paddingTop: '0.8rem', borderTop: '1px dashed #d8c39a' }

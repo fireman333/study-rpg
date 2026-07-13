@@ -241,7 +241,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
             </button>
           )}
         </div>
-        <div style={chipRowStyle}>
+        <div style={chipRowStyle} className="neurons-chip-row">
           <button
             type="button"
             onClick={() => setFilterEasyOnly((v) => !v)}
@@ -268,7 +268,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
         <div style={filterHeaderStyle}>
           <span style={filterLabelStyle}><EmojiIcon char="📚" size={14} /> 依科目篩選</span>
         </div>
-        <div style={chipRowStyle}>
+        <div style={chipRowStyle} className="neurons-chip-row neurons-chip-row--scroll">
           <button
             type="button"
             onClick={() => setSelectedFamilies(new Set())}
@@ -303,7 +303,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
           <div style={filterHeaderStyle}>
             <span style={filterLabelStyle}><EmojiIcon char="📅" size={13} decorative /> 依年份篩選</span>
           </div>
-          <div style={chipRowStyle}>
+          <div style={chipRowStyle} className="neurons-chip-row neurons-chip-row--scroll">
             <button
               type="button"
               onClick={() => setSelectedYears(new Set())}
@@ -334,7 +334,7 @@ export default function BookmarksPage({ pack }: Props): JSX.Element {
       )}
 
       {/* Tab strip */}
-      <div style={tabBarStyle} role="tablist" aria-label="收藏與錯題分頁">
+      <div style={tabBarStyle} className="neurons-chip-row neurons-chip-row--scroll" role="tablist" aria-label="收藏與錯題分頁">
         <button
           type="button"
           role="tab"
@@ -499,9 +499,10 @@ const resetBtnStyle: React.CSSProperties = {
   cursor: 'pointer',
 }
 
+// Layout lives in `.neurons-chip-row` (+ `--scroll` on the 12/10-item family/year
+// clouds) so the ≤768px scroll-rail wins. Shared by 3 rows here — the 2-chip flag
+// row uses base-only (no scroll needed), the two big clouds add `--scroll`.
 const chipRowStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
   gap: '0.4rem',
 }
 
@@ -534,9 +535,9 @@ function chipExcludedStyle(color: string): React.CSSProperties {
   }
 }
 
+// Layout lives in `.neurons-chip-row` so the ≤768px scroll-rail wins (3 count-bearing
+// tabs → one scrollable row instead of wrapping to 2 lines).
 const tabBarStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
   gap: '0.4rem',
   marginBottom: '1rem',
 }

@@ -125,6 +125,91 @@ body:has(.modal-backdrop) {
   }
 }
 
+/* ── Shared chip / tab rail (converge-neurons-filter-row-rwd) ────────────────
+ * A/B-class fix: filter chip clouds (10-13 items) and long-label tab strips
+ * that wrap into 2-4 lines on phones. Base keeps the desktop wrapping row; on
+ * ≤768px `--scroll` flips to a single horizontally-scrollable rail with iOS
+ * momentum, snap, and a right-edge fade mask — the SAME proven recipe as
+ * `.neurons-nav` above. Consumers must DELETE `display`/`flexWrap` from their
+ * inline style object (inline wins over @media otherwise) and keep only their
+ * own gap/visual props. Children stay `flex:0 0 auto` so they scroll, not
+ * shrink. The first chip ("全部" / active tab) stays leftmost in the DOM. */
+.neurons-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .neurons-chip-row--scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scroll-snap-type: x proximity;
+    padding-bottom: 3px;
+    -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  }
+
+  /* Chips/tabs are <button>s (a few consumers add <a>). Don't shrink — scroll. */
+  .neurons-chip-row--scroll > button,
+  .neurons-chip-row--scroll > a {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  .neurons-chip-row--scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .neurons-chip-row--scroll::-webkit-scrollbar-thumb {
+    background: #8c6d4a;
+    border-radius: 2px;
+  }
+}
+
+/* ── RescueScene header (converge-neurons-filter-row-rwd) ────────────────────
+ * Full-screen overlay header (⏱️考前救急·科名 + D-chip + ✕) has no wrap fallback,
+ * so on phones the title/D-chip squeeze and can push the ✕ toward the edge. The
+ * title shrinks + the subject name ellipsizes; the D-chip drops its verbose
+ * 「距考試 N 天 (…)」prefix ≤480 and shows just D-N; the ✕ stays fixed (flexShrink:0
+ * set inline). */
+.rescue-scene-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rescue-scene-family {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .rescue-d-verbose {
+    display: none;
+  }
+}
+
+/* ── CramPage 考古清單 push-item action group (converge-neurons-filter-row-rwd) ──
+ * The 看講義 / 練題 / 救急 buttons live in `.cram-push-actions` so they stay together
+ * as ONE row. On phones the long CJK concept label (`.cram-push-zh`) takes the row
+ * above (flex-basis:100%) so the action buttons never wrap raggedly beneath a
+ * half-filled label line. */
+.cram-push-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@media (max-width: 768px) {
+  .cram-push-zh {
+    flex-basis: 100%;
+  }
+}
+
 /* ── FamilyPicker card grid (FamilyPicker.tsx branchRow) ─────────────────── */
 
 /* Base = former inline gridTemplateColumns (moved here per Decision 1). */

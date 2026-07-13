@@ -67,7 +67,7 @@ export function FamilyFilterChips({
         <div style={filterHeaderStyle}>
           <span style={filterLabelStyle}><EmojiIcon char="🧬" size={14} /> 依科目篩選</span>
         </div>
-        <div style={chipRowStyle} role="group" aria-label="神經元科目多選">
+        <div style={chipRowStyle} className="neurons-chip-row neurons-chip-row--scroll" role="group" aria-label="神經元科目多選">
           <button
             type="button"
             onClick={onClearFamilies}
@@ -100,7 +100,7 @@ export function FamilyFilterChips({
         <div style={filterHeaderStyle}>
           <span style={filterLabelStyle}><EmojiIcon char="✨" size={14} /> 依稀有度篩選</span>
         </div>
-        <div style={chipRowStyle} role="group" aria-label="神經元稀有度多選">
+        <div style={chipRowStyle} className="neurons-chip-row neurons-chip-row--scroll" role="group" aria-label="神經元稀有度多選">
           <button
             type="button"
             onClick={onClearTiers}
@@ -154,10 +154,9 @@ const filterLabelStyle: React.CSSProperties = {
   fontWeight: 700,
 }
 
-// Chips flow freely into as many rows as they need (no max-row cap, no horizontal overflow).
+// Layout (display/flex-wrap) lives in `.neurons-chip-row` so the ≤768px scroll-rail
+// override can win (inline flexWrap would otherwise beat @media). Keep only gap here.
 const chipRowStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
   gap: '0.4rem',
 }
 

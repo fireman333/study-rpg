@@ -580,7 +580,7 @@ function ChipGroup({
   return (
     <div style={groupStyle}>
       <span style={labelStyle}>{label}</span>
-      <div style={chipRowStyle} role="group" aria-label={`${label}多選`}>
+      <div style={chipRowStyle} className="neurons-chip-row neurons-chip-row--scroll" role="group" aria-label={`${label}多選`}>
         <button type="button" style={isAllSelected ? chipActiveStyle : chipStyle} aria-pressed={isAllSelected} onClick={onAll}>
           全部
         </button>
@@ -841,7 +841,10 @@ const labelStyle: React.CSSProperties = {
   minWidth: '2.6rem',
   paddingTop: '0.25rem',
 }
-const chipRowStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: '0.35rem', flex: 1 }
+// Layout lives in `.neurons-chip-row` so the ≤768px scroll-rail wins. `flex:1` +
+// `minWidth:0` keep the rail filling the width beside the 2.6rem 科別/年份 label and
+// let it scroll (12 科 / 10 年 → one row instead of 3-4) instead of wrapping.
+const chipRowStyle: React.CSSProperties = { gap: '0.35rem', flex: 1, minWidth: 0 }
 const chipStyle: React.CSSProperties = {
   padding: '0.2rem 0.55rem',
   background: 'transparent',

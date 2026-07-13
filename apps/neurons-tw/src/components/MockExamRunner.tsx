@@ -613,4 +613,7 @@ const confirmCardStyle: React.CSSProperties = {
 }
 const confirmTitleStyle: React.CSSProperties = { fontSize: '1rem', color: '#3a2a1a', margin: '0 0 0.4rem' }
 const confirmBodyStyle: React.CSSProperties = { fontSize: '0.86rem', color: '#5a3f29', lineHeight: 1.6, margin: '0 0 0.8rem', fontFamily: 'var(--font-legible)' }
-const confirmActionsStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: '0.5rem' }
+// Full-width vertical stack: the card is min(360px,100%), too narrow to hold 3 long
+// labels (回去檢查/跳第一題未作答/仍要送出) in a row without ragged wrapping. Stacking
+// keeps each action on its own clean full-width row. (converge-neurons-filter-row-rwd)
+const confirmActionsStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem' }

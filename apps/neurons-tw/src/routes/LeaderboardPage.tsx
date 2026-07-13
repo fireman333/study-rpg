@@ -198,7 +198,7 @@ export default function LeaderboardPage(): JSX.Element {
         </div>
       )}
 
-      <nav style={tabStripStyle} role="tablist">
+      <nav style={tabStripStyle} className="neurons-chip-row neurons-chip-row--scroll" role="tablist">
         {LEADERBOARD_FILTERS.map((filter) => {
           const active = activeFilter === filter
           return (
@@ -381,11 +381,12 @@ function statCellWithPrimary(isPrimary: boolean): React.CSSProperties {
   }
 }
 
+// Layout lives in `.neurons-chip-row` so the ≤768px scroll-rail wins (5 long-CJK
+// filter tabs → one scrollable row instead of wrapping to 2-3 lines; full labels
+// kept — the排名 categories have no self-evident icon, so no icon-collapse).
 const tabStripStyle: React.CSSProperties = {
-  display: 'flex',
   gap: '0.4rem',
   marginBottom: '0.75rem',
-  flexWrap: 'wrap',
 }
 
 const tabStyle: React.CSSProperties = {

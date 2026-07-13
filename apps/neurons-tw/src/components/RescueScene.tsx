@@ -643,12 +643,21 @@ export function RescueScene({ pack, initialFamilyId, startInSetup, onClose }: Pr
   return createPortal(
     <div style={sceneStyle} role="dialog" aria-modal="true" aria-label="考前救急">
       <header style={headerStyle}>
-        <span style={titleStyle}>
+        <span style={titleStyle} className="rescue-scene-title">
           <EmojiIcon char="⏱️" size={16} decorative /> 考前救急
-          {plan && <span style={familyNameStyle}>· {familyName}</span>}
+          {plan && <span style={familyNameStyle} className="rescue-scene-family">· {familyName}</span>}
         </span>
         {plan && (
-          <span style={dChipStyle}>{d <= 0 ? '考試當天' : `距考試 ${d} 天 (D-${d})`}</span>
+          <span style={dChipStyle}>
+            {d <= 0 ? (
+              '考試當天'
+            ) : (
+              <>
+                <span className="rescue-d-verbose">距考試 {d} 天 (</span>D-{d}
+                <span className="rescue-d-verbose">)</span>
+              </>
+            )}
+          </span>
         )}
         <button style={closeBtnStyle} onClick={onClose} aria-label="關閉救急">
           ✕
@@ -1020,6 +1029,7 @@ const titleStyle: React.CSSProperties = {
 const familyNameStyle: React.CSSProperties = { color: '#8c6d4a', fontWeight: 600 }
 const dChipStyle: React.CSSProperties = {
   marginLeft: 'auto',
+  flexShrink: 0,
   fontSize: '0.82rem',
   color: '#7a5a2f',
   background: '#efe4c6',
@@ -1027,6 +1037,7 @@ const dChipStyle: React.CSSProperties = {
   borderRadius: 999,
   padding: '0.15rem 0.6rem',
   fontVariantNumeric: 'tabular-nums',
+  whiteSpace: 'nowrap',
 }
 const closeBtnStyle: React.CSSProperties = {
   background: 'none',
@@ -1035,6 +1046,7 @@ const closeBtnStyle: React.CSSProperties = {
   color: '#8c6d4a',
   cursor: 'pointer',
   lineHeight: 1,
+  flexShrink: 0,
 }
 const bodyStyle: React.CSSProperties = {
   flex: 1,
@@ -1193,7 +1205,10 @@ const warnBoxStyle: React.CSSProperties = {
   fontSize: '0.88rem',
   lineHeight: 1.6,
 }
-const rowStyle: React.CSSProperties = { display: 'flex', gap: '0.5rem', marginTop: '0.6rem' }
+// flexWrap so the 2-button setup/abandon action rows wrap gracefully in a narrow
+// card instead of overflowing/clipping off the edge on phones (the「開啟這科救急 →」
+// label is long). (converge-neurons-filter-row-rwd)
+const rowStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.6rem' }
 const scoreCardStyle: React.CSSProperties = {
   background: '#fbf6e9',
   border: '2px solid #8c6d4a',

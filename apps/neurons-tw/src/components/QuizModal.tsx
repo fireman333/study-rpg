@@ -862,6 +862,9 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
             .quiz-modal-footer .pdf-btn-label { display: none; }
             .quiz-modal-footer .next-btn-label { display: none; }
             .quiz-modal-footer .next-hotkey-badge { display: none; }
+            /* 救急 confidence buttons: drop the「確定・」prefix so ✅有把握 / 🎲猜的 stay
+               on one row (new class — does NOT touch the collapse selectors above). */
+            .rescue-confidence-prefix { display: none; }
           }
         `}</style>
         <header style={headerStyle}>
@@ -1125,7 +1128,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                 aria-label="送出答案：有把握"
                 title="送出這個答案 · 我有把握"
               >
-                ✅ 確定・有把握
+                ✅ <span className="rescue-confidence-prefix">確定・</span>有把握
               </button>
               <button
                 type="button"
@@ -1135,7 +1138,7 @@ export function QuizModal({ pool, onClose, onComplete, preserveOrder = false, pr
                 aria-label="送出答案：沒把握、用猜的"
                 title="送出這個答案 · 我是用猜的"
               >
-                🎲 確定・猜的
+                🎲 <span className="rescue-confidence-prefix">確定・</span>猜的
               </button>
             </>
           ) : null}

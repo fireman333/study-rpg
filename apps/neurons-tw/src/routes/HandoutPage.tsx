@@ -393,14 +393,15 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
       <style>{SCENE_CSS}</style>
 
       {/* ── Header: title · subject · nav toggle · print · close ── */}
-      <header style={headerStyle}>
-        <span style={titleStyle}>📖 考前講義</span>
-        <span style={betaChipStyle}>beta</span>
-        {active && <span style={subjectChipStyle}>{active.subjectId}</span>}
+      <header style={headerStyle} className="hdt-header">
+        <span style={titleStyle} className="hdt-title">📖 考前講義</span>
+        <span style={betaChipStyle} className="hdt-beta">beta</span>
+        {active && <span style={subjectChipStyle} className="hdt-subject">{active.subjectId}</span>}
         {fromRescue && active && (
           <button
             type="button"
             style={chromeBtnStyle}
+            aria-label="回救急"
             // Full navigation via BASE_URL, NOT react-router navigate('/?…'): under a basename
             // (prod `/neurons`) navigate resolves the root to "/neurons?…" (no trailing slash),
             // which fails to match the "/" route → blank page. BASE_URL keeps the slash
@@ -409,7 +410,7 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
               window.location.assign(`${import.meta.env.BASE_URL}?rescue=${encodeURIComponent(active.subjectId)}`)
             }}
           >
-            ← 回救急
+            ← <span className="hdt-chrome-label">回救急</span>
           </button>
         )}
         {toc.length > 0 && (
@@ -424,8 +425,8 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
             ☰ 章節
           </button>
         )}
-        <button type="button" className="hdt-print-btn" style={chromeBtnStyle} onClick={() => window.print()}>
-          ⬇ 下載PDF
+        <button type="button" className="hdt-print-btn" style={chromeBtnStyle} onClick={() => window.print()} aria-label="下載 PDF">
+          ⬇ <span className="hdt-chrome-label">下載PDF</span>
         </button>
         <button ref={closeBtnRef} style={closeBtnStyle} onClick={close} aria-label="關閉講義">
           ✕
@@ -439,7 +440,7 @@ export function HandoutPage({ pack }: { pack: ContentPack }): JSX.Element | null
 
       {/* ── Subject picker (only shows when >1 subject exists; future-proof) ── */}
       {subjects.length > 1 && (
-        <div style={subjectRowStyle}>
+        <div style={subjectRowStyle} className="neurons-chip-row neurons-chip-row--scroll">
           {subjects.map((s) => (
             <button
               key={s.subjectId}
@@ -657,11 +658,11 @@ const closeBtnStyle: React.CSSProperties = {
   cursor: 'pointer',
   lineHeight: 1,
 }
+// Layout lives in `.neurons-chip-row` so the ≤768px scroll-rail wins (up to 11
+// subject buttons → one scrollable nav row instead of wrapping to ~3 rows).
 const subjectRowStyle: React.CSSProperties = {
-  display: 'flex',
   gap: '0.4rem',
   padding: '0.5rem 1rem 0',
-  flexWrap: 'wrap',
 }
 const subjectBtnStyle: React.CSSProperties = {
   border: `1px solid ${GREEN}`,
@@ -834,6 +835,14 @@ const SCENE_CSS = `
 /* <768px: use a bottom-sheet drawer + a floating FAB instead of the header toggle */
 @media (max-width: 767px) {
   .hdt-toc-toggle { display: none; }
+  /* Header chrome converges so the no-wrap row stops clipping off-screen on phones:
+     drop the beta + subject chips (subject is in the picker/content), collapse the
+     回救急 / 下載PDF buttons to icon-only, and let the title ellipsis if needed. The
+     close (✕) keeps its marginLeft:auto and stays visible. */
+  .hdt-header { gap: 0.4rem; }
+  .hdt-beta, .hdt-subject { display: none; }
+  .hdt-title { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hdt-chrome-label { display: none; }
   .hdt-fab {
     display: inline-flex; align-items: center; gap: 0.3rem; position: fixed; right: 14px; bottom: 16px;
     z-index: 1050; border: none; background: ${GREEN}; color: #fff; border-radius: 999px;

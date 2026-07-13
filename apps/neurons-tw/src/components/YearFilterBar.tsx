@@ -32,7 +32,7 @@ export function YearFilterBar(): JSX.Element {
   return (
     <section style={barStyle} aria-label="年份篩選">
       <span style={labelStyle}><EmojiIcon char="📅" size={13} decorative /> 年份</span>
-      <div style={chipRowStyle} role="group" aria-label="民國年多選">
+      <div style={chipRowStyle} className="neurons-chip-row neurons-chip-row--scroll" role="group" aria-label="民國年多選">
         <button
           type="button"
           style={allSelected ? chipActiveStyle : chipStyle}
@@ -85,11 +85,13 @@ const labelStyle: React.CSSProperties = {
   paddingTop: '0.18rem',
 }
 
+// Layout (display/flex-wrap) lives in `.neurons-chip-row` so the ≤768px scroll-rail
+// override wins. `flex:1` keeps the rail filling the row beside the 📅年份 label;
+// its own overflow-x scrolls the 13 year chips instead of wrapping to 3 rows.
 const chipRowStyle: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
   gap: '0.3rem',
   flex: 1,
+  minWidth: 0,
 }
 
 const chipStyle: React.CSSProperties = {
