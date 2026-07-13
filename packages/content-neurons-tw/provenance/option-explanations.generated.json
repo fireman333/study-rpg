@@ -1354,7 +1354,7 @@
   "flags": []
  },
  "104-1-醫學二-生物化學-Q32": {
-  "sourceHash": "07de7971e542d418e0d47f67dffa0f32a73c69e642e0c172a641d9b9211805a2",
+  "sourceHash": "56d3ac05d39a7f5395a6661c20abd996656c0ea1330ddc623be5fd4c5127e905",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
@@ -1393,7 +1393,7 @@
   "flags": []
  },
  "104-1-醫學二-生物化學-Q35": {
-  "sourceHash": "528fdf1ad4ace40ed56171b9b46c2c90e0f02ee748c1035f02a4e0c51fbfbbc8",
+  "sourceHash": "1b75fe234b13eee4f66bc9f3f116008b2c977bd551ed3b3123423214e24cb76e",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
@@ -1419,7 +1419,7 @@
   "flags": []
  },
  "104-1-醫學二-生物化學-Q37": {
-  "sourceHash": "c531e0d97ac292b57c8db6cf5fa651288d32f5a7119bf7a19e8a347e425a106e",
+  "sourceHash": "cbcd02c406550016700e26e4ac4244ac34d272fda103d13b797ba03773321b3e",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
@@ -1445,7 +1445,7 @@
   "flags": []
  },
  "104-1-醫學二-生物化學-Q39": {
-  "sourceHash": "92f3fd992b628dd5849e99df64ae0c92d6d23a76de0394e5d50f02195af19b38",
+  "sourceHash": "57283bec917aaea4c326edd327ce4e34868dda968cceaf340ca4d61c9871d7e4",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.009Z",
@@ -1836,7 +1836,7 @@
   "flags": []
  },
  "104-1-醫學二-生理學-Q4": {
-  "sourceHash": "256b300a64c3fde57ddb238cdfc310a5c568d7a2ceca584de1294589f02640f5",
+  "sourceHash": "d6faa1176a4d0b8efe73c89baac72e299f0cb8db2f61d2e4ce84bfcda4198d79",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.010Z",
@@ -1849,7 +1849,7 @@
   "flags": []
  },
  "104-1-醫學二-生理學-Q5": {
-  "sourceHash": "71c221d85c71771f9fbe1e191995fbdc7cf61b6e051cb3e38a8621bde9228c5e",
+  "sourceHash": "a0155878b3a1dc6b6f9ddb663672732dc4515220b74670ebb2e430de974c101e",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.010Z",
@@ -1862,7 +1862,7 @@
   "flags": []
  },
  "104-1-醫學二-生理學-Q6": {
-  "sourceHash": "16c45f6575392f0673e283c9a5f4b5370c1392473d0dec3f4dd0836a827e5ecf",
+  "sourceHash": "14368b660f5e500d2b5362f273a21b2b72bac1ef94d2ec46c14ab8731c3b9ebe",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.010Z",
@@ -1875,7 +1875,7 @@
   "flags": []
  },
  "104-1-醫學二-生理學-Q7": {
-  "sourceHash": "d003f9b5398ee89e3e5d38cc626895fa1dd61401726b6e440840cd02d6e5eb6b",
+  "sourceHash": "b378f582d699069c8864266d0ec0e3fce01dff4e988c3026b96ec5fb196d8441",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.010Z",
@@ -2044,7 +2044,7 @@
   "flags": []
  },
  "104-1-醫學二-病理學-Q85": {
-  "sourceHash": "b195fa8c0f3ece9704d33ff80aec5e4072b93e159e41bc7a225ff01b2ae4733d",
+  "sourceHash": "39dec85552e5b573d7bdcc8e97d701ab53de20c53f48151daf9cdf1de007892f",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.010Z",
@@ -2382,7 +2382,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q63": {
-  "sourceHash": "a6d2597ceae83147c970e419c7fcfab4c8b92b5a9983f29c28ffd2a31559c219",
+  "sourceHash": "dc276ec131ce608d0c5b1178437700b4cbe7964ceb80a16ca184902eb657b051",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2408,7 +2408,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q66": {
-  "sourceHash": "fd1602092b4c626e9668bdb515a7f20469f2703c49c10c66282d43849fbe1823",
+  "sourceHash": "c0c6f34c25bbe4f050eada6679d13821c0083f8ad1f0b1c3c8d6755b6d9a8aa5",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -2460,7 +2460,7 @@
   "flags": []
  },
  "104-1-醫學二-藥理學-Q70": {
-  "sourceHash": "bbcc6bd12a32af68c4ba000c7023bdacee79cda99319573adc457af374515619",
+  "sourceHash": "528d6caa339e8d45c2fa180d1228a5bd1da03c5ae77db6fc3cb20196ebcf6157",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.011Z",
@@ -56165,7 +56165,7 @@
   "pdfScale": 2.5
  },
  "104-1-醫學二-生理學-Q21": {
-  "sourceHash": "d024d1caad91da792949bb5ee430aa0b739210d2f49f380d351720b748f9e25e",
+  "sourceHash": "f60811b6e79031041fcb80bc3d808f4d53ce0f5f0a02ba85db2a57982afac4b0",
   "model": "claude-sonnet-4-6",
   "promptVersion": "backfill-v1",
   "generatedAt": "2026-06-29T01:44:09.731Z",
@@ -57955,7 +57955,7 @@
   "source": "text-from-recovered-詳解"
  },
  "115-1-醫學一-胚胎學-Q33": {
-  "sourceHash": "52688e0a47580896f323dcfb327dbfbe0caa028d238d5397036f5151f6bbd1bf",
+  "sourceHash": "a60de0be01f0bea1dc864b2869132d2217252f1d86cb2b1747c3e7f25c79ab91",
   "model": "claude-sonnet-4-6",
   "promptVersion": "jianda-from-詳解-v1",
   "generatedAt": "2026-07-13T00:49:00.347Z",
