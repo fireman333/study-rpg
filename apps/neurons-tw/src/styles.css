@@ -152,9 +152,10 @@ body:has(.modal-backdrop) {
     mask-image: linear-gradient(to right, black 90%, transparent 100%);
   }
 
-  /* Chips/tabs are <button>s (a few consumers add <a>). Don't shrink — scroll. */
-  .neurons-chip-row--scroll > button,
-  .neurons-chip-row--scroll > a {
+  /* EVERY direct child stays at its natural width and scrolls — not just buttons/
+     anchors. A non-button child (e.g. the CramPage 救急 strip's「考前救急」<span>
+     label) would otherwise shrink to min-content and wrap its CJK text vertically. */
+  .neurons-chip-row--scroll > * {
     flex-shrink: 0;
     scroll-snap-align: start;
   }
