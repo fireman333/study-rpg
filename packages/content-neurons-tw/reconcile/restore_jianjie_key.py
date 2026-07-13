@@ -21,8 +21,10 @@ separated by a divider line:
 Idempotent: a question whose explanation already starts with the 簡解 sentinel, or
 already contains the full Key text, is left untouched.
 
-Exclusions: 107-1, 108-2 (source has no independent Key) and 115-1 (AI single
-section). 104/105 use a different parser and have no `### Key` → auto-skipped.
+Exclusions: 107-1, 108-2 (source has no independent Key). 104/105 use a different
+parser and have no `### Key` → auto-skipped. Any question still tagged
+`explanationSource: 'ai-generated'` is skipped too, so a 陽明 Key is never
+prepended onto an AI placeholder (e.g. the 6 × 115-1 questions 陽明 never wrote).
 
 Usage:
     python reconcile/restore_jianjie_key.py            # dry-run (writes /tmp report only)
@@ -45,7 +47,7 @@ REPORT = "/tmp/restore_jianjie_report.json"
 
 SENTINEL = "簡解："
 DIVIDER = "────────────────"  # 16 × U+2500
-EXCLUDE_YS = {("107", "1"), ("108", "2"), ("115", "1")}
+EXCLUDE_YS = {("107", "1"), ("108", "2")}
 # 內容為空 / 純標點 / 「見詳解」式的退化 Key — 還原無意義，跳過
 NOISE_KEYS = {"見詳解", "無", "見上", "同上", "略", "見補充", "詳解"}
 
@@ -134,7 +136,7 @@ def main() -> int:
 
     buckets = {k: [] for k in ("prepend", "reformatted", "already_sentinel",
                                "already_contains", "excluded", "no_key",
-                               "noise_skip", "ambiguous")}
+                               "noise_skip", "ambiguous", "ai_skip")}
     by_ys = Counter()
     changed = 0
     detail_label_re = re.compile(r"\n+詳解：\n?")
@@ -147,6 +149,9 @@ def main() -> int:
 
         if ys in EXCLUDE_YS:
             buckets["excluded"].append(qid); continue
+        # Never prepend a 陽明 Key onto an AI placeholder explanation.
+        if q.get("explanationSource") == "ai-generated":
+            buckets["ai_skip"].append(qid); continue
         info = src.get((book, year, sess, qn))
         if not info:
             buckets["no_key"].append(qid); continue
@@ -190,7 +195,7 @@ def main() -> int:
 
     print("=== restore 簡解 (### Key) — %s ===" % ("APPLY" if args.apply else "DRY-RUN"))
     for k in ("prepend", "reformatted", "already_sentinel", "already_contains",
-              "noise_skip", "ambiguous", "excluded", "no_key"):
+              "noise_skip", "ambiguous", "excluded", "no_key", "ai_skip"):
         print(f"  {k:18s}: {summary[k]}")
     print(f"  total questions   : {summary['total_questions']}")
     print(f"\n  by year-session (prepend):")
