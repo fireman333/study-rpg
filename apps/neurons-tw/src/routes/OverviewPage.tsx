@@ -797,7 +797,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
     // one of the two is mounted at a time).
     <div className="neurons-md__maze" data-tutorial="maze">
       <button type="button" className="neurons-maze-collapse" onClick={collapseMaze} aria-label="收合腦圖">
-        🧠 腦圖 ▴ 收合
+        <EmojiIcon char="🧠" size={14} decorative />腦圖 ▴ 收合
       </button>
       <div style={{ position: 'relative' }}>
         <MazeGrid view={mazeView} emphasisFamilyId={focusedFamilyId} onFamilyTap={onMazeFamilyTap} />
@@ -810,7 +810,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
   ) : (
     <button type="button" className="neurons-maze-teaser" data-tutorial="maze" onClick={expandMaze} aria-label="展開腦圖">
       <span className="neurons-maze-teaser__row">
-        <span className="neurons-maze-teaser__brain" aria-hidden>🧠</span>
+        <span className="neurons-maze-teaser__brain" aria-hidden><EmojiIcon char="🧠" size={20} decorative /></span>
         <span className="neurons-maze-teaser__label">神經元腦圖</span>
         <span className="neurons-maze-teaser__chev" aria-hidden>▾</span>
       </span>
@@ -878,7 +878,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
         // Calm end-of-day state: no metrics, no "you stopped early" framing — just a
         // gentle acknowledgement + a low-key opt-back-in affordance.
         <section style={calmStateStyle} aria-label="收工中">
-          <p style={calmLeadStyle}>🌙 今天已收工 · 好好休息</p>
+          <p style={calmLeadStyle}><EmojiIcon char="🌙" size={15} decorative /> 今天已收工 · 好好休息</p>
           <button type="button" style={reopenBtnStyle} onClick={reopenStudy}>
             還是想再讀一下
           </button>
@@ -1052,7 +1052,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
                     the closest pair. Honest empty state = render nothing when null. */}
                 {aboutToWire && (
                   <p style={{ margin: '0.4rem 0', color: '#1d6f6a', fontWeight: 600 }}>
-                    💡 再修復 {aboutToWire.subjectB} {aboutToWire.remaining} 題，即可和 {aboutToWire.subjectA} 形成連線
+                    <EmojiIcon char="💡" size={14} decorative /> 再修復 {aboutToWire.subjectB} {aboutToWire.remaining} 題，即可和 {aboutToWire.subjectA} 形成連線
                   </p>
                 )}
               </>
@@ -1092,7 +1092,7 @@ export default function OverviewPage({ pack }: Props): JSX.Element {
       {!lightsOut && (
         <div style={lightsOutBarStyle}>
           <button type="button" style={lightsOutBtnStyle} onClick={activateLightsOut}>
-            🌙 今天到此為止
+            <EmojiIcon char="🌙" size={16} decorative /> 今天到此為止
           </button>
         </div>
       )}

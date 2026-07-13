@@ -109,7 +109,7 @@ describe('prescription-card copy guard (honesty + anti-anxiety)', () => {
 
   it('the calm-view lines are exactly the approved wording', () => {
     expect(`${CALM_COVERAGE_PREFIX}{M}${CALM_COVERAGE_SUFFIX}`).toBe('你已答對過 {M} 個高頻考點的題目。')
-    expect(CALM_CLOSING_LINE).toBe('今晚可以停在這裡，讓連結慢慢固化。')
+    expect(CALM_CLOSING_LINE).toBe('這些連結已經留下來了。')
   })
 
   it('the NG-0717 hint no longer carries the 「第 N 天完全體」 countdown', () => {

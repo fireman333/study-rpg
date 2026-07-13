@@ -7,7 +7,11 @@
  */
 export const CALM_COVERAGE_PREFIX = '你已答對過 '
 export const CALM_COVERAGE_SUFFIX = ' 個高頻考點的題目。'
-export const CALM_CLOSING_LINE = '今晚可以停在這裡，讓連結慢慢固化。'
+// Repurposed 2026-07-13 (Codex UX consult): this panel is now a completion RECAP
+// (「今天留下的連結」) — the「可以休息／收工」permission belongs solely to the
+// lights-out ritual (neurons-lights-out). So the closing line states what the day
+// left behind, not that the player may rest.
+export const CALM_CLOSING_LINE = '這些連結已經留下來了。'
 
 // ── 考前救援 bonus + dayComplete + NG-0717 reframe (add-neurons-cram-rescue-and-card-actions) ──
 // Optional post-完成 bonus — never framed as 未完成/繼續/下一步/還差 (anti-anxiety).
@@ -28,7 +32,7 @@ export const TIER_T1_NAME = '基礎處方'
 export const TIER_T2_NAME = '追加固化'
 export const TIER_T3_NAME = '形成連結'
 export const TIER_T4_NAME = '深度出征'
-export const TIER_PANEL_LEAD = '今天的處方收工了；有餘裕的話，下面是可以加深的選項。'
+export const TIER_PANEL_LEAD = '今天的處方完成了；有餘裕的話，下面是可以加深的選項。'
 export const TIER_T2_INVITE_WRONG = '手感還在的話，可以再多固化幾條連結（可選）'
 export const TIER_T2_INVITE_BREADTH = '想多開幾條新連結？隨時可以（可選）'
 export const TIER_T2_INVITE_CRAM = '去高頻考點多練幾題，也算固化（可選）'

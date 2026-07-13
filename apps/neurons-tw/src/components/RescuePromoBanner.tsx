@@ -47,7 +47,7 @@ export default function RescuePromoBanner(): JSX.Element | null {
           <EmojiIcon char="🎯" size={18} /> 考前中心：猜題・講義・救急・五分鐘速看，一站到齊
         </div>
         <div style={subStyle}>
-          臨考前把該做的事一次做完 —— 各科押題與速看、單元講義、鎖科救急、五分鐘掃描，都在題庫 →「考前中心」。
+          臨考前把該做的事一次做完 —— 各科考點整理與速看、單元講義、鎖科救急、五分鐘掃描，都在題庫 →「考前中心」。
         </div>
       </div>
       <div style={actionsStyle}>

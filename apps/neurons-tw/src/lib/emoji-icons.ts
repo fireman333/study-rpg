@@ -72,6 +72,21 @@ const ICON_FILES: ReadonlyArray<readonly [string, string]> = [
   ['📄', '1f4c4.png'],
   ['♻', '267b.png'],
   ['🗺', '1f5fa.png'],
+  // Homepage 今日處方箋 backfill (2026-07-13): 🗂 依目前年份範圍穩定練習 range chip in
+  // DailyPrescriptionCard was already wired through <EmojiIcon> but had no asset, so it
+  // fell back to the native glyph. Same codex gpt-image-2 + ImageMagick formula.
+  ['🗂', '1f5c2.png'],
+  // 首頁 + 考前中心 backfill (2026-07-13): the 考前中心 tier chips (🌲 常青必掃 / ❄ 經典
+  // 但降溫; ✨ 近年新寵 was already in the pack), homepage 💠 成熟印記, the 今日處方 tier
+  // ladder (✅ 今日完成 / ⛰ 深度出征 / 🎉 完成慶祝) and 模擬考 📝 headers/CTAs still rendered
+  // as native glyphs. Same codex gpt-image-2 + ImageMagick formula (see CREDITS.md).
+  ['🌲', '1f332.png'],
+  ['❄', '2744.png'],
+  ['💠', '1f4a0.png'],
+  ['✅', '2705.png'],
+  ['⛰', '26f0.png'],
+  ['🎉', '1f389.png'],
+  ['📝', '1f4dd.png'],
 ]
 
 const ICON_MAP = new Map(ICON_FILES)
