@@ -27500,7 +27500,7 @@
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.048Z",
   "optionExplanations": {
-   "A": "完全性葡萄胎為兩精一卵融合，遺傳物質皆為父源，46XX或46XY。",
+   "A": "完全性葡萄胎源自空卵受精，遺傳物質全為父源，46XX或46XY，並非兩精一卵。",
    "B": "不完全性葡萄胎hCG水平低且絨毛膜癌機率極低；完全性葡萄胎hCG高，絨毛膜癌風險約2%。",
    "C": "完全性葡萄胎因高hCG更易發生侵入性葡萄胎。",
    "D": "不完全性葡萄胎為兩精一卵，基因型69XXX、69XXY或69XYY。"
@@ -43747,7 +43747,7 @@
   "flags": []
  },
  "112-2-醫學一-生理學-Q65": {
-  "sourceHash": "a94f4a77755293a116329a8a54e6fb77cf7ab7164c07a9847d7ce31bcd96ece7",
+  "sourceHash": "aea0229e327e1d341527e9279f38a2df55a8af061911839e196c606d277a3118",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.073Z",
@@ -58347,7 +58347,7 @@
   "source": "text-from-recovered-詳解"
  },
  "115-1-醫學一-生理學-Q62": {
-  "sourceHash": "0ed50c62b99cbdb548912d10ef52c0ecb37d92f1d82201011ced101b8cc87f53",
+  "sourceHash": "14d8ea2454c8c3797ce5e15a0228eeeea9bc7286806d743093cc0656c6a873c0",
   "model": "claude-sonnet-4-6",
   "promptVersion": "jianda-from-詳解-v1",
   "generatedAt": "2026-07-13T00:49:00.350Z",
