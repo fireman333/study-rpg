@@ -91,6 +91,25 @@ export async function requestPresign(
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')
+    // 429 = Worker presign rate limiter (add-presign-put-rate-limit). Embed the
+    // server's Retry-After hint (seconds) into the message so the sync engine's
+    // 429 cooldown can honor it even after engine-r2 wraps this error into
+    // `r2_push_exhausted: …`. NOTE: the Worker does not CORS-expose Retry-After
+    // (no Access-Control-Expose-Headers), so cross-origin reads yield null and
+    // the engine falls back to its own base cooldown — parsed here for
+    // same-origin/dev and in case the Worker exposes it later.
+    if (res.status === 429) {
+      // Only propagate a sane, bounded hint: Retry-After is integer seconds per
+      // spec, so a non-safe-integer (absurdly large, decimal, or NaN) is
+      // rejected here → the engine falls back to its own base cooldown. The
+      // engine additionally clamps whatever it parses to a hard ceiling.
+      const retryAfterSec = Number(res.headers.get('Retry-After'))
+      const hint =
+        Number.isSafeInteger(retryAfterSec) && retryAfterSec > 0
+          ? ` retry_after=${retryAfterSec}`
+          : ''
+      throw new Error(`presign_failed_429:${hint} ${text.slice(0, 200)}`)
+    }
     throw new Error(`presign_failed_${res.status}: ${text.slice(0, 200)}`)
   }
 

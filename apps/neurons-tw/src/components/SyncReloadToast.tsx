@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRespectsReducedMotion } from '../lib/motion'
 import {
+  getSyncReloadReason,
   shouldShowSchemaDowngradeReload,
   subscribeSchemaDowngradeReload,
 } from '../lib/sync/sync-reload-signal'
@@ -25,6 +26,15 @@ export default function SyncReloadToast(): JSX.Element {
 
   if (!show) return <></>
 
+  // Reason-aware copy: 'sync-stall' (sustained presign-429 / deferred streak —
+  // engine.ts RELOAD_PROMPT_STREAK) must not claim「有新版本」; the remedy (a
+  // reload) is identical, only the wording differs.
+  const stalled = getSyncReloadReason() === 'sync-stall'
+  const title = stalled ? '同步暫時受阻' : '有新版本'
+  const subtitle = stalled
+    ? '雲端同步連續受阻，請重新整理此分頁以恢復同步。'
+    : '雲端已更新，請重新整理以繼續同步進度。'
+
   const transition = { duration: reduced ? 0.18 : 0.32, ease: 'easeOut' as const }
 
   return (
@@ -39,8 +49,8 @@ export default function SyncReloadToast(): JSX.Element {
       >
         <span style={{ fontSize: '1.1rem' }}>⬆️</span>
         <div style={{ flex: 1 }}>
-          <div style={titleStyle}>有新版本</div>
-          <div style={subtitleStyle}>雲端已更新，請重新整理以繼續同步進度。</div>
+          <div style={titleStyle}>{title}</div>
+          <div style={subtitleStyle}>{subtitle}</div>
           <button type="button" onClick={() => location.reload()} style={ctaStyle}>
             重新整理
           </button>
