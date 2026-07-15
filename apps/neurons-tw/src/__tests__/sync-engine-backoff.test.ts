@@ -53,6 +53,11 @@ const ERR_429 = () =>
   new Error('r2_push_exhausted: presign_failed_429: {"error":"rate_limited","bundle":"neurons"}')
 const ERR_429_RETRY_AFTER = (sec: number) =>
   new Error(`r2_push_exhausted: presign_failed_429: retry_after=${sec} {"error":"rate_limited"}`)
+// A non-429, non-412, non-schema hard error — the class that had no back-off at
+// all until 2026-07-15. 401 is the realistic worst case: a dead token never
+// self-heals, so the tab burns quota on every subsequent Dexie write forever.
+const ERR_HARD = () =>
+  new Error('r2_push_exhausted: presign_failed_401: {"error":"jwt expired"}')
 
 // Worst-case horizon (300s cap × 1.3 jitter) — advancing past this always
 // clears any cooldown / back-off.
@@ -414,6 +419,265 @@ describe('remount-overlap disposed guard (Codex NO-GO scenario)', () => {
     expect(pushBundleSerialized.mock.calls.length).toBe(transportCallsAfterE2)
 
     e2.dispose()
+  })
+})
+
+describe('SyncEngine.pushNow — hard-error (non-429/412) cooldown', () => {
+  // Audit follow-up 2026-07-15. Before this, the hard-error branch set NO
+  // horizon: a tab with a dead token (presign 401) or a Worker answering 502
+  // re-pushed on the plain ~12s debounce forever (~7 req/min) and never
+  // surfaced the reload prompt, because that was wired only to 429/defer.
+  // Bounded (the branch never schedulePush()es, so it only retries when the
+  // user writes again) but indefinite and silent.
+  it('the FIRST hard error keeps the plain debounce — a one-off blip costs no stall', async () => {
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+
+    await engine.pushNow() // streak 1 → within grace, no horizon
+    expect(engine.getStatus().state).toBe('error')
+    expect(engine.getStatus().lastError).toContain('presign_failed_401')
+
+    // No horizon → an immediate retry still reaches the transport.
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2)
+  })
+
+  it('a SECOND consecutive hard error gates the next push for ~30s (±30% jitter)', async () => {
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+
+    await engine.pushNow() // streak 1 (grace)
+    await engine.pushNow() // streak 2 → horizon ∈ [21s, 39s]
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2)
+
+    now += 20_000 // below the jitter floor — always still gated
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2)
+
+    now += 20_000 // t = +40s — above the jitter ceiling — always free
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(3)
+  })
+
+  it('the hard-error cooldown escalates on the streak (3rd ∈ [42s, 78s])', async () => {
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+
+    await engine.pushNow() // 1 (grace)
+    await engine.pushNow() // 2 → ~30s
+    now += PAST_ANY_BACKOFF_MS
+    await engine.pushNow() // 3 → ~60s → ∈ [42s, 78s]
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(3)
+
+    now += 41_000 // below the floor
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(3)
+
+    now += 38_000 // t = +79s — above the ceiling
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(4)
+  })
+
+  it('a landed push clears the hard-error streak (next error restarts at the grace)', async () => {
+    const engine = makeEngine()
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    await engine.pushNow() // 1
+    await engine.pushNow() // 2 → horizon
+    now += PAST_ANY_BACKOFF_MS
+
+    pushBundleSerialized.mockResolvedValue(PUSHED)
+    await engine.pushNow() // lands → streak + horizon reset
+    expect(engine.getStatus().state).toBe('idle')
+
+    // Streak restarted: the next hard error is a grace again → no horizon.
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    await engine.pushNow() // 1 (grace)
+    await engine.pushNow() // reaches transport — proves no horizon was set
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(5)
+  })
+
+  it('a 429 resets the hard-error streak (presign answered — it was the limiter)', async () => {
+    const engine = makeEngine()
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    await engine.pushNow() // hard 1
+    await engine.pushNow() // hard 2 → horizon
+    now += PAST_ANY_BACKOFF_MS
+
+    pushBundleSerialized.mockRejectedValue(ERR_429())
+    await engine.pushNow() // 429 → hard streak reset
+    now += PAST_ANY_BACKOFF_MS
+
+    // Back to hard errors: the streak restarted, so the first is a grace again.
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    await engine.pushNow() // hard 1 (grace, no horizon)
+    await engine.pushNow() // reaches transport — proves the reset happened
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(5)
+  })
+
+  it('a hard error still resets the 429 streak (pre-existing symmetry intact)', async () => {
+    const engine = makeEngine()
+    pushBundleSerialized.mockRejectedValue(ERR_429())
+    await engine.pushNow() // 429 streak 1
+    now += PAST_ANY_BACKOFF_MS
+
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    await engine.pushNow() // hard error → 429 streak reset
+    now += PAST_ANY_BACKOFF_MS
+
+    pushBundleSerialized.mockRejectedValue(ERR_429())
+    await engine.pushNow() // would be 429 streak 2 (120s) without the reset
+    now += 61_000 // past the 60s base → proves the 429 streak restarted at 1
+    pushBundleSerialized.mockResolvedValue(PUSHED)
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(4)
+  })
+
+  it('NEVER fires the reload prompt, however long the hard-error streak runs', async () => {
+    // Fable review 2026-07-15 killed a first cut that prompted here. This branch
+    // also catches pure network failure, and navigator.onLine reports true for
+    // flaky Wi-Fi / captive portals — so a prompt would hit commuting users with
+    // a close-button-less toast that reloading cannot fix. Locked as a NEGATIVE:
+    // re-adding the prompt must turn this red, not slip through silently.
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+    for (let i = 0; i < 20; i++) {
+      await engine.pushNow()
+      now += PAST_ANY_BACKOFF_MS
+    }
+    // Anti-vacuity: prove all 20 attempts actually reached the transport (and so
+    // ran the hard-error branch). Without this, a future edit to ERR_HARD's
+    // message could silently reroute it and the negative assertion below would
+    // pass for the wrong reason.
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(20)
+    expect(shouldShowSchemaDowngradeReload()).toBe(false)
+    expect(getSyncReloadReason()).toBeNull()
+  })
+
+  it('caps the hard-error cooldown at 300s — sync can never be stranded forever', async () => {
+    // THE load-bearing bound. Without the Math.min the horizon doubles without
+    // limit (streak 20 → 30s × 2^18 ≈ 91 days) and the user's writes are
+    // stranded in Dexie — they would lose the session by switching devices.
+    // Worst realistic outcome of this whole change, so it gets an explicit lock.
+    // Mutation actually bites earlier than that: uncapped, streak 6 already
+    // yields a 480s horizon > PAST_ANY_BACKOFF_MS, so the loop starts gating
+    // itself and callsBefore never reaches 20 either.
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+    for (let i = 0; i < 20; i++) {
+      await engine.pushNow() // streak → 20; uncapped this would be astronomical
+      now += PAST_ANY_BACKOFF_MS
+    }
+    const callsBefore = pushBundleSerialized.mock.calls.length
+
+    // One more error to set a fresh horizon off the (deep) streak, then prove it
+    // is still inside the cap + jitter ceiling (300s × 1.3 = 390s).
+    await engine.pushNow()
+    now += 391_000
+    pushBundleSerialized.mockResolvedValue(PUSHED)
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(callsBefore + 2)
+    expect(engine.getStatus().state).toBe('idle')
+  })
+
+  it('a landed push clears the hard-error HORIZON, not just the streak', async () => {
+    // Separate lock from the streak-reset test above (which advances the clock
+    // past the horizon before landing, so it cannot see this). Two distinct
+    // lines in the reset block; one test each.
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+    await engine.pushNow() // 1 (grace)
+    await engine.pushNow() // 2 → horizon ~30s is now live
+    now += PAST_ANY_BACKOFF_MS
+
+    pushBundleSerialized.mockResolvedValue(PUSHED)
+    await engine.pushNow() // lands → must zero nextPushNotBeforeAt
+    const calls = pushBundleSerialized.mock.calls.length
+
+    // WITHOUT advancing the clock: a horizon left set would gate this.
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(calls + 1)
+  })
+
+  it('the hard-error branch never self-schedules — the reason it cannot storm', async () => {
+    // Load-bearing premise of the whole design: unlike the 429/defer branches,
+    // this one does NOT schedulePush(), so a broken tab retries only when the
+    // user writes to Dexie again (~7 req/min ceiling) rather than spinning on a
+    // timer. Previously asserted only by a comment.
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine() // schedulePush is spied to a no-op here
+    await engine.pushNow() // 1: no horizon yet (grace) → clears the gate
+    expect(engine.schedulePush).not.toHaveBeenCalled()
+    await engine.pushNow() // 2: still no horizon on entry → clears the gate, SETS one
+    expect(engine.schedulePush).not.toHaveBeenCalled()
+    // Stops at 2 deliberately: a 3rd call would hit the horizon gate, and THAT
+    // branch does schedulePush() — correctly, and it is not what this locks.
+  })
+})
+
+describe('SyncEngine.pullNow — non-forced pull throttle', () => {
+  // Audit follow-up 2026-07-15: the ONLY path where user behaviour maps 1:1 onto
+  // requests. The 240s GET-presign URL cache normally absorbs visibility pulls,
+  // but a FAILED presign GET is never cached (client.ts caches on success only),
+  // so with the cache cold every `visibilitychange` cost a /presign — and iOS
+  // Safari fires that on every app switch.
+  const PULLED = { applied: {}, notModified: false, blobMissing: false }
+
+  it('throttles a second non-forced pull inside the 30s window', async () => {
+    pullBundle.mockResolvedValue(PULLED)
+    const engine = makeEngine()
+
+    await engine.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    now += 29_000 // inside the window
+    expect(await engine.pullNow()).toBeNull() // gated, no transport
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    now += 2_000 // t = +31s — past the window
+    await engine.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(2)
+  })
+
+  it('a FORCED pull always bypasses the throttle (manual sync stays instant)', async () => {
+    pullBundle.mockResolvedValue(PULLED)
+    const engine = makeEngine()
+
+    await engine.pullNow()
+    await engine.pullNow({ force: true })
+    await engine.pullNow({ force: true })
+    expect(pullBundle).toHaveBeenCalledTimes(3)
+  })
+
+  it('a FAILED pull holds non-forced pulls for ~60s — the visibility-storm guard', async () => {
+    pullBundle.mockRejectedValue(new Error('presign_failed_502'))
+    const engine = makeEngine()
+
+    await engine.pullNow()
+    expect(engine.getStatus().state).toBe('error')
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    // Simulate the app-switch storm: many visibility flips inside the cooldown.
+    now += 31_000 // past the SUCCESS window — the error cooldown must still hold
+    for (let i = 0; i < 20; i++) await engine.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    // A forced pull is the user's escape hatch — never gated.
+    pullBundle.mockResolvedValue(PULLED)
+    await engine.pullNow({ force: true })
+    expect(pullBundle).toHaveBeenCalledTimes(2)
+
+    now += 61_000
+    await engine.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(3)
+  })
+
+  it('a disposed engine pulls nothing', async () => {
+    pullBundle.mockResolvedValue(PULLED)
+    const engine = makeEngine()
+    engine.dispose()
+    expect(await engine.pullNow()).toBeNull()
+    expect(await engine.pullNow({ force: true })).toBeNull()
+    expect(pullBundle).not.toHaveBeenCalled()
   })
 })
 

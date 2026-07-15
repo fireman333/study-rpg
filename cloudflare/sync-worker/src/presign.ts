@@ -56,6 +56,11 @@ interface PresignBody {
   bundle?: unknown;
   op?: unknown;
   schema_version?: unknown;
+  /** Optional client build id (short commit sha). Purely diagnostic — logged on
+   *  the throttle path so a storming client can be attributed to a version
+   *  instead of inferred from its request rate. MUST stay optional: 二階 and every
+   *  already-deployed bundle omit it, and this Worker serves them too. */
+  build?: unknown;
 }
 
 interface ParsedPresign {
@@ -64,6 +69,8 @@ interface ParsedPresign {
   // null = legacy P1 opt-in: client didn't send SV, skip enforcement.
   // number = positive integer SV, validate + sign into URL.
   schemaVersion: number | null;
+  // null = client sent no build id (二階, or any bundle predating 2026-07-15).
+  build: string | null;
 }
 
 function parseBody(body: PresignBody): ParsedPresign {
@@ -86,7 +93,16 @@ function parseBody(body: PresignBody): ParsedPresign {
     schemaVersion = sv;
   }
 
-  return { bundle, op, schemaVersion };
+  // build: optional, diagnostic only — NEVER throw on it. A malformed value from
+  // some future/rogue client must not turn a working sync into a 400; sanitize
+  // and move on. Length-capped and charset-restricted so it can't bloat or
+  // corrupt the log line it feeds.
+  let build: string | null = null;
+  if (typeof body.build === "string" && /^[A-Za-z0-9._-]{1,24}$/.test(body.build)) {
+    build = body.build;
+  }
+
+  return { bundle, op, schemaVersion, build };
 }
 
 /**
@@ -132,12 +148,14 @@ export async function handlePresign(
   let bundle: Bundle;
   let op: Op;
   let schemaVersion: number | null;
+  let build: string | null;
   try {
     const body = (await request.json()) as PresignBody;
     const parsed = parseBody(body);
     bundle = parsed.bundle;
     op = parsed.op;
     schemaVersion = parsed.schemaVersion;
+    build = parsed.build;
   } catch (err) {
     const message = err instanceof Error ? err.message : "invalid_body";
     return new Response(JSON.stringify({ error: message }), {
@@ -161,7 +179,13 @@ export async function handlePresign(
       if (!success) {
         // Fires ONLY when throttling — doubles as the §0 attribution probe for
         // eliminate-cross-device-r2-412-storm (which user + bundle storms).
-        console.log(JSON.stringify({ rl: "throttled", bundle, u: userSub.slice(0, 8) }));
+        // `b` (client build) added 2026-07-15: turns old-vs-new bundle
+        // attribution from a rate-signature INFERENCE into a fact. null = a
+        // client that predates the build tag (i.e. almost certainly a stale
+        // bundle) or 二階, which never sends one.
+        console.log(
+          JSON.stringify({ rl: "throttled", bundle, u: userSub.slice(0, 8), b: build ?? null }),
+        );
         return new Response(JSON.stringify({ error: "rate_limited", bundle }), {
           status: 429,
           headers: { ...headers, "Content-Type": "application/json", "Retry-After": "10" },

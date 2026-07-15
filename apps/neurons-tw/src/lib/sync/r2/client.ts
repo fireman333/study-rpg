@@ -29,6 +29,16 @@ const WORKER_URL =
 const BUNDLE_NAME = 'neurons' as const
 export type Bundle = typeof BUNDLE_NAME
 
+// Build identifier sent to the Worker so a throttled request can be attributed
+// to a client version — the 07-13 storm was diagnosed only by rate SIGNATURE
+// (old bundle ~7–431 req/min vs new bundle ~7/min ceiling), which is inference,
+// not proof. The Worker logs this on its throttle path only, so it costs no
+// extra log volume. Deliberately a BODY field, NOT a custom header: a custom
+// cross-origin header triggers a CORS preflight OPTIONS on every /presign,
+// doubling exactly the Worker request count this whole effort exists to cut.
+// Absent in dev / when unset → omitted (the Worker treats it as optional).
+const BUILD_ID = (import.meta.env.VITE_COMMIT_SHA as string | undefined)?.slice(0, 12)
+
 // PUT presigns are keyed by schemaVersion because the signed metadata header
 // (x-amz-meta-schema-version) is baked into the URL signature — a URL minted
 // for SV=N cannot be reused for a SV=N+1 push (add-bundle-schema-version-guard P1).
@@ -56,11 +66,17 @@ export async function requestPresign(
   if (error) throw new Error(`presign_no_session: ${error.message}`)
   if (!session?.access_token) throw new Error('presign_no_session')
 
-  const body: { bundle: typeof BUNDLE_NAME; op: PresignOp; schema_version?: number } = {
+  const body: {
+    bundle: typeof BUNDLE_NAME
+    op: PresignOp
+    schema_version?: number
+    build?: string
+  } = {
     bundle: BUNDLE_NAME,
     op,
   }
   if (sv != null) body.schema_version = sv
+  if (BUILD_ID) body.build = BUILD_ID
 
   const res = await fetch(`${WORKER_URL}/presign`, {
     method: 'POST',
@@ -94,10 +110,12 @@ export async function requestPresign(
     // 429 = Worker presign rate limiter (add-presign-put-rate-limit). Embed the
     // server's Retry-After hint (seconds) into the message so the sync engine's
     // 429 cooldown can honor it even after engine-r2 wraps this error into
-    // `r2_push_exhausted: …`. NOTE: the Worker does not CORS-expose Retry-After
-    // (no Access-Control-Expose-Headers), so cross-origin reads yield null and
-    // the engine falls back to its own base cooldown — parsed here for
-    // same-origin/dev and in case the Worker exposes it later.
+    // `r2_push_exhausted: …`. The Worker DOES CORS-expose Retry-After as of
+    // 2026-07-15 (cors.ts Access-Control-Expose-Headers), so cross-origin reads
+    // now see it. It is nonetheless a no-op today: the Worker sends "10" and the
+    // engine takes max(hint, its own 60s base), so the hint can only ever make
+    // the client back off MORE — never less — and only once the Worker sends a
+    // value above that base.
     if (res.status === 429) {
       // Only propagate a sane, bounded hint: Retry-After is integer seconds per
       // spec, so a non-safe-integer (absurdly large, decimal, or NaN) is

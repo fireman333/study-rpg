@@ -47,6 +47,28 @@ const RATE_LIMIT_COOLDOWN_MAX_MS = 300_000
 const DEFERRED_RETRY_BASE_MS = 60_000
 const DEFERRED_RETRY_MAX_MS = 300_000
 
+// Hard-error (non-429, non-412, non-schema) cooldown — audit follow-up
+// 2026-07-15. The 429/412 paths above back off, this class did NOT: a tab whose
+// token is dead (presign_failed_401) or whose Worker keeps answering 502 threw
+// here, set no horizon, and the next Dexie write re-armed the plain ~12s
+// debounce — ~7 req/min, indefinitely, and SILENTLY (the reload prompt was
+// wired only to the 429/defer streaks, so it could never fire for this class).
+// Bounded, not storm-grade, but it is the most plausible remaining slow burn.
+// GRACE: the first consecutive hard error still retries on the normal debounce
+// — a one-off network blip must not cost the user a 30s stall. Only a STREAK
+// (a genuinely broken tab) earns the exponential horizon.
+const HARD_ERROR_GRACE = 1
+const HARD_ERROR_COOLDOWN_BASE_MS = 30_000
+const HARD_ERROR_COOLDOWN_MAX_MS = 300_000
+
+// Minimum spacing between NON-FORCED (visibility-driven) pulls, and the longer
+// hold after a failed one. 30s is well inside the 240s GET-presign URL cache, so
+// on the happy path this changes nothing — it only bites once the cache is cold
+// (i.e. exactly when presign GETs are failing and each visibility flip would
+// otherwise cost a request). Forced pulls always bypass both.
+const PULL_MIN_INTERVAL_MS = 30_000
+const PULL_ERROR_COOLDOWN_MS = 60_000
+
 // After this many CONSECUTIVE presign 429s OR deferred pushes, fire the
 // one-shot reload prompt (sync-reload-signal, reason 'sync-stall'): a tab this
 // stuck is most plausibly a stale cached bundle whose retry cadence predates
@@ -85,9 +107,23 @@ interface RetryBackoffState {
   // throttling us (a landed push, a deferred outcome, OR any non-429 hard
   // error). Drives the exponential 429 cooldown + the reload prompt.
   rateLimit429Streak: number
-  // Earliest time the next push may hit /presign. Raised by the 429 cooldown
-  // and the deferred back-off. 0 = no restriction.
+  // Consecutive non-429/non-412/non-schema hard errors (presign 401/403, R2 PUT
+  // 500, network blip) since the last cycle that proved the pipe works. Drives
+  // the hard-error cooldown ONLY — deliberately not the reload prompt, which
+  // stays wired to the 429/defer streaks alone (see the hard-error branch for
+  // why connectivity can't gate it). Reset by a landed push, a deferred
+  // outcome, or a 429 (all three prove /presign itself answered).
+  hardErrorStreak: number
+  // Earliest time the next push may hit /presign. Raised by the 429 cooldown,
+  // the deferred back-off, and the hard-error cooldown. 0 = no restriction.
   nextPushNotBeforeAt: number
+  // Earliest time a NON-FORCED pull may hit /presign. Forced pulls (cold-start
+  // warm-up, manual sync-light) deliberately bypass it — they are mount- or
+  // user-driven, not event-driven. Guards the one path where user behaviour maps
+  // 1:1 onto requests: a FAILED presign GET is never cached (r2/client.ts caches
+  // on success only), so with the 240s URL cache cold, every `visibilitychange`
+  // costs a request — and iOS Safari fires that on every app switch.
+  nextPullNotBeforeAt: number
 }
 
 const retryBackoffByUser = new Map<string, RetryBackoffState>()
@@ -95,7 +131,13 @@ const retryBackoffByUser = new Map<string, RetryBackoffState>()
 function getRetryBackoffState(userId: string): RetryBackoffState {
   let s = retryBackoffByUser.get(userId)
   if (!s) {
-    s = { consecutiveDefers: 0, rateLimit429Streak: 0, nextPushNotBeforeAt: 0 }
+    s = {
+      consecutiveDefers: 0,
+      rateLimit429Streak: 0,
+      hardErrorStreak: 0,
+      nextPushNotBeforeAt: 0,
+      nextPullNotBeforeAt: 0,
+    }
     retryBackoffByUser.set(userId, s)
   }
   return s
@@ -298,8 +340,9 @@ export class SyncEngine {
         this.backoff.consecutiveDefers += 1
         // A deferred outcome means /presign answered 200 — the rate limiter is
         // not throttling us; reset the 429 streak (symmetric with the landed-
-        // push reset).
+        // push reset). Same proof clears the hard-error streak: the pipe works.
         this.backoff.rateLimit429Streak = 0
+        this.backoff.hardErrorStreak = 0
         this.pending = true
         // Exponential back-off (60s→300s, jittered) before the next re-PUT of a
         // known-conflicting bundle — the fixed ~12s jittered debounce alone
@@ -326,6 +369,7 @@ export class SyncEngine {
 
       this.backoff.consecutiveDefers = 0
       this.backoff.rateLimit429Streak = 0
+      this.backoff.hardErrorStreak = 0
       this.backoff.nextPushNotBeforeAt = 0
       this.lastPushAt = Date.now()
       this.state = 'idle'
@@ -357,6 +401,10 @@ export class SyncEngine {
         // parseRetryAfterMs-sanitized) hint stranding the push forever. The
         // state stays dirty (schedulePush) and re-arms to the cooldown end.
         this.backoff.rateLimit429Streak += 1
+        // A 429 proves /presign answered (it was the limiter, not a broken pipe)
+        // — symmetric with the reset the hard-error branch applies to the 429
+        // streak, so the two counters can never both inflate off one failure.
+        this.backoff.hardErrorStreak = 0
         const backoff = Math.min(
           RATE_LIMIT_COOLDOWN_MAX_MS,
           RATE_LIMIT_COOLDOWN_BASE_MS * 2 ** Math.max(0, this.backoff.rateLimit429Streak - 1),
@@ -375,16 +423,57 @@ export class SyncEngine {
         // blip) proves THIS cycle was not a rate-limit throttle — reset the 429
         // streak so it only ever counts CONSECUTIVE 429s (otherwise a 500 dropped
         // between 429s would let the next 429 be miscounted, inflating the
-        // cooldown / prematurely tripping the reload prompt). No cooldown is set
-        // for these — a network blip should retry on the normal debounce.
+        // cooldown / prematurely tripping the reload prompt).
         this.backoff.rateLimit429Streak = 0
+        // Hard-error cooldown (audit follow-up 2026-07-15). Previously this
+        // branch set NO horizon, so a permanently-broken tab (dead token → 401,
+        // Worker 502) re-pushed on the plain ~12s debounce forever at ~7 req/min
+        // and never surfaced the reload prompt. It could not storm (the branch
+        // does not schedulePush(), so `pending` stays false and it only retries
+        // when the user writes to Dexie again) — but it could burn quota
+        // indefinitely and silently. Now: the FIRST error still retries on the
+        // normal debounce (a blip costs nothing); a STREAK earns 30s→300s.
+        this.backoff.hardErrorStreak += 1
+        if (this.backoff.hardErrorStreak > HARD_ERROR_GRACE) {
+          const backoff = Math.min(
+            HARD_ERROR_COOLDOWN_MAX_MS,
+            HARD_ERROR_COOLDOWN_BASE_MS *
+              2 ** Math.max(0, this.backoff.hardErrorStreak - HARD_ERROR_GRACE - 1),
+          )
+          this.backoff.nextPushNotBeforeAt =
+            Date.now() + Math.max(0, backoff + (Math.random() * 2 - 1) * backoff * DEBOUNCE_JITTER)
+        }
+        // NOTE — deliberately NO reload prompt on this branch (Fable review
+        // 2026-07-15 killed a first cut that had one). The 429/defer streaks can
+        // only accrue when the Worker actually ANSWERS, so they imply a live
+        // pipe and a plausibly-stale tab. This branch also catches pure network
+        // failure (`TypeError: Failed to fetch`), and `navigator.onLine` cannot
+        // separate the two — it reports true for flaky Wi-Fi / captive portals /
+        // 4G dead zones, i.e. exactly the common case. Prompting there would put
+        // a close-button-less, reload-won't-fix-it "同步受阻" toast in front of a
+        // commuting user. The cooldown above already bounds the request rate, so
+        // the prompt bought nothing and risked everything. If this is ever
+        // revisited, gate on a message that proves the Worker responded (e.g.
+        // /presign_failed_(4|5)\d\d/) rather than on connectivity.
       }
       console.warn('[sync] push failed', err)
     }
   }
 
   async pullNow(opts?: { force?: boolean }): Promise<PullBundleResult | null> {
+    if (this.disposed) return null
     if (this.state === 'paused') return null
+    // Non-forced (visibility-driven) pull throttle — audit follow-up 2026-07-15.
+    // Normally the 240s GET-presign URL cache absorbs these, but a FAILED presign
+    // GET is never cached (client.ts caches on success only), so once the cache is
+    // cold every `visibilitychange` costs a /presign — and iOS Safari fires that on
+    // every app switch. Forced pulls (cold-start warm-up, manual sync-light) bypass:
+    // they are mount- or user-driven and must stay immediate. Returning null here is
+    // safe — the only non-forced caller (`useSync`'s visibility listener) discards
+    // the result, and every caller that reads it (beginStartupForcePull → the
+    // cloud-wins window) forces.
+    if (!opts?.force && Date.now() < this.backoff.nextPullNotBeforeAt) return null
+    this.backoff.nextPullNotBeforeAt = Date.now() + PULL_MIN_INTERVAL_MS
     this.state = 'pulling'
     try {
       const result = await pullBundle(this.supabase, this.db, this.user.id, {
@@ -410,6 +499,11 @@ export class SyncEngine {
     } catch (err) {
       this.lastError = (err as { message?: string })?.message ?? 'unknown'
       this.state = 'error'
+      // A FAILED presign GET is not cached, so without a horizon the next
+      // visibility flip re-hits /presign immediately. Hold non-forced pulls off
+      // for longer than the success cadence; a forced pull (manual sync) still
+      // bypasses, so the user always has an immediate escape hatch.
+      this.backoff.nextPullNotBeforeAt = Date.now() + PULL_ERROR_COOLDOWN_MS
       console.warn('[sync] pull failed', err)
       return null
     }
