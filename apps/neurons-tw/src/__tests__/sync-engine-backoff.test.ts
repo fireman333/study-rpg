@@ -19,7 +19,7 @@
  * engine-r2 is module-mocked so we drive pushBundleSerialized's outcome
  * directly; the clock is a mocked Date.now so cooldowns are stepped precisely.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const pushBundleSerialized = vi.fn()
 const pullBundle = vi.fn()
@@ -66,6 +66,21 @@ const PAST_ANY_BACKOFF_MS = 400_000
 let now = 0
 let dateNowSpy: ReturnType<typeof vi.spyOn> | null = null
 
+// The test env is `environment: 'node'` (not jsdom), where `navigator` EXISTS but
+// has no `onLine` property at all — reading it yields undefined, not false. That
+// is not an accident of the harness, it is the engine's most important input
+// state: `undefined` is the "can't tell" case, and the engine must treat it as
+// online so the back-off is unchanged wherever the signal is unavailable. Hence
+// vi.spyOn(navigator, 'onLine', 'get') is not usable here (it throws on an absent
+// property) — define and delete the property instead.
+function setNavigatorOnLine(value: boolean | undefined): void {
+  if (value === undefined) {
+    delete (navigator as { onLine?: unknown }).onLine
+    return
+  }
+  Object.defineProperty(navigator, 'onLine', { value, configurable: true })
+}
+
 function makeEngine(hooks?: {
   onPushComplete?: () => void | Promise<void>
   onPullComplete?: (r: unknown) => void | Promise<void>
@@ -97,6 +112,13 @@ beforeEach(() => {
   __resetRetryBackoffForTests()
   now = 1_750_000_000_000
   dateNowSpy = vi.spyOn(Date, 'now').mockImplementation(() => now)
+})
+
+afterEach(() => {
+  // Restore the env's real shape (property ABSENT) so a test that forgets to set
+  // it explicitly exercises the "can't tell" default rather than inheriting a
+  // neighbour's stub.
+  setNavigatorOnLine(undefined)
 })
 
 describe('SyncEngine.pushNow — presign-429 cooldown', () => {
@@ -195,6 +217,59 @@ describe('SyncEngine.pushNow — presign-429 cooldown', () => {
     now += 61_000 // past the 60s base → proves the streak restarted at 1
     await engine.pushNow()
     expect(pushBundleSerialized).toHaveBeenCalledTimes(4)
+  })
+
+  it('caps the 429 cooldown at 300s — a throttled tab is never stranded forever', async () => {
+    // The 429 twin of the hard-error cap test below. Both branches compute
+    // `base × 2^(streak-1)` and both need the Math.min; only the hard-error one
+    // was locked when the cap was written (2026-07-15), so this closes the gap.
+    // Without the cap a tab that stays throttled — precisely the exam-morning
+    // shape, when the limiter is busiest — doubles into a horizon measured in
+    // days and its writes never leave Dexie.
+    // The 429 cooldown is deliberately un-jittered, so the cap is exactly 300s.
+    //
+    // This locks the INVARIANT (cooldown ≤ 300s), not a line: the branch clamps
+    // twice — once on the exponential, once on the final max(hint, backoff) —
+    // and either clamp alone enforces the bound. So deleting just one is an
+    // equivalent mutation this test does not (and should not) detect; deleting
+    // both turns it red. Verified by mutation on 2026-07-15.
+    pushBundleSerialized.mockRejectedValue(ERR_429())
+    const engine = makeEngine()
+    for (let i = 0; i < 20; i++) {
+      await engine.pushNow() // streak → 20; uncapped this would be 60s × 2^19
+      now += PAST_ANY_BACKOFF_MS
+    }
+    // Anti-vacuity, and where the mutation actually bites first: capped, every
+    // horizon (≤300s) is inside PAST_ANY_BACKOFF_MS so all 20 attempts reach the
+    // transport. Uncapped, streak 4 already yields 480s > 400s and the loop
+    // starts gating itself — this count drops below 20.
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(20)
+
+    // One more 429 to set a fresh horizon off the (deep) streak, then prove it
+    // is still inside the 300s cap.
+    await engine.pushNow()
+    now += 301_000
+    pushBundleSerialized.mockResolvedValue(PUSHED)
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(22)
+    expect(engine.getStatus().state).toBe('idle')
+  })
+
+  it('caps even a server Retry-After hint at 300s (the hint is not trusted blindly)', async () => {
+    // parseRetryAfterMs already rejects non-safe integers, but a merely LARGE
+    // honest hint (a Worker misconfigured to say "come back in 2 hours") is
+    // sanitized and would sail through — the Math.min is the only thing between
+    // it and a two-hour sync stall. Distinct code path from the streak cap above
+    // (Math.max(hint, backoff) then clamp), so it gets its own lock.
+    pushBundleSerialized.mockRejectedValue(ERR_429_RETRY_AFTER(7200)) // 2 hours
+    const engine = makeEngine()
+    await engine.pushNow()
+
+    now += 301_000 // past the cap, far short of the 7200s hint
+    pushBundleSerialized.mockResolvedValue(PUSHED)
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2)
+    expect(engine.getStatus().state).toBe('idle')
   })
 })
 
@@ -614,6 +689,108 @@ describe('SyncEngine.pushNow — hard-error (non-429/412) cooldown', () => {
   })
 })
 
+describe('SyncEngine.pushNow — offline hard errors do not accrue the streak', () => {
+  // Audit follow-up 2026-07-15. The hard-error branch also catches a push that
+  // never left the device (offline → `TypeError: Failed to fetch`), which is
+  // indistinguishable BY MESSAGE from a real Worker 502. Backing off there
+  // protects nothing — no request reached the Worker, no quota was burned — and
+  // costs the one user we can least afford to annoy: someone answering questions
+  // on the MRT two days before the exam, whose every write would otherwise walk
+  // the streak to the 300s ceiling within a couple of minutes and then idle
+  // there after they resurface.
+  //
+  // navigator.onLine is a legitimate signal for THIS decision and not for the
+  // reload prompt — the asymmetry is spelled out on isDefinitelyOffline() and
+  // guarded by the "NEVER fires the reload prompt" test above. If you are here
+  // to wire the prompt back in: don't.
+
+  it('offline hard errors never set a horizon, however long the failure runs', async () => {
+    setNavigatorOnLine(false)
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+
+    // No clock advance at all: every one of these must still reach the transport.
+    // With the streak accruing (pre-fix), #2 sets a ~30s horizon and #3 onwards
+    // are gated — this stops at 2.
+    for (let i = 0; i < 20; i++) await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(20)
+    expect(engine.getStatus().state).toBe('error') // still surfaced, just not backed off
+  })
+
+  it('coming back online after a long offline run starts at the grace, not the ceiling', async () => {
+    // The user-facing point of the whole fix: the MRT commuter surfaces and syncs
+    // on the next debounce, instead of waiting out a 300s horizon they earned by
+    // being in a tunnel.
+    setNavigatorOnLine(false)
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+    for (let i = 0; i < 20; i++) await engine.pushNow()
+
+    setNavigatorOnLine(true)
+    await engine.pushNow() // streak 0 → 1: a grace, so still no horizon
+    const calls = pushBundleSerialized.mock.calls.length
+    // WITHOUT advancing the clock: a horizon carried over from the offline run
+    // would gate this. Reaching the transport proves the streak really was 0.
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(calls + 1)
+  })
+
+  it('an ONLINE hard error still backs off (the gate is offline-only)', async () => {
+    // Mutation guard: an `isDefinitelyOffline()` stubbed to always-true, or the
+    // gate inverted, would silently delete the 2026-07-15 hard-error cooldown
+    // altogether and every other test in that block would still pass (they run
+    // with the property absent). This pins the explicit online:true case.
+    setNavigatorOnLine(true)
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+
+    await engine.pushNow() // streak 1 (grace)
+    await engine.pushNow() // streak 2 → horizon ∈ [21s, 39s]
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2)
+
+    now += 20_000 // below the jitter floor — gated
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2)
+
+    now += 20_000 // t = +40s — above the jitter ceiling — free
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(3)
+  })
+
+  it('an UNKNOWN onLine (property absent) is treated as online — fail-safe default', async () => {
+    // The node env's real shape, and the one that decides what happens in any
+    // browser/webview that doesn't expose the property: back off exactly as
+    // before the helper existed. Never fail OPEN into "assume offline, never back
+    // off", which would restore the unbounded quota burn 3ee9f3fd fixed.
+    setNavigatorOnLine(undefined)
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+
+    await engine.pushNow() // 1 (grace)
+    await engine.pushNow() // 2 → horizon set, exactly as pre-helper
+    now += 20_000
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2) // gated → the streak accrued
+  })
+
+  it('going offline does NOT clear a horizon an online streak already earned', async () => {
+    // The Worker asked for this cooldown while it was answering; losing the
+    // network afterwards is not evidence it changed its mind. (Also the reason
+    // the gate wraps only the accrual, not the whole branch.)
+    setNavigatorOnLine(true)
+    pushBundleSerialized.mockRejectedValue(ERR_HARD())
+    const engine = makeEngine()
+    await engine.pushNow() // 1 (grace)
+    await engine.pushNow() // 2 → horizon ∈ [21s, 39s] is now live
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2)
+
+    setNavigatorOnLine(false)
+    now += 20_000 // below the jitter floor
+    await engine.pushNow()
+    expect(pushBundleSerialized).toHaveBeenCalledTimes(2) // still gated by the earned horizon
+  })
+})
+
 describe('SyncEngine.pullNow — non-forced pull throttle', () => {
   // Audit follow-up 2026-07-15: the ONLY path where user behaviour maps 1:1 onto
   // requests. The 240s GET-presign URL cache normally absorbs visibility pulls,
@@ -678,6 +855,77 @@ describe('SyncEngine.pullNow — non-forced pull throttle', () => {
     expect(await engine.pullNow()).toBeNull()
     expect(await engine.pullNow({ force: true })).toBeNull()
     expect(pullBundle).not.toHaveBeenCalled()
+  })
+
+  it('a remount (new engine, same userId) inherits the pull window', async () => {
+    // `nextPullNotBeforeAt` lives in the SAME module-level per-user record as the
+    // push horizons, for the same reason: the engine is disposed and recreated on
+    // every Supabase token refresh (~hourly). Instance state would hand a free
+    // pull to every remount. Mirrors the push side's remount test — asserted
+    // there since 2026-07-14, never for the pull field.
+    pullBundle.mockResolvedValue(PULLED)
+    const e1 = makeEngine()
+    await e1.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+    e1.dispose() // clears the instance timer, NOT the module-level window
+
+    const e2 = makeEngine() // token-refresh remount: same userId 'u1'
+    expect(await e2.pullNow()).toBeNull() // gated by the surviving window
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    now += 31_000 // past the window → the remounted engine pulls normally again
+    await e2.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(2)
+  })
+
+  it('a fresh account (different userId) does NOT inherit another user\'s pull window', async () => {
+    // The other half of "keyed by userId": account B must not start life gated by
+    // account A's window. Real path — signing out and into a second account (a
+    // shared iPad, or the owner's own test account) — where the first thing the
+    // new account needs is precisely a pull.
+    pullBundle.mockResolvedValue(PULLED)
+    const e1 = makeEngine() // u1
+    await e1.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    // Anti-vacuity: prove a window actually exists to be leaked. Without this,
+    // the assertion below would pass even if the throttle were deleted outright.
+    expect(await e1.pullNow()).toBeNull()
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    const e2 = createSyncEngine({
+      supabase: fakeSupabase,
+      db: fakeDb,
+      user: { id: 'u2' } as never,
+    })
+    vi.spyOn(e2, 'schedulePush').mockImplementation(() => {})
+    await e2.pullNow() // no inherited window → reaches the transport immediately
+    expect(pullBundle).toHaveBeenCalledTimes(2)
+    e2.dispose()
+  })
+
+  it('the pull ERROR cooldown is per-user too', async () => {
+    // The 60s error hold is the aggressive one (it is what absorbs the iOS
+    // visibility storm), so it is the one that would hurt most if it leaked onto
+    // a freshly signed-in account whose cold start needs a pull.
+    pullBundle.mockRejectedValue(new Error('presign_failed_502'))
+    const e1 = makeEngine() // u1 → 60s error cooldown
+    await e1.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+    now += 31_000 // past the success window; e1 is still held by the error hold
+    expect(await e1.pullNow()).toBeNull()
+    expect(pullBundle).toHaveBeenCalledTimes(1)
+
+    const e2 = createSyncEngine({
+      supabase: fakeSupabase,
+      db: fakeDb,
+      user: { id: 'u2' } as never,
+    })
+    vi.spyOn(e2, 'schedulePush').mockImplementation(() => {})
+    pullBundle.mockResolvedValue(PULLED)
+    await e2.pullNow()
+    expect(pullBundle).toHaveBeenCalledTimes(2)
+    e2.dispose()
   })
 })
 

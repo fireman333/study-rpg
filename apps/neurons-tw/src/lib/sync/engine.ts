@@ -91,6 +91,27 @@ function parseRetryAfterMs(msg: string): number {
   return sec * 1000
 }
 
+// True only when the browser is CERTAIN there is no network. Fail-safe by
+// construction: an absent / non-boolean `navigator.onLine` (node test env, an
+// exotic embedded webview) reads as "not definitely offline", so the back-off
+// behaves exactly as it did before this helper existed.
+//
+// SCOPE — READ BEFORE REUSING. `navigator.onLine` answers "is an interface up",
+// NOT "does traffic reach the Worker": it reports true for flaky Wi-Fi, captive
+// portals and 4G dead zones. That makes it unusable for gating the RELOAD PROMPT
+// — a false "online" there puts a close-button-less, reload-won't-fix-it toast
+// in front of a commuting user, which is why 3ee9f3fd deleted an earlier
+// isOnline() helper and locked the absence with a negative test (see the
+// hard-error branch's NOTE). It is safe HERE because the failure modes invert
+// and both are harmless: a false "online" merely keeps today's back-off, and a
+// false "offline" merely lets a genuinely broken tab retry on the plain debounce
+// a while longer. Gate reload prompts on evidence the Worker ANSWERED (a status
+// code), never on this.
+function isDefinitelyOffline(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return (navigator as { onLine?: unknown }).onLine === false
+}
+
 // Per-user retry-backoff state, hoisted to MODULE level so it survives the
 // engine's dispose+recreate on every Supabase token refresh (~hourly):
 // AuthContext hands useSync a fresh `user` object reference each
@@ -433,15 +454,30 @@ export class SyncEngine {
         // when the user writes to Dexie again) — but it could burn quota
         // indefinitely and silently. Now: the FIRST error still retries on the
         // normal debounce (a blip costs nothing); a STREAK earns 30s→300s.
-        this.backoff.hardErrorStreak += 1
-        if (this.backoff.hardErrorStreak > HARD_ERROR_GRACE) {
-          const backoff = Math.min(
-            HARD_ERROR_COOLDOWN_MAX_MS,
-            HARD_ERROR_COOLDOWN_BASE_MS *
-              2 ** Math.max(0, this.backoff.hardErrorStreak - HARD_ERROR_GRACE - 1),
-          )
-          this.backoff.nextPushNotBeforeAt =
-            Date.now() + Math.max(0, backoff + (Math.random() * 2 - 1) * backoff * DEBOUNCE_JITTER)
+        // …but only while we are actually ON the network (audit follow-up
+        // 2026-07-15). A push that never left the device proves nothing about
+        // the Worker and backing it off buys nothing: there is no server to
+        // protect and no quota being burned — this branch catches offline
+        // writes as `TypeError: Failed to fetch`, indistinguishable by message
+        // from a real 502. Without the gate, a user answering questions on the
+        // MRT accrues one streak step per write and hits the 300s ceiling within
+        // a couple of minutes, so on resurfacing their sync idles up to 5 more
+        // minutes for nothing. Nothing is ever lost (writes sit in Dexie, the
+        // horizon is capped, and the next write re-arms), but the 🟡 chip
+        // lingers and the tab looks broken. A horizon set by an EARLIER online
+        // streak is deliberately left standing — dropping offline must not
+        // clear a cooldown a live Worker asked for.
+        if (!isDefinitelyOffline()) {
+          this.backoff.hardErrorStreak += 1
+          if (this.backoff.hardErrorStreak > HARD_ERROR_GRACE) {
+            const backoff = Math.min(
+              HARD_ERROR_COOLDOWN_MAX_MS,
+              HARD_ERROR_COOLDOWN_BASE_MS *
+                2 ** Math.max(0, this.backoff.hardErrorStreak - HARD_ERROR_GRACE - 1),
+            )
+            this.backoff.nextPushNotBeforeAt =
+              Date.now() + Math.max(0, backoff + (Math.random() * 2 - 1) * backoff * DEBOUNCE_JITTER)
+          }
         }
         // NOTE — deliberately NO reload prompt on this branch (Fable review
         // 2026-07-15 killed a first cut that had one). The 429/defer streaks can

@@ -73,7 +73,11 @@ interface ParsedPresign {
   build: string | null;
 }
 
-function parseBody(body: PresignBody): ParsedPresign {
+// Exported for src/__tests__/presign-parse-body.test.ts only — this Worker is
+// shared by neurons AND the standalone 二階 app, so the "a body field can never
+// 400 a bundle that doesn't send it" contract needs a direct unit lock rather
+// than trust in the comments below.
+export function parseBody(body: PresignBody): ParsedPresign {
   if (typeof body.bundle !== "string" || !BUNDLES.includes(body.bundle as Bundle)) {
     throw new Error("invalid_bundle");
   }
