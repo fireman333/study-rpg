@@ -25,6 +25,7 @@ import {
   runNeuronsLeaderboardCron,
 } from "./neurons-leaderboard";
 import { handleShoutout } from "./shoutout";
+import { handleR2Read } from "./r2-read";
 import { corsHeaders, preflightResponse } from "./cors";
 
 // Cron expressions — MUST stay byte-for-byte identical with the strings in
@@ -111,6 +112,11 @@ export default {
       switch (url.pathname) {
         case "/presign":
           return await handlePresign(request, env, headers);
+        case "/r2/read":
+          // Worker-proxied R2 read (route-r2-reads-through-worker-proxy) — CORS
+          // on every status so the browser sees real 200/304/404/5xx instead of
+          // R2's opaque, CORS-headerless errors. Reads only; PUT stays presigned.
+          return await handleR2Read(request, env, headers);
         case "/delete-account":
         case "/reset":
           return await handleDeleteOrReset(request, env, headers);
