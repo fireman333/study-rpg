@@ -2,7 +2,8 @@
  * Bug-report shared types — used by `BugReportModal` in both apps and by
  * the `bug_reports` table (Supabase migration 0004). Kebab-case enum
  * strings are the canonical form on both client + DB; any addition needs
- * matching edits in `supabase/migrations/0004_bug_reports.sql`.
+ * matching edits in `supabase/migrations/` (latest category add:
+ * `0020_handout_content_category.sql`).
  */
 
 export const BUG_REPORT_CATEGORIES = [
@@ -21,6 +22,9 @@ export const BUG_REPORT_CATEGORIES = [
   'image-broken',
   'explanation-error',
   'concept-tag-error',
+  // medexam2 講義 考點 Debug report (add-medexam2-handout-keypoint-iteration §2).
+  // Coarse top-level category; the 8 fine subtypes ride in the jsonb payload.
+  'handout-content',
 ] as const
 
 export type BugReportCategory = (typeof BUG_REPORT_CATEGORIES)[number]
