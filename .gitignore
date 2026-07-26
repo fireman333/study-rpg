@@ -57,3 +57,5 @@ apps/neurons-tw/public/bgm/
 # local scratch experiments (not part of the app; audio/video working dirs, large)
 music-lab/
 brag-output/
+.claude/commands/opsx/
+.claude/skills/openspec-*/
