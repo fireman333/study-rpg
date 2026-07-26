@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "neurons-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@study-rpg/neurons-tw", "exec", "vite", "--port", "5173", "--strictPort"],
+      "port": 5173
+    },
+    {
+      "name": "neurons-smoke",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@study-rpg/neurons-tw", "dev"],
+      "autoPort": true
+    },
+    {
+      "name": "neurons-verify",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@study-rpg/neurons-tw", "exec", "vite", "--port", "5199", "--strictPort"],
+      "port": 5199
+    }
+  ]
+}
