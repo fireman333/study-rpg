@@ -349,12 +349,12 @@ GRANT INSERT (note_id, revision_no, reporter_id, reason)
 CREATE POLICY reports_insert_own ON public.community_note_reports
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = reporter_id);
 
--- nickname_snapshot is NOT granted: it is evidence, stamped by 3.11.
-GRANT INSERT (profile_user_id, reporter_id, reason)
-  ON public.community_profile_reports TO authenticated;
-
-CREATE POLICY profile_reports_insert_own ON public.community_profile_reports
-  FOR INSERT TO authenticated WITH CHECK (auth.uid() = reporter_id);
+-- community_profile_reports is granted NOTHING. A display name is reported only through
+-- `community_report_display_name`, which resolves the author from a note id. A direct
+-- INSERT grant here would be a second path that skips that function's checks — the note
+-- must be publicly visible, and you may not report your own name — while also implying a
+-- client can name a profile, which the public projection is built to prevent (D9). The
+-- function is SECURITY DEFINER, so it needs no client grant on this table.
 
 -- No SELECT policy on either report table: a reporter cannot read back even
 -- their own report. Reports, reporter identities and report contents never
@@ -424,6 +424,42 @@ REVOKE INSERT, UPDATE, DELETE ON public.community_notes_public
 CREATE OR REPLACE FUNCTION public.community_bypass_active()
 RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
   SELECT COALESCE(current_setting('community.bypass', TRUE), 'off') = 'on';
+$$;
+
+-- ── report quota ─────────────────────────────────────────────────────
+-- Every unresolved report becomes an item in the owner's queue, so an unbounded report
+-- rate is an unbounded moderation workload — a queue-flooding denial of service that
+-- needs no exploit at all, just persistence. Notes already carry a rolling-window quota;
+-- reports get the same shape and the same advisory lock, with ONE budget shared across
+-- note reports and display-name reports so the two cannot be alternated to double it.
+CREATE OR REPLACE FUNCTION public.community_assert_report_quota(p_reporter UUID)
+RETURNS VOID
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $fn$
+DECLARE v_recent INT;
+BEGIN
+  PERFORM pg_advisory_xact_lock(hashtext('community_reports:' || p_reporter::TEXT)::BIGINT);
+  SELECT (SELECT count(*) FROM public.community_note_reports
+            WHERE reporter_id = p_reporter AND created_at > now() - INTERVAL '24 hours')
+       + (SELECT count(*) FROM public.community_profile_reports
+            WHERE reporter_id = p_reporter AND created_at > now() - INTERVAL '24 hours')
+    INTO v_recent;
+  IF v_recent >= 10 THEN
+    RAISE EXCEPTION 'community_reports: 24-hour report quota reached'
+      USING ERRCODE = '53400';
+  END IF;
+END;
+$fn$;
+
+-- Reporting is gated on PUBLIC READ, not on submissions. Pausing intake must still let
+-- players flag content that is already up — that is the point of two flags. But once the
+-- owner has pulled the read switch there is nothing on screen to report, and a client
+-- holding cached ids must not keep generating queue items behind a closed surface.
+CREATE OR REPLACE FUNCTION public.community_public_read_enabled()
+RETURNS BOOLEAN
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
+  SELECT COALESCE(
+    (SELECT public_read FROM public.community_flags
+      WHERE feature = 'community_notes'), FALSE);
 $$;
 
 -- ── body canonicalisation (3.4) ──────────────────────────────────────
@@ -696,27 +732,13 @@ BEGIN
   -- rejects, so a player who had ever written a note could not delete their account at
   -- all. `delete_my_account()` (migration 0002) is a shipped, player-facing path, and
   -- the spec requires deletion to complete in the presence of notes. Dissociation is
-  -- exactly what design D7 asks for, so permit that ONE transition with every other
-  -- column pinned, ahead of the retracted/removed guards — a retracted note must be
-  -- dissociable too. No client can reach it: `authenticated` holds UPDATE on
-  -- (body, retracted_at) only, and cannot name `author_id` at all.
+  -- exactly what design D7 asks for, so permit that ONE transition, ahead of the
+  -- retracted/removed guards — a retracted note must be dissociable too. The rest of the
+  -- row is pinned by comparing the WHOLE record minus `author_id` rather than by listing
+  -- columns: an enumeration silently stops covering any column added later. No client can
+  -- reach this anyway — `authenticated` holds UPDATE on (body, retracted_at) only.
   IF OLD.author_id IS NOT NULL AND NEW.author_id IS NULL
-     AND NEW.id                  IS NOT DISTINCT FROM OLD.id
-     AND NEW.parent_id           IS NOT DISTINCT FROM OLD.parent_id
-     AND NEW.anchor_type         IS NOT DISTINCT FROM OLD.anchor_type
-     AND NEW.anchor_id           IS NOT DISTINCT FROM OLD.anchor_id
-     AND NEW.source_fingerprint  IS NOT DISTINCT FROM OLD.source_fingerprint
-     AND NEW.content_hash        IS NOT DISTINCT FROM OLD.content_hash
-     AND NEW.body                IS NOT DISTINCT FROM OLD.body
-     AND NEW.license_ack         IS NOT DISTINCT FROM OLD.license_ack
-     AND NEW.status              IS NOT DISTINCT FROM OLD.status
-     AND NEW.retracted_at        IS NOT DISTINCT FROM OLD.retracted_at
-     AND NEW.visibility          IS NOT DISTINCT FROM OLD.visibility
-     AND NEW.current_revision_no IS NOT DISTINCT FROM OLD.current_revision_no
-     AND NEW.edit_count          IS NOT DISTINCT FROM OLD.edit_count
-     AND NEW.takedown_reason     IS NOT DISTINCT FROM OLD.takedown_reason
-     AND NEW.created_at          IS NOT DISTINCT FROM OLD.created_at
-     AND NEW.edited_at           IS NOT DISTINCT FROM OLD.edited_at THEN
+     AND to_jsonb(NEW) - 'author_id' IS NOT DISTINCT FROM to_jsonb(OLD) - 'author_id' THEN
     RETURN NEW;
   END IF;
 
@@ -826,10 +848,7 @@ BEGIN
   -- frozen, which is the property this trigger exists to hold.
   IF TG_OP = 'UPDATE'
      AND OLD.editor_id IS NOT NULL AND NEW.editor_id IS NULL
-     AND NEW.note_id     IS NOT DISTINCT FROM OLD.note_id
-     AND NEW.revision_no IS NOT DISTINCT FROM OLD.revision_no
-     AND NEW.body        IS NOT DISTINCT FROM OLD.body
-     AND NEW.created_at  IS NOT DISTINCT FROM OLD.created_at THEN
+     AND to_jsonb(NEW) - 'editor_id' IS NOT DISTINCT FROM to_jsonb(OLD) - 'editor_id' THEN
     RETURN NEW;
   END IF;
   RAISE EXCEPTION 'community_note_revisions: revisions are append-only'
@@ -851,6 +870,12 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $fn$
 DECLARE
   v_rev INT;
 BEGIN
+  IF NOT public.community_public_read_enabled() THEN
+    RAISE EXCEPTION 'community_note_reports: reporting is paused'
+      USING ERRCODE = '53400';
+  END IF;
+  PERFORM public.community_assert_report_quota(NEW.reporter_id);
+
   SELECT current_revision_no INTO v_rev
     FROM public.community_notes WHERE id = NEW.note_id
     FOR UPDATE;
@@ -958,6 +983,11 @@ BEGIN
 
   -- Only a publicly visible note can be the handle: anything else would let a caller
   -- probe for the existence of withheld or concealed content by its id.
+  IF NOT public.community_public_read_enabled() THEN
+    RAISE EXCEPTION 'community_report_display_name: reporting is paused'
+      USING ERRCODE = '53400';
+  END IF;
+
   SELECT author_id INTO v_author FROM public.community_notes
     WHERE id = p_note_id AND visibility = 'visible';
   IF NOT FOUND OR v_author IS NULL THEN
@@ -968,6 +998,10 @@ BEGIN
     RAISE EXCEPTION 'community_report_display_name: cannot report your own display name'
       USING ERRCODE = '23514';
   END IF;
+
+  -- Same shared budget as note reports: alternating between the two paths must not be a
+  -- way to double the rate at which one account can fill the owner's queue.
+  PERFORM public.community_assert_report_quota(v_reporter);
 
   -- The reason domain, the nickname stamp and the duplicate check are all enforced by the
   -- table and its trigger, not re-implemented here.
@@ -1247,6 +1281,8 @@ DECLARE
     'public.community_table_bounds_ok(text,int,int)',
     'public.community_validate_body(text)',
     'public.community_submissions_enabled()',
+    'public.community_public_read_enabled()',
+    'public.community_assert_report_quota(uuid)',
     'public.community_notes_before_insert()',
     'public.community_notes_after_insert()',
     'public.community_notes_before_update()',
