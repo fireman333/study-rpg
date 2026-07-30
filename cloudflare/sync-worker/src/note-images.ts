@@ -6,26 +6,30 @@
  *
  * Two things shape every line here.
  *
- * **The Worker has no table privileges.** Migration 0021 revokes ALL from
- * `service_role` on every community table and 0029 does the same for the four new
- * ones, deliberately — anything holding the service key would otherwise be able to
- * invent an ownership row or a ledger row and walk straight past the checks. So the
- * entire database surface is three SECURITY DEFINER functions, and this file may not
- * grow a fourth kind of database access:
+ * **The Worker has no table privileges, and after migration 0030 it has no privileged
+ * key either.** 0021 revokes ALL from `service_role` on every community table and 0029
+ * does the same for the four new ones, deliberately. 0030 then took identity out of this
+ * file's hands entirely: the two functions it calls read `auth.uid()` rather than
+ * accepting an account as a parameter, and are granted to `authenticated` / `anon`.
  *
- *   community_note_image_reserve        assign an identity, record the upload
- *   community_note_image_authorize      may this object be served, and as what
- *   community_note_images_claim_expired reclaim objects no note ever owned
+ *   community_note_image_reserve   assign an identity, record the upload  (authenticated)
+ *   community_note_image_authorize may this object be served, and as what  (anon too)
+ *
+ * So this Worker forwards **the caller's own JWT** and is no longer capable of claiming
+ * that an upload belongs to somebody else — a guarantee it previously had only because we
+ * trusted it to pass the right parameter. What it holds is the **publishable anon key**,
+ * which already ships inside the app's own frontend bundle.
+ *
+ * An `<img>` sends no credential, so the read path falls back to the anon key alone, and
+ * `auth.uid()` is then NULL — exactly the value the serving predicate wants for an
+ * anonymous reader.
+ *
+ * ⚠️ `community_note_images_claim_expired` is NOT reachable from here any more: its caller
+ * has to delete the R2 bytes, which a client cannot do, so 0030 left it `service_role`-only
+ * rather than trade rows for leaked bytes. Retention is therefore an owner-run operation.
+ * pg_cron is not installed on the project, so there is no third option today.
  *
  * **The bytes are validated here, not trusted from there.** See `note-image-webp.ts`.
- *
- * ⚠️ Reversal of a recorded decision: `wrangler.jsonc` used to state that this Worker
- * deliberately holds no `SUPABASE_SERVICE_ROLE_KEY` because "migration is client-driven
- * … Worker never reads user data on behalf of users". Serving an image requires
- * resolving the note that displays it, which is exactly reading user data on a user's
- * behalf, so that stance does not survive this feature. The key is declared OPTIONAL so
- * the Worker keeps booting without it and every other endpoint is unaffected; these two
- * endpoints then fail loudly with `service_role_key_missing` rather than mysteriously.
  */
 
 import { extractBearer, verifyJWT } from "./auth";
@@ -112,21 +116,33 @@ class RpcError extends Error {
  * `23514` for the acknowledgement) and it survives PostgREST changing its own mapping.
  * Anything unrecognised becomes a 502 carrying the message — never a silent success.
  */
-async function rpc<T>(env: Env, fn: string, args: Record<string, unknown>): Promise<T> {
-  const key = env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!key) {
+async function rpc<T>(
+  env: Env,
+  fn: string,
+  args: Record<string, unknown>,
+  /**
+   * The caller's own access token, forwarded so the function's `auth.uid()` is the caller
+   * and not this Worker. `null` means anonymous — the anon key alone, which is what an
+   * `<img>` request amounts to.
+   */
+  bearer: string | null,
+): Promise<T> {
+  const anon = env.SUPABASE_ANON_KEY;
+  if (!anon) {
     throw new RpcError(
       503,
-      "service_role_key_missing",
-      `SUPABASE_SERVICE_ROLE_KEY is not set; ${fn} is unreachable`,
+      "anon_key_missing",
+      `SUPABASE_ANON_KEY is not set; ${fn} is unreachable`,
     );
   }
 
   const res = await fetch(`https://${env.SUPABASE_PROJECT_REF}.supabase.co/rest/v1/rpc/${fn}`, {
     method: "POST",
     headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
+      // The publishable key identifies the project; the bearer identifies the caller. Only
+      // the second one decides anything, and it is never this Worker's.
+      apikey: anon,
+      Authorization: `Bearer ${bearer ?? anon}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(args),
@@ -159,30 +175,12 @@ async function rpc<T>(env: Env, fn: string, args: Record<string, unknown>): Prom
   return (await res.json()) as T;
 }
 
-/**
- * PostgREST returns a set-returning function's rows as an array. For a `SETOF` of a
- * scalar the elements are bare values; for `RETURNS TABLE` they are objects. This
- * narrows the scalar case and **throws on anything else** rather than guessing — the
- * wire shape cannot be exercised until the service-role key exists, so a wrong
- * assumption has to be loud on first contact instead of producing an empty sweep that
- * looks like "nothing to do".
- */
-function scalarRows(value: unknown, fn: string): string[] {
-  if (!Array.isArray(value)) throw new RpcError(502, "rpc_shape", `${fn}: expected an array`);
-  return value.map((row) => {
-    if (typeof row === "string") return row;
-    if (row && typeof row === "object") {
-      const values = Object.values(row as Record<string, unknown>);
-      if (values.length === 1 && typeof values[0] === "string") return values[0];
-    }
-    throw new RpcError(502, "rpc_shape", `${fn}: unexpected row shape ${JSON.stringify(row)}`);
-  });
-}
-
-async function authenticate(request: Request, env: Env): Promise<string> {
+async function authenticate(request: Request, env: Env): Promise<{ sub: string; token: string }> {
   const token = extractBearer(request);
   const user = await verifyJWT(token, env.SUPABASE_JWKS_URL, env.SUPABASE_PROJECT_REF);
-  return user.sub;
+  // Verified here AND forwarded: this Worker still refuses a bad token early, and the
+  // database still decides identity for itself from the same token.
+  return { sub: user.sub, token };
 }
 
 // ── POST /note-images ────────────────────────────────────────────────────────
@@ -193,9 +191,9 @@ async function handleUpload(
   headers: Record<string, string>,
   ctx?: ExecutionContext,
 ): Promise<Response> {
-  let userSub: string;
+  let auth: { sub: string; token: string };
   try {
-    userSub = await authenticate(request, env);
+    auth = await authenticate(request, env);
   } catch (err) {
     return jsonError(401, err instanceof Error ? err.message : "unauthenticated", headers);
   }
@@ -251,7 +249,8 @@ async function handleUpload(
       env,
       "community_note_image_reserve",
       {
-        p_uploader: userSub,
+        // No uploader parameter: migration 0030 reads auth.uid() from the forwarded token,
+        // so this Worker cannot attribute an upload to another account even by mistake.
         p_idempotency_key: idempotencyKey,
         // Read out of the container, never taken from the request.
         p_byte_length: bytes.byteLength,
@@ -260,6 +259,7 @@ async function handleUpload(
         p_format: STORED_OBJECT_MIME,
         p_image_ack: true,
       },
+      auth.token,
     );
     if (!Array.isArray(rows) || rows.length !== 1 || typeof rows[0]?.image_id !== "string") {
       throw new RpcError(502, "rpc_shape", "community_note_image_reserve: expected one row");
@@ -296,10 +296,10 @@ async function handleUpload(
     }
   }
 
-  // Opportunistic, bounded, and after the response is decided so it costs the author
-  // nothing. Nothing else will do this: pg_cron is not installed on the project, so
-  // without a caller here the retention promise does not run at all.
-  ctx?.waitUntil(sweepExpired(env));
+  // ⚠️ No expiry sweep here any more. `community_note_images_claim_expired` stayed
+  // `service_role`-only in 0030, because its caller must delete the R2 bytes and a client
+  // cannot — opening it would have traded rows for leaked bytes. Retention is therefore an
+  // owner-run operation, and pg_cron is not installed on the project.
 
   return new Response(JSON.stringify({ imageId: reserved.image_id, replayed: reserved.replayed }), {
     status: reserved.replayed ? 200 : 201,
@@ -327,10 +327,10 @@ async function handleRead(
   // deliberate: it discloses nothing about any object, and silently downgrading a
   // broken token to "anonymous" would turn an expired session into an unexplained
   // disappearance of the author's own images.
-  let requester: string | null = null;
+  let bearer: string | null = null;
   if (request.headers.get("Authorization") !== null) {
     try {
-      requester = await authenticate(request, env);
+      bearer = (await authenticate(request, env)).token;
     } catch (err) {
       return jsonError(401, err instanceof Error ? err.message : "unauthenticated", headers);
     }
@@ -341,7 +341,10 @@ async function handleRead(
     const rows = await rpc<Array<{ format: string; byte_length: number }>>(
       env,
       "community_note_image_authorize",
-      { p_image_id: imageId, p_requester: requester },
+      // No requester parameter either: anonymous means no bearer, and auth.uid() is then
+      // NULL, which is exactly what the predicate wants for an <img>.
+      { p_image_id: imageId },
+      bearer,
     );
     if (!Array.isArray(rows)) throw new RpcError(502, "rpc_shape", "authorize: expected an array");
     row = rows[0];
@@ -387,48 +390,6 @@ async function handleRead(
       "Cache-Control": IMAGE_CACHE_CONTROL,
     },
   });
-}
-
-// ── expiry ───────────────────────────────────────────────────────────────────
-
-/**
- * Reclaim objects no note has EVER owned. The function deletes the rows and returns
- * their identities; deleting the bytes is this side's job, because the database cannot
- * reach R2. Counts are logged unconditionally — a sweep that silently claimed nothing
- * and a sweep that could not run are otherwise the same log line.
- */
-export async function sweepExpired(env: Env, limit = 100): Promise<void> {
-  let ids: string[];
-  try {
-    const raw = await rpc<unknown>(env, "community_note_images_claim_expired", { p_limit: limit });
-    ids = scalarRows(raw, "community_note_images_claim_expired");
-  } catch (err) {
-    console.error("[note-images] expiry sweep could not run", {
-      error: err instanceof Error ? err.message : String(err),
-    });
-    return;
-  }
-
-  if (ids.length === 0) {
-    console.log("[note-images] expiry sweep: nothing to claim");
-    return;
-  }
-
-  let deleted = 0;
-  let failed = 0;
-  try {
-    await env.R2_PRIMARY.delete(ids.map(noteImageKey));
-    deleted = ids.length;
-  } catch (err) {
-    failed = ids.length;
-    // The rows are already gone, so the objects are unreachable either way; what is
-    // lost is storage, and it will not be retried. Loud, and deliberately not fatal.
-    console.error("[note-images] expiry sweep claimed rows but could not delete bytes", {
-      count: ids.length,
-      error: err instanceof Error ? err.message : String(err),
-    });
-  }
-  console.log("[note-images] expiry sweep done", { claimed: ids.length, deleted, failed });
 }
 
 // ── router ───────────────────────────────────────────────────────────────────

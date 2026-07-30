@@ -9,7 +9,7 @@ vi.mock('../auth', async (importOriginal) => {
   return { ...actual, verifyJWT: vi.fn() }
 })
 import { verifyJWT } from '../auth'
-import { handleNoteImages, noteImageKey, sweepExpired } from '../note-images'
+import { handleNoteImages, noteImageKey } from '../note-images'
 import type { Env } from '../index'
 
 const ORIGIN = 'https://med-study-rpg.com'
@@ -32,7 +32,7 @@ function pgError(code: string, message: string): Response {
   return new Response(JSON.stringify({ code, message }), { status: 400 })
 }
 
-function harness(opts: { rpc?: Record<string, Rpc>; r2?: R2Stub; serviceKey?: string | undefined } = {}) {
+function harness(opts: { rpc?: Record<string, Rpc>; r2?: R2Stub; anonKey?: string | undefined } = {}) {
   const calls: Array<{ fn: string; body: Record<string, unknown> }> = []
   const fetchMock = vi.fn(async (input: unknown, init?: { body?: string }) => {
     const fn = String(input).split('/rpc/')[1] ?? ''
@@ -49,13 +49,13 @@ function harness(opts: { rpc?: Record<string, Rpc>; r2?: R2Stub; serviceKey?: st
   const env = {
     SUPABASE_JWKS_URL: 'https://x/keys',
     SUPABASE_PROJECT_REF: 'proj',
-    SUPABASE_SERVICE_ROLE_KEY: 'serviceKey' in opts ? opts.serviceKey : 'svc-key',
+    SUPABASE_ANON_KEY: 'anonKey' in opts ? opts.anonKey : 'anon-key',
     R2_PRIMARY: { get, put, delete: del },
   } as unknown as Env
 
   const pending: Array<Promise<unknown>> = []
   const ctx = { waitUntil: (p: Promise<unknown>) => pending.push(p) } as unknown as ExecutionContext
-  return { env, calls, get, put, del, ctx, settle: () => Promise.all(pending) }
+  return { env, calls, get, put, del, ctx, fetchMock, settle: () => Promise.all(pending) }
 }
 
 function upload(body: Uint8Array | null, query = `?key=${KEY}&ack=1`, method = 'POST', headers: Record<string, string> = {}): Request {
@@ -156,11 +156,11 @@ describe('POST /note-images — refusals before any write', () => {
     expect(put).not.toHaveBeenCalled()
   })
 
-  it('503, loudly, when the service-role key is absent', async () => {
-    const { env, put } = harness({ serviceKey: undefined })
+  it('503, loudly, when the publishable key is absent', async () => {
+    const { env, put } = harness({ anonKey: undefined })
     const res = await handleNoteImages(upload(simpleWebp()), env, H)
     expect(res.status).toBe(503)
-    expect(JSON.parse(await res.text()).error).toBe('service_role_key_missing')
+    expect(JSON.parse(await res.text()).error).toBe('anon_key_missing')
     expect(put).not.toHaveBeenCalled()
   })
 })
@@ -186,7 +186,6 @@ describe('POST /note-images — the write', () => {
 
     const reserve = calls.find((c) => c.fn === 'community_note_image_reserve')
     expect(reserve?.body).toEqual({
-      p_uploader: SUB,
       p_idempotency_key: KEY,
       p_byte_length: bytes.byteLength,
       p_width: 1600,
@@ -194,6 +193,24 @@ describe('POST /note-images — the write', () => {
       p_format: 'image/webp',
       p_image_ack: true,
     })
+  })
+
+  it('forwards the uploader’s token, which is now the ONLY source of identity', async () => {
+    const { env, fetchMock, ctx, settle } = harness({ rpc: reserved() })
+    await handleNoteImages(
+      new Request(`https://api.med-study-rpg.com/note-images?key=${KEY}&ack=1`, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer uploader-token' },
+        body: simpleWebp(),
+      }),
+      env,
+      H,
+      ctx,
+    )
+    await settle()
+    const init = fetchMock.mock.calls[0][1] as { headers: Record<string, string> }
+    expect(init.headers.Authorization).toBe('Bearer uploader-token')
+    expect(init.headers.apikey).toBe('anon-key')
   })
 
   it('writes under a key outside users/, so the backup cron does not copy it', async () => {
@@ -260,18 +277,6 @@ describe('POST /note-images — the write', () => {
     expect(put).not.toHaveBeenCalled()
   })
 
-  it('sweeps expired objects on the upload path, since nothing else would', async () => {
-    const claimed = ['33333333-3333-4333-8333-333333333333']
-    const { env, del, ctx, settle } = harness({
-      rpc: {
-        community_note_image_reserve: () => ok([{ image_id: IMAGE_ID, replayed: false }]),
-        community_note_images_claim_expired: () => ok(claimed),
-      },
-    })
-    await handleNoteImages(upload(simpleWebp()), env, H, ctx)
-    await settle()
-    expect(del).toHaveBeenCalledWith([noteImageKey(claimed[0])])
-  })
 })
 
 describe('GET /note-images/<id> — one refusal, whatever the reason', () => {
@@ -303,10 +308,10 @@ describe('GET /note-images/<id> — one refusal, whatever the reason', () => {
   })
 
   it('an infrastructure failure is NOT dressed up as a refusal', async () => {
-    const { env } = harness({ serviceKey: undefined })
+    const { env } = harness({ anonKey: undefined })
     const res = await handleNoteImages(read(), env, H)
     expect(res.status).toBe(503)
-    expect(JSON.parse(await res.text()).error).toBe('service_role_key_missing')
+    expect(JSON.parse(await res.text()).error).toBe('anon_key_missing')
   })
 })
 
@@ -337,24 +342,33 @@ describe('GET /note-images/<id> — serving', () => {
     expect(res.headers.get('Content-Type')).toBe('image/webp')
   })
 
-  // An <img> cannot send an Authorization header, so unauthenticated is the normal
-  // case and the serving predicate decides on p_requester = null.
-  it('passes a null requester when no credential is presented', async () => {
-    const { env, calls } = harness({ rpc: authorized(), r2: { get: () => ({ body: 'X' }) } })
+  // An <img> cannot send an Authorization header, so unauthenticated is the normal case.
+  // After 0030 the identity is not a parameter at all: no bearer means the anon key alone,
+  // and auth.uid() is then NULL inside the function.
+  it('sends only the publishable key when no credential is presented', async () => {
+    const { env, calls, fetchMock } = harness({ rpc: authorized(), r2: { get: () => ({ body: 'X' }) } })
     await handleNoteImages(read(), env, H)
-    expect(calls[0].body).toEqual({ p_image_id: IMAGE_ID, p_requester: null })
+    expect(calls[0].body).toEqual({ p_image_id: IMAGE_ID })
+    const init = fetchMock.mock.calls[0][1] as { headers: Record<string, string> }
+    expect(init.headers.apikey).toBe('anon-key')
+    expect(init.headers.Authorization).toBe('Bearer anon-key')
   })
 
-  it('passes the verified subject when one is, and never anything from the URL', async () => {
-    const { env, calls } = harness({ rpc: authorized(), r2: { get: () => ({ body: 'X' }) } })
+  // The Worker cannot name a requester any more; it can only forward a token. So the
+  // assertion is that the CALLER'S token is what travels, and nothing from the URL.
+  it('forwards the caller’s own token, never anything from the URL', async () => {
+    const { env, calls, fetchMock } = harness({ rpc: authorized(), r2: { get: () => ({ body: 'X' }) } })
     await handleNoteImages(
       new Request(`https://api.med-study-rpg.com/note-images/${IMAGE_ID}?requester=evil&token=evil`, {
-        headers: { Authorization: 'Bearer tok' },
+        headers: { Authorization: 'Bearer real-user-token' },
       }),
       env,
       H,
     )
-    expect(calls[0].body).toEqual({ p_image_id: IMAGE_ID, p_requester: SUB })
+    expect(calls[0].body).toEqual({ p_image_id: IMAGE_ID })
+    const init = fetchMock.mock.calls[0][1] as { headers: Record<string, string> }
+    expect(init.headers.Authorization).toBe('Bearer real-user-token')
+    expect(JSON.stringify(init.headers)).not.toContain('evil')
   })
 
   // Silently downgrading a broken token to "anonymous" would turn an expired session
@@ -368,48 +382,3 @@ describe('GET /note-images/<id> — serving', () => {
   })
 })
 
-describe('sweepExpired', () => {
-  it('accepts both PostgREST shapes for a SETOF scalar', async () => {
-    const bare = harness({ rpc: { community_note_images_claim_expired: () => ok(['aaa', 'bbb']) } })
-    await sweepExpired(bare.env)
-    expect(bare.del).toHaveBeenCalledWith([noteImageKey('aaa'), noteImageKey('bbb')])
-
-    const wrapped = harness({
-      rpc: {
-        community_note_images_claim_expired: () =>
-          ok([{ community_note_images_claim_expired: 'ccc' }]),
-      },
-    })
-    await sweepExpired(wrapped.env)
-    expect(wrapped.del).toHaveBeenCalledWith([noteImageKey('ccc')])
-  })
-
-  it('logs and deletes nothing on an unrecognised shape, rather than guessing', async () => {
-    const { env, del } = harness({
-      rpc: { community_note_images_claim_expired: () => ok([{ a: 1, b: 2 }]) },
-    })
-    await sweepExpired(env)
-    expect(del).not.toHaveBeenCalled()
-    expect(console.error).toHaveBeenCalled()
-  })
-
-  it('says so when there is nothing to claim, instead of looking like it did not run', async () => {
-    const { env, del } = harness({ rpc: { community_note_images_claim_expired: () => ok([]) } })
-    await sweepExpired(env)
-    expect(del).not.toHaveBeenCalled()
-    expect(console.log).toHaveBeenCalledWith('[note-images] expiry sweep: nothing to claim')
-  })
-
-  it('reports loudly when the rows are gone but the bytes could not be deleted', async () => {
-    const { env } = harness({
-      rpc: { community_note_images_claim_expired: () => ok(['ddd']) },
-      r2: {
-        delete: () => {
-          throw new Error('r2 down')
-        },
-      },
-    })
-    await sweepExpired(env)
-    expect(console.error).toHaveBeenCalled()
-  })
-})

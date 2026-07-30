@@ -78,15 +78,12 @@ export interface Env {
   // to call /shoutouts/:app/admin/*. Unset → admin endpoints return 403.
   SHOUTOUT_OWNER_SUBS?: string;
 
-  // Optional secret (wrangler secret put) — Supabase service-role key, used ONLY by
-  // the /note-images endpoints, which call three SECURITY DEFINER functions
-  // (add-community-note-images; the Worker holds no privilege on any community table).
-  // Optional so the Worker keeps booting without it and every other endpoint is
-  // unaffected; the note-image endpoints then fail with `service_role_key_missing`
-  // rather than mysteriously. NOTE this reverses the stance recorded in wrangler.jsonc:
-  // serving an image means resolving the note that displays it, which is reading user
-  // data on a user's behalf.
-  SUPABASE_SERVICE_ROLE_KEY?: string;
+  // Supabase PUBLISHABLE (anon) key, used only by the /note-images endpoints. It already
+  // ships inside the app's own frontend bundle, so it is not a secret — it identifies the
+  // project, while the caller's forwarded JWT is what decides anything (migration 0030).
+  // Optional so the Worker keeps booting without it and every other endpoint is unaffected;
+  // the note-image endpoints then answer `anon_key_missing` rather than mysteriously.
+  SUPABASE_ANON_KEY?: string;
 }
 
 export default {
@@ -120,8 +117,8 @@ export default {
         return await handleShoutout(request, env, headers, ctx);
       }
       // Community-note images (add-community-note-images). POST /note-images uploads,
-      // GET /note-images/<id> serves. ctx carries the opportunistic expiry sweep, which
-      // has no other caller — pg_cron is not installed on the Supabase project.
+      // GET /note-images/<id> serves. Identity comes from the caller's forwarded JWT, so
+      // this Worker holds only the publishable anon key (migration 0030).
       if (url.pathname === "/note-images" || url.pathname.startsWith("/note-images/")) {
         return await handleNoteImages(request, env, headers, ctx);
       }

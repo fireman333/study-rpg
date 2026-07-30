@@ -83,25 +83,32 @@
 	//   R2_S3_SECRET_ACCESS_KEY    — R2 S3-compat API secret
 	//   R2_S3_ENDPOINT             — https://<account-id>.r2.cloudflarestorage.com
 	//
-	//   SUPABASE_SERVICE_ROLE_KEY  — OPTIONAL, and only the /note-images endpoints use it
+	//   SUPABASE_ANON_KEY          — OPTIONAL, and only the /note-images endpoints use it
 	//
-	// That last line reverses what this file said until 2026-07-30, which was: "NOT a
-	// secret: no SUPABASE_SERVICE_ROLE_KEY — migration is client-driven (see design.md
-	// Decision 6), Worker never reads user data on behalf of users." The stance did not
-	// survive `add-community-note-images`: serving an image means resolving the note whose
-	// live body displays it and asking whether that note is publicly visible, which is
-	// reading user data on a user's behalf by any honest reading.
+	// STILL NOT a secret: there is no `SUPABASE_SERVICE_ROLE_KEY` here, and after migration
+	// 0030 there is no reason for one. This file used to say the Worker "never reads user
+	// data on behalf of users", which `add-community-note-images` made false — serving an
+	// image means resolving the note that displays it. The answer was not to hand the Worker
+	// a key that bypasses RLS on the whole project; it was to stop the Worker being the one
+	// who decides identity at all.
 	//
-	// What contains the reversal is that the key buys almost nothing. Migrations 0021 and
-	// 0029 revoke ALL from `service_role` on every community table, so a holder of this
-	// key can call exactly three SECURITY DEFINER functions — reserve an upload, ask
-	// whether one object may be served, reclaim never-owned objects — and cannot read a
-	// note, write a note, invent an ownership row or touch the moderation state.
+	// 0030 removed the account parameters from both functions the Worker calls. They read
+	// `auth.uid()` and are granted to `authenticated` (reserve) and `anon` + `authenticated`
+	// (authorize). The Worker forwards the CALLER'S OWN JWT, so it cannot claim an upload
+	// belongs to somebody else, and what it holds is the publishable anon key that already
+	// ships inside the app's frontend bundle. An `<img>` sends no credential, so the read
+	// path falls back to that key alone and `auth.uid()` is NULL — which is exactly what the
+	// serving predicate wants for an anonymous reader.
 	//
-	// It is declared OPTIONAL on purpose: unset, the Worker boots and every other endpoint
-	// behaves identically, while the two note-image endpoints answer
-	// `service_role_key_missing` instead of failing in some less legible way. Set it with
-	// `wrangler secret put SUPABASE_SERVICE_ROLE_KEY` before flipping `images_enabled`.
+	// `community_note_images_claim_expired` stayed `service_role`-only, because its caller
+	// must delete the R2 bytes and a client cannot. So the Worker does NOT sweep, and
+	// retention is an owner-run operation. pg_cron is not installed on the project.
+	//
+	// OPTIONAL on purpose: unset, the Worker boots and every other endpoint behaves
+	// identically, while the two note-image endpoints answer `anon_key_missing` rather than
+	// failing in some less legible way. Set it before flipping `images_enabled`, with either
+	// `wrangler secret put SUPABASE_ANON_KEY` or a `vars` entry — it is publishable either
+	// way, so the choice is about tidiness, not exposure.
 	"vars": {
 		"R2_BUCKET_NAME": "study-rpg-saves",
 		"CORS_ALLOWED_ORIGINS": "https://fireman333.github.io,https://med-study-rpg.com,http://localhost:5173,http://localhost:4173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179",
