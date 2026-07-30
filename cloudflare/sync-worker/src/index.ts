@@ -26,6 +26,7 @@ import {
 } from "./neurons-leaderboard";
 import { handleShoutout } from "./shoutout";
 import { handleR2Read } from "./r2-read";
+import { handleNoteImages } from "./note-images";
 import { corsHeaders, preflightResponse } from "./cors";
 
 // Cron expressions — MUST stay byte-for-byte identical with the strings in
@@ -76,6 +77,16 @@ export interface Env {
   // Optional secret (wrangler secret put) — comma-separated Supabase subs allowed
   // to call /shoutouts/:app/admin/*. Unset → admin endpoints return 403.
   SHOUTOUT_OWNER_SUBS?: string;
+
+  // Optional secret (wrangler secret put) — Supabase service-role key, used ONLY by
+  // the /note-images endpoints, which call three SECURITY DEFINER functions
+  // (add-community-note-images; the Worker holds no privilege on any community table).
+  // Optional so the Worker keeps booting without it and every other endpoint is
+  // unaffected; the note-image endpoints then fail with `service_role_key_missing`
+  // rather than mysteriously. NOTE this reverses the stance recorded in wrangler.jsonc:
+  // serving an image means resolving the note that displays it, which is reading user
+  // data on a user's behalf.
+  SUPABASE_SERVICE_ROLE_KEY?: string;
 }
 
 export default {
@@ -107,6 +118,12 @@ export default {
       // ctx is needed for the Cache API put via waitUntil on the GET board read.
       if (url.pathname.startsWith("/shoutouts/")) {
         return await handleShoutout(request, env, headers, ctx);
+      }
+      // Community-note images (add-community-note-images). POST /note-images uploads,
+      // GET /note-images/<id> serves. ctx carries the opportunistic expiry sweep, which
+      // has no other caller — pg_cron is not installed on the Supabase project.
+      if (url.pathname === "/note-images" || url.pathname.startsWith("/note-images/")) {
+        return await handleNoteImages(request, env, headers, ctx);
       }
 
       switch (url.pathname) {

@@ -83,8 +83,25 @@
 	//   R2_S3_SECRET_ACCESS_KEY    — R2 S3-compat API secret
 	//   R2_S3_ENDPOINT             — https://<account-id>.r2.cloudflarestorage.com
 	//
-	// NOT a secret: no SUPABASE_SERVICE_ROLE_KEY — migration is client-driven
-	// (see design.md Decision 6), Worker never reads user data on behalf of users.
+	//   SUPABASE_SERVICE_ROLE_KEY  — OPTIONAL, and only the /note-images endpoints use it
+	//
+	// That last line reverses what this file said until 2026-07-30, which was: "NOT a
+	// secret: no SUPABASE_SERVICE_ROLE_KEY — migration is client-driven (see design.md
+	// Decision 6), Worker never reads user data on behalf of users." The stance did not
+	// survive `add-community-note-images`: serving an image means resolving the note whose
+	// live body displays it and asking whether that note is publicly visible, which is
+	// reading user data on a user's behalf by any honest reading.
+	//
+	// What contains the reversal is that the key buys almost nothing. Migrations 0021 and
+	// 0029 revoke ALL from `service_role` on every community table, so a holder of this
+	// key can call exactly three SECURITY DEFINER functions — reserve an upload, ask
+	// whether one object may be served, reclaim never-owned objects — and cannot read a
+	// note, write a note, invent an ownership row or touch the moderation state.
+	//
+	// It is declared OPTIONAL on purpose: unset, the Worker boots and every other endpoint
+	// behaves identically, while the two note-image endpoints answer
+	// `service_role_key_missing` instead of failing in some less legible way. Set it with
+	// `wrangler secret put SUPABASE_SERVICE_ROLE_KEY` before flipping `images_enabled`.
 	"vars": {
 		"R2_BUCKET_NAME": "study-rpg-saves",
 		"CORS_ALLOWED_ORIGINS": "https://fireman333.github.io,https://med-study-rpg.com,http://localhost:5173,http://localhost:4173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179",
