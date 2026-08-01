@@ -24,10 +24,11 @@
  * `auth.uid()` is then NULL — exactly the value the serving predicate wants for an
  * anonymous reader.
  *
- * ⚠️ `community_note_images_claim_expired` is NOT reachable from here any more: its caller
- * has to delete the R2 bytes, which a client cannot do, so 0030 left it `service_role`-only
- * rather than trade rows for leaked bytes. Retention is therefore an owner-run operation.
- * pg_cron is not installed on the project, so there is no third option today.
+ * ⚠️ Retention is no longer an owner-run operation, and no longer runs from this file. Migration
+ * 0032 created the `note_image_sweeper` role — EXECUTE on two functions, no privilege on any table —
+ * and `note-image-sweep.ts` calls it from a nightly cron. It is a separate credential on a separate
+ * path on purpose: `claim_expired` is no longer granted to `service_role` either, so nothing in this
+ * Worker holds a key that reaches past this capability.
  *
  * **The bytes are validated here, not trusted from there.** See `note-image-webp.ts`.
  */
@@ -296,10 +297,9 @@ async function handleUpload(
     }
   }
 
-  // ⚠️ No expiry sweep here any more. `community_note_images_claim_expired` stayed
-  // `service_role`-only in 0030, because its caller must delete the R2 bytes and a client
-  // cannot — opening it would have traded rows for leaked bytes. Retention is therefore an
-  // owner-run operation, and pg_cron is not installed on the project.
+  // No expiry sweep on the upload path, and that is a choice rather than a limitation: it would put
+  // deletion work in the latency path of a user's upload and would never run during exactly the
+  // quiet week a backlog would sit through. It runs nightly instead — see `note-image-sweep.ts`.
 
   return new Response(JSON.stringify({ imageId: reserved.image_id, replayed: reserved.replayed }), {
     status: reserved.replayed ? 200 : 201,

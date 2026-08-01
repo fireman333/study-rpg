@@ -54,12 +54,23 @@
 	// Cron triggers (dispatched in src/index.ts scheduled() by cron expression):
 	//   "0 0 * * *"     — daily R2-to-R2 backup                → runBackupCron
 	//   "0,30 * * * *"  — every-30-min leaderboard pre-compute → runLeaderboardCron
+	//   "20 3 * * *"    — nightly note-image reclamation       → runNoteImageSweepCron
+	// Each string MUST stay byte-for-byte identical with the matching constant in
+	// src/index.ts, or dispatch falls to the default branch and logs an error.
+	//
+	// ⚠️ The sweep depends on the NOTE_IMAGE_SWEEPER_HYPERDRIVE binding at the bottom of this file.
+	// Removing that binding does not disable this cron — the code falls back to the direct
+	// connection string, which cannot work from a Worker (see the binding's note) and would hang
+	// until the run's own 45s deadline. Take the trigger out too, or leave both alone.
 	"triggers": {
 		"crons": [
 			"0 0 * * *",
-			"0,30 * * * *"
+			"0,30 * * * *",
+			"20 3 * * *"
 		]
 	},
+	// The Hyperdrive binding the sweep needs is declared at the bottom of this file, next to the
+	// reasoning for why it has to exist at all.
 	// Custom Domain — `api.med-study-rpg.com` is the canonical API base for
 	// clients on https://med-study-rpg.com (Cloudflare Pages). The legacy
 	// workers.dev URL stays valid for GitHub Pages clients during the bake
@@ -128,7 +139,37 @@
 		{
 			"name": "PRESIGN_PUT_LIMITER",
 			"namespace_id": "1001",
-			"simple": { "limit": 10, "period": 60 }
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
+		}
+	],
+	// Hyperdrive — the ONLY transport by which this Worker can reach Supabase Postgres, and that is
+	// a platform constraint rather than a preference. Supavisor presents a certificate chained to
+	// the private "Supabase Root 2021 CA"; workerd's startTls() validates against public WebPKI
+	// roots and exposes no way to add a CA or relax verification, so a direct connection is aborted
+	// ~1 RTT after the TLS upgrade. Verified 2026-08-01 from both remote and local workerd, on both
+	// pooler ports, while openssl from the same egress IP completed the handshake and the identical
+	// startTls upgrade to a public-CA endpoint succeeded. No driver setting and no driver swap can
+	// change this — the trust store belongs to the platform.
+	//
+	// Hyperdrive always speaks TLS to the origin (plaintext origins are unsupported), so this is not
+	// a downgrade from the direct URL's `ssl: "require"` — which was `rejectUnauthorized: false`
+	// anyway. It can be raised to verify-full by uploading Supabase's CA
+	// (`wrangler cert upload certificate-authority` + `--ca-certificate-id`), which the direct path
+	// could never do.
+	//
+	// ⚠️ The origin is the SESSION pooler on 5432, not transaction mode on 6543 — Hyperdrive does
+	// its own pooling and must not be stacked on another pooler's transaction mode.
+	// ⚠️ The binding name must stay `NOTE_IMAGE_SWEEPER_HYPERDRIVE`; `src/note-image-sweep.ts`
+	// reads it by that name and silently falls back to the direct URL — which cannot work — if it
+	// is absent. `wrangler hyperdrive create` offers to write a binding called `HYPERDRIVE`; that
+	// default was renamed here on purpose.
+	"hyperdrive": [
+		{
+			"binding": "NOTE_IMAGE_SWEEPER_HYPERDRIVE",
+			"id": "1ce89174f3274fb48b9110aed0577e12"
 		}
 	]
 }

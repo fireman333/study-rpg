@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
-    "jose": "^5.9.0"
+    "jose": "^5.9.0",
+    "postgres": "^3.4.9"
   }
 }
