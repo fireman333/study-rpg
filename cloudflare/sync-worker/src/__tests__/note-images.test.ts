@@ -21,6 +21,9 @@ const KEY = 'idem-key-0001'
 type Rpc = (body: Record<string, unknown>) => Response
 interface R2Stub {
   get?: (key: string) => unknown
+  // Defaults to absent, matching `get`. The replay branch asks the store whether it
+  // holds the object, so tests that care must say which world they are in.
+  head?: (key: string) => unknown
   put?: (key: string, body: unknown, opts: unknown) => unknown
   delete?: (keys: unknown) => unknown
 }
@@ -44,18 +47,19 @@ function harness(opts: { rpc?: Record<string, Rpc>; r2?: R2Stub; anonKey?: strin
   vi.stubGlobal('fetch', fetchMock)
 
   const get = vi.fn(opts.r2?.get ?? (() => null))
+  const head = vi.fn(opts.r2?.head ?? (() => null))
   const put = vi.fn(opts.r2?.put ?? (() => ({ etag: 'e' })))
   const del = vi.fn(opts.r2?.delete ?? (() => undefined))
   const env = {
     SUPABASE_JWKS_URL: 'https://x/keys',
     SUPABASE_PROJECT_REF: 'proj',
     SUPABASE_ANON_KEY: 'anonKey' in opts ? opts.anonKey : 'anon-key',
-    R2_PRIMARY: { get, put, delete: del },
+    R2_PRIMARY: { get, head, put, delete: del },
   } as unknown as Env
 
   const pending: Array<Promise<unknown>> = []
   const ctx = { waitUntil: (p: Promise<unknown>) => pending.push(p) } as unknown as ExecutionContext
-  return { env, calls, get, put, del, ctx, fetchMock, settle: () => Promise.all(pending) }
+  return { env, calls, get, head, put, del, ctx, fetchMock, settle: () => Promise.all(pending) }
 }
 
 function upload(body: Uint8Array | null, query = `?key=${KEY}&ack=1`, method = 'POST', headers: Record<string, string> = {}): Request {
@@ -231,13 +235,77 @@ describe('POST /note-images — the write', () => {
     })
   })
 
-  it('a replay returns the first identity and writes nothing', async () => {
-    const { env, put, ctx, settle } = harness({ rpc: reserved(true) })
+  it('a replay whose bytes the store already holds returns the first identity and rewrites nothing', async () => {
+    const { env, head, put, ctx, settle } = harness({
+      rpc: reserved(true),
+      r2: { head: () => ({ etag: 'already-there' }) },
+    })
     const res = await handleNoteImages(upload(simpleWebp()), env, H, ctx)
     await settle()
     expect(res.status).toBe(200)
     expect(JSON.parse(await res.text())).toEqual({ imageId: IMAGE_ID, replayed: true })
+    expect(head).toHaveBeenCalledWith(noteImageKey(IMAGE_ID))
     expect(put).not.toHaveBeenCalled()
+  })
+
+  it('a replay stores bytes the store does not hold — the identity was assigned before they landed', async () => {
+    // The defect this branch exists for: reserve answers `replayed` from the upload
+    // ledger, whose row is written BEFORE the bytes, so an attempt that reserved and
+    // then failed to write leaves an identity nothing can serve.
+    const { env, put, ctx, settle } = harness({ rpc: reserved(true), r2: { head: () => null } })
+    const res = await handleNoteImages(upload(simpleWebp()), env, H, ctx)
+    await settle()
+    expect(res.status).toBe(200)
+    expect(JSON.parse(await res.text())).toEqual({ imageId: IMAGE_ID, replayed: true })
+    expect(put).toHaveBeenCalledTimes(1)
+    expect(put.mock.calls[0][0]).toBe(noteImageKey(IMAGE_ID))
+    // The condition stays on the backfill: head said absent, the store still decides.
+    expect(put.mock.calls[0][2]).toMatchObject({ onlyIf: { etagDoesNotMatch: '*' } })
+  })
+
+  it('a backfill the store refuses is a success, not the new-upload branch 409', async () => {
+    // head said absent, a concurrent writer stored the object in between, the
+    // conditional put is refused — which is exactly the outcome this branch wanted.
+    const { env, put, ctx, settle } = harness({
+      rpc: reserved(true),
+      r2: { head: () => null, put: () => null },
+    })
+    const res = await handleNoteImages(upload(simpleWebp()), env, H, ctx)
+    await settle()
+    expect(put).toHaveBeenCalledTimes(1)
+    expect(res.status).toBe(200)
+    expect(JSON.parse(await res.text())).toEqual({ imageId: IMAGE_ID, replayed: true })
+  })
+
+  it('a replay whose bytes cannot be stored is a failure, never a 200 carrying a dead identity', async () => {
+    const { env, ctx, settle } = harness({
+      rpc: reserved(true),
+      r2: {
+        head: () => null,
+        put: () => {
+          throw new Error('r2 down')
+        },
+      },
+    })
+    const res = await handleNoteImages(upload(simpleWebp()), env, H, ctx)
+    await settle()
+    expect(res.status).toBe(502)
+    expect(await res.text()).not.toContain(IMAGE_ID)
+  })
+
+  it('a head the store cannot answer falls through to the conditional put', async () => {
+    const { env, put, ctx, settle } = harness({
+      rpc: reserved(true),
+      r2: {
+        head: () => {
+          throw new Error('head failed')
+        },
+      },
+    })
+    const res = await handleNoteImages(upload(simpleWebp()), env, H, ctx)
+    await settle()
+    expect(res.status).toBe(200)
+    expect(put).toHaveBeenCalledTimes(1)
   })
 
   it('409 rather than an overwrite when the store says the identity already holds bytes', async () => {

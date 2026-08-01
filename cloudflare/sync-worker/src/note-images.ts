@@ -271,11 +271,15 @@ async function handleUpload(
     throw err;
   }
 
-  // A replay already has its bytes stored, and they may not be rewritten.
+  const objectKey = noteImageKey(reserved.image_id);
+
+  // The two branches deliberately do NOT share a code path. Both issue the same
+  // conditional put, but a refused write means opposite things on either side: a
+  // contradiction for a new identity, and the wanted outcome for a replay.
   if (!reserved.replayed) {
     let written: unknown;
     try {
-      written = await env.R2_PRIMARY.put(noteImageKey(reserved.image_id), bytes, {
+      written = await env.R2_PRIMARY.put(objectKey, bytes, {
         httpMetadata: { contentType: STORED_OBJECT_MIME },
         // "The store SHALL refuse any write to an identity it has already assigned,
         // including one issued by this capability's own upload path." A conditional
@@ -294,6 +298,50 @@ async function handleUpload(
         imageId: reserved.image_id,
       });
       return jsonError(409, "identity_already_written", headers);
+    }
+  } else {
+    // `replayed` is answered from the upload ledger, and the ledger row is written
+    // BEFORE the bytes — so it records that an identity was assigned and cannot say
+    // whether the object ever landed. An attempt that reserved and then failed to
+    // write leaves a row the store will never serve, and answering the retry from the
+    // row alone hands the client an identity nothing can fetch. Ask the store.
+    let present: boolean;
+    try {
+      // Boolean rather than `!== null`: the store answers null for absent, but a
+      // comparison against one sentinel reads a stub or a future undefined as present,
+      // and "present" is the answer that skips the write.
+      present = Boolean(await env.R2_PRIMARY.head(objectKey));
+    } catch {
+      // Unanswered, which is not the same as "absent" — but falling through to the
+      // conditional put is self-correcting either way: if the object exists the store
+      // refuses and that is success below, and if it does not the bytes land. Failing
+      // the request here would trade a recoverable uncertainty for a certain error.
+      present = false;
+    }
+
+    if (!present) {
+      let written: unknown;
+      try {
+        // The condition stays even though `head` just said absent. Another writer may
+        // have stored the object in between, and the store refusing is a better answer
+        // than a check this code could get wrong — the head is an optimisation that
+        // spares the common replay a pointless re-upload, not the safety mechanism.
+        written = await env.R2_PRIMARY.put(objectKey, bytes, {
+          httpMetadata: { contentType: STORED_OBJECT_MIME },
+          onlyIf: { etagDoesNotMatch: "*" },
+        });
+      } catch (err) {
+        // A replay that could not store its bytes is reported as a failure. It is the
+        // whole point of this branch that it can no longer be answered as a success.
+        return jsonError(502, "r2_put_failed", headers, {
+          detail: err instanceof Error ? err.message : String(err),
+        });
+      }
+      // `written === null` is NOT the contradiction it is above: it means a concurrent
+      // writer stored the object between the head and the put, which is exactly the
+      // outcome this branch wanted. Reading it as an error would turn a correct
+      // concurrent upload into a spurious failure. Nothing to do — fall through.
+      void written;
     }
   }
 
