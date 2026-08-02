@@ -1,4 +1,12 @@
--- Tests for migration 0034 — default-deny EXECUTE on the seven legacy functions.
+-- Tests for migration 0034 — default-deny EXECUTE on the six legacy functions.
+--
+-- ⚠️ IT WAS SEVEN UNTIL 0035. `enforce_lww()` was the seventh; it and the five prototype tables it
+-- served were retired by change `retire-orphan-prototype-schema`. Its assertions are not disabled
+-- here, they are DELETED, together with the `__g34_lww` probe that exercised it. A tolerance flag
+-- would not have covered that probe — and `::regprocedure` raises on an absent function before any
+-- privilege is evaluated, so leaving the name in would turn this whole gate red for a reason that
+-- has nothing to do with what it guards. 0034:88 still revokes on it and is still correct, because
+-- 0000_prototype_cloud_sync.sql creates it earlier in the chain.
 --
 -- Run from the `study-rpg-2nd` directory (that is where the Supabase project link lives):
 --
@@ -24,20 +32,19 @@ BEGIN;
 
 CREATE TEMP TABLE r(ord int, check_name text, got text, want text);
 
--- The seven functions, and which three keep an `authenticated` grant.
+-- The six functions, and which three keep an `authenticated` grant.
 -- ⚠️ `::regprocedure` raises if a signature does not resolve, so a typo here fails the run loudly
--- rather than quietly testing six functions and reporting success.
+-- rather than quietly testing five functions and reporting success.
 CREATE TEMP TABLE fns(ord int, sig text, retained boolean);
 INSERT INTO fns VALUES
   (1, 'public.delete_my_data()',                             true),
   (2, 'public.delete_my_account()',                          true),
   (3, 'public.upsert_lww(text,jsonb)',                       true),
   (4, 'public.export_my_data()',                             false),
-  (5, 'public.enforce_lww()',                                false),
-  (6, 'public.set_account_metadata_updated_at()',            false),
-  (7, 'public.set_hospital_monotonic_counters_updated_at()', false);
+  (5, 'public.set_account_metadata_updated_at()',            false),
+  (6, 'public.set_hospital_monotonic_counters_updated_at()', false);
 
-INSERT INTO r SELECT 0, 'all seven functions resolve', count(*)::text, '7'
+INSERT INTO r SELECT 0, 'all six functions resolve', count(*)::text, '6'
   FROM fns WHERE sig::regprocedure IS NOT NULL;
 
 -- ── anon holds nothing ───────────────────────────────────────────────
@@ -62,7 +69,7 @@ INSERT INTO r SELECT 400 + ord,
   has_function_privilege('authenticated', sig::regprocedure, 'EXECUTE')::text,
   retained::text FROM fns;
 
-INSERT INTO r SELECT 500, 'exactly three of the seven are executable by authenticated',
+INSERT INTO r SELECT 500, 'exactly three of the six are executable by authenticated',
   count(*) FILTER (WHERE has_function_privilege('authenticated', sig::regprocedure, 'EXECUTE'))::text,
   '3' FROM fns;
 
@@ -77,27 +84,19 @@ DECLARE
   v_role_used text;
   v_set  timestamptz;
   v_mono timestamptz;
-  v_lww  text;
 BEGIN
   -- ⚠️ Regular tables, not TEMP. After SET ROLE, whether another role holds USAGE on this session's
   -- pg_temp schema is a second question this gate should not also be asking. The enclosing
   -- transaction is rolled back, so they never exist outside this run.
   CREATE TABLE public.__g34_set  (id int PRIMARY KEY, updated_at timestamptz);
   CREATE TABLE public.__g34_mono (id int PRIMARY KEY, updated_at timestamptz);
-  CREATE TABLE public.__g34_lww  (id int PRIMARY KEY, updated_at timestamptz, payload text);
-  GRANT ALL ON public.__g34_set, public.__g34_mono, public.__g34_lww TO authenticated;
+  GRANT ALL ON public.__g34_set, public.__g34_mono TO authenticated;
 
   -- Created as owner, who holds EXECUTE implicitly. This is the moment the privilege is checked.
   CREATE TRIGGER g_set  BEFORE INSERT OR UPDATE ON public.__g34_set
     FOR EACH ROW EXECUTE FUNCTION public.set_account_metadata_updated_at();
   CREATE TRIGGER g_mono BEFORE INSERT OR UPDATE ON public.__g34_mono
     FOR EACH ROW EXECUTE FUNCTION public.set_hospital_monotonic_counters_updated_at();
-  -- ⚠️ enforce_lww needs its own table: the two set_*_updated_at functions stamp NEW.updated_at with
-  -- now(), which would make every write look fresh and silently defeat the stale-write test.
-  CREATE TRIGGER g_lww  BEFORE UPDATE ON public.__g34_lww
-    FOR EACH ROW EXECUTE FUNCTION public.enforce_lww();
-
-  INSERT INTO public.__g34_lww VALUES (1, '2030-01-01'::timestamptz, 'orig');
 
   SET LOCAL ROLE authenticated;
   v_role_used := current_user;
@@ -106,19 +105,15 @@ BEGIN
   -- transaction, so NULL-vs-not is the signal — comparing timestamps would prove nothing.
   INSERT INTO public.__g34_set  VALUES (1, NULL);
   INSERT INTO public.__g34_mono VALUES (1, NULL);
-  -- A stale write. If enforce_lww fires it returns OLD and payload stays 'orig'.
-  UPDATE public.__g34_lww SET updated_at = '2000-01-01'::timestamptz, payload = 'changed' WHERE id = 1;
 
   SELECT updated_at INTO v_set  FROM public.__g34_set  WHERE id = 1;
   SELECT updated_at INTO v_mono FROM public.__g34_mono WHERE id = 1;
-  SELECT payload    INTO v_lww  FROM public.__g34_lww  WHERE id = 1;
 
   RESET ROLE;
 
   INSERT INTO r VALUES (600, 'trigger probe ran as authenticated, not owner', v_role_used, 'authenticated');
   INSERT INTO r VALUES (601, 'set_account_metadata_updated_at fires with EXECUTE revoked',            (v_set  IS NOT NULL)::text, 'true');
   INSERT INTO r VALUES (602, 'set_hospital_monotonic_counters_updated_at fires with EXECUTE revoked', (v_mono IS NOT NULL)::text, 'true');
-  INSERT INTO r VALUES (603, 'enforce_lww fires with EXECUTE revoked (stale write rejected)',         (v_lww  = 'orig')::text,    'true');
 END
 $t$;
 
