@@ -163,8 +163,6 @@ Achievements whose primary predicate is a pure cumulative count or time threshol
 - **WHEN** a developer adds「答對 3000 題」at tier P1 with no other dimension
 - **THEN** the validator SHALL reject the entry; the developer must add accuracy or streak clause
 
-## Atlas / Sprite Display Requirements
-
 ### Requirement: Main badge atlas (6×4 grid)
 
 The system SHALL render category × tier badges from a single sprite atlas at `apps/medexam2-hospital-tw/src/assets/achievements/badge-atlas.png` of dimensions 512×768 px with 6 rows × 4 columns × 128×128 px cells. Row index maps to category (study=0, quiz=1, recruit=2, hospital=3, fortune=4, hidden=5). Column index maps to tier (P4=0, P3=1, P2=2, P1=3). Atlas MUST use 16-color GBA-style palette with transparent background.
@@ -196,8 +194,6 @@ Subject mastery icons SHALL remain visually distinguishable at 24px, 48px, and 6
 
 - **WHEN** the atlas is generated and the team reviews at 24px size
 - **THEN** all 14 subject icons MUST be distinguishable by visual inspection; ambiguous icons (e.g., eye-icon vs glasses-icon collision) require regeneration
-
-## Trigger Hook Integration Requirements
 
 ### Requirement: Five service hook points
 
@@ -374,8 +370,6 @@ When the sync engine's `onPullComplete` callback fires, the client SHALL run a m
 - **AND** the subsequent achievement-backfill call SHALL be skipped for this cycle (cannot proceed with stale counter inputs anyway)
 - **AND** the pull cycle SHALL transition to `idle` normally
 - **AND** the next pull cycle SHALL retry both backfills
-
-## Stats Sub-Tab Requirements
 
 The AchievementsPage hosts a third sub-tab named 統計 (Stats) that surfaces time-series learning analytics — daily study minutes and daily correct answers. Added by `tidy-tabs-add-study-stats-medexam2` (2026-05-26).
 
