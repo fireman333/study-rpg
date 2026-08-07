@@ -12743,17 +12743,18 @@
   "flags": []
  },
  "106-2-醫學一-生物化學-Q83": {
-  "sourceHash": "9bcc28b5afb4a03c84a1ecb6c3dc89664c3f4e9b0e6ef7b834f8afda4e1ae21c",
+  "sourceHash": "ff78b7ac446102a1f4acff96c3022aeccc8bb2d453586174bc8193436f9ace18",
   "model": "claude-haiku-4-5",
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.027Z",
   "optionExplanations": {
-   "A": "基因配對錯誤，lac Z產β-galactosidase、lac Y產permease、lac A產transacetylase。",
-   "B": "基因配對錯誤，應為a-III、b-I、c-II。",
-   "C": "基因配對錯誤，lac Z應對應I而非lac Y。",
-   "D": "正確配對：a對應III(transacetylase)、b對應I(β-galactosidase)、c對應II(permease)。"
+   "A": "基因 I 的產物是調控蛋白（III），不具分解乳糖活性，配對錯誤。",
+   "B": "基因 I 不是轉送蛋白，β-半乳糖苷酶也不負責調控，配對錯誤。",
+   "C": "β-半乳糖苷酶配 I 正確，但基因 I 與透性酶的配對顛倒，仍錯誤。",
+   "D": "基因 I 產物調控操縱子（III）、β-半乳糖苷酶分解乳糖（I）、透性酶為轉送蛋白（II）。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-bug-report-fix"
  },
  "106-2-醫學一-生物化學-Q84": {
   "sourceHash": "c2bb3197c42968ba145f3d1bea4bd522c02ed54b1ea14894b44952de2e06cfaf",
@@ -32298,11 +32299,12 @@
   "generatedAt": "2026-06-28T14:45:27.056Z",
   "optionExplanations": {
    "A": "炭疽桿菌莢膜由蛋白質構成，具有抗吞噬作用，為重要毒力因子。",
-   "B": "保護性抗原幫助毒因子進入細胞但本身作用有限，不如EF與LF適合當免疫原。",
+   "B": "保護性抗原停留在細胞外、免疫原性最強（炭疽疫苗主成分），EF 與 LF 進入細胞內作用反而較差，故本敘述錯誤。",
    "C": "致死毒素具金屬蛋白酶活性，為炭疽桿菌的關鍵毒力因子。",
    "D": "水腫毒素具腺苷酸環化酶活性，可增加細胞內cAMP濃度。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-bug-report-fix"
  },
  "110-1-醫學二-微生物暨免疫學-Q7": {
   "sourceHash": "d6153960a3abaacd15df76043394d071323fa2edf92afeb7a6072c0ca12e8dce",
@@ -54175,10 +54177,11 @@
   "optionExplanations": {
    "A": "骨骼肌細胞無間隙接合，只有心肌和平滑肌才有間隙接合。",
    "B": "終池是肌漿質網的囊狀結構，不是細胞膜內凹形成。",
-   "C": "一個終池與兩條相鄰的T小管共同組成三聯體，此說法正確。",
+   "C": "三聯體是一條 T 小管與兩側兩個終池組成，本選項把數目對調，故錯誤。",
    "D": "三聯體分布於肌節的A-I交接處（明暗帶交界），敘述正確。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-bug-report-fix"
  },
  "114-2-醫學一-組織學-Q39": {
   "sourceHash": "4a8ba5ab5050c8d8de988bc5935a44bdd05d985f7535c132d3a6c99a3fe1a213",
