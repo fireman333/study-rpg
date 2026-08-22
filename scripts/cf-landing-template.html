@@ -39,6 +39,9 @@
       --a-neurons: #b98cff;
       --a-2nd: #e2673f;
       --a-dino: #7fc86a;
+      --a-biostats: #59c2d8;
+      --a-healthedu: #e8657f;
+      --a-photo: #e0b03f;
     }
 
     * { box-sizing: border-box; }
@@ -124,6 +127,19 @@
     }
 
     /* ---------- cards grid ---------- */
+    /* Two groups, because half of these are not games. Without the labels a
+       reader clicks a card expecting to play and lands on a statistics
+       chapter. */
+    .group {
+      margin: 40px auto 14px;
+      font-size: clamp(12px, 2.2vw, 15px);
+      letter-spacing: 0.14em;
+      color: var(--sub);
+      text-align: left;
+    }
+    .group:first-of-type { margin-top: 8px; }
+    .group b { color: var(--ink); font-weight: normal; }
+
     .apps {
       display: grid;
       grid-template-columns: 1fr;
@@ -257,6 +273,9 @@
     a.card--neurons { --accent: var(--a-neurons); }
     a.card--2nd     { --accent: var(--a-2nd); }
     a.card--dino    { --accent: var(--a-dino); }
+    a.card--biostats  { --accent: var(--a-biostats); }
+    a.card--healthedu { --accent: var(--a-healthedu); }
+    a.card--photo     { --accent: var(--a-photo); }
 
     /* ---------- footer ---------- */
     footer {
@@ -283,8 +302,10 @@
       <header>
         <div class="kicker">▶ SELECT YOUR GAME</div>
         <h1 class="logo">MED&#8209;STUDY&#8209;RPG</h1>
-        <p class="tagline">開源養成型像素 RPG — 醫師國考考古題打 boss、升等、抽卡、跨裝置 cloud sync。選一款開始玩。</p>
+        <p class="tagline">開源像素小站 — 醫師國考養成 RPG，以及幾份自己寫的教材與筆記。挑一個開始。</p>
       </header>
+
+      <p class="group">▍<b>遊戲</b></p>
 
       <section class="apps">
         <!-- 神經元 (canonical) -->
@@ -315,6 +336,37 @@
             <span class="btn">⬇ 下載最新版</span>
             <span class="cta-note">.dmg · 所有版本與更新說明 →</span>
           </div>
+        </a>
+      </section>
+
+      <p class="group">▍<b>讀物</b></p>
+
+      <section class="apps">
+        <!-- 進階生物統計學 -->
+        <a class="card card--biostats" href="/biostats/">
+          <div class="screen"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAAtklEQVR42u3csQ1AQBSAYScYwBSmsIcJ7WEKUxiAgl4luQT38v2laO7Lu+YVV1WSJEmS9Hbp6Y9d25/3b/uxpQgIOWerzVBeAAECLLomykGmZT2f/DePQzKBrjBAAQQIEKAAAgQIEKAAAiy1z9ZZX62fTCBAgAIIECBAAQQIECBABAABllzWOivKSsoEAgQIUAABAgQogAABAhRAgAABCiBAgOHLevYkcp49cYUBApQkSZIk/bELOi8YfQ0YxjAAAAAASUVORK5CYII=" alt="長條圖 像素圖示" width="80" height="80"></div>
+          <div class="card-title">進階生物統計學</div>
+          <div class="card-sub">給已修過基礎生統的醫學生 · 研究設計 × 統計方法雙軸交叉 · 頁面上每個數字都由可重跑的 R 腳本產生</div>
+          <div class="meta"><span class="chip">網頁教材</span><span class="chip">繁中 45 單元</span></div>
+          <div class="cta"><span class="btn">▶ 開始讀</span></div>
+        </a>
+
+        <!-- 康勞德醫普 -->
+        <a class="card card--healthedu" href="/klaudehealthedu/">
+          <div class="screen"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAABAklEQVR42u3cPQ6CUBBFYTDW1m7O0i3YGlu3YOnmrN2A1naENzDD8zs1AXJy59288DMMAADMZJx64Ot8/URe+Pi4jZHny7q/nQy1QSCBBPZXItELcvTCXen+JNAIE0jgX5dI1oIsgSCQQAK3zz7rwof7adJx78tTAo0wCCSQQAJBIIEE2okE7TB62bFIIIEEEkggCCSQQAIxg7S3s7b4TMTbWUaYQAJBIIEEEggCl9yJZO1OKuFjQyNMIIEILJGei6Xl63kJNMIEEqhEAqleLNG/W5FAAgkkUIksTPXfqEigESaQQBQukTWKZY3CkEACCSQQRUqkpViyCkMCCSSQQPzyBcPOOVFVUCVUAAAAAElFTkSuQmCC" alt="愛心加十字 像素圖示" width="80" height="80"></div>
+          <div class="card-title">康勞德醫普</div>
+          <div class="card-sub">繁體中文醫學科普文集 · 每篇標註實證來源 · 立場僅供參考，臨床決策仍以個別病人主治醫師判斷為準</div>
+          <div class="meta"><span class="chip">網頁文章</span><span class="chip">附實證出處</span></div>
+          <div class="cta"><span class="btn">▶ 開始讀</span></div>
+        </a>
+
+        <!-- 光的語法 -->
+        <a class="card card--photo" href="/photography/">
+          <div class="screen"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAABDUlEQVR42u3bsQ3CMBRFUYKAGlFkBDpaWqZgAuZiAqagpaVjhBSIGgoYAEtYiuM45NwyEjG6evbjW2IyAQAAAIDcVDkWWcxX75Tve77uVSkCpzJEIIEEKpFuC+N22iRdY72/FlMsEkgggQSOukRSTwkSCAIJJHA8zEIPU08OQ6TeHb+eLeutBNrCBBKIXyWS40BuQ3M+dP6dY9eQQFuYQAKVSA+FEfpVH+LRXKLWyFEsEkgggQSih0kktjBiP1tSsUgggQQSSCAIJJBAAlHqJBKaHNpcZ4VwnWULEwgC/6BEQod56KopthxKKgwJJJBAAtHDJFLSoS+BBBIIAtPhz4YSSCCBBAIAAAAABsQHdiE0iaR4k5AAAAAASUVORK5CYII=" alt="相機 像素圖示" width="80" height="80"></div>
+          <div class="card-title">光的語法</div>
+          <div class="card-sub">從構圖、光線、對比到色彩，學會看見照片裡發生的事 · 附富士 X-T5／X-E4 參數與膠片模擬實驗室</div>
+          <div class="meta"><span class="chip">網頁教材</span><span class="chip">攝影入門</span></div>
+          <div class="cta"><span class="btn">▶ 開始讀</span></div>
         </a>
       </section>
 
