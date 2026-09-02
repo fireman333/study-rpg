@@ -26,7 +26,7 @@ function cram(
     }
     bk.subjects.push({ subjectId: s.subjectId, book: s.book, name: s.subjectId, blocks: s.blocks, push: [] })
   }
-  return { version: 1, statUpTo: '115-1', builtAt: 'test', books }
+  return { version: 1, statUpTo: '115-2', sittingsTotal: 24, builtAt: 'test', books }
 }
 
 const m = (familyId: string, correct: number, total: number): FamilyMasteryRow => ({ familyId, correct, total })

@@ -52,7 +52,8 @@ describe('stop-loss switch', () => {
 // ─── concept re-read resolver ────────────────────────────────────────────────
 const cram: CramData = {
   version: 1,
-  statUpTo: '115-1',
+  statUpTo: '115-2',
+  sittingsTotal: 24,
   builtAt: '2026-01-01',
   books: [
     {

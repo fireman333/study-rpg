@@ -42,7 +42,10 @@ export interface CramBook {
 
 export interface CramData {
   version: 1
-  statUpTo: '115-1'
+  /** Most recent ingested sitting, e.g. '115-2'. Derived at build time — never a literal. */
+  statUpTo: string
+  /** Number of ingested sittings = the denominator of every 出題頻率 line. */
+  sittingsTotal: number
   builtAt: string
   books: CramBook[]
 }

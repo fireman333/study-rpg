@@ -15,8 +15,10 @@ import { resolve } from 'node:path'
 import { sourceHash, type HashableQuestion } from './hash'
 import { validateEntry, type QuestionForValidation } from './validate'
 
-const MODEL = 'claude-sonnet-4-6'
-const PROMPT_VERSION = 'jianda-from-詳解-v1'
+// Recorded per entry as provenance. Override when a batch is produced by a different
+// generator (the 115-2 backfill ran through agy/Gemini, not Sonnet).
+const MODEL = process.env.JIANDA_MODEL ?? 'claude-sonnet-4-6'
+const PROMPT_VERSION = process.env.JIANDA_PROMPT_VERSION ?? 'jianda-from-詳解-v1'
 const PROVENANCE = resolve(import.meta.dirname, '..', '..', 'provenance')
 const CORPUS = resolve(import.meta.dirname, '..', '..', 'data', 'medexam-reconciled', 'questions.json')
 

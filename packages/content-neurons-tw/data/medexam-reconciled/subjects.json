@@ -5,7 +5,7 @@
     "group": "醫學一",
     "color": "#c44d4d",
     "iconKey": "subject:解剖學",
-    "totalQuestions": 698
+    "totalQuestions": 731
   },
   {
     "id": "生理學",
@@ -13,7 +13,7 @@
     "group": "醫學一",
     "color": "#6a9bc4",
     "iconKey": "subject:生理學",
-    "totalQuestions": 608
+    "totalQuestions": 639
   },
   {
     "id": "生物化學",
@@ -21,7 +21,7 @@
     "group": "醫學一",
     "color": "#6a8c3f",
     "iconKey": "subject:生物化學",
-    "totalQuestions": 610
+    "totalQuestions": 635
   },
   {
     "id": "組織學",
@@ -29,7 +29,7 @@
     "group": "醫學一",
     "color": "#a06ac4",
     "iconKey": "subject:組織學",
-    "totalQuestions": 222
+    "totalQuestions": 235
   },
   {
     "id": "胚胎學",
@@ -37,7 +37,7 @@
     "group": "醫學一",
     "color": "#d4a04d",
     "iconKey": "subject:胚胎學",
-    "totalQuestions": 111
+    "totalQuestions": 113
   },
   {
     "id": "微生物暨免疫學",
@@ -45,7 +45,7 @@
     "group": "醫學二",
     "color": "#4d8cc4",
     "iconKey": "subject:微生物暨免疫學",
-    "totalQuestions": 676
+    "totalQuestions": 698
   },
   {
     "id": "病理學",
@@ -53,7 +53,7 @@
     "group": "醫學二",
     "color": "#8c5a3f",
     "iconKey": "subject:病理學",
-    "totalQuestions": 586
+    "totalQuestions": 599
   },
   {
     "id": "藥理學",
@@ -61,7 +61,7 @@
     "group": "醫學二",
     "color": "#c46a8c",
     "iconKey": "subject:藥理學",
-    "totalQuestions": 575
+    "totalQuestions": 602
   },
   {
     "id": "公共衛生學",
@@ -69,7 +69,7 @@
     "group": "醫學二",
     "color": "#5fa57e",
     "iconKey": "subject:公共衛生學",
-    "totalQuestions": 357
+    "totalQuestions": 375
   },
   {
     "id": "寄生蟲學",
@@ -77,6 +77,6 @@
     "group": "醫學二",
     "color": "#7a8c4d",
     "iconKey": "subject:寄生蟲學",
-    "totalQuestions": 157
+    "totalQuestions": 173
   }
 ]

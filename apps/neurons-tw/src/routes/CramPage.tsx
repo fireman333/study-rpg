@@ -1,7 +1,7 @@
 /**
  * CramPage — /cram 考前猜題 (add-neurons-cram-tab; UX refined in refine-neurons-cram-tab-ux).
  *
- * Layout (top→bottom): download-PDF row → honesty disclaimer + methodology + 「統計至 115-1」 stamp
+ * Layout (top→bottom): download-PDF row → honesty disclaimer + methodology + 「統計至 <最新梯次>」 stamp
  * → single-select subject filter chips (grouped 醫學一 / 醫學二; first subject auto-selected) →
  * selected subject panel = 速看重點 blocks (shown directly, first) → section practice CTA →
  * 考古清單 (concept-recurrence ranking, honest raw counts + tier) with an evidence-first drawer that
@@ -27,7 +27,6 @@ import { useRescuePlans } from '../lib/services/rescue/rescue-store'
 import { useRescueChips } from '../lib/services/rescue/useRescueChips'
 import { RescueScene } from '../components/RescueScene'
 
-const STAT_STAMP = '統計至 115-1'
 const SOURCE_PREVIEW_CAP = 6
 
 // Tier presentation — honest labels; 經典但降溫 explicitly flagged as cooling.
@@ -220,12 +219,13 @@ export function CramPage({ pack }: { pack: ContentPack }): JSX.Element {
           <button type="button" style={methodBtnStyle} onClick={() => setMethodOpen((v) => !v)}>
             ⓘ 怎麼算的 {methodOpen ? '▴' : '▾'}
           </button>
-          <span style={stampStyle}>{STAT_STAMP}</span>
+          <span style={stampStyle}>統計至 {cram?.statUpTo ?? '—'}</span>
         </div>
         {methodOpen && (
           <div style={methodBodyStyle}>
-            考古排序＝該概念在 <b>23 次考試</b>（104–114 各兩次 + 115 第一次）中出現過的<b>不同次數</b>
-            （sitting-breadth，同一次考多題只算一次，上限 23）。分母固定 23，跨概念題不會灌水。
+            考古排序＝該概念在 <b>{cram?.sittingsTotal ?? '—'} 次考試</b>（104 年第一次起至 {cram?.statUpTo ?? '—'}）
+            中出現過的<b>不同次數</b>（sitting-breadth，同一次考多題只算一次，上限 {cram?.sittingsTotal ?? '—'}）。
+            分母固定 {cram?.sittingsTotal ?? '—'}，跨概念題不會灌水。
             「共 N 題」是次要強度參考，可能超過真實題數（跨概念題重複計）。
             速看重點由歷屆真實考題 + 陽明國考考古題小組詳解壓縮而成，每一條都可回溯真題。
           </div>

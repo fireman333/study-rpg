@@ -757,6 +757,10 @@
       "reason": "keyword≠model (kw:self-tolerance-central-and-peripheral)"
     },
     {
+      "qid": "108-2-醫學二-公共衛生學-Q28",
+      "reason": "keyword≠model (kw:self-tolerance-central-and-peripheral)"
+    },
+    {
       "qid": "108-2-醫學二-公共衛生學-Q47",
       "reason": "keyword≠model (kw:individual-behavior-change-models)"
     },
@@ -1361,6 +1365,10 @@
       "reason": "keyword≠model (kw:inferior-vena-cava-and-tributaries)"
     },
     {
+      "qid": "112-2-醫學一-生理學-Q65",
+      "reason": "keyword≠model (kw:countercurrent-mechanism-and-urine-concentration)"
+    },
+    {
       "qid": "112-2-醫學一-生理學-Q70",
       "reason": "keyword≠model (kw:insulin-secretion-action-and-energy-metabolism)"
     },
@@ -1823,6 +1831,106 @@
     {
       "qid": "115-1-醫學二-病理學-Q90",
       "reason": "keyword≠model (kw:shock-infarct)"
+    },
+    {
+      "qid": "115-2-醫學一-解剖學-Q1",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "115-2-醫學一-解剖學-Q5",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "115-2-醫學一-解剖學-Q26",
+      "reason": "keyword≠model (kw:cerebral-arterial-territories)"
+    },
+    {
+      "qid": "115-2-醫學一-解剖學-Q29",
+      "reason": "keyword≠model (kw:spinal-cord-ascending-sensory-tracts)"
+    },
+    {
+      "qid": "115-2-醫學一-組織學-Q46",
+      "reason": "keyword≠model (kw:digestive-system-liver-gallbladder-and-pancreas)"
+    },
+    {
+      "qid": "115-2-醫學一-生理學-Q47",
+      "reason": "keyword≠model (kw:smooth-muscle-physiology-and-muscle-type-comparison)"
+    },
+    {
+      "qid": "115-2-醫學一-生理學-Q63",
+      "reason": "keyword≠model (kw:adh-regulation-water-balance-and-osmolarity-disorders)"
+    },
+    {
+      "qid": "115-2-醫學一-生理學-Q64",
+      "reason": "keyword≠model (kw:skeletal-muscle-excitation-contraction-coupling)"
+    },
+    {
+      "qid": "115-2-醫學一-生理學-Q68",
+      "reason": "keyword≠model (kw:hearing-and-vestibular-function)"
+    },
+    {
+      "qid": "115-2-醫學一-生理學-Q72",
+      "reason": "keyword≠model (kw:menstrual-cycle-and-menopause-physiology)"
+    },
+    {
+      "qid": "115-2-醫學一-生物化學-Q85",
+      "reason": "keyword≠model (kw:dna-replication-machinery-ecoli)"
+    },
+    {
+      "qid": "115-2-醫學一-生物化學-Q93",
+      "reason": "keyword≠model (kw:transamination-nitrogen-shuttle)"
+    },
+    {
+      "qid": "115-2-醫學一-生物化學-Q96",
+      "reason": "keyword≠model (kw:protein-post-translational-modification)"
+    },
+    {
+      "qid": "115-2-醫學二-微生物暨免疫學-Q6",
+      "reason": "keyword≠model (kw:bacterial-metabolism-and-genetics)"
+    },
+    {
+      "qid": "115-2-醫學二-微生物暨免疫學-Q12",
+      "reason": "tagged full cap of 3 (ambiguity)"
+    },
+    {
+      "qid": "115-2-醫學二-微生物暨免疫學-Q22",
+      "reason": "keyword≠model (kw:innate-vs-adaptive-immunity-overview)"
+    },
+    {
+      "qid": "115-2-醫學二-寄生蟲學-Q32",
+      "reason": "keyword≠model (kw:lymphatic-and-subcutaneous-filariasis)"
+    },
+    {
+      "qid": "115-2-醫學二-公共衛生學-Q40",
+      "reason": "keyword≠model (kw:radiation-hazards)"
+    },
+    {
+      "qid": "115-2-醫學二-公共衛生學-Q48",
+      "reason": "keyword≠model (kw:interpersonal-and-mass-media-theories)"
+    },
+    {
+      "qid": "115-2-醫學二-藥理學-Q59",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "115-2-醫學二-藥理學-Q62",
+      "reason": "keyword≠model (kw:drug-drug-interaction-cyp)"
+    },
+    {
+      "qid": "115-2-醫學二-藥理學-Q74",
+      "reason": "keyword≠model (kw:anesthetics-general-and-local)"
+    },
+    {
+      "qid": "115-2-醫學二-病理學-Q87",
+      "reason": "keyword≠model (kw:bone-tumors)"
+    },
+    {
+      "qid": "115-2-醫學二-病理學-Q93",
+      "reason": "keyword≠model (kw:carcinogenesis-oncogenes-tumor-suppressors)"
+    },
+    {
+      "qid": "115-2-醫學二-病理學-Q96",
+      "reason": "keyword≠model (kw:wound-healing-fibrosis)"
     }
   ],
   "coldLeaves": []

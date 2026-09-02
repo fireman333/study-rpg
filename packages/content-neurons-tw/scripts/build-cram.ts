@@ -22,7 +22,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = join(__dirname, '..')
 const FRAGMENTS_DIR = join(PKG, 'src', 'cram', 'fragments')
 
-const STAT_UP_TO = '115-1'
 const SOURCE_QID_CAP = 12
 
 // Book/subject display order (spec-fixed).
@@ -56,7 +55,7 @@ interface RecurrenceConcept {
   eligible: boolean
 }
 interface Recurrence {
-  meta: { sittingsTotal: number }
+  meta: { sittingsTotal: number; sittings: string[] }
   concepts: RecurrenceConcept[]
 }
 type ConceptTags = Record<string, string[]>
@@ -282,6 +281,10 @@ function main(): void {
   ) as Recurrence
   const tags = JSON.parse(readFileSync(join(PKG, 'dist', 'concept-tags.json'), 'utf8')) as ConceptTags
   const sittingsTotal = recurrence.meta.sittingsTotal
+  // The 「統計至 N」 stamp is the last ingested sitting, read from the corpus rather than pinned —
+  // a stale literal here tells the player the 考古 ranking covers less than it does.
+  const statUpTo = recurrence.meta.sittings[recurrence.meta.sittings.length - 1]
+  if (!statUpTo) throw new Error('concept-recurrence.json has no sittings — cannot stamp cram.json')
 
   let totalBlocks = 0
   let totalBlocksSkipped = 0
@@ -322,7 +325,8 @@ function main(): void {
 
   const data: CramData = {
     version: 1,
-    statUpTo: STAT_UP_TO,
+    statUpTo,
+    sittingsTotal,
     builtAt: new Date().toISOString(),
     books,
   }

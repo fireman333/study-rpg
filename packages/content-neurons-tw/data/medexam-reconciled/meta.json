@@ -2,18 +2,18 @@
   "id": "medexam-tw",
   "displayName": "台灣一階醫師國考",
   "locale": "zh-TW",
-  "builtAt": "2026-06-03T00:00:00.000Z",
-  "sourceCredit": "考選部（試題與標準答案）+ 陽明國考考古題小組（詳解，CC-BY-NC）",
+  "builtAt": "2026-09-02T12:27:48.000Z",
+  "sourceCredit": "考選部（試題與標準答案）+ 陽明國考考古題小組（詳解，CC-BY-NC）；115-2 詳解為 AI 生成（未經陽明審定）",
   "sourceUrl": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx",
   "license": "CC-BY-NC-4.0",
   "stats": {
-    "totalQuestions": 4600,
-    "papers": 46,
+    "totalQuestions": 4800,
+    "papers": 48,
+    "sittings": 24,
     "subjects": 10,
-    "withExplanation": 4150,
-    "gapsFilled": 450,
-    "aiGenerated": 6,
-    "disputed": 50,
+    "withExplanation": 4800,
+    "aiGenerated": 216,
+    "disputed": 58,
     "multiAnswer": 88
   }
 }

@@ -7,12 +7,16 @@
  *      Self-contained (no corpus), so it protects the template for 胚胎/病理/藥理 too.
  *   2. Built-output check — assert dist/handout.json: 組織學 = 7 single-region entries with non-empty
  *      pools, and 解剖學 still carries a multi-region entry (legacy chapter-keyed / signpost path alive).
+ *   3. Latest-sitting teaching coverage — every question of the most recently ingested sitting SHALL have
+ *      its primary tagged concept land in a handout topic that cites that sitting. Ingesting a sitting and
+ *      leaving the 考前講義 silent about it is the failure this catches: the corpus grows, every other gate
+ *      stays green, and the 講義 quietly stops covering what the newest paper actually asked.
  *
  *   pnpm --filter @study-rpg/content-neurons-tw verify:handout   (run after build:handout)
  */
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
+import { dirname, join, basename } from 'node:path'
 import { buildRegionKeyedQuizzes, type RegionConfig } from '../src/handout/build-region-quizzes'
 import type { HandoutData } from '../src/handout/handout-types'
 
@@ -128,6 +132,67 @@ if (!existsSync(distPath)) {
     if (!q.every((e) => e.memberRegionIds.length === 1)) failures.push(`dist: a ${id} entry is not single-region`)
     if (!q.every((e) => (e.sourceQuestionIds?.length ?? 0) > 0)) failures.push(`dist: a ${id} region has an empty question pool`)
   }
+}
+
+// ── Layer 3: latest-sitting teaching coverage ─────────────────────────────────────────────────
+// The handout is a corpus derivative. When a new sitting is ingested, the 考前講義 has to say something
+// about what it asked — otherwise the newest paper is exactly the part a 考前 reader is least prepared
+// for. This asserts, per question of the latest sitting, that the handout topic owning its primary
+// tagged concept cites that sitting (e.g. <cite>115-2</cite>, or a compound cite like 104/115-2).
+const PKG = join(__dirname, '..')
+const HANDOUT_SRC = join(PKG, 'src', 'handout')
+interface CorpusQ { id: string; subject: string; meta: { year: number; session: number } }
+
+const corpusPath = join(PKG, 'dist', 'questions.json')
+const tagsPath = join(PKG, 'dist', 'concept-tags.json')
+if (!existsSync(corpusPath) || !existsSync(tagsPath)) {
+  failures.push('dist/questions.json or dist/concept-tags.json missing — run the content build before verify:handout')
+} else {
+  const corpus = JSON.parse(readFileSync(corpusPath, 'utf8')) as CorpusQ[]
+  const tags = JSON.parse(readFileSync(tagsPath, 'utf8')) as Record<string, string[]>
+
+  // Latest sitting = max (year, session) present in the corpus.
+  let latest = { year: 0, session: 0 }
+  for (const q of corpus) {
+    if (q.meta.year > latest.year || (q.meta.year === latest.year && q.meta.session > latest.session)) {
+      latest = { year: q.meta.year, session: q.meta.session }
+    }
+  }
+  const sitting = `${latest.year}-${latest.session}`
+
+  // leafId → { cites } per subject, parsed from the committed HTML fragments (the authored source of truth).
+  const topicCites: Record<string, Set<string>> = {} // `${subjectId}::${leafId}` → cite strings of that topic
+  for (const file of readdirSync(HANDOUT_SRC).filter((f) => f.endsWith('.html'))) {
+    const sid = basename(file, '.html')
+    const html = readFileSync(join(HANDOUT_SRC, file), 'utf8')
+    const topicRe = /<div class="hdt-topic" data-leaf-ids="([^"]*)">([\s\S]*?)\n  <\/div>/g
+    let m: RegExpExecArray | null
+    while ((m = topicRe.exec(html)) !== null) {
+      const cites = new Set((m[2].match(/<cite>([^<]*)<\/cite>/g) ?? []).map((c) => c.replace(/<\/?cite>/g, '')))
+      for (const leaf of m[1].split(/\s+/).filter(Boolean)) topicCites[`${sid}::${leaf}`] = cites
+    }
+  }
+
+  const uncovered: string[] = []
+  const unmapped: string[] = []
+  let checked = 0
+  for (const q of corpus) {
+    if (q.meta.year !== latest.year || q.meta.session !== latest.session) continue
+    const primary = (tags[q.id] ?? [])[0]
+    if (!primary) continue // untagged questions are the concept-tag gate's business, not this one
+    const key = `${q.subject}::${primary}`
+    const cites = topicCites[key]
+    if (!cites) {
+      unmapped.push(`${q.id} (leaf ${primary} has no handout topic in ${q.subject})`)
+      continue
+    }
+    checked += 1
+    if (![...cites].some((c) => c.split('/').includes(sitting))) uncovered.push(`${q.id} → ${key}`)
+  }
+  console.log(`latest sitting ${sitting}: ${checked} question(s) checked, ${uncovered.length} uncovered, ${unmapped.length} unmapped`)
+  for (const u of unmapped.slice(0, 10)) failures.push(`LATEST_SITTING_UNMAPPED: ${u}`)
+  for (const u of uncovered.slice(0, 20)) failures.push(`LATEST_SITTING_UNCOVERED: ${u} — no <cite> naming ${sitting}`)
+  if (uncovered.length > 20) failures.push(`LATEST_SITTING_UNCOVERED: …+${uncovered.length - 20} more`)
 }
 
 // ── Report ──

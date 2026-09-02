@@ -18,7 +18,8 @@ import { dirname, join } from 'node:path'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = join(__dirname, '..')
 const AGY = join(process.env.HOME, '.local', 'bin', 'agy')
-const MODEL = 'Gemini 3.5 Flash (Medium)'
+// agy's model roster moves; `agy -p x --model bogus` prints the current list.
+const MODEL = process.env.AGY_MODEL ?? 'Gemini 3.7 Flash (Medium)'
 
 const arg = process.argv[2] ?? 'all'
 const BATCH = Number(process.argv[3] ?? 30)

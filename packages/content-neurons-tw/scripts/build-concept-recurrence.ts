@@ -1,11 +1,12 @@
 /**
  * Concept-recurrence dataset (add-neurons-concept-tags §4).
  *
- * §4.1 per-concept sitting-breadth = # distinct sittings (denom 23) a concept is tested,
- *      deduped within a sitting, capped 23; multi-label questions contribute each tested
- *      concept's sitting-presence; recency-weighted breadth as tiebreak.
+ * §4.1 per-concept sitting-breadth = # distinct sittings a concept is tested (denominator
+ *      = every ingested sitting, derived from the corpus), deduped within a sitting;
+ *      multi-label questions contribute each tested concept's sitting-presence;
+ *      recency-weighted breadth as tiebreak.
  * §4.2 question-count = secondary "intensity" only (may exceed true totals under multi-label);
- *      押題 threshold breadth ≥ 5/23; 1–4/23 = searchable low-yield, not ranked.
+ *      押題 threshold breadth ≥ 5 sittings; 1–4 = searchable low-yield, not ranked.
  * §4.3 tier ∈ {常青必掃, 穩定考點, 近年新寵, 經典但降溫}; coarse-chapter breadth = union of its
  *      leaves' tested sittings.
  * §4.4 送分/answer-corrected questions (questions.json `disputed` OR acceptedAnswers.length>1)
@@ -24,7 +25,6 @@ import { CONCEPT_VOCAB } from '../src/concept-vocab/index'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = join(__dirname, '..')
-const SITTINGS_TOTAL = 23
 const PUSH_THRESHOLD = 5
 
 interface Q {
@@ -43,6 +43,10 @@ const allSittings = [...new Set(corpus.map(sittingKey))].sort((a, b) => {
   return ay - by || as - bs
 })
 // recency rank from the end: last 3 → 1.5, next 3 → 1.2, else 1.0
+// Denominator of every 出題頻率 line in the app. DERIVED from the corpus, never a literal —
+// a hand-copied count silently misstates how often a 考點 has actually been examined the
+// moment a sitting is ingested (23 → 24 when 115-2 landed).
+const SITTINGS_TOTAL = allSittings.length
 const recencyWeight: Record<string, number> = {}
 const recent3 = new Set(allSittings.slice(-3))
 allSittings.forEach((s, i) => {
@@ -156,5 +160,5 @@ console.log(`\nConcept-recurrence over ${allSittings.length} sittings (${concept
 for (const t of ['常青必掃', '穩定考點', '近年新寵', '經典但降溫', 'low-yield']) console.log(`  ${t}: ${tierCount[t] ?? 0}`)
 console.log(`  送分/disputed excluded: ${disputedTotal} questions`)
 console.log(`\nTop 12 by breadth:`)
-for (const c of concepts.slice(0, 12)) console.log(`  ${String(c.breadth).padStart(2)}/23  [${c.tier}] ${c.subjectId}/${c.zh} (${c.questionCount}Q${c.disputedExcluded ? `, ${c.disputedExcluded} disp` : ''})`)
+for (const c of concepts.slice(0, 12)) console.log(`  ${String(c.breadth).padStart(2)}/${SITTINGS_TOTAL}  [${c.tier}] ${c.subjectId}/${c.zh} (${c.questionCount}Q${c.disputedExcluded ? `, ${c.disputedExcluded} disp` : ''})`)
 console.log(`\n→ dist/concept-recurrence.json + dist/concept-tags.json`)

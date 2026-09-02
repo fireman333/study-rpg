@@ -60295,5 +60295,2805 @@
   },
   "flags": [],
   "source": "text-from-recovered-詳解"
+ },
+ "115-2-醫學一-解剖學-Q1": {
+  "sourceHash": "ac1ca344aa61a1824f73c1c3270fe50f1db0f2ad8ec7449f6c3764464f2acc33",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.673Z",
+  "optionExplanations": {
+   "A": "傳出纖維走在第十二對腦神經（舌下神經）支配舌肌，非第九或第十對。",
+   "B": "發出迷走神經副交感節前纖維，不發出走在舌咽神經支配咽喉肌的纖維。",
+   "C": "深埋於延髓網狀結構，發出特殊內臟運動纖維隨舌咽與迷走神經支配咽喉肌。",
+   "D": "為接收味覺與內臟感覺傳入的感覺核，並非發出傳出纖維的運動核。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q2": {
+  "sourceHash": "4f9567556cb55b44712c1b8419736ab75a79ac69a44a6c084c5f46042c421c25",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.674Z",
+  "optionExplanations": {
+   "A": "主要發出特殊內臟運動纖維支配咽喉，並非接收血壓等內臟感覺輸入之核區。",
+   "B": "為腦幹接收一般內臟感覺的主要核區，匯入頸動脈竇與主動脈弓之感壓訊息。",
+   "C": "屬於一般內臟運動核，發出副交感節前纖維支配內臟，為運動核而非感覺核。",
+   "D": "主要接收頭面部痛溫覺等一般體軀感覺，與感壓反射之內臟感覺傳入無關。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q3": {
+  "sourceHash": "62455936fd1d70bc6744e649897928d8b81e28303eceac12a1c85d89c79070ed",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.675Z",
+  "optionExplanations": {
+   "A": "接收頭面部痛溫覺，且初級感覺神經元細胞本體位在周邊的三叉神經節。",
+   "B": "主要處理臉部精細觸覺，初級感覺神經元細胞本體同樣位於三叉神經節。",
+   "C": "由運動神經元組成並支配咀嚼肌動作，屬於運動傳出核而非本體感覺核。",
+   "D": "內含位於中樞的初級感覺神經元本體，接收牙周韌帶與肌梭的本體感覺。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q4": {
+  "sourceHash": "aa208cdeeed046e371097a7cf448c44166cf82a72a12f4490779be416f58c1de",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.675Z",
+  "optionExplanations": {
+   "A": "位於小腦深部神經核的最內側，主要接收小腦蚓部與前庭系統的訊息。",
+   "B": "位於頂核外側與栓狀核內側，屬於中間核的一部分，並非位於最外側。",
+   "C": "位於球狀核外側與齒狀核內側，屬於中間核，位置偏中間而非最外側。",
+   "D": "為體積最大且位置最外側的小腦深部神經核，接收小腦半球之皮質投射。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q5": {
+  "sourceHash": "1dbc9fb234c370f8d715aaffcb104407e920d7b8be6a98f6f00afd4743413f8f",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.675Z",
+  "optionExplanations": {
+   "A": "主要接收基底核與小腦的運動調控訊號，與視覺及聽覺傳導路徑無關。",
+   "B": "外側膝狀核接收視網膜訊號，內側膝狀核接收聽覺路徑訊號並中繼至皮質。",
+   "C": "負責軀幹四肢與臉部的體感覺及味覺中繼，並非視聽覺訊息之中繼站。",
+   "D": "屬於參與邊緣系統聯繫與感覺整合的聯合核，並非初級視聽中繼核區。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q6": {
+  "sourceHash": "33490f180572929a4f513f9f59af0ba6456de9047d8003ed16123c68d2332601",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.675Z",
+  "optionExplanations": {
+   "A": "其耳顳神經分支支配耳廓前上方、外耳道前壁與鼓膜外側面感覺而引發疼痛。",
+   "B": "含有一般體性感覺纖維支配耳甲腔與外耳道後壁皮膚，病變會引起外耳疼痛。",
+   "C": "主要經鼓室神經支配中耳鼓室腔與耳咽管黏膜，不參與外耳體感覺支配。",
+   "D": "其耳支支配耳甲腔、外耳道後下壁及鼓膜外側皮膚，受刺激會引發外耳疼痛。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q7": {
+  "sourceHash": "c6b8c5d31a6648105fc330afa615e23c812b1d5af810c9f05dbd701287ee0b68",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.676Z",
+  "optionExplanations": {
+   "A": "收縮時使舌體縮短並上捲舌尖，具協助舌後移的效果。",
+   "B": "收縮時使舌體縮短並下捲舌尖，具有協助舌後移的作用。",
+   "C": "收縮時主要負責壓低舌頭並協助舌後移。",
+   "D": "後部肌纖維收縮會將舌根往前拉，主要作用為使舌頭前突而非後移。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q8": {
+  "sourceHash": "1bcc729b8e088db27f8d9ea8ff57e5e9e4ef65da5677e9e092d58c9e66a914a2",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.676Z",
+  "optionExplanations": {
+   "A": "行走於前室間溝，伴行於前室間動脈而非右冠狀動脈主幹。",
+   "B": "行走於後室間溝，伴行於後室間動脈而非右冠狀動脈主幹。",
+   "C": "行走於冠狀溝右側，與右冠狀動脈主幹及其邊緣支伴行。",
+   "D": "位於左心室後壁，主要伴行於左迴旋支動脈的分支。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q9": {
+  "sourceHash": "f50974bd4f94d9f6115644679d833399917ff4e4ac074149d5629c144c804543",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.677Z",
+  "optionExplanations": {
+   "A": "股鞘由外向內呈水平並列劃分，並非以深淺層區隔內部構造。",
+   "B": "股鞘內最內側腔室即為容納淋巴組織與脂肪的股管。",
+   "C": "股鞘的外側腔室內容納的是股動脈，並非股管。",
+   "D": "股鞘的中間腔室內容納的是股靜脈，最內側才是股管。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q10": {
+  "sourceHash": "17d8d8c0f1fbec3b275d90f9d0804fa23be2e7dc03a3a6880a8b7bf8bb4c90d6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.677Z",
+  "optionExplanations": {
+   "A": "傳遞痛覺與溫覺的細神經纖維主要經由脊髓背根外側部進入脊髓。",
+   "B": "傳遞痛覺的A-delta與C纖維屬於細神經纖維，主要經由脊髓背根外側部進入。",
+   "C": "經由背根內側部進入且為粗纖維者主要傳遞本體感覺與精細觸覺。",
+   "D": "傳遞痛覺的A-delta與C纖維皆屬於細神經纖維而非粗纖維。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q11": {
+  "sourceHash": "7666c6d65f58beec0175504760cfa7e88d92a21ea21153a878dc3786426faeb8",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.677Z",
+  "optionExplanations": {
+   "A": "為純感覺神經，負責傳送視覺訊號而不支配眼外肌運動。",
+   "B": "支配負責眼球內收的內直肌，受損會導致患側眼球無法向內收。",
+   "C": "支配上斜肌，主要負責眼球內旋及向下看而非內收。",
+   "D": "支配外直肌，主要負責眼球外展而非內收。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q12": {
+  "sourceHash": "f16e38f040473449cb1e944cd69dbda5d2b49049d278ea05792b1e93e94bdbc5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.678Z",
+  "optionExplanations": {
+   "A": "屬於血管層主要提供視網膜血流營養，不含錐狀感光細胞。",
+   "B": "位於黃斑部中心，具有人體密度最高且幾近純由錐狀細胞構成的區域。",
+   "C": "為視神經匯集穿出處，完全無感光細胞分布而形成生理盲點。",
+   "D": "屬於睫狀體負責分泌房水與附著懸韌帶，不含感光細胞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q13": {
+  "sourceHash": "6491797fa1533028fb2cf2ec8b256971a2b219aff30c8b79579215ef51da5471",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.678Z",
+  "optionExplanations": {
+   "A": "頸外動脈及其發出的顏面動脈皆位於頸前三角的頸動脈三角內。",
+   "B": "迷走神經走在頸前三角的頸動脈鞘深處，非頸後三角淺層。",
+   "C": "頸神經叢的皮分支自胸鎖乳突肌後緣穿出，位於頸後三角內。",
+   "D": "肩胛舌骨肌上腹位於頸前三角，僅有下腹橫跨頸後三角。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q14": {
+  "sourceHash": "6d1dcf092aecb4aec8c3369ef2b7ddecb0f8e27560c741828049ed4168c74bf6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.678Z",
+  "optionExplanations": {
+   "A": "為外頸動脈在耳下腺內的終末分支之一，會參與供應腺體血流。",
+   "B": "由外頸動脈後側發出後走往後枕部與頭皮，不參與耳下腺血供。",
+   "C": "鄰近耳下腺後緣並提供實質小分支，參與耳下腺的血液供應。",
+   "D": "為淺顳動脈之分支，橫穿耳下腺並直接供應腺體與導管。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q15": {
+  "sourceHash": "a4a7dd405df5278c7febb8e8bce5b50b174287407d254c27164c36b1e1172edc",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.679Z",
+  "optionExplanations": {
+   "A": "屬於咀嚼肌，由下顎神經（CN V3）的深顳神經支配運動收縮。",
+   "B": "屬於顏面表情肌，其運動收縮是由顏面神經（CN VII）支配。",
+   "C": "發育自第二咽弓，運動是由顏面神經（CN VII）負責支配。",
+   "D": "後腹由顏面神經（CN VII）支配，前腹才由 CN V3 支配。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q16": {
+  "sourceHash": "dec9a6a9f50bf3ab93d0fb1d9eda9082b57065049592865112781690c368dfa4",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.679Z",
+  "optionExplanations": {
+   "A": "穿過篩板分佈於鼻腔頂部嗅黏膜，負責嗅覺且出現在鼻腔內。",
+   "B": "分出鼻睫神經與前篩神經，負責支配鼻腔前上方黏膜的感覺。",
+   "C": "發出鼻顎神經等分支，支配鼻腔大部分黏膜與鼻中膈的感覺。",
+   "D": "主要支配咀嚼肌與下顎區域感覺，其分支完全不進入鼻腔。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q17": {
+  "sourceHash": "01e9999fbf54766d213fc6a2d8547f6d9701589a147ead2a83dba05d9364286d",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.679Z",
+  "optionExplanations": {
+   "A": "於 T12 高度經由主動脈裂孔穿過橫膈後方，並非穿過中心腱。",
+   "B": "於 T10 高度經由食道裂孔穿過橫膈肌肉部，並非穿過中心腱。",
+   "C": "於 T8 高度經由腔靜脈孔直接穿過橫膈的中心腱。",
+   "D": "於 T12 高度與主動脈一同由主動脈裂孔穿過，非穿過中心腱。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q18": {
+  "sourceHash": "052a323d69d1dd5d21f9fe57792f338e8404f3ef98a491dd348a9eb2e23b66d1",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.679Z",
+  "optionExplanations": {
+   "A": "位於上縱隔腔的前部與前縱隔腔，會出現在上縱隔腔。",
+   "B": "完全包覆於心包膜內並位於中縱隔腔，不向上進入上縱隔腔。",
+   "C": "左右頭臂靜脈在上縱隔腔匯合，其上半段走行於上縱隔腔。",
+   "D": "由後縱隔腔向上穿入上縱隔腔，最後注入左側靜脈角。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q19": {
+  "sourceHash": "5dcd31c9701d8b1e7b7a985e73d4d52a33490055a734acf391402125fad61a9a",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.679Z",
+  "optionExplanations": {
+   "A": "右側第二肋間胸骨旁為 aortic valve（主動脈瓣）的最佳聽診區。",
+   "B": "左側第二肋間靠近胸骨處為肺動脈瓣的最佳聽診區，雜音傳導最清楚。",
+   "C": "右前胸壁第五肋間胸骨旁鄰近右心房或下腔靜脈，並非肺動脈瓣聽診區。",
+   "D": "左前胸壁第五肋間靠近胸骨處主要為 tricuspid valve（三尖瓣）聽診區。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q20": {
+  "sourceHash": "0d56fbc9632b8db896b0792df90b0d77cf32ba810c590071624a81c619ea0a8b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.679Z",
+  "optionExplanations": {
+   "A": "在後縱膈腔中胸管主要位於胸主動脈右側，而非位於其前方。",
+   "B": "胸管與主動脈一同經由 aortic hiatus（主動脈裂孔）進入胸腔。",
+   "C": "胸管在上縱膈腔中位於左鎖骨下動脈起始處的後方而非前方。",
+   "D": "半奇靜脈橫越脊椎匯入奇靜脈時行經胸管後方，故胸管位於匯入處前方。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q21": {
+  "sourceHash": "541b9a9c53bcfc01e0fd179a4b52f54e2bab5cfa286a1c04ca7742329cc32fa9",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.680Z",
+  "optionExplanations": {
+   "A": "T1至T4胸交感神經節主要發出心肺內臟神經支配胸腔器官。",
+   "B": "T5至T9胸交感神經幹發出的是 greater splanchnic nerve（大內臟神經）。",
+   "C": "T10至T11胸交感神經幹發出的是 lesser splanchnic nerve（小內臟神經）。",
+   "D": "least splanchnic nerve（最小內臟神經）源自 T12 胸交感神經幹。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q22": {
+  "sourceHash": "10dc94106c136ded4e49c775f5bacb054d116255bda8e75671616daa473811d1",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.680Z",
+  "optionExplanations": {
+   "A": "睪丸動脈因胚胎期睪丸發育位置，直接起自腹主動脈前外側約L2高度。",
+   "B": "腎動脈不發出睪丸動脈，僅左側睪丸靜脈會注入左腎靜脈。",
+   "C": "腸繫膜下動脈為供應後腸消化道的單一分支，與性腺血供無關。",
+   "D": "髂內動脈主要供應骨盆臟器與會陰，睪丸動脈直接發自腹主動脈。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q23": {
+  "sourceHash": "81085f83efd1d8395ff8ff17dacb6d3ce88e912e6dcb43bb5a65c1abcc452067",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.680Z",
+  "optionExplanations": {
+   "A": "脾腎韌帶為連接脾臟與左腎的雙層腹膜皺襞，由腹膜所衍生。",
+   "B": "膈食道韌帶由胸內筋膜與腹橫筋膜延伸構成，與腹膜無關。",
+   "C": "子宮闊韌帶為覆蓋子宮並向兩側骨盆壁延伸的雙層腹膜皺襞。",
+   "D": "卵巢懸韌帶為骨盆側壁延伸至卵巢的腹膜皺襞，內含卵巢動靜脈。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q24": {
+  "sourceHash": "57a7b109d246e2bf3b5b60f807b8a9d0344d9fb4cf84b3e0d0f3927413e3f1fe",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.680Z",
+  "optionExplanations": {
+   "A": "閉孔內肌構成骨盆外側壁，其肌腱通過坐骨小孔進入臀區止於股骨。",
+   "B": "梨狀肌構成骨盆後壁，穿過坐骨大孔進入臀區並止於股骨大轉子。",
+   "C": "提肛肌參與組成骨盆膈以形成骨盆底，共同承托骨盆腔臟器。",
+   "D": "尾骨肌參與組成骨盆底而非外側壁，且不通過坐骨小孔延伸至臀區。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q25": {
+  "sourceHash": "8b5213fe4dd2ab46b1f24a6e7a29ac3bd5a0a38276c8464618c9382317f1257b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.681Z",
+  "optionExplanations": {
+   "A": "Bartholin's gland導管開口於小陰唇內側的陰道前庭，而非大小陰唇之間。",
+   "B": "陰道前方鄰接膀胱底部與尿道，解剖構造相對位置正確。",
+   "C": "陰道後穹窿最深且薄，緊鄰直腸子宮陷凹，臨床常由此穿刺。",
+   "D": "陰道上中下段分別由子宮動脈、陰道動脈與陰部內動脈分支供應。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q26": {
+  "sourceHash": "47efe0cf48cc652f4a36c02fdc7e723b533ff75ac67d088206b96e41d4ceef82",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.681Z",
+  "optionExplanations": {
+   "A": "會陰神經為陰部神經的分支，兩者的階層從屬關係相反。",
+   "B": "陰部神經分出會陰神經後，其淺層末梢即為陰囊後神經負責感覺。",
+   "C": "下直腸神經支配肛門外括約肌，會陰深橫肌是由會陰神經肌支支配。",
+   "D": "陰部神經先分出下直腸神經再分出會陰神經，順序與來源錯誤。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q27": {
+  "sourceHash": "9f6fc2ab160cb4e1c6c020b6936d62ad07391f472b90ba2a745322b7d108e9d4",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.681Z",
+  "optionExplanations": {
+   "A": "尾骨肌參與骨盆底構成，但其筋膜未增厚形成提肛肌腱弓。",
+   "B": "梨狀肌覆蓋骨盆後外側壁，其筋膜不參與提肛肌腱弓的形成。",
+   "C": "提肛肌腱弓是由覆蓋在閉孔內肌表面的閉孔筋膜增厚形成。",
+   "D": "閉孔外肌位於骨盆外側面屬於下肢肌群，不參與骨盆腔腱弓。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q28": {
+  "sourceHash": "5ea308a163fa2703c63de27f0991bc65729d74ae661f271d9daa6d1efffc9ed7",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.681Z",
+  "optionExplanations": {
+   "A": "梨狀肌主要功能為大腿外旋，並非負責大腿內旋。",
+   "B": "臀大肌由下臀神經支配，主要負責大腿伸展與外旋而非內旋。",
+   "C": "臀中肌為主要外展肌且前部纖維負責內旋，受損會削弱此兩動作。",
+   "D": "閉孔內肌屬於髖關節深層外旋肌群，主要作用為外旋而非內旋。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q29": {
+  "sourceHash": "eaee6ffeef7f24b1a3abbe21cd00953b8f4552b6ce8d53ca057d17e1c3952bc2",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "蚓狀肌主要負責屈曲掌指關節及伸直指間關節，無外展食指功能。",
+   "B": "第一背側骨間肌負責外展手指，收縮時可將食指往外展方向拉。",
+   "C": "掌側骨間肌負責內收手指朝向中指，作用為內收而非外展。",
+   "D": "外展拇短肌屬於大魚際肌群，主要作用於拇指外展而非食指。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q30": {
+  "sourceHash": "23680c4a9cb3499e613232c75475c069ca7dd526a23237799454478d5c0fcb41",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "尺神經主要支配前臂尺側屈肌與手部內在肌，不支配上臂前肌群。",
+   "B": "正中神經主要支配前臂大部分屈肌及大魚際肌，不支配上臂前肌群。",
+   "C": "肌皮神經穿過喙肱肌，負責支配肱二頭肌與肱肌等上臂前肌群。",
+   "D": "鎖骨上神經來自頸神經叢，僅負責皮膚感覺而非上臂運動神經。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-解剖學-Q31": {
+  "sourceHash": "c1d0e2cae1887839fa5357e3702652be09715907a16bace99b6833cd888f96c9",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "解剖姿勢下股骨外側髁與肱骨遠端外側的小頭（capitulum）方位相對應。",
+   "B": "滑車（trochlea）位於肱骨遠端內側，對應的是股骨內側髁而非外側髁。",
+   "C": "大結節（greater tubercle）位於肱骨近端外側，屬於近端肌腱附著處而非遠端關節面。",
+   "D": "小結節（lesser tubercle）位於肱骨近端前內側，不對應於遠端外側構造。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-胚胎學-Q32": {
+  "sourceHash": "ff4cf3d862783bb3367fe5222d1aba9426d21a084a748796684ca42eeae4dce5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "羊膜腔（amniotic cavity）在受精後第8天（第二週初）即由上胚層裂隙形成。",
+   "B": "次級臍囊（secondary umbilical vesicle）在受精後第13天（第二週末）形成。",
+   "C": "胚外中胚層（extraembryonic mesoderm）在受精後第11至12天（第二週）即出現。",
+   "D": "胚內中胚層（intraembryonic mesoderm）於第三週原腸形成時才由原條內移產生。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-胚胎學-Q33": {
+  "sourceHash": "a1e9b58c0be65c5b50885b2efbf8c547a97e93141ca97d9ac5662278a5246630",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "卵黃囊（yolk sac）造血主要在第3至8週，進入第9週後已顯著退化。",
+   "B": "肝臟（liver）於胚胎第6週起造血，在第9週胎兒期成為最主要的紅血球生成器官。",
+   "C": "脾臟（spleen）約在第12週才開始造血且為輔助性質，非第9週主要造血處。",
+   "D": "紅骨髓（red bone marrow）造血約在第18至20週建立，至第28週起才成為主導。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-胚胎學-Q34": {
+  "sourceHash": "b3bfe0f589073048e849a505ed10f104e6284eba5feac3275656ba5dd47ac722",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "胃大彎（greater curvature）是因胃原基背側生長速度顯著快於腹側所形成。",
+   "B": "胃發育時是沿縱軸順時針旋轉90度，使尾端移向右上、頭端移向左下。",
+   "C": "胃順時針旋轉時將原始背側胃繫膜拉向左側，於胃後方形成網膜囊（omental bursa）。",
+   "D": "臨床最常見胃畸形為肥厚性幽門狹窄且好發於男嬰，幽門閉鎖極罕見。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-胚胎學-Q35": {
+  "sourceHash": "45c4fe7191eb80886231ccb4a5266153bc89fcac3d95128774d3c96d8677e182",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "副中腎管（paramesonephric duct）頭端未融合段分化為輸卵管（oviduct）。",
+   "B": "射精管（ejaculatory duct）源自中腎管（mesonephric duct）之分化發育。",
+   "C": "輸精管（ductus deferens）由中腎管衍生，副中腎管在男性體內會退化。",
+   "D": "輸尿管（ureter）源自中腎管下段長出的輸尿管芽（ureteric bud）。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-胚胎學-Q36": {
+  "sourceHash": "eb52d7b6389b35eeb6596e351fcab4a03574a3c0270bc539afb731a7fb56ed3e",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.682Z",
+  "optionExplanations": {
+   "A": "瞳孔擴張肌與括約肌源自視杯前緣的神經外胚層（neuroectoderm）。",
+   "B": "生發層（stratum germinativum）為表皮基底層構造，與虹膜肌肉發育無關。",
+   "C": "內胚層（endoderm）發育為消化與呼吸道上皮及腺體，非眼球肌肉來源。",
+   "D": "瞳孔擴張及括約肌為特例，源自神經外胚層而非中胚層（mesoderm）。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q37": {
+  "sourceHash": "db88afbf79d46c4217d95a80d930c3b03c211c7750ce819c858fc6e3d266d85f",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "組織必須先經包埋以獲得硬度才能切片，切片完成後方能進行染色。",
+   "B": "組織製備標準順序為福馬林固定、脫水包埋、切片機切片，最後進行染色。",
+   "C": "未經福馬林固定組織會自溶腐敗，固定必須是取得檢體後的第一步。",
+   "D": "新鮮組織未經固定與包埋缺乏支撐力，無法直接進行微米級薄片切片。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q38": {
+  "sourceHash": "fcb1a2450c8385faebc205482802be43b67b72e067ecfd22148b890ab0bbd667",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "肌漿網由平滑內質網特化而成，負責儲存鈣離子，非肌膜內折構造。",
+   "B": "T-tubule為肌膜向內凹陷形成的橫向小管，可將動作電位傳入細胞深處。",
+   "C": "肌束膜是包覆肌束的緻密結締組織，負責提供結構支持而非傳導衝動。",
+   "D": "終池是肌漿網末端的膨大構造，負責儲存鈣離子而非由肌膜形成。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q39": {
+  "sourceHash": "e70e9d846dd4a766964493b328fdfa88e9614668c38cda44df5d139f45000e17",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "同源細胞群聚集於腔隙是軟骨細胞特徵，骨細胞腔隙通常僅容納單一細胞。",
+   "B": "骨細胞突起藉由骨小管延伸，並透過gap junctions互相傳遞訊息。",
+   "C": "蝕骨細胞源自造血幹細胞的單核球譜系，並非由骨細胞轉化形成。",
+   "D": "骨細胞由成骨細胞分化而來，顆粒球前驅細胞則是分化為蝕骨細胞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q40": {
+  "sourceHash": "68b28a64b6c6a070561036e98b183616c4cd2d1cebbb8e7d430abb287c235ef6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "室管膜細胞為襯於腦室的單層立方或柱狀上皮樣細胞，基底面缺乏外板。",
+   "B": "室管膜細胞與星狀細胞皆由神經上皮細胞分化而成，非源自星狀細胞。",
+   "C": "蛛網膜主要由纖維母細胞樣細胞構成，室管膜細胞主要襯於腦室內壁。",
+   "D": "血腦障壁由微血管內皮、基底膜及星狀細胞足突構成，非室管膜細胞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q41": {
+  "sourceHash": "7062765fb317e28a26415f3136c606b55c40aa1b54e57fdc5565b37f110faf65",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "網狀纖維由網狀細胞分泌製造，樹狀細胞主要功能為抗原呈現。",
+   "B": "樹狀細胞為體內最強效抗原呈現細胞，巨噬細胞主要負責吞噬作用。",
+   "C": "大多數循環淋巴球透過副皮質區的high endothelial venules進入淋巴結。",
+   "D": "淋巴結內為內襯不連續的淋巴竇，靜脈竇則位於脾臟且由血管構成。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q42": {
+  "sourceHash": "5d1e3167bf27fc983f1a33dbf158c17ce125663f6112154159f9a44d614b55c9",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "胃黏膜內襯為單層柱狀上皮，並非內皮構造。",
+   "B": "子宮內膜內襯為單層柱狀上皮，並非內皮構造。",
+   "C": "膀胱內襯為移行上皮，且外層主要為外膜而非間皮。",
+   "D": "心內膜內襯為endothelium，外層心外膜表面則覆蓋有mesothelium。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q43": {
+  "sourceHash": "08fee38a2af8ec2acf069da16a626a9bb5cae691d5cf91160d8e60e77635b753",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "中段外肌層為骨骼肌與平滑肌混合的過渡區，並非僅有平滑肌。",
+   "B": "上段外肌層完全由骨骼肌組成以利隨意吞嚥，不含平滑肌。",
+   "C": "下段外肌層完全由平滑肌構成，受自主神經調節進行不隨意蠕動。",
+   "D": "上三分之二段包含骨骼肌與混合肌層，並非僅有平滑肌。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q44": {
+  "sourceHash": "42d86da94d543065e1251d31c38d5a3ecd55b3503a111b3d8e005bd422b1a06a",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.683Z",
+  "optionExplanations": {
+   "A": "外根鞘向下延伸至毛球處細胞層數會逐漸遞減至單層，並非不變。",
+   "B": "毛基質主要由增殖的上皮細胞構成，黑色素細胞僅散布其中提供色素。",
+   "C": "玻璃樣膜為富含醣蛋白的增厚基底膜，屬於PAS染色陽性構造。",
+   "D": "毛囊隆突含有多能幹細胞，是毛囊週期性生長與皮脂腺的主要幹細胞來源。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q45": {
+  "sourceHash": "5714697396f60ff7862ccd08ef871f0d3b50050505db52611fa5ea66c4a0fb33",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.684Z",
+  "optionExplanations": {
+   "A": "史托利細胞受FSH調控負責支持精子生成與分泌ABP，不合成睪固酮。",
+   "B": "萊氏細胞位於間質結締組織中，受LH刺激負責合成與分泌睪固酮。",
+   "C": "精細胞為單倍體生殖細胞，後續變形為成熟精子，無內分泌合成功能。",
+   "D": "基底細胞主要作為幹細胞或支持構造，不具備製造與分泌睪固酮之功能。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-組織學-Q46": {
+  "sourceHash": "0d8dc5b6f1d531252be9dff6eb66353c591107433fa9fb3d8591dcfc07c64b2f",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.684Z",
+  "optionExplanations": {
+   "A": "輸乳管在靠近末端乳暈下方擴大形成輸乳竇，用以暫存乳汁。",
+   "B": "輸乳竇主要由複層立方上皮構成，近開口處轉為複層鱗狀上皮而非複層柱狀上皮。",
+   "C": "乳腺在組織與發生學上屬於特化的頂漿汗腺，而非皮脂腺。",
+   "D": "乳腺的腺泡與導管周圍具有肌上皮細胞，受催產素刺激收縮排乳。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q47": {
+  "sourceHash": "b82783459b758df9ef10f5ed2fef4dda40be747838b4dc9732d49e4772106711",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.684Z",
+  "optionExplanations": {
+   "A": "靜止時膜對鉀通透度遠高於鈉且鉀變動相對比例大，提高外鉀會造成去極化。",
+   "B": "靜止膜對鉀通透度遠大於鈉，故提高鈉離子濃度所造成的膜電位變化較小。",
+   "C": "提高細胞外鉀離子濃度會降低鉀外流驅動力，使靜止膜電位產生去極化。",
+   "D": "靜止膜對鉀通透度遠高於鈉使鈉影響較小，外鉀上升減弱鉀外流使膜去極化。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q48": {
+  "sourceHash": "895aeec3f02c5177900dab326ed864cd69730ca2c880fe85d3c9a6c5d4da250c",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.684Z",
+  "optionExplanations": {
+   "A": "快速動眼期腦波呈現低振幅高頻率的去同步化波形，與清醒期極為相似。",
+   "B": "N1期腦波以低振幅的θ波為主且α波減少，與快速動眼期波形不同。",
+   "C": "N2期以特徵性的睡眠紡錘波與K複合波為主，並非與其最相似的時期。",
+   "D": "N3期為慢波睡眠，主要由高振幅低頻率的δ波構成，與快速動眼期相反。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q49": {
+  "sourceHash": "f69440f28d56f20c71feffdf0142eebb0c2656268f8aee66f1e59f8c08d69861",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.684Z",
+  "optionExplanations": {
+   "A": "騎腳踏車屬於內隱記憶中的程序性記憶，而非外顯記憶。",
+   "B": "可塑性即指神經組織結構與功能因活動或經驗而產生改變。",
+   "C": "長期增益為突觸傳遞效能的持久增強，是解釋記憶的重要機轉。",
+   "D": "海馬迴等邊緣系統受損會無法形成新記憶，導致順行性失憶。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q50": {
+  "sourceHash": "9f2f00b09473066ba5f4011046f6694645f061e2c4197b5bae8d64ba987a82a6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.684Z",
+  "optionExplanations": {
+   "A": "乙醯膽鹼主要調節REM睡眠與皮質活化，缺乏主要與失智症相關。",
+   "B": "正腎上腺素主要由藍斑核分泌維持清醒，但非猝睡症核心病因。",
+   "C": "神經胜肽Y主要由弓狀核釋放以調節食慾，其缺失不會引發猝睡症。",
+   "D": "食慾素由外側下視丘分泌維持清醒，其神經元受損或受體缺乏會導致猝睡症。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q51": {
+  "sourceHash": "56273770ef8c0f4f42c8ae730cd30507dd1210e978e9b6558ba5361bff44b747",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.685Z",
+  "optionExplanations": {
+   "A": "NMDA受體在靜止膜電位下會被細胞外鎂離子以電位依賴方式阻斷。",
+   "B": "GABA受體主要通透氯離子，靜止膜電位下不受細胞外鎂離子阻斷。",
+   "C": "甘胺酸受體為配體門控氯離子通道，在靜止膜電位下無鎂離子阻斷機制。",
+   "D": "尼古丁受體為配體門控陽離子通道，正常靜止膜電位下不受鎂離子阻斷。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q52": {
+  "sourceHash": "8d61c7a23a1e2ca6ea8ac3c4d559d73e33b873c9bb134551c5791ccbd61aee3b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.685Z",
+  "optionExplanations": {
+   "A": "剛開始進行再極化時鈉通道大多仍處於不活化，屬於絕對不反應期。",
+   "B": "電位門控鈉通道呈不活化為絕對不反應期特徵，相對不反應期多已恢復可活化狀態。",
+   "C": "相對不反應期部分電位門控鉀通道維持開啟，導致膜電位過極化並提高興奮閾值。",
+   "D": "此期因處於過極化狀態，必須給予比原本更強的閾上刺激才能誘發動作電位。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q53": {
+  "sourceHash": "9f0e2ef7475aec0f2d0b9732f88c81b7045a4eb538a5e7ab044030d84571a467",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.686Z",
+  "optionExplanations": {
+   "A": "視丘背內側核受損主要表現為情緒與人格改變或記憶障礙，非語言表達障礙。",
+   "B": "視丘前核與邊緣系統相連負責記憶與情緒，受損不會造成表達性語言障礙。",
+   "C": "布洛卡區負責語言運動與發音組織，受損會導致難以說出字句的表達性失語症。",
+   "D": "韋尼克區負責語言理解，受損會導致說話流暢但語無倫次的接受性失語症。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q54": {
+  "sourceHash": "901eeac597ffae154860b967e2f8f2ec49f624900cbcb67159bbcf509eb6f901",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.686Z",
+  "optionExplanations": {
+   "A": "慢痛傳導定位較模糊，由A-delta纖維傳遞的快痛定位才較為精確。",
+   "B": "傳遞慢痛的C纖維會在脊髓背角末梢釋放麩胺酸與P物質傳遞痛覺訊號。",
+   "C": "傳遞慢痛的是無髓鞘C纖維，A-beta纖維則主要傳遞觸覺與壓力覺。",
+   "D": "傳遞慢痛的C纖維為無髓鞘神經纖維，傳導速度較慢。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q55": {
+  "sourceHash": "86833ab3cf76a92ed17746e1c0ebd0311c163efb6b8383d41f73ba8cfe86e5f8",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.686Z",
+  "optionExplanations": {
+   "A": "三種肌肉興奮收縮偶聯皆仰賴胞內鈣離子濃度上升以觸發收縮。",
+   "B": "骨骼肌藉DHPR機械偶聯RyR1，收縮所需鈣離子均由肌漿網釋放。",
+   "C": "心肌藉由CICR機轉，由胞外鈣離子進入再刺激肌漿網釋放大量鈣離子。",
+   "D": "平滑肌收縮除胞外鈣流入外，亦可經IP3途徑促使肌漿網釋放胞內鈣。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q56": {
+  "sourceHash": "abaffeeb5371a076e4df6518ac6081469ae3e0eabe3a6b5eb0c65b453e1d3a0e",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.687Z",
+  "optionExplanations": {
+   "A": "嗜中性球佔周邊血液白血球總數50-70%，為血液中數量最多的白血球。",
+   "B": "嗜酸性球僅佔周邊血液白血球總數約1-4%，並非數量最多的白血球。",
+   "C": "巨噬細胞主要定居於周邊組織，血液中的單核球僅佔約2-8%。",
+   "D": "淋巴球佔周邊血液白血球約20-40%，為血液中數量第二多的白血球。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q57": {
+  "sourceHash": "30f56332d0b1858760971c02b4aae2daf0b229ee557abd2a50244a049e8a78cd",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.687Z",
+  "optionExplanations": {
+   "A": "增加節律點電位斜率並提高心跳速率為交感神經而非副交感神經的作用。",
+   "B": "副交感神經透過乙醯膽鹼使If電流減少，降低第4期斜率以減慢心跳。",
+   "C": "副交感神經會使斜率減少，且斜率增加會使心跳加速而非減慢。",
+   "D": "節律點電位斜率減少會延長達到閾值電位的時間，使心跳速率減慢而非增加。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q58": {
+  "sourceHash": "0b7754219224a29e2237fe4dd563394bbbf83b68f733ae772ba079164bc48413",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.687Z",
+  "optionExplanations": {
+   "A": "骨骼肌收縮可擠壓周圍淋巴管並藉單向瓣膜促進淋巴回流。",
+   "B": "靜脈平滑肌收縮不會直接擠壓淋巴管，且靜脈壓升高可能增加淋巴匯入阻力。",
+   "C": "呼吸泵在吸氣時產生胸腔負壓，可抽吸組織液與淋巴回流至胸腔大靜脈。",
+   "D": "淋巴管壁平滑肌受擴張刺激會自主節律性收縮，形成內在幫浦推動淋巴。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q59": {
+  "sourceHash": "0f5cc5213fb2f063614d28a3b85ec483fd8171fb6e7526c9c559a8baa0d6c899",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.687Z",
+  "optionExplanations": {
+   "A": "微動脈受交感神經釋放正腎上腺素作用於α1受體，引起血管平滑肌收縮。",
+   "B": "多數微動脈缺乏副交感神經支配，血管舒張主要靠交感張力下降或局部代謝物。",
+   "C": "非膽鹼非腎上腺素神經元末梢釋放一氧化氮可增加cGMP使血管平滑肌舒張。",
+   "D": "腎上腺素作用於骨骼肌微動脈平滑肌上的β2腎上腺素受體會引起血管舒張。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q60": {
+  "sourceHash": "ec7b153527473c2b19692bf1894eea3abf81984d967ab86bac6fe1161619ad0d",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.687Z",
+  "optionExplanations": {
+   "A": "增加靜脈交感神經活性會促進靜脈收縮，增加靜脈回流與心搏量。",
+   "B": "增加血液體積能提高平均循環充盈壓，有效促進靜脈回流並提升心搏量。",
+   "C": "骨骼肌泵活動可壓迫深層靜脈並配合瓣膜防逆流，顯著促進靜脈回流。",
+   "D": "呼氣活動會使胸腔內壓上升而減少靜脈回流與心搏量，對增加回流貢獻最小。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q61": {
+  "sourceHash": "4f4015d0d7312a736bf3ef340a4f29bfaa3aa8642512621bd66a77dbdeef445c",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.687Z",
+  "optionExplanations": {
+   "A": "肺容積由肺總量降至功能肺餘容量時，肺實質對氣道的徑向牽引減弱且管徑縮小，呼吸道阻力因而升高。",
+   "B": "呼吸道阻力與肺容積呈反比關係，肺容積減少時阻力必然隨之改變而非維持不變。",
+   "C": "肺容積縮小時氣道口徑變窄，呼吸道阻力應上升而非下降。",
+   "D": "隨肺容積持續減少，氣道口徑持續變小，阻力呈現單調上升趨勢而非先升後降。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q62": {
+  "sourceHash": "35fb701b4bdbdb58ae0904b4e72309896129a166e7bed0a811e554e8a21a9939",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.687Z",
+  "optionExplanations": {
+   "A": "肺牽扯受器位於氣道平滑肌以主導黑林-伯勞爾反射防止肺過度膨脹，不感測動脈血氧分壓。",
+   "B": "中樞化學受器位於延腦腹外側，主要感測腦脊髓液氫離子，對動脈血氧下降無直接感測能力。",
+   "C": "下視丘滲透壓受器主要感測血漿滲透壓以調控抗利尿激素與口渴，與呼吸調節無關。",
+   "D": "頸動脈體為周邊化學受器，具球細胞可感測動脈血氧分壓下降並經舌咽神經傳入以增加通氣量。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q63": {
+  "sourceHash": "820f03349570214d583005e9f36c07bcfac0e10444e66b2885d5542791d3d5b4",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.688Z",
+  "optionExplanations": {
+   "A": "氯離子在空腸隨鈉被動吸收，在迴腸與結腸透過交換被動或次級主動吸收，非全面主動運輸。",
+   "B": "小腸腔內主要分泌重碳酸根以中和胃酸，由胃壁細胞以氫鉀幫浦主動分泌氫離子。",
+   "C": "小腸黏膜利用鈉-葡萄糖同向運送蛋白共轉運吸收鈉離子與葡萄糖，而非反向交換或分泌。",
+   "D": "鈣離子在十二指腸及近端空腸透過維生素D調控之通道與幫浦進行跨細胞主動運輸吸收。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q64": {
+  "sourceHash": "545002aec8d5ce70997442416217d0cc5875d7de0a360e0fe79c87fdfaef48ad",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.688Z",
+  "optionExplanations": {
+   "A": "乳化作用主要由膽汁中的膽鹽與卵磷脂完成，胰液主要提供消化酵素。",
+   "B": "胰脂肪酶主要將三酸甘油酯水解為2-單酸甘油酯與游離脂肪酸，而非短鏈脂肪酸。",
+   "C": "脂肪水解產物進入腸細胞後，主要在平滑內質網中再酯化合成三酸甘油酯以組裝乳糜微粒。",
+   "D": "乳糜微粒經胞吐後進入乳糜管等淋巴系統，經胸導管回流至體循環，不直接注入肝門脈系統。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q65": {
+  "sourceHash": "9b7eb331bb83c59585b80691d1cb5ca9549bc1d9c578938137b9ec9250c91bdd",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.688Z",
+  "optionExplanations": {
+   "A": "大量飲水稀釋血液使血漿滲透壓下降，進而負回饋抑制下視丘分泌抗利尿激素以利排水。",
+   "B": "大量飲水造成血液稀釋，血漿滲透壓與抗利尿激素濃度皆會下降而非增加。",
+   "C": "大量水分攝取會稀釋血液中溶質，使血漿滲透壓濃度減少而非增加。",
+   "D": "血漿滲透壓下降會抑制抗利尿激素釋放，使其血漿濃度減少而非增加。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q66": {
+  "sourceHash": "9892c5a6b31a776570069976ddf550255267d96f409f203d184fd085291f0807",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.688Z",
+  "optionExplanations": {
+   "A": "腎交感神經直接支配入球小動脈的近絲球細胞，透過乙型腎上腺素受體刺激腎素分泌。",
+   "B": "分泌腎素的近絲球細胞主要分布於入球小動脈管壁而非出球小動脈，故與輸入訊號最不相關。",
+   "C": "近絲球細胞特化分布於入球小動脈中膜，可作為壓力感受器感應腎灌流壓以調控腎素分泌。",
+   "D": "致密斑位於粗上升支末端，負責感應管腔氯化鈉濃度並經旁分泌訊號傳至近絲球細胞調控腎素。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q67": {
+  "sourceHash": "c8186774ad2b55ed69857e56ca004fd73145588a068543aacc7c0272b01042a1",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.688Z",
+  "optionExplanations": {
+   "A": "血液碘離子是經由基底側膜的鈉碘同向運送體進入細胞，彭氏蛋白位於頂端膜。",
+   "B": "甲狀腺過氧化酶催化有機化，將碘接在甲狀球蛋白酪胺酸上形成 MIT 與 DIT。",
+   "C": "兩個雙碘酪胺酸（DIT）經偶聯反應結合會生成四碘甲狀腺素（T4）。",
+   "D": "甲狀腺素釋放需藉胞吞作用吞飲膠體，並經溶小體水解甲狀球蛋白後釋出。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q68": {
+  "sourceHash": "6813638283eb5d581d034934d3f832f064377771268e0fad46bc9e78fb5327e1",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.688Z",
+  "optionExplanations": {
+   "A": "胰島素活化肝醣合成酶，促進骨骼肌攝取葡萄糖並合成肝醣。",
+   "B": "升糖素經 cAMP-PKA 路徑活化關鍵酵素，促進肝臟葡萄糖新生以維持血糖。",
+   "C": "皮質素會降低周邊組織與肝臟對胰島素的敏感性，誘發胰島素阻抗。",
+   "D": "腎上腺素作用於脂肪細胞受體，活化荷爾蒙敏感性脂酶以促進脂肪分解。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q69": {
+  "sourceHash": "6638c32ca53c258650b895e420ab545367fa1fe1d16684da016027fcde0019f8",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.688Z",
+  "optionExplanations": {
+   "A": "體抑素主要由下視丘與胰臟分泌，非腦下腺前葉且與急性血壓調控無關。",
+   "B": "血管收縮素原由肝臟持續合成分泌，而非下視丘弓形核。",
+   "C": "血壓下降刺激腦下腺後葉釋放抗利尿素，經水分重吸收與血管收縮提升血壓。",
+   "D": "促腎上腺皮質素由腦下腺前葉分泌，中突為下視丘釋放 CRH 之處。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q70": {
+  "sourceHash": "cbb9351f9e384a59fe00089051a7afe3333e0cbbe6001f1abf2dc17aaba81ab8",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.689Z",
+  "optionExplanations": {
+   "A": "皮質醇由腎上腺皮質分泌，負責調控醣類等能量代謝。",
+   "B": "抗利尿荷爾蒙由下視丘合成並經腦下垂體後葉釋放，非前葉。",
+   "C": "胰島素由胰島 β 細胞分泌，主要負責調降血糖與促進同化作用。",
+   "D": "醛固酮由腎上腺皮質分泌，促進保鈉排鉀以調控血量與電解質平衡。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q71": {
+  "sourceHash": "021683f00c1ce08ec4e150d093ce67fe7a40b51338a4a138c2a82dbe7490b1d5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.689Z",
+  "optionExplanations": {
+   "A": "飢餓時變化最顯著的是 T3 與 rT3，T4 濃度大多維持相對恆定。",
+   "B": "飢餓時去碘酶活性受抑制使清除率降低，血漿中 rT3 濃度會明顯上升。",
+   "C": "飢餓後重新進食會迅速活化去碘酶，使 T4 快速轉化為 T3 而顯著回升。",
+   "D": "重新進食主要藉周邊去碘作用使 T3 大量生成回升，非平穩的 T4。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q72": {
+  "sourceHash": "7376011f34ad0959c4dd220ee224a81c65f2568818dbe5f0f0da8bf4246fcc51",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.689Z",
+  "optionExplanations": {
+   "A": "雌激素增加催產素受體與間隙接合表現，具促進子宮收縮作用。",
+   "B": "黃體素降低子宮平滑肌興奮性以抑制收縮，與其餘三者促進收縮相反。",
+   "C": "前列腺素能直接刺激子宮平滑肌，具強烈促進子宮收縮作用。",
+   "D": "催產素作用於子宮肌層受體促使鈣離子釋放，引起強烈子宮收縮。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生理學-Q73": {
+  "sourceHash": "0b169d914ca566cfb29910db526a700bd9c43d61bc54f8644bee5f3f4c914dc5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.689Z",
+  "optionExplanations": {
+   "A": "刺激 Leydig cells 分泌睪固酮的是 LH，FSH 主要作用於 Sertoli cells。",
+   "B": "FSH 可刺激 Sertoli cells 分泌 inhibin，進而負回饋抑制腦下腺釋放 FSH。",
+   "C": "刺激 theca cells 分泌雄性素前驅物的是 LH，雌二醇是由顆粒細胞轉化分泌。",
+   "D": "顆粒細胞受 FSH 刺激主要是分泌雌二醇與抑制素，分泌雄性素的是鞘細胞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q74": {
+  "sourceHash": "0c3a57a94c2babcb025184ea1185633f41467862ec9f550dc22a4dde962b35d3",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.689Z",
+  "optionExplanations": {
+   "A": "親合力層析法利用抗原抗體等生物分子間的高度專一性結合來純化蛋白質。",
+   "B": "離子交換層析法是依蛋白質表面淨電荷與介質的靜電吸引力進行分離。",
+   "C": "凝膠過濾層析法是依蛋白質分子大小與形狀進行分離，非依賴專一性。",
+   "D": "鹽析法是藉由中性鹽改變蛋白質溶解度使其沉澱，非專一性交互作用。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q75": {
+  "sourceHash": "232770713f8d7dff0142a4bd136a09f3266654033c2adf4fe140ad52ce0b1f57",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "α-helix 藉由主鏈胜肽鍵間形成氫鍵維持穩定，屬於典型的蛋白質二級結構。",
+   "B": "tetramer 為多條多胜肽鏈聚合而成的四聚體，屬於四級結構。",
+   "C": "subunit 為構成蛋白質四級結構的獨立多胜肽鏈單位，非二級結構。",
+   "D": "capping structure 多指 mRNA 5端帽結構或微絲加帽蛋白，非蛋白質二級結構。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q76": {
+  "sourceHash": "327181445e62d9288b3c43fd9c04a50bd486a0991d0d0013ef35587849db5681",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "波爾效應指血液 pH 值與二氧化碳濃度改變對血紅蛋白氧親和力的調控。",
+   "B": "體溫變化雖會影響氧解離曲線，但在生理定義上不屬於波爾效應。",
+   "C": "大氣含氧量影響動脈氧分壓，但非波爾效應所指的酸鹼或二氧化碳調控。",
+   "D": "心跳速度主要調節心輸出量與血液循環，與分子層次的波爾效應無關。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q77": {
+  "sourceHash": "1d9f6b982cfce6670446078ba5a30fd2932c1c19c3251a51981de88380546985",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "pantothenic acid（泛酸/維生素 B5）為組成輔酶 A 的核心成分。",
+   "B": "β-mercaptoethylamine 提供末端活性硫醇基，為輔酶 A 的結構成分。",
+   "C": "3-phosphoadenosine diphosphate 為輔酶 A 的核苷酸骨架組成。",
+   "D": "輔酶 A 結構所含的維生素為水溶性的泛酸，並不含有維生素 A。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q78": {
+  "sourceHash": "f2a498a2be74d13ded27ea50262fa695ba7946bed5fcd180b3b88e3d15a523a7",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "負超螺旋化可將 DNA 緊湊壓縮，且儲存的張力有助於轉錄時雙股分離。",
+   "B": "正超螺旋化會使雙螺旋更緊密而增加解鏈難度，不利於轉錄時雙股分離。",
+   "C": "鬆弛狀態缺乏促進雙股分離的張力，且無法有效緊密壓縮 DNA。",
+   "D": "原核生物染色體多為環狀雙股 DNA，且線性延展無法實現緊湊排列。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q79": {
+  "sourceHash": "9e6d3e94ef0d5db01759c108e710c0b2bed5c475413010b17e9401846106ac2a",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "屬於連接組蛋白 linker histone，位於外側協助濃縮染色質，不屬於組蛋白核心八聚體。",
+   "B": "與 H2B、H3、H4 各兩分子共同構成核小體中央的組蛋白核心八聚體。",
+   "C": "與 H2A 形成二聚體，為構成核小體中央組蛋白核心八聚體的成分之一。",
+   "D": "與 H4 形成異四聚體，為構成核小體組蛋白核心八聚體的關鍵核心骨架。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q80": {
+  "sourceHash": "43b6ac86c48276b0073f77b1b30170ba967168298ec29351954262f50277ddff",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "功能為消耗 ATP 解開 DNA 雙股，緩解超螺旋張力是由 topoisomerase 拓撲異構酶負責。",
+   "B": "能專一性結合並穩定單股 DNA，防止其重新配對成雙股或被核酸酶降解。",
+   "C": "負責以 DNA 為模板合成短片段 RNA primer，提供 3'-OH 端供聚合酶延伸。",
+   "D": "為大腸桿菌主要複製酵素，負責前導股與延遲股 5'到 3'方向的新股合成。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q81": {
+  "sourceHash": "a22024536bb8a4c36d2bb657a113163b5991aeaf9302a3a6c7ccc1cce04eb1a7",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "轉座酶交錯切割受體 DNA 並經修復填補後，目標位點序列會產生重複而非無變化。",
+   "B": "轉座酶交錯切割受體 DNA 並修復填補後，會在兩側形成同向的正向重複序列 direct repeat。",
+   "C": "反向重複序列位於轉座子本體兩端，受體 DNA 目標位點產生的是相同方向的正向重複序列。",
+   "D": "轉座過程受體位點不會發生缺失刪除，而是因交錯切割與修復複製產生短重複序列。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q82": {
+  "sourceHash": "5e7ef3c4d388279ad6daacc3a4ce33e19cb27eb4050957b9898f0a6776eb0eb2",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "主要直接還原單一基團修飾，無法移除 cisplatin 造成的龐大交聯與結構扭曲。",
+   "B": "主要處理非龐大單一鹼基受損，非修復 cisplatin 股內交聯的主要機制。",
+   "C": "主要負責修正 DNA 複製產生的鹼基錯配，並非修復 cisplatin 損傷的路徑。",
+   "D": "cisplatin 會與嘌呤形成股內交聯造成結構扭曲，主要由核苷酸切除修復 NER 負責移除。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q83": {
+  "sourceHash": "1cc4b869a814a659e1b6fd8a239db5f32e309233451fba6707bc9484b27455e6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "為 RNA 聚合酶合成 RNA 時必須消耗的四種核糖核苷三磷酸受質原料。",
+   "B": "RNA 聚合酶具 de novo 從頭合成能力，可直接起始轉錄而不需要 primer 引子。",
+   "C": "為催化活性位點必需的二價金屬輔因子，可協助磷酸二酯鍵形成並穩定過渡態。",
+   "D": "轉錄必須依賴 DNA 模板股序列，遵循鹼基互補原則合成互補的 RNA 鏈。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q84": {
+  "sourceHash": "e156e22ed67dcfcb8b867c2abbb55ca5083eb70e1a4520542172a321c2d03627",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "單泛素化或 Lys63 鍵結主要參與訊息傳遞與胞吞，並非所有泛素修飾都會被蛋白酶體分解。",
+   "B": "蛋白質進入蛋白酶體降解前，去泛素化酶會先將泛素水解切除並回收重複使用。",
+   "C": "泛素 C 端甘胺酸會與標的蛋白上離胺酸 lysine 側鏈形成異胜肽鍵共價修飾。",
+   "D": "E3 ligase 接合酶負責專一性辨識受質，並催化將泛素連接於標的蛋白上。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q85": {
+  "sourceHash": "854593b0b355a031b330141d832cdb1e2f55e99c34a145b64aa43c0101b4ef68",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "葡萄糖存在會引發異化代謝物抑制使cAMP降低，無法活化CAP促進高度轉錄。",
+   "B": "異乳糖解除抑制蛋白結合，且無葡萄糖使cAMP升高活化CAP促進高度表達。",
+   "C": "缺乏乳糖使抑制蛋白持續結合操縱基因，且葡萄糖會抑制cAMP生成。",
+   "D": "缺乏乳糖導致抑制蛋白持續阻斷操縱基因，即使cAMP濃度高也無法轉錄。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q86": {
+  "sourceHash": "138854737c4dc3a0cb22833677d27d136c78b2180acca5cf8cf8b5e745334ab5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "具有ATP依賴性RNA解旋酶活性以解開二級結構，非直接結合5端帽。",
+   "B": "主要刺激eIF4A的解旋酶活性協助解開結構，並不直接結合5端帽。",
+   "C": "為專一端帽結合蛋白，轉譯起始時直接辨識並結合mRNA的5端帽。",
+   "D": "為支架蛋白負責橋接其他起始因子，本身不直接辨識結合5端帽。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q87": {
+  "sourceHash": "9fc23ae06435a51e955b19e5660ab9eff4f1a2a037061938ef98f2bd16323727",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "進入細胞後是被己糖激酶磷酸化，而非進行羥基化生成羥基葡萄糖。",
+   "B": "經己糖激酶於第六碳磷酸化形成此產物，因無法繼續代謝而滯留供造影。",
+   "C": "結構上第二碳仍維持氟原子取代，磷酸化後不會轉變為正常葡萄糖產物。",
+   "D": "缺乏二號碳羥基導致無法異構化，故無法進一步生成1,6雙磷酸產物。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q88": {
+  "sourceHash": "c0cf5e2068de2453eb108e5ced7d782c92d5c164ea80eddf97ce267a904641e0",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "乙醯輔酶A為能量充足指標，會異位抑制丙酮酸激酶來減少糖解。",
+   "B": "乙醯輔酶A能異位活化丙酮酸羧化酶，促進反應以增加葡萄糖新生。",
+   "C": "它是前饋調節物，會活化而非抑制丙酮酸激酶以加速糖解作用。",
+   "D": "為果糖磷酸激酶1最強的異位活化劑，能顯著促進糖解作用。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q89": {
+  "sourceHash": "2d9f414c2a67dd62507fd1977aeb4828168655cb85f8ce350be6ff5472969366",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "具有長且飽和的脂肪酸鏈，能與膽固醇緊密堆疊構成脂筏核心。",
+   "B": "能嵌入鞘脂之間調節膜流動性並維持微結構，為脂筏關鍵成分。",
+   "C": "為疏水中性儲存脂質，主要存在於細胞內脂滴而非細胞膜脂筏。",
+   "D": "如GPI錨定蛋白等會專一富集於脂筏中以參與細胞訊息傳遞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q90": {
+  "sourceHash": "fdd7759f7841d12f22bd5248f8084f08465b195ad0f04dbc9e35f44a3d98e87a",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "催化兩分子乙醯輔酶A進行縮合反應以生成乙醯乙醯輔酶A。",
+   "B": "催化乙醯乙醯輔酶A與第三個乙醯輔酶A縮合形成HMG-CoA。",
+   "C": "為脂肪酸合酶的成分，催化丙二醯基與醯基鏈進行縮合反應。",
+   "D": "利用NADPH將酮醯基還原為羥醯基，催化的是還原而非縮合反應。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q91": {
+  "sourceHash": "e7cef06c4e1661265b389ea1bdb9582d8a899ad0c3e675704acaf38f9cb9f192",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "能包裹特定離子穿透脂質雙層，顯著增加離子的被動擴散速率。",
+   "B": "許多天然離子載體源自微生物，屬於能破壞細菌膜電位的抗生素。",
+   "C": "促使離子順濃度與電荷擴散流動，會消除生物膜兩側的電化學梯度。",
+   "D": "介導順梯度的被動擴散，會消散離子梯度而非提高主動運輸功能。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q92": {
+  "sourceHash": "5b3752a5899ef1cf53f4fbd24d0911881edcac11043eb660924f091a1163cdfc",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "催化 serine 轉化為 glycine 與活性四氫葉酸，直接產物並非 pyruvate。",
+   "B": "將 glycine 裂解為二氧化碳、銨根及活性四氫葉酸，產物不含 pyruvate。",
+   "C": "依賴 PLP 直接催化 serine 進行脫水與脫胺反應，生成 pyruvate 與銨根。",
+   "D": "催化 aspartate 轉胺後的直接產物為 oxaloacetate 而非 pyruvate。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q93": {
+  "sourceHash": "3cef018ddd850de033bb6bef4ed57cd012fff57a739076d541120970f53552b8",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.690Z",
+  "optionExplanations": {
+   "A": "主要經羥化反應轉化為 tyrosine，並非合成 proline 的前驅物。",
+   "B": "主要用於合成血清素、褪黑激素與菸鹼酸，不參與 proline 的生合成。",
+   "C": "glutamate 經活化與還原形成中間產物 P5C 後，直接轉化合成 proline。",
+   "D": "主要用於合成兒茶酚胺、黑色素與甲狀腺素，並非 proline 的前驅物。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q94": {
+  "sourceHash": "3bbb173227a94cd8d8f925296ba5dd8243609688e3145d4ef3399506b724632b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "兩者位於阻斷點 Complex III 上游，電子無法傳遞而皆累積為還原態。",
+   "B": "cytochrome c 位於阻斷點下游，電子傳給氧氣後無法獲得補充而呈氧化態。",
+   "C": "cytochrome c 位於阻斷點下游且電子已耗竭傳出，主要呈氧化態。",
+   "D": "cytochrome a 位於阻斷點下游的 Complex IV，電子傳遞至氧氣後主要呈氧化態。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q95": {
+  "sourceHash": "f4cafa9987ff836daf1a38eedc3b3080918d4a5579bcea23fd57e01fed925f68",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "原料來自膜上已儲存的脂質，並非由細胞即時經從頭合成代謝途徑製造。",
+   "B": "前列腺素屬於自泌或旁泌作用，原料由反應細胞本身提供而非周圍脂肪細胞。",
+   "C": "花生四烯酸儲存於細胞膜雙層磷脂質中，而非細胞質內的脂肪顆粒。",
+   "D": "細胞受刺激後活化磷脂酶 A2，水解細胞膜磷脂釋放花生四烯酸作為原料。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q96": {
+  "sourceHash": "74090139001f8dfd4a998698f80f5a4431b5d613281363187e575643420b57e2",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "βARK 磷酸化的是受體位於細胞質側的羧基端，而非細胞外的胺基端。",
+   "B": "β-arrestin 結合磷酸化的受體以阻斷 G 蛋白訊號，並引發受體內吞作用。",
+   "C": "受體與 β-arrestin 複合體在內吞進入胞內囊泡後，兩者會相互解離。",
+   "D": "受體在胞內囊泡經磷酸酶去磷酸化後，會再循環運回細胞膜以恢復敏感性。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q97": {
+  "sourceHash": "b6048b24a4613f455695dfe14bfa1e04e12eea1b17289f4aeb69230b85148fab",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "p53 誘導 p21 轉錄以抑制 CDK2，造成 G1 期停滯而阻礙進入 S 期。",
+   "B": "p21 脫離可解除對 CDK2 的抑制，促進細胞週期推進至 S 期。",
+   "C": "CDK2 磷酸化 pRb 可釋放 E2F，是促進進入 S 期的核心機轉。",
+   "D": "游離的 E2F 會促進 DNA 複製相關基因轉錄，推動細胞進入 S 期。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q98": {
+  "sourceHash": "aa8d4098eb30470359cbe9d36228a4be658af26823d669ce5de344b9c1cc7976",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "DNA 聚合酶將受質的 α 位磷酸併入主鏈，可保留放射性於新合成探針中。",
+   "B": "聚合反應時 β 與 γ 位磷酸會以焦磷酸形式被切除釋放，無法標記於探針。",
+   "C": "γ 位磷酸在聚合時隨焦磷酸釋出，通常用於激酶的 5 端標記而非聚合酶。",
+   "D": "ATP 為未標記的核糖核苷酸，非 DNA 合成所需的去氧受質且無放射性。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q99": {
+  "sourceHash": "82e865bacd892a0bf2b0343c4e016308b37ac00ff925619b02eabf689ec5307d",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "利用限制酶切割片段長度差異進行基因分型，無法在染色體上直接定位。",
+   "B": "利用螢光探針與染色體 DNA 雜交，可直接於顯微鏡下精確定出基因位置。",
+   "C": "用於將 mRNA 反轉錄擴增以偵測基因表現量，無法定位染色體物理位置。",
+   "D": "用於大規模偵測基因表現圖譜或變異，無法在染色體結構上進行原位定位。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學一-生物化學-Q100": {
+  "sourceHash": "13142a02c18bda0ef82e95ea8b7d046bcb353793ec91389f283ebebf0a483d6b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "PCR 合成 DNA 所需受質為 dNTP，不需加入 RNA 合成所用的 NTP。",
+   "B": "為 PCR 反應中提供目標序列以供擴增的不可或缺必要成分。",
+   "C": "需耐受高溫變性步驟，必須加入耐熱聚合酶以催化新股合成。",
+   "D": "需一對引子黏附於目標 DNA 兩端，以提供聚合酶合成起始點。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q1": {
+  "sourceHash": "29731d7a915bc2c7e89b5e796f5b2e2c40cb01c406f8c7f8f7c5c452ce88c584",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "形成乾酪性肉芽腫局限菌體而維持無症狀，但未完全清除以致日後復發。",
+   "B": "結核菌靠抑制吞噬溶體融合與厚細胞壁存活，非藉由快速抗原突變逃脫。",
+   "C": "防禦與病理主要由巨噬細胞和 T 細胞主導，非嗜中性白血球過度活化。",
+   "D": "結核菌清除主要仰賴 T 細胞媒介的細胞免疫，而非 B 淋巴球或體液免疫。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q2": {
+  "sourceHash": "857f768b90cbfec4386b9979fcc890792573ac4cb0aa91ca9822444873996363",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "引起立克次體痘，主要傳染窩為小鼠等齧齒類而非人類。",
+   "B": "引起落磯山斑點熱，主要傳染窩為硬蜱及小型野生哺乳類。",
+   "C": "引起流行性斑疹傷寒，主要以人類為傳染窩並經體蝨傳播。",
+   "D": "引起地方性斑疹傷寒，主要傳染窩為鼠類並經鼠蚤傳播。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q3": {
+  "sourceHash": "78f3d1a0159b0e87146f8a3177877381ff4b61dd87aa30a2a0728797f530266f",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "絕大多數細菌具有單一閉合環狀染色體。",
+   "B": "多數原核生物染色體僅具單一複製起始點 oriC。",
+   "C": "細菌缺乏核膜，染色體直接位於細胞質的擬核區。",
+   "D": "細菌為單倍體而非雙倍體，通常僅含一套基因組。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q4": {
+  "sourceHash": "866388551e2acca610dad15e294b3c0e52dbeddb982d03f56abaaeb2e1f27765",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "病毒誘發干擾素與發炎細胞激素會引起類流感症狀。",
+   "B": "抗原與抗體結合沉積引發第三型免疫複合物過敏反應。",
+   "C": "登革病毒出血熱主因是抗體依賴增強作用非直接破壞細胞。",
+   "D": "潛伏期病毒已開始複製但尚未造成顯著組織損害與症狀。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q5": {
+  "sourceHash": "c32d5ae5c1c7f84aa7496ccbf74e87be85d543932b99c11b5b51881764d0ae8b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "頭孢菌素為抗細菌藥物，治療真菌需用安芬黴素B。",
+   "B": "主要經吸入感染引起肺部感染與真菌性腦膜炎。",
+   "C": "普遍存在於鴿糞與土壤中，主要經呼吸道吸入傳染。",
+   "D": "具厚層多醣體莢膜，能抗吞噬且可用印度墨汁染色。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q6": {
+  "sourceHash": "5f757aa4a9936e66abdb79999d1c6ae9af2caeee422423b8bd449ac33eef9977",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "屬於胺基醣苷類，作用於 30S 核糖體而易受突變影響。",
+   "B": "屬於巨環類，結合於 50S 核糖體且突變易產生抗藥性。",
+   "C": "屬於四環素類，作用標靶為 30S 核糖體。",
+   "D": "作用標靶為 DNA 旋轉酶而非核糖體，不受突變影響。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q7": {
+  "sourceHash": "bb7608e29372d3d91213c696c808cc71ba841d3fcc95c87cc0cd76165c223de3",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "屬於乙型內醯胺類，作用標靶即為青黴素結合蛋白。",
+   "B": "作用於 50S 核糖體次單元，與青黴素結合蛋白無關。",
+   "C": "抑制葉酸合成酶，抗藥性機轉與青黴素結合蛋白無關。",
+   "D": "作用於 30S 核糖體次單元，與青黴素結合蛋白無關。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q8": {
+  "sourceHash": "397b012832f44294de872482613c2f89266ffc0cc2e9ba685ff8925dd8c2efcf",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "毒素抑制神經傳導物質釋放，免疫球蛋白僅能中和毒素。",
+   "B": "提供被動免疫，結合並中和血液中游離的破傷風痙攣毒素。",
+   "C": "提供短暫被動免疫，誘發長期主動免疫需注射破傷風類毒素。",
+   "D": "為抗體而無直接殺菌力，殺菌需靠傷口清創與抗生素。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q9": {
+  "sourceHash": "1deba4a3ea16db83efecfb82f6f4f9a5cb9e6e5c3bfd452fbdebfc160081e8e6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "VDRL 與 RPR 檢測抗心磷脂抗體且敏感度高，臨床常用於初步篩檢。",
+   "B": "一期梅毒出現下疳初期，因抗體尚未充分生成而常呈現偽陰性。",
+   "C": "全身性紅斑狼瘡患者體內的自體抗體可能干擾檢驗而出現偽陽性。",
+   "D": "Treponemal test 治癒後多終身陽性，評估療效應追蹤 nontreponemal test 效價。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q10": {
+  "sourceHash": "af0116bad28a2f23662cc716ba3f4f99b38997f8f7d3f6467c136f08b54d59bb",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "獲得 vanA 操縱組將肽聚糖末端改為 D-Ala-D-Lac，降低萬古黴素親和力。",
+   "B": "萬古黴素作用於細胞外細胞壁合成，抗藥性並非透過外排泵排出。",
+   "C": "金黃色葡萄球菌為革蘭氏陽性菌，缺乏外膜與孔蛋白結構。",
+   "D": "抗藥性來自結合標的改變或細胞壁增厚，而非由水解酵素分解藥物。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q11": {
+  "sourceHash": "e8cfc931ddfc81e9a2cdcc5420a9fc77ffd7edfa2de871cd2936c610cdb081bd",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.691Z",
+  "optionExplanations": {
+   "A": "可在無細胞人工培養基生長，為能獨立生存並自行複製的最小原核生物。",
+   "B": "肺炎黴漿菌為專性好氧菌（strict aerobe），並非兼性厭氧菌。",
+   "C": "好發於學齡兒童及青年族群，極易在學校等封閉環境中傳播。",
+   "D": "氣管支氣管炎為最常見的臨床表現，僅少數進展為非典型肺炎。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q12": {
+  "sourceHash": "20cc3cf56ec86cf52abd66e8423adf46a319f8d8e638337151f7e038c6074f76",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "Adenovirus 僅在動物實驗致癌，未證實能引起人類惡性腫瘤。",
+   "B": "單純疱疹病毒與痘病毒均不會在人類身上引發癌症。",
+   "C": "HHV-4可致鼻咽癌、HHV-8致卡波西氏肉瘤、HTLV-1致白血病，皆為致癌病毒。",
+   "D": "Adenovirus 與痘病毒皆不是能在人類造成癌症的病毒。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q13": {
+  "sourceHash": "3f3a6e8cdffc45493e48e9bcab3698106e6ffed93eb412f57798558b070b597f",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "經口糞傳染且與受污染海鮮相關者為 HAV，HBV 主要由血液體液傳播。",
+   "B": "HCV 與 Zika virus 皆屬於黃病毒科（Flaviviridae）的正單股 RNA 病毒。",
+   "C": "HDV 為缺陷病毒，必須依賴 HBV 表面抗原協助組裝外套膜才能感染。",
+   "D": "容易造成孕婦猛爆性肝炎並導致高死亡率者為 HEV，並非 HAV。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q14": {
+  "sourceHash": "663abc264c60f06070aeabb73be9639403208509cdc771b673baf6dbd6be4b18",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "HAV 屬於微小核糖核酸病毒科，HBV 屬於肝去氧核糖核酸病毒科。",
+   "B": "HCV 與登革病毒皆屬於黃病毒科（Flaviviridae）。",
+   "C": "HSV 屬於疱疹病毒科，猴痘病毒屬於痘病毒科。",
+   "D": "RSV 屬於肺病毒科，A型流感病毒屬於正黏液病毒科。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q15": {
+  "sourceHash": "6c1d3356143b552a25777ed50599c44f9c3393582d9f073e7f00b468f0246eb4",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "enterovirus無套膜僅具蛋白質殼體，對酒精等脂溶劑具抵抗力。",
+   "B": "caliciviridae基因組為正單股RNA，並非雙股線性DNA。",
+   "C": "病毒套膜源自宿主細胞膜脂質雙層並鑲嵌病毒蛋白質與醣蛋白。",
+   "D": "rhabdoviridae為具套膜的負單股RNA彈頭狀病毒。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q16": {
+  "sourceHash": "9a9fcd003bb9905e7f9e636c2c027f13dabcd64afde12ca9426082b48a1f2574",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "潛伏感染時病毒基因組休眠共存，不會直接造成細胞衰老。",
+   "B": "流產性感染宿主多能存活，造成細胞死亡者主要是溶細胞感染。",
+   "C": "轉型會解除細胞週期控制與接觸抑制，使細胞具無限增殖能力。",
+   "D": "DNA與RNA病毒皆能誘發細胞轉型，如致癌RNA病毒HTLV-1。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q17": {
+  "sourceHash": "3902bda21fe759ace6997a5b1ccd164cf5f3ff28cb5b455d8333a7dda4bc8dd4",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "該菌為嗜脂性酵母菌，添加橄欖油可提供必需脂肪酸促進生長。",
+   "B": "thiamine並非該菌生長所需脂質，多用於毛癬菌營養鑑定。",
+   "C": "nicotinic acid非必需成分，該菌嚴格依賴外源性脂質供應。",
+   "D": "inositol非該菌生長所需，常用於皮癬菌之營養試驗。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q18": {
+  "sourceHash": "6bbb46361cd872f2143e1d0786c67452b4406211dbb38cbad41228ef86400056",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "吞噬細胞與補體系統為先天免疫的主要效應機制。",
+   "B": "模式辨識受體由生殖系編碼，基因不會進行體細胞重組。",
+   "C": "吞噬細胞辨識病原後會釋放細胞激素引發局部發炎反應。",
+   "D": "抗原特異性免疫記憶為適應性免疫專屬特性，先天免疫缺乏。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q19": {
+  "sourceHash": "3e6df519def80be2326b55af1ead88e131bbdf594e1ee0abd39815f27bcc4c65",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "MHC具有多基因性與多型性，由多個不同基因座編碼。",
+   "B": "人類古典MHC class I主要包含HLA-A、HLA-B與HLA-C三種基因。",
+   "C": "MHC為共顯性表現，等位基因排除為TCR與抗體重排特徵。",
+   "D": "促進MHC class II表現的為IFN-gamma而非IL-5。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q20": {
+  "sourceHash": "e29de8c87c6314ed5857ff4de9324eb38a8048ae394fd907c50c0d845207bda6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "pre-B細胞發育主要依賴IL-7，不受BAFF過量影響。",
+   "B": "骨髓製造未成熟B細胞屬中樞發育，不受周邊因子BAFF影響。",
+   "C": "過量BAFF提供存活訊號，拯救自體反應性成熟B細胞使其增加。",
+   "D": "BAFF主要作用於B細胞促進存活，不直接增加成熟T細胞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q21": {
+  "sourceHash": "c1956490bcdbdca51d9a0db1fdab713fc78e9b0073c88f0d2368e93cbf22a3cb",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "T-bet 為驅動 TH1 分化與分泌 IFN-γ 的關鍵轉錄因子。",
+   "B": "RORγt 為誘導 TH17 分化的轉錄因子，調控 TH2 者為 GATA3。",
+   "C": "TFH 的關鍵轉錄因子為 Bcl-6，GATA3 則負責調控 TH2。",
+   "D": "Treg 的特異性主轉錄因子為 FoxP3，Bcl-6 是 TFH 的轉錄因子。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q22": {
+  "sourceHash": "16a42a5216be4e849ef911f291ac21470823b711a90296a5cd682216ccaffcec",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "IgA 主要存在於黏膜分泌物中，不用於血液中判定急性感染。",
+   "B": "IgE 主要媒介第一型過敏反應與抗寄生蟲，非急性感染指標。",
+   "C": "IgG 在感染後期或康復後上升且長期維持，代表既往感染。",
+   "D": "IgM 為初次免疫反應最早產生的抗體，急性期效價最高。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q23": {
+  "sourceHash": "0b25e9e041bc0112f0335bdbaefa6c5aa695fbd0b7261bd38efa521db85e856f",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "Infliximab 屬於抗 TNF-α 的嵌合型單株抗體，非融合蛋白。",
+   "B": "Abatacept 為結合 CTLA-4 與 IgG1 Fc 端的融合蛋白，可阻斷共刺激訊號。",
+   "C": "Tocilizumab 屬於拮抗 IL-6 受體的人源化單株抗體，非融合蛋白。",
+   "D": "Omalizumab 為抗 IgE 單株抗體，適應症為氣喘且非融合蛋白。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q24": {
+  "sourceHash": "50909ca38be5a4cdac4fead745c144488be900372d3d9e4fd64cbee01d9d08d3",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "活化 B 細胞在生發中心需依賴 AID 酵素進行 DNA 切割與重組。",
+   "B": "疫苗刺激可促進抗體親和力成熟並由 IgM 轉換為 IgG 等類型。",
+   "C": "促進轉換為 IgA 的關鍵細胞激素為 TGF-β，IL-4 則促進 IgE 與 IgG 轉換。",
+   "D": "缺少 CD40 或 CD40L 會阻礙 T 與 B 細胞交互作用，導致高 IgM 症候群。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q25": {
+  "sourceHash": "09b43d56faf44ffe707d9dd48721b7c42deb809102310955a2299222f60d6ffd",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "GALT 包含培氏斑與闌尾等構造，為消化道 MALT 的主要亞型。",
+   "B": "NALT 包含華氏扁桃體環，負責上呼吸道與鼻咽部的黏膜免疫。",
+   "C": "BALT 分佈於支氣管分叉處，負責下呼吸道的黏膜局部免疫防禦。",
+   "D": "口腔淋巴構造已涵蓋於 NALT，免疫學分類上無獨立的 OALT。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q26": {
+  "sourceHash": "b29cedb3afc9e6c65d238b82d371c2cf3a737b0d1dc020967f02278a9fd396a5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "接觸性皮膚炎屬於遲發型的第四型過敏反應，而非第三型。",
+   "B": "主要由專一性 TH1 釋放發炎因子及 CD8 毒殺型 T 細胞造成表皮受損。",
+   "C": "IL-4 與 IL-5 主要由 TH2 分泌並媒介第一型過敏，非主導第四型。",
+   "D": "葉片油脂為半抗原，需與皮膚自體蛋白質結合形成完整抗原才能誘發免疫。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q27": {
+  "sourceHash": "d1db5186f442a74825dae0981af0fefbdcd97724c8b2c907e7ff955a14b38ee5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "促使胸腺上皮細胞表現組織特異抗原，以負向選汰清除自體反應性T細胞以建立中樞耐受性。",
+   "B": "疾病導因於AIRE缺失使自體反應性T細胞未被清除，非分泌腺體本身過量表現自體抗原。",
+   "C": "作用為促成負向選汰淘汰自體反應性細胞，並非抑制整體T細胞發育。",
+   "D": "疾病是因AIRE基因缺失導致負向選汰失效，而非過度表現直接活化T細胞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-微生物暨免疫學-Q28": {
+  "sourceHash": "ef81150dd09f60d07c8c460cc466c26f6cf2d00ed219b2daab34c8fea3990871",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "與CD28競爭結合APC表面的B7分子，且親和力顯著高於CD28。",
+   "B": "主要傳遞共同抑制訊息以抑制T細胞活化，而非傳遞共同刺激訊息。",
+   "C": "可與抗原呈現細胞表面的CD80（B7-1）高親和力結合。",
+   "D": "可與抗原呈現細胞表面的CD86（B7-2）結合傳遞抑制訊號。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-寄生蟲學-Q29": {
+  "sourceHash": "01143bdea4b5eda102efd5b5f38b16bbd13638fe0f87dc97f0ca7c87cc8b32a7",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.692Z",
+  "optionExplanations": {
+   "A": "泥土中發育之第三期絲狀幼蟲可經皮膚穿入感染人體並寄生於小腸。",
+   "B": "主因經口食入含胚卵引起內臟幼蟲移行症，非幼蟲經皮膚穿入。",
+   "C": "主因經口食入受含胚卵污染之飲食而寄生肝臟，非幼蟲經皮膚鑽入。",
+   "D": "主因生食含第三期幼蟲之淡水魚或蛙蛇等經口感染，非經皮膚鑽入。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-寄生蟲學-Q30": {
+  "sourceHash": "47e913f0fe0c6b388cf2424799c10d77520c87a344955ca6a16bec5b4ba964f7",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "曾於臺灣東部與南部因生食蝸牛流行，幼蟲可侵犯眼球前房造成眼部病變。",
+   "B": "主因生食豬肉寄生肌肉引發肌痛與眼眶水腫，非臺灣流行之眼內侵犯蟲種。",
+   "C": "幼蟲穿透皮膚主要引起皮膚幼蟲移行症或腸炎，非眼部病變之臺灣流行蟲種。",
+   "D": "經黑蠅傳播引起河川盲且流行於非洲與美洲，臺灣並非流行區。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-寄生蟲學-Q31": {
+  "sourceHash": "881e59774a8cec501966ba33324c754a2e637fd385e79a75fb1c9196c8cdaf4e",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "主要經糞口途徑食入蟲卵或自體感染致病，與生蛙肉外敷無關。",
+   "B": "需食入含擬囊尾幼蟲之甲蟲等節肢動物感染，非經蛙肉敷眼傳播。",
+   "C": "蛙肉常帶有裂頭幼蟲，以生蛙肉敷眼會直接侵入引起眼部幼裂頭絛蟲症。",
+   "D": "主因誤食犬科糞便中蟲卵引發包生囊腫，非源自蛙肉。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-寄生蟲學-Q32": {
+  "sourceHash": "b8773dee47981ece218bcba80db56b9f87b45ab6bd5d50d912dd6eaab2a66d68",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "中間宿主為淡水鯉科魚類且成蟲寄生膽管，非因生食鮭魚引起小腸腹瀉。",
+   "B": "第二中間宿主為溪蟹等甲殼類且主要寄生肺部，非生食魚類所致。",
+   "C": "第二中間宿主為鮭魚或香魚，成蟲寄生小腸引發腹痛腹瀉且可由糞檢確診。",
+   "D": "第二中間宿主主要為半鹹水魚類如鯔魚，生食鮭魚非其典型感染途徑。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-寄生蟲學-Q33": {
+  "sourceHash": "4c400cac286df54386864620afa44ee2d486e6efb6729e7251561166579da83c",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "阿米巴肝膿瘍等腸外感染患者，可利用商品化 ELISA 檢測血清特異性抗體協助診斷。",
+   "B": "急性下痢患者的稀便中主要為具致病力的活動體（trophozoites），囊體多見於成形便。",
+   "C": "痢疾阿米巴與外觀相同的迪斯帕阿米巴需藉由 PCR 分子技術進行鑑別。",
+   "D": "侵犯腸道組織造成潰瘍時，切片中可觀察到負責破壞組織的活動體（trophozoites）。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-寄生蟲學-Q34": {
+  "sourceHash": "ba21011a06d7d872e53974817bc51ce5f601c37653df6a3431f514c6e758e29b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "蟲體具 SRA 基因可拮抗人體 APOL1，毒力取決於蟲體與人類基因型之交互作用。",
+   "B": "頸部淋巴結腫大為 Winterbottom 氏徵象，Jericho boil 為利什曼原蟲病灶。",
+   "C": "被采采蠅攝入後，蟲體表面的變異表面醣蛋白會脫落並被前環素蛋白取代。",
+   "D": "蟲體入侵中樞神經系統導致昏睡症屬於晚期（第二期）表現，並非發生於感染初期。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-寄生蟲學-Q35": {
+  "sourceHash": "68b9fbe2b52577a1bef98944c51e9287e461406de6caef52a2da46fb296dafdc",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "犬心絲蟲症主要經由蚊子（mosquito）叮咬傳播，並非由蟎類傳播。",
+   "B": "瘧疾由瘧原蟲引起，傳播媒介為雌性按蚊（瘧蚊），非蟎類叮咬。",
+   "C": "黃熱病為黃病毒感染，主要由斑蚊叮咬傳播，非由蟎類傳播。",
+   "D": "恙蟲病由恙蟲病立克次體引起，藉由恙蟎（chigger mite）幼蟲叮咬傳播且常見於蘭嶼。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q36": {
+  "sourceHash": "207b2a92475bd77848b8f0240e13ec392266860f555bafecdab1946fdc523f6e",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "兩組母體變異數相等時，計算合併變異數（加權平均）約為 1.62，最接近 1.6。",
+   "B": "合併變異數為兩組樣本變異數（1.5 與 1.7）之加權平均，必定介於 1.5 到 1.7 之間。",
+   "C": "合併變異數為加權平均值，數值必定介於 1.5 與 1.7 之間，不可為 2.6。",
+   "D": "合併變異數不可能大於較大組的變異數 1.7，數值 2.7 明顯偏大。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q37": {
+  "sourceHash": "0057f86d32dbf3c457fd835ed11682e1afbe03702a4d16022f9fda51b4beabe7",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "總死亡率（粗死亡率）的計算分母應為該年度的年中人口數，而非年初人口數。",
+   "B": "標準化死亡率乃採用特定標準人口結構消除年齡干擾後所算出的調整後死亡率。",
+   "C": "111 年死亡率上升主因確為 COVID-19 疫情造成之超額死亡與人口老化。",
+   "D": "疾病別死亡率係指特定期間內死於該疾病之人數與年中總人口數之比率。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q38": {
+  "sourceHash": "182a69ef97b443aee4b788a8252976e41dbe3ea186b2f4fa8a38ddc5d4c5508d",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "盲性主要目的為去除執行與測量偏差，確保兩組在試驗過程中的照護與評估程序具可比性。",
+   "B": "霍桑效應為受試者被觀察而改變行為，盲性無法消除此效應，主要平衡安慰劑效應。",
+   "C": "雙盲是指同時對受試者與試驗執行或評估者施盲，僅對醫護施盲不符合雙盲定義。",
+   "D": "保證兩組在基線背景特性上具可比性是隨機分配（randomization）的功能，非盲性目的。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q39": {
+  "sourceHash": "3d029bb9d87fa8f112958e9c839da91dbea460757500e395d91b1dd454d5b3b9",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "ANOVA 用於比較三組以上連續變項之平均值，不適用於類別變項分析。",
+   "B": "Log rank test 用於存活分析比較時間事件曲線，不適用於此類別資料。",
+   "C": "卡方檢定適用於分析疾病類型與肥胖狀態兩個類別變項間之關聯性。",
+   "D": "雙樣本 t 檢定用於比較兩組獨立樣本之連續變項平均值，不適用於此。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q40": {
+  "sourceHash": "9b12e84de5a5f79a6f9ba1b69a5ba18cdbfcf677d70e9edb75df296454c4ed26",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "紫外線增強會加速氮氧化物與揮發性有機物反應，生成二次污染物臭氧。",
+   "B": "一氧化碳為燃料不完全燃燒產生之一次污染物，非光化反應生成。",
+   "C": "全氟碳化物為半導體與工業直接排放之溫室氣體，非光化作用生成。",
+   "D": "氫氟碳化物多為冷媒工業直接排放之人造氣體，非紫外線光化產物。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q41": {
+  "sourceHash": "45b8e850895c8804c7ff9a69f97d23643cc7260c9def612e4c30aa9569e68f1a",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "四氯化碳經代謝後產生自由基，為典型的化學性肝臟毒性物質。",
+   "B": "四氯化碳具劑量依賴性且具可預測性，屬於內因性而非特異體質毒性。",
+   "C": "四氯化碳毒性機轉明確且具高度可預測性，屬於典型內因性毒物。",
+   "D": "內因性肝毒物在人類與動物體內皆會引起小葉中心壞死等相似病理傷害。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q42": {
+  "sourceHash": "1ab436436dce7173dac26acf40deb6c29822cb54d5a311b5917911d81034a020",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "症狀群聚僅為流行病學調查線索，並非世界衛生組織定義職業病的標準。",
+   "B": "世界衛生組織將職業暴露在致病機轉中具因果關係列為職業病核心定義。",
+   "C": "世界衛生組織將職業作為多重病因中的貢獻因子納入工作相關疾病範疇。",
+   "D": "世界衛生組織將職業暴露會惡化或加重既有疾病納入工作相關健康危害。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q43": {
+  "sourceHash": "5a2ce175d1e20e3b8aa11a3b005f5dda9de2cbd1342de6f9052d43a8282e29ef",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "六價鉻細胞穿透力與氧化性強且具致癌性，毒性遠高於三價鉻。",
+   "B": "三氯乙烯為常見有機溶劑，廣泛應用於乾洗劑與金屬去脂等商業清潔用途。",
+   "C": "四氯化碳經代謝產生自由基並引發脂質過氧化，具有強烈肝臟毒性。",
+   "D": "甲苯側鏈甲基易被氧化代謝為苯甲酸排出，故毒性與致癌性皆比苯弱。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q44": {
+  "sourceHash": "4f245dd91d59060019f82489eebf62cd9d81f1401cac826f0d867ed7f24cc8d5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "高夫曼將精神疾患、成癮或犯罪等心理特徵歸類於個人人格缺損之污名。",
+   "B": "東亞病夫針對特定群體與國族貶抑，屬於部落種族污名而非身體污名。",
+   "C": "受污名者常採用隱瞞或掩飾等策略來管理損害認同，降低社會排斥。",
+   "D": "社會污名經個體內化後會形成自我污名，進而侵蝕自尊並影響適應。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q45": {
+  "sourceHash": "20e1aada0eae3902d2cff50c28f8055fa52d2895aec96bca6281f5bddd137e99",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "決控屬於知覺行為控制，社會關係亦非TACT原則的行為要素。",
+   "B": "他人態度屬於主觀規範構念，並非TACT相容性原則的行為要素。",
+   "C": "符合Ajzen相容性原則所定義的目標、行動、場域與時間四要素。",
+   "D": "社會關係屬於主觀規範相關範疇，非行為相容性原則的TACT要素。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q46": {
+  "sourceHash": "7b3f0d2eb6c6693edc81384d00212af07110feb8fe06979155c7d8d1a9221896",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "第一級預防為健康促進，屬一般性增進健康而非針對特定疾病之保護。",
+   "B": "疫苗接種屬於初段預防中的第二級特殊保護，針對特定病原建立免疫。",
+   "C": "第三級為早期診斷與早期治療，屬於疾病無症狀期的次段預防篩檢。",
+   "D": "第四級為限制殘障，屬於疾病進展後減少失能的三段預防措施。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q47": {
+  "sourceHash": "f8f5aa8d1ef95ff1103a0482052b455f7894d9b6af623683abb9b61dc3a8ae4d",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "評價需呼應目標以評估計畫之功效、效用與效率，敘述適當。",
+   "B": "依PRECEDE-PROCEED模式，評價確實分為過程、衝擊與結果評價。",
+   "C": "計畫擬定至執行期間的持續監測修正為形成性評價，而非總結性評價。",
+   "D": "衝擊評價主要評估知識與信念等立即短期成效，所需時間較結果評價短。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q48": {
+  "sourceHash": "15f003c859dbfbf67c2e3e258e982860da274f8463a629d08c131da56d920cdb",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.693Z",
+  "optionExplanations": {
+   "A": "物質使用疾患自然史確實遵循暴露、初次使用至成癮濫用之進程。",
+   "B": "個體在從暴露到成癮的任何階段，都可能發生物質帶來的身心傷害。",
+   "C": "物質濫用或依賴通常需經多次持續使用引發神經適應，敘述正確。",
+   "D": "入門理論指出最初嘗試的物質多為菸酒或大麻，而非海洛因等硬性毒品。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q49": {
+  "sourceHash": "23631f55f2cea0ac5a3c8f6147238dd52467442bbfd63bf4b8b75d1aa75b92ae",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "我國健保門診與急診依醫療院所層級收取固定金額之定額部分負擔。",
+   "B": "我國健保住院費用主要依天數與病房別採法定比率之定率部分負擔。",
+   "C": "我國健保設有單次與全年住院部分負擔上限以保障重症病患。",
+   "D": "自負額制為累積達起付門檻後才給付之機制，我國健保並未採行。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-公共衛生學-Q50": {
+  "sourceHash": "71ed8ad8e2b2ed58f6d2aa494212292a31c6db49908112d48c8d05e00dd15687",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "功利主義主張健康資源分配應追求群體最大效益，為主流正義理論。",
+   "B": "平等主義強調人人享有平等的健康權利並致力縮小健康差距。",
+   "C": "原則主義為包含四大原則的醫學倫理架構，非獨立的分配正義理論。",
+   "D": "社群主義強調共享價值與社群共同善，為當代主流分配正義理論之一。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q51": {
+  "sourceHash": "a55064971a426dd2801b3e23422a19421faa1ab23dcc656d7cb8009393cfdc17",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "嬰兒總體水分比例約佔70%至80%，明顯高於成人的55%至60%。",
+   "B": "嬰兒體脂肪比例顯著低於成人，故脂溶性藥物在脂肪組織的分布比例較成人低。",
+   "C": "嬰兒肝臟微粒體代謝酵素尚未發育成熟，各階段代謝能力皆低於成人。",
+   "D": "嬰兒出生時腎絲球過濾率與腎小管分泌功能皆未成熟，約需至1歲才接近成人水準。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q52": {
+  "sourceHash": "35384ebd0cb2f578f1e7044c8a775a17e28e57eb4357e3f892c8ffbde228b0ae",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "sulfonylureas 直接結合並抑制胰臟β細胞膜上的 ATP 敏感性鉀離子通道。",
+   "B": "鈣離子通道是去極化後下游開啟以促進鈣內流的通道，非其直接作用標的。",
+   "C": "GLUT2 負責葡萄糖進入胰臟β細胞，並非 sulfonylureas 的作用標的。",
+   "D": "SGLT2 主要分佈於腎臟近曲小管，為 SGLT2 抑制劑的作用標的。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q53": {
+  "sourceHash": "1b4a181b1ea8eb8072d5a13143323d8089f71659f0f182277655a4287e85d3d1",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "pilocarpine 為蕈毒鹼受體促效劑，會刺激腸道蠕動而容易引發腹瀉。",
+   "B": "能刺激睫狀肌收縮以拉開小樑網促進房水排出，達到降低眼壓的效果。",
+   "C": "能刺激唾液腺分泌唾液，臨床可用於改善乾燥症病患的口乾症狀。",
+   "D": "會刺激逼尿肌收縮而惡化膀胱過動症，臨床上應使用抗膽鹼藥物治療。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q54": {
+  "sourceHash": "82bafe07e5a337e2bf06c28fb843da5991344d342069c48131767521b975cb41",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "diazepam 能促進中樞神經 GABAA 受體活性以達到肌肉鬆弛效果。",
+   "B": "baclofen 為 GABA 類似物，能專一性活化中樞神經的 GABAB 受體。",
+   "C": "tizanidine 的作用機轉為中樞性 α2 腎上腺素受體促效劑而非拮抗劑。",
+   "D": "dantrolene 能抑制肌漿網上的雷諾丁受體通道，阻斷鈣離子釋放。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q55": {
+  "sourceHash": "77e8cf02cacafd0a4c421091ce12a3f313ff89bd153ea87797bc1f99a9f6e940",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "同屬易被 β-lactamase 水解的抗生素，不具抑制酵素作用而無法克服抗藥性。",
+   "B": "為天然青黴素且易被青黴素酶水解破壞，無法作為保護其他抗生素的抑制劑。",
+   "C": "為第一代頭孢菌素而非 β-lactamase 抑制劑，無法保護 ampicillin 免於被分解。",
+   "D": "為不可逆的 β-lactamase 抑制劑，併用能保護 ampicillin 恢復抗菌活性。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q56": {
+  "sourceHash": "0ac79904a3a8dc0923b2003a29e283fdda5dc26a311f9572e19f4c36e2b761cf",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "停經後婦女術後先用 tamoxifen 再接續 anastrozole 為標準循序內分泌療法。",
+   "B": "此三種藥物組成的 CMF 處方為乳癌臨床歷史悠久的標準輔助性化療。",
+   "C": "在 HER-2 過度表現的乳癌中，併用 trastuzumab 與化療藥物能顯著提升療效。",
+   "D": "兩者皆為芳香環酶抑制劑，僅對荷爾蒙受體陽性有效，缺乏受體表現者無效。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q57": {
+  "sourceHash": "d18dad4a049e7355c9250efe2c97d029697d87e8f531e629cf9d2b1c35992cf5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "chloroquine 會誘發或惡化乾癬發作，故乾癬病患不宜使用。",
+   "B": "含鈣、鎂之制酸劑會螫合干擾 chloroquine 吸收而降低療效。",
+   "C": "mefloquine 常作為抗 chloroquine 惡性瘧原蟲的替代治療與預防用藥。",
+   "D": "mefloquine 與 quinine 併用會顯著增加嚴重心律不整與抽搐風險，臨床禁止併用。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q58": {
+  "sourceHash": "35e6de2240770e686cdc8b9560df71dcd5d52c5a3ac5322f11c15cd645a66335",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "具自主神經毒性，臨床上可引發姿勢性低血壓。",
+   "B": "具神經毒性會抑制腸道蠕動，引發的是嚴重便秘而非腹瀉。",
+   "C": "會干擾微管聚合與軸突運輸，周邊神經病變為其主要劑量限制性毒性。",
+   "D": "會影響下視丘並導致抗利尿激素分泌不當症候群（SIADH）與低血鈉。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q59": {
+  "sourceHash": "0fa95baffa29fb5181d4f195595b9338f4b2496170a565c64fcacc070c7f57c3",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "為 glycoprotein IIb/IIIa 單株抗體，非 P2Y12 拮抗劑。",
+   "B": "為血栓溶解劑（tPA），作用為活化胞漿素原以溶解纖維蛋白，非抗血小板藥物。",
+   "C": "抑制 phosphodiesterase 及阻斷腺苷再吸收以提升 cAMP，非 P2Y12 拮抗劑。",
+   "D": "為可逆性 P2Y12 受體拮抗劑，能直接阻斷 ADP 路徑抑制血小板凝集。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q60": {
+  "sourceHash": "cb623c5034d7eab8c3b6790330055ef286937ab674b6ebbd72e85a5c80137a1d",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "為 direct Factor Xa 抑制劑，andexanet alfa 可作為其專一性誘餌蛋白反轉劑。",
+   "B": "為 direct thrombin 抑制劑，其專一性反轉劑為 idarucizumab。",
+   "C": "為增強抗凝血酶III活性之藥物，其急性出血專一性反轉劑為 protamine sulfate。",
+   "D": "為維生素K拮抗劑，出血時主要給予 vitamin K1 或四因子凝血酶原複合物反轉。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q61": {
+  "sourceHash": "2c16b6fcad26e3075059cb37cbdb3b3731ec6ea1fb1dc0bb0812af399493b106",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "調節細胞激素平衡並減少發炎細胞穿透血腦障壁，非作用於 S1P 受體。",
+   "B": "模擬髓鞘鹼性蛋白以誘發 Th2 免疫調節，非 S1P 受體調節劑。",
+   "C": "為針對 α4 integrin 的單株抗體，阻斷淋巴球黏附與穿透血腦障壁，非調節 S1P 受體。",
+   "D": "為 S1P 受體調節劑，可促使受體內吞並將淋巴球滯留在淋巴結內減少進入 CNS。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q62": {
+  "sourceHash": "e4537531f21bdff77e1ccaa273b0c1a292476a0bc82873e126ab7476683acc52",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "為非類固醇類芳香環酶抑制劑，抑制 CYP19 減少雌激素生成以治療停經後乳癌。",
+   "B": "為選擇性雌激素受體降解劑（SERD），作用為降解受體而非抑制芳香環酶。",
+   "C": "屬於選擇性雌激素受體調節劑（SERM），為受體拮抗劑而非芳香環酶抑制劑。",
+   "D": "為選擇性雌激素受體調節劑（SERM），拮抗下視丘雌激素受體以誘發排卵，非芳香環酶抑制劑。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q63": {
+  "sourceHash": "28f2339c5b75bc90d0fbf0f9a75502e5a0cbf0f98f4f622445148132bcd42e3e",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "為非選擇性乙型阻斷劑，能快速控制交感亢進並抑制周邊T4轉化為T3。",
+   "B": "可抑制甲狀腺過氧化酶阻斷荷爾蒙合成，並抑制周邊T4轉化為T3。",
+   "C": "屬於外源性甲狀腺素，用於治療甲狀腺功能低下，使用會加重甲狀腺毒症。",
+   "D": "能透過沃夫查可夫效應急性抑制甲狀腺素釋放，適合用於治療。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q64": {
+  "sourceHash": "fb718bd69346827eabbbd1bedc645189cccc8f15ab8cdab0840218453caf5d5d",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "主要作用於遠曲小管而非近端腎小管，故此敘述錯誤。",
+   "B": "能抑制遠曲小管管腔側的鈉氯共同運送系統以減少再吸收。",
+   "C": "可促進遠曲小管對鈣離子的再吸收並降低尿鈣排出。",
+   "D": "具磺胺基化學結構，擁有微弱抑制碳酸酐酶的活性。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q65": {
+  "sourceHash": "f0b21be2ed8fde4938d12b5bb5e294ad214ee06366b714627aac0120f2c1d897",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "屬於ARB類藥物，主要阻斷血管收縮素受體而非抑制ACE。",
+   "B": "代謝成活性態後可直接抑制血管收縮素轉化酶，減少Angiotensin II生成。",
+   "C": "為直接動脈擴張劑，主要釋放NO使血管平滑肌舒張，非抑制ACE。",
+   "D": "屬於鉀通道開啟劑，透過平滑肌超極化擴張小動脈，非抑制ACE。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q66": {
+  "sourceHash": "83f53f340fb5b59b64f1a07a9698a108cca5e27e75e40b07f3703625fa996b73",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "腸胃道症狀如噁心、嘔吐與腹瀉為毛地黃常見的早期中毒反應。",
+   "B": "抑制鈉鉀幫浦造成細胞內鈣離子過載，主要引發延遲後去極化而非EADs。",
+   "C": "治療指數狹窄且有效劑量與中毒劑量接近，臨床上需監測血中濃度。",
+   "D": "環利尿劑易造成低血鉀，低鉀狀態會增強毛地黃毒性。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q67": {
+  "sourceHash": "04b5ea5ab7d1c743b6d0505b0a27a4aa59d54eb66e5a7917c6503adffd18e33b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "活化後會提高細胞內鈣離子濃度並造成血管平滑肌收縮，無法擴張支氣管。",
+   "B": "活化後經由Gs蛋白增加cAMP，能促使支氣管平滑肌舒張以緩解痙攣。",
+   "C": "活化會造成支氣管平滑肌收縮與分泌物增加，需使用拮抗劑才能擴張。",
+   "D": "主要分布於化學受體觸發區與腸道迷走神經且與止吐相關，無舒張支氣管效果。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q68": {
+  "sourceHash": "e7744cd7aab61fa1df652d49cb4a17a774a2e045ffde2c0cd2145f9728990ae6",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.694Z",
+  "optionExplanations": {
+   "A": "屬於長效型蕈毒鹼受體拮抗劑而非甲基黃嘌呤類藥物。",
+   "B": "屬於黃嘌呤衍生物能舒張氣管平滑肌，且幾乎不具拮抗腺苷受體的作用。",
+   "C": "雖能舒張氣管，但具有拮抗腺苷受體的作用而容易引起中樞興奮。",
+   "D": "屬於肥大細胞穩定劑，透過抑制去顆粒化預防氣喘，非甲基黃嘌呤類。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q69": {
+  "sourceHash": "28e99356cdb4eec2f577a5d63288d6e924c3043ea72604d8aa5109ebdae223e4",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "為刺激性瀉劑，可刺激腸壁神經叢促進蠕動，臨床常與PEG併用清腸以減少灌洗量。",
+   "B": "為巨環類抗生素且具胃動素受體致效作用，主要用於促進胃排空而非大腸鏡清腸。",
+   "C": "藉由活化ClC-2氯離子通道增加腸液分泌，用於治療慢性便秘而非鏡檢清腸。",
+   "D": "為生長抑素類似物，會抑制腸道蠕動與分泌，常用於止瀉而非大腸鏡清腸。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q70": {
+  "sourceHash": "b0b3df828d07819d73b50c62d3c256251eb1a370534ce70881b587d2f4bda405",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "為促尿酸排泄劑，藉抑制URAT1減少再吸收，非將尿酸代謝為allantoin。",
+   "B": "為重組尿酸氧化酶，可催化尿酸氧化轉變為水溶性allantoin以利排出。",
+   "C": "為促尿酸排泄劑，機轉為抑制URAT1促進排泄，無法將尿酸轉化為allantoin。",
+   "D": "為黃嘌呤氧化酶抑制劑，作用是阻斷尿酸合成，非將已生成尿酸轉化為allantoin。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q71": {
+  "sourceHash": "0904be679c4fb156fe4cc8e6857092ab19b4818bab63ba99a5e1392393287c61",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "為直接腎素抑制劑，主要用於治療高血壓，並非bradykinin B2受體拮抗劑。",
+   "B": "為ACE抑制劑，會抑制緩激肽代謝而可能誘發水腫，並非水腫治療藥物。",
+   "C": "為選擇性bradykinin B2受體拮抗劑，可用於治療遺傳性血管水腫急性發作。",
+   "D": "為絲胺酸蛋白酶抑制劑，抑制kallikrein與plasmin，非B2受體拮抗劑。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q72": {
+  "sourceHash": "5263ed9f7e29cd98c84f782c61d2e5db3652df1fb1df41c1b5a55823a24803cf",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "為兒童病毒感染發燒首選退燒藥，不影響粒線體功能且不會誘發Reye syndrome。",
+   "B": "為常用解熱鎮痛NSAID，用於兒童退燒且與Reye syndrome無直接關聯。",
+   "C": "為選擇性COX-2抑制劑，主要用於成人關節抗發炎，非引發Reye syndrome藥物。",
+   "D": "於兒童病毒感染發燒使用時，會損害粒線體代謝而誘發急性腦病變與脂肪肝。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q73": {
+  "sourceHash": "8d01deb9e2921f2cfae7edebc172986c03c8690667d1086aec719f40447e2d0e",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "正確，benzodiazepines主要結合並作用於GABA-A受體上。",
+   "B": "錯誤，BZD結合位於alpha與gamma次單元間，alpha與beta間為GABA結合位。",
+   "C": "正確，BZD為正向別構調節劑，無GABA存在時無法直接開啟氯通道。",
+   "D": "正確，flurazepam活性代謝物半衰期顯著長於中短效的alprazolam。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q74": {
+  "sourceHash": "3aeb8dde31afea17994fde699f6a503ece3b2ccc3267618dcce0c833bfa14d07",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "屬NMDA受體拮抗劑，在藥物濫用成癮風險分級中為最低的第1級。",
+   "B": "作用於CB1受體，成癮風險分級為第2級，成癮性高於ketamine。",
+   "C": "作用於GABA-A與NMDA受體，成癮風險為第3級，具顯著心理與生理依賴性。",
+   "D": "作用於菸鹼型乙醯膽鹼受體，成癮風險屬於最高的第5級，成癮性極高。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-藥理學-Q75": {
+  "sourceHash": "3c400425814f1e071f8aa180b3294e4514e4260080ebd4ade24ae8315a6de031",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "無機鉛中毒典型為腹絞痛、嗜鹼性點彩紅血球與垂腕症，不會引起吸入性肺炎或肢痛病。",
+   "B": "有機鉛毒性主要集中於中樞神經引起腦病變，無典型的牙齦口炎與肢痛病。",
+   "C": "汞元素蒸氣吸入會引起化學性肺炎，慢性毒性則表現為顫抖、牙齦口炎與肢痛病。",
+   "D": "無機砷中毒以大蒜味呼吸、米湯樣腹瀉、過度角化及米氏線為主，非此症狀組合。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q76": {
+  "sourceHash": "dcdbfc4127aaa5e20f02b8a2c9090667ca591ab8ef31e1caa9dbd84d4a4153ef",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "肥大為細胞體積增大因應負荷增加的適應反應，與惡性變化無直接關聯。",
+   "B": "發育不全屬於器官胚胎發育缺陷而非細胞適應，與惡性轉化無關。",
+   "C": "化生若持續受慢性刺激，易進展為分化不良（dysplasia）並演變為惡性腫瘤。",
+   "D": "萎縮為細胞體積縮小與功能降低，非惡性轉化的關鍵前驅適應。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q77": {
+  "sourceHash": "9d99a19a76925600c81a0f7541d874566dc1b686bebc2d811a8a63f3997d9675",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "甲狀腺乳突癌鏡檢具有同心圓層狀鈣化的砂粒體（psammoma bodies）特徵。",
+   "B": "乳房乳腺管癌組織鏡檢不以同心圓層狀的砂粒體為典型特徵。",
+   "C": "胰臟腺泡細胞癌鏡檢特徵為腺泡構造及嗜酸性酵素原顆粒，無砂粒體。",
+   "D": "大腸黏液癌特徵為細胞外黏液池中漂浮腫瘤細胞，而非砂粒體。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q78": {
+  "sourceHash": "2afbfb4fb1b585be3c76be87220908aa29cbf853efd7fa86c0c36252225d62d9",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "薛格連氏症候群最常見的腎臟病變為小管間質性腎炎，而非腎絲球腎炎。",
+   "B": "anti-SS-A及anti-SS-B抗體非專一性，亦常見於全身性紅斑狼瘡（SLE）。",
+   "C": "慢性B細胞活化增生導致最常併發的惡性腫瘤為B細胞淋巴瘤而非T細胞。",
+   "D": "約百分之七十五的患者血清中類風濕因子（RF）呈陽性，為極常見特徵。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q79": {
+  "sourceHash": "8047bf289014eb7c5e6c7a1ffb88237324b9c82b61c7dc741bc72a88b92f3028",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "重症肌無力是由自體抗體結合乙醯膽鹼受體所致，屬第二型過敏反應。",
+   "B": "狼瘡腎炎為免疫複合物沉積於腎絲球基底膜，屬第三型過敏反應。",
+   "C": "血清病為循環免疫複合物沉積於血管壁所致，屬第三型過敏反應。",
+   "D": "接觸性皮膚炎是由致敏T細胞媒介的遲發型反應，屬於第四型過敏反應。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q80": {
+  "sourceHash": "68cc4e77f1e44b1be6ae9d3ef258db820a666046e4ba8914cda7c22741a928f1",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "公費推廣子宮頸抹片能早期發現癌前病變並治療，是死亡率下降的主因。",
+   "B": "人類乳突病毒疫苗近年才公費推行，非近二十年死亡率大幅下降主因。",
+   "C": "長期使用口服避孕藥是子宮頸癌的危險因子，無法降低死亡率。",
+   "D": "全民健保為制度背景，抹片篩檢的普及與早期治療才是死亡率下降的直接關鍵。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q81": {
+  "sourceHash": "b8cf4635b02007b414760829a630e81e8e57ae8f81cc407bd3452c674724b389",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "血流恢復產生沖洗效應且細胞膜通透性增加，使肌鈣蛋白加速釋放至血中。",
+   "B": "血流恢復帶來大量氧氣，粒線體不完全還原與發炎反應會產生大量自由基。",
+   "C": "血管內皮表現黏附分子引導大量嗜中性球等白血球聚集浸潤。",
+   "D": "再灌流損傷引發鈣離子過載與收縮帶壞死，仍會造成額外心肌細胞死亡。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q82": {
+  "sourceHash": "6696883dcc71e14ebe2c653dbdc096097f070ad37bfa7f41ce7d0d07d2178c8b",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "贅生物由無菌纖維蛋白與血小板組成且缺乏發炎反應，發炎細胞含量最少。",
+   "B": "贅生物內含有大量細菌、壞死組織碎片與大量嗜中性白血球浸潤。",
+   "C": "人工瓣膜感染屬於嚴重感染性病灶，贅生物富含大量急性發炎細胞。",
+   "D": "常見於紅斑性狼瘡，病灶伴隨明顯纖維素樣壞死與單核發炎細胞浸潤。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q83": {
+  "sourceHash": "d43e641d9a74977506f7629dee1aa3894f7cde9a6094babf11189b65f09331c0",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "酒精及其代謝物具直接心肌毒性，是續發擴大性心肌病變的常見成因。",
+   "B": "病毒感染後引發免疫反應導致心室擴大與收縮低下，為常見致病機轉。",
+   "C": "放射線引起心肌纖維化會使心室壁僵硬，主要導致限制型心肌病變。",
+   "D": "約兩成至五成病例具家族遺傳性，常由肌聯蛋白等先天基因突變所致。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q84": {
+  "sourceHash": "86f501a3994dd4d33296b0a4404819e42d4e59b725583a44cdf000a4e1af4500",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.695Z",
+  "optionExplanations": {
+   "A": "多源於肺部或食道且非前縱隔典型腫瘤，與重症肌無力抗體無關。",
+   "B": "雖為前縱隔常見生殖細胞腫瘤，但不會引發抗乙醯膽鹼受體自體免疫反應。",
+   "C": "為前縱隔最常見腫瘤且常合併重症肌無力，會產生抗乙醯膽鹼受體自體抗體。",
+   "D": "屬罕見縱隔神經內分泌腫瘤，主要分泌荷爾蒙而非抗乙醯膽鹼受體自體抗體。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q85": {
+  "sourceHash": "9182b06caa086a86046efcb271952abe8422fc78972e202e351aa200fc1421b7",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.697Z",
+  "optionExplanations": {
+   "A": "屬於造血幹細胞異常疾患，約有一成至四成患者最終轉化為急性骨髓性白血病。",
+   "B": "主要好發於七十歲以上的老年族群，在兒童及青少年極為罕見。",
+   "C": "因骨髓無效造血，周邊血液特徵通常為單系或多系血球減少而非增多。",
+   "D": "骨髓造血細胞具顯著分化不良，可見環狀鐵母細胞等形態異常。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q86": {
+  "sourceHash": "7e397e0d4eec9cf5b0aeb7c8c57c353ce90aeb54d83bb07d65d2af1d446dc0eb",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.697Z",
+  "optionExplanations": {
+   "A": "源於間皮細胞，可發生於臟側或體側肋膜並廣泛蔓延包覆肺部。",
+   "B": "侵襲性高且中位存活期僅約九至十四個月，極少數患者能存活超過兩年。",
+   "C": "為常見鑑別診斷，可藉Calretinin與TTF-1等免疫組織化學染色區分。",
+   "D": "常見基因異常包含CDKN2A缺失、BAP1突變及NF2突變。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q87": {
+  "sourceHash": "c6e76e1360fa29743559fc9a9fd81a073fd22980bbbd7656af973d39d411ec1a",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.697Z",
+  "optionExplanations": {
+   "A": "孤立性纖維瘤為間葉來源腫瘤，keratin 免疫染色通常呈現陰性。",
+   "B": "CD34 與 STAT6 在孤立性纖維瘤中通常呈現瀰漫且強烈的陽性反應。",
+   "C": "孤立性纖維瘤與石綿暴露無關，惡性間皮瘤才與石綿暴露密切相關。",
+   "D": "孤立性纖維瘤最常發生於肋膜，常形成帶蒂的軟組織腫塊。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q88": {
+  "sourceHash": "b4fd011173b533986024f7eaefefb83dbbca3faf1cf65f129395e628029cbfbb",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.697Z",
+  "optionExplanations": {
+   "A": "大葉性肺炎起始於血管擴張滲出，應以充血期為始而非灰色肝變期。",
+   "B": "大葉性肺炎經典病理進程依序為充血期、紅色肝變期、灰色肝變期與緩解期。",
+   "C": "充血期後紅血球浸潤形成紅色肝變期，崩解後才轉為灰色肝變期。",
+   "D": "病程起始為肺微血管擴張與水腫的充血期，而非紅色肝變期。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q89": {
+  "sourceHash": "24b0cfd46d2bdca28c4f342ca3218918aa32494e19996a40e1e7845078f95305",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.697Z",
+  "optionExplanations": {
+   "A": "幽門螺旋桿菌最常定殖於胃竇，其菌量與發炎程度通常顯著高於胃體。",
+   "B": "增生性息肉多由幽門螺旋桿菌引發慢性發炎後的黏膜過度修復所致。",
+   "C": "幽門螺旋桿菌主要定殖於胃黏膜表面及頸部上皮的黏液層中且不侵入細胞。",
+   "D": "胃竇感染會降低體抑素並增加胃酸分泌，進而引發十二指腸潰瘍。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q90": {
+  "sourceHash": "27bf85afabb63d587c241810f5b6ee7d6ea9990df5c12e96c2617aeede86dbbd",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.697Z",
+  "optionExplanations": {
+   "A": "胃部為最常見的結外淋巴瘤部位，以 MALT 淋巴瘤及 DLBCL 最多見。",
+   "B": "幽門螺旋桿菌引發慢性發炎與獲得性淋巴組織增生，為最常見誘發因子。",
+   "C": "轉化為高惡性度 DLBCL 時，常伴隨 TP53 與 p16 等抑癌基因失活。",
+   "D": "胃 MALT 瘤最常見染色體易位為 t(11;18)，t(9;22) 見於 CML。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q91": {
+  "sourceHash": "aaa81583c4369ba4a1ed7c2be4a0f1dd16f90569640ac4ceeb0b8fe9b6c7e50c",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "CFTR 與 PRSS1 突變見於遺傳性胰臟炎或囊狀纖維化，而非本病。",
+   "B": "病理切片特徵為淋巴漿細胞硬化性胰臟炎，可見大量漿細胞浸潤與纖維化。",
+   "C": "組織病理上常伴隨典型的閉塞性靜脈炎表現。",
+   "D": "第一型自體免疫胰臟炎屬於全身性 IgG4 相關疾病在胰臟的器官侵犯。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q92": {
+  "sourceHash": "8a748cfd952cebad2356bbe3ac82434e1850d567de762a2699f78fe0a4c2542f",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "多瘤病毒主要感染腎小管上皮細胞，並在核內大量複製形成特徵性包涵體。",
+   "B": "足細胞主要與腎絲球過濾及蛋白尿相關，非多瘤病毒主要感染的標的。",
+   "C": "單核球細胞為循環免疫細胞，非多瘤病毒感染與產生包涵體的宿主。",
+   "D": "系膜細胞位於腎絲球微血管間提供結構支持，非多瘤病毒感染的目標細胞。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q93": {
+  "sourceHash": "e014f466b215865541b4a194a29b6a811216ff7de4a45882690a2604c753f909",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "突變主要見於結節性硬化症與腎臟血管肌肉脂肪瘤，非膀胱扁平原位癌特徵。",
+   "B": "FGFR3 與 HRAS 活化突變常見於非侵襲性乳突狀泌尿道上皮腫瘤路徑。",
+   "C": "EWS 與 FLI-1 轉位為尤文氏肉瘤（Ewing sarcoma）的特徵，與膀胱癌無關。",
+   "D": "膀胱扁平原位癌走高惡性度侵襲路徑，最常出現 TP53 與 RB 腫瘤抑制基因缺失或突變。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q94": {
+  "sourceHash": "d12b069a8cb3ee766fc50bd5b674e8c0ac82fac3087eeb2c1bd0bca4babd40c0",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "約八成原發性膜性腎病變患者可測得抗 PLA2R 自體抗體，為重要致病機轉與標記。",
+   "B": "針對基底膜的自體抗體見於抗基底膜疾病（anti-GBM disease），非膜性腎病變。",
+   "C": "光學顯微鏡下主要呈現瀰漫性微血管壁增厚與釘突外觀，典型無顯著膈細胞增生。",
+   "D": "電子顯微鏡下免疫複合體主要沉積於足細胞下方的上皮下區域，非膈細胞下方。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q95": {
+  "sourceHash": "92ffda08696b25ba43a6db860115fb1e1de8311542f1ff012f0b1e1a72e420f3",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "隱睪症使未下降側及對側正常睪丸罹患生殖細胞腫瘤的風險皆顯著增加。",
+   "B": "超過 60 歲男性最常見睪丸腫瘤為淋巴瘤（lymphoma），非精原細胞性腫瘤。",
+   "C": "兒童睪丸畸胎瘤多為良性病變，周圍組織不會伴隨原位生殖細胞瘤（GCNIS）。",
+   "D": "兒童最常見生殖細胞腫瘤通常為卵黃囊瘤（yolk sac tumor），非畸胎瘤。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q96": {
+  "sourceHash": "c046cdd391695f79b070bc85f9a604ef57fe90ac044ef3bb6f8b79f780fb92e5",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "無排卵週期最常發生於初經及停經前期等生殖年齡兩端，而非停經後。",
+   "B": "甲狀腺疾病或腦垂腺腫瘤等內分泌失調會干擾排卵，導致無排卵週期。",
+   "C": "多囊性卵巢症候群（PCOS）等卵巢原發病灶是引起慢性無排卵的常見病因。",
+   "D": "排卵失敗缺乏黃體素，導致子宮內膜受到過度且持續的動情激素刺激。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q97": {
+  "sourceHash": "8ba80a3e36e9b5086da12b7fbcec44c9b77f4cf1cfea56be8f6f3018e2dcaeea",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "46,XX 佔完全性葡萄胎約 90%，多由單一精子受精於空卵後自身複製形成。",
+   "B": "46,XY 僅佔完全性葡萄胎約 10%，由兩隻不同精子受精於空卵形成，非最常見。",
+   "C": "69,XXY 為部分性葡萄胎最常見的三倍體核型，非完全性葡萄胎。",
+   "D": "92,XXXY 為極罕見的四倍體，並非完全性葡萄胎的常見核型。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q98": {
+  "sourceHash": "b4233124c9de74c1ac3cb3630f1ed89a8b28a519c7d56fccfae7d1e0a2e5c234",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "天疱瘡（pemphigus）為 IgG 於表皮細胞間呈網狀沉積，非基底膜交界處 IgA。",
+   "B": "大皰性類天疱瘡為 IgG 與 C3 沿表皮真皮交界處呈線性沉積，非 IgA。",
+   "C": "表皮溶解水疱症為結構蛋白基因突變所致遺傳病，無自體免疫 IgA 沉積。",
+   "D": "疱疹樣皮膚炎的典型特徵為 IgA 顆粒狀沉積於真皮乳頭尖端及表皮真皮交界處。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q99": {
+  "sourceHash": "bc32ca99ca458a8319441768434cceae7d4d3d79c808eb01afc8fea4c3aca5d0",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "由異常PrP^Sc普利昂蛋白沉積而成，Aβ沉積見於阿茲海默症老年斑。",
+   "B": "為普利昂疾病特徵，約一成的庫賈氏病及GSS症候群患者可見此斑塊。",
+   "C": "具類澱粉樣纖維結構，剛果紅染色呈陽性且具蘋果綠雙折射性。",
+   "D": "病理組織上最常沉積於小腦顆粒層與分子層，常導致共濟失調。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
+ },
+ "115-2-醫學二-病理學-Q100": {
+  "sourceHash": "eb546bdb1d7e8ef455134153d2ce065b7bcff907019f4baf4eee85a075493881",
+  "model": "agy/gemini-3.7-flash",
+  "promptVersion": "jianda-from-詳解-agy-v1",
+  "generatedAt": "2026-09-02T12:36:08.698Z",
+  "optionExplanations": {
+   "A": "八成以上屬於WHO第一級良性腫瘤，生長緩慢且預後多半良好。",
+   "B": "好發於中老年成年女性，兒童少見且多與NF2神經纖維瘤病相關。",
+   "C": "常高度表現黃體素受體，懷孕時受黃體素刺激會加速生長而非變慢。",
+   "D": "最常見基因異常為第22號染色體缺失，其上帶有NF2抑癌基因。"
+  },
+  "flags": [],
+  "source": "text-from-ai-詳解"
  }
 }
