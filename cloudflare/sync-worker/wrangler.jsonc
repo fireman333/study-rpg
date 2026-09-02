@@ -54,12 +54,23 @@
 	// Cron triggers (dispatched in src/index.ts scheduled() by cron expression):
 	//   "0 0 * * *"     — daily R2-to-R2 backup                → runBackupCron
 	//   "0,30 * * * *"  — every-30-min leaderboard pre-compute → runLeaderboardCron
+	//   "20 3 * * *"    — nightly note-image reclamation       → runNoteImageSweepCron
+	// Each string MUST stay byte-for-byte identical with the matching constant in
+	// src/index.ts, or dispatch falls to the default branch and logs an error.
+	//
+	// ⚠️ The sweep depends on the NOTE_IMAGE_SWEEPER_HYPERDRIVE binding at the bottom of this file.
+	// Removing that binding does not disable this cron — the code falls back to the direct
+	// connection string, which cannot work from a Worker (see the binding's note) and would hang
+	// until the run's own 45s deadline. Take the trigger out too, or leave both alone.
 	"triggers": {
 		"crons": [
 			"0 0 * * *",
-			"0,30 * * * *"
+			"0,30 * * * *",
+			"20 3 * * *"
 		]
 	},
+	// The Hyperdrive binding the sweep needs is declared at the bottom of this file, next to the
+	// reasoning for why it has to exist at all.
 	// Custom Domain — `api.med-study-rpg.com` is the canonical API base for
 	// clients on https://med-study-rpg.com (Cloudflare Pages). The legacy
 	// workers.dev URL stays valid for GitHub Pages clients during the bake
@@ -83,8 +94,32 @@
 	//   R2_S3_SECRET_ACCESS_KEY    — R2 S3-compat API secret
 	//   R2_S3_ENDPOINT             — https://<account-id>.r2.cloudflarestorage.com
 	//
-	// NOT a secret: no SUPABASE_SERVICE_ROLE_KEY — migration is client-driven
-	// (see design.md Decision 6), Worker never reads user data on behalf of users.
+	//   SUPABASE_ANON_KEY          — OPTIONAL, and only the /note-images endpoints use it
+	//
+	// STILL NOT a secret: there is no `SUPABASE_SERVICE_ROLE_KEY` here, and after migration
+	// 0030 there is no reason for one. This file used to say the Worker "never reads user
+	// data on behalf of users", which `add-community-note-images` made false — serving an
+	// image means resolving the note that displays it. The answer was not to hand the Worker
+	// a key that bypasses RLS on the whole project; it was to stop the Worker being the one
+	// who decides identity at all.
+	//
+	// 0030 removed the account parameters from both functions the Worker calls. They read
+	// `auth.uid()` and are granted to `authenticated` (reserve) and `anon` + `authenticated`
+	// (authorize). The Worker forwards the CALLER'S OWN JWT, so it cannot claim an upload
+	// belongs to somebody else, and what it holds is the publishable anon key that already
+	// ships inside the app's frontend bundle. An `<img>` sends no credential, so the read
+	// path falls back to that key alone and `auth.uid()` is NULL — which is exactly what the
+	// serving predicate wants for an anonymous reader.
+	//
+	// `community_note_images_claim_expired` stayed `service_role`-only, because its caller
+	// must delete the R2 bytes and a client cannot. So the Worker does NOT sweep, and
+	// retention is an owner-run operation. pg_cron is not installed on the project.
+	//
+	// OPTIONAL on purpose: unset, the Worker boots and every other endpoint behaves
+	// identically, while the two note-image endpoints answer `anon_key_missing` rather than
+	// failing in some less legible way. Set it before flipping `images_enabled`, with either
+	// `wrangler secret put SUPABASE_ANON_KEY` or a `vars` entry — it is publishable either
+	// way, so the choice is about tidiness, not exposure.
 	"vars": {
 		"R2_BUCKET_NAME": "study-rpg-saves",
 		"CORS_ALLOWED_ORIGINS": "https://fireman333.github.io,https://med-study-rpg.com,http://localhost:5173,http://localhost:4173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179",
@@ -104,7 +139,37 @@
 		{
 			"name": "PRESIGN_PUT_LIMITER",
 			"namespace_id": "1001",
-			"simple": { "limit": 10, "period": 60 }
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
+		}
+	],
+	// Hyperdrive — the ONLY transport by which this Worker can reach Supabase Postgres, and that is
+	// a platform constraint rather than a preference. Supavisor presents a certificate chained to
+	// the private "Supabase Root 2021 CA"; workerd's startTls() validates against public WebPKI
+	// roots and exposes no way to add a CA or relax verification, so a direct connection is aborted
+	// ~1 RTT after the TLS upgrade. Verified 2026-08-01 from both remote and local workerd, on both
+	// pooler ports, while openssl from the same egress IP completed the handshake and the identical
+	// startTls upgrade to a public-CA endpoint succeeded. No driver setting and no driver swap can
+	// change this — the trust store belongs to the platform.
+	//
+	// Hyperdrive always speaks TLS to the origin (plaintext origins are unsupported), so this is not
+	// a downgrade from the direct URL's `ssl: "require"` — which was `rejectUnauthorized: false`
+	// anyway. It can be raised to verify-full by uploading Supabase's CA
+	// (`wrangler cert upload certificate-authority` + `--ca-certificate-id`), which the direct path
+	// could never do.
+	//
+	// ⚠️ The origin is the SESSION pooler on 5432, not transaction mode on 6543 — Hyperdrive does
+	// its own pooling and must not be stacked on another pooler's transaction mode.
+	// ⚠️ The binding name must stay `NOTE_IMAGE_SWEEPER_HYPERDRIVE`; `src/note-image-sweep.ts`
+	// reads it by that name and silently falls back to the direct URL — which cannot work — if it
+	// is absent. `wrangler hyperdrive create` offers to write a binding called `HYPERDRIVE`; that
+	// default was renamed here on purpose.
+	"hyperdrive": [
+		{
+			"binding": "NOTE_IMAGE_SWEEPER_HYPERDRIVE",
+			"id": "1ce89174f3274fb48b9110aed0577e12"
 		}
 	]
 }

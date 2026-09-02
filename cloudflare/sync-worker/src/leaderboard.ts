@@ -45,12 +45,82 @@ const NICKNAME_MAX_CODEPOINTS = 12;
 const TIER_MIN = 1;
 const TIER_MAX = 4;
 
+/**
+ * Minimum spacing between two writes of the same leaderboard row.
+ *
+ * Authoritative half of the client-side throttle in the 二階 app
+ * (`apps/medexam2-hospital-tw/src/lib/leaderboard/throttle.ts` in the
+ * `study-rpg-2nd` repo — change `throttle-leaderboard-upsert-and-cache-assets`).
+ * That gate saves Worker requests; this one saves D1 written rows, and unlike
+ * that one it binds clients running a stale cached bundle, which is the whole
+ * reason it exists. ⚠️ The two are separate constants in separate repos with no
+ * shared module. Change one, change the other.
+ *
+ * Measured motivation (2026-08-21): 10,310 rows written in 24h across ~10
+ * active players — 10.3% of the free daily allowance — at 7.19 written rows per
+ * write query, because `leaderboard_m2` carries 7 indexes. The visible ranking
+ * is recomputed from KV on a 30-minute cron, so most of those writes were for a
+ * reading nobody took.
+ */
+export const LEADERBOARD_THROTTLE_MS = 15 * 60_000;
+
 // === Achievement badge constants (v15 add-achievement-system) ===
 const BADGES_CSV_MAX_LEN = 60;
 const BADGES_CSV_MAX_ENTRIES = 6;
 const BADGES_CSV_PATTERN = /^([a-z]+:P[1-4])(,[a-z]+:P[1-4]){0,5}$/;
 const SUBJECT_MASTERY_MIN = 0;
 const SUBJECT_MASTERY_MAX = 14;
+
+/**
+ * The leaderboard upsert, as one statement.
+ *
+ * Exported so its test drives THIS string against a real SQLite rather than a
+ * copy of it. The load-bearing claim of the throttle is that a suppressed
+ * upsert writes zero rows — table and index alike — and a test that retypes the
+ * predicate proves that about the retyped version, not about what ships.
+ *
+ * Placeholders are positional: 1-12 are the VALUES, 13 is the minimum gap in ms
+ * (0 for a forced push, which collapses the predicate back to plain LWW).
+ *
+ * ⚠️ If that 13th parameter is ever left unbound it arrives as NULL, the
+ * predicate evaluates to NULL rather than true, and EVERY subsequent update is
+ * suppressed forever — a total leaderboard freeze, which is a failure this
+ * project has already lived through once from a different cause. `minGapMs` is
+ * computed from a ternary over a constant so it cannot be undefined; the test
+ * pins the NULL behaviour so the consequence stays on record.
+ */
+export const LEADERBOARD_UPSERT_SQL = `INSERT INTO leaderboard_m2
+         (user_id, nickname, nickname_lower, hospital_tier, reputation, doctor_count, total_study_min, is_public, updated_at, badges_csv, subject_mastery_count, total_correct)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(user_id) DO UPDATE SET
+         nickname              = excluded.nickname,
+         nickname_lower        = excluded.nickname_lower,
+         hospital_tier         = excluded.hospital_tier,
+         reputation            = excluded.reputation,
+         doctor_count          = excluded.doctor_count,
+         total_study_min       = excluded.total_study_min,
+         is_public             = excluded.is_public,
+         updated_at            = excluded.updated_at,
+         badges_csv            = CASE
+                                   WHEN excluded.badges_csv = '' AND leaderboard_m2.badges_csv != ''
+                                   THEN leaderboard_m2.badges_csv
+                                   ELSE excluded.badges_csv
+                                 END,
+         subject_mastery_count = CASE
+                                   WHEN excluded.subject_mastery_count = 0 AND leaderboard_m2.subject_mastery_count > 0
+                                   THEN leaderboard_m2.subject_mastery_count
+                                   ELSE excluded.subject_mastery_count
+                                 END,
+         total_correct         = CASE
+                                   WHEN excluded.total_correct = 0 AND leaderboard_m2.total_correct > 0
+                                   THEN leaderboard_m2.total_correct
+                                   ELSE excluded.total_correct
+                                 END
+       -- Throttle + LWW in one predicate. The placeholder is bound to 0 for a
+       -- forced push, collapsing this back to the plain LWW comparison it has
+       -- always been.
+       -- Positional: the 12 VALUES placeholders are 1-12, this is 13.
+       WHERE leaderboard_m2.updated_at + ? < excluded.updated_at`;
 
 // === Types ===
 
@@ -85,6 +155,22 @@ interface UpsertBody {
   total_study_min?: unknown;
   is_public?: unknown;
   updated_at?: unknown;
+  /**
+   * Forced push — skip the throttle window (never the sanity bounds).
+   *
+   * Set by the client's manual and lifecycle paths: 「立即同步上傳」, the
+   * migration-gate upload, conflict resolution, the manual retry, the sign-out
+   * flush, account switch, and the row-staleness notice's repair button.
+   *
+   * ⚠️ Without honouring this, the server window silently overrides the
+   * exemption the client honours, and the repair button becomes structurally
+   * incapable of fixing the row it is complaining about.
+   *
+   * Forgeable by a modified client — on exactly the same terms as `updated_at`
+   * just above, which the throttle and LWW both already trust. A client that
+   * can forge one can forge the other, so this widens no accepted exposure.
+   */
+  force?: unknown;
   // Achievement system (v15). Both optional — pre-update clients omit; Worker
   // treats omitted as '' / 0 (additive, doesn't clobber on partial bodies).
   badges_csv?: unknown;
@@ -278,6 +364,10 @@ async function handleUpsert(
   const study = Number(body.total_study_min);
   const isPublic = body.is_public === 0 ? 0 : 1;
   const updatedAt = Number(body.updated_at);
+  const forced = body.force === true;
+  // 0 for a forced push collapses the predicate back to plain LWW, so the
+  // forced path takes the same code path rather than a parallel one.
+  const minGapMs = forced ? 0 : LEADERBOARD_THROTTLE_MS;
 
   // Sanity bounds — out-of-bounds rows are dropped silently (warn log,
   // 200 OK) per design.md Decision D3. This avoids client retry storms
@@ -372,36 +462,7 @@ async function handleUpsert(
     // All other fields (nickname / tier / reputation / counts / is_public)
     // keep plain LWW — clients legitimately refresh those each cycle and
     // "empty" values aren't a defensive concept there.
-    await env.LEADERBOARD_DB.prepare(
-      `INSERT INTO leaderboard_m2
-         (user_id, nickname, nickname_lower, hospital_tier, reputation, doctor_count, total_study_min, is_public, updated_at, badges_csv, subject_mastery_count, total_correct)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       ON CONFLICT(user_id) DO UPDATE SET
-         nickname              = excluded.nickname,
-         nickname_lower        = excluded.nickname_lower,
-         hospital_tier         = excluded.hospital_tier,
-         reputation            = excluded.reputation,
-         doctor_count          = excluded.doctor_count,
-         total_study_min       = excluded.total_study_min,
-         is_public             = excluded.is_public,
-         updated_at            = excluded.updated_at,
-         badges_csv            = CASE
-                                   WHEN excluded.badges_csv = '' AND leaderboard_m2.badges_csv != ''
-                                   THEN leaderboard_m2.badges_csv
-                                   ELSE excluded.badges_csv
-                                 END,
-         subject_mastery_count = CASE
-                                   WHEN excluded.subject_mastery_count = 0 AND leaderboard_m2.subject_mastery_count > 0
-                                   THEN leaderboard_m2.subject_mastery_count
-                                   ELSE excluded.subject_mastery_count
-                                 END,
-         total_correct         = CASE
-                                   WHEN excluded.total_correct = 0 AND leaderboard_m2.total_correct > 0
-                                   THEN leaderboard_m2.total_correct
-                                   ELSE excluded.total_correct
-                                 END
-       WHERE leaderboard_m2.updated_at < excluded.updated_at`,
-    )
+    const result = await env.LEADERBOARD_DB.prepare(LEADERBOARD_UPSERT_SQL)
       .bind(
         userSub,
         nickname,
@@ -415,8 +476,42 @@ async function handleUpsert(
         badgesCsv,
         subjectMastery,
         correct,
+        minGapMs,
       )
       .run();
+
+    // ⚠️ Whether a write happened comes from the database's own report, not
+    // from the statement having executed. A conditionally-suppressed upsert
+    // runs successfully and changes nothing; reading success as a write is how
+    // the client would advance `last_pushed_at` for a row we left alone.
+    if (result.meta?.changes === 0) {
+      // Nothing was written and no index was touched, so this costs zero
+      // `rows_written` — which is the entire point of doing it in the WHERE
+      // rather than by reading first and deciding in JS.
+      //
+      // Deliberately distinguishable from `dropped`: that means "your payload
+      // was refused", this means "your row is already current". A client that
+      // cannot tell them apart treats one of them wrongly, and the unmarked-200
+      // default is to treat it as a landed write.
+      //
+      // `window_ms` is echoed, and `next_eligible_at` deliberately is not. The
+      // latter would need the stored `updated_at` — a read-back to tell the
+      // client something it can derive — and in the first draft it was never
+      // sent at all, leaving three layers of client plumbing whose only
+      // reachable branch was the null one.
+      //
+      // The window is the one number the client CANNOT derive: it lives in
+      // another repo with no shared module between them. Echoing it makes a
+      // drift between the two constants detectable at runtime rather than
+      // merely documented, and closes a real hazard — a client whose window is
+      // SHORTER than this one would otherwise re-arm a trailing push that is
+      // throttled again, and again, without converging.
+      return jsonResponse(
+        { ok: true, throttled: true, window_ms: LEADERBOARD_THROTTLE_MS },
+        200,
+        headers,
+      );
+    }
 
     return jsonResponse({ ok: true }, 200, headers);
   } catch (err) {
