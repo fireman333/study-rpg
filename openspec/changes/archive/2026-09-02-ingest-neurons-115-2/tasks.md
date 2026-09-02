@@ -65,4 +65,4 @@
 - [x] 9.1 commit（題庫、衍生資料、講義、derived 常數同一個 commit）
 - [x] 9.2 merge `track-neurons` → `main` 並 push
 - [x] 9.3 CF Pages deploy 綠、prod 驗收（`/cram` 讀「統計至 115-2」「24 次考試」；押題抽屜開 115-2-醫學一-解剖學-Q19 顯示題幹／選項／正解／逐選項簡答／AI 標註；藥理學講義 25 處 115-2 引用）
-- [ ] 9.4 archive 本 change（保留給 owner —— archive 會改寫 `openspec/specs/` 語意）
+- [x] 9.4 sync 10 條 delta 進 `openspec/specs/`（RENAME 先於 MODIFY，套完確認無殘留「capped at 23」/「統計至 115-1」舊標題、無重複 requirement、`openspec validate --all --strict` 110/110）後 archive

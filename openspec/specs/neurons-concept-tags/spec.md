@@ -20,7 +20,7 @@ The system SHALL define, per 一階 subject (解剖/生理/生化/組織/胚胎/
 
 #### Scenario: Fine-concept granularity is density-targeted
 - **WHEN** a subject's fine-concept set is sized
-- **THEN** the count SHALL be chosen so the subject's median tested concept lands in a discriminable sitting-breadth band (roughly subject-question-count ÷ ~8–12 per concept), avoiding a granularity so coarse that concepts saturate near 23/23
+- **THEN** the count SHALL be chosen so the subject's median tested concept lands in a discriminable sitting-breadth band (roughly subject-question-count ÷ ~8–12 per concept), avoiding a granularity so coarse that concepts saturate at the full sitting count
 
 #### Scenario: Bottom-up corpus calibration is mandatory
 - **WHEN** the tree is finalized
@@ -62,25 +62,31 @@ Tagging SHALL be performed as batched classification against the closed tree (no
 - **WHEN** a question's stem/answer contains an unambiguous vocabulary keyword
 - **THEN** it MAY be auto-tagged deterministically and used as a free cross-check signal, AND model classification SHALL run as a single pass over the residual with at most one targeted re-pass over flagged items (no "re-tag to consensus" loops)
 
-### Requirement: Recurrence SHALL be per-concept sitting-breadth, capped at 23, with a 押題 threshold and disputed filtering
+### Requirement: Recurrence SHALL be per-concept sitting-breadth over every ingested sitting, with a 押題 threshold and disputed filtering
 
-The build SHALL emit a concept-recurrence dataset in which the 押題 sort key is **sitting-breadth** = the number of distinct exam sittings (denominator 23) in which the concept was tested, deduplicated within a sitting and capped at 23. Multi-label questions SHALL contribute each of their tested concepts' sitting-presence. Total question-count SHALL be a secondary "intensity" field only, explicitly labelled as possibly exceeding the true question total (because cross-concept questions count on multiple concepts). A 押題 eligibility threshold SHALL apply; concepts below it are searchable but not ranked as 押題. Disputed / 送分 questions SHALL be filtered or annotated using the repo's existing answer-correction data. Coarse-chapter breadth SHALL be the union of its leaves' tested sittings.
+The build SHALL emit a concept-recurrence dataset in which the 押題 sort key is **sitting-breadth** = the number of distinct exam sittings in which the concept was tested, deduplicated within a sitting and capped at the total number of ingested sittings. That total SHALL be **derived from the corpus itself**, never written as a literal, and SHALL be published in the dataset as `meta.sittingsTotal` so every downstream surface states the same denominator. Multi-label questions SHALL contribute each of their tested concepts' sitting-presence. Total question-count SHALL be a secondary "intensity" field only, explicitly labelled as possibly exceeding the true question total (because cross-concept questions count on multiple concepts). A 押題 eligibility threshold SHALL apply; concepts below it are searchable but not ranked as 押題. Disputed / 送分 questions SHALL be filtered or annotated using the repo's existing answer-correction data. Coarse-chapter breadth SHALL be the union of its leaves' tested sittings.
+
+Tier boundaries and the 押題 threshold are **absolute sitting counts**, expressing how many sittings of evidence a judgement requires. They SHALL NOT be rescaled when the denominator grows; ingesting a sitting therefore moves concepts across tiers only because they were genuinely tested again.
 
 #### Scenario: Breadth uses distinct sittings and is capped
 - **WHEN** recurrence is computed
-- **THEN** a concept's breadth SHALL be the count of distinct sittings (out of 23) in which it was tested, with multiple questions on that concept within one sitting counting as a single sitting, and the value never exceeding 23
+- **THEN** a concept's breadth SHALL be the count of distinct sittings in which it was tested, with multiple questions on that concept within one sitting counting as a single sitting, and the value never exceeding `meta.sittingsTotal`
+
+#### Scenario: The denominator is derived from the corpus
+- **WHEN** a new sitting is ingested
+- **THEN** `meta.sittingsTotal` SHALL increase without any source edit, and SHALL equal the number of distinct `(year, session)` pairs present in the corpus
 
 #### Scenario: Multi-label does not inflate breadth
 - **WHEN** a question tests two concepts A and B in one sitting
 - **THEN** A and B SHALL each record that sitting once (correct — both were tested), AND question-count (which would sum above the true total under multi-label) SHALL NOT be used as the 押題 sort key, only as a labelled secondary field
 
 #### Scenario: Low-frequency long tail is not sold as 押題
-- **WHEN** a concept's breadth is below the 押題 threshold (a small breadth such as 1–4 of 23 carries large uncertainty)
+- **WHEN** a concept's breadth is below the 押題 threshold (a small breadth such as 1–4 sittings carries large uncertainty)
 - **THEN** it SHALL be marked searchable/low-yield and MUST NOT be presented as a ranked 押題 prediction
 
 #### Scenario: Tiers and cooling
 - **WHEN** a concept's breadth is known
-- **THEN** it SHALL receive exactly one tier from {常青必掃, 穩定考點, 近年新寵, 經典但降溫}, and a concept high all-time but absent in the last 3 sittings SHALL be labelled 經典但降溫
+- **THEN** it SHALL receive exactly one tier from {常青必掃, 穩定考點, 近年新寵, 經典但降溫}, and a concept high all-time but genuinely long-absent (a recency gap wide enough that the absence is not a coincidental streak) SHALL be labelled 經典但降溫
 
 #### Scenario: Disputed questions do not inflate breadth
 - **WHEN** a concept's breadth is derived
