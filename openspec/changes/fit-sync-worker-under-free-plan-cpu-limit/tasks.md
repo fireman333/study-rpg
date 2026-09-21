@@ -36,7 +36,8 @@
 > - 二階 `runLeaderboardCron` alone: 02:01 bucket req=1 **6.5 ms**; 02:31 bucket req=3 P99 9.2 ms (two ordinary requests mixed in — attribution ambiguous). m2 KV `last_updated_at` 02:01:02 / 02:31:15 ✓
 > - neurons `runNeuronsLeaderboardCron` alone: 02:35 bucket req=1 **3.8 ms**; neurons KV `last_updated_at` 02:05:08 / 02:35:08 ✓ (the 02:05 run refreshed KV but its analytics bucket never surfaced — analytics is not lossless at 1 invocation/min; KV timestamp is the primary evidence that the trigger fires)
 > - Combined baseline was 17–20 ms; split halves 3.8 + 6.5 ≈ 10.3 — consistent. 二階's margin is thin (6.5–9.2 of 10); the day-1 reading decides whether D5's contingency opens.
-> - sweep: not yet run under the new deploy (next 03:20 UTC).
+> - sweep `runNoteImageSweepCron`: 03:21 bucket req=1 **18.6 ms** — over budget, unchanged from the 17.7 ms baseline (expected: this change did not touch it). Per owner's 「2 不行再 1」 this opens the relocation follow-up (design D7: connect-and-return variant first to split session setup from work, then Mac `launchd`).
+> - ordinary tail, same window: 03:22 req=41 P99 10.5 ms, 03:23 req=7 P99 10.2 ms — a single client's sync burst grazes the limit; endpoint attribution is what the week is for.
 
 - [ ] 5.2 Day 1 (24 h after 3.7): run it; record 二階 `:00/:30`, neurons `:05/:35`, sweep `03:20` max P99 in this file. Expected: 二階 and neurons each ≈ 8–10 ms, sweep ≈ 18 ms.
 - [ ] 5.3 Day 1 decision on the leaderboard halves: if either > 10 ms → open the D5 contingency change now rather than waiting the week
