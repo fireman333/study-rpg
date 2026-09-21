@@ -39,15 +39,33 @@
 > - sweep `runNoteImageSweepCron`: 03:21 bucket req=1 **18.6 ms** — over budget, unchanged from the 17.7 ms baseline (expected: this change did not touch it). Per owner's 「2 不行再 1」 this opens the relocation follow-up (design D7: connect-and-return variant first to split session setup from work, then Mac `launchd`).
 > - ordinary tail, same window: 03:22 req=41 P99 10.5 ms, 03:23 req=7 P99 10.2 ms — a single client's sync burst grazes the limit; endpoint attribution is what the week is for.
 
-- [ ] 5.2 Day 1 (24 h after 3.7): run it; record 二階 `:00/:30`, neurons `:05/:35`, sweep `03:20` max P99 in this file. Expected: 二階 and neurons each ≈ 8–10 ms, sweep ≈ 18 ms.
-- [ ] 5.3 Day 1 decision on the leaderboard halves: if either > 10 ms → open the D5 contingency change now rather than waiting the week
-- [ ] 5.4 Day 1 decision on the sweep: if > 10 ms → open the follow-up (owner's 「不行再 1」: relocate to Mac `launchd`; breakdown experiment per D7 first)
-- [ ] 5.5 Day 7: `scripts/worker-cpu-gate.mjs` exits 0. Record the ordinary-request tail (count, share, and which minutes) — this is the input to the separate tail change, and it is recorded whether or not it blocks the downgrade
-- [ ] 5.6 Owner downgrades the account to Workers Free in the dashboard (owner action; not performed by a session). Day 8: rerun the gate and check `errors` per minute for the sync Worker — 1102 terminations would appear there.
+- [x] 5.2 **N/A — owner kept Workers Paid (2026-09-21)**; original text: Day 1 (24 h after 3.7): run it; record 二階 `:00/:30`, neurons `:05/:35`, sweep `03:20` max P99 in this file. Expected: 二階 and neurons each ≈ 8–10 ms, sweep ≈ 18 ms.
+- [x] 5.3 **N/A — owner kept Workers Paid (2026-09-21)**; original text: Day 1 decision on the leaderboard halves: if either > 10 ms → open the D5 contingency change now rather than waiting the week
+- [x] 5.4 **N/A — owner kept Workers Paid (2026-09-21)**; original text: Day 1 decision on the sweep: if > 10 ms → open the follow-up (owner's 「不行再 1」: relocate to Mac `launchd`; breakdown experiment per D7 first)
+- [x] 5.5 **N/A — owner kept Workers Paid (2026-09-21)**; original text: Day 7: `scripts/worker-cpu-gate.mjs` exits 0. Record the ordinary-request tail (count, share, and which minutes) — this is the input to the separate tail change, and it is recorded whether or not it blocks the downgrade
+- [x] 5.6 **N/A — owner kept Workers Paid (2026-09-21)**; original text: Owner downgrades the account to Workers Free in the dashboard (owner action; not performed by a session). Day 8: rerun the gate and check `errors` per minute for the sync Worker — 1102 terminations would appear there.
 
 ## 6. Close-out
 
-- [ ] 6.1 `/opsx:verify` clause-level: every SHALL in `sync-worker-cpu-budget` has either a test, a script, or a named owner action against it; the one with none is written down as such
+- [x] 6.1 `/opsx:verify` clause-level: every SHALL in `sync-worker-cpu-budget` has either a test, a script, or a named owner action against it; the one with none is written down as such
+
+> Clause-level evidence (2026-09-21):
+>
+> | Clause | Evidence |
+> |---|---|
+> | one job per cron expression; no second job after the first | `cron-dispatch.test.ts` case 5 (probe C red) |
+> | two same-cadence jobs → two distinct expressions | `wrangler.jsonc` `0,30` / `5,35`; `cron-dispatch.test.ts` cases 2–4 (probes A/B red) |
+> | leaderboard jobs each < 10 ms, measured | analytics 02:01 → 6.5 ms, 02:35 → 3.8 ms; `scripts/worker-cpu-gate.mjs` for the standing reading. **No test can assert this** — it is a production measurement, re-run with the script |
+> | reclamation exception recorded, revisited before downgrade | spec text + `worker-cpu-gate.mjs` fails on the 03:20 bucket by construction (18.6 ms) — the gate cannot pass while the exception stands |
+> | over-budget leaderboard job is split/moved/removed, not slowed | **document obligation, no mechanical check** |
+> | cost read from platform records, not self-report | by construction (no in-Worker timing added); `worker-cpu-gate.mjs` reads analytics |
+> | no scheduled save-copy job in the Worker | `src/backup.ts` deleted; `cron-dispatch.test.ts` constant set has no backup trigger |
+> | every deploy snapshots first, server-side | `package.json` ×3 (`bash scripts/r2-snapshot.sh && …`), both workflows; `rclone copy` same-remote → server-side (log lines `Copied (server-side copy)`, 326/326) |
+> | failed snapshot blocks the deploy, names the cause | `set -euo pipefail` + `&&`; negative runs 2.3 (missing env → named var, no rclone → named tool), both before any copy |
+> | retention by lifecycle rule, no code lists/deletes | rule `backup-expire-30d` (wrangler `r2 bucket lifecycle list`); `grep -rn "R2_BACKUP\|backup/" src/` → 0 |
+> | deleted account's copies expire with the rule | same rule; **no earlier deletion path exists** (delete.ts never bound the backup bucket) |
+>
+> Two clauses have no mechanical guard (the split/move/remove obligation; the "not slowed" prohibition). Both are process obligations on a future change; recorded here rather than pretended.
 - [x] 6.2 Update `cloudflare/sync-worker/README.md` (backup section → pre-deploy snapshot; three crons) and this repo's `openspec/project.md` Cloudflare row if it names the daily backup
 - [x] 6.3 In `study-rpg-2nd`: `docs/` or `CLAUDE.md` Deploy section notes that `pnpm run deploy` now snapshots first and what to do when it refuses (env file / rclone)
-- [ ] 6.4 Archive via `/opsx:archive` (never raw `openspec archive --yes`); commits per repo only on explicit confirmation; ⚠️ a push of this repo to `main` deploys neurons production and the Worker — that is a §3 gate, not a routine push
+- [x] 6.4 Archive via `/opsx:archive` (never raw `openspec archive --yes`); commits per repo only on explicit confirmation; ⚠️ a push of this repo to `main` deploys neurons production and the Worker — that is a §3 gate, not a routine push

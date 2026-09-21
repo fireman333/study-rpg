@@ -1,6 +1,6 @@
 ## Purpose
 
-The shared sync Worker (`api.med-study-rpg.com`) must run inside the Workers Free plan's per-invocation CPU limit, so that the account can leave Workers Paid without losing the leaderboard refresh, the note-image reclamation, or the ability to roll a player's cloud save back to a known point. Player save sync is already far inside the limit; this capability governs the scheduled jobs, which were not, and the pre-deploy snapshot that replaces the one job removed outright.
+The shared sync Worker (`api.med-study-rpg.com`) keeps its scheduled work inside the Workers Free plan's per-invocation CPU limit where that is cheap to do, so that a plan change can never freeze the leaderboard, and records where it does not. Player save sync is already far inside the limit; this capability governs the scheduled jobs and the pre-deploy snapshot that replaces the one job removed outright. The account itself stays on Workers Paid by owner decision (2026-09-21); the downgrade gate here is what that decision would have to pass to be reversed.
 
 ## ADDED Requirements
 
@@ -18,23 +18,30 @@ Each cron expression declared for the sync Worker SHALL dispatch to exactly one 
 - **WHEN** the scheduled handler matches an `event.cron` value
 - **THEN** the matched case SHALL invoke one job function and return; it SHALL NOT sequence a second job function in the same case
 
-### Requirement: Scheduled jobs fit a 10 ms CPU budget, measured not assumed
+### Requirement: Leaderboard jobs fit a 10 ms CPU budget, measured not assumed
 
-Every scheduled job of the sync Worker SHALL complete within 10 ms of CPU time per invocation, the Workers Free plan limit, and the claim that a job fits SHALL rest on production measurement (`workersInvocationsAdaptive` `cpuTimeP99` per `datetimeMinute`, over at least seven consecutive days) rather than on reasoning about the code. A job that is measured over budget SHALL be split, moved off the Worker, or removed — the budget SHALL NOT be met by lowering the job's frequency to reduce how often it fails.
+The two leaderboard refresh jobs SHALL each complete within 10 ms of CPU time per invocation — the Workers Free plan limit — so that a change of plan can never freeze the leaderboard, and the claim that a job fits SHALL rest on production measurement (`workersInvocationsAdaptive` `cpuTimeP99` per `datetimeMinute`) rather than on reasoning about the code. A leaderboard job measured over budget SHALL be split, moved off the Worker, or removed — the budget SHALL NOT be met by lowering the job's frequency to reduce how often it fails.
+
+The note-image reclamation job is a **recorded exception**: measured at 17.7–18.6 ms per nightly run (2026-09-20/21), it exceeds the Free budget and is permitted to, because the account stays on Workers Paid (owner decision 2026-09-21: the $5/month buys headroom against sync bursts and a request spike, and spares a relocation change). The exception SHALL be revisited before any downgrade — the downgrade gate below, not this exception, is what would let the account leave Paid.
+
+#### Scenario: Leaderboard jobs measured under budget
+
+- **WHEN** the 二階 and neurons leaderboard refreshes each run in their own scheduled invocation
+- **THEN** each SHALL measure under 10 ms `cpuTimeP99` in its minute bucket (first readings after the split: 二階 6.5 ms, neurons 3.8 ms; combined before the split: 17–20 ms)
 
 #### Scenario: The downgrade gate
 
-- **WHEN** seven consecutive days of production measurement show `cpuTimeP99 < 10 ms` for every `datetimeMinute` bucket of the sync Worker, cron minutes included
-- **THEN** the account MAY be downgraded to Workers Free; before that reading exists, it SHALL NOT be
+- **WHEN** the owner considers downgrading the account to Workers Free
+- **THEN** the downgrade SHALL wait for seven consecutive days of production measurement showing `cpuTimeP99 < 10 ms` for every `datetimeMinute` bucket of the sync Worker, cron minutes included — which the reclamation exception above currently fails, so the exception has to be resolved first (`scripts/worker-cpu-gate.mjs` is that reading)
 
-#### Scenario: A job measured over budget is not left in place
+#### Scenario: A leaderboard job measured over budget is not left in place
 
-- **WHEN** a scheduled job's `cpuTimeP99` exceeds 10 ms in the measurement window
-- **THEN** the job SHALL be split into smaller invocations, relocated off the Worker, or removed, and the measurement window SHALL restart; running it less often is not a remedy
+- **WHEN** a leaderboard job's `cpuTimeP99` exceeds 10 ms in production measurement
+- **THEN** the job SHALL be split into smaller invocations, relocated off the Worker, or removed; running it less often is not a remedy
 
-#### Scenario: A job under measurement is read from platform records, not from itself
+#### Scenario: A job's cost is read from platform records, not from itself
 
-- **WHEN** a scheduled job whose fit is not yet established runs at a minute no other invocation shares
+- **WHEN** a scheduled job runs at a minute no other invocation shares
 - **THEN** its CPU cost SHALL be read from the platform's per-invocation records for that minute (the analytics bucket, or the Workers Logs invocation record), because script code cannot observe its own CPU time; where a relocation decision needs to know how much of the cost is connection setup versus work, that split SHALL be obtained by running a controlled variant (connect, trivial query, return) and subtracting, not inferred from reading the code
 
 ### Requirement: No daily in-Worker backup; a pre-deploy snapshot instead
