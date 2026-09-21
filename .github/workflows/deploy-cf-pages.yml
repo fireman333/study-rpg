@@ -90,6 +90,17 @@ jobs:
       - name: Assemble dist-cf
         run: node scripts/build-cf-pages-dist.mjs
 
+      - name: Snapshot player cloud saves (pre-deploy, change fit-sync-worker-under-free-plan-cpu-limit)
+        # Server-side R2→R2 copy of users/* into study-rpg-saves-backup/backup/<ts>/. A failed snapshot
+        # fails the job before anything is published. Retention is the bucket lifecycle rule (30 days).
+        run: |
+          sudo apt-get install -y -q rclone >/dev/null
+          bash scripts/r2-snapshot.sh
+        env:
+          R2_SNAPSHOT_ACCESS_KEY_ID: ${{ secrets.R2_SNAPSHOT_ACCESS_KEY_ID }}
+          R2_SNAPSHOT_SECRET_ACCESS_KEY: ${{ secrets.R2_SNAPSHOT_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+
       - name: Deploy via Wrangler
         uses: cloudflare/wrangler-action@v3
         with:

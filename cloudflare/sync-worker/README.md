@@ -1,6 +1,6 @@
 # study-rpg-sync-worker
 
-Auth-bridging Cloudflare Worker for the R2-based cloud-sync backend. Verifies Supabase JWTs, signs short-lived R2 URLs scoped to the JWT's `sub` claim, runs nightly R2-to-R2 backup. Architecture rationale lives in `openspec/changes/add-r2-cloud-sync-migration/design.md` (Decisions 3, 4, 8); this file is operational reference only.
+Auth-bridging Cloudflare Worker for the R2-based cloud-sync backend. Verifies Supabase JWTs, signs short-lived R2 URLs scoped to the JWT's `sub` claim, and runs three small scheduled jobs (two leaderboard KV refreshes, one note-image reclamation). Architecture rationale lives in `openspec/changes/add-r2-cloud-sync-migration/design.md` (Decisions 3, 4, 8); this file is operational reference only.
 
 ## At a glance
 
@@ -8,9 +8,9 @@ Auth-bridging Cloudflare Worker for the R2-based cloud-sync backend. Verifies Su
 |---|---|
 | **Live URL** | https://study-rpg-sync-worker.tony85314.workers.dev |
 | **Source** | `cloudflare/sync-worker/` |
-| **Bindings** | `R2_PRIMARY` → `study-rpg-saves`, `R2_BACKUP` → `study-rpg-saves-backup` |
-| **Cron** | `0 0 * * *` (00:00 UTC daily) — R2 backup with 30-day retention |
-| **Free-tier headroom** | Workers 100k req/day, R2 Class A 1M/月 + Class B 10M/月, 10 GB storage |
+| **Bindings** | `R2_PRIMARY` → `study-rpg-saves` (the backup bucket is not bound — see below) |
+| **Crons** | `0,30 * * * *` 二階 leaderboard · `5,35 * * * *` neurons leaderboard · `20 3 * * *` note-image sweep — **one job per invocation, each must fit 10 ms CPU** (`openspec/specs/sync-worker-cpu-budget`) |
+| **Free-tier headroom** | Workers 100k req/day + **10 ms CPU per invocation**, R2 Class A 1M/月 + Class B 10M/月, 10 GB storage |
 
 ## Endpoints
 
@@ -94,22 +94,31 @@ Grep keys to know:
 - `[worker] unhandled error` — index.ts catch block; investigate immediately
 - `r2_push_exhausted` — push retry exhausted; usually CORS or network, not blob corruption
 
-## Cron schedule + backup
+## Crons, and the backup that is no longer one
 
-Daily cron `0 0 * * *` (00:00 UTC) runs `runBackupCron()`:
+Three triggers, dispatched by string equality in `scheduled()` (`src/index.ts`); `__tests__/cron-dispatch.test.ts` pins the constants to `wrangler.jsonc` and forbids two jobs in one case:
 
-1. Lists all `users/*` keys in `R2_PRIMARY`
-2. Copies each to `R2_BACKUP` under `backup/<YYYY-MM-DD>/users/<u>/<b>`
-3. Prunes `R2_BACKUP` keys older than 30 days
+| Trigger | Job | Why it is alone |
+|---|---|---|
+| `0,30 * * * *` | `runLeaderboardCron` (二階 → `leaderboard:m2:*` KV) | the Free plan's 10 ms CPU limit is per invocation; 二階 + neurons in one invocation measured 17–20 ms |
+| `5,35 * * * *` | `runNeuronsLeaderboardCron` (→ `leaderboard:neurons:*` KV) | same |
+| `20 3 * * *` | `runNoteImageSweepCron` | its own minute, so the analytics bucket for 03:20 *is* its CPU cost |
 
-Internal R2-to-R2 copy — zero egress, runs inside Cloudflare. 30-day retention is set by the prune step; adjust in `src/backup.ts` if owner wants longer history (zero cost to keep more, but blast radius of accidental restore-from-old grows).
+**There is no daily R2→R2 backup any more** (change `fit-sync-worker-under-free-plan-cpu-limit`; it cost 350–500 ms CPU per run and was never restored from). Player saves are snapshotted **before every deploy** instead — the only moment corruption can enter:
 
-To trigger manually for testing:
+- `scripts/r2-snapshot.sh` (repo root) copies `study-rpg-saves/users/*` server-side to `study-rpg-saves-backup/backup/<UTC ts>/users/*`, prints the prefix, and exits non-zero (blocking the deploy) if `rclone` or the credentials are missing. Called by `pnpm run deploy` here, `pnpm run deploy:cf` at the root, the two GitHub workflows, and `study-rpg-2nd`'s `pnpm run deploy`.
+- Credentials: `~/.config/study-rpg/r2-snapshot.env` locally (written by `scripts/setup-r2-snapshot-secrets.sh`), `R2_SNAPSHOT_*` secrets in CI. An R2 S3 token scoped to the two saves buckets — not the Worker's own key.
+- Retention: R2 lifecycle rule `backup-expire-30d` on the backup bucket (`backup/`, 30 days). No code prunes.
+- Restore a player: `rclone copy r2:study-rpg-saves-backup/backup/<ts>/users/<sub> r2:study-rpg-saves/users/<sub>` (same env vars as the script).
+
+Measure before believing any of the three fits: `node scripts/worker-cpu-gate.mjs` (7-day `cpuTimeP99` per minute; exit 0 = safe on Free). Script code cannot observe its own CPU time, so the platform record is the only evidence.
+
+To trigger a cron manually for testing:
 
 ```bash
 wrangler dev
 # in another shell:
-curl -X POST http://localhost:8787/__scheduled?cron=0+0+*+*+*
+curl -X POST 'http://localhost:8787/__scheduled?cron=0,30+*+*+*+*'
 ```
 
 ## CORS allowlist
@@ -177,8 +186,7 @@ Owner adds these in GitHub repo → Settings → Secrets and variables → Actio
 | `src/auth.ts` | JWKS fetch + JWT verify (with module-scope 1h cache) |
 | `src/presign.ts` | `aws4fetch`-based R2 S3 presign with `expires` query param |
 | `src/delete.ts` | Shared handler for `/delete-account` and `/reset` |
-| `src/backup.ts` | Cron job — copy + prune backup bucket |
 | `src/cors.ts` | Origin allowlist + preflight response builder |
 | `cors.json` | R2 bucket CORS policy reference (apply via `wrangler r2 bucket cors put`) |
-| `wrangler.jsonc` | Bindings, cron, vars |
+| `wrangler.jsonc` | Bindings, crons, vars |
 | `package.json` | Dev deps + scripts |

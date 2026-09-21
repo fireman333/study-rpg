@@ -8,7 +8,12 @@
  *                            on the client side — client keeps the Supabase
  *                            session after reset, signs out after delete)
  *
- * Cron @ 00:00 UTC daily → R2-to-R2 backup with 30-day retention.
+ * Crons (one job per invocation — see openspec `sync-worker-cpu-budget`):
+ *   0,30 * * * *  二階 leaderboard KV pre-compute
+ *   5,35 * * * *  neurons leaderboard KV pre-compute
+ *   20 3 * * *    nightly note-image reclamation
+ * The daily R2→R2 save backup is gone; every deploy now snapshots users/* first
+ * (scripts/r2-snapshot.sh), retention is the backup bucket's lifecycle rule.
  *
  * Auth: every request requires `Authorization: Bearer <supabase-jwt>`.
  * JWT is verified against Supabase JWKS (cached in module scope, 1h TTL).
@@ -18,7 +23,6 @@
 
 import { handlePresign } from "./presign";
 import { handleDeleteOrReset } from "./delete";
-import { runBackupCron } from "./backup";
 import { handleLeaderboard, runLeaderboardCron } from "./leaderboard";
 import {
   handleNeuronsLeaderboard,
@@ -37,14 +41,11 @@ import { corsHeaders, preflightResponse } from "./cors";
 // a cron schedule, update the matching constant here AND redeploy — otherwise
 // the dispatch falls to the default branch and emits a console.error (loud
 // failure, surfaces in Workers Logs).
-const CRON_BACKUP_DAILY = "0 0 * * *" as const;
 const CRON_LEADERBOARD_30MIN = "0,30 * * * *" as const;
-// Off-midnight on purpose: its own expression rather than a second job inside the backup branch,
-// because dispatch is string equality — a duplicate "0 0 * * *" could not be told apart — and
-// because a backup that throws early must not take the sweep with it.
-// Off-midnight on purpose: its own expression rather than a second job inside the backup branch,
-// because dispatch is string equality — a duplicate "0 0 * * *" could not be told apart — and
-// because a backup that throws early must not take the sweep with it.
+// Its own expression, offset from 二階, rather than a second job inside the same case: the Free
+// plan's CPU limit is per invocation, and two ~9 ms jobs in one invocation measured 17–20 ms.
+const CRON_NEURONS_LEADERBOARD_30MIN = "5,35 * * * *" as const;
+// Off the leaderboard minutes on purpose so the sweep's own cost is what its minute bucket shows.
 const CRON_NOTE_IMAGE_SWEEP_DAILY = "20 3 * * *" as const;
 
 /** Cloudflare Workers Rate Limiting binding (wrangler `ratelimits`). The shipped
@@ -56,7 +57,6 @@ export interface RateLimiter {
 export interface Env {
   // R2 bindings
   R2_PRIMARY: R2Bucket;
-  R2_BACKUP: R2Bucket;
 
   // D1 + KV bindings (hospital leaderboard)
   LEADERBOARD_DB: D1Database;
@@ -180,34 +180,24 @@ export default {
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    // Dispatch by cron expression so a single scheduled() handler can serve
-    // both the daily R2 backup and the every-30-min leaderboard pre-compute.
-    // Cron strings come from wrangler.jsonc `triggers.crons` array and MUST
-    // match the module-scope constants declared above; if mismatched, the
-    // default branch logs a loud error (see `fix-leaderboard-cron-dispatch-
-    // case-mismatch` change).
+    // Dispatch by cron expression. Cron strings come from wrangler.jsonc `triggers.crons`
+    // and MUST match the module-scope constants declared above; if mismatched, the default
+    // branch logs a loud error (see `fix-leaderboard-cron-dispatch-case-mismatch` change).
+    // Exactly one job per case — never sequence a second `run*Cron` inside a case
+    // (openspec `sync-worker-cpu-budget`; guarded by __tests__/cron-dispatch.test.ts).
     switch (event.cron) {
-      case CRON_BACKUP_DAILY:
-        ctx.waitUntil(runBackupCron(env));
-        return;
       case CRON_LEADERBOARD_30MIN:
-        // Run 二階 + 神經元 leaderboard crons sequentially within the same
-        // scheduled invocation per add-neurons-leaderboard design D6. Each
-        // is independently fault-tolerant — if one throws, the other still
-        // runs. Errors logged via console.error but not re-thrown.
         ctx.waitUntil(
-          (async (): Promise<void> => {
-            try {
-              await runLeaderboardCron(env);
-            } catch (err) {
-              console.error("[scheduled] runLeaderboardCron failed", { err: String(err) });
-            }
-            try {
-              await runNeuronsLeaderboardCron(env);
-            } catch (err) {
-              console.error("[scheduled] runNeuronsLeaderboardCron failed", { err: String(err) });
-            }
-          })(),
+          runLeaderboardCron(env).catch((err: unknown) => {
+            console.error("[scheduled] runLeaderboardCron failed", { err: String(err) });
+          }),
+        );
+        return;
+      case CRON_NEURONS_LEADERBOARD_30MIN:
+        ctx.waitUntil(
+          runNeuronsLeaderboardCron(env).catch((err: unknown) => {
+            console.error("[scheduled] runNeuronsLeaderboardCron failed", { err: String(err) });
+          }),
         );
         return;
       case CRON_NOTE_IMAGE_SWEEP_DAILY:
@@ -231,8 +221,8 @@ export default {
           {
             cron: event.cron,
             knownCrons: [
-              CRON_BACKUP_DAILY,
               CRON_LEADERBOARD_30MIN,
+              CRON_NEURONS_LEADERBOARD_30MIN,
               CRON_NOTE_IMAGE_SWEEP_DAILY,
             ],
           },

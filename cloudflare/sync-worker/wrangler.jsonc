@@ -11,18 +11,16 @@
 	// migration bake. wrangler defaults this to `false` whenever a `routes`
 	// entry is added (since 4.x); explicit `true` preserves both URLs.
 	"workers_dev": true,
-	// R2 bindings — Worker uses these to LIST + DELETE under user prefixes
+	// R2 binding — Worker uses this to LIST + DELETE under user prefixes
 	// (delete-account / reset endpoints). Direct browser→R2 traffic for
-	// PUT/GET goes via presigned URLs, NOT through these bindings (preserves
-	// zero-egress benefit).
+	// PUT/GET goes via presigned URLs, NOT through this binding (preserves
+	// zero-egress benefit). The backup bucket is no longer bound: the daily
+	// R2→R2 backup cron is gone (fit-sync-worker-under-free-plan-cpu-limit);
+	// `scripts/r2-snapshot.sh` snapshots users/* before every deploy instead.
 	"r2_buckets": [
 		{
 			"binding": "R2_PRIMARY",
 			"bucket_name": "study-rpg-saves"
-		},
-		{
-			"binding": "R2_BACKUP",
-			"bucket_name": "study-rpg-saves-backup"
 		}
 	],
 	// D1 binding — hospital leaderboard (二階 M_2nd ranking).
@@ -51,12 +49,14 @@
 			"id": "f0afc16989654688b5c98d420d468e28"
 		}
 	],
-	// Cron triggers (dispatched in src/index.ts scheduled() by cron expression):
-	//   "0 0 * * *"     — daily R2-to-R2 backup                → runBackupCron
-	//   "0,30 * * * *"  — every-30-min leaderboard pre-compute → runLeaderboardCron
-	//   "20 3 * * *"    — nightly note-image reclamation       → runNoteImageSweepCron
+	// Cron triggers (dispatched in src/index.ts scheduled() by cron expression), ONE job each:
+	//   "0,30 * * * *"  — every-30-min 二階 leaderboard pre-compute   → runLeaderboardCron
+	//   "5,35 * * * *"  — every-30-min neurons leaderboard pre-compute → runNeuronsLeaderboardCron
+	//   "20 3 * * *"    — nightly note-image reclamation              → runNoteImageSweepCron
 	// Each string MUST stay byte-for-byte identical with the matching constant in
-	// src/index.ts, or dispatch falls to the default branch and logs an error.
+	// src/index.ts (guarded by __tests__/cron-dispatch.test.ts), or dispatch falls to the
+	// default branch and logs an error. Every job must fit the Free plan's 10 ms CPU per
+	// invocation — which is why the two leaderboard refreshes are two triggers, not one.
 	//
 	// ⚠️ The sweep depends on the NOTE_IMAGE_SWEEPER_HYPERDRIVE binding at the bottom of this file.
 	// Removing that binding does not disable this cron — the code falls back to the direct
@@ -64,8 +64,8 @@
 	// until the run's own 45s deadline. Take the trigger out too, or leave both alone.
 	"triggers": {
 		"crons": [
-			"0 0 * * *",
 			"0,30 * * * *",
+			"5,35 * * * *",
 			"20 3 * * *"
 		]
 	},
