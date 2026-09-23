@@ -18,12 +18,18 @@
  *
  * Identity is server-sourced (design Decision 1): the display name is joined from
  * leaderboard_<app> by author_key and is NEVER read from the request body, so a
- * client cannot forge a name or bypass the (already-moderated) nickname surface.
+ * client cannot forge a name. ⚠️ That name is NOT content-moderated: the
+ * leaderboard upsert checks only its length (2–12 codepoints) and case-insensitive
+ * uniqueness — there is no blocklist for nicknames as there is for messages here.
+ * Offensive names are masked on READ by the owner's list (nickname-mask.ts,
+ * change mask-moderated-leaderboard-nicknames), which is why every name this file
+ * shows goes through `authorDisplayName` / the board's masked join.
  * The message body is the only free-text UGC field.
  */
 
 import type { Env } from "./index";
 import { extractBearer, verifyJWT } from "./auth";
+import { NICKNAME_MASK, nicknameMaskSql } from "./nickname-mask";
 
 // === Per-app config ===
 // Only apps with a migrated shoutouts_<app> table + leaderboard_<app> table are
@@ -177,12 +183,31 @@ async function topNSet(env: Env, cfg: AppConfig): Promise<Set<string>> {
   return set;
 }
 
-async function nicknameFor(env: Env, cfg: AppConfig, authorKey: string): Promise<string | null> {
+/**
+ * The author's leaderboard identity, or null when they have no leaderboard row.
+ *
+ * Two answers from one read, and they must not be confused:
+ *   - `null` vs a value decides `nickname_required` — row EXISTENCE only. A masked
+ *     player still has a row and may still post.
+ *   - `displayName` is what the post's echo shows, i.e. what the public board will
+ *     show: the owner mask when an entry applies.
+ */
+async function authorIdentity(
+  env: Env,
+  app: string,
+  cfg: AppConfig,
+  authorKey: string,
+): Promise<{ displayName: string } | null> {
+  const mask = nicknameMaskSql(app, "l");
   const row = await env.LEADERBOARD_DB
-    .prepare(`SELECT nickname FROM ${cfg.leaderboardTable} WHERE user_id = ?`)
-    .bind(authorKey)
+    .prepare(
+      `SELECT ${mask.displayName} AS nickname
+       FROM ${cfg.leaderboardTable} l ${mask.join}
+       WHERE l.user_id = ?`,
+    )
+    .bind(NICKNAME_MASK, authorKey)
     .first<{ nickname: string }>();
-  return row?.nickname ?? null;
+  return row ? { displayName: row.nickname } : null;
 }
 
 async function isBanned(env: Env, app: string, authorKey: string, now: number): Promise<boolean> {
@@ -298,13 +323,19 @@ async function handleGetBoard(
   const list = rows.results ?? [];
   const authorKeys = list.map((r) => r.author_key);
 
-  // Join nicknames in one query.
+  // Join display names in one query — owner-masked names resolved in the same
+  // SELECT (nickname-mask.ts). An app with no mask entries reads unchanged.
   const nameByKey = new Map<string, string>();
   if (authorKeys.length > 0) {
     const placeholders = authorKeys.map(() => "?").join(",");
+    const mask = nicknameMaskSql(app, "l");
     const nameRows = await env.LEADERBOARD_DB
-      .prepare(`SELECT user_id, nickname FROM ${cfg.leaderboardTable} WHERE user_id IN (${placeholders})`)
-      .bind(...authorKeys)
+      .prepare(
+        `SELECT l.user_id, ${mask.displayName} AS nickname
+         FROM ${cfg.leaderboardTable} l ${mask.join}
+         WHERE l.user_id IN (${placeholders})`,
+      )
+      .bind(NICKNAME_MASK, ...authorKeys)
       .all<{ user_id: string; nickname: string }>();
     for (const n of nameRows.results ?? []) nameByKey.set(n.user_id, n.nickname);
   }
@@ -365,8 +396,9 @@ async function handlePut(
 
   // Nickname gate (doubles as established-account gate: a brand-new account has
   // no leaderboard_<app> row, so it cannot post until it has set a nickname).
-  const nickname = await nicknameFor(env, cfg, sub);
-  if (!nickname) {
+  // ⚠️ Existence only — a masked player has a row and posts normally.
+  const identity = await authorIdentity(env, app, cfg, sub);
+  if (identity === null) {
     return jsonResponse({ error: "nickname_required" }, 422, headers);
   }
 
@@ -496,7 +528,7 @@ async function handlePut(
       message: {
         id: sub,
         authorKey: sub,
-        nickname,
+        nickname: identity.displayName,
         isTopN: topN.has(sub),
         avatar,
         message: original,

@@ -59,9 +59,15 @@ import {
 // disclose when a player last synced` (study-rpg-2nd hospital-leaderboard).
 // ⚠️ Deliberately a literal, not imported from the Worker: the point of these
 // two sets is to fail when the Worker's list moves without the spec moving.
+// `nickname_masked` joins the list with the requirement「Public leaderboard
+// surfaces display a fixed mask for masked players」(change
+// mask-moderated-leaderboard-nicknames), which requires every snapshot row to
+// carry it. ⚠️ The sync-time requirement's own enumerated list predates that
+// change; whichever of the two is archived second reconciles the list.
 const M2_SPEC_FIELDS = [
   "user_id",
   "nickname",
+  "nickname_masked",
   "hospital_tier",
   "reputation",
   "doctor_count",

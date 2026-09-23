@@ -30,6 +30,7 @@
 import type { Env } from "./index";
 import { extractBearer, verifyJWT } from "./auth";
 import { projectPublicSnapshot, type StoredSnapshot } from "./public-snapshot";
+import { NICKNAME_MASK, NICKNAME_MASKS_TABLE, nicknameMaskSql } from "./nickname-mask";
 
 // === Constants ===
 
@@ -141,6 +142,10 @@ interface LeaderboardRowInternal {
   // 5th filter (add-hospital-leaderboard-correct-count-filter, 0005). Optional
   // for back-compat with pre-0005 KV snapshots; readers fall back to 0.
   total_correct?: number;
+  // True when an owner mask applies and `nickname` is NICKNAME_MASK (0011,
+  // mask-moderated-leaderboard-nicknames). Absent from snapshots written before
+  // that change; the client reads absence as false.
+  nickname_masked?: boolean;
 }
 
 interface SnapshotPayload {
@@ -237,10 +242,15 @@ const FILTER_ROUTE_REGEX = new RegExp(`^/leaderboard/(${FILTERS.join("|")})$`);
  * Mirrored by the requirement "Public snapshot rows SHALL NOT disclose when a
  * player last synced" (study-rpg-2nd, hospital-leaderboard) and pinned by
  * __tests__/leaderboard-public-snapshot.test.ts.
+ *
+ * `nickname_masked` (mask-moderated-leaderboard-nicknames) says the row's
+ * `nickname` is the owner mask. It publishes nothing beyond the mask itself, and
+ * lets a client present the mask accessibly without comparing strings.
  */
 export const PUBLIC_SNAPSHOT_FIELDS = [
   "user_id",
   "nickname",
+  "nickname_masked",
   "hospital_tier",
   "reputation",
   "doctor_count",
@@ -250,7 +260,19 @@ export const PUBLIC_SNAPSHOT_FIELDS = [
   "total_correct",
 ] as const satisfies readonly (keyof LeaderboardRowInternal)[];
 
-const SNAPSHOT_COLUMNS = PUBLIC_SNAPSHOT_FIELDS.join(", ");
+/** Owner masks for 二階 rows; the leaderboard table is aliased `l` wherever this is used. */
+const M2_MASK = nicknameMaskSql("m2", "l");
+
+/**
+ * The cron's SELECT list, derived from PUBLIC_SNAPSHOT_FIELDS. The two nickname
+ * fields come from the mask fragment; everything else is the stored column.
+ * ⚠️ `nickname` carries the fragment's one placeholder — bind NICKNAME_MASK.
+ */
+const SNAPSHOT_SELECT = PUBLIC_SNAPSHOT_FIELDS.map((field) => {
+  if (field === "nickname") return `${M2_MASK.displayName} AS nickname`;
+  if (field === "nickname_masked") return `${M2_MASK.masked} AS nickname_masked`;
+  return `l.${field}`;
+}).join(", ");
 
 const ORDER_BY: Record<Filter, string> = {
   composite: "hospital_tier DESC, reputation DESC, doctor_count DESC",
@@ -654,9 +676,15 @@ async function handleGetMe(
     return jsonResponse({ error: "unauthenticated" }, 401, headers);
   }
 
+  // ⚠️ The player's OWN row: `nickname` is the stored value, never the mask. The
+  // client seeds its local profile from this and pushes it back, so a masked
+  // value here would become the player's nickname. `nickname_masked` tells them
+  // (and a future settings surface) that the public sees the mask.
   const row = await env.LEADERBOARD_DB
     .prepare(
-      "SELECT user_id, nickname, hospital_tier, reputation, doctor_count, total_study_min, is_public, updated_at, badges_csv, subject_mastery_count, total_correct FROM leaderboard_m2 WHERE user_id = ?",
+      `SELECT l.user_id, l.nickname, l.hospital_tier, l.reputation, l.doctor_count, l.total_study_min, l.is_public, l.updated_at, l.badges_csv, l.subject_mastery_count, l.total_correct, ${M2_MASK.masked} AS nickname_masked
+       FROM leaderboard_m2 l ${M2_MASK.join}
+       WHERE l.user_id = ?`,
     )
     .bind(userSub)
     .first<{
@@ -671,6 +699,7 @@ async function handleGetMe(
       badges_csv: string | null;
       subject_mastery_count: number | null;
       total_correct: number | null;
+      nickname_masked: number;
     }>();
 
   if (!row) {
@@ -691,6 +720,7 @@ async function handleGetMe(
         badges_csv: row.badges_csv ?? "",
         subject_mastery_count: row.subject_mastery_count ?? 0,
         total_correct: row.total_correct ?? 0,
+        nickname_masked: row.nickname_masked === 1,
       },
     },
     200,
@@ -784,13 +814,19 @@ async function handleDeleteMe(
 
   // Hard delete — invoked from the existing delete-account flow. Frees up
   // the nickname for reuse (case-insensitive UNIQUE constraint).
-  const result = await env.LEADERBOARD_DB
-    .prepare("DELETE FROM leaderboard_m2 WHERE user_id = ?")
-    .bind(userSub)
-    .run();
+  //
+  // The player's mask entry goes in the same batch (one D1 transaction): it
+  // holds a copy of their nickname, which is their personal data and has no
+  // purpose once the row it masks is gone.
+  const [result] = await env.LEADERBOARD_DB.batch([
+    env.LEADERBOARD_DB.prepare("DELETE FROM leaderboard_m2 WHERE user_id = ?").bind(userSub),
+    env.LEADERBOARD_DB
+      .prepare(`DELETE FROM ${NICKNAME_MASKS_TABLE} WHERE app_id = 'm2' AND user_id = ?`)
+      .bind(userSub),
+  ]);
 
   return jsonResponse(
-    { ok: true, deleted: result.meta?.changes ?? 0 },
+    { ok: true, deleted: result?.meta?.changes ?? 0 },
     200,
     headers,
   );
@@ -804,10 +840,16 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
   // directly. Partial indexes (WHERE is_public = 1) make these queries
   // cheap even as the table grows — index seek + LIMIT 100 ≈ < 5 ms each
   // at < 1k rows. Parallelising COUNT + 5 SELECTs cuts wall time ~3×.
+  //
+  // Owner masks are resolved inside each of these SELECTs (nickname-mask.ts). If
+  // any query fails — the masks table missing included — Promise.all rejects
+  // before a single `put`, and the previous snapshots stay: stale rather than
+  // unmasked. ⚠️ Keep the "all queries, then all puts" shape; a per-filter
+  // query-then-put would publish some snapshots from a half-failed run.
   const buildQuery = (filter: Filter) =>
-    `SELECT ${SNAPSHOT_COLUMNS}
-     FROM leaderboard_m2
-     WHERE is_public = 1
+    `SELECT ${SNAPSHOT_SELECT}
+     FROM leaderboard_m2 l ${M2_MASK.join}
+     WHERE l.is_public = 1
      ORDER BY ${ORDER_BY[filter]}
      LIMIT 100`;
 
@@ -818,7 +860,8 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
     ...FILTERS.map((filter) =>
       env.LEADERBOARD_DB
         .prepare(buildQuery(filter))
-        .all<LeaderboardRowInternal>(),
+        .bind(NICKNAME_MASK)
+        .all<Omit<LeaderboardRowInternal, "nickname_masked"> & { nickname_masked: number }>(),
     ),
   ]);
 
@@ -828,7 +871,11 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
   await Promise.all(
     FILTERS.map((filter, i) => {
       const payload: SnapshotPayload = {
-        rows: queryResults[i]?.results ?? [],
+        // SQLite has no boolean; the public field is one.
+        rows: (queryResults[i]?.results ?? []).map((row) => ({
+          ...row,
+          nickname_masked: row.nickname_masked === 1,
+        })),
         last_updated_at: now,
         total_count: totalCount,
       };
