@@ -137,7 +137,8 @@ log "summary: $SUMMARY"
 # --- Notification logic -----------------------------------------------------------
 if [ "$TOTAL_NEW" -eq 0 ]; then
   if [ "${BUGQUEUE_NOTIFY_ALWAYS:-0}" = "1" ]; then
-    notify "✅ 今天沒有新 bug" "neurons $NEURONS_NEW · 二階 $M2_NEW"
+    ACTIVE="$(extract_field 'total_active' "$SUMMARY")"
+    notify "✅ 今天 0 筆新 bug report" "待修 ${ACTIVE:-?} 件（neurons $NEURONS_NEW · 二階 $M2_NEW 新增）"
     log "no new bugs (notified — BUGQUEUE_NOTIFY_ALWAYS=1)"
   else
     log "no new bugs (silent)"
