@@ -47,7 +47,8 @@ export interface LeaderboardRow {
   total_study_min: number
   total_settles: number
   badges_csv?: string
-  updated_at: number
+  // No `updated_at`: the public snapshot does not send when a player last
+  // synced (their activity pattern). Change drop-sync-time-from-public-leaderboard.
 }
 
 export interface LeaderboardSnapshot {

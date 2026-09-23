@@ -29,6 +29,7 @@
 
 import type { Env } from "./index";
 import { extractBearer, verifyJWT } from "./auth";
+import { projectPublicSnapshot, type StoredSnapshot } from "./public-snapshot";
 
 // === Constants ===
 
@@ -131,7 +132,8 @@ interface LeaderboardRowInternal {
   reputation: number;
   doctor_count: number;
   total_study_min: number;
-  updated_at: number;
+  // ⚠️ No `updated_at`. It is when the player last pushed — their activity
+  // pattern — and the snapshot is public. See PUBLIC_SNAPSHOT_FIELDS.
   // Achievement system (v15). Optional in interface for back-compat with
   // pre-0002 snapshots; readers fall back to '' / 0 when undefined.
   badges_csv?: string;
@@ -219,8 +221,36 @@ function snapshotKvKey(filter: Filter): string {
 // the const array; adding a 5th tab only requires editing FILTERS.
 const FILTER_ROUTE_REGEX = new RegExp(`^/leaderboard/(${FILTERS.join("|")})$`);
 
-const SNAPSHOT_COLUMNS =
-  "user_id, nickname, hospital_tier, reputation, doctor_count, total_study_min, updated_at, badges_csv, subject_mastery_count, total_correct";
+/**
+ * The only fields a row of the public snapshot may carry — both what the cron
+ * SELECTs into KV and what `GET /leaderboard/:filter` sends (see
+ * public-snapshot.ts for why the read path projects again).
+ *
+ * ⚠️ A column added to the snapshot is NOT published until it is added here.
+ * That is the point: this list is the decision about what a public, login-free
+ * endpoint discloses about each player, and it should be made on purpose.
+ * `updated_at` is deliberately absent — it is stamped when the player's client
+ * pushes, so publishing it published each nickname's daily routine. The
+ * player's own row, with its `updated_at`, is served by the JWT-gated
+ * `GET /leaderboard/me`, which the row-staleness notice reads.
+ *
+ * Mirrored by the requirement "Public snapshot rows SHALL NOT disclose when a
+ * player last synced" (study-rpg-2nd, hospital-leaderboard) and pinned by
+ * __tests__/leaderboard-public-snapshot.test.ts.
+ */
+export const PUBLIC_SNAPSHOT_FIELDS = [
+  "user_id",
+  "nickname",
+  "hospital_tier",
+  "reputation",
+  "doctor_count",
+  "total_study_min",
+  "badges_csv",
+  "subject_mastery_count",
+  "total_correct",
+] as const satisfies readonly (keyof LeaderboardRowInternal)[];
+
+const SNAPSHOT_COLUMNS = PUBLIC_SNAPSHOT_FIELDS.join(", ");
 
 const ORDER_BY: Record<Filter, string> = {
   composite: "hospital_tier DESC, reputation DESC, doctor_count DESC",
@@ -532,7 +562,7 @@ async function handleGetFilter(
   // Read from KV snapshot — cron writes it every hour. Client never hits D1
   // on read path. If cron has never run yet, return empty payload (the UI
   // surfaces "未加入排行" empty state for that case).
-  const cached = await env.LEADERBOARD_KV.get<SnapshotPayload>(snapshotKvKey(filter), {
+  const cached = await env.LEADERBOARD_KV.get<StoredSnapshot>(snapshotKvKey(filter), {
     type: "json",
   });
 
@@ -544,7 +574,7 @@ async function handleGetFilter(
     );
   }
 
-  return jsonResponse(cached, 200, headers);
+  return jsonResponse(projectPublicSnapshot(cached, PUBLIC_SNAPSHOT_FIELDS), 200, headers);
 }
 
 async function handleNicknameCheck(

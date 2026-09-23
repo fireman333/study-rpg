@@ -124,12 +124,14 @@ Response:
 ```json
 {
   "rows": [
-    {"user_id": "uuid", "nickname": "wlk", "hospital_tier": 3, "reputation": 18200, "doctor_count": 12, "total_study_min": 480, "total_correct": 1830, "badges_csv": "study:P2,quiz:P3", "subject_mastery_count": 4, "updated_at": 1716000000000}
+    {"user_id": "uuid", "nickname": "wlk", "hospital_tier": 3, "reputation": 18200, "doctor_count": 12, "total_study_min": 480, "total_correct": 1830, "badges_csv": "study:P2,quiz:P3", "subject_mastery_count": 4}
   ],
   "last_updated_at": 1716003600000,
   "total_count": 17
 }
 ```
+
+Each row carries exactly the fields in `PUBLIC_SNAPSHOT_FIELDS` (`src/leaderboard.ts`), applied both when the cron writes KV and again when this endpoint responds. Rows do **not** carry the player's `updated_at` — that is when their client last pushed, and on a login-free endpoint it published each player's daily routine (removed 2026-09-23, change `drop-sync-time-from-public-leaderboard` in study-rpg-2nd). A player's own `updated_at` is available only from the JWT-gated `GET /leaderboard/me`. A new snapshot column is not published until it is added to that list.
 
 `last_updated_at: null` + empty `rows` means cron has never run for this filter yet (cold start) — UI shows「期待第一個上榜的玩家！」empty state.
 
