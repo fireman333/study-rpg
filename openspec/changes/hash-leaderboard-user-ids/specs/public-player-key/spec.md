@@ -53,7 +53,7 @@ A player key SHALL be derived by the Worker from the account id with a keyed has
 
 ### Requirement: Player keys fail closed when the secret is unavailable
 
-When the Worker's player-key secret is absent or shorter than 32 characters, the Worker SHALL NOT fall back to publishing the account id. A leaderboard refresh SHALL write no snapshot at all in that run (the previous snapshots stay, so the page's「上次更新」time stops advancing). A request whose response would have to derive a key — a public read of a snapshot stored before this change, a 留言 board read not answered from the edge cache, a post, a report, or `GET /leaderboard/me` — SHALL be refused with HTTP 503 and `{ "error": "player_key_unavailable" }`. A public read of a snapshot whose rows all carry a stored key needs no derivation and SHALL still be served, without the account id. A post refused this way SHALL write nothing.
+When the Worker's player-key secret is absent or shorter than 32 characters, the Worker SHALL NOT fall back to publishing the account id. A leaderboard refresh SHALL write no snapshot at all in that run (the previous snapshots stay, so the page's「上次更新」time stops advancing). A request whose response would have to derive a key — a public read of a snapshot stored before this change, a 留言 board read not answered from the edge cache, a post, a report, or `GET /leaderboard/me` — SHALL be refused with HTTP 503 and `{ "error": "player_key_unavailable" }`. A public read of a snapshot whose rows all carry a stored key and none carries the account id needs no derivation and SHALL still be served. A snapshot whose rows still carry the account id (written before this change or during the compatibility window) SHALL NOT be served with its stored keys in place of a derivation: its keys may be window keys, which「The keys published during the window are retired when it closes」forbids serving after the deadline. A post refused this way SHALL write nothing.
 
 #### Scenario: The refresh writes nothing
 
@@ -67,7 +67,7 @@ When the Worker's player-key secret is absent or shorter than 32 characters, the
 
 #### Scenario: An already-keyed snapshot is still served
 
-- **WHEN** the stored snapshot already carries `player_key` on every row and the secret is missing
+- **WHEN** the stored snapshot carries `player_key` and no `user_id` on every row and the secret is missing
 - **THEN** the public read SHALL succeed and carry no account id
 
 ### Requirement: A signed-in player obtains their own key from their authenticated read
@@ -91,7 +91,7 @@ When the Worker's player-key secret is absent or shorter than 32 characters, the
 
 ### Requirement: A rollout compatibility window lets the Worker deploy before the clients
 
-The Worker SHALL support a rollout compatibility window, configured as a deadline, during which it additionally carries the account id in the fields that clients built before this change read — `user_id` on a snapshot row, and the raw id in a 留言 message's `id` and `authorKey` — alongside the player key, and accepts a raw id as a report target. The window SHALL be open only while all of the following hold: the configured deadline is a real calendar date or a timestamp with an explicit offset, the current time is before it, it is no more than 14 days away, and a separate window secret is configured, usable, and different from the permanent secret. In every other case — the deadline absent, empty, unparseable, passed, or too far away, or the window secret missing, too short, or equal to the permanent secret — the window SHALL be closed (the default and the end state), and none of these fields SHALL carry the account id. The configuration committed to the repository SHALL NOT hold the window open. The 留言 board's edge-cache entry SHALL be keyed by both the identity format and whether the window is open, so neither a deploy nor the deadline serves a cached body of the other shape.
+The Worker SHALL support a rollout compatibility window, configured as a deadline, during which it additionally carries the account id in the fields that clients built before this change read — `user_id` on a snapshot row, and the raw id in a 留言 message's `id` and `authorKey` — alongside the player key, and accepts a raw id as a report target. The window SHALL be open only while all of the following hold: the configured deadline is a real calendar date or a timestamp with an explicit offset, the current time is before it, it is no more than 14 days away from the current time (measured at each request, not from the deploy — so a deadline refused as too far away opens by itself once it comes within 14 days), and a separate window secret is configured, usable, and different from the permanent secret. In every other case — the deadline absent, empty, unparseable, passed, or too far away, or the window secret missing, too short, or equal to the permanent secret — the window SHALL be closed (the default and the end state), and none of these fields SHALL carry the account id. The configuration committed to the repository SHALL leave the deadline empty or set it to a real deadline no more than 14 days after the moment it is checked, and SHALL NOT carry the retired open-ended flag. The 留言 board's edge-cache entry SHALL be keyed by both the identity format and whether the window is open, so neither a deploy nor the deadline serves a cached body of the other shape.
 
 #### Scenario: Old clients keep working during the window
 
@@ -105,13 +105,13 @@ The Worker SHALL support a rollout compatibility window, configured as a deadlin
 
 #### Scenario: A deadline that cannot be read keeps the window closed
 
-- **WHEN** the configured deadline is absent, empty, not a real date, a timestamp without an offset, or more than 14 days away
-- **THEN** the window SHALL be closed
+- **WHEN** the configured deadline is absent, empty, not a real date, a timestamp without an offset, or, at the moment of the request, more than 14 days away
+- **THEN** the window SHALL be closed at that moment
 
 #### Scenario: The committed configuration keeps the window closed
 
 - **WHEN** the repository's Worker configuration is checked
-- **THEN** its deadline SHALL be empty, or a real date no more than 14 days away, and the retired open-ended flag SHALL NOT be present
+- **THEN** its deadline SHALL be empty, or a real date no more than 14 days after the moment of the check, and the retired open-ended flag SHALL NOT be present
 
 ### Requirement: The keys published during the window are retired when it closes
 
