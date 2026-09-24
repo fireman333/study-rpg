@@ -40,7 +40,10 @@ export const LEADERBOARD_FILTERS: LeaderboardFilter[] = [
 ]
 
 export interface LeaderboardRow {
-  user_id: string
+  // Opaque public identity (`pk1_…`, a keyed hash the Worker derives — change
+  // hash-leaderboard-user-ids). The snapshot no longer carries the account id;
+  // find your own row by comparing against `fetchMyPlayerKey()`.
+  player_key: string
   nickname: string
   variant_count: number
   total_AP: number
@@ -321,6 +324,27 @@ export async function fetchMyLeaderboardRow(
   if (!res.ok) return null
   const data = (await res.json()) as { row: LeaderboardRow | null }
   return data.row
+}
+
+/**
+ * GET /leaderboard/neurons/me → `player_key`: the signed-in player's own public
+ * key, the value their rows on the leaderboard and their 留言 messages carry
+ * (hash-leaderboard-user-ids). It is the ONLY way to recognise yourself there —
+ * the public surfaces no longer carry the account id, and the key cannot be
+ * computed client-side (the Worker holds the secret).
+ *
+ * Returns null on any failure (old Worker without the field, network, 503 when
+ * the Worker's secret is missing): the page then simply highlights no own row.
+ */
+export async function fetchMyPlayerKey(accessToken: string): Promise<string | null> {
+  try {
+    const res = await authedFetch('/leaderboard/neurons/me', { accessToken, method: 'GET' })
+    if (!res.ok) return null
+    const data = (await res.json()) as { player_key?: unknown }
+    return typeof data.player_key === 'string' ? data.player_key : null
+  } catch {
+    return null
+  }
 }
 
 /**

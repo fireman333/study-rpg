@@ -24,6 +24,7 @@ import { useAuth } from '../lib/auth/AuthContext'
 import { db } from '../lib/db'
 import { computeOwnedSlotCountByFamily } from '../lib/services/variant-ownership'
 import { getLeaderboardProfile } from '../lib/services/neurons-leaderboard'
+import { useOwnPlayerKey } from '../lib/hooks/useOwnPlayerKey'
 import {
   fetchShoutoutBoard,
   postShoutout,
@@ -87,7 +88,10 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
   const [reportTarget, setReportTarget] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
 
-  const mine = userId ? board.find((m) => m.authorKey === userId) ?? null : null
+  // Own message = the one carrying the player's own key (hash-leaderboard-user-ids);
+  // the board no longer publishes the account id. `authorKey` stays the report target.
+  const ownPlayerKey = useOwnPlayerKey(accessToken)
+  const mine = ownPlayerKey ? board.find((m) => m.playerKey === ownPlayerKey) ?? null : null
 
   const refreshBoard = useCallback(async () => {
     try {
@@ -138,7 +142,7 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
   // Self-update from a write response (don't wait for the 30s list cache).
   const applyMine = useCallback((msg: ShoutoutMessage) => {
     setBoard((prev) => {
-      const without = prev.filter((m) => m.authorKey !== msg.authorKey)
+      const without = prev.filter((m) => m.playerKey !== msg.playerKey)
       return [msg, ...without]
     })
   }, [])
@@ -164,10 +168,10 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
   const handleDelete = useCallback(async () => {
     if (!accessToken || !userId) return
     await deleteShoutout(accessToken)
-    setBoard((prev) => prev.filter((m) => m.authorKey !== userId))
+    setBoard((prev) => prev.filter((m) => m.playerKey !== ownPlayerKey))
     setComposeOpen(false)
     setToast('已刪除你的留言')
-  }, [accessToken, userId])
+  }, [accessToken, userId, ownPlayerKey])
 
   return (
     <section aria-label="留言板">
@@ -191,9 +195,9 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
           </p>
         </div>
       ) : reduced ? (
-        <StaticGrid board={board} userId={userId} onReport={setReportTarget} />
+        <StaticGrid board={board} ownPlayerKey={ownPlayerKey} onReport={setReportTarget} />
       ) : (
-        <BounceFrame board={board} userId={userId} onReport={setReportTarget} />
+        <BounceFrame board={board} ownPlayerKey={ownPlayerKey} onReport={setReportTarget} />
       )}
 
       <p style={disclaimerFooterStyle}>留言內容由使用者自行負責；不當內容可檢舉，站方保留刪除權。</p>
@@ -274,11 +278,11 @@ interface Pos {
 
 function BounceFrame({
   board,
-  userId,
+  ownPlayerKey,
   onReport,
 }: {
   board: ShoutoutMessage[]
-  userId: string | null
+  ownPlayerKey: string | null
   onReport: (authorKey: string) => void
 }): JSX.Element {
   const frameRef = useRef<HTMLDivElement>(null)
@@ -371,7 +375,7 @@ function BounceFrame({
           onTouchStart={() => (pausedRef.current = true)}
           onTouchEnd={() => (pausedRef.current = false)}
         >
-          <ShoutoutCard m={m} isSelf={m.authorKey === userId} onReport={onReport} />
+          <ShoutoutCard m={m} isSelf={ownPlayerKey !== null && m.playerKey === ownPlayerKey} onReport={onReport} />
         </div>
       ))}
     </div>
@@ -380,18 +384,18 @@ function BounceFrame({
 
 function StaticGrid({
   board,
-  userId,
+  ownPlayerKey,
   onReport,
 }: {
   board: ShoutoutMessage[]
-  userId: string | null
+  ownPlayerKey: string | null
   onReport: (authorKey: string) => void
 }): JSX.Element {
   return (
     <div style={staticGridStyle}>
       {board.map((m) => (
         <div key={m.authorKey} style={{ position: 'relative' }}>
-          <ShoutoutCard m={m} isSelf={m.authorKey === userId} onReport={onReport} />
+          <ShoutoutCard m={m} isSelf={ownPlayerKey !== null && m.playerKey === ownPlayerKey} onReport={onReport} />
         </div>
       ))}
     </div>
