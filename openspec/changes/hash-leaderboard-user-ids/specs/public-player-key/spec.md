@@ -60,6 +60,11 @@ When the Worker's player-key secret is absent or shorter than 32 characters, the
 - **WHEN** a leaderboard refresh runs without the secret
 - **THEN** no KV snapshot SHALL be written and the previous snapshots SHALL be unchanged
 
+#### Scenario: A window-era snapshot is refused, not served with its window keys
+
+- **WHEN** the window has closed, KV still holds snapshots written during it, and the permanent secret is missing
+- **THEN** every public read of them, every 留言 read, and `/me` SHALL answer 503, and no response SHALL contain a window key or an account id
+
 #### Scenario: A read that needs a key is refused, not answered with the id
 
 - **WHEN** a public read, a 留言 read, a post, a report, or `/me` needs to derive a key and the secret is missing
@@ -91,7 +96,7 @@ When the Worker's player-key secret is absent or shorter than 32 characters, the
 
 ### Requirement: A rollout compatibility window lets the Worker deploy before the clients
 
-The Worker SHALL support a rollout compatibility window, configured as a deadline, during which it additionally carries the account id in the fields that clients built before this change read — `user_id` on a snapshot row, and the raw id in a 留言 message's `id` and `authorKey` — alongside the player key, and accepts a raw id as a report target. The window SHALL be open only while all of the following hold: the configured deadline is a real calendar date or a timestamp with an explicit offset, the current time is before it, it is no more than 14 days away from the current time (measured at each request, not from the deploy — so a deadline refused as too far away opens by itself once it comes within 14 days), and a separate window secret is configured, usable, and different from the permanent secret. In every other case — the deadline absent, empty, unparseable, passed, or too far away, or the window secret missing, too short, or equal to the permanent secret — the window SHALL be closed (the default and the end state), and none of these fields SHALL carry the account id. The configuration committed to the repository SHALL leave the deadline empty or set it to a real deadline no more than 14 days after the moment it is checked, and SHALL NOT carry the retired open-ended flag. The 留言 board's edge-cache entry SHALL be keyed by both the identity format and whether the window is open, so neither a deploy nor the deadline serves a cached body of the other shape.
+The Worker SHALL support a rollout compatibility window, configured as a deadline, during which it additionally carries the account id in the fields that clients built before this change read — `user_id` on a snapshot row, and the raw id in a 留言 message's `id` and `authorKey` — alongside the player key, and accepts a raw id as a report target. The window SHALL be open only while all of the following hold: the configured deadline is a real calendar date or a timestamp with an explicit offset, the current time is before it, it is no more than 14 days after the upload time of the running Worker version (a fixed anchor, so a deadline refused as too far away stays refused for as long as that version runs, instead of opening by itself once it comes within 14 days of the current time), that upload time is known, and a separate window secret is configured, usable, and different from the permanent secret. In every other case — the deadline absent, empty, unparseable, passed, or too far away, the version's upload time missing or unreadable, or the window secret missing, too short, or equal to the permanent secret — the window SHALL be closed (the default and the end state), and none of these fields SHALL carry the account id. The configuration committed to the repository SHALL leave the deadline empty or set it to a real deadline no more than 14 days after the moment it is checked, and SHALL NOT carry the retired open-ended flag. The 留言 board's edge-cache entry SHALL be keyed by both the identity format and whether the window is open, so neither a deploy nor the deadline serves a cached body of the other shape.
 
 #### Scenario: Old clients keep working during the window
 
@@ -105,8 +110,13 @@ The Worker SHALL support a rollout compatibility window, configured as a deadlin
 
 #### Scenario: A deadline that cannot be read keeps the window closed
 
-- **WHEN** the configured deadline is absent, empty, not a real date, a timestamp without an offset, or, at the moment of the request, more than 14 days away
-- **THEN** the window SHALL be closed at that moment
+- **WHEN** the configured deadline is absent, empty, not a real date, a timestamp without an offset, or more than 14 days after the running version's upload time, or that upload time is unknown
+- **THEN** the window SHALL be closed
+
+#### Scenario: A deadline refused as too far away does not open later
+
+- **WHEN** a version is uploaded with a deadline more than 14 days after its upload, and time advances until the deadline is less than 14 days away
+- **THEN** the window SHALL remain closed for as long as that version runs
 
 #### Scenario: The committed configuration keeps the window closed
 
