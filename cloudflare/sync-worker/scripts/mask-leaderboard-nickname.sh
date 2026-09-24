@@ -36,6 +36,10 @@
 #                                   ~/.config/study-rpg/leaderboard-player-key.env, mode 600)
 # Without it these three refuse before writing anything. The secret is handed to node
 # through the environment, never argv, and is never printed.
+# After the Worker's secret is rotated, replace the local copy too: each snapshot records a
+# fingerprint of the secret it was keyed under (`key_epoch`), and these three refuse — before
+# writing — when the copy here no longer matches it. During the rollout compat window the
+# snapshots also carry user_id, so rows are matched on that and the check does not apply.
 #
 # `mask` / `unmask` write the list, then rewrite the five current KV snapshots so the change
 # shows before the next cron, then re-read them and report per snapshot only
@@ -123,12 +127,18 @@ const crypto = require("crypto");
 const [action, ...a] = process.argv.slice(1);
 // Same derivation as src/player-key.ts — pinned against it by the script test, which
 // reads snapshots the Worker cron keyed with the same secret.
+const secret = () => {
+  const s = process.env.LEADERBOARD_PLAYER_KEY_SECRET;
+  if (!s || s.length < 32) throw new Error("player-key secret missing");
+  return s;
+};
 const playerKey = (uid) => {
-  const secret = process.env.LEADERBOARD_PLAYER_KEY_SECRET;
-  if (!secret || secret.length < 32) throw new Error("player-key secret missing");
-  const mac = crypto.createHmac("sha256", secret).update(`m2:${uid}`).digest();
+  const mac = crypto.createHmac("sha256", secret()).update(`m2:${uid}`).digest();
   return "pk1_" + mac.subarray(0, 16).toString("base64url");
 };
+// Fingerprint of the secret, as src/player-key.ts stores it in the `key_epoch` of each snapshot.
+const keyEpoch = () =>
+  "ke1_" + crypto.createHmac("sha256", secret()).update("player-key-epoch").digest().subarray(0, 6).toString("base64url");
 // A snapshot row belongs to the player when its key matches — or, for a row stored before
 // the key existed / in the compat window, when its raw user_id does.
 const isRowOf = (row, uid, key) => row.player_key === key || row.user_id === uid;
@@ -152,6 +162,12 @@ switch (action) {
   case "count": {                       // d1-file → number
     const r = d1Rows(a[0])[0];
     process.stdout.write(String(r ? Object.values(r)[0] : 0));
+    break;
+  }
+  case "secret-check": {                // snapfile → exit 4 when rows must be matched by key under another secret
+    const s = snapshot(a[0]);
+    const byKeyOnly = s && s.rows.some((r) => typeof r.user_id !== "string");
+    if (s && byKeyOnly && typeof s.key_epoch === "string" && s.key_epoch !== keyEpoch()) process.exit(4);
     break;
   }
   case "find": {                        // snapfile rank d1-ids-file
@@ -216,6 +232,16 @@ d1_to() {
 
 kv_key() { echo "leaderboard:m2:top100:$1"; }
 
+# Refuse, before any write, when the local secret is not the one the snapshots were keyed
+# under (the Worker's was rotated and this copy was not). Reads the composite snapshot.
+check_secret_current() {
+  local snap="$TMP/secret-check.json"
+  "${WR[@]}" kv key get "$(kv_key composite)" --binding "$KV_BINDING" "${TARGET[@]}" --text > "$snap" 2>/dev/null || true
+  if ! helper secret-check "$snap"; then
+    EXIT_CODE=2 die "本機 LEADERBOARD_PLAYER_KEY_SECRET 與 Worker 目前用來產生快照的不同（輪替過 secret？請更新 ${MMLN_PLAYER_KEY_ENV:-~/.config/study-rpg/leaderboard-player-key.env}），未寫入任何東西"
+  fi
+}
+
 UUID_RE='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
 check_user_id() {
   # user_id is spliced into SQL (wrangler d1 execute has no bind parameters), so it must
@@ -266,6 +292,7 @@ case "$CMD" in
     [[ " ${FILTERS[*]} " == *" $filter "* ]] || EXIT_CODE=64 die "未知 filter：$filter（${FILTERS[*]}）"
     [[ "$rank" =~ ^[1-9][0-9]*$ ]] || EXIT_CODE=64 die "rank 必須是正整數：$rank"
     need_player_key_secret
+    check_secret_current
     snap="$TMP/find.json"
     "${WR[@]}" kv key get "$(kv_key "$filter")" --binding "$KV_BINDING" "${TARGET[@]}" --text > "$snap"
     # user_ids only — the candidates whose key the snapshot row may carry. No nickname.
@@ -278,6 +305,7 @@ case "$CMD" in
     uid="$1" reason="${2:-}"
     check_user_id "$uid"
     need_player_key_secret
+    check_secret_current
     d1_to "$TMP/exists.json" "SELECT COUNT(*) AS c FROM leaderboard_m2 WHERE user_id = '$uid'"
     [[ "$(helper count "$TMP/exists.json")" -gt 0 ]] || EXIT_CODE=2 die "leaderboard_m2 沒有 user_id=$uid，未寫入任何東西"
     reason_sql="NULL"
@@ -303,6 +331,7 @@ case "$CMD" in
     uid="$1"
     check_user_id "$uid"
     need_player_key_secret
+    check_secret_current
     d1_to "$TMP/delete.json" "DELETE FROM leaderboard_nickname_masks WHERE app_id = 'm2' AND user_id = '$uid'"
     echo "已從遮罩名單移除：user_id=$uid"
     # The stored name goes D1 → file → node → snapshot; the terminal never sees it.

@@ -124,7 +124,12 @@ export function makeEnv(
   db: SqliteDb,
   store: FakeKv,
   failWhen?: (sql: string) => boolean,
-  extra: Partial<Pick<Env, "LEADERBOARD_PLAYER_KEY_SECRET" | "LEADERBOARD_RAW_ID_COMPAT">> = {},
+  extra: Partial<
+    Pick<
+      Env,
+      "LEADERBOARD_PLAYER_KEY_SECRET" | "LEADERBOARD_PLAYER_KEY_WINDOW_SECRET" | "LEADERBOARD_RAW_ID_COMPAT_UNTIL"
+    >
+  > = {},
 ): Env {
   return {
     LEADERBOARD_DB: d1(db, failWhen),
@@ -137,6 +142,27 @@ export function makeEnv(
 /** The public key the Worker derives for `userId` in `app` under the fixture secret. */
 export async function testPlayerKey(app: string, userId: string): Promise<string> {
   return (await playerKeyer({ LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET }, app))(userId);
+}
+
+/**
+ * The window secret every "compat window open" fixture carries. Test-only, and
+ * different from TEST_PLAYER_KEY_SECRET — equal secrets keep the window closed.
+ */
+export const TEST_WINDOW_SECRET = "test-only-window-key-secret-9876543210zyxwvutsrqp";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Env extras that open the compat window until `days` after `now`. */
+export function openWindow(now: number = Date.now(), days = 3) {
+  return {
+    LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: TEST_WINDOW_SECRET,
+    LEADERBOARD_RAW_ID_COMPAT_UNTIL: new Date(now + days * DAY_MS).toISOString(),
+  };
+}
+
+/** The key a player carries while the compat window is open (same math, the window secret). */
+export async function testWindowKey(app: string, userId: string): Promise<string> {
+  return (await playerKeyer({ LEADERBOARD_PLAYER_KEY_SECRET: TEST_WINDOW_SECRET }, app))(userId);
 }
 
 export const M2_FILTERS = ["composite", "reputation", "doctor", "study", "correct"] as const;

@@ -93,10 +93,17 @@ export interface Env {
   // Never a fallback to the raw id.
   LEADERBOARD_PLAYER_KEY_SECRET?: string;
 
-  // Var (wrangler.jsonc) — "1" only during the Worker-first rollout window: public surfaces
-  // then also carry the raw id in its old field for client bundles that predate the change.
-  // Absent is the end state. See rawIdCompat() in player-key.ts.
-  LEADERBOARD_RAW_ID_COMPAT?: string;
+  // Secret (wrangler secret put) — the HMAC key used INSTEAD of the one above while the rollout
+  // compat window is open. Keys published next to raw ids during the window come from it, so
+  // they stop meaning anything at the deadline. Must differ from LEADERBOARD_PLAYER_KEY_SECRET;
+  // missing, short, or equal → the window stays closed. Delete it after the window (design D6).
+  LEADERBOARD_PLAYER_KEY_WINDOW_SECRET?: string;
+
+  // Var (wrangler.jsonc) — the deadline of the Worker-first rollout window, as `YYYY-MM-DD` or a
+  // timestamp with an offset. Before it, public surfaces also carry the raw id in its old field
+  // for client bundles that predate the change. Empty / absent / unparseable / past / more than
+  // 14 days away → closed (the end state). See compatWindow() in player-key.ts.
+  LEADERBOARD_RAW_ID_COMPAT_UNTIL?: string;
 
   // Supabase PUBLISHABLE (anon) key, used only by the /note-images endpoints. It already
   // ships inside the app's own frontend bundle, so it is not a secret — it identifies the

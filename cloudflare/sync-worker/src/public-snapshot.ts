@@ -21,17 +21,24 @@
  * last had the app open.
  *
  * Change: hash-leaderboard-user-ids — rows carry `player_key` (a keyed hash)
- * where they carried `user_id`. A row stored before that change is keyed here, on
- * read, so the raw id stops leaving the Worker on deploy rather than at the next
- * cron.
+ * where they carried `user_id`. A row stored with its `user_id` (before that
+ * change, or during the compat window) is keyed here, on read, so the raw id
+ * stops leaving the Worker on deploy — and the window's keys at its deadline —
+ * rather than at the next cron.
  */
 
-import type { PlayerKeyer } from "./player-key";
+import { PlayerKeyUnavailableError, type PlayerKeyer } from "./player-key";
 
 export interface StoredSnapshot {
   rows: Record<string, unknown>[];
   last_updated_at: number | null;
   total_count: number;
+  /**
+   * `PlayerKeyer.epoch` of the secret the rows' `player_key`s were derived under.
+   * Absent on snapshots written before it existed. Stays in KV: the projection
+   * below never copies it out.
+   */
+  key_epoch?: string;
 }
 
 /**
@@ -40,30 +47,52 @@ export interface StoredSnapshot {
  */
 export const PLAYER_KEY_FIELD = "player_key";
 
-export interface PublicIdentity {
+export interface SnapshotIdentity {
   /**
-   * Derivation for rows stored before the change (they carry `user_id` and no
-   * `player_key`). Called at most once per projection, and only when such a row
-   * is present, so a fresh snapshot is served without touching the secret.
-   * Throws PlayerKeyUnavailableError when the secret is missing — the caller
-   * turns that into a refusal, never into a row carrying the raw id.
+   * The derivation in force (publicIdentity(env, now).keyer). Called at most once
+   * per projection, and only when a stored row still carries `user_id` — a
+   * snapshot keyed with no raw id in it is served without touching the secret.
+   * Throws PlayerKeyUnavailableError when the secret is missing.
    */
   keyer: () => Promise<PlayerKeyer>;
-  /** rawIdCompat(env): also emit the stored `user_id` (rollout window only). */
+  /** publicIdentity(env, now).compat: also emit the stored `user_id` (rollout window only). */
   compat: boolean;
 }
 
 /**
  * Project a stored snapshot onto `fields` (which lists `player_key` and never
- * `user_id`), deriving the key for pre-change rows and emitting `user_id` only in
- * the compat window.
+ * `user_id`), emitting `user_id` only in the compat window.
+ *
+ * Which key a row leaves with — the rule that makes the window's keys die with it:
+ *   - a row that carries `user_id` (written before this change, or during the
+ *     compat window) is keyed HERE, under the secret in force now, unless the
+ *     snapshot records that it was keyed under that same secret (`key_epoch`).
+ *     So the first read after the window closes serves permanent keys, not the
+ *     window keys stored beside the raw ids — no waiting for the next cron.
+ *   - a row with no `user_id` can only be served with the key it was stored with.
+ *     After a later rotation of the permanent secret that key is stale until the
+ *     next refresh (≤ 30 minutes; design D5) — nothing in KV can re-derive it.
+ *
+ * Secret missing: rows carrying `user_id` cannot be keyed → PlayerKeyUnavailableError
+ * (the caller answers 503) — unless every row already has a stored key, in which
+ * case those are served (the raw id is not emitted: the window cannot be open
+ * without the secrets, see compatWindow()).
  */
 export async function projectPublicSnapshot(
   snapshot: StoredSnapshot,
   fields: readonly string[],
-  identity: PublicIdentity,
+  identity: SnapshotIdentity,
 ): Promise<StoredSnapshot> {
   let keyOf: PlayerKeyer | null = null;
+  if (snapshot.rows.some((row) => typeof row.user_id === "string")) {
+    try {
+      keyOf = await identity.keyer();
+    } catch (err) {
+      const allStored = snapshot.rows.every((row) => typeof row[PLAYER_KEY_FIELD] === "string");
+      if (!(err instanceof PlayerKeyUnavailableError) || !allStored) throw err;
+    }
+  }
+  const rekey = keyOf !== null && snapshot.key_epoch !== keyOf.epoch;
   const rows: Record<string, unknown>[] = [];
   for (const row of snapshot.rows) {
     const out: Record<string, unknown> = {};
@@ -71,8 +100,7 @@ export async function projectPublicSnapshot(
       if (field in row) out[field] = row[field];
     }
     const rawId = typeof row.user_id === "string" ? row.user_id : null;
-    if (!(PLAYER_KEY_FIELD in out) && rawId !== null) {
-      keyOf ??= await identity.keyer();
+    if (keyOf !== null && rawId !== null && (rekey || !(PLAYER_KEY_FIELD in out))) {
       out[PLAYER_KEY_FIELD] = await keyOf(rawId);
     }
     if (identity.compat && rawId !== null) out.user_id = rawId;
@@ -88,7 +116,8 @@ export async function projectPublicSnapshot(
 /**
  * What the cron stores for each row it SELECTed: the row with `user_id` replaced
  * by `player_key` — or, in the compat window, alongside it. The SELECT has to
- * read `user_id` to derive the key; this is where it stops travelling.
+ * read `user_id` to derive the key; this is where it stops travelling. The caller
+ * stores `keyOf.epoch` as the snapshot's `key_epoch`.
  */
 export async function keyStoredRows<R extends { user_id: string }>(
   rows: readonly R[],

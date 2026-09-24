@@ -130,12 +130,16 @@
 		// its slow now) and reused it for ~277 failed (412) PUTs/min, bypassing the
 		// limiter. 10s defeats skew up to ~50s. add-presign-put-rate-limit.
 		"PRESIGN_PUT_TTL_SECONDS": "10",
-		// ⚠️ TEMPORARY — rollout step 1 of hash-leaderboard-user-ids (design D6). While "1",
-		// public leaderboard rows and 留言 messages ALSO carry the raw Supabase user_id in their
-		// old fields, so client bundles that predate the player key keep finding their own row.
-		// DELETE this line (and redeploy) once both 二階 and neurons clients using `player_key`
-		// are live — until then every public read still publishes the raw id.
-		"LEADERBOARD_RAW_ID_COMPAT": "1"
+		// Rollout compat window of hash-leaderboard-user-ids (design D6) — its DEADLINE, not a switch.
+		// Before it, public leaderboard rows and 留言 messages ALSO carry the raw Supabase user_id in
+		// their old fields (for client bundles that predate the player key), and every key comes from
+		// the separate secret LEADERBOARD_PLAYER_KEY_WINDOW_SECRET, so the pairs published during the
+		// window stop meaning anything once it closes.
+		// Committed EMPTY = closed. For the rollout, fill in "deploy day + 3 days" as a timestamp with
+		// an offset (e.g. "2026-09-27T23:59:59+08:00") before `pnpm run deploy`. Empty, unparseable,
+		// past, or more than 14 days away → closed; it cannot be left open by forgetting it.
+		// Pinned by "the committed wrangler.jsonc cannot hold the window open" (player-key.test.ts).
+		"LEADERBOARD_RAW_ID_COMPAT_UNTIL": ""
 	},
 	// Rate Limiting binding (add-presign-put-rate-limit) — caps PUT presigns per
 	// (user, bundle) at 10 / 60s to bound R2 Class-A PutObject cost against a

@@ -34,8 +34,8 @@ import { NICKNAME_MASK, NICKNAME_MASKS_TABLE, nicknameMaskSql } from "./nickname
 import {
   PLAYER_KEY_UNAVAILABLE_BODY,
   PlayerKeyUnavailableError,
-  playerKeyer,
-  rawIdCompat,
+  publicIdentity,
+  warnIfCompatRefused,
 } from "./player-key";
 
 /** The app id the player key is bound to (player-key.ts). Same id as the 留言 board's. */
@@ -165,6 +165,8 @@ interface SnapshotPayload {
   rows: LeaderboardRowInternal[];
   last_updated_at: number;
   total_count: number;
+  /** PlayerKeyer.epoch the rows were keyed under (public-snapshot.ts). Never published. */
+  key_epoch: string;
 }
 
 interface UpsertBody {
@@ -259,7 +261,7 @@ const FILTER_ROUTE_REGEX = new RegExp(`^/leaderboard/(${FILTERS.join("|")})$`);
  * `player_key` (hash-leaderboard-user-ids) replaced `user_id`: the page needs
  * a per-row identity for its list key and to find the signed-in player's own
  * row, not the account identifier. `user_id` is added back only by
- * rawIdCompat() during the rollout window — never by this list.
+ * publicIdentity() during the rollout window — never by this list.
  *
  * `nickname_masked` (mask-moderated-leaderboard-nicknames) says the row's
  * `nickname` is the owner mask. It publishes nothing beyond the mask itself, and
@@ -617,9 +619,10 @@ async function handleGetFilter(
   }
 
   try {
+    const identity = publicIdentity(env, Date.now());
     const projected = await projectPublicSnapshot(cached, PUBLIC_SNAPSHOT_FIELDS, {
-      keyer: () => playerKeyer(env, PLAYER_KEY_APP),
-      compat: rawIdCompat(env),
+      keyer: () => identity.keyer(PLAYER_KEY_APP),
+      compat: identity.compat,
     });
     return jsonResponse(projected, 200, headers);
   } catch (err) {
@@ -742,7 +745,7 @@ async function handleGetMe(
   // `sub`, and a player whose leaderboard row is gone may still own a 留言.
   let playerKey: string;
   try {
-    playerKey = await (await playerKeyer(env, PLAYER_KEY_APP))(userSub);
+    playerKey = await (await publicIdentity(env, Date.now()).keyer(PLAYER_KEY_APP))(userSub);
   } catch (err) {
     if (err instanceof PlayerKeyUnavailableError) {
       console.error("[leaderboard] /me refused", { err: err.message });
@@ -900,8 +903,10 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
   // The key derivation is obtained FIRST: with the secret missing it throws here,
   // before any query or put, so the previous snapshots stay — stale rather than
   // published with raw ids or without identities (player-key.ts, fails closed).
-  const keyOf = await playerKeyer(env, PLAYER_KEY_APP);
-  const compat = rawIdCompat(env);
+  const now = Date.now();
+  const { compat, keyer } = publicIdentity(env, now);
+  const keyOf = await keyer(PLAYER_KEY_APP);
+  warnIfCompatRefused(env, now, "leaderboard cron");
 
   const buildQuery = (filter: Filter) =>
     `SELECT ${SNAPSHOT_SELECT}
@@ -928,7 +933,6 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
   ]);
 
   const totalCount = totalRow?.c ?? 0;
-  const now = Date.now();
 
   // Keyed before the first put, for the same all-or-nothing reason as the queries.
   const keyedRows = await Promise.all(
@@ -945,6 +949,7 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
         })),
         last_updated_at: now,
         total_count: totalCount,
+        key_epoch: keyOf.epoch,
       };
       return env.LEADERBOARD_KV.put(snapshotKvKey(filter), JSON.stringify(payload));
     }),

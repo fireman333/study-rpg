@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { stripComments } from './strip-comments'
 
 // Guards two things the runtime never checks (openspec `sync-worker-cpu-budget`,
 // `hospital-leaderboard` "Cron dispatch handler matches wrangler trigger expression"):
@@ -18,9 +19,6 @@ const root = resolve(__dirname, '..', '..')
 const indexSrc = readFileSync(resolve(root, 'src/index.ts'), 'utf8')
 const wranglerSrc = readFileSync(resolve(root, 'wrangler.jsonc'), 'utf8')
 
-function stripComments(src: string): string {
-  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:"'`])\/\/.*$/gm, '$1')
-}
 
 function cronConstants(src: string): Map<string, string> {
   const out = new Map<string, string>()

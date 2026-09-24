@@ -42,8 +42,7 @@ import {
   PLAYER_KEY_PATTERN,
   PLAYER_KEY_UNAVAILABLE_BODY,
   PlayerKeyUnavailableError,
-  playerKeyer,
-  rawIdCompat,
+  publicIdentity,
   type PlayerKeyer,
 } from "./player-key";
 
@@ -189,19 +188,28 @@ function parseAvatar(raw: unknown, cfg: AppConfig): AvatarPayload | null {
 }
 
 /**
- * Player keys of the composite top-N. The snapshot carries `player_key`; a
- * snapshot stored before hash-leaderboard-user-ids carries only `user_id`, which
- * is keyed here so the halo survives the deploy.
+ * Player keys of the composite top-N, under the derivation the board is using.
+ *
+ * Same rule as projectPublicSnapshot (public-snapshot.ts): a row that still
+ * carries `user_id` — stored before hash-leaderboard-user-ids, or during the
+ * compat window — is keyed here with `keyOf` unless the snapshot records it was
+ * keyed under that same secret. Without that, the first board read after the
+ * window closes would compare permanent author keys against the window keys
+ * stored in KV, and the halo would vanish until the next refresh.
  */
 async function topNSet(env: Env, cfg: AppConfig, keyOf: PlayerKeyer): Promise<Set<string>> {
-  const snap = await env.LEADERBOARD_KV.get<{ rows: { player_key?: string; user_id?: string }[] }>(
-    cfg.compositeKvKey,
-    { type: "json" },
-  );
+  const snap = await env.LEADERBOARD_KV.get<{
+    rows: { player_key?: string; user_id?: string }[];
+    key_epoch?: string;
+  }>(cfg.compositeKvKey, { type: "json" });
+  const sameSecret = snap?.key_epoch === keyOf.epoch;
   const set = new Set<string>();
   for (const r of snap?.rows?.slice(0, TOP_N_HALO) ?? []) {
-    if (typeof r.player_key === "string") set.add(r.player_key);
-    else if (typeof r.user_id === "string") set.add(await keyOf(r.user_id));
+    if (typeof r.user_id === "string" && (!sameSecret || typeof r.player_key !== "string")) {
+      set.add(await keyOf(r.user_id));
+    } else if (typeof r.player_key === "string") {
+      set.add(r.player_key);
+    }
   }
   return set;
 }
@@ -336,7 +344,8 @@ async function handleGetBoard(
   // carry raw user ids, and flipping the compat var changes what a body carries.
   // Without the version and the mode in the key, a deploy would keep serving the
   // previous shape from cache for up to 90 s.
-  const compat = rawIdCompat(env);
+  const identity = publicIdentity(env, Date.now());
+  const compat = identity.compat;
   const cache = (caches as unknown as { default: Cache }).default;
   const cacheKey = new Request(`https://shoutout.cache/board/${app}/v2-${compat ? "compat" : "keyed"}`);
   const hit = await cache.match(cacheKey);
@@ -351,7 +360,7 @@ async function handleGetBoard(
 
   let keyOf: PlayerKeyer;
   try {
-    keyOf = await playerKeyer(env, app);
+    keyOf = await identity.keyer(app);
   } catch (err) {
     return playerKeyRefusal(err, "board read", headers);
   }
@@ -445,9 +454,10 @@ async function handlePut(
 
   // Before any write: a post whose echo could not be keyed is refused whole
   // rather than stored and then answered with an error.
+  const mode = publicIdentity(env, Date.now());
   let keyOf: PlayerKeyer;
   try {
-    keyOf = await playerKeyer(env, app);
+    keyOf = await mode.keyer(app);
   } catch (err) {
     return playerKeyRefusal(err, "post", headers);
   }
@@ -585,7 +595,7 @@ async function handlePut(
   );
 
   const topN = await topNSet(env, cfg, keyOf);
-  const author = await publicAuthor(keyOf, rawIdCompat(env), sub);
+  const author = await publicAuthor(keyOf, mode.compat, sub);
   return jsonResponse(
     {
       ok: true,
@@ -640,10 +650,13 @@ interface ReportBody {
  * The internal `author_key` a report names, from what the board published.
  *
  * The board publishes a player key (hash-leaderboard-user-ids), which cannot be
- * inverted — so the key is matched against the keys of the authors who could be
- * reported: every message not deleted and not already hidden. That population is
- * one row per poster (the table is keyed by author), so the scan is bounded by
- * the number of people who have ever posted in this app.
+ * inverted — so the key is matched against the keys of the authors who could have
+ * been shown: every message not deleted. Hidden ones are included on purpose: a
+ * board read up to 90 s ago (edge cache) can still show a message that has since
+ * been hidden, and reporting it should answer as it did before the key existed
+ * (`{ ok: true, hidden }`), not with an error. That population is one row per
+ * poster (the table is keyed by author), so the scan is bounded by the number of
+ * people who have ever posted in this app.
  *
  * In the compat window a raw id is also accepted, because a client bundle that
  * predates the change reports with the `authorKey` it was shown, which was raw.
@@ -653,14 +666,15 @@ interface ReportBody {
  * @returns the author_key, or null when nothing matches.
  */
 async function resolveReportTarget(
-  env: Env,
   cfg: AppConfig,
+  env: Env,
   target: string,
   keyOf: PlayerKeyer,
+  compat: boolean,
 ): Promise<string | null> {
-  if (!PLAYER_KEY_PATTERN.test(target)) return rawIdCompat(env) ? target : null;
+  if (!PLAYER_KEY_PATTERN.test(target)) return compat ? target : null;
   const rows = await env.LEADERBOARD_DB
-    .prepare(`SELECT author_key FROM ${cfg.table} WHERE deleted = 0 AND hidden = 0`)
+    .prepare(`SELECT author_key FROM ${cfg.table} WHERE deleted = 0`)
     .all<{ author_key: string }>();
   for (const r of rows.results ?? []) {
     if ((await keyOf(r.author_key)) === target) return r.author_key;
@@ -692,13 +706,14 @@ async function handleReport(
     return jsonResponse({ error: "invalid_target" }, 400, headers);
   }
 
+  const identity = publicIdentity(env, Date.now());
   let keyOf: PlayerKeyer;
   try {
-    keyOf = await playerKeyer(env, app);
+    keyOf = await identity.keyer(app);
   } catch (err) {
     return playerKeyRefusal(err, "report", headers);
   }
-  const target = await resolveReportTarget(env, cfg, published, keyOf);
+  const target = await resolveReportTarget(cfg, env, published, keyOf, identity.compat);
   if (target === null) {
     return jsonResponse({ error: "invalid_target" }, 400, headers);
   }

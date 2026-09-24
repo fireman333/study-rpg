@@ -23,20 +23,31 @@ import {
   PLAYER_KEY_MIN_SECRET_LENGTH,
   PLAYER_KEY_PATTERN,
   PlayerKeyUnavailableError,
+  RAW_ID_COMPAT_MAX_MS,
+  compatWindow,
+  parseCompatUntil,
   playerKeyer,
+  publicIdentity,
+  warnIfCompatRefused,
 } from "../player-key";
 import {
   M2_FILTERS,
   TEST_PLAYER_KEY_SECRET,
+  TEST_WINDOW_SECRET,
   insertM2,
   kv,
   m2Key,
   makeDb,
   makeEnv,
+  openWindow,
   testPlayerKey,
+  testWindowKey,
   type FakeKv,
   type SqliteDb,
 } from "./leaderboard-sqlite-fixtures";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { stripComments } from "./strip-comments";
 
 const U_A = "00000000-0000-4000-8000-0000000000a1";
 const U_B = "00000000-0000-4000-8000-0000000000b2";
@@ -153,6 +164,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -280,36 +292,204 @@ describe("with the compat window closed (the end state)", () => {
 
 // ─── the rollout compat window ──────────────────────────────────────────────
 
+const DAY = 24 * 60 * 60 * 1000;
+
+describe("the compat window's deadline fails closed", () => {
+  const NOW = Date.parse("2026-09-24T12:00:00Z");
+  const secrets = {
+    LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET,
+    LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: TEST_WINDOW_SECRET,
+  };
+  const state = (until: string | undefined, extra: Record<string, string | undefined> = {}) =>
+    compatWindow({ ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: until, ...extra }, NOW);
+
+  it("is open only before a real, near deadline, with two distinct usable secrets", () => {
+    expect(state("2026-09-27T23:59:59+08:00")).toBe("open");
+    expect(state("2026-09-27")).toBe("open");
+    expect(publicIdentity({ ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: "2026-09-27" }, NOW).compat).toBe(true);
+  });
+
+  it("is closed once the deadline has passed — at the deadline itself too", () => {
+    expect(state("2026-09-24T12:00:00Z")).toBe("expired");
+    expect(state("2026-09-01")).toBe("expired");
+  });
+
+  it("is closed when the value is missing, empty, or not a real date", () => {
+    expect(state(undefined)).toBe("unset");
+    expect(state("")).toBe("unset");
+    for (const junk of ["1", "true", "yes", "2026-02-30", "2026-13-01", "2026-09-27T23:59", " 2026-09-27", "tomorrow"]) {
+      expect(state(junk), junk).toBe("unparseable");
+      expect(parseCompatUntil(junk), junk).toBeNull();
+    }
+  });
+
+  it("is closed when the deadline is further out than the maximum — no value holds it open for good", () => {
+    expect(state(new Date(NOW + RAW_ID_COMPAT_MAX_MS + 1000).toISOString())).toBe("beyond-max");
+    expect(state("2099-01-01")).toBe("beyond-max");
+    expect(state(new Date(NOW + RAW_ID_COMPAT_MAX_MS - 1000).toISOString())).toBe("open");
+  });
+
+  it("is closed without a usable window secret, without the permanent one, or when they are equal", () => {
+    const until = "2026-09-27";
+    expect(state(until, { LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: undefined })).toBe("window-secret-unusable");
+    expect(state(until, { LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: "short" })).toBe("window-secret-unusable");
+    expect(state(until, { LEADERBOARD_PLAYER_KEY_SECRET: undefined })).toBe("window-secret-unusable");
+    expect(state(until, { LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: TEST_PLAYER_KEY_SECRET })).toBe(
+      "window-secret-reused",
+    );
+  });
+
+  it("a refused window says so once per cron; the normal states (unset, expired) stay quiet", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    for (const until of [undefined, "", "2026-09-01"]) {
+      warnIfCompatRefused({ ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: until }, NOW, "t");
+    }
+    expect(warn).not.toHaveBeenCalled();
+    warnIfCompatRefused({ ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: "2026-09-27", LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: undefined }, NOW, "t");
+    warnIfCompatRefused({ ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: "tomorrow" }, NOW, "t");
+    expect(warn).toHaveBeenCalledTimes(2);
+  });
+
+  it("the pre-deadline flag `LEADERBOARD_RAW_ID_COMPAT = \"1\"` no longer opens anything", () => {
+    const env = { ...secrets, LEADERBOARD_RAW_ID_COMPAT: "1" } as Parameters<typeof compatWindow>[0];
+    expect(compatWindow(env, NOW)).toBe("unset");
+  });
+});
+
 describe("with the compat window open (rollout step 1)", () => {
   let env: Env;
   beforeEach(() => {
-    env = makeEnv(db, store, undefined, { LEADERBOARD_RAW_ID_COMPAT: "1" });
+    env = makeEnv(db, store, undefined, openWindow());
   });
 
-  it("public rows carry both the key and the old user_id, so a pre-change client still finds itself", async () => {
+  it("public rows carry both the WINDOW key and the old user_id, so a pre-change client still finds itself", async () => {
     await runLeaderboardCron(env);
     const res = await handleLeaderboard(new Request("https://api.example/leaderboard/composite"), env, {});
     const rows = ((await res.json()) as { rows: { user_id: string; player_key: string }[] }).rows;
     expect(rows.map((r) => r.user_id)).toEqual([U_A, U_B, U_C]);
-    for (const r of rows) expect(r.player_key).toBe(await testPlayerKey("m2", r.user_id));
+    for (const r of rows) {
+      expect(r.player_key).toBe(await testWindowKey("m2", r.user_id));
+      expect(r.player_key).not.toBe(await testPlayerKey("m2", r.user_id));
+    }
   });
 
-  it("board messages keep the raw id in id / authorKey and add playerKey", async () => {
+  it("board messages keep the raw id in id / authorKey and add the window playerKey", async () => {
     const res = await handleShoutout(new Request("https://api.example/shoutouts/m2"), env, {}, ctx);
     const { messages } = (await res.json()) as { messages: { id: string; authorKey: string; playerKey: string }[] };
     expect(messages.map((m) => m.authorKey)).toEqual([U_A, U_B]);
     for (const m of messages) {
       expect(m.id).toBe(m.authorKey);
-      expect(m.playerKey).toBe(await testPlayerKey("m2", m.authorKey));
+      expect(m.playerKey).toBe(await testWindowKey("m2", m.authorKey));
     }
     expect(cacheKeys).toEqual(["https://shoutout.cache/board/m2/v2-compat"]);
   });
 
-  it("closing the window removes the raw id from what the same KV snapshot serves", async () => {
+  it("/me hands out the window key while the window is open", async () => {
+    signIn(U_D);
+    const res = await handleLeaderboard(
+      new Request("https://api.example/leaderboard/me", { headers: { Authorization: "Bearer t" } }),
+      env,
+      {},
+    );
+    expect(await res.json()).toEqual({ row: null, player_key: await testWindowKey("m2", U_D) });
+  });
+});
+
+describe("the deadline retires every key published during the window", () => {
+  // Rows written during the window, read after it: what production KV holds in the
+  // minutes after the deadline, before the next refresh.
+  const T0 = Date.parse("2026-09-24T12:00:00Z");
+  let env: Env;
+  beforeEach(async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(T0);
+    env = makeEnv(db, store, undefined, openWindow(T0, 3));
     await runLeaderboardCron(env);
-    const closed = makeEnv(db, store);
-    const res = await handleLeaderboard(new Request("https://api.example/leaderboard/composite"), closed, {});
-    expect(await res.text()).not.toMatch(UUID);
+    await runNeuronsLeaderboardCron(env);
+    vi.setSystemTime(T0 + 3 * DAY + 1);
+  });
+
+  it("the window snapshot is re-keyed under the permanent secret on the first read — no raw id, no window key", async () => {
+    for (const f of M2_FILTERS) {
+      const res = await handleLeaderboard(new Request(`https://api.example/leaderboard/${f}`), env, {});
+      const text = await res.text();
+      expect(res.status, f).toBe(200);
+      expect(text, f).not.toMatch(UUID);
+      const rows = (JSON.parse(text) as { rows: { player_key: string }[] }).rows;
+      expect(rows.length, f).toBe(3);
+      const permanent = await Promise.all([U_A, U_B, U_C].map((u) => testPlayerKey("m2", u)));
+      const window = await Promise.all([U_A, U_B, U_C].map((u) => testWindowKey("m2", u)));
+      for (const r of rows) {
+        expect(permanent, f).toContain(r.player_key);
+        expect(window, f).not.toContain(r.player_key);
+      }
+    }
+    const neurons = await handleNeuronsLeaderboard(
+      new Request("https://api.example/leaderboard/neurons/composite"),
+      env,
+      {},
+    );
+    const nrows = ((await neurons.json()) as { rows: { player_key: string }[] }).rows;
+    expect(nrows.map((r) => r.player_key)).toEqual([
+      await testPlayerKey("neurons", U_A),
+      await testPlayerKey("neurons", U_B),
+    ]);
+  });
+
+  it("/me now hands out the permanent key, which is the one the rows carry", async () => {
+    signIn(U_A);
+    const me = await handleLeaderboard(
+      new Request("https://api.example/leaderboard/me", { headers: { Authorization: "Bearer t" } }),
+      env,
+      {},
+    );
+    const { player_key } = (await me.json()) as { player_key: string };
+    expect(player_key).toBe(await testPlayerKey("m2", U_A));
+    const snap = await handleLeaderboard(new Request("https://api.example/leaderboard/composite"), env, {});
+    const rows = ((await snap.json()) as { rows: { player_key: string }[] }).rows;
+    expect(rows[0].player_key).toBe(player_key);
+  });
+
+  it("the 留言 halo still matches: authors keyed permanently against the re-keyed window snapshot", async () => {
+    const res = await handleShoutout(new Request("https://api.example/shoutouts/m2"), env, {}, ctx);
+    const text = await res.text();
+    expect(text).not.toMatch(UUID);
+    const { messages } = JSON.parse(text) as { messages: { playerKey: string; isTopN: boolean }[] };
+    expect(messages.map((m) => m.playerKey)).toEqual([await testPlayerKey("m2", U_A), await testPlayerKey("m2", U_B)]);
+    expect(messages.every((m) => m.isTopN)).toBe(true);
+    expect(cacheKeys).toEqual(["https://shoutout.cache/board/m2/v2-keyed"]);
+  });
+
+  it("a report naming a window key is refused once the window has closed", async () => {
+    const res = await report(env, "m2", U_B, await testWindowKey("m2", U_A));
+    expect(res.status).toBe(400);
+    expect(db.prepare("SELECT COUNT(*) AS c FROM shoutout_reports").get()).toEqual({ c: 0 });
+  });
+
+  it("the next refresh stores permanent keys and no raw id", async () => {
+    store.puts.length = 0;
+    await runLeaderboardCron(env);
+    expect(store.puts.length).toBe(5);
+    for (const f of M2_FILTERS) {
+      const raw = store.store.get(m2Key(f)) ?? "";
+      expect(raw, f).not.toMatch(UUID);
+    }
+  });
+});
+
+describe("after a later rotation of the permanent secret (design D5)", () => {
+  it("a keyed snapshot with no raw id is served with its stored keys until the next refresh", async () => {
+    await runLeaderboardCron(makeEnv(db, store));
+    const rotated = makeEnv(db, store, undefined, { LEADERBOARD_PLAYER_KEY_SECRET: "r".repeat(48) });
+    const res = await handleLeaderboard(new Request("https://api.example/leaderboard/composite"), rotated, {});
+    const rows = ((await res.json()) as { rows: { player_key: string }[] }).rows;
+    // Stale by design: nothing in KV can re-derive them. The next refresh replaces them.
+    expect(rows[0].player_key).toBe(await testPlayerKey("m2", U_A));
+    await runLeaderboardCron(rotated);
+    const fresh = await handleLeaderboard(new Request("https://api.example/leaderboard/composite"), rotated, {});
+    const after = ((await fresh.json()) as { rows: { player_key: string }[] }).rows;
+    expect(after[0].player_key).not.toBe(await testPlayerKey("m2", U_A));
+    expect(after[0].player_key).toMatch(PLAYER_KEY_PATTERN);
   });
 });
 
@@ -408,6 +588,15 @@ describe("top-N halo and reports under keys", () => {
     ).toEqual({ c: 3 });
   });
 
+  it("a report naming an author whose message is already hidden answers as before the key existed", async () => {
+    const target = await testPlayerKey("m2", U_A);
+    for (const reporter of [U_B, U_C, U_D]) await report(env, "m2", reporter, target);
+    // A fourth reader still holding a cached board (≤ 90 s) reports the same message.
+    const res = await report(env, "m2", "00000000-0000-4000-8000-0000000000e5", target);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, hidden: true });
+  });
+
   it("refuses a raw id outside the compat window, and an unknown key, without recording a report", async () => {
     expect((await report(env, "m2", U_B, U_A)).status).toBe(400);
     expect((await report(env, "m2", U_B, await testPlayerKey("m2", U_D))).status).toBe(400);
@@ -416,11 +605,70 @@ describe("top-N halo and reports under keys", () => {
   });
 
   it("accepts a raw id inside the compat window — what a pre-change client sends", async () => {
-    const compat = makeEnv(db, store, undefined, { LEADERBOARD_RAW_ID_COMPAT: "1" });
+    const compat = makeEnv(db, store, undefined, openWindow());
     expect((await report(compat, "m2", U_B, U_A)).status).toBe(200);
     expect(
       db.prepare("SELECT COUNT(*) AS c FROM shoutout_reports WHERE target_author_key = ?").get(U_A),
     ).toEqual({ c: 1 });
+  });
+});
+
+// ─── the CPU budget: one signature per player per refresh ───────────────────
+
+describe("the refresh stays inside its CPU budget (design D8)", () => {
+  it("signs each distinct player once per refresh, however many rankings list them", async () => {
+    const sign = vi.spyOn(crypto.subtle, "sign");
+    await runLeaderboardCron(makeEnv(db, store));
+    // Three public players, each in all five rankings — plus the one secret fingerprint.
+    const rowsListed = M2_FILTERS.reduce(
+      (n, f) => n + (JSON.parse(store.store.get(m2Key(f)) ?? "{}") as { rows: unknown[] }).rows.length,
+      0,
+    );
+    expect(rowsListed).toBe(15);
+    expect(sign).toHaveBeenCalledTimes(3 + 1);
+  });
+});
+
+// ─── source guards ──────────────────────────────────────────────────────────
+
+describe("every surface reads the identity through publicIdentity()", () => {
+  // Derived: every non-test source file of the Worker.
+  const SRC = join(__dirname, "..");
+  const sources = readdirSync(SRC)
+    .filter((f) => f.endsWith(".ts"))
+    .map((f) => ({ f, code: stripComments(readFileSync(join(SRC, f), "latin1")) }));
+
+  it("the population is derived and reaches the surfaces", () => {
+    expect(sources.map((s) => s.f)).toEqual(
+      expect.arrayContaining(["leaderboard.ts", "neurons-leaderboard.ts", "shoutout.ts", "player-key.ts"]),
+    );
+  });
+
+  it("no production file but player-key.ts derives keys with the permanent secret directly", () => {
+    // playerKeyer() ignores the compat window: a surface calling it would publish
+    // permanent keys next to raw ids — the pairs the window secret exists to void.
+    const offenders = sources.filter((s) => s.f !== "player-key.ts" && /\bplayerKeyer\s*\(/.test(s.code));
+    expect(offenders.map((s) => s.f)).toEqual([]);
+    for (const f of ["leaderboard.ts", "neurons-leaderboard.ts", "shoutout.ts"]) {
+      expect(sources.find((s) => s.f === f)?.code, f).toMatch(/\bpublicIdentity\s*\(/);
+    }
+  });
+
+  it("nothing reads the retired open-ended flag LEADERBOARD_RAW_ID_COMPAT", () => {
+    const offenders = sources.filter((s) => /LEADERBOARD_RAW_ID_COMPAT(?!_UNTIL)/.test(s.code));
+    expect(offenders.map((s) => s.f)).toEqual([]);
+  });
+
+  it("the committed wrangler.jsonc cannot hold the window open: unset, or a real deadline within the maximum", () => {
+    const text = stripComments(readFileSync(join(SRC, "..", "wrangler.jsonc"), "utf8"));
+    expect(text).not.toMatch(/"LEADERBOARD_RAW_ID_COMPAT"/);
+    const m = /"LEADERBOARD_RAW_ID_COMPAT_UNTIL"\s*:\s*"([^"]*)"/.exec(text);
+    const value = m ? m[1] : undefined;
+    if (value !== undefined && value !== "") {
+      const until = parseCompatUntil(value);
+      expect(until, `wrangler.jsonc LEADERBOARD_RAW_ID_COMPAT_UNTIL=${value} is not a real date`).not.toBeNull();
+      expect((until as number) - Date.now()).toBeLessThanOrEqual(RAW_ID_COMPAT_MAX_MS);
+    }
   });
 });
 

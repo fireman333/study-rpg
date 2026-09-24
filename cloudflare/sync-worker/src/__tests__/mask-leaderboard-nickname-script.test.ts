@@ -26,6 +26,7 @@ import {
   m2Key,
   makeDb,
   makeEnv,
+  openWindow,
   TEST_PLAYER_KEY_SECRET,
   testPlayerKey,
   type SqliteDb,
@@ -233,6 +234,28 @@ describe("mask-leaderboard-nickname.sh", { timeout: 60_000 }, () => {
     expect(readFileSync(logPath, "utf8")).toBe("");
     // `list` reads only D1 and needs no key.
     expect(runWith({}, "list").status).toBe(0);
+  });
+
+  it("find / mask / unmask refuse, before writing, when the local secret is not the Worker's (a rotation not copied)", () => {
+    const stale = { LEADERBOARD_PLAYER_KEY_SECRET: "stale-local-copy-of-a-rotated-secret-000000000000" };
+    for (const args of [["find", "composite", "1"], ["mask", U_TARGET], ["unmask", U_TARGET]]) {
+      const r = runWith(stale, ...args);
+      expect(r.status, args.join(" ")).toBe(2);
+      expect(r.stderr, args.join(" ")).toMatch(/輪替過 secret/);
+    }
+    expect(entries()).toEqual([]);
+    expect(readFileSync(logPath, "utf8")).not.toMatch(/d1/);
+  });
+
+  it("during the compat window the rows carry user_id, so the permanent local secret still works", async () => {
+    const files = {
+      put: async (key: string, value: string) => writeFileSync(join(kvDir, encodeURIComponent(key)), value),
+      get: async () => null,
+    };
+    await runLeaderboardCron(makeEnv(db, files as never, undefined, openWindow()));
+    const r = run("mask", U_TARGET);
+    expect(r.status, r.output).toBe(0);
+    for (const f of M2_FILTERS) expect(r.stdout).toContain(`${f}: masked=true`);
   });
 
   it("find resolves a keyed row whose snapshot carries no user_id at all", () => {
