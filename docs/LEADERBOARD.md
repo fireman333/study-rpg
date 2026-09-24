@@ -124,12 +124,14 @@ Response:
 ```json
 {
   "rows": [
-    {"user_id": "uuid", "nickname": "wlk", "hospital_tier": 3, "reputation": 18200, "doctor_count": 12, "total_study_min": 480, "total_correct": 1830, "badges_csv": "study:P2,quiz:P3", "subject_mastery_count": 4}
+    {"player_key": "pk1_<22 base64url chars>", "nickname": "wlk", "hospital_tier": 3, "reputation": 18200, "doctor_count": 12, "total_study_min": 480, "total_correct": 1830, "badges_csv": "study:P2,quiz:P3", "subject_mastery_count": 4}
   ],
   "last_updated_at": 1716003600000,
   "total_count": 17
 }
 ```
+
+`player_key` (change `hash-leaderboard-user-ids`) is an opaque per-app HMAC of the account id — the snapshot no longer publishes `user_id`. A signed-in client gets its own key from `GET /leaderboard/me` (top-level `player_key`) and matches rows on it. While the Worker var `LEADERBOARD_RAW_ID_COMPAT = "1"` (rollout window only) rows also carry `user_id`.
 
 Each row carries exactly the fields in `PUBLIC_SNAPSHOT_FIELDS` (`src/leaderboard.ts`), applied both when the cron writes KV and again when this endpoint responds. Rows do **not** carry the player's `updated_at` — that is when their client last pushed, and on a login-free endpoint it published each player's daily routine (removed 2026-09-23, change `drop-sync-time-from-public-leaderboard` in study-rpg-2nd). A player's own `updated_at` is available only from the JWT-gated `GET /leaderboard/me`. A new snapshot column is not published until it is added to that list.
 
@@ -213,6 +215,7 @@ No new env vars on the client side beyond the existing R2 Worker URL (`VITE_SYNC
 Worker secrets (set via `wrangler secret put`):
 - `SUPABASE_JWKS_URL` — `https://<project>.supabase.co/auth/v1/keys` (same as R2 sync). Already set for the R2 migration; no new secret needed.
 - `SUPABASE_PROJECT_REF` — for JWT issuer/audience verification. Already set.
+- `LEADERBOARD_PLAYER_KEY_SECRET` — HMAC key for the public `player_key` (see `cloudflare/sync-worker/README.md` § Secret rotation). Must be set BEFORE the Worker that reads it is deployed.
 
 No `SUPABASE_SERVICE_ROLE_KEY` — Worker never reads user data on behalf of users (same boundary as R2 sync).
 

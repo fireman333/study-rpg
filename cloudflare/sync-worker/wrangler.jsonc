@@ -129,7 +129,13 @@
 		// whose clock runs ~30s+ behind still cached a 45s URL (expiresAt-60000 >
 		// its slow now) and reused it for ~277 failed (412) PUTs/min, bypassing the
 		// limiter. 10s defeats skew up to ~50s. add-presign-put-rate-limit.
-		"PRESIGN_PUT_TTL_SECONDS": "10"
+		"PRESIGN_PUT_TTL_SECONDS": "10",
+		// ⚠️ TEMPORARY — rollout step 1 of hash-leaderboard-user-ids (design D6). While "1",
+		// public leaderboard rows and 留言 messages ALSO carry the raw Supabase user_id in their
+		// old fields, so client bundles that predate the player key keep finding their own row.
+		// DELETE this line (and redeploy) once both 二階 and neurons clients using `player_key`
+		// are live — until then every public read still publishes the raw id.
+		"LEADERBOARD_RAW_ID_COMPAT": "1"
 	},
 	// Rate Limiting binding (add-presign-put-rate-limit) — caps PUT presigns per
 	// (user, bundle) at 10 / 60s to bound R2 Class-A PutObject cost against a

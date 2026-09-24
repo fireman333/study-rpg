@@ -25,11 +25,27 @@
  * change mask-moderated-leaderboard-nicknames), which is why every name this file
  * shows goes through `authorDisplayName` / the board's masked join.
  * The message body is the only free-text UGC field.
+ *
+ * Public author identity (change hash-leaderboard-user-ids): the board and the
+ * post echo identify an author by their per-app player key (player-key.ts), the
+ * same key the app's public leaderboard rows carry — never by `author_key`,
+ * which is the raw Supabase `user_id` and stays internal to D1 (bans, reports,
+ * audit, the owner back-office). During the rollout compat window the old
+ * fields `id` / `authorKey` still carry the raw id and `playerKey` carries the
+ * key; afterwards all three carry the key.
  */
 
 import type { Env } from "./index";
 import { extractBearer, verifyJWT } from "./auth";
 import { NICKNAME_MASK, nicknameMaskSql } from "./nickname-mask";
+import {
+  PLAYER_KEY_PATTERN,
+  PLAYER_KEY_UNAVAILABLE_BODY,
+  PlayerKeyUnavailableError,
+  playerKeyer,
+  rawIdCompat,
+  type PlayerKeyer,
+} from "./player-key";
 
 // === Per-app config ===
 // Only apps with a migrated shoutouts_<app> table + leaderboard_<app> table are
@@ -172,15 +188,39 @@ function parseAvatar(raw: unknown, cfg: AppConfig): AvatarPayload | null {
   };
 }
 
-async function topNSet(env: Env, cfg: AppConfig): Promise<Set<string>> {
-  const snap = await env.LEADERBOARD_KV.get<{ rows: { user_id: string }[] }>(cfg.compositeKvKey, {
-    type: "json",
-  });
+/**
+ * Player keys of the composite top-N. The snapshot carries `player_key`; a
+ * snapshot stored before hash-leaderboard-user-ids carries only `user_id`, which
+ * is keyed here so the halo survives the deploy.
+ */
+async function topNSet(env: Env, cfg: AppConfig, keyOf: PlayerKeyer): Promise<Set<string>> {
+  const snap = await env.LEADERBOARD_KV.get<{ rows: { player_key?: string; user_id?: string }[] }>(
+    cfg.compositeKvKey,
+    { type: "json" },
+  );
   const set = new Set<string>();
-  if (snap?.rows) {
-    for (const r of snap.rows.slice(0, TOP_N_HALO)) set.add(r.user_id);
+  for (const r of snap?.rows?.slice(0, TOP_N_HALO) ?? []) {
+    if (typeof r.player_key === "string") set.add(r.player_key);
+    else if (typeof r.user_id === "string") set.add(await keyOf(r.user_id));
   }
   return set;
+}
+
+/** The three identity fields of a public message (see the header comment). */
+async function publicAuthor(
+  keyOf: PlayerKeyer,
+  compat: boolean,
+  authorKey: string,
+): Promise<{ id: string; authorKey: string; playerKey: string }> {
+  const playerKey = await keyOf(authorKey);
+  const shown = compat ? authorKey : playerKey;
+  return { id: shown, authorKey: shown, playerKey };
+}
+
+function playerKeyRefusal(err: unknown, where: string, headers: Record<string, string>): Response {
+  if (!(err instanceof PlayerKeyUnavailableError)) throw err;
+  console.error(`[shoutout] ${where} refused`, { err: err.message });
+  return jsonResponse(PLAYER_KEY_UNAVAILABLE_BODY, 503, headers);
 }
 
 /**
@@ -291,15 +331,29 @@ async function handleGetBoard(
 ): Promise<Response> {
   // Origin-independent cache key so all origins share one entry (CORS re-applied
   // per request). Edge cache (caches.default) — NOT KV — so no KV write budget burn.
+  //
+  // ⚠️ The key names the identity shape (hash-leaderboard-user-ids): `v1` bodies
+  // carry raw user ids, and flipping the compat var changes what a body carries.
+  // Without the version and the mode in the key, a deploy would keep serving the
+  // previous shape from cache for up to 90 s.
+  const compat = rawIdCompat(env);
   const cache = (caches as unknown as { default: Cache }).default;
-  const cacheKey = new Request(`https://shoutout.cache/board/${app}/v1`);
+  const cacheKey = new Request(`https://shoutout.cache/board/${app}/v2-${compat ? "compat" : "keyed"}`);
   const hit = await cache.match(cacheKey);
   if (hit) {
+    // A cached body was built under this same key, i.e. with the secret present.
     const body = await hit.text();
     return new Response(body, {
       status: 200,
       headers: { ...headers, "Content-Type": "application/json", "X-Shoutout-Cache": "hit" },
     });
+  }
+
+  let keyOf: PlayerKeyer;
+  try {
+    keyOf = await playerKeyer(env, app);
+  } catch (err) {
+    return playerKeyRefusal(err, "board read", headers);
   }
 
   const rows = await env.LEADERBOARD_DB
@@ -340,13 +394,13 @@ async function handleGetBoard(
     for (const n of nameRows.results ?? []) nameByKey.set(n.user_id, n.nickname);
   }
 
-  const topN = await topNSet(env, cfg);
+  const topN = await topNSet(env, cfg, keyOf);
+  const authors = await Promise.all(list.map((r) => publicAuthor(keyOf, compat, r.author_key)));
 
-  const messages = list.map((r) => ({
-    id: r.author_key,
-    authorKey: r.author_key,
+  const messages = list.map((r, i) => ({
+    ...authors[i],
     nickname: nameByKey.get(r.author_key) ?? "匿名同學",
-    isTopN: topN.has(r.author_key),
+    isTopN: topN.has(authors[i].playerKey),
     avatar: {
       avatarType: r.avatar_type,
       assetId: r.asset_id,
@@ -387,6 +441,15 @@ async function handlePut(
     sub = await authUser(request, env);
   } catch {
     return jsonResponse({ error: "unauthenticated" }, 401, headers);
+  }
+
+  // Before any write: a post whose echo could not be keyed is refused whole
+  // rather than stored and then answered with an error.
+  let keyOf: PlayerKeyer;
+  try {
+    keyOf = await playerKeyer(env, app);
+  } catch (err) {
+    return playerKeyRefusal(err, "post", headers);
   }
 
   const now = Date.now();
@@ -521,15 +584,15 @@ async function handlePut(
     now,
   );
 
-  const topN = await topNSet(env, cfg);
+  const topN = await topNSet(env, cfg, keyOf);
+  const author = await publicAuthor(keyOf, rawIdCompat(env), sub);
   return jsonResponse(
     {
       ok: true,
       message: {
-        id: sub,
-        authorKey: sub,
+        ...author,
         nickname: identity.displayName,
-        isTopN: topN.has(sub),
+        isTopN: topN.has(author.playerKey),
         avatar,
         message: original,
         createdAt,
@@ -573,6 +636,38 @@ interface ReportBody {
   targetAuthorKey?: unknown;
 }
 
+/**
+ * The internal `author_key` a report names, from what the board published.
+ *
+ * The board publishes a player key (hash-leaderboard-user-ids), which cannot be
+ * inverted — so the key is matched against the keys of the authors who could be
+ * reported: every message not deleted and not already hidden. That population is
+ * one row per poster (the table is keyed by author), so the scan is bounded by
+ * the number of people who have ever posted in this app.
+ *
+ * In the compat window a raw id is also accepted, because a client bundle that
+ * predates the change reports with the `authorKey` it was shown, which was raw.
+ * Outside it, anything that is not a key is refused: accepting raw ids would let
+ * a reporter who knows an account id target it without it ever being published.
+ *
+ * @returns the author_key, or null when nothing matches.
+ */
+async function resolveReportTarget(
+  env: Env,
+  cfg: AppConfig,
+  target: string,
+  keyOf: PlayerKeyer,
+): Promise<string | null> {
+  if (!PLAYER_KEY_PATTERN.test(target)) return rawIdCompat(env) ? target : null;
+  const rows = await env.LEADERBOARD_DB
+    .prepare(`SELECT author_key FROM ${cfg.table} WHERE deleted = 0 AND hidden = 0`)
+    .all<{ author_key: string }>();
+  for (const r of rows.results ?? []) {
+    if ((await keyOf(r.author_key)) === target) return r.author_key;
+  }
+  return null;
+}
+
 async function handleReport(
   request: Request,
   env: Env,
@@ -592,8 +687,19 @@ async function handleReport(
   } catch {
     return jsonResponse({ error: "invalid_body" }, 400, headers);
   }
-  const target = body.targetAuthorKey;
-  if (typeof target !== "string" || target.length === 0 || target.length > 128) {
+  const published = body.targetAuthorKey;
+  if (typeof published !== "string" || published.length === 0 || published.length > 128) {
+    return jsonResponse({ error: "invalid_target" }, 400, headers);
+  }
+
+  let keyOf: PlayerKeyer;
+  try {
+    keyOf = await playerKeyer(env, app);
+  } catch (err) {
+    return playerKeyRefusal(err, "report", headers);
+  }
+  const target = await resolveReportTarget(env, cfg, published, keyOf);
+  if (target === null) {
     return jsonResponse({ error: "invalid_target" }, 400, headers);
   }
 

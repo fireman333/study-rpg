@@ -59,7 +59,7 @@ CI deploy is wired in `.github/workflows/deploy-worker.yml` (triggers on `cloudf
 
 ## Secret rotation
 
-Secrets are set via `wrangler secret put <NAME>` (one at a time, interactive prompt). Five secrets total:
+Secrets are set via `wrangler secret put <NAME>` (one at a time, interactive prompt). Six secrets total:
 
 | Name | What | Source |
 |---|---|---|
@@ -68,6 +68,7 @@ Secrets are set via `wrangler secret put <NAME>` (one at a time, interactive pro
 | `R2_S3_ACCESS_KEY_ID` | R2 S3-compat presign | Cloudflare dashboard → R2 → Manage API Tokens (scope both buckets, read+write) |
 | `R2_S3_SECRET_ACCESS_KEY` | R2 S3-compat presign | Same token, paired secret |
 | `R2_S3_ENDPOINT` | R2 endpoint URL | `https://<account-id>.r2.cloudflarestorage.com` |
+| `LEADERBOARD_PLAYER_KEY_SECRET` | HMAC key for the public `player_key` that replaces `user_id` on the leaderboard snapshots and 留言 boards (`src/player-key.ts`, change `hash-leaderboard-user-ids`). ≥32 chars; missing → those surfaces answer 503 and the leaderboard crons write nothing (fails closed, never falls back to the raw id). | `openssl rand -base64 48`, kept ALSO in `~/.config/study-rpg/leaderboard-player-key.env` (mode 600) because `scripts/mask-leaderboard-nickname.sh` needs it and a Worker secret cannot be read back. Rotating it changes every key; nothing stores keys, so the only effect is ≤30 min of unmatched own-rows / halos until the next cron. |
 
 Rotation cadence: R2 token annual; Supabase JWKS rotates automatically (Worker handles cache miss). After rotation:
 

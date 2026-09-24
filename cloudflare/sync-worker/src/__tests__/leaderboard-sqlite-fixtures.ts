@@ -11,6 +11,7 @@ import { createRequire } from "node:module";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { Env } from "../index";
+import { playerKeyer } from "../player-key";
 
 // ⚠️ `createRequire`, not a static import: Vite 5.4 strips the `node:` scheme from
 // `node:sqlite` (see leaderboard-upsert-throttle.test.ts).
@@ -113,8 +114,29 @@ export function kv() {
 
 export type FakeKv = ReturnType<typeof kv>;
 
-export function makeEnv(db: SqliteDb, store: FakeKv, failWhen?: (sql: string) => boolean): Env {
-  return { LEADERBOARD_DB: d1(db, failWhen), LEADERBOARD_KV: store } as unknown as Env;
+/**
+ * The player-key secret every fixture env carries (hash-leaderboard-user-ids).
+ * Test-only; 48 characters so it clears PLAYER_KEY_MIN_SECRET_LENGTH.
+ */
+export const TEST_PLAYER_KEY_SECRET = "test-only-player-key-secret-0123456789abcdefghij";
+
+export function makeEnv(
+  db: SqliteDb,
+  store: FakeKv,
+  failWhen?: (sql: string) => boolean,
+  extra: Partial<Pick<Env, "LEADERBOARD_PLAYER_KEY_SECRET" | "LEADERBOARD_RAW_ID_COMPAT">> = {},
+): Env {
+  return {
+    LEADERBOARD_DB: d1(db, failWhen),
+    LEADERBOARD_KV: store,
+    LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET,
+    ...extra,
+  } as unknown as Env;
+}
+
+/** The public key the Worker derives for `userId` in `app` under the fixture secret. */
+export async function testPlayerKey(app: string, userId: string): Promise<string> {
+  return (await playerKeyer({ LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET }, app))(userId);
 }
 
 export const M2_FILTERS = ["composite", "reputation", "doctor", "study", "correct"] as const;

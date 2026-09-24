@@ -86,6 +86,18 @@ export interface Env {
   // to call /shoutouts/:app/admin/*. Unset → admin endpoints return 403.
   SHOUTOUT_OWNER_SUBS?: string;
 
+  // Secret (wrangler secret put) — HMAC key for the public player key that replaces the raw
+  // `user_id` on every login-free surface (player-key.ts, change hash-leaderboard-user-ids).
+  // Optional in the type so the Worker boots without it, but every surface that publishes a
+  // player identity FAILS CLOSED when it is absent: 503 on reads, no snapshot write on cron.
+  // Never a fallback to the raw id.
+  LEADERBOARD_PLAYER_KEY_SECRET?: string;
+
+  // Var (wrangler.jsonc) — "1" only during the Worker-first rollout window: public surfaces
+  // then also carry the raw id in its old field for client bundles that predate the change.
+  // Absent is the end state. See rawIdCompat() in player-key.ts.
+  LEADERBOARD_RAW_ID_COMPAT?: string;
+
   // Supabase PUBLISHABLE (anon) key, used only by the /note-images endpoints. It already
   // ships inside the app's own frontend bundle, so it is not a secret — it identifies the
   // project, while the caller's forwarded JWT is what decides anything (migration 0030).

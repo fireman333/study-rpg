@@ -13,7 +13,7 @@
 //
 // ⚠️ No real player's nickname appears in this file. Names are sentinels.
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from "vitest";
 
 vi.mock("../auth", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../auth")>();
@@ -35,6 +35,7 @@ import {
   maskInDb,
   migrationFiles,
   storedSnapshot,
+  testPlayerKey,
   type FakeKv,
   type SnapshotRow,
   type SqliteDb,
@@ -46,6 +47,16 @@ const U_MASKED = "00000000-0000-4000-8000-00000000000a";
 const U_OTHER = "00000000-0000-4000-8000-00000000000b";
 const U_THIRD = "00000000-0000-4000-8000-00000000000c";
 const T = 1_700_000_000_000;
+
+// Public rows and 留言 messages identify players by their player key, not the
+// user_id (hash-leaderboard-user-ids). `key(u)` is what the Worker publishes for u.
+const KEYS = new Map<string, string>();
+beforeAll(async () => {
+  for (const app of ["m2", "neurons"]) {
+    for (const u of [U_MASKED, U_OTHER, U_THIRD]) KEYS.set(`${app}:${u}`, await testPlayerKey(app, u));
+  }
+});
+const key = (u: string, app = "m2"): string => KEYS.get(`${app}:${u}`)!;
 
 function signIn(sub: string): void {
   vi.mocked(verifyJWT).mockResolvedValue({ sub } as Awaited<ReturnType<typeof verifyJWT>>);
@@ -76,7 +87,7 @@ async function upsert(env: Env, sub: string, nickname: string, updatedAt: number
 }
 
 function rowOf(store: FakeKv, filter: string, userId: string): SnapshotRow | undefined {
-  return storedSnapshot(store, filter).rows.find((r) => r.user_id === userId);
+  return storedSnapshot(store, filter).rows.find((r) => r.player_key === key(userId));
 }
 
 let db: SqliteDb;
@@ -106,12 +117,12 @@ describe("the cron's snapshots", () => {
       const rows = storedSnapshot(store, filter).rows;
       expect(rows.length, filter).toBe(3);
       for (const row of rows) {
-        if (row.user_id === U_MASKED) {
+        if (row.player_key === key(U_MASKED)) {
           expect(row.nickname, filter).toBe(NICKNAME_MASK);
           expect(row.nickname_masked, filter).toBe(true);
         } else {
           expect(row.nickname_masked, filter).toBe(false);
-          expect(row.nickname, filter).toBe(row.user_id === U_OTHER ? "Bravo" : "Charlie");
+          expect(row.nickname, filter).toBe(row.player_key === key(U_OTHER) ? "Bravo" : "Charlie");
         }
       }
     }
@@ -119,10 +130,10 @@ describe("the cron's snapshots", () => {
 
   it("do not move the masked player: every snapshot's order equals the unmasked run", async () => {
     await runLeaderboardCron(env);
-    const before = M2_FILTERS.map((f) => storedSnapshot(store, f).rows.map((r) => r.user_id));
+    const before = M2_FILTERS.map((f) => storedSnapshot(store, f).rows.map((r) => r.player_key));
     maskInDb(db, U_MASKED);
     await runLeaderboardCron(env);
-    const after = M2_FILTERS.map((f) => storedSnapshot(store, f).rows.map((r) => r.user_id));
+    const after = M2_FILTERS.map((f) => storedSnapshot(store, f).rows.map((r) => r.player_key));
     expect(after).toEqual(before);
     // …and my-rank, which counts rows ahead, gives the same answer as well.
     signIn(U_MASKED);
@@ -137,7 +148,7 @@ describe("the cron's snapshots", () => {
       const res = await handleLeaderboard(new Request(`https://api.example/leaderboard/${filter}`), env, {});
       const text = await res.text();
       expect(text, filter).not.toContain(SENTINEL);
-      const row = (JSON.parse(text) as { rows: SnapshotRow[] }).rows.find((r) => r.user_id === U_MASKED);
+      const row = (JSON.parse(text) as { rows: SnapshotRow[] }).rows.find((r) => r.player_key === key(U_MASKED));
       expect(row, filter).toMatchObject({ nickname: NICKNAME_MASK, nickname_masked: true });
     }
   });
@@ -283,15 +294,15 @@ describe("the 留言 board", () => {
   async function board(app: string) {
     const res = await handleShoutout(new Request(`https://api.example/shoutouts/${app}`), env, {}, ctx);
     const text = await res.text();
-    return { text, messages: (JSON.parse(text) as { messages: { authorKey: string; nickname: string }[] }).messages };
+    return { text, messages: (JSON.parse(text) as { messages: { playerKey: string; nickname: string }[] }).messages };
   }
 
   it("lists the masked author under the mask and everyone else under their name", async () => {
     maskInDb(db, U_MASKED);
     const { text, messages } = await board("m2");
     expect(text).not.toContain(SENTINEL);
-    expect(messages.find((m) => m.authorKey === U_MASKED)?.nickname).toBe(NICKNAME_MASK);
-    expect(messages.find((m) => m.authorKey === U_OTHER)?.nickname).toBe("Bravo");
+    expect(messages.find((m) => m.playerKey === key(U_MASKED))?.nickname).toBe(NICKNAME_MASK);
+    expect(messages.find((m) => m.playerKey === key(U_OTHER))?.nickname).toBe("Bravo");
   });
 
   it("lets a masked player post, and echoes the mask as their display name", async () => {
@@ -345,7 +356,7 @@ describe("the 留言 board", () => {
        VALUES (?, 'neuron', 'n-1', 'yo', 'yo', 'h', ?, ?, ?, '', 0)`,
     ).run(U_MASKED, T, T, T);
     const { messages } = await board("neurons");
-    expect(messages.find((m) => m.authorKey === U_MASKED)?.nickname).toBe(SENTINEL);
+    expect(messages.find((m) => m.playerKey === key(U_MASKED, "neurons"))?.nickname).toBe(SENTINEL);
   });
 });
 

@@ -54,6 +54,7 @@ import {
   handleNeuronsLeaderboard,
   runNeuronsLeaderboardCron,
 } from "../neurons-leaderboard";
+import { TEST_PLAYER_KEY_SECRET, testPlayerKey } from "./leaderboard-sqlite-fixtures";
 
 // The contract, copied from the requirement `Public snapshot rows SHALL NOT
 // disclose when a player last synced` (study-rpg-2nd hospital-leaderboard).
@@ -64,8 +65,10 @@ import {
 // mask-moderated-leaderboard-nicknames), which requires every snapshot row to
 // carry it. ⚠️ The sync-time requirement's own enumerated list predates that
 // change; whichever of the two is archived second reconciles the list.
+// `player_key` replaced `user_id` with change hash-leaderboard-user-ids (the
+// study-rpg-2nd delta of the same name restates both lists).
 const M2_SPEC_FIELDS = [
-  "user_id",
+  "player_key",
   "nickname",
   "nickname_masked",
   "hospital_tier",
@@ -79,7 +82,7 @@ const M2_SPEC_FIELDS = [
 // Neurons has no spec requirement of its own yet (sibling repo follow-up);
 // this is the set its page renders or matches on, minus the sync time.
 const NEURONS_SPEC_FIELDS = [
-  "user_id",
+  "player_key",
   "nickname",
   "variant_count",
   "total_AP",
@@ -130,7 +133,11 @@ function kv() {
 }
 
 function makeEnv(db: Db, store: ReturnType<typeof kv>): Env {
-  return { LEADERBOARD_DB: d1(db), LEADERBOARD_KV: store } as unknown as Env;
+  return {
+    LEADERBOARD_DB: d1(db),
+    LEADERBOARD_KV: store,
+    LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET,
+  } as unknown as Env;
 }
 
 type Row = Record<string, unknown>;
@@ -238,10 +245,12 @@ describe("二階 public snapshot", () => {
       expect(row).not.toHaveProperty("nickname_lower");
     }
     const [a, old] = payload.rows;
-    const { updated_at: _u, nickname_lower: _n, ...expectedA } = legacy.rows[0];
-    expect(a).toEqual(expectedA);
+    // The stored row predates the player key too: it is keyed on read, and its
+    // raw `user_id` does not leave (hash-leaderboard-user-ids).
+    const { updated_at: _u, nickname_lower: _n, user_id: _id, ...rest } = legacy.rows[0];
+    expect(a).toEqual({ ...rest, player_key: await testPlayerKey("m2", "u-a") });
     expect(Object.keys(old).sort()).toEqual(
-      ["user_id", "nickname", "hospital_tier", "reputation", "doctor_count", "total_study_min"].sort(),
+      ["player_key", "nickname", "hospital_tier", "reputation", "doctor_count", "total_study_min"].sort(),
     );
   });
 
@@ -256,9 +265,11 @@ describe("二階 public snapshot", () => {
       {},
     );
     expect(res.status).toBe(200);
-    const { row } = (await res.json()) as { row: Row };
+    const { row, player_key } = (await res.json()) as { row: Row; player_key: string };
     expect(row.user_id).toBe("u-a");
     expect(row.updated_at).toBe(T + 1);
+    // …and the key their client matches against the public rows.
+    expect(player_key).toBe(await testPlayerKey("m2", "u-a"));
   });
 
   it("an empty snapshot still reads as the cold-start payload", async () => {
@@ -325,9 +336,10 @@ describe("neurons public snapshot", () => {
       {},
     );
     expect(res.status).toBe(200);
-    const { row } = (await res.json()) as { row: Row };
+    const { row, player_key } = (await res.json()) as { row: Row; player_key: string };
     expect(row.user_id).toBe("n-a");
     expect(row.updated_at).toBe(T + 1);
+    expect(player_key).toBe(await testPlayerKey("neurons", "n-a"));
   });
 
   it("a snapshot stored before the change is served without the sync time or unlisted fields", async () => {
@@ -346,7 +358,7 @@ describe("neurons public snapshot", () => {
 
     const payload = await read("composite");
     expect(payload.last_updated_at).toBe(T + 100);
-    const { updated_at: _u, synapse_strong: _s, ...expected } = legacy.rows[0];
-    expect(payload.rows).toEqual([expected]);
+    const { updated_at: _u, synapse_strong: _s, user_id: _id, ...rest } = legacy.rows[0];
+    expect(payload.rows).toEqual([{ ...rest, player_key: await testPlayerKey("neurons", "n-a") }]);
   });
 });
