@@ -8,9 +8,9 @@ Every row the neurons leaderboard cron writes to a KV snapshot, and every row `G
 
 In particular, a public snapshot row SHALL NOT carry:
 
-- the account id, under any field name (`user_id` or otherwise) — the player is identified by `player_key` instead, per `public-player-key`'s「Public surfaces identify players by a player key, not the account id」requirement; this requirement's field list is what `public-player-key` refers to when it says "the fields a public snapshot row carries", and holds outside that capability's rollout compatibility window (during which `user_id` MAY additionally appear, per that requirement, not this one)
+- the account id, under any field name (`user_id` or otherwise) — the player is identified by `player_key` instead, per `public-player-key`'s「Public surfaces identify players by a player key, not the account id」requirement. This field list states what a row carries outside `public-player-key`'s rollout compatibility window; during that window `user_id` MAY additionally appear alongside these fields, per that requirement, not this one
 - `updated_at` (when the player's client last pushed) — publishing it on a login-free, 30-minute-refreshable snapshot discloses each nickname's daily activity pattern (same rationale as 二階's `drop-sync-time-from-public-leaderboard`)
-- `synapse_strong` or `family_complete` — both already retired from ranking by「Five filter tabs SHALL provide composite ranking plus four single-dimension rankings」and「D1 schema SHALL include a reserved `badges_csv` column」; this requirement additionally states they SHALL NOT be published even though the underlying D1 columns still exist and `GET /leaderboard/neurons/me` still returns them to the row's own owner
+- `synapse_strong` or `family_complete` — both already retired from ranking by「Five filter tabs SHALL provide composite ranking plus four single-dimension rankings」and「D1 schema SHALL include a reserved `badges_csv` column for future achievement integration」; this requirement additionally states neither SHALL be published, even though the underlying D1 columns still exist. `GET /leaderboard/neurons/me` still returns `family_complete` to the row's own owner; it does not select or return `synapse_strong` at all — that column has no reader anywhere in the Worker, public or authenticated
 - `key_epoch` (the fingerprint of the secret a stored snapshot's `player_key`s were derived under) — internal bookkeeping used to decide whether a stored row needs re-keying on read, never intended to leave the Worker
 
 A column added to the underlying D1 query in the future is published only once it is added to this list — not by virtue of the query selecting it. A listed field absent from a row stored before that field existed SHALL stay absent from the response (the client coalesces absence), never emitted as `null` or as the field key with an `undefined` value.
@@ -24,9 +24,15 @@ A column added to the underlying D1 query in the future is published only once i
 
 #### Scenario: The public read serves exactly the listed fields
 
-- **WHEN** `GET /leaderboard/neurons/:filter` is served for any of the five filters
+- **WHEN** `GET /leaderboard/neurons/:filter` is served for any of the five filters, outside `public-player-key`'s rollout compatibility window
 - **THEN** every row in the response SHALL have exactly the keys listed above
 - **AND** the response SHALL NOT contain `updated_at`, `synapse_strong`, `family_complete`, `user_id`, or `key_epoch` under any field name
+
+#### Scenario: During the rollout compatibility window, the response additionally carries the account id
+
+- **WHEN** `GET /leaderboard/neurons/:filter` is served while `public-player-key`'s rollout compatibility window is open
+- **THEN** every row in the response SHALL have exactly the keys listed above, plus `user_id`, per `public-player-key`'s「A rollout compatibility window lets the Worker deploy before the clients」requirement
+- **AND** the response SHALL still NOT contain `updated_at`, `synapse_strong`, `family_complete`, or `key_epoch` under any field name
 
 #### Scenario: A snapshot stored before this requirement is served without the excluded fields
 

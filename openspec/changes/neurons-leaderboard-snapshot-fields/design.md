@@ -26,7 +26,7 @@ player_key, nickname, variant_count, total_AP, total_study_min, total_settles, b
 |---|---|---|---|
 | `user_id` | `LeaderboardRowInternal.user_id?` | 帳號 id；改用 `player_key` | `public-player-key`（父分支）的「Public surfaces identify players by a player key」——但那條是**跨 app 通用**規則，不是 neurons 快照欄位清單本身 |
 | `updated_at` | `UpsertBody.updated_at` → D1，公開快照原本會帶 | 洩漏玩家每天何時上線（`drop-sync-time-from-public-leaderboard`，study-rpg-2nd） | 該 change 的 requirement 是 study-rpg-2nd 的 `hospital-leaderboard`，neurons 這邊**只有 code comment**，沒有 spec 文字 |
-| `synapse_strong` | D1 欄位、`handleGetMe` 仍 SELECT，`UpsertBody` 曾接受 | `Five filter tabs` requirement 已把它從排行榜移除（demote synapse surface） | 該 requirement 講的是「不再有排名 tab / 不參與 composite 公式」，**沒有明講它不出現在公開快照欄位清單裡**——兩者不是同一件事：一個欄位可以不參與排序，仍然被公開發布 |
+| `synapse_strong` | D1 欄位仍在（migration `0003`），但 `handleGetMe` 的 SELECT **不含它**——校對時發現這裡原記「仍 SELECT」是錯的，requirement 已改為明講「`/me` 不回傳它」 | `Five filter tabs` requirement 已把它從排行榜移除（demote synapse surface） | 該 requirement 講的是「不再有排名 tab / 不參與 composite 公式」，**沒有明講它不出現在公開快照欄位清單裡**——兩者不是同一件事：一個欄位可以不參與排序，仍然被公開發布 |
 | `family_complete` | D1 vestigial column，`handleGetMe` 仍 SELECT | `D1 schema` requirement：open-collection 範式退場，「vestigial, unused」 | 同上，該 requirement 講的是 ranking/schema，不是公開欄位清單 |
 | `key_epoch` | `SnapshotPayload.key_epoch`（KV 內部，`hash-leaderboard-user-ids` 引入） | 記錄「這批快照的 key 是哪把 secret 算出來的」，供 `projectPublicSnapshot()` 判斷要不要重新 keying；純內部記帳，從未打算公開 | `public-snapshot.ts` 的 `projectPublicSnapshot()` 回傳值結構上就是 `{ rows, last_updated_at, total_count }`（沒有 `key_epoch` 欄位可複製），但**沒有任何測試斷言過**——結構性成立不代表有守衛盯著 |
 
