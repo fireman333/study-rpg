@@ -8,7 +8,7 @@ Login-free leaderboard and 留言 surfaces identify a player by an opaque, per-a
 
 ### Requirement: Public surfaces identify players by a player key, not the account id
 
-Every response the sync Worker serves without authentication that identifies a player — the five 二階 leaderboard snapshots (`GET /leaderboard/:filter`), the five neurons leaderboard snapshots (`GET /leaderboard/neurons/:filter`), and each app's 留言 board (`GET /shoutouts/:app`) — SHALL identify the player by their player key and SHALL NOT contain the player's account id (`user_id` / `author_key`) under any field name. A leaderboard row SHALL carry the key as `player_key`; a 留言 message SHALL carry it as `playerKey`. The echo returned to an author after posting SHALL follow the same rule. A leaderboard snapshot written to KV SHALL likewise carry `player_key` and not the account id, so that the stored snapshot is not a second copy of the identifier. A stored snapshot row that predates this requirement (it carries `user_id` and no `player_key`) SHALL be keyed when it is served, so the account id stops leaving the Worker on deploy rather than at the next refresh. Internal storage and joins (the leaderboard tables, masks, bans, reports, the audit log, the owner back-office) SHALL continue to use the account id.
+Every response the sync Worker serves without authentication that identifies a player — the five 二階 leaderboard snapshots (`GET /leaderboard/:filter`), the five neurons leaderboard snapshots (`GET /leaderboard/neurons/:filter`), and each app's 留言 board (`GET /shoutouts/:app`) — SHALL identify the player by their player key and SHALL NOT contain the player's account id (`user_id` / `author_key`) under any field name. A leaderboard row SHALL carry the key as `player_key`; a 留言 message SHALL carry it as `playerKey`. The echo returned to an author after posting SHALL follow the same rule. A leaderboard snapshot written to KV SHALL likewise carry `player_key` and not the account id, so that the stored snapshot is not a second copy of the identifier. A stored snapshot row that still carries `user_id` (written before this requirement, or during the rollout compatibility window) SHALL be keyed when it is served, under the secret in force at that moment, unless the snapshot records that its keys were derived under that same secret; so the account id stops leaving the Worker on deploy, and the window's keys stop at its deadline, rather than at the next refresh. Internal storage and joins (the leaderboard tables, masks, bans, reports, the audit log, the owner back-office) SHALL continue to use the account id.
 
 These rules hold outside the rollout compatibility window defined below.
 
@@ -53,7 +53,7 @@ A player key SHALL be derived by the Worker from the account id with a keyed has
 
 ### Requirement: Player keys fail closed when the secret is unavailable
 
-When the Worker's player-key secret is absent or shorter than 32 characters, the Worker SHALL NOT fall back to publishing the account id. A leaderboard refresh SHALL write no snapshot at all in that run (the previous snapshots stay, so the page's「上次更新」time stops advancing). A request whose response would have to derive a key — a public read of a snapshot stored before this change, a 留言 board read not answered from the edge cache, a post, a report, or `GET /leaderboard/me` — SHALL be refused with HTTP 503 and `{ "error": "player_key_unavailable" }`. A public read of a snapshot that already carries keys needs no derivation and SHALL still be served. A post refused this way SHALL write nothing.
+When the Worker's player-key secret is absent or shorter than 32 characters, the Worker SHALL NOT fall back to publishing the account id. A leaderboard refresh SHALL write no snapshot at all in that run (the previous snapshots stay, so the page's「上次更新」time stops advancing). A request whose response would have to derive a key — a public read of a snapshot stored before this change, a 留言 board read not answered from the edge cache, a post, a report, or `GET /leaderboard/me` — SHALL be refused with HTTP 503 and `{ "error": "player_key_unavailable" }`. A public read of a snapshot whose rows all carry a stored key needs no derivation and SHALL still be served, without the account id. A post refused this way SHALL write nothing.
 
 #### Scenario: The refresh writes nothing
 
@@ -91,26 +91,60 @@ When the Worker's player-key secret is absent or shorter than 32 characters, the
 
 ### Requirement: A rollout compatibility window lets the Worker deploy before the clients
 
-The Worker SHALL support a configuration flag that, while set, additionally carries the account id in the fields that clients built before this change read — `user_id` on a snapshot row, and the raw id in a 留言 message's `id` and `authorKey` — alongside the player key, and accepts a raw id as a report target. While the flag is unset (the default and the end state), none of these SHALL carry the account id. The 留言 board's edge-cache entry SHALL be keyed by both the identity format and the flag, so neither a deploy nor a flag change serves a cached body of the other shape. The flag SHALL be set only between the Worker deploy and the deploy of every client that matches on the key, and SHALL then be removed.
+The Worker SHALL support a rollout compatibility window, configured as a deadline, during which it additionally carries the account id in the fields that clients built before this change read — `user_id` on a snapshot row, and the raw id in a 留言 message's `id` and `authorKey` — alongside the player key, and accepts a raw id as a report target. The window SHALL be open only while all of the following hold: the configured deadline is a real calendar date or a timestamp with an explicit offset, the current time is before it, it is no more than 14 days away, and a separate window secret is configured, usable, and different from the permanent secret. In every other case — the deadline absent, empty, unparseable, passed, or too far away, or the window secret missing, too short, or equal to the permanent secret — the window SHALL be closed (the default and the end state), and none of these fields SHALL carry the account id. The configuration committed to the repository SHALL NOT hold the window open. The 留言 board's edge-cache entry SHALL be keyed by both the identity format and whether the window is open, so neither a deploy nor the deadline serves a cached body of the other shape.
 
 #### Scenario: Old clients keep working during the window
 
-- **WHEN** the flag is set
+- **WHEN** the window is open
 - **THEN** snapshot rows SHALL carry both `user_id` and `player_key`, and 留言 messages SHALL carry the raw id in `id` / `authorKey` and the key in `playerKey`
 
-#### Scenario: Closing the window withdraws the id from reads of stored data
+#### Scenario: The deadline closes the window without a deploy
 
-- **WHEN** the flag is removed while KV still holds snapshots written with it set
-- **THEN** the public read of those snapshots SHALL carry no account id
+- **WHEN** the configured deadline passes
+- **THEN** the next public read SHALL carry no account id, including a read of a snapshot written while the window was open
+
+#### Scenario: A deadline that cannot be read keeps the window closed
+
+- **WHEN** the configured deadline is absent, empty, not a real date, a timestamp without an offset, or more than 14 days away
+- **THEN** the window SHALL be closed
+
+#### Scenario: The committed configuration keeps the window closed
+
+- **WHEN** the repository's Worker configuration is checked
+- **THEN** its deadline SHALL be empty, or a real date no more than 14 days away, and the retired open-ended flag SHALL NOT be present
+
+### Requirement: The keys published during the window are retired when it closes
+
+While the compatibility window is open, every player key SHALL be derived with the window secret; once it closes, with the permanent secret. `GET /leaderboard/me` SHALL follow the same rule, so a signed-in client always receives the key the surfaces currently carry. Every stored snapshot SHALL record a fingerprint of the secret its keys were derived under, and a stored row that still carries the account id SHALL be re-keyed on read under the secret in force whenever that fingerprint differs, so the first read after the deadline already carries permanent keys; the top-N halo SHALL follow the same rule. A record of (account id, key) pairs made during the window SHALL therefore resolve no key published after it.
+
+#### Scenario: Window keys differ from permanent keys
+
+- **WHEN** a player's row is served while the window is open, and again after the deadline
+- **THEN** the two `player_key` values SHALL differ, and the later one SHALL equal the key `/me` returns after the deadline
+
+#### Scenario: The first read after the deadline is re-keyed
+
+- **WHEN** KV still holds snapshots written during the window and the deadline has passed
+- **THEN** the public read SHALL carry permanent keys and no account id, and the 留言 top-N halo SHALL still flag the authors in the composite top-N
+
+#### Scenario: A later rotation of the permanent secret
+
+- **WHEN** the permanent secret is changed and the stored snapshot carries keys but no account id
+- **THEN** the stored keys SHALL be served until the next refresh replaces them
 
 ### Requirement: Reports and the top-N halo are resolved through the key
 
-`POST /shoutouts/:app/report` SHALL accept, as its target, the key the board published, and SHALL resolve it to the author by comparing it with the keys of the authors whose messages are neither deleted nor hidden. A key that matches no such author (including another app's key, and the key of an author whose message is already hidden) SHALL be refused with 400 `invalid_target`, as SHALL, outside the compatibility window, a target that is not a player key; no report SHALL be recorded for a refused target. The top-N halo on the 留言 board SHALL be decided by matching each author's key against the keys of the app's composite snapshot, and SHALL still work against a stored snapshot that predates this change.
+`POST /shoutouts/:app/report` SHALL accept, as its target, the key the board published, and SHALL resolve it to the author by comparing it with the keys of the authors whose messages are not deleted — including hidden ones, since a cached board can still show a message that has since been hidden, and reporting it SHALL answer as before this change (`{ ok: true, hidden }`). A key that matches no such author (including another app's key, and a key from a window that has closed) SHALL be refused with 400 `invalid_target`, as SHALL, outside the compatibility window, a target that is not a player key; no report SHALL be recorded for a refused target. The top-N halo on the 留言 board SHALL be decided by matching each author's key against the keys of the app's composite snapshot, and SHALL still work against a stored snapshot that predates this change.
 
 #### Scenario: A report by key reaches the author
 
 - **WHEN** three distinct players report a message using the `authorKey` the board showed
 - **THEN** the report SHALL be counted against that message's author and the message SHALL be hidden at the threshold
+
+#### Scenario: Reporting an already-hidden message
+
+- **WHEN** a player reports, by its key, a message that reports have already hidden
+- **THEN** the Worker SHALL answer `{ ok: true, hidden: true }`
 
 #### Scenario: A raw id is refused outside the window
 
@@ -124,7 +158,7 @@ The Worker SHALL support a configuration flag that, while set, additionally carr
 
 ### Requirement: The owner's mask command resolves snapshot rows through the key
 
-The owner command that masks and unmasks a 二階 leaderboard nickname SHALL locate a player's rows in the public snapshots by that player's key, derived with the same secret as the Worker from a copy the owner keeps locally (an environment variable, or a private file). Finding a player by filter and rank SHALL resolve the row's key to an account id by deriving the keys of the public rows' account ids and matching, reading no nickname. The subcommands that need the key SHALL refuse, before writing anything, when the secret is not available; the secret SHALL NOT be printed or passed on a command line.
+The owner command that masks and unmasks a 二階 leaderboard nickname SHALL locate a player's rows in the public snapshots by that player's key, derived with the same secret as the Worker from a copy the owner keeps locally (an environment variable, or a private file). Finding a player by filter and rank SHALL resolve the row's key to an account id by deriving the keys of the public rows' account ids and matching, reading no nickname. The subcommands that need the key SHALL refuse, before writing anything, when the secret is not available, and when the snapshot rows carry keys only and the snapshot's recorded secret fingerprint does not match the local copy (the Worker's secret was rotated and the copy was not); the secret SHALL NOT be printed or passed on a command line.
 
 #### Scenario: Find by rank resolves the id
 
@@ -136,11 +170,16 @@ The owner command that masks and unmasks a 二階 leaderboard nickname SHALL loc
 - **WHEN** the owner runs find, mask, or unmask without the secret
 - **THEN** the command SHALL exit non-zero naming the missing secret and SHALL have made no database or snapshot write
 
+#### Scenario: A stale local copy refuses before writing
+
+- **WHEN** the owner runs find, mask, or unmask with a local secret other than the one the snapshots were keyed under
+- **THEN** the command SHALL exit non-zero saying the local secret is not the Worker's, and SHALL have made no database or snapshot write
+
 ### Requirement: Key derivation in the refresh stays inside the leaderboard CPU budget
 
-Each leaderboard refresh SHALL derive each distinct player's key at most once per run, and the added cost SHALL be counted against the budget of「Leaderboard jobs fit a 10 ms CPU budget, measured not assumed」. The refresh's CPU after this change SHALL be read from production measurement after deploy; if a refresh then exceeds the budget, the key SHALL be moved out of the refresh (for example, stored when the row is written) rather than the refresh run less often.
+Each leaderboard refresh SHALL derive each distinct player's key at most once per run (plus one fingerprint of the secret), and the added cost SHALL be counted against the budget of「Leaderboard jobs fit a 10 ms CPU budget, measured not assumed」. The refresh's CPU after this change SHALL be read from production measurement after deploy; if a refresh then exceeds the budget, the key SHALL be moved out of the refresh (for example, stored when the row is written) rather than the refresh run less often.
 
 #### Scenario: One derivation per player per run
 
 - **WHEN** a player appears in all five rankings of one refresh
-- **THEN** their key SHALL be derived once for that run
+- **THEN** their key SHALL be derived once for that run, which an automated check SHALL count
