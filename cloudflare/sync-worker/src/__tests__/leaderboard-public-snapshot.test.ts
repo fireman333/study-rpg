@@ -79,8 +79,9 @@ const M2_SPEC_FIELDS = [
   "subject_mastery_count",
   "total_correct",
 ];
-// Neurons has no spec requirement of its own yet (sibling repo follow-up);
-// this is the set its page renders or matches on, minus the sync time.
+// Requirement「Public snapshot rows carry a fixed field list and no account
+// id, sync time, or retired axis」(change neurons-leaderboard-snapshot-fields,
+// this repo). Kept a literal, like M2_SPEC_FIELDS above, for the same reason.
 const NEURONS_SPEC_FIELDS = [
   "player_key",
   "nickname",
@@ -339,6 +340,11 @@ describe("neurons public snapshot", () => {
     const { row, player_key } = (await res.json()) as { row: Row; player_key: string };
     expect(row.user_id).toBe("n-a");
     expect(row.updated_at).toBe(T + 1);
+    // /me is JWT-gated, not a public snapshot read — it still carries fields the
+    // public snapshot requirement excludes (neurons-leaderboard-snapshot-fields
+    // scenario "GET /leaderboard/neurons/me still returns the owner's own
+    // retired-axis fields").
+    expect(row.family_complete).toBe(2);
     expect(player_key).toBe(await testPlayerKey("neurons", "n-a"));
   });
 
@@ -360,5 +366,28 @@ describe("neurons public snapshot", () => {
     expect(payload.last_updated_at).toBe(T + 100);
     const { updated_at: _u, synapse_strong: _s, user_id: _id, ...rest } = legacy.rows[0];
     expect(payload.rows).toEqual([{ ...rest, player_key: await testPlayerKey("neurons", "n-a") }]);
+  });
+
+  it("the stored key epoch never reaches the public read", async () => {
+    // key_epoch (public-snapshot.ts) records which secret a snapshot's rows
+    // were keyed under, purely so the projection knows whether to re-key on
+    // read (hash-leaderboard-user-ids). It is bookkeeping, not a public field —
+    // neurons-leaderboard-snapshot-fields scenario "The key epoch never
+    // reaches a public read".
+    const legacy = {
+      rows: [
+        {
+          user_id: "n-a", nickname: "Alpha", variant_count: 40, total_AP: 800,
+          total_study_min: 600, total_settles: 12, badges_csv: "ap:P2",
+        },
+      ],
+      last_updated_at: T + 100,
+      total_count: 1,
+      key_epoch: "e-legacy",
+    };
+    await store.put("leaderboard:neurons:top100:composite", JSON.stringify(legacy));
+
+    const payload = await read("composite");
+    expect(payload).not.toHaveProperty("key_epoch");
   });
 });
