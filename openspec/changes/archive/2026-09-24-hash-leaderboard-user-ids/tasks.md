@@ -19,7 +19,7 @@
 - [x] 3.1 `LeaderboardRow.player_key` 新增、`user_id` 選填＋deprecated、`updated_at` 選填
 - [x] 3.2 `ShoutoutMessage.playerKey` 新增，`authorKey` / `id` 文件改為 opaque
 - [x] 3.3 版本 0.6.5 → 0.7.0（pre-1.0 breaking = MINOR）、CHANGELOG entry
-- [ ] 3.4 **owner**：`cd packages/core && npm publish`（agent 不執行）
+- [x] 3.4 **owner**：`cd packages/core && npm publish`（agent 不執行）——證據：`@study-rpg/core@0.7.0` 已於 2026-09-24 publish；二階 commit `0f2980c` 以 `^0.7.0` 安裝通過
 
 ## 4. neurons 前端
 
@@ -36,12 +36,12 @@
 
 ## 6. Owner 部署（agent 不執行，順序見 design D6；指令全文見 scratchpad `hash-leaderboard-user-ids-deploy-steps.md`）
 
-- [ ] 6.1 產生兩把不同的 secret：永久那把存本機檔並 `wrangler secret put LEADERBOARD_PLAYER_KEY_SECRET`；窗口那把 `wrangler secret put LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`
-- [ ] 6.2 `wrangler.jsonc` 的 `LEADERBOARD_RAW_ID_COMPAT_UNTIL` 填「部署日 + 3 天」（帶 `+08:00`）→ Worker deploy
-- [ ] 6.3 部署後以 `scripts/worker-cpu-gate.mjs` / `workersInvocationsAdaptive` 量兩個 leaderboard cron 的 `cpuTimeP99`（design D8；超過 10 ms → 鍵移到寫入時）
-- [ ] 6.4 publish core → 二階 bump + deploy；neurons 部署（push main）
-- [ ] 6.5 截止時間過後（自動關窗、自動換成永久 secret）：**只刪** `wrangler secret delete LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`，再 `wrangler secret list` 確認 `LEADERBOARD_PLAYER_KEY_SECRET` 仍在；`wrangler.jsonc` 的值改回 `""` 並 commit
-- [ ] 6.6 終態後以 `curl` 實測三個公開端點無 UUID，且 `player_key` 與截止前抓到的不同
+- [x] 6.1 產生兩把不同的 secret：永久那把存本機檔並 `wrangler secret put LEADERBOARD_PLAYER_KEY_SECRET`；窗口那把 `wrangler secret put LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`——證據：owner 於 2026-09-24 執行兩次 `wrangler secret put`
+- [x] 6.2 `wrangler.jsonc` 的 `LEADERBOARD_RAW_ID_COMPAT_UNTIL` 填「部署日 + 3 天」（帶 `+08:00`）→ Worker deploy——⚠️ **實際採用不開窗路徑**（owner 裁決 2026-09-24）：值維持 `""`、未填截止日，Worker 以關窗狀態部署（main `3bab0df2` push，CI run `35964961708` Deploy Cloudflare Worker success、Wrangler deploy 完成於 06:35:15Z）。見 design D6 addendum
+- [ ] 6.3 部署後以 `scripts/worker-cpu-gate.mjs` / `workersInvocationsAdaptive` 量兩個 leaderboard cron 的 `cpuTimeP99`（design D8；超過 10 ms → 鍵移到寫入時）——**待量**：archive 時（2026-09-24）部署後的 cron 樣本尚未累積，未量測
+- [x] 6.4 publish core → 二階 bump + deploy；neurons 部署（push main）——證據：core 0.7.0 publish；二階 `0f2980c` 三份 package.json → `^0.7.0`、typecheck + 372 檔 / 5288 測試綠、`pnpm run deploy` 後正式站 bundle `index-CiP6mvk7.js` 與本機 `dist-deploy` sha256 相同；neurons 隨 main `3bab0df2` push，CI run `35964961674`（Pages）success
+- [x] 6.5 截止時間過後（自動關窗、自動換成永久 secret）：**只刪** `wrangler secret delete LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`，再 `wrangler secret list` 確認 `LEADERBOARD_PLAYER_KEY_SECRET` 仍在；`wrangler.jsonc` 的值改回 `""` 並 commit——證據：因未開窗，無截止可等；owner 於部署後刪除窗口 secret，`wrangler secret list` 中玩家鍵相關只剩 `LEADERBOARD_PLAYER_KEY_SECRET`；`wrangler.jsonc` 自始為 `""`，無需 commit
+- [x] 6.6 終態後以 `curl` 實測三個公開端點無 UUID，且 `player_key` 與截止前抓到的不同——證據（2026-09-24 curl，archive 時複驗一致）：`leaderboard/composite`、`leaderboard/neurons/composite`、`shoutouts/m2`、`shoutouts/neurons` 皆 200、UUID 0、`"user_id"` 0、`pk1_` 分別 52 / 24 / 15 / 9。後半句（與截止前的鍵不同）**不適用**：未開窗，窗口鍵從未公開過
 
 ## 7. 審查後修正（2026-09-24，owner 裁決＋fresh-context 審查）
 

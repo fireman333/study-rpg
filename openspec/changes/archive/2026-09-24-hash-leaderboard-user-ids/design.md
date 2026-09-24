@@ -103,6 +103,10 @@ owner 原則：先 Worker 相容兩種鍵，再前端。審查發現（P2）：�
 
 ⚠️ **Rollback 的代價**：任何回到本 change 之前的 Worker 版本（`wrangler rollback` 到步驟 1 之前的版本）都會把原始 `user_id` 重新放回三個公開面，因為舊程式不知道鍵；新前端配舊 Worker 仍能運作（不高亮），但隱私回到改動前。回到本 change 之後、截止之前的版本則只會重新打開窗口（若截止未過）。rollback 之後要恢復隱私，唯一的路是重新部署新版 Worker。
 
+### Addendum（2026-09-24 archive 時補記：實際採用的部署路徑）
+
+上表步驟 1「把 `LEADERBOARD_RAW_ID_COMPAT_UNTIL` 填成部署日 + 3 天」**沒有執行**。owner 選擇**不開窗**：值維持 committed 的 `""`，Worker 以關窗狀態部署（main `3bab0df2`，CI run `35964961708`），兩把 secret 都已 `wrangler secret put`，窗口 secret 於部署後刪除。後果：部署當下起公開面即不帶原始 id、只送永久鍵；沒有任何窗口鍵曾被公開，所以步驟 3 的「截止」不存在、6.6 的「與截止前的鍵不同」不適用；舊 bundle 在二階前端重新部署前的空檔內不高亮自己的列（本節殘留段落已描述的同一種退化）。本 addendum 只記實際路徑，上方決策與步驟表保留原文作為歷史。
+
 ### 版本現況（更正）
 
 二階目前仍 pin `@study-rpg/core@^0.6.0`（lockfile 解析 0.6.5），前端型別以本地 intersection 對 0.6.x 與 0.7.0 同時成立；**二階尚未 bump 到 0.7.0**——0.7.0 尚未 publish，bump 是步驟 2 的 owner 動作。
