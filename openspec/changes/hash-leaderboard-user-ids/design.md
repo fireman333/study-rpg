@@ -59,6 +59,7 @@ client 沒有 secret，算不出鍵。選項：
 ## D5 — secret、輪替、fail closed
 
 - Worker secret `LEADERBOARD_PLAYER_KEY_SECRET`（**永久** secret）。缺失或過短：衍生時丟 `PlayerKeyUnavailableError`。cron 在**任何查詢與 put 之前**取得 keyer，所以整次不寫（舊快照留著，「上次更新」會停住——跟遮罩表缺失時同一個可見訊號）；公開讀取若需補鍵 → 503；只帶鍵、不帶 `user_id` 的快照照常服務（讀它不需要 secret）；`/me`、留言讀寫、檢舉 → 503。
+- **永久 secret 缺失時沒有「改送存著的鍵」的退路**（再驗收 P4）：帶 `user_id` 的列只可能是改動前或窗口期間寫的，它存著的鍵若有就是窗口鍵；截止後若永久 secret 不見而改送它們，窗口鍵就會無限期留在公開面（cron 沒有 secret 也不會覆寫）。所以這種快照一律 503；只有完全不帶 `user_id` 的快照不需要 secret、照常服務。
 - **快照記錄 secret 指紋**（2026-09-24 審查後新增）：cron 在每份 KV 快照寫 `key_epoch` = `ke1_` + HMAC(secret, `"player-key-epoch"`) 前 6 bytes。它只存在 KV、projection 不會送出。讀取端的規則（`projectPublicSnapshot`、留言 `topNSet` 同一條）：
   - 列上還帶 `user_id`（改動前寫的，或相容窗期間寫的）→ 除非快照的 `key_epoch` 等於現在這把 secret 的指紋，否則**當場以現在的 secret 重算**。
   - 列上沒有 `user_id` → 只能用存著的鍵。
@@ -72,7 +73,9 @@ owner 原則：先 Worker 相容兩種鍵，再前端。審查發現（P2）：�
 ### 做法
 
 - Worker var `LEADERBOARD_RAW_ID_COMPAT_UNTIL`（取代舊的開關 `LEADERBOARD_RAW_ID_COMPAT = "1"`，後者已不被讀取、守衛禁止它回來）。值為 `YYYY-MM-DD`（該日 00:00 UTC）或**帶時區**的時間戳（`2026-09-27T23:59:59+08:00`）。
-- 窗口開啟的條件（`compatWindow(env, now)`，全部成立才開）：值可解析且是真實日期、`now` 在截止之前、截止距今 ≤ 14 天（`RAW_ID_COMPAT_MAX_MS`）、`LEADERBOARD_PLAYER_KEY_WINDOW_SECRET` 與 `LEADERBOARD_PLAYER_KEY_SECRET` 都可用（≥32 字元）且**兩者不同**。缺值、空字串、亂值（含 `"1"`、`2026-02-30`、無時區的時間）、已過期、超過 14 天、少一把 secret、兩把相同 → **關閉**。14 天上限讓任何值都無法把窗口永久開著；committed `wrangler.jsonc` 是空字串（＝關），守衛另外檢查它不是亂值、也不超過上限。
+- 窗口開啟的條件（`compatWindow(env, now)`，全部成立才開）：值可解析且是真實日期、`now` 在截止之前、截止距**這個 Worker 版本的上傳時間** ≤ 14 天（`RAW_ID_COMPAT_MAX_MS`；上傳時間來自 `version_metadata` binding `CF_VERSION_METADATA.timestamp`，缺失或無法解析 → 關）、`LEADERBOARD_PLAYER_KEY_WINDOW_SECRET` 與 `LEADERBOARD_PLAYER_KEY_SECRET` 都可用（≥32 字元）且**兩者不同**。缺值、空字串、亂值（含 `"1"`、`2026-02-30`、無時區的時間）、已過期、超過 14 天、少一把 secret、兩把相同 → **關閉**。14 天上限讓任何值都無法把窗口永久開著；committed `wrangler.jsonc` 是空字串（＝關），守衛另外檢查它不是亂值、不超過上限、且 `version_metadata` binding 還在。
+- **上限的基準點為什麼是版本上傳時間**（再驗收 P3）：若以每次請求的 `now` 起算，被判「太遠」的截止日（例：把 09-28 打成 10-28）會在距截止 ≤14 天時**自己打開**，重新公開 uid 與窗口鍵，而唯一的訊號只是 cron 的 `console.warn`。版本上傳時間是固定的，所以同一個版本上被拒的值永遠被拒。考慮過的替代：另設 `…_SINCE` 變數（owner 要多填一個值、也可能打錯）、把 beyond-max 記進 KV（跨請求狀態，為一個設定錯誤多一個寫入點）——`version_metadata` 由平台給、零設定，最單純。
+  - ⚠️ 已知邊界：**任何新版本**（`pnpm run deploy`，以及會產生新版本的 `wrangler secret put` / `secret delete`）都會把基準點移到那一刻。所以一個被拒的截止日，若在距它 ≤14 天時又上傳了新版本，就會在那個新版本上打開。緩解：步驟 1 的 curl 檢查（窗口沒開會在部署當下發現）、cron 的 warn、以及步驟 3 刪掉窗口 secret 後窗口無論如何都關閉。
 - **輪替由 Worker 在截止時自動完成**：窗口開啟時所有鍵由窗口專用 secret 產生；截止之後改用永久 secret。窗口期間被記下的（uid, 鍵）配對，在截止那一刻起不對應任何公開的鍵。所有表面經 `publicIdentity(env, now)` 一個函式同時決定「是否帶 uid」與「用哪把 secret」，同一個請求只取一次 `now`，旗標與鍵不可能不一致。
 - 截止當下 KV 裡是窗口期間寫的快照（帶 `user_id`、窗口鍵、窗口指紋）→ 指紋不符 → 讀取時以永久 secret 從 `user_id` 重算，不送 `user_id`。所以**截止後第一個讀取就是永久鍵**，不等 cron；光環同理。之後 cron 寫入永久鍵、不帶 `user_id`。
 - `/me`：窗口期間回窗口鍵，截止後回永久鍵。
@@ -94,7 +97,7 @@ owner 原則：先 Worker 相容兩種鍵，再前端。審查發現（P2）：�
 | 0 | 產生**兩把不同**的 secret：永久那把存到 `~/.config/study-rpg/leaderboard-player-key.env`（`LEADERBOARD_PLAYER_KEY_SECRET=…`，mode 600）並 `wrangler secret put LEADERBOARD_PLAYER_KEY_SECRET`；窗口那把只 `wrangler secret put LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`（不需留本機） | Worker 未變（`secret put` 會產生新版本，但程式仍是舊的） | `wrangler secret delete`（無副作用） |
 | 1 | 把 `wrangler.jsonc` 的 `LEADERBOARD_RAW_ID_COMPAT_UNTIL` 填成「部署日 + 3 天」（帶 `+08:00`；上限 14 天）→ `pnpm run deploy` | 公開面帶窗口鍵＋舊欄位；舊 bundle 行為不變；新 bundle 可用 | `wrangler rollback` 回前一版 Worker ⚠️ **舊 Worker 會重新公開原始 id**（它不知道鍵），而且直到重新部署新版之前都是如此 |
 | 2 | `npm publish` core 0.7.0；二階 bump 三份 package.json → `^0.7.0`、`pnpm install`、`pnpm run deploy`；neurons 隨 sibling main push 部署 | 兩個前端以鍵比對 | CF Pages 回前一個 deployment；新前端對舊 Worker 也能跑（拿不到鍵→不高亮；發文後板面不會被清空） |
-| 3 | **不需任何動作**：截止時間一到，窗口自動關閉並切到永久 secret。之後（建議當天）清理：`wrangler secret delete LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`；把 `wrangler.jsonc` 的值改回 `""` 並 commit；curl 三個公開端點確認無 UUID | **終態**：無公開面帶原始 id；窗口期間的鍵全部作廢 | 要延長窗口：填新的截止日期（≤14 天）→ deploy（窗口 secret 必須還在）。⚠️ 延長＝重新公開 uid 與窗口鍵 |
+| 3 | **不需任何動作**：截止時間一到，窗口自動關閉並切到永久 secret。之後（建議當天）清理：**只刪** `wrangler secret delete LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`，接著 `wrangler secret list` 確認 `LEADERBOARD_PLAYER_KEY_SECRET` **仍在**（誤刪永久 secret → 所有需要鍵的讀取 503，不會洩漏，但停機）；把 `wrangler.jsonc` 的值改回 `""` 並 commit；curl 三個公開端點確認無 UUID | **終態**：無公開面帶原始 id；窗口期間的鍵全部作廢 | 要延長窗口：填新的截止日期（≤14 天）→ deploy（窗口 secret 必須還在）。⚠️ 延長＝重新公開 uid 與窗口鍵 |
 
 步驟 3 之後仍在跑舊 bundle 的玩家：自己的列不高亮、留言 own-halo 消失、檢舉仍可用（它回送的是看到的 `authorKey`，此時已是永久鍵）。沒有資料遺失。
 

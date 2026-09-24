@@ -27,7 +27,7 @@
  * rather than at the next cron.
  */
 
-import { PlayerKeyUnavailableError, type PlayerKeyer } from "./player-key";
+import type { PlayerKeyer } from "./player-key";
 
 export interface StoredSnapshot {
   rows: Record<string, unknown>[];
@@ -74,24 +74,20 @@ export interface SnapshotIdentity {
  *     next refresh (≤ 30 minutes; design D5) — nothing in KV can re-derive it.
  *
  * Secret missing: rows carrying `user_id` cannot be keyed → PlayerKeyUnavailableError
- * (the caller answers 503) — unless every row already has a stored key, in which
- * case those are served (the raw id is not emitted: the window cannot be open
- * without the secrets, see compatWindow()).
+ * (the caller answers 503). ⚠️ No fallback to the stored keys of such rows: a row
+ * that carries both `user_id` and `player_key` can only have been written during
+ * the compat window, so its stored key IS a window key, and serving it after the
+ * deadline is exactly what the window secret exists to prevent (review P4). A
+ * snapshot with no `user_id` at all needs no secret and is served as stored.
  */
 export async function projectPublicSnapshot(
   snapshot: StoredSnapshot,
   fields: readonly string[],
   identity: SnapshotIdentity,
 ): Promise<StoredSnapshot> {
-  let keyOf: PlayerKeyer | null = null;
-  if (snapshot.rows.some((row) => typeof row.user_id === "string")) {
-    try {
-      keyOf = await identity.keyer();
-    } catch (err) {
-      const allStored = snapshot.rows.every((row) => typeof row[PLAYER_KEY_FIELD] === "string");
-      if (!(err instanceof PlayerKeyUnavailableError) || !allStored) throw err;
-    }
-  }
+  const keyOf: PlayerKeyer | null = snapshot.rows.some((row) => typeof row.user_id === "string")
+    ? await identity.keyer()
+    : null;
   const rekey = keyOf !== null && snapshot.key_epoch !== keyOf.epoch;
   const rows: Record<string, unknown>[] = [];
   for (const row of snapshot.rows) {

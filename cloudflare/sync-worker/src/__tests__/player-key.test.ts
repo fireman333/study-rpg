@@ -41,6 +41,7 @@ import {
   makeEnv,
   openWindow,
   testPlayerKey,
+  versionUploaded,
   testWindowKey,
   type FakeKv,
   type SqliteDb,
@@ -299,8 +300,9 @@ describe("the compat window's deadline fails closed", () => {
   const secrets = {
     LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET,
     LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: TEST_WINDOW_SECRET,
+    CF_VERSION_METADATA: versionUploaded(NOW),
   };
-  const state = (until: string | undefined, extra: Record<string, string | undefined> = {}) =>
+  const state = (until: string | undefined, extra: Record<string, unknown> = {}) =>
     compatWindow({ ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: until, ...extra }, NOW);
 
   it("is open only before a real, near deadline, with two distinct usable secrets", () => {
@@ -327,6 +329,32 @@ describe("the compat window's deadline fails closed", () => {
     expect(state(new Date(NOW + RAW_ID_COMPAT_MAX_MS + 1000).toISOString())).toBe("beyond-max");
     expect(state("2099-01-01")).toBe("beyond-max");
     expect(state(new Date(NOW + RAW_ID_COMPAT_MAX_MS - 1000).toISOString())).toBe("open");
+  });
+
+  it("a deadline refused as too far stays refused as time advances — the maximum counts from the upload, not the request", () => {
+    // The typo case: 10-28 meant as 09-28, deployed on 09-24.
+    const env = { ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: "2026-10-28T23:59:59+08:00" };
+    for (const later of [0, 10 * DAY, 20 * DAY, 33 * DAY]) {
+      expect(compatWindow(env, NOW + later), `+${later / DAY}d`).toBe("beyond-max");
+    }
+  });
+
+  it("a deadline within the maximum of the upload opens, and stays open until it passes", () => {
+    const env = { ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: new Date(NOW + 10 * DAY).toISOString() };
+    expect(compatWindow(env, NOW)).toBe("open");
+    expect(compatWindow(env, NOW + 9 * DAY)).toBe("open");
+    expect(compatWindow(env, NOW + 10 * DAY)).toBe("expired");
+  });
+
+  it("is closed when the version's upload time is unknown — binding missing or unreadable", () => {
+    const until = "2026-09-27";
+    expect(state(until, { CF_VERSION_METADATA: undefined } as never)).toBe("no-version-anchor");
+    for (const timestamp of ["", "not-a-date"]) {
+      expect(
+        compatWindow({ ...secrets, LEADERBOARD_RAW_ID_COMPAT_UNTIL: until, CF_VERSION_METADATA: { id: "v", tag: "", timestamp } }, NOW),
+        timestamp,
+      ).toBe("no-version-anchor");
+    }
   });
 
   it("is closed without a usable window secret, without the permanent one, or when they are equal", () => {
@@ -464,6 +492,57 @@ describe("the deadline retires every key published during the window", () => {
     const res = await report(env, "m2", U_B, await testWindowKey("m2", U_A));
     expect(res.status).toBe(400);
     expect(db.prepare("SELECT COUNT(*) AS c FROM shoutout_reports").get()).toEqual({ c: 0 });
+  });
+
+  it("with the permanent secret gone after the deadline, nothing serves a window key — every read that needs a key refuses", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const lost = makeEnv(db, store, undefined, { ...openWindow(T0, 3), LEADERBOARD_PLAYER_KEY_SECRET: undefined });
+    const windowKeys = await Promise.all(
+      [U_A, U_B, U_C].flatMap((u) => [testWindowKey("m2", u), testWindowKey("neurons", u)]),
+    );
+    const reads = await publicReads(lost);
+    signIn(U_A);
+    const me = await handleLeaderboard(
+      new Request("https://api.example/leaderboard/me", { headers: { Authorization: "Bearer t" } }),
+      lost,
+      {},
+    );
+    reads.me = { status: me.status, text: await me.text() };
+    expect(Object.keys(reads).length).toBe(13);
+    for (const [name, { status, text }] of Object.entries(reads)) {
+      expect(status, name).toBe(503);
+      expect(text, name).not.toMatch(UUID);
+      for (const k of windowKeys) expect(text, name).not.toContain(k);
+    }
+  });
+
+  it("the 留言 edge cache does not hand a window-era body to a read after the deadline", async () => {
+    // A cache that really remembers what was put, read on both sides of the deadline.
+    const cached = new Map<string, string>();
+    vi.stubGlobal("caches", {
+      default: {
+        match: async (req: Request) => {
+          const body = cached.get(req.url);
+          return body === undefined ? undefined : new Response(body);
+        },
+        put: async (req: Request, res: Response) => {
+          cached.set(req.url, await res.text());
+        },
+      },
+    });
+    const waits: Promise<unknown>[] = [];
+    const liveCtx = { waitUntil: (p: Promise<unknown>) => waits.push(p) } as unknown as ExecutionContext;
+    vi.setSystemTime(T0 + DAY);
+    const before = await handleShoutout(new Request("https://api.example/shoutouts/m2"), env, {}, liveCtx);
+    expect(await before.text()).toMatch(UUID);
+    await Promise.all(waits);
+    expect(cached.size).toBe(1);
+    vi.setSystemTime(T0 + 3 * DAY + 1);
+    const after = await handleShoutout(new Request("https://api.example/shoutouts/m2"), env, {}, liveCtx);
+    const text = await after.text();
+    expect(text).not.toMatch(UUID);
+    for (const u of [U_A, U_B]) expect(text).not.toContain(await testWindowKey("m2", u));
+    expect(text).toContain(await testPlayerKey("m2", U_A));
   });
 
   it("the next refresh stores permanent keys and no raw id", async () => {
@@ -662,6 +741,9 @@ describe("every surface reads the identity through publicIdentity()", () => {
   it("the committed wrangler.jsonc cannot hold the window open: unset, or a real deadline within the maximum", () => {
     const text = stripComments(readFileSync(join(SRC, "..", "wrangler.jsonc"), "utf8"));
     expect(text).not.toMatch(/"LEADERBOARD_RAW_ID_COMPAT"/);
+    // The window's maximum is anchored on this binding; without it the window can never open,
+    // and a binding renamed away from CF_VERSION_METADATA would close it silently.
+    expect(text).toMatch(/"version_metadata"\s*:\s*\{\s*"binding"\s*:\s*"CF_VERSION_METADATA"\s*\}/);
     const m = /"LEADERBOARD_RAW_ID_COMPAT_UNTIL"\s*:\s*"([^"]*)"/.exec(text);
     const value = m ? m[1] : undefined;
     if (value !== undefined && value !== "") {

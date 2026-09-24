@@ -40,7 +40,7 @@
 - [ ] 6.2 `wrangler.jsonc` 的 `LEADERBOARD_RAW_ID_COMPAT_UNTIL` 填「部署日 + 3 天」（帶 `+08:00`）→ Worker deploy
 - [ ] 6.3 部署後以 `scripts/worker-cpu-gate.mjs` / `workersInvocationsAdaptive` 量兩個 leaderboard cron 的 `cpuTimeP99`（design D8；超過 10 ms → 鍵移到寫入時）
 - [ ] 6.4 publish core → 二階 bump + deploy；neurons 部署（push main）
-- [ ] 6.5 截止時間過後（自動關窗、自動換成永久 secret）：`wrangler secret delete LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`；`wrangler.jsonc` 的值改回 `""` 並 commit
+- [ ] 6.5 截止時間過後（自動關窗、自動換成永久 secret）：**只刪** `wrangler secret delete LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`，再 `wrangler secret list` 確認 `LEADERBOARD_PLAYER_KEY_SECRET` 仍在；`wrangler.jsonc` 的值改回 `""` 並 commit
 - [ ] 6.6 終態後以 `curl` 實測三個公開端點無 UUID，且 `player_key` 與截止前抓到的不同
 
 ## 7. 審查後修正（2026-09-24，owner 裁決＋fresh-context 審查）
@@ -55,3 +55,12 @@
 - [x] 7.8 抽出 `src/__tests__/strip-comments.ts`（兩份既有相同副本＋本次需要的第三份收成一份）
 - [x] 7.9 design：D5（指紋、日後輪替、本機副本）、D6（截止＋窗口 secret、部署步驟、rollback 回舊 Worker 會重新公開原始 id）、Worker log 刻意保留原始 uid、二階尚未 bump 0.7.0 的更正
 - [x] 7.10 Worker typecheck / test、neurons typecheck / test、`openspec validate --all --strict`
+
+## 8. 再驗收修正（2026-09-24）
+
+- [x] 8.1 14 天上限改以 `CF_VERSION_METADATA.timestamp`（版本上傳時間）為固定基準；binding 缺或時間戳無法解析 → 窗口關閉；`wrangler.jsonc` 加 `version_metadata` binding（`wrangler deploy --dry-run` 列出 `env.CF_VERSION_METADATA`）
+- [x] 8.2 移除「永久 secret 缺失 → 改送存著的鍵」退路；帶 `user_id` 的快照一律需要現行 secret，否則 503
+- [x] 8.3 行為層快取測試：窗口期間寫入的留言板快取，截止後的讀取不會拿到（有記憶的 cache stub）
+- [x] 8.4 遮罩指令：讀不到 composite 快照 → 寫入前拒絕（原本放行）
+- [x] 8.5 部署步驟 3：只刪窗口 secret，`wrangler secret list` 確認永久 secret 仍在
+- [x] 8.6 守衛與 mutation probe W23–W28 皆紅在目標斷言

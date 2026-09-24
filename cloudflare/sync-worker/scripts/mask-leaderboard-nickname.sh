@@ -236,7 +236,11 @@ kv_key() { echo "leaderboard:m2:top100:$1"; }
 # under (the Worker's was rotated and this copy was not). Reads the composite snapshot.
 check_secret_current() {
   local snap="$TMP/secret-check.json"
-  "${WR[@]}" kv key get "$(kv_key composite)" --binding "$KV_BINDING" "${TARGET[@]}" --text > "$snap" 2>/dev/null || true
+  # A failed read refuses too: without the snapshot there is no telling whether this copy is current.
+  if ! "${WR[@]}" kv key get "$(kv_key composite)" --binding "$KV_BINDING" "${TARGET[@]}" --text > "$snap" 2>"$TMP/secret-check.err"; then
+    cat "$TMP/secret-check.err" >&2
+    EXIT_CODE=2 die "讀不到 composite 快照，無法確認本機 LEADERBOARD_PLAYER_KEY_SECRET 是否與 Worker 相同，未寫入任何東西"
+  fi
   if ! helper secret-check "$snap"; then
     EXIT_CODE=2 die "本機 LEADERBOARD_PLAYER_KEY_SECRET 與 Worker 目前用來產生快照的不同（輪替過 secret？請更新 ${MMLN_PLAYER_KEY_ENV:-~/.config/study-rpg/leaderboard-player-key.env}），未寫入任何東西"
   fi

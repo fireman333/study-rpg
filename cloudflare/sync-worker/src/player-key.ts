@@ -149,9 +149,12 @@ export function playerKeyer(
 // ─── the rollout compat window ──────────────────────────────────────────────
 
 /**
- * Longest a compat window may still have to run. A deadline further out than
- * this is treated as a misconfiguration and the window stays CLOSED — so no value
- * of the var can hold the raw id on the public surfaces indefinitely.
+ * Longest a compat window may run, measured from the upload of the Worker version
+ * that carries it (CF_VERSION_METADATA.timestamp) — a FIXED anchor. A deadline
+ * further out than this is a misconfiguration and the window stays CLOSED for the
+ * whole life of that version. Measured from each request instead, a deadline
+ * refused as too far away (a typo: 10-28 for 09-28) would quietly open itself 14
+ * days before that date, re-publishing raw ids and window keys (review P3).
  */
 export const RAW_ID_COMPAT_MAX_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -177,12 +180,20 @@ export function parseCompatUntil(value: unknown): number | null {
   return Number.isFinite(t) ? t : null;
 }
 
+/** Upload time of this Worker version (epoch ms), or null when the binding is absent or unreadable. */
+export function versionUploadedAt(meta: { timestamp?: unknown } | undefined): number | null {
+  if (!meta || typeof meta.timestamp !== "string" || meta.timestamp === "") return null;
+  const t = Date.parse(meta.timestamp);
+  return Number.isFinite(t) && t > 0 ? t : null;
+}
+
 export type CompatWindowState =
   | "open"
   | "unset"
   | "unparseable"
   | "expired"
   | "beyond-max"
+  | "no-version-anchor"
   | "window-secret-unusable"
   | "window-secret-reused";
 
@@ -202,7 +213,9 @@ export type CompatWindowState =
  *
  * Fails CLOSED — every doubt keeps the raw id off the public surfaces:
  *   - LEADERBOARD_RAW_ID_COMPAT_UNTIL absent, empty, or not a real date;
- *   - the deadline has passed, or is more than RAW_ID_COMPAT_MAX_MS away;
+ *   - the deadline has passed, or is more than RAW_ID_COMPAT_MAX_MS after the
+ *     upload of this Worker version — or that upload time is unknown (the
+ *     `version_metadata` binding missing, or its timestamp unreadable);
  *   - either secret unusable (window keys need the window secret, and the moment
  *     after the window needs the permanent one);
  *   - the two secrets equal (the window keys would then be the permanent keys).
@@ -210,7 +223,10 @@ export type CompatWindowState =
 export function compatWindow(
   env: Pick<
     Env,
-    "LEADERBOARD_RAW_ID_COMPAT_UNTIL" | "LEADERBOARD_PLAYER_KEY_SECRET" | "LEADERBOARD_PLAYER_KEY_WINDOW_SECRET"
+    | "LEADERBOARD_RAW_ID_COMPAT_UNTIL"
+    | "LEADERBOARD_PLAYER_KEY_SECRET"
+    | "LEADERBOARD_PLAYER_KEY_WINDOW_SECRET"
+    | "CF_VERSION_METADATA"
   >,
   now: number,
 ): CompatWindowState {
@@ -219,7 +235,9 @@ export function compatWindow(
   const until = parseCompatUntil(raw);
   if (until === null) return "unparseable";
   if (now >= until) return "expired";
-  if (until - now > RAW_ID_COMPAT_MAX_MS) return "beyond-max";
+  const uploaded = versionUploadedAt(env.CF_VERSION_METADATA);
+  if (uploaded === null) return "no-version-anchor";
+  if (until - uploaded > RAW_ID_COMPAT_MAX_MS) return "beyond-max";
   const windowSecret = env.LEADERBOARD_PLAYER_KEY_WINDOW_SECRET;
   if (!usableSecret(windowSecret) || !usableSecret(env.LEADERBOARD_PLAYER_KEY_SECRET)) {
     return "window-secret-unusable";
@@ -257,10 +275,7 @@ export interface PublicIdentityMode {
 }
 
 export function publicIdentity(
-  env: Pick<
-    Env,
-    "LEADERBOARD_RAW_ID_COMPAT_UNTIL" | "LEADERBOARD_PLAYER_KEY_SECRET" | "LEADERBOARD_PLAYER_KEY_WINDOW_SECRET"
-  >,
+  env: Parameters<typeof compatWindow>[0],
   now: number,
 ): PublicIdentityMode {
   const compat = compatWindow(env, now) === "open";
