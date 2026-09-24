@@ -86,6 +86,30 @@ export interface Env {
   // to call /shoutouts/:app/admin/*. Unset → admin endpoints return 403.
   SHOUTOUT_OWNER_SUBS?: string;
 
+  // Secret (wrangler secret put) — HMAC key for the public player key that replaces the raw
+  // `user_id` on every login-free surface (player-key.ts, change hash-leaderboard-user-ids).
+  // Optional in the type so the Worker boots without it, but every surface that publishes a
+  // player identity FAILS CLOSED when it is absent: 503 on reads, no snapshot write on cron.
+  // Never a fallback to the raw id.
+  LEADERBOARD_PLAYER_KEY_SECRET?: string;
+
+  // Secret (wrangler secret put) — the HMAC key used INSTEAD of the one above while the rollout
+  // compat window is open. Keys published next to raw ids during the window come from it, so
+  // they stop meaning anything at the deadline. Must differ from LEADERBOARD_PLAYER_KEY_SECRET;
+  // missing, short, or equal → the window stays closed. Delete it after the window (design D6).
+  LEADERBOARD_PLAYER_KEY_WINDOW_SECRET?: string;
+
+  // Var (wrangler.jsonc) — the deadline of the Worker-first rollout window, as `YYYY-MM-DD` or a
+  // timestamp with an offset. Before it, public surfaces also carry the raw id in its old field
+  // for client bundles that predate the change. Empty / absent / unparseable / past / more than
+  // 14 days after this version's upload → closed (the end state). See compatWindow() in player-key.ts.
+  LEADERBOARD_RAW_ID_COMPAT_UNTIL?: string;
+
+  // Binding (wrangler.jsonc `version_metadata`) — this Worker version's id / tag / upload
+  // timestamp. The compat window's 14-day maximum is measured from `timestamp`, a fixed anchor;
+  // absent or unreadable → the window stays closed (player-key.ts compatWindow).
+  CF_VERSION_METADATA?: { id: string; tag: string; timestamp: string };
+
   // Supabase PUBLISHABLE (anon) key, used only by the /note-images endpoints. It already
   // ships inside the app's own frontend bundle, so it is not a secret — it identifies the
   // project, while the caller's forwarded JWT is what decides anything (migration 0030).

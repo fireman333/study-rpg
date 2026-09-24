@@ -59,7 +59,7 @@ CI deploy is wired in `.github/workflows/deploy-worker.yml` (triggers on `cloudf
 
 ## Secret rotation
 
-Secrets are set via `wrangler secret put <NAME>` (one at a time, interactive prompt). Five secrets total:
+Secrets are set via `wrangler secret put <NAME>` (one at a time, interactive prompt). Six secrets total (a seventh, `LEADERBOARD_PLAYER_KEY_WINDOW_SECRET`, exists only during a player-key rollout window):
 
 | Name | What | Source |
 |---|---|---|
@@ -68,6 +68,8 @@ Secrets are set via `wrangler secret put <NAME>` (one at a time, interactive pro
 | `R2_S3_ACCESS_KEY_ID` | R2 S3-compat presign | Cloudflare dashboard → R2 → Manage API Tokens (scope both buckets, read+write) |
 | `R2_S3_SECRET_ACCESS_KEY` | R2 S3-compat presign | Same token, paired secret |
 | `R2_S3_ENDPOINT` | R2 endpoint URL | `https://<account-id>.r2.cloudflarestorage.com` |
+| `LEADERBOARD_PLAYER_KEY_SECRET` | HMAC key for the public `player_key` that replaces `user_id` on the leaderboard snapshots and 留言 boards (`src/player-key.ts`, change `hash-leaderboard-user-ids`). ≥32 chars; missing → those surfaces answer 503 and the leaderboard crons write nothing (fails closed, never falls back to the raw id). | `openssl rand -base64 48`, kept ALSO in `~/.config/study-rpg/leaderboard-player-key.env` (mode 600) because `scripts/mask-leaderboard-nickname.sh` needs it and a Worker secret cannot be read back. Rotating it changes every key. Clients store none; each KV snapshot records a fingerprint of the secret it was keyed under (`key_epoch`), and a snapshot keyed under the old one keeps serving its old keys until the next cron (≤30 min — own-rows and halos unmatched meanwhile). Replace the local copy at the same time: the mask script refuses, before writing, when its copy no longer matches the snapshot. |
+| `LEADERBOARD_PLAYER_KEY_WINDOW_SECRET` | Rollout window only (design D6 of `hash-leaderboard-user-ids`): the key used INSTEAD of the one above while `LEADERBOARD_RAW_ID_COMPAT_UNTIL` has not passed — the window publishes (raw id, key) pairs, and keying them with a secret that is retired at the deadline makes those pairs useless afterwards. Must differ from `LEADERBOARD_PLAYER_KEY_SECRET` (equal, missing or short → the window stays closed). | `openssl rand -base64 48`; not needed locally. `wrangler secret delete` it after the deadline. |
 
 Rotation cadence: R2 token annual; Supabase JWKS rotates automatically (Worker handles cache miss). After rotation:
 

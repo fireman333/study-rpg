@@ -24,6 +24,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { stripComments } from "./strip-comments";
 
 const SRC = join(__dirname, "..");
 
@@ -33,11 +34,6 @@ const UNMASKED_BY_DESIGN: Record<string, string> = {
     "GET /leaderboard/me returns the requester's OWN stored nickname: the client seeds its local " +
     "profile from it and pushes it back, so a mask here would become the player's name (design D3).",
 };
-
-// Line comments are stripped only when not preceded by `:` (URLs) or a quote.
-function stripComments(src: string): string {
-  return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
-}
 
 interface SqlLiteral {
   file: string;

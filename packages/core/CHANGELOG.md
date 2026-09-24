@@ -10,6 +10,28 @@ field) bumps the **PATCH**, and a **breaking** change (removing/renaming a symbo
 adding a required field, changing a signature) bumps the **MINOR**. The `1.0.0`
 boundary is reserved for declaring the engine API stable.
 
+## [0.7.0] — unreleased (change `hash-leaderboard-user-ids`)
+
+### Changed (breaking — pre-1.0 MINOR bump)
+
+- `LeaderboardRow.player_key: string` added — the opaque per-app public identity
+  (`pk1_…`, a keyed hash the sync Worker derives). Public leaderboard rows identify
+  players by it instead of the Supabase account id.
+- `LeaderboardRow.user_id` is now **optional and deprecated**: the Worker sends it
+  only during its rollout compat window, then stops. Readers that matched their own
+  row on `user_id` must match `player_key` against the key returned by the
+  authenticated `GET /leaderboard/me` (`player_key`, top level of the response).
+- `LeaderboardRow.updated_at` is now **optional**: the public snapshot has not sent
+  it since the Worker change `drop-sync-time-from-public-leaderboard`, so the
+  required field described data that never arrived.
+- `ShoutoutMessage.playerKey: string` added (required); `authorKey` / `id` are
+  documented as opaque (the player key once the compat window closes). Own-message
+  matching must use `playerKey`.
+
+Why MINOR: making a read field optional and adding required fields fail to
+type-check for existing readers / constructors — breaking under the pre-1.0 policy
+above. Consumers pinned to `^0.6.x` do not pick this up until they bump.
+
 ## [0.6.4] — 2026-06-26
 
 ### Added

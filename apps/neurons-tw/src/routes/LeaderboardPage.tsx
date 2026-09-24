@@ -32,6 +32,7 @@ import {
 } from '../lib/services/neurons-leaderboard'
 import type { LeaderboardProfileRow } from '../lib/db'
 import { useAuth } from '../lib/auth/AuthContext'
+import { useOwnPlayerKey } from '../lib/hooks/useOwnPlayerKey'
 
 const FILTER_LABELS: Record<LeaderboardFilter, string> = {
   composite: '綜合排名',
@@ -59,6 +60,9 @@ export default function LeaderboardPage(): JSX.Element {
   const { user, session } = useAuth()
   const userId = user?.id ?? null
   const accessToken = session?.access_token ?? null
+  // Own-row identity on the public snapshot (hash-leaderboard-user-ids): rows carry
+  // `player_key`, not the account id, so the auth user id cannot find them.
+  const ownPlayerKey = useOwnPlayerKey(userId, accessToken)
   const fallbackDisplayName =
     (user?.user_metadata?.name as string | undefined) ??
     (user?.user_metadata?.full_name as string | undefined) ??
@@ -134,7 +138,7 @@ export default function LeaderboardPage(): JSX.Element {
     setSnapshotCache({})
   }
 
-  const myRank = profile && snapshot ? findRank(snapshot.rows, profile.user_id) : null
+  const myRank = profile && ownPlayerKey && snapshot ? findRank(snapshot.rows, ownPlayerKey) : null
 
   // Rank-up feedback (neurons-juice-animations): tween the rank number on change,
   // and celebrate when it improves (smaller = better). prevRank is tracked
@@ -223,7 +227,7 @@ export default function LeaderboardPage(): JSX.Element {
         <LeaderboardGrid
           snapshot={snapshot}
           activeFilter={activeFilter}
-          myUserId={profile?.user_id ?? null}
+          ownPlayerKey={profile ? ownPlayerKey : null}
         />
       )}
 
@@ -250,11 +254,11 @@ export default function LeaderboardPage(): JSX.Element {
 function LeaderboardGrid({
   snapshot,
   activeFilter,
-  myUserId,
+  ownPlayerKey,
 }: {
   snapshot: LeaderboardSnapshot
   activeFilter: LeaderboardFilter
-  myUserId: string | null
+  ownPlayerKey: string | null
 }): JSX.Element {
   if (snapshot.rows.length === 0) {
     return (
@@ -278,13 +282,13 @@ function LeaderboardGrid({
       </div>
       {snapshot.rows.map((row, idx) => {
         const rank = idx + 1
-        const isMe = row.user_id === myUserId
+        const isMe = ownPlayerKey !== null && row.player_key === ownPlayerKey
         const rowStyleFinal: React.CSSProperties = {
           ...dataRowStyle,
           ...(isMe ? myRowStyle : {}),
         }
         return (
-          <div key={row.user_id} style={rowStyleFinal} className="neurons-lb-row">
+          <div key={row.player_key} style={rowStyleFinal} className="neurons-lb-row">
             <span style={{ ...rankCellStyle, ...rankAccent(rank) }}>{rank}</span>
             <NicknameWithBadges nickname={row.nickname} badgesCsv={row.badges_csv ?? ''} />
             <span style={statCellWithPrimary(primaryStat === 'variant_count')} className="neurons-lb-cell--variant">
@@ -354,8 +358,8 @@ function NicknameWithBadges({
   )
 }
 
-function findRank(rows: LeaderboardRow[], userId: string): number | null {
-  const idx = rows.findIndex((r) => r.user_id === userId)
+function findRank(rows: LeaderboardRow[], ownPlayerKey: string): number | null {
+  const idx = rows.findIndex((r) => r.player_key === ownPlayerKey)
   return idx === -1 ? null : idx + 1
 }
 

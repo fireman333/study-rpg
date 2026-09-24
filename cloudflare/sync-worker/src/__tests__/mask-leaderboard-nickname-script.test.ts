@@ -13,7 +13,7 @@
 // ⚠️ No real player's nickname appears here. `SENTINEL` is the name that must
 // never be printed.
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, afterEach } from "vitest";
 import { spawnSync } from "node:child_process";
 import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -26,6 +26,9 @@ import {
   m2Key,
   makeDb,
   makeEnv,
+  openWindow,
+  TEST_PLAYER_KEY_SECRET,
+  testPlayerKey,
   type SqliteDb,
 } from "./leaderboard-sqlite-fixtures";
 
@@ -50,6 +53,7 @@ if (argv[0] === "d1" && argv[1] === "execute") {
   const results = db.prepare(opt("--command")).all();
   process.stdout.write(JSON.stringify([{ results, success: true, meta: {} }]));
 } else if (argv[0] === "kv" && argv[1] === "key" && argv[2] === "get") {
+  if (process.env.MMLN_STUB_FAIL_KV_GET) { console.error("stub: kv get failed"); process.exit(1); }
   const f = kvFile(argv[3]);
   process.stdout.write(fs.existsSync(f) ? fs.readFileSync(f, "utf8") : "Value not found\\n");
 } else if (argv[0] === "kv" && argv[1] === "key" && argv[2] === "put") {
@@ -93,11 +97,30 @@ afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+// The snapshots identify rows by player key (hash-leaderboard-user-ids); the script
+// gets the same secret the fixture Worker used, and a nonexistent secret file so
+// the owner's real one is never read.
+let keys: Record<string, string>;
+beforeAll(async () => {
+  keys = {
+    [U_TARGET]: await testPlayerKey("m2", U_TARGET),
+    [U_OTHER]: await testPlayerKey("m2", U_OTHER),
+  };
+});
+
 function run(...args: string[]) {
+  return runWith({ LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET }, ...args);
+}
+
+function runWith(extraEnv: Record<string, string>, ...args: string[]) {
+  const base = { ...process.env };
+  delete base.LEADERBOARD_PLAYER_KEY_SECRET;
   const r = spawnSync("bash", [SCRIPT, ...args], {
     encoding: "utf8",
     env: {
-      ...process.env,
+      ...base,
+      MMLN_PLAYER_KEY_ENV: join(dir, "no-such-secret-file.env"),
+      ...extraEnv,
       WRANGLER: join(dir, "wrangler"),
       PATH: `${dir}:${process.env.PATH}`,
       MMLN_STUB_DB: dbPath,
@@ -110,6 +133,7 @@ function run(...args: string[]) {
   const output = `${r.stdout}${r.stderr}`;
   // The one property every subcommand shares, whatever it returns.
   expect(output, `${args.join(" ")} printed the nickname`).not.toContain(SENTINEL);
+  expect(output, `${args.join(" ")} printed the player-key secret`).not.toContain(TEST_PLAYER_KEY_SECRET);
   return { status: r.status, stdout: r.stdout, stderr: r.stderr, output };
 }
 
@@ -117,7 +141,7 @@ function snapshotRow(filter: string, userId: string): Record<string, unknown> | 
   const s = JSON.parse(readFileSync(join(kvDir, encodeURIComponent(m2Key(filter))), "utf8")) as {
     rows: Record<string, unknown>[];
   };
-  return s.rows.find((r) => r.user_id === userId);
+  return s.rows.find((r) => r.player_key === keys[userId]);
 }
 
 const entries = () => db.prepare("SELECT app_id, user_id, nickname_lower FROM leaderboard_nickname_masks").all();
@@ -199,6 +223,59 @@ describe("mask-leaderboard-nickname.sh", { timeout: 60_000 }, () => {
     expect(entries()).toEqual([]);
     expect(run("mask", "x' OR 1=1 --").status).not.toBe(0);
     expect(existsSync(SCRIPT)).toBe(true);
+  });
+
+  it("find / mask / unmask refuse without the player-key secret, before writing anything", () => {
+    for (const args of [["find", "composite", "1"], ["mask", U_TARGET], ["unmask", U_TARGET]]) {
+      const r = runWith({}, ...args);
+      expect(r.status, args.join(" ")).not.toBe(0);
+      expect(r.stderr, args.join(" ")).toMatch(/LEADERBOARD_PLAYER_KEY_SECRET/);
+    }
+    expect(entries()).toEqual([]);
+    expect(readFileSync(logPath, "utf8")).toBe("");
+    // `list` reads only D1 and needs no key.
+    expect(runWith({}, "list").status).toBe(0);
+  });
+
+  it("find / mask / unmask refuse, before writing, when the local secret is not the Worker's (a rotation not copied)", () => {
+    const stale = { LEADERBOARD_PLAYER_KEY_SECRET: "stale-local-copy-of-a-rotated-secret-000000000000" };
+    for (const args of [["find", "composite", "1"], ["mask", U_TARGET], ["unmask", U_TARGET]]) {
+      const r = runWith(stale, ...args);
+      expect(r.status, args.join(" ")).toBe(2);
+      expect(r.stderr, args.join(" ")).toMatch(/輪替過 secret/);
+    }
+    expect(entries()).toEqual([]);
+    expect(readFileSync(logPath, "utf8")).not.toMatch(/d1/);
+  });
+
+  it("find / mask / unmask refuse, before writing, when the snapshot cannot be read to check the secret", () => {
+    const failing = { LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET, MMLN_STUB_FAIL_KV_GET: "1" };
+    for (const args of [["find", "composite", "1"], ["mask", U_TARGET], ["unmask", U_TARGET]]) {
+      const r = runWith(failing, ...args);
+      expect(r.status, args.join(" ")).toBe(2);
+      expect(r.stderr, args.join(" ")).toMatch(/讀不到 composite 快照/);
+    }
+    expect(entries()).toEqual([]);
+    expect(readFileSync(logPath, "utf8")).not.toMatch(/d1/);
+  });
+
+  it("during the compat window the rows carry user_id, so the permanent local secret still works", async () => {
+    const files = {
+      put: async (key: string, value: string) => writeFileSync(join(kvDir, encodeURIComponent(key)), value),
+      get: async () => null,
+    };
+    await runLeaderboardCron(makeEnv(db, files as never, undefined, openWindow()));
+    const r = run("mask", U_TARGET);
+    expect(r.status, r.output).toBe(0);
+    for (const f of M2_FILTERS) expect(r.stdout).toContain(`${f}: masked=true`);
+  });
+
+  it("find resolves a keyed row whose snapshot carries no user_id at all", () => {
+    for (const f of M2_FILTERS) {
+      const raw = readFileSync(join(kvDir, encodeURIComponent(m2Key(f))), "utf8");
+      expect(raw, f).not.toContain(U_TARGET);
+    }
+    expect(run("find", "composite", "2").stdout.trim()).toBe(`rank=2 user_id=${U_OTHER} tier=2 reputation=3000`);
   });
 
   it("leaves no temp files behind", () => {
