@@ -90,7 +90,7 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
 
   // Own message = the one carrying the player's own key (hash-leaderboard-user-ids);
   // the board no longer publishes the account id. `authorKey` stays the report target.
-  const ownPlayerKey = useOwnPlayerKey(accessToken)
+  const ownPlayerKey = useOwnPlayerKey(userId, accessToken)
   const mine = ownPlayerKey ? board.find((m) => m.playerKey === ownPlayerKey) ?? null : null
 
   const refreshBoard = useCallback(async () => {
@@ -142,7 +142,10 @@ export default function ShoutoutBoardPage({ pack }: { pack: ContentPack }): JSX.
   // Self-update from a write response (don't wait for the 30s list cache).
   const applyMine = useCallback((msg: ShoutoutMessage) => {
     setBoard((prev) => {
-      const without = prev.filter((m) => m.playerKey !== msg.playerKey)
+      // A Worker older than hash-leaderboard-user-ids (e.g. after a rollback) echoes no
+      // playerKey; filtering on it would compare `undefined !== undefined` and drop every
+      // message. Without a key, keep the list — the next board refresh dedupes.
+      const without = msg.playerKey ? prev.filter((m) => m.playerKey !== msg.playerKey) : prev
       return [msg, ...without]
     })
   }, [])

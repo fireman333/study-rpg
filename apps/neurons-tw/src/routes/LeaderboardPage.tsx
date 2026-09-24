@@ -62,7 +62,7 @@ export default function LeaderboardPage(): JSX.Element {
   const accessToken = session?.access_token ?? null
   // Own-row identity on the public snapshot (hash-leaderboard-user-ids): rows carry
   // `player_key`, not the account id, so the auth user id cannot find them.
-  const ownPlayerKey = useOwnPlayerKey(accessToken)
+  const ownPlayerKey = useOwnPlayerKey(userId, accessToken)
   const fallbackDisplayName =
     (user?.user_metadata?.name as string | undefined) ??
     (user?.user_metadata?.full_name as string | undefined) ??

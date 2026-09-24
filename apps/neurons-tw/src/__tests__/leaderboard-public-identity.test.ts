@@ -70,10 +70,23 @@ describe('neurons public identity', () => {
   it('both pages match on the own key from useOwnPlayerKey (so deleting the match is not compliance)', () => {
     const lb = code('routes/LeaderboardPage.tsx')
     const board = code('routes/ShoutoutBoardPage.tsx')
-    for (const src of [lb, board]) expect(src).toMatch(/useOwnPlayerKey\(accessToken\)/)
+    for (const src of [lb, board]) expect(src).toMatch(/useOwnPlayerKey\(userId, accessToken\)/)
     expect(lb).toMatch(/row\.player_key === ownPlayerKey/)
     expect(lb).toMatch(/r\.player_key === ownPlayerKey/)
     expect(board).toMatch(/m\.playerKey === ownPlayerKey/)
+  })
+
+  it('the own key is fetched per account, not per token — a token refresh does not blank it', () => {
+    const hook = code('lib/hooks/useOwnPlayerKey.ts')
+    const deps = [...hook.matchAll(/\}, \[([^\]]*)\]\)/g)].map((m) => m[1])
+    expect(deps).toEqual(['userId, hasToken'])
+    for (const d of deps) expect(d).not.toMatch(/accessToken/)
+  })
+
+  it('the post echo replaces the own message only when it carries a key (an older Worker sends none)', () => {
+    const board = code('routes/ShoutoutBoardPage.tsx')
+    const body = board.slice(board.indexOf('const applyMine'), board.indexOf('const handleReport'))
+    expect(body).toMatch(/msg\.playerKey\s*\?\s*prev\.filter\(\(m\) => m\.playerKey !== msg\.playerKey\)\s*:\s*prev/)
   })
 
   it('the own key comes only from the Worker — no fallback to the account id', () => {
