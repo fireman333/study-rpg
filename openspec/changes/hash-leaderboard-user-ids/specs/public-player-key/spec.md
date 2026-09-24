@@ -8,7 +8,7 @@ Login-free leaderboard and 留言 surfaces identify a player by an opaque, per-a
 
 ### Requirement: Public surfaces identify players by a player key, not the account id
 
-Every response the sync Worker serves without authentication that identifies a player — the five 二階 leaderboard snapshots (`GET /leaderboard/:filter`), the five neurons leaderboard snapshots (`GET /leaderboard/neurons/:filter`), and each app's 留言 board (`GET /shoutouts/:app`) — SHALL identify the player by their player key and SHALL NOT contain the player's account id (`user_id` / `author_key`) under any field name. A leaderboard row SHALL carry the key as `player_key`; a 留言 message SHALL carry it as `playerKey`. The echo returned to an author after posting SHALL follow the same rule. The leaderboard snapshots stored in KV SHALL likewise carry `player_key` and not the account id, so that the stored snapshot is not a second copy of the identifier. A stored snapshot row that predates this requirement (it carries `user_id` and no `player_key`) SHALL be keyed when it is served, so the account id stops leaving the Worker on deploy rather than at the next refresh. Internal storage and joins (the leaderboard tables, masks, bans, reports, the audit log, the owner back-office) SHALL continue to use the account id.
+Every response the sync Worker serves without authentication that identifies a player — the five 二階 leaderboard snapshots (`GET /leaderboard/:filter`), the five neurons leaderboard snapshots (`GET /leaderboard/neurons/:filter`), and each app's 留言 board (`GET /shoutouts/:app`) — SHALL identify the player by their player key and SHALL NOT contain the player's account id (`user_id` / `author_key`) under any field name. A leaderboard row SHALL carry the key as `player_key`; a 留言 message SHALL carry it as `playerKey`. The echo returned to an author after posting SHALL follow the same rule. A leaderboard snapshot written to KV SHALL likewise carry `player_key` and not the account id, so that the stored snapshot is not a second copy of the identifier. A stored snapshot row that predates this requirement (it carries `user_id` and no `player_key`) SHALL be keyed when it is served, so the account id stops leaving the Worker on deploy rather than at the next refresh. Internal storage and joins (the leaderboard tables, masks, bans, reports, the audit log, the owner back-office) SHALL continue to use the account id.
 
 These rules hold outside the rollout compatibility window defined below.
 
@@ -53,7 +53,7 @@ A player key SHALL be derived by the Worker from the account id with a keyed has
 
 ### Requirement: Player keys fail closed when the secret is unavailable
 
-When the Worker's player-key secret is absent or shorter than 32 characters, the Worker SHALL NOT fall back to publishing the account id. A leaderboard refresh SHALL write no snapshot at all in that run (the previous snapshots stay, so the page's「上次更新」time stops advancing). A request whose response would have to derive a key — a public read of a snapshot stored before this change, a 留言 board read, a post, a report, or `GET /leaderboard/me` — SHALL be refused with HTTP 503 and `{ "error": "player_key_unavailable" }`. A public read of a snapshot that already carries keys needs no derivation and SHALL still be served. A post refused this way SHALL write nothing.
+When the Worker's player-key secret is absent or shorter than 32 characters, the Worker SHALL NOT fall back to publishing the account id. A leaderboard refresh SHALL write no snapshot at all in that run (the previous snapshots stay, so the page's「上次更新」time stops advancing). A request whose response would have to derive a key — a public read of a snapshot stored before this change, a 留言 board read not answered from the edge cache, a post, a report, or `GET /leaderboard/me` — SHALL be refused with HTTP 503 and `{ "error": "player_key_unavailable" }`. A public read of a snapshot that already carries keys needs no derivation and SHALL still be served. A post refused this way SHALL write nothing.
 
 #### Scenario: The refresh writes nothing
 
@@ -98,14 +98,14 @@ The Worker SHALL support a configuration flag that, while set, additionally carr
 - **WHEN** the flag is set
 - **THEN** snapshot rows SHALL carry both `user_id` and `player_key`, and 留言 messages SHALL carry the raw id in `id` / `authorKey` and the key in `playerKey`
 
-#### Scenario: Closing the window withdraws the id from stored data
+#### Scenario: Closing the window withdraws the id from reads of stored data
 
 - **WHEN** the flag is removed while KV still holds snapshots written with it set
 - **THEN** the public read of those snapshots SHALL carry no account id
 
 ### Requirement: Reports and the top-N halo are resolved through the key
 
-`POST /shoutouts/:app/report` SHALL accept, as its target, the key the board published, and SHALL resolve it to the author by comparing it with the keys of the authors whose messages are neither deleted nor hidden. Outside the compatibility window a target that is not a player key SHALL be refused with 400 `invalid_target`, as SHALL a key that matches no such author (including another app's key), and no report SHALL be recorded for a refused target. The top-N halo on the 留言 board SHALL be decided by matching each author's key against the keys of the app's composite snapshot, and SHALL still work against a stored snapshot that predates this change.
+`POST /shoutouts/:app/report` SHALL accept, as its target, the key the board published, and SHALL resolve it to the author by comparing it with the keys of the authors whose messages are neither deleted nor hidden. A key that matches no such author (including another app's key, and the key of an author whose message is already hidden) SHALL be refused with 400 `invalid_target`, as SHALL, outside the compatibility window, a target that is not a player key; no report SHALL be recorded for a refused target. The top-N halo on the 留言 board SHALL be decided by matching each author's key against the keys of the app's composite snapshot, and SHALL still work against a stored snapshot that predates this change.
 
 #### Scenario: A report by key reaches the author
 

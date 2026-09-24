@@ -19,7 +19,7 @@
 - 檢舉：`targetAuthorKey` 接受公開鍵，Worker 以「所有未刪未藏的發文者」反查；收尾後拒收原始 id。
 - neurons 前端改以 `/me` 的鍵比對自己的列與留言（新 hook `useOwnPlayerKey`）。
 - owner 遮罩指令改讀本機 secret 副本（env 或 `~/.config/study-rpg/leaderboard-player-key.env`），缺 secret 則在寫入任何東西前拒絕。
-- `@study-rpg/core` **0.7.0**：`LeaderboardRow.player_key` 新增、`user_id` 改選填並標 deprecated、`updated_at` 改選填；`ShoutoutMessage.playerKey` 新增。pre-1.0 政策下屬 breaking → MINOR。
+- **BREAKING** `@study-rpg/core` **0.7.0**：`LeaderboardRow.player_key` 新增、`user_id` 改選填並標 deprecated、`updated_at` 改選填；`ShoutoutMessage.playerKey` 新增。pre-1.0 政策下屬 breaking → MINOR。
 
 ## Capabilities
 
