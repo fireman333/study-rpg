@@ -127,7 +127,10 @@ export function makeEnv(
   extra: Partial<
     Pick<
       Env,
-      "LEADERBOARD_PLAYER_KEY_SECRET" | "LEADERBOARD_PLAYER_KEY_WINDOW_SECRET" | "LEADERBOARD_RAW_ID_COMPAT_UNTIL"
+      | "LEADERBOARD_PLAYER_KEY_SECRET"
+      | "LEADERBOARD_PLAYER_KEY_WINDOW_SECRET"
+      | "LEADERBOARD_RAW_ID_COMPAT_UNTIL"
+      | "CF_VERSION_METADATA"
     >
   > = {},
 ): Env {
@@ -152,11 +155,17 @@ export const TEST_WINDOW_SECRET = "test-only-window-key-secret-9876543210zyxwvut
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Env extras that open the compat window until `days` after `now`. */
+/** The `version_metadata` binding of a Worker version uploaded at `at`. */
+export function versionUploaded(at: number) {
+  return { id: "test-version", tag: "", timestamp: new Date(at).toISOString() };
+}
+
+/** Env extras that open the compat window until `days` after `now`, in a version uploaded at `now`. */
 export function openWindow(now: number = Date.now(), days = 3) {
   return {
     LEADERBOARD_PLAYER_KEY_WINDOW_SECRET: TEST_WINDOW_SECRET,
     LEADERBOARD_RAW_ID_COMPAT_UNTIL: new Date(now + days * DAY_MS).toISOString(),
+    CF_VERSION_METADATA: versionUploaded(now),
   };
 }
 

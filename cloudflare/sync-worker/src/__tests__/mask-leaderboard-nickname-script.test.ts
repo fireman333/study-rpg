@@ -53,6 +53,7 @@ if (argv[0] === "d1" && argv[1] === "execute") {
   const results = db.prepare(opt("--command")).all();
   process.stdout.write(JSON.stringify([{ results, success: true, meta: {} }]));
 } else if (argv[0] === "kv" && argv[1] === "key" && argv[2] === "get") {
+  if (process.env.MMLN_STUB_FAIL_KV_GET) { console.error("stub: kv get failed"); process.exit(1); }
   const f = kvFile(argv[3]);
   process.stdout.write(fs.existsSync(f) ? fs.readFileSync(f, "utf8") : "Value not found\\n");
 } else if (argv[0] === "kv" && argv[1] === "key" && argv[2] === "put") {
@@ -242,6 +243,17 @@ describe("mask-leaderboard-nickname.sh", { timeout: 60_000 }, () => {
       const r = runWith(stale, ...args);
       expect(r.status, args.join(" ")).toBe(2);
       expect(r.stderr, args.join(" ")).toMatch(/輪替過 secret/);
+    }
+    expect(entries()).toEqual([]);
+    expect(readFileSync(logPath, "utf8")).not.toMatch(/d1/);
+  });
+
+  it("find / mask / unmask refuse, before writing, when the snapshot cannot be read to check the secret", () => {
+    const failing = { LEADERBOARD_PLAYER_KEY_SECRET: TEST_PLAYER_KEY_SECRET, MMLN_STUB_FAIL_KV_GET: "1" };
+    for (const args of [["find", "composite", "1"], ["mask", U_TARGET], ["unmask", U_TARGET]]) {
+      const r = runWith(failing, ...args);
+      expect(r.status, args.join(" ")).toBe(2);
+      expect(r.stderr, args.join(" ")).toMatch(/讀不到 composite 快照/);
     }
     expect(entries()).toEqual([]);
     expect(readFileSync(logPath, "utf8")).not.toMatch(/d1/);

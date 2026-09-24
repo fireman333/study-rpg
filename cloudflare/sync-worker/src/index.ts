@@ -102,8 +102,13 @@ export interface Env {
   // Var (wrangler.jsonc) — the deadline of the Worker-first rollout window, as `YYYY-MM-DD` or a
   // timestamp with an offset. Before it, public surfaces also carry the raw id in its old field
   // for client bundles that predate the change. Empty / absent / unparseable / past / more than
-  // 14 days away → closed (the end state). See compatWindow() in player-key.ts.
+  // 14 days after this version's upload → closed (the end state). See compatWindow() in player-key.ts.
   LEADERBOARD_RAW_ID_COMPAT_UNTIL?: string;
+
+  // Binding (wrangler.jsonc `version_metadata`) — this Worker version's id / tag / upload
+  // timestamp. The compat window's 14-day maximum is measured from `timestamp`, a fixed anchor;
+  // absent or unreadable → the window stays closed (player-key.ts compatWindow).
+  CF_VERSION_METADATA?: { id: string; tag: string; timestamp: string };
 
   // Supabase PUBLISHABLE (anon) key, used only by the /note-images endpoints. It already
   // ships inside the app's own frontend bundle, so it is not a secret — it identifies the

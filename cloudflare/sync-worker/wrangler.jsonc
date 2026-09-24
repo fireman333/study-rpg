@@ -120,6 +120,13 @@
 	// failing in some less legible way. Set it before flipping `images_enabled`, with either
 	// `wrangler secret put SUPABASE_ANON_KEY` or a `vars` entry — it is publishable either
 	// way, so the choice is about tidiness, not exposure.
+	// This version's id / tag / upload timestamp (hash-leaderboard-user-ids). The player-key compat
+	// window's 14-day maximum is measured from `timestamp`, so a deadline refused as too far away
+	// stays refused for the life of the version instead of opening itself later. Missing → the
+	// window stays closed. Pinned by "the committed wrangler.jsonc …" in player-key.test.ts.
+	"version_metadata": {
+		"binding": "CF_VERSION_METADATA"
+	},
 	"vars": {
 		"R2_BUCKET_NAME": "study-rpg-saves",
 		"CORS_ALLOWED_ORIGINS": "https://fireman333.github.io,https://med-study-rpg.com,http://localhost:5173,http://localhost:4173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179",
@@ -137,7 +144,8 @@
 		// window stop meaning anything once it closes.
 		// Committed EMPTY = closed. For the rollout, fill in "deploy day + 3 days" as a timestamp with
 		// an offset (e.g. "2026-09-27T23:59:59+08:00") before `pnpm run deploy`. Empty, unparseable,
-		// past, or more than 14 days away → closed; it cannot be left open by forgetting it.
+		// past, or more than 14 days after this version's upload (version_metadata) → closed; it
+		// cannot be left open by forgetting it.
 		// Pinned by "the committed wrangler.jsonc cannot hold the window open" (player-key.test.ts).
 		"LEADERBOARD_RAW_ID_COMPAT_UNTIL": ""
 	},
