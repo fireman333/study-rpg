@@ -43,6 +43,7 @@
       --a-photo: #d98a5c;
       --a-biostats: #6fd3c2;
       --a-khe: #8fb583;
+      --a-ml: #f2c14e;
     }
 
     * { box-sizing: border-box; }
@@ -287,6 +288,7 @@
     a.card--photo    { --accent: var(--a-photo); }
     a.card--biostats { --accent: var(--a-biostats); }
     a.card--khe      { --accent: var(--a-khe); }
+    a.card--ml       { --accent: var(--a-ml); }
 
     /* ---------- footer ---------- */
     footer {
@@ -313,7 +315,7 @@
       <header>
         <div class="kicker">▶ SELECT YOUR GAME</div>
         <h1 class="logo">MED&#8209;STUDY&#8209;RPG</h1>
-        <p class="tagline">醫師國考養成像素 RPG、兩個 macOS 小工具，以及攝影、生統、醫學科普三個網站。挑一個開始。</p>
+        <p class="tagline">醫師國考養成像素 RPG、兩個 macOS 小工具，以及攝影、生統、醫學科普、機器學習四個網站。挑一個開始。</p>
       </header>
 
       <section class="group">
@@ -366,7 +368,7 @@
 
       <section class="group">
         <h2 class="group-title">▶ 網站</h2>
-        <div class="apps apps--3">
+        <div class="apps apps--2">
         <a class="card card--photo" href="/photography/">
           <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFjMWExNyIvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjguNSIgZmlsbD0iI2IwNTIyYSIvPgogIDxwYXRoIGQ9Ik0xNiA3LjVhOC41IDguNSAwIDAgMSAwIDE3eiIgZmlsbD0iI2YwZDhjOCIvPgo8L3N2Zz4K" alt="光的語法 圖示" width="80" height="80"></div>
           <div class="card-title">光的語法</div>
@@ -388,6 +390,14 @@
           <div class="card-title">康勞德醫普</div>
           <div class="card-sub">繁體中文醫學科普文集 · 每篇標註實證來源 · 立場僅供參考，臨床決策仍以個別病人主治醫師判斷為準</div>
           <div class="meta"><span class="chip">網站 · 科普</span><span class="chip">標註來源</span></div>
+          <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
+        </a>
+
+        <a class="card card--ml" href="/ml/">
+          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjMWYxYTJlIi8+CiAgPHJlY3QgeD0iNSIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iI2YyYzE0ZSIvPgogIDxyZWN0IHg9IjUiIHk9IjIwIiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZjJjMTRlIi8+CiAgPHJlY3QgeD0iMTQiIHk9IjUiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIxNCIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIxNCIgeT0iMjMiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIyMyIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmMmMxNGUiLz4KICA8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjOGE3YTU1Ii8+PHJlY3QgeD0iOSIgeT0iMTUiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KICA8cmVjdCB4PSI5IiB5PSIyMSIgd2lkdGg9IjUiIGhlaWdodD0iMSIgZmlsbD0iIzhhN2E1NSIvPjxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjOGE3YTU1Ii8+CiAgPHJlY3QgeD0iMTgiIHk9IjgiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz48cmVjdCB4PSIxOCIgeT0iMTYiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KICA8cmVjdCB4PSIxOCIgeT0iMjQiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KPC9zdmc+Cg==" alt="醫學生的機器學習入門 圖示" width="80" height="80"></div>
+          <div class="card-title">醫學生的機器學習入門</div>
+          <div class="card-sub">給醫學與生醫相關科系的 Machine Learning 入門 · 11 章從迴歸到神經網路 · 每章附醫學資料集與可在 Colab 執行的 notebook</div>
+          <div class="meta"><span class="chip">網站 · 教材</span><span class="chip">機器學習</span></div>
           <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
         </a>
         </div>
