@@ -1,0 +1,131 @@
+{
+ "anchorId": "寄生蟲學::diphyllobothriasis-and-sparganosis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "593340783c83cb80",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "105-1-醫學一-寄生蟲學-Q78",
+     "stem": "下列有關廣節裂頭絛蟲（Diphyllobothrium latum）的敘述，何者錯誤？",
+     "trueOption": "蟲卵具有卵蓋（operculum）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "廣節裂頭絛蟲生活史：蟲卵（有卵蓋 operculum）落水孵出纖毛幼蟲 → 第一中間宿主劍水蚤體內發育成原尾幼蟲 → 第二中間宿主淡水魚體內發育成長尾幼蟲（plerocercoid，人類感染期） → 人吃進未熟或醃製魚肉，成蟲寄生於小腸（空腸）。105/111",
+   "citeText": [
+    "105/111"
+   ],
+   "marks": [
+    "105",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q78",
+    "111-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "蟲卵具有卵蓋（operculum）",
+    "長尾幼蟲（plerocercoid）具感染人體之能力",
+    "生活史須經過兩個中間宿主的發育過程",
+    "廣節裂頭絛蟲（Diphyllobothrium latum）"
+   ],
+   "spans": [
+    {
+     "span": "長尾幼蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "卵蓋 operculum",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "劍水蚤",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "淡水魚",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "115-2-醫學二-寄生蟲學-Q31",
+     "stem": "陳先生接受民俗療法以搗碎蛙肉塗敷眼睛周圍，藉以消腫，經數週後眼睛周圍呈現水腫及局部發炎症狀，據 此病史最可能為下列何種寄生蟲感染？",
+     "trueOption": "曼森裂頭絛蟲（Spirometra mansonoides）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "裂頭蚴移行症（sparganosis）感染途徑：飲用受感染劍水蚤污染的水、食用未熟蛙肉或蛇肉，或民間敷蛙肉／蛇肉於傷口或眼睛；因人類非其終宿主（貓、狗才是），幼蟲無法發育成成蟲，只能在組織間到處移行，形成移行性病灶，與 Echinococcus 穩定成囊的型態不同。「以搗碎蛙肉敷眼消腫、數週後眼周水腫發炎」是考選部反覆使用的經典病史，答曼森裂頭絛蟲（Spirometra mansonoides）；短小／縮小包膜絛蟲（經口蟲卵或含似囊尾幼蟲的節肢動物）與包生絛蟲（誤食犬糞蟲卵）都與敷蛙肉無關。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "曼森裂頭絛蟲（Spirometra mansonoides）"
+   ],
+   "spans": [
+    {
+     "span": "非其終宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "長尾幼蟲",
+   "why": "考題正確敘述：具感染人體能力的幼蟲期"
+  },
+  {
+   "n": 2,
+   "span": "曼森裂頭絛蟲",
+   "why": "考題答案"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"長尾幼蟲\",\"why\":\"考題正確敘述：具感染人體能力的幼蟲期\"},{\"n\":2,\"span\":\"曼森裂頭絛蟲\",\"why\":\"考題答案\"}]\n"
+}

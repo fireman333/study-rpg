@@ -1,0 +1,4 @@
+[{"n":1,"span":"蟯蟲","why":"asked organism"},
+{"n":2,"skip":true,"why":"alternative answer named, elimination"},
+{"n":3,"skip":true,"why":"tested point is negation/multi-part"},
+{"n":4,"span":"蛔蟲","hide":["蛔蟲區別於其他腸道線蟲"],"why":"asked organism"}]

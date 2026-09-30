@@ -1,0 +1,101 @@
+{
+ "anchorId": "寄生蟲學::toxoplasmosis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "6afd346791addfae",
+ "candidates": [
+  {
+   "bulletIndex": 2,
+   "sentence": "免疫功能正常者感染多無明顯症狀（約85%），或症狀輕微類似感冒；愛滋病等免疫妥協患者可能因潛伏組織囊體重新活化而導致弓蟲性腦炎與心肌炎，急性感染期並不會特別造成大量腹水。105/112",
+   "citeText": [
+    "105/112"
+   ],
+   "marks": [
+    "105",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q80",
+    "112-2-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "在愛滋病患者可能導致弓蟲性腦炎（Toxoplasma encephalitis）",
+    "文獻記載，孕婦得到急性弓蟲症（toxoplasmosis）時，spiramycin為預防其胎兒子宮內感染的用藥之一",
+    "弓蟲症在台灣屬第四類法定傳染病",
+    "腸道外期（extraintestinal stage）感染主要是肇因於食入含有緩殖子（bradyzoite）的食物所致",
+    "免疫力正常的患者，通常無明顯症狀，有時與一般感冒（flu）無異",
+    "慢性感染期（chronic infection）時，患者會因為膠質細胞（glial cell）形成結節（nodule）而出現慢性腦炎的 症狀"
+   ],
+   "spans": [
+    {
+     "span": "弓蟲性腦炎",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "85%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "貓是弓蟲唯一的終宿主（腸道內期進行有性＋無性生殖產生卵囊oocyst，也有腸道外期），人類與其他溫血動物僅為中間宿主（只有腸道外期）；此宿主角色常被考題刻意顛倒。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q80"
+   ],
+   "trueOptions": [
+    "在愛滋病患者可能導致弓蟲性腦炎（Toxoplasma encephalitis）",
+    "文獻記載，孕婦得到急性弓蟲症（toxoplasmosis）時，spiramycin為預防其胎兒子宮內感染的用藥之一",
+    "弓蟲症在台灣屬第四類法定傳染病"
+   ],
+   "spans": [
+    {
+     "span": "貓是弓蟲唯一的終宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "潛伏組織囊體",
+   "why": "key fact"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "leak or ambiguous"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"潛伏組織囊體\", \"why\": \"key fact\"}, {\"n\": 2, \"skip\": true, \"why\": \"leak or ambiguous\"}]"
+}

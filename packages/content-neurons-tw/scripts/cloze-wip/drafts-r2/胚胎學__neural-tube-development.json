@@ -1,0 +1,168 @@
+{
+ "anchorId": "胚胎學::neural-tube-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "c0391f02bbdc56aa",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "神經管由神經板摺疊癒合而成，癒合最先發生在頸部體節（約第五體節）高度，再同時朝頭端與尾端方向進行；頭側神經孔（rostral neuropore）約於第 25 天關閉，尾側神經孔（caudal neuropore）約於第 28 天關閉，頭側比尾側提早 2 至 3 天閉合。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "頭側神經孔提早2~3 天關閉"
+   ],
+   "spans": [
+    {
+     "span": "頭側神經孔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "25 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "28 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "2 至 3 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "尾側神經孔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 7,
+   "sentence": "視囊（optic vesicle）是前腦中間腦（diencephalon）向外側突出形成的構造，並非衍生自髓腦（myelencephalon，衍生為延腦）——這組配對是「腦泡起源配對何者錯誤」題型常設的陷阱。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+    "四疊體（tectum）：中腦（mesencephalon）",
+    "乳狀體（mammillary body）：間腦（diencephalon）"
+   ],
+   "spans": [
+    {
+     "span": "間腦",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "次級腦泡與成人腦區的對應：端腦→大腦；間腦→視丘、下視丘、乳狀體（mammillary body）、視囊（衍生視神經）、神經垂體（neurohypophysis，腦下垂體後葉）；中腦→頂蓋（tectum）、大腦導水管（cerebral aqueduct）；後腦→橋腦與小腦；髓腦→延腦。104/106/113/114/115",
+   "citeText": [
+    "104/106/113/114/115"
+   ],
+   "marks": [
+    "104",
+    "106",
+    "113",
+    "114",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q32",
+    "106-2-醫學一-胚胎學-Q36",
+    "113-1-醫學一-胚胎學-Q36",
+    "114-2-醫學一-胚胎學-Q32",
+    "114-2-醫學一-胚胎學-Q36",
+    "115-1-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "視神經（optic nerve）",
+    "橋腦（pons）－後腦（rhombencephalon）",
+    "視丘（thalamus）－前腦（prosencephalon）",
+    "頂蓋（tectum）－中腦（mesencephalon）",
+    "中腦（mesencephalon）",
+    "黑色素細胞（melanocyte）",
+    "交感節後神經元（postganglionic sympathetic neuron）",
+    "腎上腺髓質之嗜鉻細胞（chromaffin cell of adrenal medulla）",
+    "間腦（diencephalon）",
+    "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+    "四疊體（tectum）：中腦（mesencephalon）",
+    "乳狀體（mammillary body）：間腦（diencephalon）"
+   ],
+   "spans": [],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 3,
+   "span": "橋腦與小腦",
+   "why": "key fact"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 2, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 3, \"span\": \"橋腦與小腦\", \"why\": \"key fact\"}]"
+}

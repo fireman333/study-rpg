@@ -1,0 +1,42 @@
+你是台灣醫師國考（一階：解剖、胚胎、組織、生理、生化、藥理、病理、微生物、免疫、寄生蟲、公衛）的出題與審題老師。這是第一輪評分：評「挖空字卡」本身的品質。
+
+輸入：packet 檔 `packages/content-neurons-tw/scripts/cloze-wip/grade/<group>.packet.json`。每張卡有：
+- `face`：卡面。【＿＿＿】是要學生填的答案，【…】是被遮住的括號註解或洩題片語（不用填）。句末的數字（例如 104/106、115-2）是講義標註的出題年份，不屬於卡。
+- `answer`：正確答案（講義原文逐字片段）；`gloss`：一併遮住的括號註解；`hint`：一併遮住的洩題片語（同義詞、對照、重述…）；`sentence`：講義原句；`heading`：考點；`why`：挑選者的理由。
+- `contradictions`：規則偵測到「同一科、同一粗體詞、不同百分比」的講義位置（啟發式，可能是誤報）。
+
+對每張卡評：
+- `grade`：
+  - `good`：考試真的會考、答案唯一且具體，看卡面就能判斷該填什麼。
+  - `ordinary`：事實正確但價值普通（冷僻細節、答案稍籠統、或有另一個合理答案）。
+  - `bad`：答案不唯一、填不出來、挖到否定敘述的受詞（例如「不需使用【類固醇】」）、挖到純背誦且考試沒考的數字、洩題，或醫學上有錯。
+- `medicalError`（true/false）：卡的答案或原句在醫學上錯誤。true 時 `grade` 必須是 `bad`。
+- `reason`：一句話理由（繁體中文）。
+- `leak`（必填）：遮完之後，卡面**可見文字**是否仍讓人不懂這個事實也能推出答案，以及是哪一型：
+  - `none`：沒有洩題。
+  - `synonym`：同句還看得到答案的同義詞、縮寫、代號或英文原文。
+  - `contrast`：「並非／而非 X」這類對照，二選一就能推出。
+  - `restatement`：後文換句話說重述同一事實，或答案本身再次出現。
+  - `elimination`：答案是列舉中的一項、其餘各項都寫在句中，可用消去法填出。
+  - `arithmetic`：答案可由句中其他數字算出。
+  - `heading`：考點標題（`heading`）本身就含有答案。
+  只要 `leak` 不是 `none`，卡就洩題了，`grade` 請評 `bad`。
+- 【…】遮住的是「一併遮住的括號註解（`gloss`）」或「洩題片語（`hint`）」，都不是要學生填的答案。請同時評：遮完之後句子是否還讀得懂——【…】多到讀不出句子在教什麼、或遮掉的片語讓句意翻轉，評 `bad` 並在 `reason` 說明。
+
+規則：
+1. 否定題規則：連結考題若是否定題（何者錯誤／何者不正確／何者為非／最不適當／不包括／除外…），它的「給分選項」是**錯誤的敘述**。卡的答案若只對應到否定題的給分選項，等於教學生記錯的那句，評 `bad`。
+2. 歷屆考題答案優先：講義句子若與某題的官方答案（`answer`／`acceptedAnswers`）一致、但與你所知的現行教科書不同，**不算 medicalError**；請在 `handoutIssues` 回報，`problem` 寫明「官方答案 vs 教科書」，由另一位審查者決定是否加註。不要自行判定官方答案過時。
+3. `hdt-intl` 註記政策：講義與歷屆考題答案一致但與國際教科書不同時，講義的處理方式是保留考題答案，並在該句加註 `<span class="hdt-intl">（⚠️ 國際教科書：…；作答以歷屆考題答案為準）</span>`。有這種註記的句子不會出卡。你只回報，不改講義。
+4. 少挖純數字：純數字答案只有在它是定義門檻、或考題真的考過這個數字時才算 good。
+5. 只評 packet 裡的卡，不可增減 cardId。
+
+講義本身的錯誤（不是卡的問題）放 `handoutIssues`：`{"anchorId", "cardId"(可省略), "sentence", "problem", "suggestedFix"(可省略), "examRef"(題號，可省略)}`。
+
+`contradictions` 每一筆（依 `index`）回 `{"index", "verdict": "real" | "not-a-contradiction", "reason"}`：兩處若其實是不同事實（不同族群、不同指標）就是 `not-a-contradiction`。
+
+輸出寫到 `packages/content-neurons-tw/scripts/cloze-wip/grade/grades-<group>.json`，只含一個 JSON 物件：
+{"group": "<group>", "grader": "agent-pregrade", "model": "<你的模型>", "round": "r1",
+ "grades": {"<cardId>": {"grade": "good|ordinary|bad", "leak": "none|synonym|contrast|restatement|elimination|arithmetic|heading", "medicalError": false, "reason": "…"}},
+ "contradictions": [...], "handoutIssues": [...]}
+
+寫完執行 `python3 packages/content-neurons-tw/scripts/cloze-wip/grade/check.py <group>`，直到 0 problem(s)。

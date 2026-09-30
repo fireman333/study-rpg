@@ -1,0 +1,2 @@
+[{"n":1,"span":"卵蓋","hide":["operculum"],"why":"asked egg feature"},
+{"n":2,"span":"曼森裂頭絛蟲","why":"asked organism"}]

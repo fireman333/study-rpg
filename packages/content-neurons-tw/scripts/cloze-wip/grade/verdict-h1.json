@@ -1,0 +1,128 @@
+[
+ {
+  "issueId": "I07",
+  "anchorId": "germ-layers-gastrulation",
+  "decision": "fix",
+  "reason": "上胚層（epiblast）是三胚層共同來源，不等於體表外胚層；刪去錯誤的同位語。無考題與此衝突。（重複群組：I07/I14）",
+  "examRef": "",
+  "oldText": "上胚層細胞（即體外胚層）",
+  "newText": "上胚層細胞（epiblast）"
+ },
+ {
+  "issueId": "I14",
+  "anchorId": "germ-layers-gastrulation",
+  "decision": "fix",
+  "reason": "上胚層（epiblast）是三胚層共同來源，不等於體表外胚層；刪去錯誤的同位語。無考題與此衝突。（重複群組：I07/I14）",
+  "examRef": "",
+  "oldText": "上胚層細胞（即體外胚層）",
+  "newText": "上胚層細胞（epiblast）"
+ },
+ {
+  "issueId": "I08",
+  "anchorId": "cardiovascular-development",
+  "decision": "fix",
+  "reason": "110-1 Q34 答 D（升主動脈非咽弓來源），B 主動脈弓即源自左側第四咽弓；「只有右鎖骨下動脈才是第四咽弓衍生物」與該題矛盾，限縮為鎖骨下動脈之間比較。（重複群組：I08）",
+  "examRef": "110-1-醫學一-胚胎學-Q34",
+  "oldText": "只有右鎖骨下動脈才是第四咽弓的衍生物。",
+  "newText": "左右鎖骨下動脈之中，只有右鎖骨下動脈（近端）源自第四咽弓；左側第四咽弓形成的是主動脈弓的一段。"
+ },
+ {
+  "issueId": "I09",
+  "anchorId": "pharyngeal-arches",
+  "decision": "fix",
+  "reason": "terminal sulcus 是第一咽弓部（前2/3）與咽下隆起部（後1/3）的交界，不是聯合部消失處；114-2 Q33（答 B 第二咽弓形成聯合部並被擠壓消失）不受影響。（重複群組：I09）",
+  "examRef": "114-2-醫學一-胚胎學-Q33",
+  "oldText": "，消失處即terminal sulcus（前2/3與後1/3的界線）",
+  "newText": "；前2/3與後1/3則以terminal sulcus為界"
+ },
+ {
+  "issueId": "I10",
+  "anchorId": "GI-development",
+  "decision": "fix",
+  "reason": "主胰管由腹胰管加背胰管遠端組成，副胰管為背胰管近端，原句說反；同時依 114-1 Q34 正確選項 C 把腹胰芽衍生物寫成「鉤狀突與部分胰頭」。（重複群組：I10/I18）",
+  "examRef": "114-1-醫學一-胚胎學-Q34",
+  "oldText": "<b>腹側胰芽</b>發育為胰臟頭端與鉤狀突（主胰管由此形成），背側胰芽遠端形成副胰管",
+  "newText": "<b>腹側胰芽</b>發育為鉤狀突與部分胰頭；主胰管由腹側胰管與背側胰管遠端合併而成，背側胰管近端若保留則成為副胰管"
+ },
+ {
+  "issueId": "I18",
+  "anchorId": "GI-development",
+  "decision": "fix",
+  "reason": "主胰管由腹胰管加背胰管遠端組成，副胰管為背胰管近端，原句說反；同時依 114-1 Q34 正確選項 C 把腹胰芽衍生物寫成「鉤狀突與部分胰頭」。（重複群組：I10/I18）",
+  "examRef": "114-1-醫學一-胚胎學-Q34",
+  "oldText": "<b>腹側胰芽</b>發育為胰臟頭端與鉤狀突（主胰管由此形成），背側胰芽遠端形成副胰管",
+  "newText": "<b>腹側胰芽</b>發育為鉤狀突與部分胰頭；主胰管由腹側胰管與背側胰管遠端合併而成，背側胰管近端若保留則成為副胰管"
+ },
+ {
+  "issueId": "I11",
+  "anchorId": "GI-development",
+  "decision": "fix",
+  "reason": "咽下隆起來自第三、四咽弓；第二咽弓形成的是聯合部（114-2 Q33 答 B），與同講義咽弓節一致。（重複群組：I11/I19）",
+  "examRef": "114-2-醫學一-胚胎學-Q33",
+  "oldText": "則由第二、三、四咽弓形成的",
+  "newText": "則由第三、四咽弓形成的"
+ },
+ {
+  "issueId": "I19",
+  "anchorId": "GI-development",
+  "decision": "fix",
+  "reason": "咽下隆起來自第三、四咽弓；第二咽弓形成的是聯合部（114-2 Q33 答 B），與同講義咽弓節一致。（重複群組：I11/I19）",
+  "examRef": "114-2-醫學一-胚胎學-Q33",
+  "oldText": "則由第二、三、四咽弓形成的",
+  "newText": "則由第三、四咽弓形成的"
+ },
+ {
+  "issueId": "I12",
+  "anchorId": "urogenital-development",
+  "decision": "fix",
+  "reason": "108-1 Q34 為「何者錯誤」，答 B（三角源自後腎管）；選項 C「六歲時進入大骨盆」屬正確敘述，講義「第六週」與官方答案不符。（重複群組：I12/I20）",
+  "examRef": "108-1-醫學一-胚胎學-Q34",
+  "oldText": "第六週進入大骨盆",
+  "newText": "約六歲時進入大骨盆"
+ },
+ {
+  "issueId": "I20",
+  "anchorId": "urogenital-development",
+  "decision": "fix",
+  "reason": "108-1 Q34 為「何者錯誤」，答 B（三角源自後腎管）；選項 C「六歲時進入大骨盆」屬正確敘述，講義「第六週」與官方答案不符。（重複群組：I12/I20）",
+  "examRef": "108-1-醫學一-胚胎學-Q34",
+  "oldText": "第六週進入大骨盆",
+  "newText": "約六歲時進入大骨盆"
+ },
+ {
+  "issueId": "I13",
+  "anchorId": "respiratory-development",
+  "decision": "fix",
+  "reason": "Langman／Moore 肺泡期始於胎兒晚期（約第 32–36 週）延續至童年，非出生後才開始；無考題以「出生後開始」為答案（113-2 Q33、114-1 Q33 不受影響）。（重複群組：I13）",
+  "examRef": "",
+  "oldText": "<b>肺泡期</b>（出生後至 8–10 歲，約 95% 肺泡在出生後才真正長成）",
+  "newText": "<b>肺泡期</b>（約第 32–36 週至 8–10 歲，約 95% 肺泡在出生後才真正長成）"
+ },
+ {
+  "issueId": "I15",
+  "anchorId": "limb-axial-musculoskeletal-development",
+  "decision": "fix",
+  "reason": "四肢骨來自肢芽內的外側板中胚層（體壁層），「內側板」為錯字；110-1 Q35 答 A 脊椎骨，與「四肢骨非生骨節衍生物」一致。（重複群組：I15）",
+  "examRef": "110-1-醫學一-胚胎學-Q35",
+  "oldText": "肢芽內側板中胚層凝集而成",
+  "newText": "肢芽內的外側板中胚層（體壁層）凝集而成"
+ },
+ {
+  "issueId": "I16",
+  "anchorId": "limb-axial-musculoskeletal-development",
+  "decision": "fix",
+  "reason": "106-1 Q32 答 B 虹膜；睫狀肌由間葉形成、非神經外胚層，心肌亦非平滑肌，「唯一例外」過度。改為虹膜兩條平滑肌；115-2 Q36 答 A 神經外胚層一致。（重複群組：I16）",
+  "examRef": "106-1-醫學一-胚胎學-Q32",
+  "oldText": "全身骨骼肌與大部分平滑肌（含心臟、消化道）皆由中胚層分化而來；唯一的例外是眼睛的<b>虹膜與睫狀肌</b>，因與眼球神經發育關係密切，改由<b>神經外胚層（neuroectoderm）</b>形成。",
+  "newText": "全身骨骼肌、心肌與大部分平滑肌（如消化道）皆由中胚層分化而來；最常考的例外是虹膜的<b>瞳孔括約肌與瞳孔開大肌</b>，源自視杯的<b>神經外胚層（neuroectoderm）</b>（睫狀肌則由視杯周圍的間葉形成）。"
+ },
+ {
+  "issueId": "I17",
+  "anchorId": "special-sense-integument-development",
+  "decision": "fix",
+  "reason": "115-2 Q36 答 A：瞳孔括約肌與開大肌源自神經外胚層；睫狀肌來自間葉，刪去「與睫狀肌」。（重複群組：I17）",
+  "examRef": "115-2-醫學一-胚胎學-Q36",
+  "oldText": "<b>虹膜肌與睫狀肌來自神經外胚層（neuroectoderm）</b>",
+  "newText": "<b>虹膜肌來自神經外胚層（neuroectoderm）</b>"
+ }
+]

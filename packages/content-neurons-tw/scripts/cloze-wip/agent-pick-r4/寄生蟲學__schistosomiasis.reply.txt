@@ -1,0 +1,3 @@
+[{"n":1,"span":"分佈地區最廣","why":"asked distribution"},
+{"n":2,"span":"直接經皮膚鑽入人體","hide":["不需要第二中間宿主形成囊幼"],"why":"asked infection route"},
+{"n":3,"span":"宿主對蟲卵的免疫反應","hide":["而非成蟲本身的刺激"],"why":"asked pathogenesis"}]

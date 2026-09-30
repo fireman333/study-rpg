@@ -1,0 +1,45 @@
+{
+ "anchorId": "寄生蟲學::toxoplasmosis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "dde7f534dc0611bb",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "105-2-醫學一-寄生蟲學-Q80",
+     "stem": "以下關於弓蟲（Toxoplasma gondii）的敘述中，何者錯誤？",
+     "trueOption": "弓蟲症在台灣屬第四類法定傳染病"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "孕婦於懷孕期間（尤其第一孕期最嚴重）感染急性弓蟲症可能經胎盤垂直傳染，造成胎兒水腦症、腦脊髓炎、視網膜脈絡膜炎；spiramycin是文獻記載用於預防胎兒子宮內感染的藥物之一；弓蟲症在台灣屬於第四類法定傳染病。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q80"
+   ],
+   "trueOptions": [
+    "在愛滋病患者可能導致弓蟲性腦炎（Toxoplasma encephalitis）",
+    "文獻記載，孕婦得到急性弓蟲症（toxoplasmosis）時，spiramycin為預防其胎兒子宮內感染的用藥之一",
+    "弓蟲症在台灣屬第四類法定傳染病"
+   ],
+   "spans": [],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "第四類法定傳染病",
+   "why": "考弓蟲症在台灣法定傳染病類別"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"第四類法定傳染病\",\"why\":\"考弓蟲症在台灣法定傳染病類別\"}]\n"
+}

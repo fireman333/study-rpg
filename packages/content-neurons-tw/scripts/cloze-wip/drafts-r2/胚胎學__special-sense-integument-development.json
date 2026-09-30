@@ -1,0 +1,286 @@
+{
+ "anchorId": "胚胎學::special-sense-integument-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "5da6113d9904652f",
+ "candidates": [
+  {
+   "bulletIndex": 4,
+   "sentence": "汗腺的分泌部主要衍生自體表外胚層，由表皮基底層向下增生的實心索侵入真皮後管腔化而成，與皮膚表皮及其他附屬器（毛髮、指甲、皮脂腺）同源。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q36",
+    "110-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "視神經髓鞘僅包圍至視神經盤（optic nerve disc）",
+    "體表外胚層（surface ectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "體表外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "皮脂腺、汗腺與頭髮皆源自外胚層（皆由表皮或毛囊上皮增生而成）；豎毛肌（arrector pili muscle）則是真皮間葉組織分化而成的平滑肌，來自中胚層，是這節最經典的胚層歸類誘答。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q35",
+    "115-1-醫學一-胚胎學-Q36",
+    "115-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "豎毛肌（arrector pili muscle）",
+    "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+    "四疊體（tectum）：中腦（mesencephalon）",
+    "乳狀體（mammillary body）：間腦（diencephalon）",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "豎毛肌",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "一般肌肉組織（肋間、心臟、消化道）皆由中胚層分化而來，但眼睛的虹膜肌來自神經外胚層（neuroectoderm）——更精確地說，瞳孔括約肌（sphincter pupillae）與瞳孔開大肌（dilator pupillae）源自視杯（optic cup）前緣的神經外胚層，是人體極少數非中胚層來源的平滑肌，也是這類「哪個肌肉不是中胚層」題型的固定答案；答案要選神經外胚層，不是生發層（stratum germinativum，那是表皮基底層）。106/115-2",
+   "citeText": [
+    "106/115-2"
+   ],
+   "marks": [
+    "106",
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-胚胎學-Q32",
+    "115-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "虹膜（iris）",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "虹膜肌來自神經外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "視神經（CN2）由前腦（prosencephalon）衍生；口訣可依大腦／中腦／橋腦／延腦分別衍生 2、2、4、4 對腦神經記憶。104",
+   "citeText": [
+    "104"
+   ],
+   "marks": [
+    "104"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "視神經（optic nerve）"
+   ],
+   "spans": [
+    {
+     "span": "CN2",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "前腦",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "眼裂（optic fissure）位於眼杯腹側面沿視柄發育；視網膜色素上皮源自眼杯外層；視神經源自視網膜神經節細胞的軸突；視網膜中央動靜脈則源自玻璃體血管（hyaloid vessels）的近端而非遠端。108",
+   "citeText": [
+    "108"
+   ],
+   "marks": [
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "眼裂（optic fissure）位於眼杯（optic cup）的腹側面，並沿著視柄（optic stalk）發育",
+    "視網膜色素上皮（retinal pigment epithelium）是源自眼杯（optic cup）的外層",
+    "視神經（optic nerve）是源自視網膜之神經節細胞軸突（axons of ganglion cells）"
+   ],
+   "spans": [
+    {
+     "span": "視網膜色素上皮源自眼杯外層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "近端",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "視神經細胞（ganglion cells）源自神經外胚層（並非大腦皮質，皮質衍生的是嗅球）；視神經髓鞘僅包圍至視神經盤（optic disc）為止，且要到出生後約 10 週才發育完成（並非出生前已完全發育）；視神經源自視柄（前腦神經外胚層），並非神經嵴衍生。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q36",
+    "110-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "視神經髓鞘僅包圍至視神經盤（optic nerve disc）",
+    "體表外胚層（surface ectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "出生後約 10 週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "10 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "體表外胚層",
+   "why": "key fact"
+  },
+  {
+   "n": 2,
+   "span": "真皮間葉組織",
+   "why": "key fact"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 4,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 5,
+   "span": "眼杯外層",
+   "why": "key fact"
+  },
+  {
+   "n": 6,
+   "span": "視柄",
+   "why": "key fact"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"體表外胚層\", \"why\": \"key fact\"}, {\"n\": 2, \"span\": \"真皮間葉組織\", \"why\": \"key fact\"}, {\"n\": 3, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 4, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 5, \"span\": \"眼杯外層\", \"why\": \"key fact\"}, {\"n\": 6, \"span\": \"視柄\", \"why\": \"key fact\"}]"
+}

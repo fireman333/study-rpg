@@ -1,0 +1,453 @@
+{
+ "anchorId": "胚胎學::urogenital-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "bc7984635b1d9e75",
+ "candidates": [
+  {
+   "bulletIndex": 2,
+   "sentence": "男性假陰陽人染色體為 46, XY（非 46, XX），因睪丸製造睪固酮不足或雄性素受體不敏感而呈現女性外生殖器，因具 Y 染色體而不含性染色質（Barr body），睪丸發育可能正常或退化。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q31",
+    "105-2-醫學一-胚胎學-Q29",
+    "105-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "集尿小管（collecting tubule）",
+    "Y",
+    "testosterone分泌不足",
+    "不含性染色質（sex chromatin）",
+    "睪丸發育可能正常或退化"
+   ],
+   "spans": [
+    {
+     "span": "不含性染色質",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "46, XY",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "contrast"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "輸尿管的胚胎起源是後腎憩室（metanephric diverticulum），即中腎管突出形成的輸尿管芽，進一步衍生出輸尿管、腎盂、腎盞與集尿管；後腎中胚層則衍生腎小管與鮑氏囊，兩者不可混淆。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q34",
+    "107-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "睪丸支持細胞（Sertoli cell）",
+    "後腎憩室（metanephric diverticulum）"
+   ],
+   "spans": [
+    {
+     "span": "後腎憩室",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "膀胱內襯上皮源自內胚層（泌尿生殖竇），胚胎時期與尿囊相連，約六歲時進入大骨盆；但膀胱三角（trigone）由左右尾端中腎管（Wolffian duct，總排泄管）併入膀胱後壁形成（中胚層來源），非源自輸尿管本身（考選部 108-1 將「三角源自輸尿管末端」列為錯誤敘述）。108",
+   "citeText": [
+    "108"
+   ],
+   "marks": [
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學一-胚胎學-Q34",
+    "108-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "內襯上⽪的胚胎起源是內胚層（endoderm）",
+    "六歲時進入⼤骨盆（greater pelvis）",
+    "在胚胎時期與尿囊（allantois）相連",
+    "性腺索（gonadal cord）在男性發育成細精管（seminiferous tubules）"
+   ],
+   "spans": [
+    {
+     "span": "內胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "中腎管",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 10,
+   "sentence": "女性陰道由副中腎管（上段，發育為子宮頸以上構造）與竇陰道球泡（sinovaginal bulb，泌尿生殖竇的內胚層增生，形成下段）共同發育而成，兩者融合形成陰道板，中央細胞凋亡後才形成陰道管腔。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "副中腎管（paramesonephric duct）與竇陰道球泡（sinovaginal bulb）"
+   ],
+   "spans": [
+    {
+     "span": "副中腎管",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "竇陰道球泡",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "輸尿管芽（ureteric bud）形成集尿系統：集尿小管、腎盂、大小腎盞；後腎中胚層（metanephric mesoderm）則形成過濾排泄系統：鮑氏囊、近曲小管——這條「bud 長出集尿樹、mesoderm 長出濾過單位」的分工是腎臟發育的核心配對。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q31",
+    "105-2-醫學一-胚胎學-Q29",
+    "105-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "集尿小管（collecting tubule）",
+    "Y",
+    "testosterone分泌不足",
+    "不含性染色質（sex chromatin）",
+    "睪丸發育可能正常或退化"
+   ],
+   "spans": [
+    {
+     "span": "輸尿管芽",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "後腎中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "Y 染色體上的 SRY 基因編碼睪丸決定因子（testis-determining factor, TDF），透過上調 SOX9 促使雙性性腺分化為睪丸；X 染色體不含此因子。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q31",
+    "105-2-醫學一-胚胎學-Q29",
+    "105-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "集尿小管（collecting tubule）",
+    "Y",
+    "testosterone分泌不足",
+    "不含性染色質（sex chromatin）",
+    "睪丸發育可能正常或退化"
+   ],
+   "spans": [
+    {
+     "span": "Y 染色體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "女性假陰陽人染色體為 46, XX，因先天性腎上腺增生症（CAH，皮質醇合成酵素缺陷）導致腎上腺過度分泌雄性素而外生殖器男性化，並非肇因於腎上腺萎縮。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-胚胎學-Q30"
+   ],
+   "trueOptions": [
+    "男性荷爾蒙分泌太多",
+    "染色體46, XX",
+    "外生殖器官男性化"
+   ],
+   "spans": [
+    {
+     "span": "先天性腎上腺增生症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "睪丸的塞托利氏細胞（Sertoli cell）分泌穆勒氏管抑制物（MIS，即 AMH），使副中腎管（Müllerian duct）退化；間質細胞（Leydig cell）則分泌睪固酮，兩者分工是泌尿生殖胚胎學的核心配對。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q34",
+    "107-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "睪丸支持細胞（Sertoli cell）",
+    "後腎憩室（metanephric diverticulum）"
+   ],
+   "spans": [
+    {
+     "span": "塞托利氏細胞",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "間質細胞",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 7,
+   "sentence": "性腺索（gonadal cord）在男性發育成曲細精管、直細精管與精管網；女性則退化，由皮質的皮質索（cortical cord）發育成原始濾泡與顆粒細胞——兩條索的性別分工常被互換誘答。108",
+   "citeText": [
+    "108"
+   ],
+   "marks": [
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學一-胚胎學-Q34",
+    "108-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "內襯上⽪的胚胎起源是內胚層（endoderm）",
+    "六歲時進入⼤骨盆（greater pelvis）",
+    "在胚胎時期與尿囊（allantois）相連",
+    "性腺索（gonadal cord）在男性發育成細精管（seminiferous tubules）"
+   ],
+   "spans": [
+    {
+     "span": "曲細精管、直細精管與精管網",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "皮質索",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 11,
+   "sentence": "三條管路的衍生物一次分清：副中腎管（paramesonephric duct／Müllerian duct）→ 輸卵管、子宮與陰道上段（男性因 Sertoli cell 分泌的 AMH 而退化）；中腎管（mesonephric duct／Wolffian duct）→ 副睪、輸精管、儲精囊與射精管；輸尿管芽（ureteric bud，由中腎管下段長出）→ 輸尿管、腎盂、腎盞與集尿管。問「何者由副中腎管衍生」答輸卵管；射精管、輸精管、輸尿管三者都不是。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "輸卵管（oviduct）"
+   ],
+   "spans": [
+    {
+     "span": "輸尿管芽",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 2,
+   "span": "腎小管與鮑氏囊",
+   "why": "key fact"
+  },
+  {
+   "n": 3,
+   "span": "泌尿生殖竇",
+   "why": "key fact"
+  },
+  {
+   "n": 4,
+   "span": "陰道板",
+   "why": "key fact"
+  },
+  {
+   "n": 5,
+   "span": "鮑氏囊、近曲小管",
+   "why": "key fact"
+  },
+  {
+   "n": 6,
+   "span": "SOX9",
+   "why": "key fact"
+  },
+  {
+   "n": 7,
+   "span": "皮質醇合成酵素缺陷",
+   "why": "key fact"
+  },
+  {
+   "n": 8,
+   "span": "睪固酮",
+   "why": "key fact"
+  },
+  {
+   "n": 9,
+   "span": "曲細精管、直細精管與精管網",
+   "why": "key fact"
+  },
+  {
+   "n": 10,
+   "span": "中腎管下段",
+   "why": "key fact"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 2, \"span\": \"腎小管與鮑氏囊\", \"why\": \"key fact\"}, {\"n\": 3, \"span\": \"泌尿生殖竇\", \"why\": \"key fact\"}, {\"n\": 4, \"span\": \"陰道板\", \"why\": \"key fact\"}, {\"n\": 5, \"span\": \"鮑氏囊、近曲小管\", \"why\": \"key fact\"}, {\"n\": 6, \"span\": \"SOX9\", \"why\": \"key fact\"}, {\"n\": 7, \"span\": \"皮質醇合成酵素缺陷\", \"why\": \"key fact\"}, {\"n\": 8, \"span\": \"睪固酮\", \"why\": \"key fact\"}, {\"n\": 9, \"span\": \"曲細精管、直細精管與精管網\", \"why\": \"key fact\"}, {\"n\": 10, \"span\": \"中腎管下段\", \"why\": \"key fact\"}]"
+}

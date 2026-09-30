@@ -1,0 +1,236 @@
+{
+ "group": "r2-03",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r2",
+ "grades": {
+  "germ-layers-gastrulation#k5": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "113-1 Q32 考胚內體腔出現於外側中胚層；中間中胚層衍生泌尿生殖上皮只是選項B的旁證"
+  },
+  "germ-layers-gastrulation#k6": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "115-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "115-2 Q32 考胚內中胚層第三週才出現；空格『初級卵黃囊』被相鄰的『次級臍囊／次級卵黃囊…取代』直接洩題"
+  },
+  "germ-layers-gastrulation#k7": {
+   "grade": "ordinary",
+   "examAlignment": "not-tested",
+   "examRef": "",
+   "medicalError": false,
+   "reason": "正確教科書事實（原條建立兩側對稱），但 106-2 Q32、112-2 Q32、111-1 Q32 均只考原條出現時序或軸旁中胚層衍生物"
+  },
+  "pharyngeal-arches#k6": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "105-2 Q31 考會厭軟骨不屬第四、六咽弓；空格是肌肉清單中的一項，答案不唯一"
+  },
+  "pharyngeal-arches#k7": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "106-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "106-2 Q33（否定題）給分選項為D耳咽管；未給分選項A『外耳道源自第一咽溝』為正確敘述，與卡一致，經典考點"
+  },
+  "pharyngeal-arches#k8": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "104-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "104-2 Q32 考嚼肌屬第一咽弓；空格是第一咽弓肌肉清單中的一項（二腹肌前腹），答案不唯一"
+  },
+  "pharyngeal-arches#k9": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-1-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "113-1 Q33 考第二咽弓肌肉由顏面神經支配（題面已給CN VII）；顏面表情肌為清單首項，尚可唯一"
+  },
+  "pharyngeal-arches#k10": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "112-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "第三咽囊→胸腺與下副甲狀腺為經典考點；連結的 112-2 Q33、107-1 Q32 考第四咽囊相關，非第三咽囊"
+  },
+  "cardiovascular-development#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "113-1 Q35 考出生後肺血流量上升（B）；卵圓孔瓣膜貼合第二中隔為選項D詳解延伸"
+  },
+  "cardiovascular-development#k7": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "104-1-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "104-1 Q31 考第二中隔不完全分隔形成卵圓孔；空格『第二孔』為延伸細節，且『第二中隔』字面有提示"
+  },
+  "cardiovascular-development#k8": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "104-2-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "104-2 Q31 給分C（閉鎖成動脈韌帶）；錯誤選項A『源自右側第六動脈弓』反證卡答左側，但後文『連接左肺動脈』部分提示側別"
+  },
+  "neural-tube-development#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "106-2 Q36（否定題）給分B『小腦－前腦』為錯誤敘述，正確為後腦；115-1 Q36 選項A橋腦及小腦：後腦為正確敘述，與卡一致"
+  },
+  "limb-axial-musculoskeletal-development#k5": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "111-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "111-1 Q36（否定題）給分D為旋轉方向；『第四週末』出現於未給分選項A為正確敘述，屬旁支數字"
+  },
+  "limb-axial-musculoskeletal-development#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "110-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "110-1 Q35 考生骨節→脊椎骨；四肢骨源自肢芽側板中胚層僅為選項D詳解延伸"
+  },
+  "limb-axial-musculoskeletal-development#k7": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "106-1 Q32 給分B虹膜肌肉非中胚層來源，卡答瞳孔括約肌與開大肌正是此點（115-2 Q36 亦同）"
+  },
+  "limb-axial-musculoskeletal-development#k8": {
+   "grade": "ordinary",
+   "examAlignment": "not-tested",
+   "examRef": "",
+   "medicalError": false,
+   "reason": "次級骨化中心青春期出現為正確教科書事實，連結的 110-2 Q35、110-1 Q35 皆未考"
+  },
+  "GI-development#k6": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "110-1 Q33 給分D逆時針270度即此點，但後文『先逆轉90度…再逆轉180度』以同義詞洩題"
+  },
+  "GI-development#k7": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-1-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "114-1 Q34 給分C腹胰芽發育為鉤狀突與部分胰頭，答案唯一具體"
+  },
+  "GI-development#k8": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "108-2 Q34 給分D『因上皮細胞增生而一度閉鎖』即卡答"
+  },
+  "GI-development#k9": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "112-1-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "112-1 Q33 考舌咽喉部源自咽下隆起（題面已給）；咽下隆起來自第三、四咽弓屬延伸（114-2 Q33 詳解同）"
+  },
+  "respiratory-development#k5": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "113-2 Q33 考末囊期出現血氣障壁與表面張力劑；type II 肺泡細胞為詳解延伸，且句中 surfactant 使答案易猜"
+  },
+  "respiratory-development#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "107-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "107-1 Q32 考的是第四咽囊（題面已露出）；空格『前腸尾端腹側』措辭模糊，非考點"
+  },
+  "respiratory-development#k7": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "107-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "107-2 Q34 考TEF為最常見異常（題面已給）；空格『氣管食道中膈』被同句『氣管與食道的分隔』換句話洩題"
+  },
+  "urogenital-development#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "107-2-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "107-2 Q35 考輸尿管源自後腎憩室；後腎中胚層衍生腎小管與鮑氏囊為選項A旁證"
+  },
+  "urogenital-development#k7": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "108-1-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "108-1 Q34（否定題）給分B膀胱三角；未給分選項A內胚層為正確敘述，泌尿生殖竇為其括號細節"
+  },
+  "urogenital-development#k8": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "114-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "114-2 Q34 考陰道由副中腎管與竇陰道球泡形成（題面已給）；陰道板為延伸細節"
+  },
+  "urogenital-development#k9": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "105-1-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "105-1 Q31 給分D集尿小管；空格『鮑氏囊、近曲小管』為後腎中胚層衍生物的部分列舉（尚有亨利氏環、遠曲小管），答案不唯一"
+  },
+  "special-sense-integument-development#k5": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "115-1 Q35 給分D豎毛肌非外胚層（題面已給）；『真皮間葉組織』為延伸，且『來自中胚層』使答案易猜"
+  },
+  "special-sense-integument-development#k6": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "108-2-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "108-2 Q36（否定題）給分B為中央動靜脈；未給分選項C『視網膜色素上皮源自眼杯外層』為正確敘述，與卡一致"
+  },
+  "special-sense-integument-development#k7": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "110-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "110-1 Q36 給分C髓鞘僅至視神經盤；『視柄』出自錯誤選項D的詳解，屬延伸"
+  }
+ },
+ "handoutIssues": [
+  {
+   "anchorId": "胚胎學::respiratory-development",
+   "cardId": "respiratory-development#k6",
+   "sentence": "呼吸原基（respiratory primordium，即喉氣管憩室）起源於第四咽囊之後、前腸尾端腹側，向下發育成喉、氣管、支氣管與肺。107",
+   "problem": "『前腸尾端腹側』易被誤讀為整條前腸的尾端（近十二指腸）；喉氣管憩室實際位於原始咽尾側、第四咽囊正下方的前腸腹側壁",
+   "suggestedFix": "改為『起源於第四咽囊尾側的前腸（原始咽尾端）腹側壁』",
+   "examRef": "107-1-醫學一-胚胎學-Q32"
+  },
+  {
+   "anchorId": "胚胎學::special-sense-integument-development",
+   "cardId": "special-sense-integument-development#k7",
+   "sentence": "視神經細胞（ganglion cells）源自神經外胚層（並非大腦皮質，皮質衍生的是嗅球）；…",
+   "problem": "『皮質衍生的是嗅球』不精確：嗅球是端腦的外突，並非由大腦皮質衍生",
+   "suggestedFix": "改為『（並非大腦皮質；嗅球才是端腦的外突）』或刪除括號後半",
+   "examRef": "110-1-醫學一-胚胎學-Q36"
+  }
+ ]
+}

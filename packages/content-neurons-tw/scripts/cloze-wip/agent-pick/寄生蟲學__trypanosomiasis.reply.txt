@@ -1,0 +1,22 @@
+[
+ {
+  "n": 1,
+  "span": "單側眼瞼水腫",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "非洲昏睡病",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "錐鼻蟲",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "span": "procyclin",
+  "why": "key exam fact"
+ }
+]

@@ -1,0 +1,230 @@
+{
+ "group": "r1-寄生蟲學-2",
+ "round": "r1",
+ "contradictions": [],
+ "cards": [
+  {
+   "cardId": "babesiosis#k4",
+   "subjectId": "寄生蟲學",
+   "heading": "巴貝氏原蟲病（Babesiosis）",
+   "tier": "穩定考點",
+   "kind": "bold",
+   "face": "西尼羅病毒症由【＿＿＿】（【…】）蚊子叮咬傳播，並非蜱媒介人畜共通感染症，容易與巴貝氏原蟲病、萊姆病、落磯山斑疹熱等真正的蜱媒疾病放在一起誤判。107",
+   "answer": "家蚊屬",
+   "gloss": [
+    "Culex spp."
+   ],
+   "sentence": "西尼羅病毒症由家蚊屬（Culex spp.）蚊子叮咬傳播，並非蜱媒介人畜共通感染症，容易與巴貝氏原蟲病、萊姆病、落磯山斑疹熱等真正的蜱媒疾病放在一起誤判。107",
+   "why": "西尼羅病毒的病媒屬",
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q34",
+    "107-2-醫學二-寄生蟲學-Q35"
+   ]
+  },
+  {
+   "cardId": "toxoplasmosis#k1",
+   "subjectId": "寄生蟲學",
+   "heading": "弓蟲症（Toxoplasmosis）",
+   "tier": "low-yield",
+   "kind": "bold",
+   "face": "免疫功能正常者感染多無明顯症狀（約85%），或症狀輕微類似感冒；愛滋病等免疫妥協患者可能因潛伏組織囊體重新活化而導致【＿＿＿】與心肌炎，急性感染期並不會特別造成大量腹水。105/112",
+   "answer": "弓蟲性腦炎",
+   "gloss": [],
+   "sentence": "免疫功能正常者感染多無明顯症狀（約85%），或症狀輕微類似感冒；愛滋病等免疫妥協患者可能因潛伏組織囊體重新活化而導致弓蟲性腦炎與心肌炎，急性感染期並不會特別造成大量腹水。105/112",
+   "why": "key exam fact",
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q80",
+    "112-2-醫學二-寄生蟲學-Q32"
+   ]
+  },
+  {
+   "cardId": "toxoplasmosis#k2",
+   "subjectId": "寄生蟲學",
+   "heading": "弓蟲症（Toxoplasmosis）",
+   "tier": "low-yield",
+   "kind": "llm",
+   "face": "貓是弓蟲【＿＿＿】（【…】），人類與其他溫血動物僅為中間宿主（只有腸道外期）；此宿主角色常被考題刻意顛倒。105",
+   "answer": "唯一的終宿主",
+   "gloss": [
+    "腸道內期進行有性＋無性生殖產生卵囊oocyst，也有腸道外期"
+   ],
+   "sentence": "貓是弓蟲唯一的終宿主（腸道內期進行有性＋無性生殖產生卵囊oocyst，也有腸道外期），人類與其他溫血動物僅為中間宿主（只有腸道外期）；此宿主角色常被考題刻意顛倒。105",
+   "why": "key exam fact",
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q80"
+   ]
+  },
+  {
+   "cardId": "louse-flea-mechanical-vectors#k1",
+   "subjectId": "寄生蟲學",
+   "heading": "蝨與蚤：機械性傳播與病媒疾病（Lice, Fleas, and Mechanical Transmission）",
+   "tier": "穩定考點",
+   "kind": "bold",
+   "face": "蠅蛆症（myiasis）是機械性寄生的特例——幼蟲直接鑽入或寄生在組織內：人膚蠅（Dermatobia hominis）廣泛分布於【＿＿＿】（【…】），產卵於吸血性蚊蠅腹部，藉由其叮咬把孵化的幼蟲帶入宿主皮膚傷口；院內蠅蛆症（nosocomial myiasis）好發於長期臥床且有開放性傷口的病患；耳部蠅蛆症常見蟲體爬動感、雜音與惡臭分泌物。108/113",
+   "answer": "拉丁美洲熱帶地區",
+   "gloss": [
+    "並非亞洲"
+   ],
+   "sentence": "蠅蛆症（myiasis）是機械性寄生的特例——幼蟲直接鑽入或寄生在組織內：人膚蠅（Dermatobia hominis）廣泛分布於拉丁美洲熱帶地區（並非亞洲），產卵於吸血性蚊蠅腹部，藉由其叮咬把孵化的幼蟲帶入宿主皮膚傷口；院內蠅蛆症（nosocomial myiasis）好發於長期臥床且有開放性傷口的病患；耳部蠅蛆症常見蟲體爬動感、雜音與惡臭分泌物。108/113",
+   "why": "人膚蠅分布地區",
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q35",
+    "113-1-醫學二-寄生蟲學-Q35",
+    "113-2-醫學二-寄生蟲學-Q35"
+   ]
+  },
+  {
+   "cardId": "louse-flea-mechanical-vectors#k2",
+   "subjectId": "寄生蟲學",
+   "heading": "蝨與蚤：機械性傳播與病媒疾病（Lice, Fleas, and Mechanical Transmission）",
+   "tier": "穩定考點",
+   "kind": "bold",
+   "face": "節肢動物的【＿＿＿】（【…】）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡——與「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」都是同一題常見的錯誤誘答敘述。114",
+   "answer": "馬氏管",
+   "gloss": [
+    "Malpighian tubules"
+   ],
+   "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡——與「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」都是同一題常見的錯誤誘答敘述。114",
+   "why": "節肢動物主要排泄器官，考題考過",
+   "linkedQuestionIds": [
+    "114-1-醫學二-寄生蟲學-Q35"
+   ]
+  },
+  {
+   "cardId": "louse-flea-mechanical-vectors#k3",
+   "subjectId": "寄生蟲學",
+   "heading": "蝨與蚤：機械性傳播與病媒疾病（Lice, Fleas, and Mechanical Transmission）",
+   "tier": "穩定考點",
+   "kind": "bold",
+   "face": "機械性傳播：家蠅（house fly）藉由體毛、蠟質、黏液單純攜帶病原體、不在體內繁殖（傳播痢疾、傷寒、霍亂等）；相對地，蚊子、跳蚤、體蝨都屬於【＿＿＿】，病原體必須先在節肢動物體內生長繁殖才能傳播。106/114",
+   "answer": "生物性傳播",
+   "gloss": [],
+   "sentence": "機械性傳播：家蠅（house fly）藉由體毛、蠟質、黏液單純攜帶病原體、不在體內繁殖（傳播痢疾、傷寒、霍亂等）；相對地，蚊子、跳蚤、體蝨都屬於生物性傳播，病原體必須先在節肢動物體內生長繁殖才能傳播。106/114",
+   "why": "蚊、蚤、蝨傳播類型",
+   "linkedQuestionIds": [
+    "106-2-醫學二-寄生蟲學-Q35",
+    "114-1-醫學二-寄生蟲學-Q35"
+   ]
+  },
+  {
+   "cardId": "tick-borne-disease#k1",
+   "subjectId": "寄生蟲學",
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "tier": "穩定考點",
+   "kind": "bold",
+   "face": "巴貝氏原蟲症（babesiosis）：Babesia 寄生紅血球內、無性生殖形成類似瘧原蟲的環狀體，典型為4個merozoite排成【＿＿＿】（【…】）；多數患者呈現無症狀之低度寄生蟲血症（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+   "answer": "馬爾他十字",
+   "gloss": [
+    "Maltese cross"
+   ],
+   "sentence": "巴貝氏原蟲症（babesiosis）：Babesia 寄生紅血球內、無性生殖形成類似瘧原蟲的環狀體，典型為4個merozoite排成馬爾他十字（Maltese cross）；多數患者呈現無症狀之低度寄生蟲血症（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+   "why": "key exam fact",
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q82",
+    "105-2-醫學一-寄生蟲學-Q79",
+    "105-2-醫學一-寄生蟲學-Q81",
+    "108-2-醫學二-寄生蟲學-Q35"
+   ]
+  },
+  {
+   "cardId": "tick-borne-disease#k2",
+   "subjectId": "寄生蟲學",
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "落磯山斑疹熱（Rocky Mountain spotted fever）由【＿＿＿】（【…】）傳播Rickettsia rickettsii；西尼羅病毒症（West Nile）是家蚊（Culex）叮咬傳播，不屬於蜱媒介人畜共通感染症。107",
+   "answer": "革蜱屬",
+   "gloss": [
+    "Dermacentor spp."
+   ],
+   "sentence": "落磯山斑疹熱（Rocky Mountain spotted fever）由革蜱屬（Dermacentor spp.）傳播Rickettsia rickettsii；西尼羅病毒症（West Nile）是家蚊（Culex）叮咬傳播，不屬於蜱媒介人畜共通感染症。107",
+   "why": "key exam fact",
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q34"
+   ]
+  },
+  {
+   "cardId": "tick-borne-disease#k3",
+   "subjectId": "寄生蟲學",
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "tier": "穩定考點",
+   "kind": "bold",
+   "face": "蜱、蟎屬【＿＿＿】（【…】），蝨、蚤、蠅屬昆蟲綱（6隻腳）——旅遊病史題描述「被八隻腳蟲體叮咬」時，優先鎖定蜱或蟎媒介疾病作答方向。105",
+   "answer": "蛛形綱",
+   "gloss": [
+    "8隻腳"
+   ],
+   "sentence": "蜱、蟎屬蛛形綱（8隻腳），蝨、蚤、蠅屬昆蟲綱（6隻腳）——旅遊病史題描述「被八隻腳蟲體叮咬」時，優先鎖定蜱或蟎媒介疾病作答方向。105",
+   "why": "key exam fact",
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q82",
+    "105-2-醫學一-寄生蟲學-Q79",
+    "105-2-醫學一-寄生蟲學-Q81"
+   ]
+  },
+  {
+   "cardId": "tick-borne-disease#k4",
+   "subjectId": "寄生蟲學",
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "萊姆病高度流行區常見與【＿＿＿】共同感染（co-infection），兩者共用同一種硬蜱病媒。104",
+   "answer": "巴貝氏原蟲症",
+   "gloss": [],
+   "sentence": "萊姆病高度流行區常見與巴貝氏原蟲症共同感染（co-infection），兩者共用同一種硬蜱病媒。104",
+   "why": "key exam fact",
+   "linkedQuestionIds": [
+    "104-2-醫學一-寄生蟲學-Q82"
+   ]
+  },
+  {
+   "cardId": "scrub-typhus-chigger-mite#k1",
+   "subjectId": "寄生蟲學",
+   "heading": "恙蟲病與恙蟎媒介（Scrub Typhus and Chigger Mite）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "傳播恙蟲病的只有恙蟎的【＿＿＿】（【…】），稚（若）蟎、雌蟎、雄蟎皆不叮咬人類傳病——這是常見誘答。107/111",
+   "answer": "幼蟲期",
+   "gloss": [
+    "larva"
+   ],
+   "sentence": "傳播恙蟲病的只有恙蟎的幼蟲期（larva），稚（若）蟎、雌蟎、雄蟎皆不叮咬人類傳病——這是常見誘答。107/111",
+   "why": "唯一傳病的恙蟎發育期，考題考過",
+   "linkedQuestionIds": [
+    "107-2-醫學二-寄生蟲學-Q34",
+    "111-2-醫學二-寄生蟲學-Q35"
+   ]
+  },
+  {
+   "cardId": "scrub-typhus-chigger-mite#k2",
+   "subjectId": "寄生蟲學",
+   "heading": "恙蟲病與恙蟎媒介（Scrub Typhus and Chigger Mite）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "恙蟲病分布侷限於亞洲地區（西起巴基斯坦、東至日本本州北端、南至東南亞與澳洲東北部），並非世界性分布；未經及時治療死亡率約1–60%，【＿＿＿】為主要儲菌宿主（reservoir host）。104",
+   "answer": "鼠類",
+   "gloss": [],
+   "sentence": "恙蟲病分布侷限於亞洲地區（西起巴基斯坦、東至日本本州北端、南至東南亞與澳洲東北部），並非世界性分布；未經及時治療死亡率約1–60%，鼠類為主要儲菌宿主（reservoir host）。104",
+   "why": "主要儲菌宿主，考題考過",
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q82"
+   ]
+  },
+  {
+   "cardId": "dust-mite-allergy#k1",
+   "subjectId": "寄生蟲學",
+   "heading": "塵蟎過敏原與氣喘（House Dust Mite Allergen）",
+   "tier": "low-yield",
+   "kind": "bold",
+   "face": "塵蟎屬（Dermatophagoides spp.）是兒童氣喘與過敏性鼻炎最常見的致敏原（【＿＿＿】，IgE媒介），並非疥蟎（疥瘡）、毛囊蟎、恙蟎（恙蟲病）、跳蚤或狗蜱。105/112",
+   "answer": "Der p1",
+   "gloss": [],
+   "sentence": "塵蟎屬（Dermatophagoides spp.）是兒童氣喘與過敏性鼻炎最常見的致敏原（Der p1，IgE媒介），並非疥蟎（疥瘡）、毛囊蟎、恙蟎（恙蟲病）、跳蚤或狗蜱。105/112",
+   "why": "塵蟎主要過敏原",
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q81",
+    "112-2-醫學二-寄生蟲學-Q34"
+   ]
+  }
+ ]
+}

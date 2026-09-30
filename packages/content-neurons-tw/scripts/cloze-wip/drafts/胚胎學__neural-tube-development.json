@@ -1,0 +1,189 @@
+{
+ "anchorId": "胚胎學::neural-tube-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "3b9f09f29002e66f",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "112-1-醫學一-胚胎學-Q32",
+     "stem": "下列關於頭側神經孔（rostral neuropore）與尾側神經孔（caudal neuropore）關閉時間的比較，何者正確？",
+     "trueOption": "頭側神經孔提早2~3 天關閉"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "神經管由神經板摺疊癒合而成，癒合最先發生在頸部體節（約第五體節）高度，再同時朝頭端與尾端方向進行；頭側神經孔（rostral neuropore）約於第 25 天關閉，尾側神經孔（caudal neuropore）約於第 28 天關閉，頭側比尾側提早 2 至 3 天閉合。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "頭側神經孔提早2~3 天關閉"
+   ],
+   "spans": [
+    {
+     "span": "頭側神經孔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "25 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "28 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "2 至 3 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "尾側神經孔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "115-1-醫學一-胚胎學-Q36",
+     "stem": "下列構造與其發育來源的位置配對，何者錯誤？",
+     "trueOption": "乳狀體（mammillary body）：間腦（diencephalon）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "次級腦泡與成人腦區的對應：端腦→大腦；間腦→視丘、下視丘、乳狀體（mammillary body）、視囊（衍生視神經）、神經垂體（neurohypophysis，腦下垂體後葉）；中腦→頂蓋（tectum）、大腦導水管（cerebral aqueduct）；後腦→橋腦與小腦；髓腦→延腦。104/106/113/114/115",
+   "citeText": [
+    "104/106/113/114/115"
+   ],
+   "marks": [
+    "104",
+    "106",
+    "113",
+    "114",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q32",
+    "106-2-醫學一-胚胎學-Q36",
+    "113-1-醫學一-胚胎學-Q36",
+    "114-2-醫學一-胚胎學-Q32",
+    "114-2-醫學一-胚胎學-Q36",
+    "115-1-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "視神經（optic nerve）",
+    "橋腦（pons）－後腦（rhombencephalon）",
+    "視丘（thalamus）－前腦（prosencephalon）",
+    "頂蓋（tectum）－中腦（mesencephalon）",
+    "中腦（mesencephalon）",
+    "黑色素細胞（melanocyte）",
+    "交感節後神經元（postganglionic sympathetic neuron）",
+    "腎上腺髓質之嗜鉻細胞（chromaffin cell of adrenal medulla）",
+    "間腦（diencephalon）",
+    "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+    "四疊體（tectum）：中腦（mesencephalon）",
+    "乳狀體（mammillary body）：間腦（diencephalon）"
+   ],
+   "spans": [],
+   "score": 3
+  },
+  {
+   "tested": [
+    {
+     "id": "106-2-醫學一-胚胎學-Q36",
+     "stem": "有關成體腦區與胚胎時期腦泡（brain vesicle）發育起源之關聯，何者錯誤？",
+     "trueOption": "橋腦（pons）－後腦（rhombencephalon）"
+    },
+    {
+     "id": "115-1-醫學一-胚胎學-Q36",
+     "stem": "下列構造與其發育來源的位置配對，何者錯誤？",
+     "trueOption": "四疊體（tectum）：中腦（mesencephalon）"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "神經管頭端先膨大成三個原始腦泡：前腦（prosencephalon）、中腦（mesencephalon）、菱腦（rhombencephalon），再進一步分化成五個次級腦泡：端腦（telencephalon）與間腦（diencephalon）（皆源自前腦）、中腦維持不變、後腦（metencephalon）與髓腦（myelencephalon）（皆源自菱腦）。106/115",
+   "citeText": [
+    "106/115"
+   ],
+   "marks": [
+    "106",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學一-胚胎學-Q36",
+    "115-1-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "橋腦（pons）－後腦（rhombencephalon）",
+    "視丘（thalamus）－前腦（prosencephalon）",
+    "頂蓋（tectum）－中腦（mesencephalon）",
+    "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+    "四疊體（tectum）：中腦（mesencephalon）",
+    "乳狀體（mammillary body）：間腦（diencephalon）"
+   ],
+   "spans": [],
+   "score": 2
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "arithmetic"
+  },
+  {
+   "n": 2,
+   "span": "乳狀體",
+   "why": "leak-audit drop (not-unique): Diencephalon derivatives include epithalamus, subthalamus, pineal, etc.; many valid answers.",
+   "skip": true
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "no matching span"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"skip\": true, \"why\": \"arithmetic\"}, {\"n\": 2, \"span\": \"乳狀體\", \"why\": \"tested point\"}, {\"n\": 3, \"skip\": true, \"why\": \"no matching span\"}]"
+}

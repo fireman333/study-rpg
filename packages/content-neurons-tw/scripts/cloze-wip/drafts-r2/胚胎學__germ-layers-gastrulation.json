@@ -1,0 +1,462 @@
+{
+ "anchorId": "胚胎學::germ-layers-gastrulation",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "7fa0621f6ad5a4cd",
+ "candidates": [
+  {
+   "bulletIndex": 2,
+   "sentence": "原腸胚形成（gastrulation）：原條處的上胚層細胞向下內陷，進入上、下胚層之間形成中胚層（mesoderm）；上胚層同時向下取代部分下胚層，形成內胚層（endoderm）；具備三個胚層的胚胎即稱為原腸胚（gastrula），約在第 15–16 天形成。111/113",
+   "citeText": [
+    "111/113"
+   ],
+   "marks": [
+    "111",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學一-胚胎學-Q32",
+    "113-1-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "體節（somite）",
+    "外側中胚層（lateral mesoderm）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）"
+   ],
+   "spans": [
+    {
+     "span": "中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "15–16 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "內胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-distractor"
+     ],
+     "score": 2
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "三胚層各自的主要衍生物詳見下方對照表；皮脂腺、汗腺、頭髮都屬於體表外胚層衍生物，但豎毛肌（arrector pili muscle，附著於毛囊的平滑肌）是由真皮層的間葉組織分化而成，屬於中胚層衍生物，是這個題型最容易搞混的一組。113/115",
+   "citeText": [
+    "113/115"
+   ],
+   "marks": [
+    "113",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q32",
+    "115-1-醫學一-胚胎學-Q35",
+    "115-2-醫學一-胚胎學-Q32",
+    "115-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "外側中胚層（lateral mesoderm）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）",
+    "豎毛肌（arrector pili muscle）",
+    "羊膜腔（amniotic cavity）",
+    "次級臍囊（secondary umbilical vesicle）",
+    "胚外中胚層（extraembryonic mesoderm）",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "體表外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 7,
+   "sentence": "胚內體腔（intraembryonic coelom）最早出現於外側中胚層（lateral mesoderm）的壁層（parietal layer）；軸旁中胚層衍生體節、中間中胚層衍生泌尿生殖上皮、內胚層衍生消化呼吸道上皮，都與胚內體腔的形成無關。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "外側中胚層（lateral mesoderm）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）"
+   ],
+   "spans": [
+    {
+     "span": "外側中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 9,
+   "sentence": "第二週結束（約第 14 天）前已出現的構造依序是：羊膜腔（amniotic cavity，第 8 天由上胚層內的裂隙擴展而成）→ 胚外中胚層（extraembryonic mesoderm，第 11–12 天）→ 次級臍囊／次級卵黃囊（secondary umbilical vesicle，第 13 天由下胚層細胞取代初級卵黃囊）；胚內中胚層（intraembryonic mesoderm）要到第三週原腸胚形成、上胚層細胞經原條內移時才出現，因此是「第二週結束前不會出現」這類題型的標準答案。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學一-胚胎學-Q32",
+    "115-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "羊膜腔（amniotic cavity）",
+    "次級臍囊（secondary umbilical vesicle）",
+    "胚外中胚層（extraembryonic mesoderm）",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "羊膜腔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "胚外中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "次級臍囊／次級卵黃囊",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "14 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "8 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "11–12 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "13 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "原條（primitive streak）約在第 13–14 天由胚盤尾端的上胚層細胞（epiblast）增殖形成，功能是建立胚體兩側對稱，也是原腸胚形成（gastrulation）、三胚層分化的起點。106/111/112",
+   "citeText": [
+    "106/111/112"
+   ],
+   "marks": [
+    "106",
+    "111",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學一-胚胎學-Q32",
+    "111-1-醫學一-胚胎學-Q32",
+    "112-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "原條（primitive streak）",
+    "體節（somite）",
+    "咽弓（pharyngeal arch）"
+   ],
+   "spans": [
+    {
+     "span": "13–14 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "軸旁中胚層（paraxial mesoderm）約在第 20–21 天分化形成體節（somite），日後衍生出骨骼、骨骼肌與真皮結締組織；脊索、體腔、原條都不是軸旁中胚層的衍生物。106/111",
+   "citeText": [
+    "106/111"
+   ],
+   "marks": [
+    "106",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學一-胚胎學-Q32",
+    "111-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "原條（primitive streak）",
+    "體節（somite）"
+   ],
+   "spans": [
+    {
+     "span": "體節",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "20–21 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "脊索形成後，其正上方的外胚層分化為神經外胚層：先形成扁平的神經板（neural plate），中央凹陷成神經溝（neural groove，約第 18 天），兩側隆起的神經摺（neural fold）向中線靠攏融合，最終形成封閉管狀的神經管（neural tube），日後發育為中樞神經系統；周邊神經系統則是由神經嵴（neural crest）發育而來，不是神經管。106/113",
+   "citeText": [
+    "106/113"
+   ],
+   "marks": [
+    "106",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學一-胚胎學-Q32",
+    "113-1-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "原條（primitive streak）",
+    "外側中胚層（lateral mesoderm）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）"
+   ],
+   "spans": [
+    {
+     "span": "18 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "第三週（約第 15–21 天）胚胎已具備原腸胚、脊索、神經溝等三胚層相關構造，但咽弓（pharyngeal arch）要到第四週（約第 21–28 天）才會出現——第一咽弓約第 21 天形成、第二三咽弓約第 22 天、第四六咽弓約第 28 天，是「第三週結束時尚未出現的構造」這類題型的標準答案。112/113",
+   "citeText": [
+    "112/113"
+   ],
+   "marks": [
+    "112",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "112-2-醫學一-胚胎學-Q32",
+    "113-1-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "咽弓（pharyngeal arch）",
+    "外側中胚層（lateral mesoderm）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）"
+   ],
+   "spans": [
+    {
+     "span": "15–21 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "21–28 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "22 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "原條",
+   "why": "key fact"
+  },
+  {
+   "n": 2,
+   "span": "真皮層的間葉組織",
+   "why": "key fact"
+  },
+  {
+   "n": 3,
+   "span": "泌尿生殖上皮",
+   "why": "key fact"
+  },
+  {
+   "n": 4,
+   "span": "初級卵黃囊",
+   "why": "key fact"
+  },
+  {
+   "n": 5,
+   "span": "胚體兩側對稱",
+   "why": "key fact"
+  },
+  {
+   "n": 6,
+   "span": "骨骼、骨骼肌與真皮結締組織",
+   "why": "key fact"
+  },
+  {
+   "n": 7,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 8,
+   "skip": true,
+   "why": "leak or ambiguous"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"原條\", \"why\": \"key fact\"}, {\"n\": 2, \"span\": \"真皮層的間葉組織\", \"why\": \"key fact\"}, {\"n\": 3, \"span\": \"泌尿生殖上皮\", \"why\": \"key fact\"}, {\"n\": 4, \"span\": \"初級卵黃囊\", \"why\": \"key fact\"}, {\"n\": 5, \"span\": \"胚體兩側對稱\", \"why\": \"key fact\"}, {\"n\": 6, \"span\": \"骨骼、骨骼肌與真皮結締組織\", \"why\": \"key fact\"}, {\"n\": 7, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 8, \"skip\": true, \"why\": \"leak or ambiguous\"}]"
+}

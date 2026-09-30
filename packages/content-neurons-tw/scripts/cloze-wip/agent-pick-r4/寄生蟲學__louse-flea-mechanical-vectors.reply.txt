@@ -1,0 +1,3 @@
+[{"n":1,"span":"吸血性蚊蠅腹部","hide":["藉由其叮咬"],"why":"asked egg-laying site"},
+{"n":2,"span":"馬氏管","why":"asked excretory organ"},
+{"n":3,"span":"家蠅","why":"asked mechanical vector"}]

@@ -1,0 +1,251 @@
+{
+ "anchorId": "寄生蟲學::liver-and-intestinal-flukes",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "81949045ec898506",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q78",
+     "stem": "下列有關中華肝吸蟲（Clonorchis sinensis）感染人體的敘述，何者錯誤？",
+     "trueOption": "其囊幼（metacercaria）具感染人體之能力"
+    },
+    {
+     "id": "114-2-醫學二-寄生蟲學-Q32",
+     "stem": "李同學於暑假期間赴香港旅遊，期間遍嚐各種魚類美食，返國後因腹部嚴重不適就醫，經醫師診斷疑似膽囊 炎住院，隨後經糞便鏡檢而確認診斷，據此病史最可能感染下列何種寄生蟲？",
+     "trueOption": "中華肝吸蟲（Clonorchis sinensis）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "中華肝吸蟲（Clonorchis sinensis）經生食帶囊幼（metacercaria）的淡水魚肉感染，寄生於肝內膽管，慢性重度感染可造成膽管慢性刺激、上皮增生、腺瘤樣病變，進而發展為膽管癌；台灣、中國大陸、泰國、越南皆為流行地區，臨床可見腹痛、黃疸、膽管阻塞。105-1/106-1/114-2",
+   "citeText": [
+    "105-1/106-1/114-2"
+   ],
+   "marks": [
+    "105-1",
+    "106-1",
+    "114-2"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q77",
+    "106-1-醫學一-寄生蟲學-Q78",
+    "114-2-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "槍狀肝吸蟲（Dicrocoelium dendriticum）",
+    "因食入帶蟲淡水魚肉而感染",
+    "其囊幼（metacercaria）具感染人體之能力",
+    "在慢性重度感染者可能引發膽管癌",
+    "中華肝吸蟲（Clonorchis sinensis）"
+   ],
+   "spans": [
+    {
+     "span": "中華肝吸蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "膽管癌",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    }
+   ],
+   "score": 9
+  },
+  {
+   "tested": [
+    {
+     "id": "105-1-醫學一-寄生蟲學-Q77",
+     "stem": "朱先生近年來因業務關係而經常前往中國大陸、泰國及越南等地區，其本人嗜食生魚片及魚 生粥，日前因腹部不適及出現黃疸病症（jaundice）而就醫，經醫院檢查發現有膽管阻塞， 並經手術取出數條蟲體。依據上述結果，朱先生最不可能感染何種寄生蟲？",
+     "trueOption": "槍狀肝吸蟲（Dicrocoelium dendriticum）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "槍狀肝吸蟲（Dicrocoelium dendriticum）終宿主同樣是牛、羊，但第一中間宿主為陸生螺、第二中間宿主是螞蟻（非魚、非水生植物），因此與生魚片飲食史、halzoun 症狀都無關，是常見的鑑別誘答選項。105-1/112-1/113-1",
+   "citeText": [
+    "105-1/112-1/113-1"
+   ],
+   "marks": [
+    "105-1",
+    "112-1",
+    "113-1"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q77",
+    "112-1-醫學二-寄生蟲學-Q30",
+    "113-1-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "槍狀肝吸蟲（Dicrocoelium dendriticum）",
+    "牛羊肝吸蟲（Fasciola hepatica）",
+    "①②"
+   ],
+   "spans": [
+    {
+     "span": "螞蟻",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "contrast"
+     ],
+     "score": 8
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "115-2-醫學二-寄生蟲學-Q32",
+     "stem": "李小姐於赴日本旅遊期間曾多次生食鮭魚，返國後因腹瀉及腹部疼痛而就醫，臨床檢驗呈現嗜伊紅性白血球 增多症（eosinophilia），但無貧血病徵，經寄生蟲學專家進行糞便鏡檢而確診，據此病史最可能感染下列 何種寄生蟲？",
+     "trueOption": "橫川氏吸蟲（Metagonimus yokogawai）"
+    }
+   ],
+   "bulletIndex": 7,
+   "sentence": "橫川吸蟲（Metagonimus yokogawai）同為小型腸道吸蟲，經生食淡水魚感染——第二中間宿主是香魚與鮭魚，所以「赴日生食鮭魚後腹瀉腹痛、嗜伊紅性白血球增多但沒有貧血、靠糞便鏡檢確診」是它的標準題型；寄生小腸引起消化不良、腹瀉，但不具第三吸盤，可與異形吸蟲（第二中間宿主為烏魚等半鹹水魚）區分。同題的另兩個誘答走別的器官：中華肝吸蟲（鯉科淡水魚→膽管）、衛氏肺吸蟲（溪蟹蝲蛄→肺）。棘口吸蟲（Echinostoma spp.）則單純寄生小腸造成腸胃道症狀，不會造成腦部異位病變。104-2/115-1/108-2/115-2",
+   "citeText": [
+    "104-2/115-1/108-2/115-2"
+   ],
+   "marks": [
+    "104-2",
+    "115-1",
+    "108-2",
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-寄生蟲學-Q77",
+    "108-2-醫學二-公共衛生學-Q31",
+    "115-2-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "異形吸蟲（Heterophyes heterophyes）",
+    "日本血吸蟲（Schistosoma japonicum）",
+    "豬肉絛蟲（Taenia solium）",
+    "單胞絛蟲（Echinococcus granulosus）",
+    "橫川氏吸蟲（Metagonimus yokogawai）"
+   ],
+   "spans": [
+    {
+     "span": "第二中間宿主是香魚與鮭魚",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×4"
+     ],
+     "score": 6
+    },
+    {
+     "span": "沒有貧血",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×4"
+     ],
+     "score": 6
+    },
+    {
+     "span": "不具第三吸盤",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×4"
+     ],
+     "score": 6
+    },
+    {
+     "span": "是它的標準題型",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×4"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 6
+  },
+  {
+   "tested": [
+    {
+     "id": "104-2-醫學一-寄生蟲學-Q77",
+     "stem": "有一間歇性腹瀉（chronic intermittent diarrhea）的病患，在其糞便中發現大小約2.3 mm的 蟲體，除口、腹吸盤特徵外，在生殖孔附近有第三吸盤，該病患最可能感染下列何種寄生 蟲？",
+     "trueOption": "異形吸蟲（Heterophyes heterophyes）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "異形吸蟲（Heterophyes heterophyes）是人體內最小的吸蟲之一，經生食淡水魚感染，特徵是除口、腹吸盤外，在生殖孔附近另有第三吸盤（吸蟲中唯一）；成蟲鑽入腸黏膜產卵，蟲卵細小可進入微血管，隨血流、淋巴移行至心臟、腦部等處造成異位病變。104-2/110-1",
+   "citeText": [
+    "104-2/110-1"
+   ],
+   "marks": [
+    "104-2",
+    "110-1"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-寄生蟲學-Q77",
+    "110-1-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "異形吸蟲（Heterophyes heterophyes）",
+    "薑片蟲（Fasciolopsis buski）"
+   ],
+   "spans": [
+    {
+     "span": "第三吸盤",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "中華肝吸蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 2,
+   "span": "槍狀肝吸蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 3,
+   "span": "橫川吸蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 4,
+   "span": "異形吸蟲",
+   "why": "asked organism"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"中華肝吸蟲\",\"why\":\"asked organism\"},\n{\"n\":2,\"span\":\"槍狀肝吸蟲\",\"why\":\"asked organism\"},\n{\"n\":3,\"span\":\"橫川吸蟲\",\"why\":\"asked organism\"},\n{\"n\":4,\"span\":\"異形吸蟲\",\"why\":\"asked organism\"}]\n"
+}

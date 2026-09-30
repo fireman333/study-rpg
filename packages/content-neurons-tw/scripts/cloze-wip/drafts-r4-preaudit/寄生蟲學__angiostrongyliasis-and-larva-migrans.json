@@ -1,0 +1,346 @@
+{
+ "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "91a59afef0851252",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "107-1-醫學二-寄生蟲學-Q30",
+     "stem": "罹患內臟幼蟲移行症（visceral larva migrans）的病患通常有下列特徵，何者除外？",
+     "trueOption": "犬蛔蟲（Toxocara canis）為主要病原體"
+    },
+    {
+     "id": "114-2-醫學二-寄生蟲學-Q30",
+     "stem": "一位五歲的小朋友血液中嗜伊紅性白血球（eosinophil）異常增加，同時檢查出肝臟腫大，他最有可能感染 下列何種寄生蟲？",
+     "trueOption": "犬蛔蟲（Toxocara canis）"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "犬蛔蟲／貓蛔蟲（Toxocara canis/cati）終宿主為狗／貓，人為偶然宿主（幼蟲不會長成成蟲）；食入含胚卵的糞便污染物後，幼蟲在體內到處遊走造成內臟幼蟲移行症（VLM），最容易侵犯肝臟（肝腫大），也常侵犯肺（咳嗽）、眼睛（視網膜剝離，即眼部幼蟲移行症）、腦部；臨床特徵為高嗜伊紅性白血球症、高球蛋白血症、嗜伊紅性肉芽腫；好發於幼童（非成年人），因幼兒接觸受污染土壤／犬貓糞便機會較高。107/114",
+   "citeText": [
+    "107/114"
+   ],
+   "marks": [
+    "107",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q30",
+    "107-2-醫學二-寄生蟲學-Q29",
+    "114-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "犬蛔蟲（Toxocara canis）為主要病原體",
+    "常見肝腫大",
+    "常見嗜酸性白血球增多",
+    "廣東住血線蟲（Angiostrongylus cantonensis）",
+    "犬蛔蟲（Toxocara canis）"
+   ],
+   "spans": [
+    {
+     "span": "好發於幼童",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "contrast"
+     ],
+     "score": 7
+    },
+    {
+     "span": "犬蛔蟲／貓蛔蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "內臟幼蟲移行症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "肝臟",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學二-寄生蟲學-Q29",
+     "stem": "蘇先生因個人養身因素而食用醃漬蝸牛及生蝸牛多年，日前急診就醫因疑似腦炎或腦膜腦炎而住院，經脊髓 穿刺發現腦脊髓液（CSF）內有高數量白血球（1500/µL），並伴隨有嗜酸性白血球增多症 （eosinophilia）。依據上述結果，蘇先生最可能感染下列何種寄生蟲？",
+     "trueOption": "廣東住血線蟲（Angiostrongylus cantonensis）"
+    },
+    {
+     "id": "115-2-醫學二-寄生蟲學-Q30",
+     "stem": "下列何種寄生蟲曾在臺灣東部、南部造成地方性流行，可能侵犯患者眼睛導致病變？",
+     "trueOption": "廣東住血線蟲（Angiostrongylus cantonensis）"
+    }
+   ],
+   "bulletIndex": 1,
+   "sentence": "廣東住血線蟲幼蟲以第五期（L5）之姿侵犯腦脊髓，並非只侵犯腦脊髓（也可侵犯眼睛等其他部位），造成嗜伊紅性腦膜炎（腦膜腦炎）；確認診斷是在腦脊髓液中發現蟲體（L5）並伴隨嗜酸性白血球明顯增加；侵犯眼球時可見視力受損、角膜炎，甚至可在眼球內見到活蟲需手術移除（ocular angiostrongyliasis）。臺灣南部與東部曾因生食蝸牛等而有地方性流行，因此「臺灣本土流行＋眼部病變」的組合直接指向本蟲。107/109/114/115-2",
+   "citeText": [
+    "107/109/114/115-2"
+   ],
+   "marks": [
+    "107",
+    "109",
+    "114",
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q30",
+    "107-2-醫學二-寄生蟲學-Q29",
+    "109-1-醫學二-微生物暨免疫學-Q30",
+    "114-2-醫學二-寄生蟲學-Q30",
+    "115-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "犬蛔蟲（Toxocara canis）為主要病原體",
+    "常見肝腫大",
+    "常見嗜酸性白血球增多",
+    "廣東住血線蟲（Angiostrongylus cantonensis）",
+    "2項",
+    "犬蛔蟲（Toxocara canis）",
+    "廣東住血線蟲（Angiostrongylus cantonensis）"
+   ],
+   "spans": [
+    {
+     "span": "並非只侵犯腦脊髓",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×4"
+     ],
+     "score": 6
+    },
+    {
+     "span": "腦脊髓液中發現蟲體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×4"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "tested": [
+    {
+     "id": "112-2-醫學二-寄生蟲學-Q30",
+     "stem": "邱先生買了一塊農地種菜，經常弄得手腳滿是污泥，最近手臂發癢並出現延伸的紅斑，下列敘述那一項最不 適當？",
+     "trueOption": "可能是東方毛線蟲（Trichostrongylus orientalis）感染造成的"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "東方毛線蟲（Trichostrongylus orientalis）雖與腸道及皮膚接觸病史（如農務、接觸泥土）相關，但其絲狀幼蟲不易鑽入皮膚，主要經食入附有幼蟲的受污染蔬菜或飲水感染，並不會造成皮膚延伸性紅疹（不是 CLM 病原）——農地工作者皮膚搔癢合併延伸紅斑，較可能是鉤蟲爬行疹或搔抓後細菌感染，而非東方毛線蟲。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "可能是東方毛線蟲（Trichostrongylus orientalis）感染造成的"
+   ],
+   "spans": [
+    {
+     "span": "並不會造成皮膚延伸性紅疹",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "contrast"
+     ],
+     "score": 6
+    },
+    {
+     "span": "不易鑽入皮膚",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 6
+  },
+  {
+   "tested": [
+    {
+     "id": "108-2-醫學二-寄生蟲學-Q30",
+     "stem": "下列何種寄生蟲感染會導致皮膚幼蟲移行症（cutaneous larva migrans）？",
+     "trueOption": "犬鉤蟲（Ancylostoma caninum）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "皮膚幼蟲移行症（cutaneous larva migrans, CLM）的典型病原是犬鉤蟲（Ancylostoma caninum）與巴西鉤蟲（A. braziliense）：幼蟲鑽入人體皮膚後無法成熟，只能在皮下移行，造成蜿蜒延伸的爬行疹（creeping eruption）；糞小桿線蟲與棘顎口線蟲（Gnathostoma）也可造成 CLM。108",
+   "citeText": [
+    "108"
+   ],
+   "marks": [
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "犬鉤蟲（Ancylostoma caninum）"
+   ],
+   "spans": [
+    {
+     "span": "皮膚幼蟲移行症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "115-2-醫學二-寄生蟲學-Q30",
+     "stem": "下列何種寄生蟲曾在臺灣東部、南部造成地方性流行，可能侵犯患者眼睛導致病變？",
+     "trueOption": "廣東住血線蟲（Angiostrongylus cantonensis）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "「眼部病變」不是廣東住血線蟲的專利，鑑別要靠流行病學：旋毛蟲（Trichinella spiralis）吃未熟豬肉、幼蟲寄生肌肉，眼部表現是眼眶周圍水腫（periorbital edema）而非蟲體侵入眼球；犬鉤蟲（Ancylostoma caninum）造成皮膚幼蟲移行症或嗜酸性腸炎；蟠尾絲蟲（Onchocerca volvulus）由黑蠅傳播、造成河川盲（river blindness），流行於非洲與美洲熱帶，臺灣不是流行區。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "廣東住血線蟲（Angiostrongylus cantonensis）"
+   ],
+   "spans": [
+    {
+     "span": "眼眶周圍水腫",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "臺灣不是流行區",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "旋毛蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    },
+    {
+     "span": "犬鉤蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    },
+    {
+     "span": "蟠尾絲蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "犬蛔蟲／貓蛔蟲",
+   "why": "asked pathogen of VLM"
+  },
+  {
+   "n": 2,
+   "span": "廣東住血線蟲",
+   "why": "asked organism",
+   "hide": [
+    "本蟲"
+   ]
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "negated statement"
+  },
+  {
+   "n": 4,
+   "skip": true,
+   "why": "multiple valid pathogens listed"
+  },
+  {
+   "n": 5,
+   "skip": true,
+   "why": "negation/elimination"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"犬蛔蟲／貓蛔蟲\",\"why\":\"asked pathogen of VLM\"},\n{\"n\":2,\"span\":\"廣東住血線蟲\",\"hide\":[\"本蟲\"],\"why\":\"asked organism\"},\n{\"n\":3,\"skip\":true,\"why\":\"negated statement\"},\n{\"n\":4,\"skip\":true,\"why\":\"multiple valid pathogens listed\"},\n{\"n\":5,\"skip\":true,\"why\":\"negation/elimination\"}]\n"
+}

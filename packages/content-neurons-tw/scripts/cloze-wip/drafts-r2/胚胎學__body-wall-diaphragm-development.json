@@ -1,0 +1,264 @@
+{
+ "anchorId": "胚胎學::body-wall-diaphragm-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "8bb9b58d29c8db87",
+ "candidates": [
+  {
+   "bulletIndex": 2,
+   "sentence": "胸腹膜若未在第 6 週末與橫中隔、食道背側繫膜完全融合，會造成先天性橫膈疝（CDH）；最好發位置是橫膈後外側（posterolateral）的 Bochdalek 孔，佔 CDH 九成以上，且左側（約 80–85%）多於右側。104",
+   "citeText": [
+    "104"
+   ],
+   "marks": [
+    "104"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q29"
+   ],
+   "trueOptions": [
+    "後外側（posterolateral）"
+   ],
+   "spans": [
+    {
+     "span": "後外側",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "6 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "80–85%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "第 4 週時，橫中隔位於頸節（C3–C5）高度；隨胚體快速拉長，橫膈被動下降——第 6 週降到胸節高度、第 8 週落於L1 椎體高度（成人最終位置）；膈神經（C3、4、5）之所以支配遠在胸腹交界的橫膈，正是因為橫膈原本源自頸部體節。108/109",
+   "citeText": [
+    "108/109"
+   ],
+   "marks": [
+    "108",
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學一-胚胎學-Q33",
+    "109-1-醫學一-胚胎學-Q32",
+    "109-1-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "頸節",
+    "L1",
+    "靜脈導管（ductus venosus）"
+   ],
+   "spans": [
+    {
+     "span": "L1 椎體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "4 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "6 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "8 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "胸心包膜（pleuropericardial membrane）將胸膜腔與心包腔分隔開來，本身演變為纖維性心包膜（fibrous pericardium）（而非漿液心包膜的臟層）；膜內含膈神經與總主靜脈（common cardinal vein）。107/111",
+   "citeText": [
+    "107/111"
+   ],
+   "marks": [
+    "107",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q35",
+    "107-2-醫學一-胚胎學-Q33",
+    "111-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "膈神經（phrenic nerve）",
+    "胸腹膜（pleuroperitoneal membrane）",
+    "形成漿液心包膜的臟層（visceral layer of serous pericardium）"
+   ],
+   "spans": [
+    {
+     "span": "纖維性心包膜",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "胚內體腔（intraembryonic coelom）最早出現於外側（側板）中胚層（lateral mesoderm）——其壁層（parietal layer）日後形成襯覆體腔的漿膜（腹膜、肋膜、心包膜），並非源自軸旁中胚層、中間中胚層或內胚層。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "外側中胚層（lateral mesoderm）"
+   ],
+   "spans": [
+    {
+     "span": "外側（側板）中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "生理性臍疝（physiological umbilical herniation）發生於第6 週——因腹腔空間不足以容納快速增長的腸道，中腸暫時疝入臍帶內；至第10 週腸子回納腹腔，過程中腸道以腸繫膜上動脈為軸，總共逆時針旋轉270 度。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "第六週"
+   ],
+   "spans": [
+    {
+     "span": "6 週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "10 週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "270 度",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "Bochdalek 孔",
+   "why": "key exam fact"
+  },
+  {
+   "n": 2,
+   "span": "L1 椎體",
+   "why": "key exam fact"
+  },
+  {
+   "n": 3,
+   "span": "纖維性心包膜",
+   "why": "key exam fact"
+  },
+  {
+   "n": 4,
+   "span": "外側（側板）中胚層",
+   "why": "key exam fact"
+  },
+  {
+   "n": 5,
+   "span": "腸繫膜上動脈",
+   "why": "key exam fact"
+  }
+ ],
+ "reply": "[\n {\n  \"n\": 1,\n  \"span\": \"Bochdalek 孔\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 2,\n  \"span\": \"L1 椎體\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 3,\n  \"span\": \"纖維性心包膜\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 4,\n  \"span\": \"外側（側板）中胚層\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 5,\n  \"span\": \"腸繫膜上動脈\",\n  \"why\": \"key exam fact\"\n }\n]"
+}

@@ -1,0 +1,10 @@
+[
+{"n":1,"span":"單房性包生囊","why":"E. granulosus的囊型態"},
+{"n":2,"span":"肺泡狀囊","why":"E. multilocularis的囊型態"},
+{"n":3,"span":"自體感染","why":"H. nana代表特性"},
+{"n":4,"span":"貓狗蚤","why":"D. caninum中間宿主"},
+{"n":5,"span":"意外中間宿主","why":"人在Echinococcus生活史的角色"},
+{"n":6,"skip":true,"why":"僅舉例值或否定敘述，答案不唯一"},
+{"n":7,"skip":true,"why":"清單並列，挖一項答案不唯一"},
+{"n":8,"span":"肺包蟲病","why":"E. granulosus致肺部病變的病名"}
+]

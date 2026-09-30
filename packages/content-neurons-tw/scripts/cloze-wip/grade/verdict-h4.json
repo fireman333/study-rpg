@@ -1,0 +1,29 @@
+[
+ {
+  "issueId": "K01",
+  "anchorId": "胚胎學::cardiovascular-development",
+  "decision": "fix",
+  "reason": "110-1 Q34 答 D（升主動脈不源自咽弓），講義結論與答案一致；但肺動脈幹同樣由動脈幹經主動脈肺動脈中隔分隔而來，「唯一」為錯。改為兩者並列，仍支持考題答案。",
+  "examRef": "110-1-醫學一-胚胎學-Q34",
+  "oldText": "<b>升主動脈（ascending aorta）源自動脈幹（truncus arteriosus），是唯一與咽弓動脈無關的心臟大血管</b>",
+  "newText": "<b>升主動脈（ascending aorta）與肺動脈幹都源自動脈幹（truncus arteriosus），不屬於咽弓動脈的衍生物</b>"
+ },
+ {
+  "issueId": "K02",
+  "anchorId": "胚胎學::GI-development",
+  "decision": "fix",
+  "reason": "104-2 Q30 答 A（肛管下 1/3 來自原肛），只考來源，與分隔構造無衝突。將泄殖腔分成前方泌尿生殖竇與後方肛直腸管的是尿直腸中隔；泌尿生殖橫膈是成人會陰的肌肉筋膜層，並非胚胎分隔構造。",
+  "examRef": "104-2-醫學一-胚胎學-Q30",
+  "oldText": "被泌尿生殖橫膈分隔後",
+  "newText": "被尿直腸中隔（urorectal septum）分隔後"
+ },
+ {
+  "issueId": "K03",
+  "anchorId": "寄生蟲學::toxoplasmosis",
+  "decision": "keep",
+  "reason": "105-2 Q80 答 A（人是終宿主為錯），D「弓蟲症在台灣屬第四類法定傳染病」為正確敘述。疾管署現行分類仍將弓形蟲感染症列第四類法定傳染病（衛福部疾管署說明；2026-06-23 聯合報報導仍稱第四類），講義未過時，誤報。",
+  "examRef": "105-2-醫學一-寄生蟲學-Q80",
+  "oldText": "",
+  "newText": ""
+ }
+]

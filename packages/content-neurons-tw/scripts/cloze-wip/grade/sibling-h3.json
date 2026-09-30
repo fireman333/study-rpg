@@ -1,0 +1,16 @@
+[
+ {
+  "file": "packages/content-neurons-tw/src/handout/胚胎學.html",
+  "relatedIssueId": "J01",
+  "oldText": "前腸尾端腹側長出的呼吸憩室（respiratory primordium），位置在第四咽囊之後；",
+  "newText": "原始咽（前腸頭端）尾端腹側壁長出的呼吸憩室（respiratory primordium），位置在第四咽囊尾側；",
+  "contextChecked": true
+ },
+ {
+  "file": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+  "relatedIssueId": "J03",
+  "oldText": "三者的共通點是病原體並非隨唾液直接注入，而是經由蝨的糞便沾染到抓癢造成的皮膚傷口而感染。",
+  "newText": "三者的共通點是病原體並非隨唾液直接注入：流行性斑疹傷寒與戰壕熱經由蝨的糞便沾染到抓癢造成的皮膚傷口而感染，回歸熱則是蝨體被抓破壓碎、體腔液經傷口進入。",
+  "contextChecked": true
+ }
+]

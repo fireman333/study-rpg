@@ -1,0 +1,1 @@
+[{"n": 1, "span": "卵圓孔", "why": "key fact"}, {"n": 2, "span": "type II 肺泡細胞", "why": "key fact"}, {"n": 3, "skip": true, "why": "leak or ambiguous"}, {"n": 4, "span": "前腸尾端腹側", "why": "key fact"}, {"n": 5, "skip": true, "why": "leak or ambiguous"}, {"n": 6, "span": "氣管食道中膈", "why": "key fact"}, {"n": 7, "span": "臟層間葉組織", "why": "key fact"}]

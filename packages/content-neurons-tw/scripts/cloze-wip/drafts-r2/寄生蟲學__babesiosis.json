@@ -1,0 +1,249 @@
+{
+ "anchorId": "寄生蟲學::babesiosis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "b22579a7d2fdef46",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "巴貝氏原蟲寄生於宿主紅血球內，行無性分裂產生4個裂殖子排成十字形（馬爾他十字勳章），血片下可見單核、雙核或多核的環狀原蟲，是與瘧原蟲鑑別診斷的重點特徵。105/108",
+   "citeText": [
+    "105/108"
+   ],
+   "marks": [
+    "105",
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q79",
+    "108-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "巴貝氏原蟲症（babesiosis）",
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+   ],
+   "spans": [
+    {
+     "span": "馬爾他十字勳章",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "臨床表現包含發燒（約40°C）、寒顫、頭痛、肌痛、噁心嘔吐、溶血性貧血、血小板減少、白血球減少、肝脾腫大、血紅素尿；多數患者屬於低寄生蟲血症的無症狀或輕症感染，並非高度寄生蟲血症。105/108",
+   "citeText": [
+    "105/108"
+   ],
+   "marks": [
+    "105",
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q79",
+    "108-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "巴貝氏原蟲症（babesiosis）",
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+   ],
+   "spans": [
+    {
+     "span": "低寄生蟲血症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "40°C",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "感染致死或重症化的高風險族群是脾臟切除者、免疫缺損病人（如癌症、愛滋病）、老年人與五歲以下幼童；脾臟在清除受感染紅血球上扮演關鍵角色，脾切除者失去這道防線。108",
+   "citeText": [
+    "108"
+   ],
+   "marks": [
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+   ],
+   "spans": [
+    {
+     "span": "脾臟切除者",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "西尼羅病毒症由家蚊屬（Culex spp.）蚊子叮咬傳播，並非蜱媒介人畜共通感染症，容易與巴貝氏原蟲病、萊姆病、落磯山斑疹熱等真正的蜱媒疾病放在一起誤判。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q34",
+    "107-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "萊姆病（Lyme disease）",
+    "巴貝氏原蟲症（babesiosis）",
+    "落磯山斑疹熱（Rocky Mountain spotted fever）",
+    "巴貝氏原蟲症（babesiosis）"
+   ],
+   "spans": [
+    {
+     "span": "家蚊屬",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "診斷以血液抹片鏡檢配合免疫螢光抗體試驗（IFA）為主；標準治療為克林達黴素（clindamycin）併用奎寧（quinine），另一常用方案是atovaquone併用azithromycin。108/115",
+   "citeText": [
+    "108/115"
+   ],
+   "marks": [
+    "108",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-寄生蟲學-Q35",
+    "115-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主",
+    "③④"
+   ],
+   "spans": [
+    {
+     "span": "血液抹片鏡檢配合免疫螢光抗體試驗",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "硬蜱屬（Ixodes spp.）是傳播人巴貝氏原蟲病的主要病媒，同屬也傳播萊姆病與艾利希體症；革蜱屬（Dermacentor spp.）傳播落磯山斑疹熱，花蜱屬（Amblyomma spp.）與血蜱屬（Haemaphysalis spp.）則分別對應其他立克次體疾病，四屬蜱蟲各有偏好的傳播疾病組合。107/108/110",
+   "citeText": [
+    "107/108/110"
+   ],
+   "marks": [
+    "107",
+    "108",
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q34",
+    "107-2-醫學二-寄生蟲學-Q35",
+    "108-2-醫學二-寄生蟲學-Q35",
+    "110-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "萊姆病（Lyme disease）",
+    "巴貝氏原蟲症（babesiosis）",
+    "落磯山斑疹熱（Rocky Mountain spotted fever）",
+    "巴貝氏原蟲症（babesiosis）",
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主",
+    "硬蜱屬（Ixodes spp.）"
+   ],
+   "spans": [],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "無性分裂",
+   "why": "replication mode"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "list"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "restated"
+  },
+  {
+   "n": 4,
+   "skip": true,
+   "why": "negation"
+  },
+  {
+   "n": 5,
+   "span": "血液抹片鏡檢",
+   "why": "diagnosis"
+  },
+  {
+   "n": 6,
+   "span": "落磯山斑疹熱",
+   "why": "Dermacentor disease"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"無性分裂\",\"why\":\"replication mode\"},{\"n\":2,\"skip\":true,\"why\":\"list\"},{\"n\":3,\"skip\":true,\"why\":\"restated\"},{\"n\":4,\"skip\":true,\"why\":\"negation\"},{\"n\":5,\"span\":\"血液抹片鏡檢\",\"why\":\"diagnosis\"},{\"n\":6,\"span\":\"落磯山斑疹熱\",\"why\":\"Dermacentor disease\"}]\n"
+}

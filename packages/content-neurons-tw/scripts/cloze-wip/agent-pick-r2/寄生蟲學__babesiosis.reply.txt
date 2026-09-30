@@ -1,0 +1,1 @@
+[{"n":1,"span":"無性分裂","why":"replication mode"},{"n":2,"skip":true,"why":"list"},{"n":3,"skip":true,"why":"restated"},{"n":4,"skip":true,"why":"negation"},{"n":5,"span":"血液抹片鏡檢","why":"diagnosis"},{"n":6,"span":"落磯山斑疹熱","why":"Dermacentor disease"}]

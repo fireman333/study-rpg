@@ -1,0 +1,1 @@
+[{"n": 1, "span": "體表外胚層", "why": "key fact"}, {"n": 2, "span": "真皮間葉組織", "why": "key fact"}, {"n": 3, "skip": true, "why": "leak or ambiguous"}, {"n": 4, "skip": true, "why": "leak or ambiguous"}, {"n": 5, "span": "眼杯外層", "why": "key fact"}, {"n": 6, "span": "視柄", "why": "key fact"}]

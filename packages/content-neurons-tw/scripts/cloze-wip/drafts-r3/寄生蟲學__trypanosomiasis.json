@@ -1,0 +1,67 @@
+{
+ "anchorId": "寄生蟲學::trypanosomiasis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "1fe998e3d078d99a",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "108-2-醫學二-病理學-Q34",
+     "stem": "下列各病症與其病原蟲之配對中，何者錯誤？",
+     "trueOption": "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "枯西氏錐蟲（T. cruzi）急性期典型徵象是單側眼瞼水腫合併結膜腫大，稱為Romaña's sign（叮咬處在眼周時出現），或叮咬處皮膚結節chagoma；慢性期則因自律神經節（如Auerbach氏神經叢）受免疫反應與寄生蟲破壞，出現心肌病變（心悸、心衰）、巨食道症、巨結腸症——機轉是神經節受破壞，並非補體直接攻擊。108/112/114",
+   "citeText": [
+    "108/112/114"
+   ],
+   "marks": [
+    "108",
+    "112",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-病理學-Q33",
+    "108-2-醫學二-病理學-Q34",
+    "112-1-醫學二-寄生蟲學-Q33",
+    "114-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "有些黑熱病（kala-azar）患者如果治療不當，在一、兩年後同樣的病原蟲可能在皮膚產生病灶",
+    "美國境內也曾有本土性枯西氏錐蟲（Trypanosoma cruzi）人體感染的病例",
+    "歐美人士至東非野生動物保護區旅行，曾有因此感染羅得西亞錐蟲（Trypanosoma brucei rhodesiense）的病 例發生",
+    "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）",
+    "Winterbottom's sign－岡比亞錐蟲（Trypanosoma brucei gambiense）",
+    "Espundia－巴西利什曼原蟲（Leishmania braziliensis）",
+    "黑熱病（kala-azar）",
+    "性行為與輸血均可傳播本疾病"
+   ],
+   "spans": [
+    {
+     "span": "Romaña's sign",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    }
+   ],
+   "score": 9
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "Romaña's sign",
+   "why": "考 Romaña's sign 與枯西氏錐蟲配對"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"Romaña's sign\",\"why\":\"考 Romaña's sign 與枯西氏錐蟲配對\"}]\n"
+}

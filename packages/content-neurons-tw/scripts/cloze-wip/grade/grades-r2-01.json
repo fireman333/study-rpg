@@ -1,0 +1,524 @@
+{
+ "group": "r2-01",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r2",
+ "grades": {
+  "gametogenesis-fertilization#k1": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "115-1 Q32 考的是動情素雙峰本身；優勢濾泡為第一峰來源，僅詳解提及"
+  },
+  "gametogenesis-fertilization#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "115-1 Q32 考動情素雙峰；FSH/LH 受負回饋抑制只是對照背景，答案為機制片語"
+  },
+  "gametogenesis-fertilization#k3": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "115-1 Q32 以黃體酮為誘答，但未考其高峰時點（黃體期中期）"
+  },
+  "early-cleavage-implantation#k1": {
+   "grade": "good",
+   "examAlignment": "not-tested",
+   "examRef": "",
+   "medicalError": false,
+   "reason": "104-2 Q29、106-2 Q32 考腔室出現順序，未考融合滋養層；但為高頻唯一答案"
+  },
+  "early-cleavage-implantation#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "107-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "107-2 Q32（否定題）給分為滋養層；接合莖為正確的內細胞團衍生物，非考點"
+  },
+  "early-cleavage-implantation#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "110-2 Q32 考只有三級絨毛有微血管，卡答案即血管長入"
+  },
+  "germ-layers-gastrulation#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "115-1 Q35 考豎毛肌非外胚層（真皮間葉/中胚層）"
+  },
+  "germ-layers-gastrulation#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "113-1 Q32 答案即外側中胚層"
+  },
+  "germ-layers-gastrulation#k3": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "115-2 Q32（否定題）給分為胚內中胚層；羊膜腔為正確選項，非考點，且序列中答案不唯一"
+  },
+  "germ-layers-gastrulation#k4": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "106-2-醫學一-胚胎學-Q32",
+   "medicalError": true,
+   "reason": "106-2 Q32/112-2 Q32 考出現時序；卡面稱上胚層「即體外胚層」錯誤，答案功能片語亦不唯一"
+  },
+  "pharyngeal-arches#k1": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "105-2 Q31 考會厭軟骨；卡面「CN X（＿）」直接洩漏迷走神經"
+  },
+  "pharyngeal-arches#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "114-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "114-2 Q33 考聯合部來自第二咽弓；terminal sulcus 非考點且「聯合部消失處即界溝」描述不精確"
+  },
+  "pharyngeal-arches#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "113-2 Q32、112-2 Q32 皆考咽弓第四週才出現"
+  },
+  "pharyngeal-arches#k4": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "106-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "106-2 Q33（否定題）考耳咽管來源；耳板為內耳正確起源但非考點"
+  },
+  "pharyngeal-arches#k5": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "110-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "110-2 Q34、113-2 Q36 考咽弓編號；Meckel 軟骨見於詳解，非直接考點"
+  },
+  "cardiovascular-development#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "113-1 Q35 給分 B 肺部血流量上升"
+  },
+  "cardiovascular-development#k2": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "111-2-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "111-2 Q35 考第一孔由第一中隔與心內膜墊融合閉合；第二孔以細胞凋亡形成非考點"
+  },
+  "cardiovascular-development#k3": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "104-2-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "104-2 Q31 以右喉返神經繞動脈韌帶為誘答；卡答右鎖骨下動脈與官方一致"
+  },
+  "cardiovascular-development#k4": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "104-2-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "104-2 Q31 考動脈導管；臍靜脈含氧最高為相關背景"
+  },
+  "cardiovascular-development#k5": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "110-1-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "110-1 Q34 考升主動脈非咽弓來源；左鎖骨下動脈來自第七節間動脈為相關概念"
+  },
+  "neural-tube-development#k1": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "112-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "112-1 Q32 考神經孔閉合時差；「第五體節」為未考的純數字"
+  },
+  "neural-tube-development#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "115-1 Q36（否定題）給分 D 視囊配髓腦為錯；卡答間腦正確"
+  },
+  "neural-tube-development#k3": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "115-1 Q36、106-2 Q36 考腦泡配對但未考神經垂體；列表中答案不唯一（松果體等亦屬間腦）"
+  },
+  "body-wall-diaphragm-development#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-1-醫學一-胚胎學-Q29",
+   "medicalError": false,
+   "reason": "104-1 Q29 給分後外側，即 Bochdalek 孔"
+  },
+  "body-wall-diaphragm-development#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "109-1 Q32 給分 L1"
+  },
+  "body-wall-diaphragm-development#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "111-2 Q32（否定題）給分 A 漿液心包臟層為錯；卡答纖維性心包膜正確"
+  },
+  "body-wall-diaphragm-development#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "113-1 Q32 給分外側中胚層（與 germ-layers#k2 重複）"
+  },
+  "limb-axial-musculoskeletal-development#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "111-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "111-1 Q36（否定題）給分 D 肢體旋轉；AER 為正確選項 B，非給分點"
+  },
+  "limb-axial-musculoskeletal-development#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "112-1-醫學一-生理學-Q35",
+   "medicalError": true,
+   "reason": "112-1 Q35 考中胚層＋神經嵴，答案正確；但卡面稱四肢骨來自「內側板中胚層」錯誤（應為外側板中胚層）"
+  },
+  "limb-axial-musculoskeletal-development#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-2-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "112-2 Q36 考矢狀縫早閉→舟形頭"
+  },
+  "limb-axial-musculoskeletal-development#k4": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-胚胎學-Q32",
+   "medicalError": true,
+   "reason": "106-1 Q32 給分虹膜；但卡面稱睫狀肌亦為神經外胚層、心肌歸為平滑肌，皆錯誤"
+  },
+  "GI-development#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "109-2 Q33 給分腸繫膜上動脈"
+  },
+  "GI-development#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-胚胎學-Q29",
+   "medicalError": false,
+   "reason": "106-1 Q29 給分第12週"
+  },
+  "GI-development#k3": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "114-1-醫學一-胚胎學-Q34",
+   "medicalError": true,
+   "reason": "114-1 Q34 給分 C 腹胰芽；內胚層只對應誘答 A，答案過泛，且卡面稱副胰管來自背胰芽「遠端」錯誤"
+  },
+  "GI-development#k4": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "108-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "108-2 Q34 考上皮增生閉鎖；再通化機制（細胞凋亡/空泡化）非考點且用詞不唯一"
+  },
+  "GI-development#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "114-2 Q33 考第二咽弓形成聯合部並消失；卡答聯合部"
+  },
+  "respiratory-development#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "113-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "113-1 Q35 以右房壓高為誘答；卵圓孔關閉為相關正確概念"
+  },
+  "respiratory-development#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "113-2 Q33 考末囊期表面張力劑；空格後緊接 surfactant 洩題"
+  },
+  "respiratory-development#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-胚胎學-Q31",
+   "medicalError": false,
+   "reason": "105-2 Q31 給分會厭軟骨"
+  },
+  "respiratory-development#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "107-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "107-1 Q32 給分第四咽囊"
+  },
+  "urogenital-development#k1": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "105-2 Q32（否定題）給分 46,XX；雄性素不敏感非考點且答案不唯一"
+  },
+  "urogenital-development#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "107-2-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "107-2 Q35 給分後腎憩室"
+  },
+  "urogenital-development#k3": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "108-1-醫學一-胚胎學-Q34",
+   "medicalError": true,
+   "reason": "108-1 Q34 選項 C（非給分、屬正確敘述）為「六歲」進入大骨盆，卡面寫「第六週」錯誤"
+  },
+  "urogenital-development#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "114-2 Q34 給分副中腎管＋竇陰道球泡"
+  },
+  "urogenital-development#k5": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-胚胎學-Q29",
+   "medicalError": false,
+   "reason": "105-2 Q29 考 TDF 在 Y 染色體；SOX9 未考"
+  },
+  "special-sense-integument-development#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-2-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "110-2 Q36 給分體表外胚層"
+  },
+  "special-sense-integument-development#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "115-1 Q35 給分豎毛肌"
+  },
+  "special-sense-integument-development#k3": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學一-胚胎學-Q36",
+   "medicalError": true,
+   "reason": "115-2 Q36 考瞳孔肌源自神經外胚層；卡面稱睫狀肌亦為神經外胚層錯誤，且題幹已並列答案"
+  },
+  "special-sense-integument-development#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "104-1 Q32 給分視神經源自前腦"
+  },
+  "intestinal-nematodes-soil-transmitted#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "106-2 Q30 給分蟯蟲致慢性骨盆腔腹膜炎"
+  },
+  "intestinal-nematodes-soil-transmitted#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學二-寄生蟲學-Q29",
+   "medicalError": false,
+   "reason": "115-2 Q29 給分十二指腸鉤蟲"
+  },
+  "intestinal-nematodes-soil-transmitted#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-1-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "111-1 Q30 D、114-1 Q30 ③ 均以脫肛為正確敘述"
+  },
+  "intestinal-nematodes-soil-transmitted#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-寄生蟲學-Q76",
+   "medicalError": false,
+   "reason": "104-2 Q76 與 108-2 Q29 ② 考鉤蟲致缺鐵性貧血"
+  },
+  "intestinal-nematodes-soil-transmitted#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-1-醫學一-寄生蟲學-Q75",
+   "medicalError": false,
+   "reason": "105-1 Q75（否定題）給分 D 糞檢；卡答肛門黏紙法正確"
+  },
+  "foodborne-tissue-nematodes#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "109-2-醫學二-寄生蟲學-Q29",
+   "medicalError": false,
+   "reason": "109-2 Q29（否定題）給分 A；自體感染為正確選項 B"
+  },
+  "foodborne-tissue-nematodes#k2": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "106-1-醫學一-寄生蟲學-Q76",
+   "medicalError": true,
+   "reason": "106-1 Q76 考肌痛非最早症狀；卡面把嗜伊紅性白血球增多與肌痛放到囊化期，實為肌肉侵入（移行）期"
+  },
+  "foodborne-tissue-nematodes#k3": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "104-1-醫學一-寄生蟲學-Q75",
+   "medicalError": true,
+   "reason": "104-1 Q75 考飲水防治；劍水蚤見詳解，但卡面稱「幼蟲」寄生皮下錯誤（應為成熟雌蟲）"
+  },
+  "foodborne-tissue-nematodes#k4": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學二-微生物暨免疫學-Q29",
+   "medicalError": true,
+   "reason": "113-2 Q29 給分假性感染；但卡面稱「蟲卵經肝門靜脈到肝臟」錯誤（應為幼蟲）"
+  },
+  "foodborne-tissue-nematodes#k5": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "110-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "110-2 Q30（否定題）給分糞檢；抗體檢查為正確選項之一，三項並列答案不唯一"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "108-1-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "108-1 Q30 C 夜間出現為正確選項；106-2 Q29 考 DEC 誘發"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "108-1-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "108-1 Q30 給分 A（直接注入微絲蟲為錯）；卡面後半「把 L3 注入」洩題"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-1-醫學二-寄生蟲學-Q29",
+   "medicalError": false,
+   "reason": "114-1 Q29 給分 D 尾核"
+  }
+ },
+ "handoutIssues": [
+  {
+   "anchorId": "胚胎學::germ-layers-gastrulation",
+   "cardId": "germ-layers-gastrulation#k4",
+   "sentence": "原條（primitive streak）約在第 13–14 天由胚盤尾端的上胚層細胞（即體外胚層）增殖形成，功能是建立胚體兩側對稱，也是原腸胚形成（gastrulation）、三胚層分化的起點。106/111/112",
+   "problem": "上胚層（epiblast）不等於體外胚層；上胚層是三胚層的共同來源",
+   "suggestedFix": "改為「上胚層細胞（epiblast）」，刪去「即體外胚層」",
+   "examRef": ""
+  },
+  {
+   "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+   "cardId": "limb-axial-musculoskeletal-development#k2",
+   "sentence": "骨骼系統整體只有兩個來源：頭骨以外的中軸與大部分骨骼由中胚層（經體節分化）形成；頭骨（尤其顏面骨）主要由遷移到咽弓的神經嵴（neural crest）衍生間質形成——內胚層與神經外胚層都不是骨骼的來源；四肢骨（appendicular skeleton）則是肢芽內側板中胚層凝集而成，同樣不屬於生骨節衍生物。110/112",
+   "problem": "四肢骨來自外側板中胚層（體壁層），不是「內側板中胚層」",
+   "suggestedFix": "「肢芽內側板中胚層」→「肢芽內的外側板中胚層（體壁層）」",
+   "examRef": "110-1-醫學一-胚胎學-Q35"
+  },
+  {
+   "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+   "cardId": "limb-axial-musculoskeletal-development#k4",
+   "sentence": "全身骨骼肌與大部分平滑肌（含心臟、消化道）皆由中胚層分化而來；唯一的例外是眼睛的虹膜與睫狀肌，因與眼球神經發育關係密切，改由神經外胚層（neuroectoderm）形成。106",
+   "problem": "睫狀肌源自間葉（神經嵴），非神經外胚層；心肌不是平滑肌；且肌上皮細胞等亦為外胚層例外，「唯一例外」過度",
+   "suggestedFix": "改為「虹膜的瞳孔括約肌與開大肌由神經外胚層形成」，心臟另列心肌",
+   "examRef": "106-1-醫學一-胚胎學-Q32"
+  },
+  {
+   "anchorId": "胚胎學::special-sense-integument-development",
+   "cardId": "special-sense-integument-development#k3",
+   "sentence": "一般肌肉組織（肋間、心臟、消化道）皆由中胚層分化而來，但眼睛的虹膜肌與睫狀肌來自神經外胚層（neuroectoderm）——更精確地說，瞳孔括約肌（sphincter pupillae）與瞳孔開大肌（dilator pupillae）源自視杯（optic cup）前緣的神經外胚層，是人體極少數非中胚層來源的平滑肌，也是這類「哪個肌肉不是中胚層」題型的固定答案；答案要選神經外胚層，不是生發層（stratum germinativum，那是表皮基底層）。106/115-2",
+   "problem": "「虹膜肌與睫狀肌來自神經外胚層」— 睫狀肌源自間葉（神經嵴）",
+   "suggestedFix": "刪去「與睫狀肌」",
+   "examRef": "115-2-醫學一-胚胎學-Q36"
+  },
+  {
+   "anchorId": "胚胎學::GI-development",
+   "cardId": "GI-development#k3",
+   "sentence": "胰臟由內胚層（非中胚層）衍生，分先長的背側胰芽與後長的腹側胰芽；隨十二指腸旋轉成 C 字型，腹側胰芽被甩轉至背側與背側胰芽融合——腹側胰芽發育為胰臟頭端與鉤狀突（主胰管由此形成），背側胰芽遠端形成副胰管；環狀胰臟（annular pancreas）是罕見的先天缺陷，主要造成十二指腸阻塞（而非胃阻塞）。114",
+   "problem": "副胰管來自背胰管近端；背胰管遠端與腹胰管共同形成主胰管",
+   "suggestedFix": "「背側胰芽遠端形成副胰管」→「背胰管近端形成副胰管，遠端與腹胰管合成主胰管」",
+   "examRef": "114-1-醫學一-胚胎學-Q34"
+  },
+  {
+   "anchorId": "胚胎學::GI-development",
+   "cardId": "GI-development#k5",
+   "sentence": "舌頭前 2/3（body of tongue）由第一咽弓的中央舌芽與一對遠端舌芽（往中間生長使中央舌芽消失）形成；後 1/3（pharyngeal part）則由第二、三、四咽弓形成的咽下隆起（hypopharyngeal eminence）形成；第二咽弓先形成的聯合部（copula）會被隨後長大的咽下隆起擠壓而消失；盲孔（foramen cecum，甲狀腺發育殘跡）則位於舌前 2/3 與後 1/3 交界（terminal sulcus 的 V 型尖端）。112/114",
+   "problem": "咽下隆起由第三、四咽弓形成，非第二、三、四；與 pharyngeal-arches#k2 及 114-2 Q33 不一致",
+   "suggestedFix": "「第二、三、四咽弓形成的咽下隆起」→「第三、四咽弓形成的咽下隆起」",
+   "examRef": "114-2-醫學一-胚胎學-Q33"
+  },
+  {
+   "anchorId": "胚胎學::urogenital-development",
+   "cardId": "urogenital-development#k3",
+   "sentence": "膀胱內襯上皮源自內胚層（泌尿生殖竇），胚胎時期與尿囊相連，第六週進入大骨盆；但膀胱三角（trigone）由左右尾端中腎管（Wolffian duct，總排泄管）併入膀胱後壁形成（中胚層來源），非源自輸尿管本身（考選部 108-1 將「三角源自輸尿管末端」列為錯誤敘述）。108",
+   "problem": "膀胱約六歲才進入大骨盆（108-1 Q34 選項 C 為正確敘述），不是「第六週」",
+   "suggestedFix": "「第六週進入大骨盆」→「約六歲時進入大骨盆」",
+   "examRef": "108-1-醫學一-胚胎學-Q34"
+  },
+  {
+   "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+   "cardId": "foodborne-tissue-nematodes#k2",
+   "sentence": "旋毛蟲（Trichinella spiralis）經食入未熟帶蟲豬肉（或熊肉）感染；人與豬同時身兼終宿主與中間宿主；幼蟲隨血液循環到達橫紋肌並發育、囊化；症狀依病程分三期——潛伏期腸胃症狀→移行期最早出現局部（尤其眼眶周圍）水腫→囊化期才出現高嗜伊紅性白血球症與肌肉痛，肌肉痛不是最早出現的症狀，是常見誘答。106/115",
+   "problem": "嗜伊紅性白血球增多與肌肉痛出現在肌肉侵入（移行）期，不是囊化期；第一期為腸道期而非潛伏期",
+   "suggestedFix": "改為「腸道期腸胃症狀→移行（肌肉侵入）期眼眶周圍水腫、肌痛、嗜伊紅性白血球增多→囊化期」",
+   "examRef": "106-1-醫學一-寄生蟲學-Q76"
+  },
+  {
+   "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+   "cardId": "foodborne-tissue-nematodes#k3",
+   "sentence": "麥地那線蟲（Dracunculus medinensis）經飲用含感染性水蚤（劍水蚤）的生水感染，是改善飲用水系統最能防治的寄生蟲病；幼蟲寄生於下肢（尤其腳背）與陰囊皮下組織，成熟雌蟲可長達近 1 公尺（人體最長線蟲），造成皮下水泡潰瘍，傳統治療是逐日纏繞拉出蟲體；主要流行於非洲。104/111",
+   "problem": "寄生於下肢皮下組織的是成熟雌蟲，不是幼蟲（同句後半即寫成熟雌蟲）",
+   "suggestedFix": "「幼蟲寄生於下肢」→「成熟雌蟲移行至下肢」",
+   "examRef": "111-2-醫學二-寄生蟲學-Q30"
+  },
+  {
+   "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+   "cardId": "foodborne-tissue-nematodes#k4",
+   "sentence": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；蟲卵經肝門靜脈循環到達肝臟並於肝實質產卵，真感染須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於假性感染（spurious infection），並非真正的肝內感染，是本科少見但曾出現的陷阱題。113",
+   "problem": "經肝門靜脈到肝臟的是孵出的幼蟲，不是蟲卵；成蟲才在肝實質產卵",
+   "suggestedFix": "「蟲卵經肝門靜脈循環到達肝臟」→「食入含胚卵後幼蟲在腸孵出、經肝門靜脈到肝臟發育為成蟲」",
+   "examRef": "113-2-醫學二-微生物暨免疫學-Q29"
+  }
+ ]
+}

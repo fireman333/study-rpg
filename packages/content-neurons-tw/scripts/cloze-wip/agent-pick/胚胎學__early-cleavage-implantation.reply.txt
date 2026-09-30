@@ -1,0 +1,37 @@
+[
+ {
+  "n": 1,
+  "skip": true,
+  "why": "ambiguous or negation/duplicate answer"
+ },
+ {
+  "n": 2,
+  "span": "融合滋養層",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "初級卵黃囊",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "span": "接合莖",
+  "why": "key exam fact"
+ },
+ {
+  "n": 5,
+  "span": "絨毛膜腔",
+  "why": "key exam fact"
+ },
+ {
+  "n": 6,
+  "span": "血管長入絨毛間質",
+  "why": "key exam fact"
+ },
+ {
+  "n": 7,
+  "skip": true,
+  "why": "ambiguous or negation/duplicate answer"
+ }
+]

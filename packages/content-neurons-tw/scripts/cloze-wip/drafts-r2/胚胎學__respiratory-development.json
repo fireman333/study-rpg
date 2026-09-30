@@ -1,0 +1,383 @@
+{
+ "anchorId": "胚胎學::respiratory-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "624a3a27521b7ad0",
+ "candidates": [
+  {
+   "bulletIndex": 3,
+   "sentence": "新生兒開始以肺呼吸後，肺部血流量上升（而非血管阻力上升）以增加氣體交換；同時左心房壓力升高、大於右心房，促使卵圓孔關閉，符合出生後體循環壓力大於肺循環的生理轉變。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q35",
+    "113-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "肺部血流量上升",
+    "末囊期（terminal sac stage）"
+   ],
+   "spans": [
+    {
+     "span": "肺部血流量上升",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option",
+      "contrast"
+     ],
+     "score": 9
+    }
+   ],
+   "score": 9
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "肺臟發育依週數分四階段：偽腺期（第 5–16 週，主支氣管長到終末細支氣管，外觀像腺體但完全無氣體交換能力）→小管期（第 17–26 週，呼吸細支氣管形成、微血管開始靠近末端小囊）→末囊期（第 27 週至出生前，type II 肺泡細胞開始分泌表面張力劑 surfactant，血氣障壁逐漸成形）→肺泡期（約第 32–36 週至 8–10 歲，約 95% 肺泡在出生後才真正長成）。113/114",
+   "citeText": [
+    "113/114"
+   ],
+   "marks": [
+    "113",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q35",
+    "113-2-醫學一-胚胎學-Q33",
+    "114-1-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "肺部血流量上升",
+    "末囊期（terminal sac stage）",
+    "偽腺期（pseudoglandular stage）"
+   ],
+   "spans": [
+    {
+     "span": "偽腺期",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "末囊期",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "5–16 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "17–26 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "27 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "32–36 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "8–10 歲",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "95%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "小管期",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-distractor"
+     ],
+     "score": 2
+    },
+    {
+     "span": "肺泡期",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-distractor"
+     ],
+     "score": 2
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "甲狀軟骨、杓狀軟骨、環狀軟骨、小角軟骨與楔形軟骨皆由第四及第六咽弓的軟骨衍生，唯獨會厭軟骨是例外、與四、六咽弓的軟骨無關。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-胚胎學-Q31"
+   ],
+   "trueOptions": [
+    "會厭軟骨（epiglottis）"
+   ],
+   "spans": [
+    {
+     "span": "會厭軟骨",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "第四及第六咽弓",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "呼吸原基（respiratory primordium，即喉氣管憩室）起源於第四咽囊之後、前腸尾端腹側，向下發育成喉、氣管、支氣管與肺。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q32",
+    "107-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "第四咽囊（pharyngeal pouch）",
+    "氣管食道瘻管（tracheoesophageal fistula）"
+   ],
+   "spans": [
+    {
+     "span": "第四咽囊",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "胎兒肺臟若在偽腺期早產，即使小心照護也無法存活（尚無任何氣體交換構造）；進入小管期後開始具備初步交換基礎，末囊期以後因已有血氣障壁與 surfactant 而具備存活機會。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "偽腺期（pseudoglandular stage）"
+   ],
+   "spans": [
+    {
+     "span": "偽腺期",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "下呼吸道最常見的先天異常是氣管食道瘻管（TEF），發生率約 1/3000；氣管與食道的分隔靠第 4 週形成的氣管食道中膈完成。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q32",
+    "107-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "第四咽囊（pharyngeal pouch）",
+    "氣管食道瘻管（tracheoesophageal fistula）"
+   ],
+   "spans": [
+    {
+     "span": "氣管食道瘻管",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "4 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "氣管的內襯上皮與腺體都來自前腸內胚層（並非中胚層），軟骨與肌肉則來自包覆在外的臟層間葉組織——氣管食道脊由此凹陷分隔氣管與食道。111",
+   "citeText": [
+    "111"
+   ],
+   "marks": [
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "其腺體源自於前腸（foregut）之中胚層（mesoderm）"
+   ],
+   "spans": [
+    {
+     "span": "內襯上皮與腺體都來自前腸內胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "contrast"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "卵圓孔",
+   "why": "key fact"
+  },
+  {
+   "n": 2,
+   "span": "type II 肺泡細胞",
+   "why": "key fact"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 4,
+   "span": "前腸尾端腹側",
+   "why": "key fact"
+  },
+  {
+   "n": 5,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 6,
+   "span": "氣管食道中膈",
+   "why": "key fact"
+  },
+  {
+   "n": 7,
+   "span": "臟層間葉組織",
+   "why": "key fact"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"卵圓孔\", \"why\": \"key fact\"}, {\"n\": 2, \"span\": \"type II 肺泡細胞\", \"why\": \"key fact\"}, {\"n\": 3, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 4, \"span\": \"前腸尾端腹側\", \"why\": \"key fact\"}, {\"n\": 5, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 6, \"span\": \"氣管食道中膈\", \"why\": \"key fact\"}, {\"n\": 7, \"span\": \"臟層間葉組織\", \"why\": \"key fact\"}]"
+}

@@ -1,0 +1,1 @@
+[{"n":1,"span":"劍水蚤","why":"first intermediate host"},{"n":2,"span":"醃魚","why":"exposure"},{"n":3,"skip":true,"why":"contrast leak"},{"n":4,"span":"劍水蚤","why":"infection route"},{"n":5,"span":"B12","why":"mechanism of anemia"}]

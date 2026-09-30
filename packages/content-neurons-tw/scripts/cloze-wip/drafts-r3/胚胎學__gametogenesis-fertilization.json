@@ -1,0 +1,56 @@
+{
+ "anchorId": "胚胎學::gametogenesis-fertilization",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "3fa2c8d202710c55",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "115-1-醫學一-胚胎學-Q32",
+     "stem": "女性在青春期時，體內何種激素（hormone）的釋放量，會在排卵前與排卵後，分別出現一次高峰？",
+     "trueOption": "動情素（estrogen）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "動情素（estrogen）在月經週期中會出現兩次高峰：排卵前由優勢濾泡（dominant follicle）分泌，誘發黃體成長激素（LH）激增以觸發排卵；排卵後則由黃體（corpus luteum）分泌第二個高峰，藉此維持子宮內膜增厚。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q32",
+    "115-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "動情素（estrogen）",
+    "性染色體三倍症（trisomy of sex chromosomes），常在青春期時才發現"
+   ],
+   "spans": [
+    {
+     "span": "兩次高峰",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "動情素",
+   "why": "考排卵前後兩次高峰的激素"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"動情素\",\"why\":\"考排卵前後兩次高峰的激素\"}]\n"
+}

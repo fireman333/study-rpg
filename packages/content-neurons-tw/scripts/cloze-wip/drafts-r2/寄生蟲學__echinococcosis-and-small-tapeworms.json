@@ -1,0 +1,484 @@
+{
+ "anchorId": "寄生蟲學::echinococcosis-and-small-tapeworms",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "8fa7eeac31896076",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "顆粒性（單胞）包生絛蟲 E. granulosus：終宿主為狗，中間宿主為羊等草食動物；人因誤食蟲卵而感染（不是吃到未煮熟羊肉），主要在肝臟形成單房性包生囊（hydatid cyst），亦可波及肺部。105/110/112",
+   "citeText": [
+    "105/110/112"
+   ],
+   "marks": [
+    "105",
+    "110",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q77",
+    "110-1-醫學二-寄生蟲學-Q31",
+    "110-1-醫學二-寄生蟲學-Q34",
+    "110-2-醫學二-寄生蟲學-Q31",
+    "112-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "4項",
+    "會在患者肝臟形成包生囊（hydatid cyst）",
+    "犬複殖器絛蟲（Dipylidium caninum）",
+    "短小包膜絛蟲（Hymenolepis nana）",
+    "顆粒性包生絛蟲（Echinococcus granulosus）"
+   ],
+   "spans": [
+    {
+     "span": "誤食蟲卵",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "contrast"
+     ],
+     "score": 8
+    },
+    {
+     "span": "E. granulosus",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "肝臟",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "單房性",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "多胞絛蟲 E. multilocularis：終宿主為狐（狗亦可），中間宿主為囓齒類；人誤食蟲卵後在肝臟形成多房性的肺泡狀囊（alveolar cyst），因向外出芽浸潤生長，是絛蟲疾病中致死率最高的一型；其成蟲體型也是常考絛蟲中最小者（1–5 mm）。107/110/114",
+   "citeText": [
+    "107/110/114"
+   ],
+   "marks": [
+    "107",
+    "110",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-公共衛生學-Q29",
+    "107-1-醫學二-寄生蟲學-Q31",
+    "107-1-醫學二-寄生蟲學-Q32",
+    "110-1-醫學二-寄生蟲學-Q31",
+    "110-1-醫學二-寄生蟲學-Q34",
+    "110-2-醫學二-寄生蟲學-Q31",
+    "114-1-醫學二-寄生蟲學-Q31",
+    "114-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "4種",
+    "多胞絛蟲（Echinococcus multilocularis）",
+    "②③",
+    "會在患者肝臟形成包生囊（hydatid cyst）",
+    "犬複殖器絛蟲（Dipylidium caninum）",
+    "短小包膜絛蟲（Hymenolepis nana）",
+    "短小包膜絛蟲（Hymenolepis nana）",
+    "②④"
+   ],
+   "spans": [
+    {
+     "span": "E. multilocularis",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "致死率最高",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "最小",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "1–5 mm",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    },
+    {
+     "span": "多房性",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-distractor"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "短小包膜絛蟲 H. nana：本區唯一「蟲卵可直接感染人、不需中間宿主」的絛蟲，蟲卵於小腸孵化後可在小腸絨毛內完成整個生活史，也是能自體感染（autoinfection）的代表蟲種。107/110/114",
+   "citeText": [
+    "107/110/114"
+   ],
+   "marks": [
+    "107",
+    "110",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-公共衛生學-Q29",
+    "107-1-醫學二-寄生蟲學-Q31",
+    "107-1-醫學二-寄生蟲學-Q32",
+    "110-1-醫學二-寄生蟲學-Q31",
+    "110-1-醫學二-寄生蟲學-Q34",
+    "110-2-醫學二-寄生蟲學-Q31",
+    "114-1-醫學二-寄生蟲學-Q31",
+    "114-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "4種",
+    "多胞絛蟲（Echinococcus multilocularis）",
+    "②③",
+    "會在患者肝臟形成包生囊（hydatid cyst）",
+    "犬複殖器絛蟲（Dipylidium caninum）",
+    "短小包膜絛蟲（Hymenolepis nana）",
+    "短小包膜絛蟲（Hymenolepis nana）",
+    "②④"
+   ],
+   "spans": [
+    {
+     "span": "自體感染",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "犬複殖器絛蟲 D. caninum 的中間宿主是貓狗蚤；人類感染方式是誤食帶蟲跳蚤本身，單純誤食蟲卵或生殖節片並不會感染人（那是感染跳蚤幼蟲的途徑）；其受孕節片具有其他絛蟲沒有的特殊構造——卵囊（egg capsules）。104/109/110",
+   "citeText": [
+    "104/109/110"
+   ],
+   "marks": [
+    "104",
+    "109",
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q77",
+    "109-1-醫學二-微生物暨免疫學-Q32",
+    "109-2-醫學二-寄生蟲學-Q31",
+    "110-1-醫學二-寄生蟲學-Q31",
+    "110-1-醫學二-寄生蟲學-Q34",
+    "110-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "僅①③",
+    "犬複殖器絛蟲（Dipylidium caninum）",
+    "頭節上具有用來定位及附著的器官",
+    "會在患者肝臟形成包生囊（hydatid cyst）",
+    "犬複殖器絛蟲（Dipylidium caninum）",
+    "短小包膜絛蟲（Hymenolepis nana）"
+   ],
+   "spans": [
+    {
+     "span": "D. caninum",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "貓狗蚤",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "誤食帶蟲跳蚤",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "卵囊",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "人類對 Echinococcus（無論 granulosus 或 multilocularis）都只是意外中間宿主，無法在體內發育成成蟲，故糞便中驗不到六鉤幼蟲卵；發病需數年累積，不會感染後迅速發病；囊體破裂會引起過敏性休克（anaphylactic shock）。105/114",
+   "citeText": [
+    "105/114"
+   ],
+   "marks": [
+    "105",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q77",
+    "114-1-醫學二-寄生蟲學-Q31",
+    "114-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "4項",
+    "短小包膜絛蟲（Hymenolepis nana）",
+    "②④"
+   ],
+   "spans": [
+    {
+     "span": "意外中間宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "糞便中驗不到六鉤幼蟲卵",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "不會感染後迅速發病",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "縮小包膜絛蟲 H. diminuta 需以昆蟲（如麵粉甲蟲）當中間宿主，人誤食含幼蟲之昆蟲而感染，不會自體感染——與 H. nana 是本區最常見的一組易混配對。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-公共衛生學-Q29",
+    "107-1-醫學二-寄生蟲學-Q31",
+    "107-1-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "4種",
+    "多胞絛蟲（Echinococcus multilocularis）",
+    "②③"
+   ],
+   "spans": [
+    {
+     "span": "H. diminuta",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "不會自體感染",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 7,
+   "sentence": "能自體感染的寄生蟲（口訣 CCHEST）：短小包膜絛蟲、菲律賓毛線蟲、糞小桿線蟲、蟯蟲、豬肉絛蟲（經蟲卵）、隱孢子蟲——絛蟲家族裡只有 H. nana 與豬肉絛蟲上榜。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-公共衛生學-Q29",
+    "107-1-醫學二-寄生蟲學-Q31",
+    "107-1-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "4種",
+    "多胞絛蟲（Echinococcus multilocularis）",
+    "②③"
+   ],
+   "spans": [
+    {
+     "span": "H. nana",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "本區致肺部病變者以 E. granulosus（肺包蟲病）為代表；犬複殖器絛蟲僅致腸胃症狀與肛門搔癢，短小包膜絛蟲僅致腸胃症狀，兩者皆不侵犯肺部。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "顆粒性包生絛蟲（Echinococcus granulosus）"
+   ],
+   "spans": [
+    {
+     "span": "E. granulosus",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "單房性包生囊",
+   "why": "E. granulosus的囊型態"
+  },
+  {
+   "n": 2,
+   "span": "肺泡狀囊",
+   "why": "E. multilocularis的囊型態"
+  },
+  {
+   "n": 3,
+   "span": "自體感染",
+   "why": "H. nana代表特性"
+  },
+  {
+   "n": 4,
+   "span": "貓狗蚤",
+   "why": "D. caninum中間宿主"
+  },
+  {
+   "n": 5,
+   "span": "意外中間宿主",
+   "why": "人在Echinococcus生活史的角色"
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "僅舉例值或否定敘述，答案不唯一"
+  },
+  {
+   "n": 7,
+   "skip": true,
+   "why": "清單並列，挖一項答案不唯一"
+  },
+  {
+   "n": 8,
+   "span": "肺包蟲病",
+   "why": "E. granulosus致肺部病變的病名"
+  }
+ ],
+ "reply": "[\n{\"n\":1,\"span\":\"單房性包生囊\",\"why\":\"E. granulosus的囊型態\"},\n{\"n\":2,\"span\":\"肺泡狀囊\",\"why\":\"E. multilocularis的囊型態\"},\n{\"n\":3,\"span\":\"自體感染\",\"why\":\"H. nana代表特性\"},\n{\"n\":4,\"span\":\"貓狗蚤\",\"why\":\"D. caninum中間宿主\"},\n{\"n\":5,\"span\":\"意外中間宿主\",\"why\":\"人在Echinococcus生活史的角色\"},\n{\"n\":6,\"skip\":true,\"why\":\"僅舉例值或否定敘述，答案不唯一\"},\n{\"n\":7,\"skip\":true,\"why\":\"清單並列，挖一項答案不唯一\"},\n{\"n\":8,\"span\":\"肺包蟲病\",\"why\":\"E. granulosus致肺部病變的病名\"}\n]\n"
+}

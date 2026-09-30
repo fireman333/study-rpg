@@ -1,0 +1,271 @@
+{
+ "group": "r2-05",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r2",
+ "grades": {
+  "gametogenesis-fertilization#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "115-1 Q32 正答 C 動情素雙峰，卡答案即考點，括號英文已遮。"
+  },
+  "early-cleavage-implantation#k4": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-胚胎學-Q29",
+   "medicalError": false,
+   "reason": "104-2 Q29 考點正確，但空格前一句「形成囊胚（blastocyst）」＋「最早出現的腔室」直接洩出囊胚腔。"
+  },
+  "early-cleavage-implantation#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "107-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "107-2 Q32 否定題給分 A 滋養層；接合莖只是正確的誘答 C，卡挖的是旁支。"
+  },
+  "germ-layers-gastrulation#k8": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "115-1 Q35 給分 D 豎毛肌（非外胚層），與卡一致且答案唯一。"
+  },
+  "germ-layers-gastrulation#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "113-1 Q32 正答 C，但句中「壁層」＋列出軸旁、中間中胚層無關，三分法刪去即得外側中胚層，洩題。"
+  },
+  "germ-layers-gastrulation#k3": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "115-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "115-2 Q32 否定題給分 D 胚內中胚層；羊膜腔是誘答，且「依序第一個」也可填初級卵黃囊，答案不唯一。"
+  },
+  "germ-layers-gastrulation#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "111-1 Q32 正答 B 體節，卡答案即考點。"
+  },
+  "pharyngeal-arches#k11": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-1-醫學一-胚胎學-Q30",
+   "medicalError": false,
+   "reason": "104-1 Q30 正答 C 頸竇閉鎖不全形成鰓竇，卡答案即考點。"
+  },
+  "pharyngeal-arches#k12": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "107-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "107-1 Q32 正答 D 第四咽囊，答案唯一。"
+  },
+  "cardiovascular-development#k1": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "113-1 Q35 正答 B 肺血流上升；但自由作答「肺血管阻力下降」同樣正確，答案不唯一。"
+  },
+  "cardiovascular-development#k9": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "111-2 Q35 正答 A，但前句已說第一孔是第一中隔與心內膜墊間的空隙，閉合＝兩者融合，洩題。"
+  },
+  "cardiovascular-development#k10": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "114-2-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "114-2 Q35 正答 A 臍動脈；但標題「臍血管與靜脈導管」且臍靜脈已列出，刪去法即得，洩題。"
+  },
+  "cardiovascular-development#k11": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "114-1 Q35 正答 A 後主靜脈，卡答案即考點。"
+  },
+  "cardiovascular-development#k12": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學一-胚胎學-Q34",
+   "medicalError": true,
+   "reason": "110-1 Q34 給分 D 升主動脈與卡一致，但句中稱升主動脈是「唯一」與咽弓動脈無關的大血管，肺動脈幹同樣源自動脈幹，敘述錯誤。"
+  },
+  "neural-tube-development#k5": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "112-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "112-1 Q32 正答 A，但同句已給第 25 天與第 28 天，相減即得答案，洩題。"
+  },
+  "neural-tube-development#k6": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "115-1 Q36 否定題給分 D 視囊配髓腦；乳狀體是正確誘答 C，且間腦衍生物清單空格亦可填松果體等，不唯一。"
+  },
+  "body-wall-diaphragm-development#k5": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "104-1-醫學一-胚胎學-Q29",
+   "medicalError": false,
+   "reason": "104-1 Q29 正答 D 後外側，但緊接的「Bochdalek 孔」即後外側疝的同義名稱，洩題。"
+  },
+  "body-wall-diaphragm-development#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "111-2 Q32 否定題給分 A（漿液心包膜臟層）為錯誤敘述，卡答纖維性心包膜與之一致。"
+  },
+  "body-wall-diaphragm-development#k4": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "113-1 Q32 正答 C，但「並非軸旁、中間中胚層或內胚層」把其他選項全列出，刪去即得，洩題。"
+  },
+  "body-wall-diaphragm-development#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "110-1-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "110-1 Q32 考肌原母細胞進入食道背繫膜形成橫膈雙腳，此資訊在卡上被遮；卡只問橫膈四組成之一。"
+  },
+  "limb-axial-musculoskeletal-development#k1": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "111-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "111-1 Q36 否定題給分 D（旋轉方向）；AER 只是正確誘答 B，且「遠端外胚層增厚」已部分描述答案。"
+  },
+  "limb-axial-musculoskeletal-development#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-2-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "112-2 Q36 正答 D 矢狀縫，卡答案即考點。"
+  },
+  "GI-development#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-胚胎學-Q29",
+   "medicalError": false,
+   "reason": "106-1 Q29 正答 C 第 12 週，數字本身即考點。"
+  },
+  "GI-development#k10": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "108-2 Q34 正答 D，但空格後「成實心索…再通化…失敗會閉鎖」已重述答案，洩題。"
+  },
+  "GI-development#k11": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "114-2-醫學一-胚胎學-Q33",
+   "medicalError": false,
+   "reason": "114-2 Q33 正答 B 第二咽弓，但同句已列第一、第三、第四咽弓，刪去即得，洩題。"
+  },
+  "GI-development#k12": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-胚胎學-Q30",
+   "medicalError": true,
+   "reason": "104-2 Q30 正答 A 原肛與卡一致，但句中稱泄殖腔「被泌尿生殖橫膈分隔」，應為尿直腸中隔，敘述錯誤。"
+  },
+  "GI-development#k13": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "115-2 Q34 正答 C 原始背側胃繫膜，卡答案即考點。"
+  },
+  "respiratory-development#k8": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "113-1 Q35 正答 B；但「肺血管阻力下降」同樣可填，答案不唯一，且與心血管 k1 重複。"
+  },
+  "urogenital-development#k10": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-胚胎學-Q32",
+   "medicalError": false,
+   "reason": "105-2 Q32 否定題給分 B（46,XX）；「正常或退化」是誘答 D，空格填不出唯一答案。"
+  },
+  "urogenital-development#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "107-2-醫學一-胚胎學-Q35",
+   "medicalError": false,
+   "reason": "107-2 Q35 正答 D 後腎憩室，但後句「即中腎管突出形成的輸尿管芽」是同義重述，洩題。"
+  },
+  "urogenital-development#k11": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "106-1-醫學一-胚胎學-Q30",
+   "medicalError": false,
+   "reason": "106-1 Q30 否定題給分 C（腎上腺萎縮）；46,XX 是誘答 B，且「女性」假陰陽人已洩出核型。"
+  },
+  "urogenital-development#k12": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "107-1-醫學一-胚胎學-Q34",
+   "medicalError": false,
+   "reason": "107-1 Q34 正答 A Sertoli cell，卡答案即考點。"
+  },
+  "special-sense-integument-development#k8": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "110-1 Q36 正答 C 髓鞘僅包圍至視神經盤，卡答案即考點。"
+  },
+  "special-sense-integument-development#k9": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q36",
+   "medicalError": false,
+   "reason": "115-1 Q36 否定題給分 D 視囊；四疊體配中腦是正確誘答 B，價值普通。"
+  },
+  "intestinal-nematodes-soil-transmitted#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學二-寄生蟲學-Q29",
+   "medicalError": false,
+   "reason": "115-2 Q29 正答 A 十二指腸鉤蟲，卡答案即考點。"
+  }
+ },
+ "handoutIssues": [
+  {
+   "anchorId": "胚胎學::cardiovascular-development",
+   "cardId": "cardiovascular-development#k12",
+   "sentence": "升主動脈（ascending aorta）源自動脈幹（truncus arteriosus），是唯一與咽弓動脈無關的心臟大血管。",
+   "problem": "「唯一」錯誤：肺動脈幹同樣源自動脈幹、與咽弓動脈無關。",
+   "suggestedFix": "升主動脈（ascending aorta）與肺動脈幹皆源自動脈幹（truncus arteriosus），不屬咽弓動脈衍生物。",
+   "examRef": "110-1-醫學一-胚胎學-Q34"
+  },
+  {
+   "anchorId": "胚胎學::GI-development",
+   "cardId": "GI-development#k12",
+   "sentence": "第 26 天尿囊與後腸共同開口形成泄殖腔，被泌尿生殖橫膈分隔後，肛門膜約於第 9 週破裂",
+   "problem": "分隔泄殖腔的是尿直腸中隔（urorectal septum），不是泌尿生殖橫膈。",
+   "suggestedFix": "泄殖腔被尿直腸中隔（urorectal septum）分隔後",
+   "examRef": "104-2-醫學一-胚胎學-Q30"
+  }
+ ]
+}

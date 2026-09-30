@@ -1,0 +1,260 @@
+{
+ "anchorId": "寄生蟲學::intestinal-nematodes-soil-transmitted",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "dd3dce8c3d82a73a",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q30",
+     "stem": "下列何種人體寄生蟲可因入侵生殖系統進入腹腔（peritoneal cavity）而導致慢性骨盆腔腹膜炎（chronic pelvic peritonitis）？",
+     "trueOption": "蟯蟲（Enterobius vermicularis）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "蟯蟲（Enterobius vermicularis）雌蟲夜間爬到肛門周圍產卵，蟲卵可經空氣傳播、也會經手部污染造成全家群聚感染；蟲卵或蟲體經生殖道逆行進入腹腔，可引起慢性骨盆腔腹膜炎；夜間肛門搔癢干擾睡眠，但這不等於「睡眠病（sleeping sickness）」——後者是非洲錐蟲病的專有名詞，兩者常被拿來當誘答。105/106/113",
+   "citeText": [
+    "105/106/113"
+   ],
+   "marks": [
+    "105",
+    "106",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q75",
+    "105-2-醫學一-寄生蟲學-Q76",
+    "106-1-醫學一-寄生蟲學-Q77",
+    "106-2-醫學二-寄生蟲學-Q30",
+    "113-1-醫學二-寄生蟲學-Q29",
+    "113-1-醫學二-寄生蟲學-Q30",
+    "113-2-醫學二-微生物暨免疫學-Q30"
+   ],
+   "trueOptions": [
+    "蟲卵可藉空氣傳播感染人體",
+    "感染後易干擾夜間睡眠",
+    "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+    "僅②③",
+    "糞小桿線蟲（Strongyloides stercoralis）",
+    "蟯蟲（Enterobius vermicularis）",
+    "僅①②④",
+    "十二指腸鉤蟲（Ancylostoma duodenale）",
+    "蟲卵可藉空氣傳播感染人體",
+    "婦女感染後有可能引起慢性骨盆腔腹膜炎（pelvic peritonitis）",
+    "最正確的診斷方式為肛圍擦拭法（perianal swab）檢查是否有蟲卵"
+   ],
+   "spans": [
+    {
+     "span": "慢性骨盆腔腹膜炎",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "蟯蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 9
+  },
+  {
+   "tested": [
+    {
+     "id": "115-2-醫學二-寄生蟲學-Q29",
+     "stem": "赤腳踏在泥土田埂上享受稻香的芬芳，最容易被下列何種寄生蟲的絲狀（filarial form）幼蟲經皮膚鑽入造 成感染？",
+     "trueOption": "十二指腸鉤蟲（Ancylostoma duodenale）"
+    }
+   ],
+   "bulletIndex": 9,
+   "sentence": "「赤腳下田／踩泥土」這條病史直指絲狀幼蟲（filariform larva）經皮膚鑽入，答案是十二指腸鉤蟲（Ancylostoma duodenale）（糞小桿線蟲也走這條路）。同題常見三個誘答走的都是經口：犬蛔蟲（Toxocara canis）食入含胚卵→內臟幼蟲移行症、肝毛線蟲（Capillaria hepatica）食入受泥土含胚卵污染的飲水食物→寄生肝臟、有棘頜口線蟲（Gnathostoma spinigerum）生食淡水魚蛙蛇→幼蟲移行症。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "十二指腸鉤蟲（Ancylostoma duodenale）"
+   ],
+   "spans": [
+    {
+     "span": "十二指腸鉤蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "經口",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "111-1-醫學二-寄生蟲學-Q30",
+     "stem": "有關鞭蟲（Trichuris trichiura）感染人體的敘述，下列何者錯誤？",
+     "trueOption": "幼蟲直接在腸道發育為成蟲"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "鞭蟲（Trichuris trichiura）蟲卵在小腸孵化、幼蟲直接於大腸（盲腸～直腸）發育為成蟲，不經肺臟移行、也不具自體感染能力（自體感染是糞小桿線蟲的特徵，勿混）；蟲體前端細長鑽入腸黏膜、後端粗大游離腸腔，蟲卵兩端具透明卵塞（酒桶型）；重度感染兒童可導致貧血與直腸脫垂（rectal prolapse）。105/111/114",
+   "citeText": [
+    "105/111/114"
+   ],
+   "marks": [
+    "105",
+    "111",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q75",
+    "105-2-醫學一-寄生蟲學-Q76",
+    "111-1-醫學二-寄生蟲學-Q30",
+    "111-2-醫學二-寄生蟲學-Q29",
+    "114-1-醫學二-寄生蟲學-Q30",
+    "114-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "蟲卵可藉空氣傳播感染人體",
+    "感染後易干擾夜間睡眠",
+    "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+    "僅②③",
+    "幼蟲直接在腸道發育為成蟲",
+    "成蟲主要寄生在大腸",
+    "幼童重度感染可能會引起脫肛（rectum prolapse）",
+    "蛔蟲（Ascaris lumbricoides）",
+    "①②③",
+    "②③④"
+   ],
+   "spans": [
+    {
+     "span": "鞭蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "不經肺臟移行、也不具自體感染能力",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "tested": [
+    {
+     "id": "111-2-醫學二-寄生蟲學-Q29",
+     "stem": "下列何種寄生蟲重度感染幼童時，最有可能造成異位性移行（ectopic migration）寄生？",
+     "trueOption": "蛔蟲（Ascaris lumbricoides）"
+    }
+   ],
+   "bulletIndex": 7,
+   "sentence": "蛔蟲（Ascaris lumbricoides）感染唯人類，好發於 5–9 歲兒童；蟲卵於小腸孵化後幼蟲循心肺移行路徑（鑽小腸壁→肝→心→肺→穿肺泡壁→氣管→會厭→小腸）發育為成蟲；重度感染幼童最容易出現異位性移行（ectopic migration）——蟲體鑽出正常路徑跑到膽道、胰管等處造成阻塞，是蛔蟲區別於其他腸道線蟲的招牌考點。111",
+   "citeText": [
+    "111"
+   ],
+   "marks": [
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學二-寄生蟲學-Q30",
+    "111-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "幼蟲直接在腸道發育為成蟲",
+    "成蟲主要寄生在大腸",
+    "幼童重度感染可能會引起脫肛（rectum prolapse）",
+    "蛔蟲（Ascaris lumbricoides）"
+   ],
+   "spans": [
+    {
+     "span": "異位性移行",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "5–9 歲",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "蟯蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "alternative answer named, elimination"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "tested point is negation/multi-part"
+  },
+  {
+   "n": 4,
+   "span": "蛔蟲",
+   "why": "asked organism",
+   "hide": [
+    "蛔蟲區別於其他腸道線蟲"
+   ]
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"蟯蟲\",\"why\":\"asked organism\"},\n{\"n\":2,\"skip\":true,\"why\":\"alternative answer named, elimination\"},\n{\"n\":3,\"skip\":true,\"why\":\"tested point is negation/multi-part\"},\n{\"n\":4,\"span\":\"蛔蟲\",\"hide\":[\"蛔蟲區別於其他腸道線蟲\"],\"why\":\"asked organism\"}]\n"
+}

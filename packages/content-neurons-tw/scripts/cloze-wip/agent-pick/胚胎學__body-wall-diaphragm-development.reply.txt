@@ -1,0 +1,27 @@
+[
+ {
+  "n": 1,
+  "span": "Bochdalek 孔",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "L1 椎體",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "纖維性心包膜",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "span": "外側（側板）中胚層",
+  "why": "key exam fact"
+ },
+ {
+  "n": 5,
+  "span": "腸繫膜上動脈",
+  "why": "key exam fact"
+ }
+]

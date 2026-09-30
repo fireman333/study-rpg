@@ -1,0 +1,128 @@
+{
+ "anchorId": "寄生蟲學::paragonimiasis-and-ectopic-lesions",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "9bb021eadc863862",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "衛氏肺吸蟲（Paragonimus westermani）第一中間宿主為淡水螺類，第二中間宿主為蟹類與淡水螯蝦；人類經食入生食、鹽漬、醃製或未煮熟的淡水蟹／螯蝦而感染，感染型態是囊狀幼蟲（metacercaria），並非尾動幼蟲鑽皮、也不是食入水生植物或淡水魚。106-2/108-1/115-1",
+   "citeText": [
+    "106-2/108-1/115-1"
+   ],
+   "marks": [
+    "106-2",
+    "108-1",
+    "115-1"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學二-寄生蟲學-Q31",
+    "108-1-醫學二-寄生蟲學-Q31",
+    "115-1-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "生食含囊狀幼蟲（metacercaria）的淡水螃蟹",
+    "衛⽒肺吸蟲（Paragonimus westermani）",
+    "衛氏肺吸蟲（Paragonimus westermani）"
+   ],
+   "spans": [
+    {
+     "span": "蟹類與淡水螯蝦",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "除血吸蟲外，其餘寄生人體的吸蟲蟲卵皆具卵蓋（operculum）；所有吸蟲的第一中間宿主皆為螺類，是吸蟲類共同的鑑別特徵。105-2/111-2",
+   "citeText": [
+    "105-2/111-2"
+   ],
+   "marks": [
+    "105-2",
+    "111-2"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q78",
+    "111-2-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "除了血吸蟲（schistosomes）外，其他寄生人體的吸蟲類之蟲卵都具有卵蓋（operculum）",
+    "生吃美國進口的生鮮蝲蛄（crayfish）有可能感染克氏肺吸蟲（Paragonimus kellicotti）",
+    "埃及血吸蟲（Schistosoma haematobium）的慢性感染患者，罹患膀胱癌的機率較高",
+    "均須經由螺類傳播"
+   ],
+   "spans": [
+    {
+     "span": "螺類",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "野豬、野熊、猴子是衛氏肺吸蟲的保幼（待轉）宿主（paratenic host，可攜帶幼蟲但非其固有終宿主），不是保蟲宿主（reservoir host）——後者指野生貓科、犬科動物等人以外、能讓成蟲完成生活史的動物；食入這些保幼宿主的生肉、內臟同樣可能感染。105-2",
+   "citeText": [
+    "105-2"
+   ],
+   "marks": [
+    "105-2"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q78"
+   ],
+   "trueOptions": [
+    "除了血吸蟲（schistosomes）外，其他寄生人體的吸蟲類之蟲卵都具有卵蓋（operculum）",
+    "生吃美國進口的生鮮蝲蛄（crayfish）有可能感染克氏肺吸蟲（Paragonimus kellicotti）",
+    "埃及血吸蟲（Schistosoma haematobium）的慢性感染患者，罹患膀胱癌的機率較高"
+   ],
+   "spans": [
+    {
+     "span": "保幼（待轉）宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "淡水螺類",
+   "why": "first intermediate host"
+  },
+  {
+   "n": 2,
+   "span": "螺類",
+   "why": "first host of flukes"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "restated"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"淡水螺類\",\"why\":\"first intermediate host\"},{\"n\":2,\"span\":\"螺類\",\"why\":\"first host of flukes\"},{\"n\":3,\"skip\":true,\"why\":\"restated\"}]\n"
+}

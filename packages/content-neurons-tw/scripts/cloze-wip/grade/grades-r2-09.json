@@ -1,0 +1,12 @@
+{"group": "r2-09", "grader": "agent-pregrade", "model": "claude-opus-5-5", "round": "r2",
+ "grades": {
+  "pharyngeal-arches#k13": {"grade": "ordinary", "examAlignment": "related", "examRef": "105-2-醫學一-胚胎學-Q31", "leak": "none", "medicalError": false, "reason": "105-2-Q31 只考會厭軟骨不由第四/六咽弓衍生，112-1-Q33 考咽下隆起形成舌咽部；「會厭軟骨源自咽下隆起」本身未被直接考，答案唯一但屬延伸點。"},
+  "foodborne-tissue-nematodes#k14": {"grade": "good", "examAlignment": "tested", "examRef": "113-2-醫學二-微生物暨免疫學-Q29", "leak": "none", "medicalError": false, "reason": "113-2-Q29 官方答案 D 即糞便見肝毛線蟲卵＝假性感染，與卡答案一致；洩題片語已遮，遮後句意仍清楚。"},
+  "lymphatic-and-subcutaneous-filariasis#k9": {"grade": "good", "examAlignment": "tested", "examRef": "107-2-醫學二-寄生蟲學-Q30", "leak": "none", "medicalError": false, "reason": "107-2-Q30 直接考皮下切片（skin snips）診斷蟠尾絲蟲，110-2-Q29 選項 B 亦為正確敘述；英文 skin snips 已遮，答案唯一。"},
+  "angiostrongyliasis-and-larva-migrans#k9": {"grade": "good", "examAlignment": "tested", "examRef": "114-2-醫學二-寄生蟲學-Q30", "leak": "none", "medicalError": false, "reason": "114-2-Q30 考幼童嗜伊紅增多＋肝腫大→犬蛔蟲，107-1-Q30 選項 A 亦同；學名與終宿主片語已遮，句中其餘描述為臨床特徵、非同義詞。"},
+  "schistosomiasis#k7": {"grade": "ordinary", "examAlignment": "tested", "examRef": "113-2-醫學二-藥理學-Q31", "leak": "none", "medicalError": false, "reason": "113-2-Q31（否定題，給分 A）的選項 B「尾動幼蟲可穿透人皮膚」為正確敘述，與卡一致；但答案是一整句片語、措辭不唯一，且後兩子句被遮後只剩主句可讀，價值普通。"},
+  "intestinal-luminal-amoebae#k7": {"grade": "good", "examAlignment": "tested", "examRef": "106-1-醫學一-寄生蟲學-Q81", "leak": "none", "medicalError": false, "reason": "106-1-Q81（否定題，給分 D）選項 C 滋養體吞噬紅血球為正確敘述，108-1-Q34 選項 B 以哈氏阿米巴也吞噬紅血球誘答；對照片語已遮，答案唯一。"},
+  "intestinal-luminal-amoebae#k9": {"grade": "good", "examAlignment": "tested", "examRef": "106-2-醫學二-寄生蟲學-Q34", "leak": "none", "medicalError": false, "reason": "106-2-Q34 官方答案 D「阿米巴腫常被誤診為惡性腫瘤」即卡的答案；同義詞「癌症」已遮。"},
+  "tick-borne-disease#k5": {"grade": "good", "examAlignment": "tested", "examRef": "108-2-醫學二-寄生蟲學-Q35", "leak": "none", "medicalError": false, "reason": "108-2-Q35（否定題，給分 B）選項 A「主要寄生在紅血球內」為正確敘述，105-2-Q79 亦以紅血球內雙核形蟲體出題；「類似瘧原蟲環狀體」已遮，無洩題。"}
+ },
+ "handoutIssues": []}

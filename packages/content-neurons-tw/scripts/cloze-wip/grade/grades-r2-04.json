@@ -1,0 +1,237 @@
+{
+ "group": "r2-04",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r2",
+ "grades": {
+  "foodborne-tissue-nematodes#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "106-1-醫學一-寄生蟲學-Q76",
+   "medicalError": false,
+   "reason": "106-1 Q76 ③ 考的是「最早症狀非肌肉痛」，眼眶周圍水腫是周邊細節，題目未直接考。"
+  },
+  "foodborne-tissue-nematodes#k7": {
+   "grade": "ordinary",
+   "examAlignment": "not-tested",
+   "examRef": "",
+   "medicalError": false,
+   "reason": "105-2 Q75／108-1 Q29 都考病原與糞檢誤答，未考嗜伊紅性肉芽腫；且該答案屬病理所見，空格也可填潰瘍、腫塊等，答案不唯一。"
+  },
+  "foodborne-tissue-nematodes#k8": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "111-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "111-2 Q30 考病原辨認，不考傳統纏繞拉蟲療法；空格措辭自由，價值普通。"
+  },
+  "foodborne-tissue-nematodes#k9": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-2-醫學二-微生物暨免疫學-Q29",
+   "medicalError": false,
+   "reason": "113-2 Q29 考糞便蟲卵＝假性感染，空格改挖真感染的肝切片診斷，屬同題旁支。"
+  },
+  "foodborne-tissue-nematodes#k10": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "110-2 Q30 為否定題，給分 A（糞檢）是錯誤敘述，D 骨骼肌切片是正確診斷方式，與卡一致。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-1-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "112-1 Q35 直接考班氏絲蟲病媒＝熱帶家蚊；遮住的括號沒有洩題。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k6": {
+   "grade": "ordinary",
+   "examAlignment": "not-tested",
+   "examRef": "104-2-醫學一-寄生蟲學-Q75",
+   "medicalError": false,
+   "reason": "104-2 Q75 考羅阿絲蟲移行不劇痛（給分 B），沒考致盲的蟠尾絲蟲；答案唯一但只是對比註記。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "114-2 Q30 以嗜伊紅性白血球增加＋肝腫大指向犬蛔蟲；107-1 Q30 否定題選項 C 也是正確敘述，與卡一致。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k6": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "110-1 Q30 否定題給分 C（生菜沙拉），選項 B「確認診斷是在腦脊髓液中發現蟲體」為正確敘述，正是本卡答案。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k7": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-1-醫學二-微生物暨免疫學-Q30",
+   "medicalError": false,
+   "reason": "109-1 Q30 敘述② 人體為終宿主是錯的（給分 B＝2 項正確），卡寫終宿主為老鼠，與答案一致。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k8": {
+   "grade": "bad",
+   "examAlignment": "not-tested",
+   "examRef": "108-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "108-2 Q30 考犬鉤蟲，糞小桿線蟲未考；「也可造成」可填多種蟲，答案不唯一；同句「棘口線蟲」屬誤譯。"
+  },
+  "liver-and-intestinal-flukes#k5": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "113-1-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "113-1 Q32 ④ 槍狀肝吸蟲不以水生植物為中間宿主（給分 A 沒選 ④），第二中間宿主＝螞蟻正是這個誘答的理由；答案唯一。"
+  },
+  "liver-and-intestinal-flukes#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-2-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "115-2 Q32 的題幹已給「糞便鏡檢」，考點是橫川吸蟲；空格挖到題幹細節，價值低。"
+  },
+  "paragonimiasis-and-ectopic-lesions#k4": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "106-2-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "106-2 Q31 考感染途徑（生食淡水蟹），第一中間宿主淡水螺未考。"
+  },
+  "diphyllobothriasis-and-sparganosis#k5": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "111-1-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "111-1 Q31 的題幹已給醃魚，考點是廣節裂頭絛蟲；空格也可填生魚、燻魚，答案不唯一。"
+  },
+  "diphyllobothriasis-and-sparganosis#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-2-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "115-2 Q31 考敷蛙肉的病史，未考飲水中的劍水蚤；答案正確且唯一，但未考。"
+  },
+  "diphyllobothriasis-and-sparganosis#k7": {
+   "grade": "good",
+   "examAlignment": "no-question",
+   "examRef": "",
+   "medicalError": false,
+   "reason": "沒有連結考題；廣節裂頭絛蟲搶奪 B12 是經典考點（見 111-1 Q31 題幹），答案唯一。"
+  },
+  "free-living-amoebae-and-flagellates#k4": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "112-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "112-2 Q33 D「都需角膜移植」是錯誤敘述，卡寫的角膜上皮清創這種輔助療法未考。"
+  },
+  "intestinal-luminal-amoebae#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "115-2 Q33 否定題給分 B，選項 C「PCR 可鑑別 E. dispar」為正確敘述，與卡一致。"
+  },
+  "malaria-plasmodium#k5": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "113-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "113-2 Q33 A 考間日瘧偏好網狀紅血球；Schüffner 斑點是同一段的經典鑑別點，連結題沒直接考，答案唯一。"
+  },
+  "malaria-plasmodium#k6": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-1-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "113-1 Q34 考諾氏瘧沒有隱眠小體；primaquine 未考，且 G6PD 這條線索幾乎直接指向答案，tafenoquine 也可填。"
+  },
+  "malaria-plasmodium#k7": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "112-1-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "112-1 Q34 給分 C 考卵動子不是鑽唾液腺；受精位置（中腸／胃）未考，且可以有兩種說法。"
+  },
+  "babesiosis#k5": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-寄生蟲學-Q79",
+   "medicalError": false,
+   "reason": "105-2 Q79 考雙核型蟲體指向巴貝氏原蟲；「無性分裂」籠統（出芽／二分裂都可填），答案不具體。"
+  },
+  "babesiosis#k6": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "108-2 Q35 否定題給分 B，選項 D「血液抹片配合 IFA」為正確敘述，與卡一致。"
+  },
+  "babesiosis#k7": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "110-2-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "110-2 Q35 考硬蜱屬傳播巴貝氏原蟲；革蜱屬→落磯山斑疹熱未考，且革蜱也傳播兔熱病、蜱癱瘓，答案不唯一。"
+  },
+  "toxoplasmosis#k3": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-寄生蟲學-Q80",
+   "medicalError": false,
+   "reason": "105-2 Q80 B 愛滋病可致弓蟲腦炎是正確敘述，但沒考機轉「組織囊體再活化」；也可填緩殖子。"
+  },
+  "louse-flea-mechanical-vectors#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "108-1-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "108-1 Q35 否定題給分 D，選項 B「長期臥床且有開放性傷口」為正確敘述，與卡一致。"
+  },
+  "louse-flea-mechanical-vectors#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-1-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "114-1 Q35 給分 C「馬氏管主要負責移除含氮廢物」，與卡一致。"
+  },
+  "louse-flea-mechanical-vectors#k6": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "113-2-醫學二-寄生蟲學-Q35",
+   "medicalError": true,
+   "reason": "113-2／107-1 題只考體蝨傳哪些病；卡稱三病「皆」經蝨糞傳染，但回歸熱（B. recurrentis）是壓碎蝨體、體液進入傷口，並非經糞便。"
+  }
+ },
+ "handoutIssues": [
+  {
+   "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+   "cardId": "louse-flea-mechanical-vectors#k6",
+   "sentence": "體蝨（body louse）一次背三種病：流行性斑疹傷寒（Rickettsia prowazekii）、體蝨型回歸熱（Borrelia recurrentis）、戰壕熱（Bartonella quintana）；三者皆非叮咬直接注入病原體，而是蝨的糞便經由抓癢處的皮膚傷口進入人體。107/113",
+   "problem": "體蝨型回歸熱（Borrelia recurrentis）是壓碎蝨體、體腔液經抓傷的皮膚進入人體傳染，並非經蝨糞；只有流行性斑疹傷寒與戰壕熱經蝨糞傳染",
+   "suggestedFix": "改為「流行性斑疹傷寒與戰壕熱經蝨糞便污染抓傷的傷口傳染；回歸熱則是壓碎蝨體、體液經傷口進入」",
+   "examRef": "113-2-醫學二-寄生蟲學-Q35"
+  },
+  {
+   "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+   "cardId": "angiostrongyliasis-and-larva-migrans#k8",
+   "sentence": "皮膚幼蟲移行症（cutaneous larva migrans, CLM）的典型病原是犬鉤蟲（Ancylostoma caninum）與巴西鉤蟲（A. braziliense）：幼蟲鑽入人體皮膚後無法成熟，只能在皮下移行，造成蜿蜒延伸的爬行疹（creeping eruption）；糞小桿線蟲與棘口線蟲（Gnathostoma）也可造成 CLM。108",
+   "problem": "「棘口線蟲（Gnathostoma）」是誤譯：Gnathostoma 是（有棘）顎口線蟲，棘口吸蟲則是 Echinostoma；另外糞小桿線蟲造成的是 larva currens，Gnathostoma 造成的是皮下移行性腫脹，列為 CLM 宜加註",
+   "suggestedFix": "改為「（有棘）顎口線蟲（Gnathostoma）」",
+   "examRef": "108-2-醫學二-寄生蟲學-Q30"
+  },
+  {
+   "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+   "cardId": "foodborne-tissue-nematodes#k7",
+   "sentence": "海獸胃線蟲（Anisakis spp.）經食用海水魚生魚片（壽司／生魚片）感染，需經兩種中間宿主（海水甲殼類→海水魚／烏賊）才具感染力；幼蟲鑽入胃或十二指腸壁，造成急性腹痛、胃鏡下可見線狀填充物缺陷（threadlike filling defect）與嗜伊紅性肉芽腫，常被誤認為胃癌；診斷靠胃鏡直視並摘除幼蟲，不是檢查糞便中的蟲卵。105/108",
+   "problem": "嗜伊紅性肉芽腫是病理組織學所見，不是胃鏡直接可見的影像",
+   "suggestedFix": "改為「胃鏡下可見線狀填充物缺陷、黏膜水腫／腫塊，病理為嗜伊紅性肉芽腫」",
+   "examRef": "105-2-醫學一-寄生蟲學-Q75"
+  }
+ ]
+}

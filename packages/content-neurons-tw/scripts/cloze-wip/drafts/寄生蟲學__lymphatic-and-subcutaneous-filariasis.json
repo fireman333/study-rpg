@@ -1,0 +1,218 @@
+{
+ "anchorId": "寄生蟲學::lymphatic-and-subcutaneous-filariasis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "a2cf478ea6246c8a",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q29",
+     "stem": "班氏絲蟲（Wuchereria bancrofti）之患者服用下列何種藥物有助於白天採血檢查微絲蟲（microfilaria）？",
+     "trueOption": "diethylcarbamazine"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "班氏絲蟲（Wuchereria bancrofti）病媒為熱帶家蚊（曾流行於台澎金馬及中國南方）；成蟲寄生於淋巴管，微絲蟲具有夜間週期性（白天聚集於肺部小血管，夜間才大量出現於末梢血液），臨床上可用 diethylcarbamazine（DEC）誘發試驗讓微絲蟲白天也能被採血檢出；感染造成淋巴管炎、象皮病、陰囊水腫、乳糜尿。106/108/112",
+   "citeText": [
+    "106/108/112"
+   ],
+   "marks": [
+    "106",
+    "108",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q75",
+    "106-2-醫學二-寄生蟲學-Q29",
+    "108-1-醫學二-寄生蟲學-Q30",
+    "112-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "3項",
+    "diethylcarbamazine",
+    "蟲體在淋巴管發育為成蟲",
+    "只有在夜間微絲蟲（microfilaria）才會⼤量出現在末梢⾎液",
+    "在乳糜尿（chyluria）中也可能發現微絲蟲（microfilaria）",
+    "熱帶家蚊（Culex quinquefasciatus / fatigans）"
+   ],
+   "spans": [
+    {
+     "span": "熱帶家蚊",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "班氏絲蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "夜間週期性",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 9
+  },
+  {
+   "tested": [
+    {
+     "id": "104-2-醫學一-寄生蟲學-Q75",
+     "stem": "下列有關羅阿絲蟲（Loa loa）感染人體的敘述，何者錯誤？",
+     "trueOption": "成蟲主要寄生在皮下組織"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "羅阿絲蟲（Loa loa）病媒為虻（Chrysops，鹿蠅）；成蟲主要寄生於皮下組織、微絲蟲於白天出現在血液中；成蟲移行雖在皮下，但多不引起劇痛，只因蟲體分泌物過敏反應造成暫時性的卡拉巴腫（Calabar swelling）；跑到眼結膜下可造成眼蟲病（大量流淚、疼痛、不安），但不會造成失明——會致盲的是蟠尾絲蟲。104",
+   "citeText": [
+    "104"
+   ],
+   "marks": [
+    "104"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-寄生蟲學-Q75"
+   ],
+   "trueOptions": [
+    "成蟲主要寄生在皮下組織",
+    "微絲蟲（microfilaria）會出現在血液內",
+    "大多數病患之嗜酸性白血球會明顯增高"
+   ],
+   "spans": [
+    {
+     "span": "羅阿絲蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "白天",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "多不引起劇痛",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "不會造成失明",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學二-寄生蟲學-Q30",
+     "stem": "做皮下切片（skin snips）檢查微絲蟲（microfilaria）是診斷下列何種寄生蟲感染的重要依據？",
+     "trueOption": "蟠尾絲蟲（Onchocerca volvulus）"
+    },
+    {
+     "id": "110-2-醫學二-寄生蟲學-Q29",
+     "stem": "關於蟠尾絲蟲（Onchocerca volvulus）的敘述，下列何者錯誤？",
+     "trueOption": "自皮膚切片（skin snips）發現微絲蟲為主要診斷方法"
+    },
+    {
+     "id": "111-2-醫學二-寄生蟲學-Q34",
+     "stem": "下列何者是傳播蟠尾絲蟲（Onchocerca volvulus）之主要病媒？",
+     "trueOption": "蚋（Simulium spp.）"
+    }
+   ],
+   "bulletIndex": 5,
+   "sentence": "蟠尾絲蟲（Onchocerca volvulus）病媒為蚋（Simulium，黑蠅）；微絲蟲定居於皮膚（真皮層）與尿液中，皮下切片（skin snips）是主要診斷方法；重複感染可造成河川盲症（river blindness）、皮疹、硬而不痛的皮下結節、豹皮花紋（leopard skin）、鼠蹊懸垂（hanging groin）；肺部結節／錢幣狀病灶不是蟠尾絲蟲的表現，那是犬心絲蟲（Dirofilaria immitis）的特徵，兩者常被放在一起誘答。106/107/110/111",
+   "citeText": [
+    "106/107/110/111"
+   ],
+   "marks": [
+    "106",
+    "107",
+    "110",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q75",
+    "106-2-醫學二-寄生蟲學-Q29",
+    "107-2-醫學二-寄生蟲學-Q30",
+    "110-2-醫學二-寄生蟲學-Q29",
+    "111-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "3項",
+    "diethylcarbamazine",
+    "蟠尾絲蟲（Onchocerca volvulus）",
+    "微絲蟲會侵犯患者眼睛造成失明",
+    "自皮膚切片（skin snips）發現微絲蟲為主要診斷方法",
+    "患者可能出現鼠蹊懸垂（hanging groin）",
+    "蚋（Simulium spp.）"
+   ],
+   "spans": [],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "diethylcarbamazine",
+   "why": "asked drug"
+  },
+  {
+   "n": 2,
+   "span": "皮下組織",
+   "why": "asked adult worm site",
+   "hide": [
+    "成蟲移行雖在皮下"
+   ]
+  },
+  {
+   "n": 3,
+   "span": "皮下切片",
+   "why": "asked diagnostic method | leak-audit hide (restatement)",
+   "hide": [
+    "皮膚（真皮層）",
+    "皮下結節"
+   ]
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"diethylcarbamazine\",\"why\":\"asked drug\"},\n{\"n\":2,\"span\":\"皮下組織\",\"hide\":[\"成蟲移行雖在皮下\"],\"why\":\"asked adult worm site\"},\n{\"n\":3,\"span\":\"皮下切片\",\"why\":\"asked diagnostic method\"}]\n"
+}

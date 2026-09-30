@@ -1,0 +1,1 @@
+[{"n": 1, "span": "第 12 週", "why": "tested point"}, {"n": 2, "span": "因上皮細胞增生而一度閉鎖", "why": "tested point"}, {"n": 3, "span": "咽下隆起", "hide": ["被隨後長大的咽下隆起擠壓"], "why": "tested point"}, {"n": 4, "span": "原肛", "why": "tested point"}, {"n": 5, "span": "原始背側胃繫膜", "why": "tested point"}]

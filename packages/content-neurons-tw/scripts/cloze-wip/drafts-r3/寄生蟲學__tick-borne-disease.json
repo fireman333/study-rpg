@@ -1,0 +1,312 @@
+{
+ "anchorId": "寄生蟲學::tick-borne-disease",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "3dbf0f320765b508",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "104-2-醫學一-寄生蟲學-Q82",
+     "stem": "下列有關蜱媒介人畜共通萊姆病（Lyme disease）之敘述，何者錯誤？",
+     "trueOption": "其致病原為伯氏疏螺旋體（Borrelia burgdorferi）"
+    },
+    {
+     "id": "105-2-醫學一-寄生蟲學-Q81",
+     "stem": "下列何者為傳播人畜共通萊姆病（Lyme disease）之主要病媒（vector）？",
+     "trueOption": "硬蜱屬（Ixodes spp.）"
+    }
+   ],
+   "bulletIndex": 1,
+   "sentence": "硬蜱屬（Ixodes spp.）是萊姆病（Borrelia burgdorferi）最主要的病媒；感染分三期：第一期慢性遊走性紅斑（erythema migrans）、第二期無菌性腦膜炎／貝爾氏麻痺／心臟傳導阻斷／心肌炎、第三期慢性關節炎與腦病變。螺旋菌無法／很難培養，臨床診斷以症狀或血清學（測抗體）為主，不是血液抹片鏡檢。104/105",
+   "citeText": [
+    "104/105"
+   ],
+   "marks": [
+    "104",
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-寄生蟲學-Q82",
+    "105-1-醫學一-寄生蟲學-Q82",
+    "105-2-醫學一-寄生蟲學-Q79",
+    "105-2-醫學一-寄生蟲學-Q81"
+   ],
+   "trueOptions": [
+    "高度流行區內常有共同感染（co-infection）巴貝氏原蟲（Babesia spp.）",
+    "其致病原為伯氏疏螺旋體（Borrelia burgdorferi）",
+    "感染早期以遊走性紅斑（erythema migrans）為主要病癥",
+    "戰壕熱（trench fever）",
+    "巴貝氏原蟲症（babesiosis）",
+    "硬蜱屬（Ixodes spp.）"
+   ],
+   "spans": [
+    {
+     "span": "硬蜱屬",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "Borrelia burgdorferi",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "不是血液抹片鏡檢",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "症狀或血清學",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "105-2-醫學一-寄生蟲學-Q79",
+     "stem": "某科技公司主管林先生於二週前赴美國紐澤西地區參訪旅遊，旅遊期間曾遭受不知名具有八隻腳蟲體叮咬，回國一週後出現發 燒、寒顫、頭痛及肌痛等症狀，經醫院檢驗結果發現血小板減少、輕度溶血性貧血及紅血球內發現有雙核形（binucleate- form）之寄生蟲。依據上述結果，林先生最可能感染何種寄生蟲病？",
+     "trueOption": "巴貝氏原蟲症（babesiosis）"
+    },
+    {
+     "id": "108-2-醫學二-寄生蟲學-Q35",
+     "stem": "有關蜱媒介人巴貝氏原蟲病（human babesiosis）之敘述，下列何者錯誤？",
+     "trueOption": "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "巴貝氏原蟲症（babesiosis）：Babesia 寄生紅血球內、無性生殖形成類似瘧原蟲的環狀體，典型為4個merozoite排成馬爾他十字（Maltese cross）；多數患者呈現無症狀之低度寄生蟲血症（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+   "citeText": [
+    "105/108"
+   ],
+   "marks": [
+    "105",
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q82",
+    "105-2-醫學一-寄生蟲學-Q79",
+    "105-2-醫學一-寄生蟲學-Q81",
+    "108-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "戰壕熱（trench fever）",
+    "巴貝氏原蟲症（babesiosis）",
+    "硬蜱屬（Ixodes spp.）",
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+   ],
+   "spans": [
+    {
+     "span": "無症狀之低度寄生蟲血症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "contrast"
+     ],
+     "score": 7
+    },
+    {
+     "span": "血液抹片配合免疫螢光抗體試驗",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "馬爾他十字",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "5歲",
+     "kind": "number",
+     "base": 3,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "4個merozoite排成馬爾他十字",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "107-1-醫學二-寄生蟲學-Q34",
+     "stem": "下列何者不屬於蜱媒介人畜共通感染症（tick-borne zoonoses）？",
+     "trueOption": "落磯山斑疹熱（Rocky Mountain spotted fever）"
+    }
+   ],
+   "bulletIndex": 5,
+   "sentence": "落磯山斑疹熱（Rocky Mountain spotted fever）由革蜱屬（Dermacentor spp.）傳播Rickettsia rickettsii；西尼羅病毒症（West Nile）是家蚊（Culex）叮咬傳播，不屬於蜱媒介人畜共通感染症。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "萊姆病（Lyme disease）",
+    "巴貝氏原蟲症（babesiosis）",
+    "落磯山斑疹熱（Rocky Mountain spotted fever）"
+   ],
+   "spans": [
+    {
+     "span": "落磯山斑疹熱",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "Dermacentor spp.",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "不屬於蜱媒介人畜共通感染症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "109-2-醫學二-寄生蟲學-Q34",
+     "stem": "病媒蜱（vector tick）可以藉由叮咬而傳播下列何種人類感染症？",
+     "trueOption": "回歸熱（relapsing fever）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "軟蜱（Ornithodoros spp.）傳播蜱媒回歸熱（tick-borne relapsing fever）與Q熱（Coxiella burnetii；Q熱硬蜱亦可傳播）；黑熱病（白蛉媒介）、戰壕熱（體蝨媒介）、黃熱病（斑蚊媒介）都不是蜱媒介疾病。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "回歸熱（relapsing fever）"
+   ],
+   "spans": [
+    {
+     "span": "軟蜱",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "Coxiella burnetii",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "硬蜱屬",
+   "why": "考萊姆病主要病媒"
+  },
+  {
+   "n": 2,
+   "span": "紅血球內",
+   "why": "考巴貝氏原蟲寄生於紅血球內"
+  },
+  {
+   "n": 3,
+   "span": "落磯山斑疹熱",
+   "why": "考不屬於蜱媒介人畜共通感染症者"
+  },
+  {
+   "n": 4,
+   "span": "回歸熱",
+   "why": "考蜱傳播的疾病回歸熱"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"硬蜱屬\",\"why\":\"考萊姆病主要病媒\"},{\"n\":2,\"span\":\"紅血球內\",\"why\":\"考巴貝氏原蟲寄生於紅血球內\"},{\"n\":3,\"span\":\"落磯山斑疹熱\",\"why\":\"考不屬於蜱媒介人畜共通感染症者\"},{\"n\":4,\"span\":\"回歸熱\",\"why\":\"考蜱傳播的疾病回歸熱\"}]\n"
+}

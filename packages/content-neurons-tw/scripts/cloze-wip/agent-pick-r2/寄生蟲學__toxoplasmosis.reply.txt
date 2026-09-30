@@ -1,0 +1,1 @@
+[{"n": 1, "span": "潛伏組織囊體", "why": "key fact"}, {"n": 2, "skip": true, "why": "leak or ambiguous"}]

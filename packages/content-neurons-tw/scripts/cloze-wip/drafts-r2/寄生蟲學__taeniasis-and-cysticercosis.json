@@ -1,0 +1,274 @@
+{
+ "anchorId": "寄生蟲學::taeniasis-and-cysticercosis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "34ae8b2b32961b2f",
+ "candidates": [
+  {
+   "bulletIndex": 3,
+   "sentence": "神經性囊尾幼蟲症（neurocysticercosis）最常見的病因是豬肉絛蟲；約 70% 感染者會出現癲癇（epilepsy）；血清或腦脊液抗體／抗原檢查有助診斷（血清敏感度約 80%、腦脊液約 90%）；影像學典型可見腦實質或腦室內多發囊體。108/111/115",
+   "citeText": [
+    "108/111/115"
+   ],
+   "marks": [
+    "108",
+    "111",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q32",
+    "111-1-醫學二-寄生蟲學-Q32",
+    "111-2-醫學二-寄生蟲學-Q31",
+    "115-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "也會在肌⾁致病",
+    "病患可能發⽣癲癇（epilepsy）",
+    "⾎清抗體檢查有助於診斷",
+    "豬肉絛蟲（Taenia solium）",
+    "豬肉絛蟲（Taenia solium）",
+    "囊尾幼蟲症（cysticercosis）"
+   ],
+   "spans": [
+    {
+     "span": "豬肉絛蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "70%",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "80%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    },
+    {
+     "span": "90%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 9
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "經典病史型態：曾在流行區（如中南美洲、墨西哥）居住或旅遊，出現頭痛、癲癇樣症狀、視力減退合併輕度嗜伊紅性白血球上升，糞便中驗不到蟲卵或蟲體（因為囊蟲症不是腸道感染），CT／MRI 見腦實質或腦室內多發囊體（4–15 mm）→ 高度懷疑囊尾幼蟲症，而非其他絛蟲病。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "囊尾幼蟲症（cysticercosis）"
+   ],
+   "spans": [
+    {
+     "span": "囊尾幼蟲症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "糞便中驗不到蟲卵或蟲體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "4–15 mm",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "牛肉絛蟲（T. saginata）中間宿主為牛，人吃進未熟牛肉中的囊尾幼蟲僅在腸道發育成成蟲；人類幾乎不會因牛肉絛蟲蟲卵而罹患囊蟲症，這是牛肉絛蟲與豬肉絛蟲最關鍵的差異點（亞洲無鈎絛蟲 T. saginata asiatica 雖偶可致類似病灶，但病例遠少於豬肉絛蟲）。111/114",
+   "citeText": [
+    "111/114"
+   ],
+   "marks": [
+    "111",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學二-寄生蟲學-Q32",
+    "111-2-醫學二-寄生蟲學-Q31",
+    "114-1-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "豬肉絛蟲（Taenia solium）",
+    "豬肉絛蟲（Taenia solium）",
+    "前者會造成人類的囊尾幼蟲症（human cysticercosis）"
+   ],
+   "spans": [
+    {
+     "span": "幾乎不會",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "吃進含囊尾幼蟲的未熟豬肉：幼蟲只在小腸發育成成蟲，不會侵犯其他內臟器官；吃進／誤食豬肉絛蟲蟲卵（糞口傳染或自體感染）：孵化的六鉤幼蟲穿出腸壁、經血循移行到肌肉、皮下、眼、腦等組織形成囊尾幼蟲——這是造成囊蟲症的真正機轉，兩種感染路徑的結果截然不同。108",
+   "citeText": [
+    "108"
+   ],
+   "marks": [
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "也會在肌⾁致病",
+    "病患可能發⽣癲癇（epilepsy）",
+    "⾎清抗體檢查有助於診斷"
+   ],
+   "spans": [
+    {
+     "span": "含囊尾幼蟲的未熟豬肉",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "豬肉絛蟲蟲卵",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "不會",
+     "kind": "bold-polarity",
+     "base": 1,
+     "signals": [
+      "bold-polarity",
+      "marks×1"
+     ],
+     "score": 2
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "人類是豬肉絛蟲（T. solium）同時身兼終宿主（腸道成蟲）與中間宿主（組織內囊尾幼蟲）最具代表性的絛蟲（短小包膜絛蟲 H. nana 亦可在人小腸絨毛內完成幼蟲期再發育為成蟲，人同樣兼具兩種角色，故不宜稱豬肉絛蟲為「唯一」）——這個「雙重宿主角色」正是豬肉絛蟲比其他絛蟲更危險的解剖生理基礎。111",
+   "citeText": [
+    "111"
+   ],
+   "marks": [
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學二-寄生蟲學-Q32",
+    "111-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "豬肉絛蟲（Taenia solium）",
+    "豬肉絛蟲（Taenia solium）"
+   ],
+   "spans": [
+    {
+     "span": "同時身兼終宿主（腸道成蟲）與中間宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "豬肉絛蟲",
+   "why": "key exam fact"
+  },
+  {
+   "n": 2,
+   "span": "糞便中驗不到蟲卵或蟲體",
+   "why": "key exam fact"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "ambiguous or negation/duplicate answer"
+  },
+  {
+   "n": 4,
+   "span": "六鉤幼蟲",
+   "why": "key exam fact"
+  },
+  {
+   "n": 5,
+   "skip": true,
+   "why": "ambiguous or negation/duplicate answer"
+  }
+ ],
+ "reply": "[\n {\n  \"n\": 1,\n  \"span\": \"豬肉絛蟲\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 2,\n  \"span\": \"糞便中驗不到蟲卵或蟲體\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 3,\n  \"skip\": true,\n  \"why\": \"ambiguous or negation/duplicate answer\"\n },\n {\n  \"n\": 4,\n  \"span\": \"六鉤幼蟲\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 5,\n  \"skip\": true,\n  \"why\": \"ambiguous or negation/duplicate answer\"\n }\n]"
+}

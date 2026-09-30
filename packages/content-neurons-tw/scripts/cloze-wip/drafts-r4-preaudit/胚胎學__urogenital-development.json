@@ -1,0 +1,333 @@
+{
+ "anchorId": "胚胎學::urogenital-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "adfaaba709a9be17",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "105-2-醫學一-胚胎學-Q32",
+     "stem": "有關男性假陰陽人（male pseudohermaphroditism）之特徵，下列何者錯誤？",
+     "trueOption": "睪丸發育可能正常或退化"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "男性假陰陽人染色體為 46, XY（非 46, XX），因睪丸製造睪固酮不足或雄性素受體不敏感而呈現女性外生殖器，因具 Y 染色體而不含性染色質（Barr body），睪丸發育可能正常或退化。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q31",
+    "105-2-醫學一-胚胎學-Q29",
+    "105-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "集尿小管（collecting tubule）",
+    "Y",
+    "testosterone分泌不足",
+    "不含性染色質（sex chromatin）",
+    "睪丸發育可能正常或退化"
+   ],
+   "spans": [
+    {
+     "span": "不含性染色質",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "46, XY",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "contrast"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學一-胚胎學-Q35",
+     "stem": "輸尿管（ureter）的胚胎起源為何？",
+     "trueOption": "後腎憩室（metanephric diverticulum）"
+    }
+   ],
+   "bulletIndex": 5,
+   "sentence": "輸尿管的胚胎起源是後腎憩室（metanephric diverticulum），即中腎管突出形成的輸尿管芽，進一步衍生出輸尿管、腎盂、腎盞與集尿管；後腎中胚層則衍生腎小管與鮑氏囊，兩者不可混淆。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q34",
+    "107-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "睪丸支持細胞（Sertoli cell）",
+    "後腎憩室（metanephric diverticulum）"
+   ],
+   "spans": [
+    {
+     "span": "後腎憩室",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "106-1-醫學一-胚胎學-Q30",
+     "stem": "有關女性假陰陽人（female pseudohermaphroditism）具有特徵之敘述，下列何者錯誤？",
+     "trueOption": "染色體46, XX"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "女性假陰陽人染色體為 46, XX，因先天性腎上腺增生症（CAH，皮質醇合成酵素缺陷）導致腎上腺過度分泌雄性素而外生殖器男性化，並非肇因於腎上腺萎縮。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-胚胎學-Q30"
+   ],
+   "trueOptions": [
+    "男性荷爾蒙分泌太多",
+    "染色體46, XX",
+    "外生殖器官男性化"
+   ],
+   "spans": [
+    {
+     "span": "先天性腎上腺增生症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "107-1-醫學一-胚胎學-Q34",
+     "stem": "下列何者分泌穆勒氏抑制物（Müllerian inhibiting substance, MIS），使副中腎管（paramesonephric duct） 退化？",
+     "trueOption": "睪丸支持細胞（Sertoli cell）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "睪丸的塞托利氏細胞（Sertoli cell）分泌穆勒氏管抑制物（MIS，即 AMH），使副中腎管（Müllerian duct）退化；間質細胞（Leydig cell）則分泌睪固酮，兩者分工是泌尿生殖胚胎學的核心配對。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q34",
+    "107-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "睪丸支持細胞（Sertoli cell）",
+    "後腎憩室（metanephric diverticulum）"
+   ],
+   "spans": [
+    {
+     "span": "塞托利氏細胞",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "間質細胞",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "115-2-醫學一-胚胎學-Q35",
+     "stem": "下列何者是由副中腎管（paramesonephric duct）衍生形成的構造？",
+     "trueOption": "輸卵管（oviduct）"
+    }
+   ],
+   "bulletIndex": 11,
+   "sentence": "三條管路的衍生物一次分清：副中腎管（paramesonephric duct／Müllerian duct）→ 輸卵管、子宮與陰道上段（男性因 Sertoli cell 分泌的 AMH 而退化）；中腎管（mesonephric duct／Wolffian duct）→ 副睪、輸精管、儲精囊與射精管；輸尿管芽（ureteric bud，由中腎管下段長出）→ 輸尿管、腎盂、腎盞與集尿管。問「何者由副中腎管衍生」答輸卵管；射精管、輸精管、輸尿管三者都不是。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "輸卵管（oviduct）"
+   ],
+   "spans": [
+    {
+     "span": "輸尿管芽",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "109-2-醫學一-胚胎學-Q34",
+     "stem": "下列何種構造不是由中腎管（mesonephric duct）衍生而成？",
+     "trueOption": "睪丸網（rete testis）"
+    }
+   ],
+   "bulletIndex": 9,
+   "sentence": "中腎管（mesonephric duct，Wolffian duct）末端衍生副睪、輸精管、儲精囊與射精管；但睪丸網（rete testis）與曲細精管是由初級生殖索（性腺髓質索）衍生，並非中腎管的產物，是這節反覆出現的誘答對照。109/111/112",
+   "citeText": [
+    "109/111/112"
+   ],
+   "marks": [
+    "109",
+    "111",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學一-胚胎學-Q34",
+    "109-2-醫學一-胚胎學-Q34",
+    "111-1-醫學一-胚胎學-Q34",
+    "112-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "鞘突（processus vaginalis）",
+    "睪丸網（rete testis）",
+    "射精管（ejaculatory duct）",
+    "精囊（seminal vesicle）"
+   ],
+   "spans": [],
+   "score": 3
+  },
+  {
+   "tested": [
+    {
+     "id": "109-1-醫學一-胚胎學-Q34",
+     "stem": "精索積水（hydrocele of the spermatic cord）是由於下列何者閉鎖不全造成？",
+     "trueOption": "鞘突（processus vaginalis）"
+    }
+   ],
+   "bulletIndex": 8,
+   "sentence": "精索積水（hydrocele of the spermatic cord）由鞘突（processus vaginalis）中段閉鎖不全造成，腹膜液滲入精索內腔；若鞘突全程未閉鎖，腹膜液大量流入則形成陰囊積水。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學一-胚胎學-Q34",
+    "109-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "鞘突（processus vaginalis）",
+    "睪丸網（rete testis）"
+   ],
+   "spans": [],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "clause too long"
+  },
+  {
+   "n": 2,
+   "span": "後腎憩室",
+   "why": "tested point",
+   "hide": [
+    "中腎管突出形成的輸尿管芽"
+   ]
+  },
+  {
+   "n": 3,
+   "span": "46, XX",
+   "why": "tested point"
+  },
+  {
+   "n": 4,
+   "skip": true,
+   "why": "elimination with Leydig"
+  },
+  {
+   "n": 5,
+   "span": "輸卵管",
+   "why": "tested point",
+   "hide": [
+    "問「何者由副中腎管衍生」答輸卵管"
+   ]
+  },
+  {
+   "n": 6,
+   "span": "睪丸網",
+   "why": "tested point"
+  },
+  {
+   "n": 7,
+   "span": "鞘突",
+   "why": "tested point",
+   "hide": [
+    "若鞘突全程未閉鎖"
+   ]
+  }
+ ],
+ "reply": "[{\"n\": 1, \"skip\": true, \"why\": \"clause too long\"}, {\"n\": 2, \"span\": \"後腎憩室\", \"hide\": [\"中腎管突出形成的輸尿管芽\"], \"why\": \"tested point\"}, {\"n\": 3, \"span\": \"46, XX\", \"why\": \"tested point\"}, {\"n\": 4, \"skip\": true, \"why\": \"elimination with Leydig\"}, {\"n\": 5, \"span\": \"輸卵管\", \"hide\": [\"問「何者由副中腎管衍生」答輸卵管\"], \"why\": \"tested point\"}, {\"n\": 6, \"span\": \"睪丸網\", \"why\": \"tested point\"}, {\"n\": 7, \"span\": \"鞘突\", \"hide\": [\"若鞘突全程未閉鎖\"], \"why\": \"tested point\"}]"
+}

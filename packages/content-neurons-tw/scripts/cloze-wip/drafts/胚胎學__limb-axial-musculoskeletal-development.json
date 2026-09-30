@@ -1,0 +1,305 @@
+{
+ "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "ecdd95c4970271d7",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "111-1-醫學一-胚胎學-Q36",
+     "stem": "下列有關四肢（limbs）發育的敘述，何者錯誤？",
+     "trueOption": "肢芽（limb buds）於胚胎第四週末時，開始出現於體壁腹外側"
+    }
+   ],
+   "bulletIndex": 8,
+   "sentence": "肢芽（limb bud）於胚胎第 4 週末出現於體壁腹外側，遠端外胚層增厚形成頂外胚層嵴（apical ectodermal ridge, AER），誘導其下方的間葉組織（progress zone）快速增生，帶動肢體由近端往遠端生長；下肢芽的發育較上肢芽晚約 1 至 2 天。111",
+   "citeText": [
+    "111"
+   ],
+   "marks": [
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學一-胚胎學-Q32",
+    "111-1-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "體節（somite）",
+    "肢芽（limb buds）於胚胎第四週末時，開始出現於體壁腹外側",
+    "頂外胚層嵴（apical ectodermal ridge）誘導肢芽（limb buds）的生長及發育",
+    "下肢芽（lower limb buds）較上肢芽（upper limb buds）晚一或二天發育"
+   ],
+   "spans": [
+    {
+     "span": "頂外胚層嵴",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "第 4 週末",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "4 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "1 至 2 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "112-2-醫學一-胚胎學-Q36",
+     "stem": "下列那一構造，因出生以前的提早閉合而造成長楔形之舟形頭（scaphocephaly）？",
+     "trueOption": "矢狀縫（sagittal suture）"
+    }
+   ],
+   "bulletIndex": 7,
+   "sentence": "顱蓋（calvaria）的囟門中，後囟門（posterior fontanelle，即枕囟門／lambda）最早關閉，前囟門（anterior fontanelle，即額囟門／bregma）最晚關閉；顱縫提早癒合（craniosynostosis）會依部位產生特定頭型，其中矢狀縫（sagittal suture）提早閉合會造成前後拉長、左右狹窄的舟狀頭（scaphocephaly）。110/112",
+   "citeText": [
+    "110/112"
+   ],
+   "marks": [
+    "110",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q35",
+    "110-2-醫學一-胚胎學-Q35",
+    "112-1-醫學一-生理學-Q35",
+    "112-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "脊椎骨（vertebra）",
+    "斜角肌（scalene muscle）",
+    "脊柱前肌（prevertebral muscle）",
+    "舌下肌（infrahyoid muscle）",
+    "①④",
+    "矢狀縫（sagittal suture）"
+   ],
+   "spans": [
+    {
+     "span": "舟狀頭",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "108-1-醫學一-胚胎學-Q36",
+     "stem": "下列何者衍⽣⾃脊索（notochord）？",
+     "trueOption": "髓核（nucleus pulposus）"
+    }
+   ],
+   "bulletIndex": 1,
+   "sentence": "脊索本身只演變成髓核（nucleus pulposus）；椎體則是由相鄰兩個生骨節的頭端緻密間質細胞與尾端鬆散間質細胞共同形成（再分節現象），纖維環由環繞髓核的纖維形成，椎弓由神經管旁的間質細胞形成。108/110",
+   "citeText": [
+    "108/110"
+   ],
+   "marks": [
+    "108",
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學一-胚胎學-Q36",
+    "110-1-醫學一-胚胎學-Q35",
+    "110-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "髓核（nucleus pulposus）",
+    "脊椎骨（vertebra）",
+    "斜角肌（scalene muscle）",
+    "脊柱前肌（prevertebral muscle）",
+    "舌下肌（infrahyoid muscle）"
+   ],
+   "spans": [],
+   "score": 2
+  },
+  {
+   "tested": [
+    {
+     "id": "111-1-醫學一-胚胎學-Q32",
+     "stem": "下列何者由軸旁中胚層（paraxial mesoderm）衍生而來？",
+     "trueOption": "體節（somite）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "體節（somite）由軸旁中胚層（paraxial mesoderm）衍生而來——脊索（notochord）來自原結、體腔來自外側中胚層、原條來自尾端外胚層，皆非體節的直接來源；每個體節再分化出三部分：生骨節（形成中軸骨骼）、肌節（形成骨骼肌）、皮節（形成真皮）。111",
+   "citeText": [
+    "111"
+   ],
+   "marks": [
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學一-胚胎學-Q32",
+    "111-1-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "體節（somite）",
+    "肢芽（limb buds）於胚胎第四週末時，開始出現於體壁腹外側",
+    "頂外胚層嵴（apical ectodermal ridge）誘導肢芽（limb buds）的生長及發育",
+    "下肢芽（lower limb buds）較上肢芽（upper limb buds）晚一或二天發育"
+   ],
+   "spans": [],
+   "score": 1
+  },
+  {
+   "tested": [
+    {
+     "id": "109-1-醫學一-胚胎學-Q36",
+     "stem": "關於顱骨（cranium）發育的敘述，何項錯誤？",
+     "trueOption": "臟顱（viscerocranium）是大腦的主要保護結構"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "顱骨（cranium）由神經顱（neurocranium，保護腦部）與臟顱（viscerocranium，構成顏面骨架）組成——臟顱並非大腦的主要保護結構；兩者又各自分成軟骨性與膜性部分，第一、二對咽弓的軟骨（Meckel's／Reichert's cartilage）即演變成軟骨性臟顱的聽小骨與舌骨（喉部軟骨屬第四、六咽弓，非此處）。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "臟顱（viscerocranium）是大腦的主要保護結構"
+   ],
+   "spans": [
+    {
+     "span": "神經顱",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 1
+  },
+  {
+   "tested": [
+    {
+     "id": "110-2-醫學一-胚胎學-Q35",
+     "stem": "下列何者發育不正常，最可能會造成先天斜頸（congenital torticollis/wryneck）？",
+     "trueOption": "斜角肌（scalene muscle）"
+    }
+   ],
+   "bulletIndex": 10,
+   "sentence": "先天性斜頸（congenital torticollis／wryneck）多因單側胸鎖乳突肌（sternocleidomastoid muscle）痙攣或纖維化所致，典型姿勢是頭歪向患側、臉轉向健側；斜角肌、脊柱前肌、舌下肌的病變則不是造成典型斜頸姿勢的主因。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q35",
+    "110-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "脊椎骨（vertebra）",
+    "斜角肌（scalene muscle）",
+    "脊柱前肌（prevertebral muscle）",
+    "舌下肌（infrahyoid muscle）"
+   ],
+   "spans": [
+    {
+     "span": "胸鎖乳突肌",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "第 4 週末",
+   "why": "tested point"
+  },
+  {
+   "n": 2,
+   "span": "矢狀縫",
+   "why": "tested point"
+  },
+  {
+   "n": 3,
+   "span": "髓核",
+   "why": "tested point",
+   "hide": [
+    "環繞髓核的纖維"
+   ]
+  },
+  {
+   "n": 4,
+   "span": "體節",
+   "why": "tested point",
+   "hide": [
+    "皆非體節的直接來源",
+    "每個體節再分化出三部分"
+   ]
+  },
+  {
+   "n": 5,
+   "skip": true,
+   "why": "negation"
+  },
+  {
+   "n": 6,
+   "span": "胸鎖乳突肌",
+   "why": "tested point"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"第 4 週末\", \"why\": \"tested point\"}, {\"n\": 2, \"span\": \"矢狀縫\", \"why\": \"tested point\"}, {\"n\": 3, \"span\": \"髓核\", \"hide\": [\"環繞髓核的纖維\"], \"why\": \"tested point\"}, {\"n\": 4, \"span\": \"體節\", \"hide\": [\"皆非體節的直接來源\", \"每個體節再分化出三部分\"], \"why\": \"tested point\"}, {\"n\": 5, \"skip\": true, \"why\": \"negation\"}, {\"n\": 6, \"span\": \"胸鎖乳突肌\", \"why\": \"tested point\"}]"
+}

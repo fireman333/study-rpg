@@ -1,0 +1,52 @@
+[
+ {
+  "n": 1,
+  "span": "肺部血流量上升",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "細胞凋亡",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "右鎖骨下動脈",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "skip": true,
+  "why": "ambiguous or negation/duplicate answer"
+ },
+ {
+  "n": 5,
+  "span": "臍靜脈",
+  "why": "key exam fact"
+ },
+ {
+  "n": 6,
+  "span": "左側第七節間動脈",
+  "why": "key exam fact"
+ },
+ {
+  "n": 7,
+  "span": "肝圓韌帶",
+  "why": "key exam fact"
+ },
+ {
+  "n": 8,
+  "span": "子宮靜脈",
+  "why": "key exam fact"
+ },
+ {
+  "n": 9,
+  "span": "卵黃囊靜脈",
+  "why": "key exam fact"
+ },
+ {
+  "n": 10,
+  "span": "右側後主靜脈",
+  "why": "key exam fact"
+ }
+]

@@ -1,0 +1,164 @@
+{
+ "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "e79f587013cd5cfe",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "108-1-醫學二-寄生蟲學-Q35",
+     "stem": "有關蠅蛆症（myiasis）之敘述，下列何者錯誤？",
+     "trueOption": "⼈膚蠅（Dermatobia hominis）產卵於吸⾎性蚊/蠅之腹部⽽致孵化之幼蟲鑽入宿主⽪膚傷⼝"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "蠅蛆症（myiasis）是機械性寄生的特例——幼蟲直接鑽入或寄生在組織內：人膚蠅（Dermatobia hominis）廣泛分布於拉丁美洲熱帶地區（並非亞洲），產卵於吸血性蚊蠅腹部，藉由其叮咬把孵化的幼蟲帶入宿主皮膚傷口；院內蠅蛆症（nosocomial myiasis）好發於長期臥床且有開放性傷口的病患；耳部蠅蛆症常見蟲體爬動感、雜音與惡臭分泌物。108/113",
+   "citeText": [
+    "108/113"
+   ],
+   "marks": [
+    "108",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q35",
+    "113-1-醫學二-寄生蟲學-Q35",
+    "113-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "⼈膚蠅（Dermatobia hominis）產卵於吸⾎性蚊/蠅之腹部⽽致孵化之幼蟲鑽入宿主⽪膚傷⼝",
+    "院內蠅蛆症（nosocomial myiasis）常發⽣於⻑期臥床且有開放性傷⼝病患",
+    "⽿部蠅蛆症（aural myiasis）病患常有蟲體爬動感、雜⾳及惡臭分泌物",
+    "綠蠅",
+    "地方性斑疹傷寒（endemic typhus）"
+   ],
+   "spans": [
+    {
+     "span": "Dermatobia hominis",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "拉丁美洲熱帶地區",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "contrast"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "114-1-醫學二-寄生蟲學-Q35",
+     "stem": "下列有關病媒（vector）的敘述，何者最為適當？",
+     "trueOption": "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是常見的錯誤誘答。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+   ],
+   "spans": [
+    {
+     "span": "馬氏管",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q35",
+     "stem": "下列何種節肢動物，主要以機械性傳播（mechanical transmission）方式媒介病原體？",
+     "trueOption": "家蠅（house fly）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "機械性傳播：家蠅（house fly）藉由體毛、蠟質、黏液單純攜帶病原體、不在體內繁殖（傳播痢疾、傷寒、霍亂等）；相對地，蚊子、跳蚤、體蝨都屬於生物性傳播，病原體必須先在節肢動物體內生長繁殖才能傳播。106/114",
+   "citeText": [
+    "106/114"
+   ],
+   "marks": [
+    "106",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學二-寄生蟲學-Q35",
+    "114-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "家蠅（house fly）",
+    "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+   ],
+   "spans": [
+    {
+     "span": "生物性傳播",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "吸血性蚊蠅腹部",
+   "why": "leak-audit drop (not-unique): Egg-laying site is too open-ended.",
+   "hide": [
+    "藉由其叮咬"
+   ],
+   "skip": true
+  },
+  {
+   "n": 2,
+   "span": "馬氏管",
+   "why": "asked excretory organ"
+  },
+  {
+   "n": 3,
+   "span": "家蠅",
+   "why": "leak-audit drop (not-unique): 蒼蠅 and 蟑螂 also fit.",
+   "skip": true
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"吸血性蚊蠅腹部\",\"hide\":[\"藉由其叮咬\"],\"why\":\"asked egg-laying site\"},\n{\"n\":2,\"span\":\"馬氏管\",\"why\":\"asked excretory organ\"},\n{\"n\":3,\"span\":\"家蠅\",\"why\":\"asked mechanical vector\"}]\n"
+}

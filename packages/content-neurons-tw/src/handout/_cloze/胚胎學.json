@@ -1,0 +1,690 @@
+{
+  "version": 1,
+  "cards": [
+    {
+      "cardId": "gametogenesis-fertilization#k4",
+      "anchorId": "胚胎學::gametogenesis-fertilization",
+      "masks": [
+        {
+          "exact": "動情素",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "estrogen",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "115"
+      ],
+      "linkedQuestionIds": [
+        "115-1-醫學一-胚胎學-Q32",
+        "115-1-醫學一-胚胎學-Q34"
+      ],
+      "kind": "llm",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "low-yield"
+    },
+    {
+      "cardId": "germ-layers-gastrulation#k8",
+      "anchorId": "胚胎學::germ-layers-gastrulation",
+      "masks": [
+        {
+          "exact": "豎毛肌",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "arrector pili muscle，附著於毛囊的平滑肌",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "113",
+        "115"
+      ],
+      "linkedQuestionIds": [
+        "113-1-醫學一-胚胎學-Q32",
+        "113-2-醫學一-胚胎學-Q32",
+        "115-1-醫學一-胚胎學-Q35",
+        "115-2-醫學一-胚胎學-Q32",
+        "115-2-醫學一-胚胎學-Q36"
+      ],
+      "kind": "llm",
+      "signalScore": 8,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "germ-layers-gastrulation#k9",
+      "anchorId": "胚胎學::germ-layers-gastrulation",
+      "masks": [
+        {
+          "exact": "體節",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "somite",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "106",
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "106-2-醫學一-胚胎學-Q32",
+        "111-1-醫學一-胚胎學-Q32"
+      ],
+      "kind": "bold",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "germ-layers-gastrulation#k10",
+      "anchorId": "胚胎學::germ-layers-gastrulation",
+      "masks": [
+        {
+          "exact": "神經溝",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "neural groove，約第 18 天",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "106",
+        "113"
+      ],
+      "linkedQuestionIds": [
+        "106-2-醫學一-胚胎學-Q32",
+        "113-1-醫學一-胚胎學-Q32",
+        "113-2-醫學一-胚胎學-Q32"
+      ],
+      "kind": "llm",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "pharyngeal-arches#k13",
+      "anchorId": "胚胎學::pharyngeal-arches",
+      "masks": [
+        {
+          "exact": "咽下隆起",
+          "prefix": "",
+          "suffix": "h",
+          "role": "answer"
+        },
+        {
+          "exact": "hypopharyngeal",
+          "prefix": "起",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "eminence",
+          "prefix": "",
+          "suffix": "形",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "105",
+        "109",
+        "112"
+      ],
+      "linkedQuestionIds": [
+        "105-1-醫學一-胚胎學-Q30",
+        "105-2-醫學一-胚胎學-Q30",
+        "105-2-醫學一-胚胎學-Q31",
+        "109-1-醫學一-胚胎學-Q33",
+        "109-1-醫學一-胚胎學-Q36",
+        "109-2-醫學一-胚胎學-Q36",
+        "112-1-醫學一-胚胎學-Q33",
+        "112-2-醫學一-胚胎學-Q32",
+        "112-2-醫學一-胚胎學-Q33"
+      ],
+      "kind": "llm",
+      "signalScore": 6,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "pharyngeal-arches#k14",
+      "anchorId": "胚胎學::pharyngeal-arches",
+      "masks": [
+        {
+          "exact": "咽下隆起",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "hypopharyngeal eminence",
+          "prefix": "",
+          "suffix": "）",
+          "role": "gloss"
+        },
+        {
+          "exact": "逐漸長大的咽下隆起擠壓而消失",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "112",
+        "114"
+      ],
+      "linkedQuestionIds": [
+        "112-1-醫學一-胚胎學-Q33",
+        "112-2-醫學一-胚胎學-Q32",
+        "112-2-醫學一-胚胎學-Q33",
+        "114-1-醫學一-胚胎學-Q36",
+        "114-2-醫學一-胚胎學-Q33"
+      ],
+      "kind": "llm",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "pharyngeal-arches#k11",
+      "anchorId": "胚胎學::pharyngeal-arches",
+      "masks": [
+        {
+          "exact": "頸竇",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "cervical sinus of His",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "104",
+        "109"
+      ],
+      "linkedQuestionIds": [
+        "104-1-醫學一-胚胎學-Q30",
+        "104-2-醫學一-胚胎學-Q32",
+        "109-1-醫學一-胚胎學-Q33",
+        "109-1-醫學一-胚胎學-Q36",
+        "109-2-醫學一-胚胎學-Q36"
+      ],
+      "kind": "llm",
+      "signalScore": 2,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "pharyngeal-arches#k12",
+      "anchorId": "胚胎學::pharyngeal-arches",
+      "masks": [
+        {
+          "exact": "第四咽囊",
+          "prefix": "於",
+          "suffix": "",
+          "role": "answer"
+        }
+      ],
+      "marks": [
+        "107"
+      ],
+      "linkedQuestionIds": [
+        "107-1-醫學一-胚胎學-Q32"
+      ],
+      "kind": "llm",
+      "signalScore": 1,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "pharyngeal-arches#k15",
+      "anchorId": "胚胎學::pharyngeal-arches",
+      "masks": [
+        {
+          "exact": "門齒窩",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "incisive fossa",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "即門齒窩以前的區域及四顆門牙",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "105"
+      ],
+      "linkedQuestionIds": [
+        "105-1-醫學一-胚胎學-Q30",
+        "105-2-醫學一-胚胎學-Q30",
+        "105-2-醫學一-胚胎學-Q31"
+      ],
+      "kind": "llm",
+      "signalScore": 1,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "cardiovascular-development#k13",
+      "anchorId": "胚胎學::cardiovascular-development",
+      "masks": [
+        {
+          "exact": "動脈韌帶",
+          "prefix": "成",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "ligamentum arteriosum",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "繞行動脈韌帶後折返",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "104",
+        "108"
+      ],
+      "linkedQuestionIds": [
+        "104-1-醫學一-胚胎學-Q31",
+        "104-2-醫學一-胚胎學-Q31",
+        "108-1-醫學一-胚胎學-Q35"
+      ],
+      "kind": "llm",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "body-wall-diaphragm-development#k3",
+      "anchorId": "胚胎學::body-wall-diaphragm-development",
+      "masks": [
+        {
+          "exact": "纖維性心包膜",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "fibrous pericardium",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "而非漿液心包膜的臟層",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "107",
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "107-1-醫學一-胚胎學-Q35",
+        "107-2-醫學一-胚胎學-Q33",
+        "111-2-醫學一-胚胎學-Q32"
+      ],
+      "kind": "bold",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "body-wall-diaphragm-development#k4",
+      "anchorId": "胚胎學::body-wall-diaphragm-development",
+      "masks": [
+        {
+          "exact": "外側（側板）中胚層",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "lateral mesoderm",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "並非源自軸旁中胚層、中間中胚層或內胚層",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "113"
+      ],
+      "linkedQuestionIds": [
+        "113-1-醫學一-胚胎學-Q32"
+      ],
+      "kind": "bold",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "limb-axial-musculoskeletal-development#k5",
+      "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+      "masks": [
+        {
+          "exact": "第 4 週末",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        }
+      ],
+      "marks": [
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "111-1-醫學一-胚胎學-Q32",
+        "111-1-醫學一-胚胎學-Q36"
+      ],
+      "kind": "bold",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "limb-axial-musculoskeletal-development#k9",
+      "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+      "masks": [
+        {
+          "exact": "矢狀縫",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "sagittal suture",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "110",
+        "112"
+      ],
+      "linkedQuestionIds": [
+        "110-1-醫學一-胚胎學-Q35",
+        "110-2-醫學一-胚胎學-Q35",
+        "112-1-醫學一-生理學-Q35",
+        "112-2-醫學一-胚胎學-Q36"
+      ],
+      "kind": "llm",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "limb-axial-musculoskeletal-development#k10",
+      "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+      "masks": [
+        {
+          "exact": "體節",
+          "prefix": "",
+          "suffix": "（somite）由",
+          "role": "answer"
+        },
+        {
+          "exact": "somite",
+          "prefix": "",
+          "suffix": "）由",
+          "role": "gloss"
+        },
+        {
+          "exact": "皆非體節的直接來源",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "每個體節再分化出三部分",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "111-1-醫學一-胚胎學-Q32",
+        "111-1-醫學一-胚胎學-Q36"
+      ],
+      "kind": "llm",
+      "signalScore": 1,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "GI-development#k2",
+      "anchorId": "胚胎學::GI-development",
+      "masks": [
+        {
+          "exact": "第 12 週",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        }
+      ],
+      "marks": [
+        "106"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-胚胎學-Q29",
+        "106-2-醫學一-胚胎學-Q34"
+      ],
+      "kind": "bold",
+      "signalScore": 7,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "GI-development#k15",
+      "anchorId": "胚胎學::GI-development",
+      "masks": [
+        {
+          "exact": "原肛",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "proctodeum",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "104"
+      ],
+      "linkedQuestionIds": [
+        "104-2-醫學一-胚胎學-Q30"
+      ],
+      "kind": "llm",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "GI-development#k13",
+      "anchorId": "胚胎學::GI-development",
+      "masks": [
+        {
+          "exact": "原始背側胃繫膜",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "primordial dorsal mesogastrium",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "115-2"
+      ],
+      "linkedQuestionIds": [
+        "115-2-醫學一-胚胎學-Q34"
+      ],
+      "kind": "llm",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "urogenital-development#k13",
+      "anchorId": "胚胎學::urogenital-development",
+      "masks": [
+        {
+          "exact": "輸卵管",
+          "prefix": " ",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "問「何者由副中腎管衍生」答輸卵管",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "115-2"
+      ],
+      "linkedQuestionIds": [
+        "115-2-醫學一-胚胎學-Q35"
+      ],
+      "kind": "llm",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "urogenital-development#k14",
+      "anchorId": "胚胎學::urogenital-development",
+      "masks": [
+        {
+          "exact": "鞘突",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "processus vaginalis",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "若鞘突全程未閉鎖",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "109"
+      ],
+      "linkedQuestionIds": [
+        "109-1-醫學一-胚胎學-Q34",
+        "109-2-醫學一-胚胎學-Q34"
+      ],
+      "kind": "llm",
+      "signalScore": 1,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "special-sense-integument-development#k10",
+      "anchorId": "胚胎學::special-sense-integument-development",
+      "masks": [
+        {
+          "exact": "神經外胚層",
+          "prefix": "",
+          "suffix": "（n",
+          "role": "answer"
+        },
+        {
+          "exact": "neuroectoderm",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "前緣的神經外胚層",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "答案要選神經外胚層",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "106",
+        "115-2"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-胚胎學-Q32",
+        "115-2-醫學一-胚胎學-Q36"
+      ],
+      "kind": "llm",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    }
+  ]
+}

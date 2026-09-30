@@ -1,0 +1,1 @@
+[{"n": 1, "span": "後外側", "why": "tested point"}, {"n": 2, "span": "纖維性心包膜", "hide": ["而非漿液心包膜的臟層"], "why": "tested point"}, {"n": 3, "span": "外側（側板）中胚層", "hide": ["並非源自軸旁中胚層、中間中胚層或內胚層"], "why": "tested point"}, {"n": 4, "skip": true, "why": "elimination among listed structures"}, {"n": 5, "skip": true, "why": "description leaks"}]

@@ -1,0 +1,52 @@
+[
+ {
+  "anchorId": "胚胎學::respiratory-development",
+  "cardId": "respiratory-development#k6",
+  "sentence": "呼吸原基（respiratory primordium，即喉氣管憩室）起源於第四咽囊之後、前腸尾端腹側，向下發育成喉、氣管、支氣管與肺。107",
+  "problem": "『前腸尾端腹側』易被誤讀為整條前腸的尾端（近十二指腸）；喉氣管憩室實際位於原始咽尾側、第四咽囊正下方的前腸腹側壁",
+  "suggestedFix": "改為『起源於第四咽囊尾側的前腸（原始咽尾端）腹側壁』",
+  "examRef": "107-1-醫學一-胚胎學-Q32",
+  "source": "r2-03",
+  "issueId": "J01"
+ },
+ {
+  "anchorId": "胚胎學::special-sense-integument-development",
+  "cardId": "special-sense-integument-development#k7",
+  "sentence": "視神經細胞（ganglion cells）源自神經外胚層（並非大腦皮質，皮質衍生的是嗅球）；…",
+  "problem": "『皮質衍生的是嗅球』不精確：嗅球是端腦的外突，並非由大腦皮質衍生",
+  "suggestedFix": "改為『（並非大腦皮質；嗅球才是端腦的外突）』或刪除括號後半",
+  "examRef": "110-1-醫學一-胚胎學-Q36",
+  "source": "r2-03",
+  "issueId": "J02"
+ },
+ {
+  "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+  "cardId": "louse-flea-mechanical-vectors#k6",
+  "sentence": "體蝨（body louse）一次背三種病：流行性斑疹傷寒（Rickettsia prowazekii）、體蝨型回歸熱（Borrelia recurrentis）、戰壕熱（Bartonella quintana）；三者皆非叮咬直接注入病原體，而是蝨的糞便經由抓癢處的皮膚傷口進入人體。107/113",
+  "problem": "體蝨型回歸熱（Borrelia recurrentis）是壓碎蝨體、體腔液經抓傷的皮膚進入人體傳染，並非經蝨糞；只有流行性斑疹傷寒與戰壕熱經蝨糞傳染",
+  "suggestedFix": "改為「流行性斑疹傷寒與戰壕熱經蝨糞便污染抓傷的傷口傳染；回歸熱則是壓碎蝨體、體液經傷口進入」",
+  "examRef": "113-2-醫學二-寄生蟲學-Q35",
+  "source": "r2-04",
+  "issueId": "J03"
+ },
+ {
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "cardId": "angiostrongyliasis-and-larva-migrans#k8",
+  "sentence": "皮膚幼蟲移行症（cutaneous larva migrans, CLM）的典型病原是犬鉤蟲（Ancylostoma caninum）與巴西鉤蟲（A. braziliense）：幼蟲鑽入人體皮膚後無法成熟，只能在皮下移行，造成蜿蜒延伸的爬行疹（creeping eruption）；糞小桿線蟲與棘口線蟲（Gnathostoma）也可造成 CLM。108",
+  "problem": "「棘口線蟲（Gnathostoma）」是誤譯：Gnathostoma 是（有棘）顎口線蟲，棘口吸蟲則是 Echinostoma；另外糞小桿線蟲造成的是 larva currens，Gnathostoma 造成的是皮下移行性腫脹，列為 CLM 宜加註",
+  "suggestedFix": "改為「（有棘）顎口線蟲（Gnathostoma）」",
+  "examRef": "108-2-醫學二-寄生蟲學-Q30",
+  "source": "r2-04",
+  "issueId": "J04"
+ },
+ {
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "cardId": "foodborne-tissue-nematodes#k7",
+  "sentence": "海獸胃線蟲（Anisakis spp.）經食用海水魚生魚片（壽司／生魚片）感染，需經兩種中間宿主（海水甲殼類→海水魚／烏賊）才具感染力；幼蟲鑽入胃或十二指腸壁，造成急性腹痛、胃鏡下可見線狀填充物缺陷（threadlike filling defect）與嗜伊紅性肉芽腫，常被誤認為胃癌；診斷靠胃鏡直視並摘除幼蟲，不是檢查糞便中的蟲卵。105/108",
+  "problem": "嗜伊紅性肉芽腫是病理組織學所見，不是胃鏡直接可見的影像",
+  "suggestedFix": "改為「胃鏡下可見線狀填充物缺陷、黏膜水腫／腫塊，病理為嗜伊紅性肉芽腫」",
+  "examRef": "105-2-醫學一-寄生蟲學-Q75",
+  "source": "r2-04",
+  "issueId": "J05"
+ }
+]

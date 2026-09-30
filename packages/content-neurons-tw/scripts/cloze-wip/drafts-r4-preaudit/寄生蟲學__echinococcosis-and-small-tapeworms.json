@@ -1,0 +1,95 @@
+{
+ "anchorId": "寄生蟲學::echinococcosis-and-small-tapeworms",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "9a03987a5345a18b",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "110-1-醫學二-寄生蟲學-Q31",
+     "stem": "有關人類感染顆粒性包生絛蟲（Echinococcus granulosus）之敘述，下列何者正確 ？",
+     "trueOption": "會在患者肝臟形成包生囊（hydatid cyst）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "顆粒性（單胞）包生絛蟲 E. granulosus：終宿主為狗，中間宿主為羊等草食動物；人因誤食蟲卵而感染（不是吃到未煮熟羊肉），主要在肝臟形成單房性包生囊（hydatid cyst），亦可波及肺部。105/110/112",
+   "citeText": [
+    "105/110/112"
+   ],
+   "marks": [
+    "105",
+    "110",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q77",
+    "110-1-醫學二-寄生蟲學-Q31",
+    "110-1-醫學二-寄生蟲學-Q34",
+    "110-2-醫學二-寄生蟲學-Q31",
+    "112-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "4項",
+    "會在患者肝臟形成包生囊（hydatid cyst）",
+    "犬複殖器絛蟲（Dipylidium caninum）",
+    "短小包膜絛蟲（Hymenolepis nana）",
+    "顆粒性包生絛蟲（Echinococcus granulosus）"
+   ],
+   "spans": [
+    {
+     "span": "誤食蟲卵",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "contrast"
+     ],
+     "score": 8
+    },
+    {
+     "span": "E. granulosus",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "肝臟",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "單房性",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 8
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "肝臟",
+   "why": "asked site of hydatid cyst"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"肝臟\",\"why\":\"asked site of hydatid cyst\"}]\n"
+}

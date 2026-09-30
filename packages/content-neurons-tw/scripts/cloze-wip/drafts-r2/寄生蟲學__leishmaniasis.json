@@ -1,0 +1,294 @@
+{
+ "anchorId": "寄生蟲學::leishmaniasis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "d99edbd3e4a29c95",
+ "candidates": [
+  {
+   "bulletIndex": 3,
+   "sentence": "chiclero's ulcer（侵蝕耳朵軟骨）由墨西哥利什曼原蟲（L. mexicana）引起，勿與巴西利什曼原蟲（L. braziliensis）引起的espundia（黏膜破壞）混淆；兩者都屬於非內臟型，但侵犯部位與病灶型態不同。108/109",
+   "citeText": [
+    "108/109"
+   ],
+   "marks": [
+    "108",
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-病理學-Q34",
+    "109-1-醫學二-微生物暨免疫學-Q34"
+   ],
+   "trueOptions": [
+    "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）",
+    "Winterbottom's sign－岡比亞錐蟲（Trypanosoma brucei gambiense）",
+    "Espundia－巴西利什曼原蟲（Leishmania braziliensis）",
+    "杜氏利什曼原蟲（Leishmania donovani）是黑熱病（kala-azar）的致病原"
+   ],
+   "spans": [
+    {
+     "span": "espundia",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "墨西哥利什曼原蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "利什曼原蟲寄生於宿主的巨噬細胞內，不能侵入所有有核細胞；amastigote的形態學無法區分蟲種（尤其donovani與tropica形態相似），分類需仰賴臨床症狀配合血清學檢驗，不依中間宿主的種株決定。109/112",
+   "citeText": [
+    "109/112"
+   ],
+   "marks": [
+    "109",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學二-微生物暨免疫學-Q34",
+    "112-1-醫學二-寄生蟲學-Q32",
+    "112-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "杜氏利什曼原蟲（Leishmania donovani）是黑熱病（kala-azar）的致病原",
+    "前鞭毛體（promastigote）在脊椎動物宿主體內會被巨噬細胞（macrophage）吞噬後形成無鞭毛體 （amastigote）",
+    "黑熱病（kala-azar）"
+   ],
+   "spans": [
+    {
+     "span": "巨噬細胞",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "黑熱病（kala-azar）由杜氏利什曼原蟲引起，典型三主症是發燒＋肝脾腫大＋貧血，常合併高球蛋白血症（hypergammaglobulinemia）、血小板與白血球減少（易誤診為再生不能性貧血）；診斷靠骨髓穿刺於巨噬細胞內找到無鞭毛體。104/106/109/111",
+   "citeText": [
+    "104/106/109/111"
+   ],
+   "marks": [
+    "104",
+    "106",
+    "109",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q81",
+    "104-2-醫學一-寄生蟲學-Q79",
+    "106-2-醫學二-寄生蟲學-Q33",
+    "109-1-醫學二-微生物暨免疫學-Q34",
+    "111-1-醫學二-寄生蟲學-Q34",
+    "111-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "黑熱病（kala-azar）",
+    "杜氏利什曼原蟲（Leishmania donovani）",
+    "黑熱病（black fever）",
+    "杜氏利什曼原蟲（Leishmania donovani）是黑熱病（kala-azar）的致病原",
+    "黑水熱（blackwater fever）",
+    "有部分患者皮膚會出現紅腫及結節（depigmented nodule）的後黑熱病（post-kala-azar）症狀"
+   ],
+   "spans": [
+    {
+     "span": "發燒＋肝脾腫大＋貧血",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×4"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "治療不當的黑熱病患者，一至兩年後同樣的病原蟲可能在皮膚產生病灶，稱為黑熱病後皮膚利什曼症（PKDL），表現為皮膚紅腫及結節，並非黑尿或急性期症狀——黑尿（黑水熱）是惡性瘧的特徵，不是黑熱病。108/111",
+   "citeText": [
+    "108/111"
+   ],
+   "marks": [
+    "108",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-病理學-Q34",
+    "111-1-醫學二-寄生蟲學-Q34",
+    "111-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）",
+    "Winterbottom's sign－岡比亞錐蟲（Trypanosoma brucei gambiense）",
+    "Espundia－巴西利什曼原蟲（Leishmania braziliensis）",
+    "黑水熱（blackwater fever）",
+    "有部分患者皮膚會出現紅腫及結節（depigmented nodule）的後黑熱病（post-kala-azar）症狀"
+   ],
+   "spans": [
+    {
+     "span": "黑熱病後皮膚利什曼症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "利什曼原蟲感染人體的生活史只有前鞭毛體與無鞭毛體兩型，並無循環後期錐鞭毛體（metacyclic trypomastigote）這個階段——那是錐蟲的生活史型態，是常見的跨屬混淆誘答。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學二-寄生蟲學-Q32",
+    "112-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "前鞭毛體（promastigote）在脊椎動物宿主體內會被巨噬細胞（macrophage）吞噬後形成無鞭毛體 （amastigote）",
+    "黑熱病（kala-azar）"
+   ],
+   "spans": [
+    {
+     "span": "錐蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "白蛉是利什曼原蟲症唯一的病媒，傳播的是黑熱病（內臟型）——「黑熱病」不是「黑水熱」（惡性瘧，蚊媒）也不是「黑死病」（鼠疫，跳蚤媒），三者常互為誘答。104/110/111",
+   "citeText": [
+    "104/110/111"
+   ],
+   "marks": [
+    "104",
+    "110",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q81",
+    "104-2-醫學一-寄生蟲學-Q79",
+    "110-2-醫學二-寄生蟲學-Q34",
+    "111-1-醫學二-寄生蟲學-Q34",
+    "111-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "黑熱病（kala-azar）",
+    "杜氏利什曼原蟲（Leishmania donovani）",
+    "黑熱病（kala-azar）",
+    "黑水熱（blackwater fever）",
+    "有部分患者皮膚會出現紅腫及結節（depigmented nodule）的後黑熱病（post-kala-azar）症狀"
+   ],
+   "spans": [],
+   "score": 3
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "熱帶利什曼原蟲（L. tropica）雖以皮膚型oriental sore為主要表現，但文獻上曾有導致內臟利什曼原蟲症的人體病例報告，並非「從未」發生過。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學二-微生物暨免疫學-Q34"
+   ],
+   "trueOptions": [
+    "杜氏利什曼原蟲（Leishmania donovani）是黑熱病（kala-azar）的致病原"
+   ],
+   "spans": [
+    {
+     "span": "皮膚型oriental sore",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "墨西哥利什曼原蟲",
+   "why": "chiclero's ulcer病原"
+  },
+  {
+   "n": 2,
+   "span": "巨噬細胞",
+   "why": "利什曼原蟲寄生細胞"
+  },
+  {
+   "n": 3,
+   "span": "杜氏利什曼原蟲",
+   "why": "黑熱病致病原，考題考過"
+  },
+  {
+   "n": 4,
+   "span": "黑熱病後皮膚利什曼症",
+   "why": "治療後皮膚病灶病名"
+  },
+  {
+   "n": 5,
+   "span": "前鞭毛體與無鞭毛體",
+   "why": "利什曼原蟲生活史兩型"
+  },
+  {
+   "n": 6,
+   "span": "白蛉",
+   "why": "利什曼原蟲唯一病媒"
+  },
+  {
+   "n": 7,
+   "span": "oriental sore",
+   "why": "熱帶利什曼原蟲皮膚型表現"
+  }
+ ],
+ "reply": "[\n{\"n\":1,\"span\":\"墨西哥利什曼原蟲\",\"why\":\"chiclero's ulcer病原\"},\n{\"n\":2,\"span\":\"巨噬細胞\",\"why\":\"利什曼原蟲寄生細胞\"},\n{\"n\":3,\"span\":\"杜氏利什曼原蟲\",\"why\":\"黑熱病致病原，考題考過\"},\n{\"n\":4,\"span\":\"黑熱病後皮膚利什曼症\",\"why\":\"治療後皮膚病灶病名\"},\n{\"n\":5,\"span\":\"前鞭毛體與無鞭毛體\",\"why\":\"利什曼原蟲生活史兩型\"},\n{\"n\":6,\"span\":\"白蛉\",\"why\":\"利什曼原蟲唯一病媒\"},\n{\"n\":7,\"span\":\"oriental sore\",\"why\":\"熱帶利什曼原蟲皮膚型表現\"}\n]\n"
+}
