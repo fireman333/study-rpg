@@ -1,0 +1,216 @@
+{
+ "anchorId": "胚胎學::special-sense-integument-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "239586907409b8ec",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "115-1-醫學一-胚胎學-Q35",
+     "stem": "下列何種構造之來源不是外胚層（ectoderm）？",
+     "trueOption": "豎毛肌（arrector pili muscle）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "皮脂腺、汗腺與頭髮皆源自外胚層（皆由表皮或毛囊上皮增生而成）；豎毛肌（arrector pili muscle）則是真皮間葉組織分化而成的平滑肌，來自中胚層，是這節最經典的胚層歸類誘答。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q35",
+    "115-1-醫學一-胚胎學-Q36",
+    "115-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "豎毛肌（arrector pili muscle）",
+    "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+    "四疊體（tectum）：中腦（mesencephalon）",
+    "乳狀體（mammillary body）：間腦（diencephalon）",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "豎毛肌",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "115-2-醫學一-胚胎學-Q36",
+     "stem": "瞳孔擴張及括約肌（dilator and sphincter pupillae），是源自何處？",
+     "trueOption": "神經外胚層（neuroectoderm）"
+    }
+   ],
+   "bulletIndex": 1,
+   "sentence": "一般肌肉組織（肋間、心臟、消化道）皆由中胚層分化而來，但眼睛的虹膜肌來自神經外胚層（neuroectoderm）——更精確地說，瞳孔括約肌（sphincter pupillae）與瞳孔開大肌（dilator pupillae）源自視杯（optic cup）前緣的神經外胚層，是人體極少數非中胚層來源的平滑肌，也是這類「哪個肌肉不是中胚層」題型的固定答案；答案要選神經外胚層，不是生發層（stratum germinativum，那是表皮基底層）。106/115-2",
+   "citeText": [
+    "106/115-2"
+   ],
+   "marks": [
+    "106",
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-胚胎學-Q32",
+    "115-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "虹膜（iris）",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "虹膜肌來自神經外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "110-1-醫學一-胚胎學-Q36",
+     "stem": "下列有關視神經（optic nerve）發育的敘述，何者正確？",
+     "trueOption": "視神經髓鞘僅包圍至視神經盤（optic nerve disc）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "視神經細胞（ganglion cells）源自神經外胚層（並非由大腦皮質衍生；視網膜與視柄都是間腦壁向外突出的視泡所形成）；視神經髓鞘僅包圍至視神經盤（optic disc）為止，且要到出生後約 10 週才發育完成（並非出生前已完全發育）；視神經源自視柄（前腦神經外胚層），並非神經嵴衍生。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q36",
+    "110-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "視神經髓鞘僅包圍至視神經盤（optic nerve disc）",
+    "體表外胚層（surface ectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "出生後約 10 週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "10 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "115-1-醫學一-胚胎學-Q36",
+     "stem": "下列構造與其發育來源的位置配對，何者錯誤？",
+     "trueOption": "四疊體（tectum）：中腦（mesencephalon）"
+    }
+   ],
+   "bulletIndex": 7,
+   "sentence": "視囊（optic vesicle）由前腦中的間腦（diencephalon）向外側突出形成，並非髓腦（myelencephalon，發育為延腦）；四疊體（tectum）由中腦衍生、乳狀體（mammillary body）由間腦衍生、橋腦與小腦則由後腦（metencephalon）衍生。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q35",
+    "115-1-醫學一-胚胎學-Q36",
+    "115-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "豎毛肌（arrector pili muscle）",
+    "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+    "四疊體（tectum）：中腦（mesencephalon）",
+    "乳狀體（mammillary body）：間腦（diencephalon）",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "豎毛肌",
+   "why": "考非外胚層來源的構造"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "神經外胚層重複出現"
+  },
+  {
+   "n": 3,
+   "span": "視神經盤",
+   "why": "考視神經髓鞘僅包圍至視神經盤"
+  },
+  {
+   "n": 4,
+   "span": "中腦",
+   "why": "考四疊體來源為中腦"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"豎毛肌\",\"why\":\"考非外胚層來源的構造\"},{\"n\":2,\"skip\":true,\"why\":\"神經外胚層重複出現\"},{\"n\":3,\"span\":\"視神經盤\",\"why\":\"考視神經髓鞘僅包圍至視神經盤\"},{\"n\":4,\"span\":\"中腦\",\"why\":\"考四疊體來源為中腦\"}]\n"
+}

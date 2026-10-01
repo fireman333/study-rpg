@@ -1,0 +1,346 @@
+{
+ "group": "r2-07",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r2",
+ "grades": {
+  "gametogenesis-fertilization#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-1 Q32 排卵前後各一次高峰答動情素（C）；英文已遮，黃體素只有一峰不會混淆。"
+  },
+  "early-cleavage-implantation#k4": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-胚胎學-Q29",
+   "leak": "restatement",
+   "medicalError": false,
+   "reason": "104-2 Q29 答囊胚腔（B），但同句「形成囊胚…中空並充滿液體」加上「腔室」直接拼出答案。"
+  },
+  "germ-layers-gastrulation#k8": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學一-胚胎學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-1 Q35 否定題給分 D 豎毛肌（非外胚層），卡與之一致；英文與平滑肌註解已遮。"
+  },
+  "germ-layers-gastrulation#k3": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-2-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-2 Q32 考的是胚內中胚層（D）第二週未出現；羊膜腔只是正確的干擾選項，且「第二週最早出現」可填初級卵黃囊等，價值普通。"
+  },
+  "germ-layers-gastrulation#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-1-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "111-1 Q32 軸旁中胚層衍生物答體節（B）；英文已遮。"
+  },
+  "germ-layers-gastrulation#k10": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-2-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "113-2 Q32 考第三週不會出現咽弓（D），神經溝只是正確的干擾選項；答案正確但非考點。"
+  },
+  "pharyngeal-arches#k13": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-胚胎學-Q31",
+   "leak": "synonym",
+   "medicalError": false,
+   "reason": "空格後直接露出英文 hypopharyngeal eminence（未遮）；105-2 Q31 考的是會厭軟骨不屬 4/6 咽弓。"
+  },
+  "pharyngeal-arches#k14": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-1-醫學一-胚胎學-Q33",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "112-1 Q33 舌咽喉部來源答咽下隆起（D）；英文與「擠壓消失」片語已遮，句意仍通。"
+  },
+  "pharyngeal-arches#k11": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-1-醫學一-胚胎學-Q30",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "104-1 Q30 鰓竇肇因於頸竇閉鎖不全（C）；英文已遮。"
+  },
+  "pharyngeal-arches#k12": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "107-1-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "107-1 Q32 呼吸原基起源於第四咽囊尾端（D）。"
+  },
+  "pharyngeal-arches#k15": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-1-醫學一-胚胎學-Q30",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "105-1 Q30 前後腭唇裂分界答門齒窩（B）；含答案的括號註解已遮。"
+  },
+  "cardiovascular-development#k1": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "113-1 Q35 答肺部血流量上升（B），但「出生後主要變化是【＿】」也可填肺血管阻力下降、肺泡擴張，答案不唯一，且連三個遮罩。"
+  },
+  "cardiovascular-development#k9": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學一-胚胎學-Q35",
+   "leak": "restatement",
+   "medicalError": false,
+   "reason": "111-2 Q35 答第一中隔與心內膜墊融合（A），但前文「第一中隔向心內膜墊生長、尚未接合的空隙即第一孔」已等於說出答案。"
+  },
+  "cardiovascular-development#k13": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-胚胎學-Q31",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "104-2 Q31 動脈導管閉鎖成動脈韌帶（C）、108-1 Q35 同點；英文與喉返神經片語已遮。"
+  },
+  "neural-tube-development#k6": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q36",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-1 Q36 否定題給分 D（視囊配髓腦）；乳狀體只是正確選項，且間腦衍生物列舉中空格可填松果體／上視丘，答案不唯一。"
+  },
+  "body-wall-diaphragm-development#k5": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "104-1-醫學一-胚胎學-Q29",
+   "leak": "synonym",
+   "medicalError": false,
+   "reason": "104-1 Q29 答後外側（D），但同句露出 Bochdalek 孔（即 posterolateral foramen 的代稱）。"
+  },
+  "body-wall-diaphragm-development#k3": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "111-2-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "111-2 Q32 否定題給分 A（形成漿液心包膜臟層）為錯誤敘述，卡答纖維性心包膜正是其對應正解；對照片語已遮。"
+  },
+  "body-wall-diaphragm-development#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "113-1 Q32 胚內體腔最早出現於外側中胚層（C）；「並非…」對照已遮。"
+  },
+  "limb-axial-musculoskeletal-development#k5": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "111-1-醫學一-胚胎學-Q36",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "111-1 Q36 否定題給分 D（旋轉方向）；第四週末是正確的干擾選項 A，純時間點價值普通。"
+  },
+  "limb-axial-musculoskeletal-development#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-2-醫學一-胚胎學-Q36",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "112-2 Q36 舟狀頭答矢狀縫（D）；英文已遮。"
+  },
+  "limb-axial-musculoskeletal-development#k10": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "111-1-醫學一-胚胎學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "111-1 Q32 答體節（B），但與 germ-layers#k9 重複同一考點，且句中兩個遮罩讓後半讀起來斷裂。"
+  },
+  "GI-development#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-胚胎學-Q29",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "106-1 Q29 直接考肝細胞第 12 週製造膽汁（C），數字為考點。"
+  },
+  "GI-development#k14": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學一-胚胎學-Q34",
+   "leak": "restatement",
+   "medicalError": false,
+   "reason": "108-2 Q34 答 D（上皮增生而一度閉鎖），但同句「成實心索」「再通化」已重述答案，且長片語填空不自然。"
+  },
+  "GI-development#k15": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-胚胎學-Q30",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "104-2 Q30 肛管下 1/3 來自原肛（A）；英文已遮。"
+  },
+  "GI-development#k13": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學一-胚胎學-Q34",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-2 Q34 答 C（原始背側胃繫膜被帶至左側形成網膜囊）。"
+  },
+  "respiratory-development#k8": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學一-胚胎學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "113-1 Q35 答肺部血流量上升（B），但「以增加氣體交換」的空格亦可填肺泡擴張／肺血管阻力下降，答案不唯一。"
+  },
+  "urogenital-development#k11": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "106-1-醫學一-胚胎學-Q30",
+   "leak": "restatement",
+   "medicalError": false,
+   "reason": "106-1 Q30 否定題給分 C（腎上腺萎縮）；46,XX 是正確選項 B，且「女性」假陰陽人本身即定義其核型，卡面可直接推出。"
+  },
+  "urogenital-development#k13": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學一-胚胎學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-2 Q35 副中腎管衍生答輸卵管（A）；含答案的提示片語已遮。"
+  },
+  "urogenital-development#k14": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-1-醫學一-胚胎學-Q34",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "109-1 Q34 精索積水因鞘突閉鎖不全（B）；英文與「鞘突全程」片語已遮。"
+  },
+  "special-sense-integument-development#k10": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學一-胚胎學-Q36",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-2 Q36 瞳孔肌源自神經外胚層（A）、106-1 Q32 虹膜（B）同點；含答案片語已遮，句意仍通。"
+  },
+  "special-sense-integument-development#k8": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學一-胚胎學-Q36",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "110-1 Q36 答 C（髓鞘僅包圍至視神經盤）；英文已遮。"
+  },
+  "special-sense-integument-development#k11": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學一-胚胎學-Q36",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-1 Q36 否定題給分 D；四疊體配中腦是正確選項 B，且「由中腦衍生」可填大腦導水管、大腦腳等，答案不唯一。"
+  },
+  "intestinal-nematodes-soil-transmitted#k6": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學二-寄生蟲學-Q29",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "111-2 Q29 重度感染幼童異位移行答蛔蟲（C）；英文與含答案片語已遮。"
+  },
+  "foodborne-tissue-nematodes#k11": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學二-寄生蟲學-Q29",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "110-1 Q29 情境答菲律賓毛線蟲（A）、104-1 Q76 同點；109-2 Q29 否定題給分 A 與卡不衝突。"
+  },
+  "foodborne-tissue-nematodes#k12": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學二-寄生蟲學-Q29",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-1 Q29 橫紋肌囊化答旋毛蟲（D）；106-1 Q76 ①②④ 正確與卡一致。"
+  },
+  "foodborne-tissue-nematodes#k13": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-寄生蟲學-Q75",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "105-2 Q75 生魚片＋線狀填充缺陷答海獸胃線蟲（B）；108-1 Q29 給分 B（糞檢）與卡一致。"
+  },
+  "foodborne-tissue-nematodes#k14": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學二-微生物暨免疫學-Q29",
+   "leak": "contrast",
+   "medicalError": false,
+   "reason": "113-2 Q29 答假性感染（D），但前文「真感染須在肝臟切片…；若只是糞便見卵」的真／假對照讓答案二選一可推。"
+  },
+  "foodborne-tissue-nematodes#k15": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-1-醫學二-寄生蟲學-Q29",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "112-1 Q29 否定題給分 C（只侵犯皮下）與卡一致、111-1 Q29 眼周浮腫答棘顎口線蟲（B）。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k7": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學二-寄生蟲學-Q29",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "106-2 Q29 白天採血誘發答 diethylcarbamazine（B）；縮寫 DEC 已遮。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k8": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "104-2-醫學一-寄生蟲學-Q75",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "104-2 Q75 否定題給分 B（劇痛）；皮下組織是正確選項 A，非考點，含答案的「成蟲移行雖在皮下」已遮。"
+  }
+ },
+ "handoutIssues": [
+  {
+   "anchorId": "胚胎學::germ-layers-gastrulation",
+   "cardId": "germ-layers-gastrulation#k10",
+   "sentence": "周邊神經系統則是由神經嵴（neural crest）發育而來，不是神經管。",
+   "problem": "過度簡化：周邊運動神經元（及節前自主神經元）胞體位於神經管基板，只有感覺與節後神經元、許旺細胞源自神經嵴。",
+   "suggestedFix": "改為「周邊神經系統的感覺神經節、自主神經節與許旺細胞源自神經嵴」",
+   "examRef": "113-2-醫學一-胚胎學-Q32"
+  },
+  {
+   "anchorId": "胚胎學::gametogenesis-fertilization",
+   "cardId": "gametogenesis-fertilization#k4",
+   "sentence": "排卵後則由黃體（corpus luteum）分泌第二個高峰，藉此維持子宮內膜增厚。",
+   "problem": "黃體期維持子宮內膜（分泌期）的主角是黃體素（progesterone），動情素第二峰只是協同；原句易讓人誤以為動情素主導。",
+   "suggestedFix": "改為「…第二個高峰，與黃體素共同維持子宮內膜」",
+   "examRef": "115-1-醫學一-胚胎學-Q32"
+  }
+ ]
+}

@@ -1,0 +1,318 @@
+{
+ "anchorId": "胚胎學::early-cleavage-implantation",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "f573142377f6195b",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "受精後約 30 小時開始進行卵裂（cleavage，即有絲分裂 mitosis），約第 3–4 天形成實心細胞球狀的桑椹胚（morula），第 4–5 天桑椹胚中空並充滿液體形成囊胚（blastocyst）——囊胚腔（blastocyst cavity）是這幾個構造中最早出現的腔室，早於羊膜腔、絨毛膜腔與初級卵黃囊。104/106",
+   "citeText": [
+    "104/106"
+   ],
+   "marks": [
+    "104",
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q29",
+    "106-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "囊胚腔（blastocyst cavity）",
+    "原條（primitive streak）"
+   ],
+   "spans": [
+    {
+     "span": "30 小時",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "3–4 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "4–5 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "囊胚由兩部分組成：外層的滋養層（trophoblast）與偏向一側的內細胞團（inner cell mass, ICM）。第 6–7 天著床（implantation）時，滋養層分化為內層的細胞滋養層（cytotrophoblast）與外層的融合滋養層（syncytiotrophoblast，又稱合體滋養層）。104/106",
+   "citeText": [
+    "104/106"
+   ],
+   "marks": [
+    "104",
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q29",
+    "106-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "囊胚腔（blastocyst cavity）",
+    "原條（primitive streak）"
+   ],
+   "spans": [
+    {
+     "span": "6–7 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "第 7 天，內細胞團分化為上、下兩層胚盤：上胚層（epiblast，高柱狀細胞）形成羊膜腔（amniotic cavity）；下胚層（hypoblast，立方細胞）形成初級卵黃囊（primary yolk sac）。104/107",
+   "citeText": [
+    "104/107"
+   ],
+   "marks": [
+    "104",
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q29",
+    "107-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "囊胚腔（blastocyst cavity）",
+    "卵黃囊（yolk sac）",
+    "接合莖（connecting stalk）",
+    "羊膜（amnion）"
+   ],
+   "spans": [
+    {
+     "span": "7 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "內細胞團可衍生出羊膜、卵黃囊，以及由胚外中胚層與絨毛膜連接而成的接合莖（connecting stalk），但滋養層並非內細胞團的衍生物——它是囊胚外層的獨立細胞系。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "卵黃囊（yolk sac）",
+    "接合莖（connecting stalk）",
+    "羊膜（amnion）"
+   ],
+   "spans": [
+    {
+     "span": "滋養層並非內細胞團的衍生物",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "第 11–12 天子宮胎盤循環建立；第 12 天胚外中胚層形成，其內部細胞開始凋亡，形成胚外體腔，即絨毛膜腔（chorionic cavity）。104/106",
+   "citeText": [
+    "104/106"
+   ],
+   "marks": [
+    "104",
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q29",
+    "106-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "囊胚腔（blastocyst cavity）",
+    "原條（primitive streak）"
+   ],
+   "spans": [
+    {
+     "span": "11–12 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "絨毛膜腔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-distractor"
+     ],
+     "score": 2
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "絨毛膜絨毛（chorionic villus）依細胞成分由內而外分三級：初級絨毛（第二週末，僅有細胞滋養層＋融合滋養層）→次級絨毛（第三週初，絨毛間質長入）→三級絨毛（血管長入絨毛間質，第三週末已有胎兒血液流入）。只有三級絨毛才有血管／微血管；融合滋養層三級絨毛都有、並非三級獨有，晚期則是細胞滋養層退化消失。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "微血管（capillary）"
+   ],
+   "spans": [
+    {
+     "span": "只有三級絨毛才有血管／微血管",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "預產期的計算是「最後一次月經（LMP）+280 天」；但著床出血（implantation bleeding）通常發生在排卵後約 6–10 天，若孕婦誤將著床出血當成月經來估算，推算出的預產期會比實際晚了約兩週——換句話說，真正的預產期應該比誤算的日期提早兩週。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "比7 月1 日早兩週"
+   ],
+   "spans": [
+    {
+     "span": "比實際晚了約兩週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "280 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "6–10 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "ambiguous or negation/duplicate answer"
+  },
+  {
+   "n": 2,
+   "span": "融合滋養層",
+   "why": "key exam fact"
+  },
+  {
+   "n": 3,
+   "span": "初級卵黃囊",
+   "why": "key exam fact"
+  },
+  {
+   "n": 4,
+   "span": "接合莖",
+   "why": "key exam fact"
+  },
+  {
+   "n": 5,
+   "span": "絨毛膜腔",
+   "why": "key exam fact"
+  },
+  {
+   "n": 6,
+   "span": "血管長入絨毛間質",
+   "why": "key exam fact"
+  },
+  {
+   "n": 7,
+   "skip": true,
+   "why": "ambiguous or negation/duplicate answer"
+  }
+ ],
+ "reply": "[\n {\n  \"n\": 1,\n  \"skip\": true,\n  \"why\": \"ambiguous or negation/duplicate answer\"\n },\n {\n  \"n\": 2,\n  \"span\": \"融合滋養層\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 3,\n  \"span\": \"初級卵黃囊\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 4,\n  \"span\": \"接合莖\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 5,\n  \"span\": \"絨毛膜腔\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 6,\n  \"span\": \"血管長入絨毛間質\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 7,\n  \"skip\": true,\n  \"why\": \"ambiguous or negation/duplicate answer\"\n }\n]"
+}

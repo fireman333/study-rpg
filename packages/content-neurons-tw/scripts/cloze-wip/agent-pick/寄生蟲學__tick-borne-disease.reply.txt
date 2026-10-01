@@ -1,0 +1,32 @@
+[
+ {
+  "n": 1,
+  "span": "硬蜱屬",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "馬爾他十字",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "革蜱屬",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "span": "蛛形綱",
+  "why": "key exam fact"
+ },
+ {
+  "n": 5,
+  "span": "巴貝氏原蟲症",
+  "why": "key exam fact"
+ },
+ {
+  "n": 6,
+  "span": "軟蜱",
+  "why": "key exam fact"
+ }
+]

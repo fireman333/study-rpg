@@ -1,0 +1,187 @@
+{
+ "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "19e58ce960c29a77",
+ "candidates": [
+  {
+   "bulletIndex": 3,
+   "sentence": "蠅蛆症（myiasis）是機械性寄生的特例——幼蟲直接鑽入或寄生在組織內：人膚蠅（Dermatobia hominis）廣泛分布於拉丁美洲熱帶地區（並非亞洲），產卵於吸血性蚊蠅腹部，藉由其叮咬把孵化的幼蟲帶入宿主皮膚傷口；院內蠅蛆症（nosocomial myiasis）好發於長期臥床且有開放性傷口的病患；耳部蠅蛆症常見蟲體爬動感、雜音與惡臭分泌物。108/113",
+   "citeText": [
+    "108/113"
+   ],
+   "marks": [
+    "108",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q35",
+    "113-1-醫學二-寄生蟲學-Q35",
+    "113-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "⼈膚蠅（Dermatobia hominis）產卵於吸⾎性蚊/蠅之腹部⽽致孵化之幼蟲鑽入宿主⽪膚傷⼝",
+    "院內蠅蛆症（nosocomial myiasis）常發⽣於⻑期臥床且有開放性傷⼝病患",
+    "⽿部蠅蛆症（aural myiasis）病患常有蟲體爬動感、雜⾳及惡臭分泌物",
+    "綠蠅",
+    "地方性斑疹傷寒（endemic typhus）"
+   ],
+   "spans": [
+    {
+     "span": "Dermatobia hominis",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "拉丁美洲熱帶地區",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "contrast"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是常見的錯誤誘答。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+   ],
+   "spans": [
+    {
+     "span": "馬氏管",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "機械性傳播：家蠅（house fly）藉由體毛、蠟質、黏液單純攜帶病原體、不在體內繁殖（傳播痢疾、傷寒、霍亂等）；相對地，蚊子、跳蚤、體蝨都屬於生物性傳播，病原體必須先在節肢動物體內生長繁殖才能傳播。106/114",
+   "citeText": [
+    "106/114"
+   ],
+   "marks": [
+    "106",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學二-寄生蟲學-Q35",
+    "114-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "家蠅（house fly）",
+    "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+   ],
+   "spans": [
+    {
+     "span": "生物性傳播",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "體蝨（body louse）一次背三種病：流行性斑疹傷寒（Rickettsia prowazekii）、體蝨型回歸熱（Borrelia recurrentis）、戰壕熱（Bartonella quintana）；三者皆非叮咬直接注入病原體，而是蝨的糞便經由抓癢處的皮膚傷口進入人體。107/113",
+   "citeText": [
+    "107/113"
+   ],
+   "marks": [
+    "107",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q35",
+    "113-1-醫學二-寄生蟲學-Q35",
+    "113-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "流行性斑疹傷寒（epidemic typhus）",
+    "綠蠅",
+    "地方性斑疹傷寒（endemic typhus）"
+   ],
+   "spans": [
+    {
+     "span": "Borrelia recurrentis",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "Bartonella quintana",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "長期臥床",
+   "why": "risk group"
+  },
+  {
+   "n": 2,
+   "span": "含氮廢物",
+   "why": "function"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "contrast"
+  },
+  {
+   "n": 4,
+   "span": "蝨的糞便",
+   "why": "transmission mode"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"長期臥床\",\"why\":\"risk group\"},{\"n\":2,\"span\":\"含氮廢物\",\"why\":\"function\"},{\"n\":3,\"skip\":true,\"why\":\"contrast\"},{\"n\":4,\"span\":\"蝨的糞便\",\"why\":\"transmission mode\"}]\n"
+}

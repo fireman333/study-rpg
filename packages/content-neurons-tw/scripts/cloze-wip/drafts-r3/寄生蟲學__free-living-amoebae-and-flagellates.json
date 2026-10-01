@@ -1,0 +1,109 @@
+{
+ "anchorId": "寄生蟲學::free-living-amoebae-and-flagellates",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "6a5ef2b56b932aba",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "105-1-醫學一-寄生蟲學-Q80",
+     "stem": "下列敘述何者錯誤？",
+     "trueOption": "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍"
+    },
+    {
+     "id": "107-2-醫學二-寄生蟲學-Q33",
+     "stem": "下列之寄生蟲配對中，何者在患者組織切片皆可能檢出其囊體期（cyst stage）？",
+     "trueOption": "棘阿米巴（Acanthamoeba spp.）及巴氏阿米巴（Balamuthia mandrillaris）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "若在患者組織切片中同時發現滋養體與囊體，最可能的病原是棘阿米巴（Acanthamoeba spp.）或巴氏阿米巴（Balamuthia mandrillaris）——兩者生活模式相近，皆經水環境感染，且都會在組織中形成囊體；福氏內格里阿米巴則不會。105/107",
+   "citeText": [
+    "105/107"
+   ],
+   "marks": [
+    "105",
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q79",
+    "105-1-醫學一-寄生蟲學-Q80",
+    "107-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "雙核阿米巴（Dientamoeba fragilis）及腸道滴蟲［Trichomonas（Pentatrichomonas） hominis］",
+    "原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者，如未及時診治，通 常在症狀出現後3～6天內死亡",
+    "如在患者組織切片中同時發現滋養體（trophozoites）及囊體（cysts），患者最可能是感 染了棘阿米巴（Acanthamoeba spp.）",
+    "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍",
+    "棘阿米巴（Acanthamoeba spp.）及巴氏阿米巴（Balamuthia mandrillaris）"
+   ],
+   "spans": [
+    {
+     "span": "同時",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q32",
+     "stem": "李姓學童日前於居家附近池塘游泳返家後，陸續出現發燒、頭痛、鼻塞及嗅覺失常等症狀，經住院檢查發現 白血球高達24,000/cmm（>90%為嗜中性白血球）、頸部僵硬及凱尼格氏徵象（Kernig’s sign），並於住院五 天後死亡。依據上述結果，李姓學童最可能感染何種寄生蟲？",
+     "trueOption": "福氏內格里阿米巴（Naegleria fowleri）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "福氏內格里阿米巴（Naegleria fowleri）造成的是原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis, PAM），本質是化膿性（急性）發炎，不是肉芽腫性——後者是棘阿米巴的疾病型態，兩者容易被錯誤配對。104/106",
+   "citeText": [
+    "104/106"
+   ],
+   "marks": [
+    "104",
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q80",
+    "104-2-醫學一-寄生蟲學-Q80",
+    "106-1-醫學一-寄生蟲學-Q80",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "大腸纖毛蟲（Balantidium coli）－赤痢（dysentery）",
+    "沒有保蟲宿主（reservoir host）",
+    "女性患者之症狀包括陰道搔癢、白帶增多且常呈黃綠色等",
+    "根據非洲的研究顯示，陰道滴蟲症（vaginal trichomoniasis）患者感染HIV的機率較高",
+    "大腸纖毛蟲（Balantidium coli）及梨形鞭毛蟲（Giardia lamblia）之滋養體（trophozoites）都具有兩個細胞核",
+    "目前治療陰道滴蟲症（vaginal trichomoniasis）的首選用藥為metronidazole",
+    "野外露營如果無法煮沸飲水，可利用碘液處理方式殺死水中梨形鞭毛蟲（Giardia lamblia）的囊體",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "福氏內格里阿米巴（Naegleria fowleri）"
+   ],
+   "spans": [],
+   "score": 2
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "考題答案為兩種並列，單挖不唯一"
+  },
+  {
+   "n": 2,
+   "span": "福氏內格里阿米巴",
+   "why": "考題答案"
+  }
+ ],
+ "reply": "[{\"n\":1,\"skip\":true,\"why\":\"考題答案為兩種並列，單挖不唯一\"},{\"n\":2,\"span\":\"福氏內格里阿米巴\",\"why\":\"考題答案\"}]\n"
+}

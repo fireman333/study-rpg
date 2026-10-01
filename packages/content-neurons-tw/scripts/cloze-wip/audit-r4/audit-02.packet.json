@@ -1,0 +1,385 @@
+{
+ "group": "audit-02",
+ "cards": [
+  {
+   "cardId": "foodborne-tissue-nematodes#k11",
+   "heading": "食因性與組織線蟲（Foodborne and Tissue-Invasive Nematodes）",
+   "face": "【＿＿＿】（【…】）經食用受污染的淡水魚感染（人與食魚水鳥皆為終宿主），成蟲寄生小腸並具自體感染能力；長期感染造成腸道吸收不良、蛋白質流失，臨床可見腹瀉、低蛋白血症、低血鉀、低血鈣等嚴重電解質失衡，腹瀉病患須積極補充電解質。104/109/110",
+   "answer": "菲律賓毛線蟲",
+   "hint": [],
+   "gloss": [
+    "Capillaria philippinensis"
+   ],
+   "sentence": "菲律賓毛線蟲（Capillaria philippinensis）經食用受污染的淡水魚感染（人與食魚水鳥皆為終宿主），成蟲寄生小腸並具自體感染能力；長期感染造成腸道吸收不良、蛋白質流失，臨床可見腹瀉、低蛋白血症、低血鉀、低血鈣等嚴重電解質失衡，腹瀉病患須積極補充電解質。104/109/110",
+   "sentenceHash": "389cc68a"
+  },
+  {
+   "cardId": "foodborne-tissue-nematodes#k12",
+   "heading": "食因性與組織線蟲（Foodborne and Tissue-Invasive Nematodes）",
+   "face": "【＿＿＿】（【…】）經食入未熟帶蟲豬肉（或熊肉）感染；人與豬同時身兼終宿主與中間宿主；幼蟲隨血液循環到達橫紋肌並發育、囊化；症狀依病程分三期——腸道期腸胃症狀→肌肉侵犯（移行）期先出現局部（尤其眼眶周圍）水腫，並伴隨發燒、肌肉痛與高嗜伊紅性白血球症→囊化期症狀逐漸消退，肌肉痛不是最早出現的症狀，是常見誘答。106/115",
+   "answer": "旋毛蟲",
+   "hint": [],
+   "gloss": [
+    "Trichinella spiralis"
+   ],
+   "sentence": "旋毛蟲（Trichinella spiralis）經食入未熟帶蟲豬肉（或熊肉）感染；人與豬同時身兼終宿主與中間宿主；幼蟲隨血液循環到達橫紋肌並發育、囊化；症狀依病程分三期——腸道期腸胃症狀→肌肉侵犯（移行）期先出現局部（尤其眼眶周圍）水腫，並伴隨發燒、肌肉痛與高嗜伊紅性白血球症→囊化期症狀逐漸消退，肌肉痛不是最早出現的症狀，是常見誘答。106/115",
+   "sentenceHash": "d2511188"
+  },
+  {
+   "cardId": "foodborne-tissue-nematodes#k13",
+   "heading": "食因性與組織線蟲（Foodborne and Tissue-Invasive Nematodes）",
+   "face": "【＿＿＿】（【…】）經食用海水魚生魚片（壽司／生魚片）感染，需經兩種中間宿主（海水甲殼類→海水魚／烏賊）才具感染力；幼蟲鑽入胃或十二指腸壁，造成急性腹痛、胃部顯影攝影可見線狀填充物缺陷（threadlike filling defect），病理上為嗜伊紅性肉芽腫，常被誤認為胃癌；診斷靠胃鏡直視並摘除幼蟲，不是檢查糞便中的蟲卵。105/108",
+   "answer": "海獸胃線蟲",
+   "hint": [],
+   "gloss": [
+    "Anisakis spp."
+   ],
+   "sentence": "海獸胃線蟲（Anisakis spp.）經食用海水魚生魚片（壽司／生魚片）感染，需經兩種中間宿主（海水甲殼類→海水魚／烏賊）才具感染力；幼蟲鑽入胃或十二指腸壁，造成急性腹痛、胃部顯影攝影可見線狀填充物缺陷（threadlike filling defect），病理上為嗜伊紅性肉芽腫，常被誤認為胃癌；診斷靠胃鏡直視並摘除幼蟲，不是檢查糞便中的蟲卵。105/108",
+   "sentenceHash": "7168cb70"
+  },
+  {
+   "cardId": "foodborne-tissue-nematodes#k14",
+   "heading": "食因性與組織線蟲（Foodborne and Tissue-Invasive Nematodes）",
+   "face": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；食入土壤中的胚胎化蟲卵後，幼蟲在腸道孵出、經肝門靜脈到達肝臟發育為成蟲，並於肝實質產卵，真感染須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於【＿＿＿】（【…】），【…】，是本科少見但曾出現的陷阱題。113",
+   "answer": "假性感染",
+   "hint": [
+    "並非真正的肝內感染"
+   ],
+   "gloss": [
+    "spurious infection"
+   ],
+   "sentence": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；食入土壤中的胚胎化蟲卵後，幼蟲在腸道孵出、經肝門靜脈到達肝臟發育為成蟲，並於肝實質產卵，真感染須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於假性感染（spurious infection），並非真正的肝內感染，是本科少見但曾出現的陷阱題。113",
+   "sentenceHash": "e340222a"
+  },
+  {
+   "cardId": "foodborne-tissue-nematodes#k15",
+   "heading": "食因性與組織線蟲（Foodborne and Tissue-Invasive Nematodes）",
+   "face": "【＿＿＿】（【…】）成蟲寄生於貓狗胃壁（人為非適當宿主，不會長成成蟲），需經水蚤（第一中間宿主）與淡水魚／蛙（第二中間宿主）兩種中間宿主，也可經蛙肉敷傷口感染；感染人體後同時可造成皮膚幼蟲移行症（爬行疹）與內臟幼蟲移行症（嗜伊紅性腦脊髓炎），並非「只侵犯皮下組織」；侵犯眼周可造成長江浮腫（眼周浮腫）與【…】。111/112",
+   "answer": "棘顎口線蟲",
+   "hint": [
+    "眼球棘顎口線蟲症"
+   ],
+   "gloss": [
+    "Gnathostoma spinigerum"
+   ],
+   "sentence": "棘顎口線蟲（Gnathostoma spinigerum）成蟲寄生於貓狗胃壁（人為非適當宿主，不會長成成蟲），需經水蚤（第一中間宿主）與淡水魚／蛙（第二中間宿主）兩種中間宿主，也可經蛙肉敷傷口感染；感染人體後同時可造成皮膚幼蟲移行症（爬行疹）與內臟幼蟲移行症（嗜伊紅性腦脊髓炎），並非「只侵犯皮下組織」；侵犯眼周可造成長江浮腫（眼周浮腫）與眼球棘顎口線蟲症。111/112",
+   "sentenceHash": "0c317e57"
+  },
+  {
+   "cardId": "lymphatic-and-subcutaneous-filariasis#k7",
+   "heading": "淋巴絲蟲病與皮下絲蟲病（Lymphatic and Subcutaneous Filariasis）",
+   "face": "班氏絲蟲（Wuchereria bancrofti）病媒為熱帶家蚊（曾流行於台澎金馬及中國南方）；成蟲寄生於淋巴管，微絲蟲具有夜間週期性（白天聚集於肺部小血管，夜間才大量出現於末梢血液），臨床上可用 【＿＿＿】（【…】）誘發試驗讓微絲蟲白天也能被採血檢出；感染造成淋巴管炎、象皮病、陰囊水腫、乳糜尿。106/108/112",
+   "answer": "diethylcarbamazine",
+   "hint": [],
+   "gloss": [
+    "DEC"
+   ],
+   "sentence": "班氏絲蟲（Wuchereria bancrofti）病媒為熱帶家蚊（曾流行於台澎金馬及中國南方）；成蟲寄生於淋巴管，微絲蟲具有夜間週期性（白天聚集於肺部小血管，夜間才大量出現於末梢血液），臨床上可用 diethylcarbamazine（DEC）誘發試驗讓微絲蟲白天也能被採血檢出；感染造成淋巴管炎、象皮病、陰囊水腫、乳糜尿。106/108/112",
+   "sentenceHash": "d7de9527"
+  },
+  {
+   "cardId": "lymphatic-and-subcutaneous-filariasis#k8",
+   "heading": "淋巴絲蟲病與皮下絲蟲病（Lymphatic and Subcutaneous Filariasis）",
+   "face": "羅阿絲蟲（Loa loa）病媒為虻（Chrysops，鹿蠅）；成蟲主要寄生於【＿＿＿】、微絲蟲於白天出現在血液中；【…】，但多不引起劇痛，只因蟲體分泌物過敏反應造成暫時性的卡拉巴腫（Calabar swelling）；跑到眼結膜下可造成眼蟲病（大量流淚、疼痛、不安），但不會造成失明——會致盲的是蟠尾絲蟲。104",
+   "answer": "皮下組織",
+   "hint": [
+    "成蟲移行雖在皮下"
+   ],
+   "gloss": [],
+   "sentence": "羅阿絲蟲（Loa loa）病媒為虻（Chrysops，鹿蠅）；成蟲主要寄生於皮下組織、微絲蟲於白天出現在血液中；成蟲移行雖在皮下，但多不引起劇痛，只因蟲體分泌物過敏反應造成暫時性的卡拉巴腫（Calabar swelling）；跑到眼結膜下可造成眼蟲病（大量流淚、疼痛、不安），但不會造成失明——會致盲的是蟠尾絲蟲。104",
+   "sentenceHash": "1acd885f"
+  },
+  {
+   "cardId": "lymphatic-and-subcutaneous-filariasis#k9",
+   "heading": "淋巴絲蟲病與皮下絲蟲病（Lymphatic and Subcutaneous Filariasis）",
+   "face": "蟠尾絲蟲（Onchocerca volvulus）病媒為蚋（Simulium，黑蠅）；微絲蟲定居於皮膚（真皮層）與尿液中，【＿＿＿】（【…】）是主要診斷方法；重複感染可造成河川盲症（river blindness）、皮疹、硬而不痛的皮下結節、豹皮花紋（leopard skin）、鼠蹊懸垂（hanging groin）；肺部結節／錢幣狀病灶不是蟠尾絲蟲的表現，那是犬心絲蟲（Dirofilaria immitis）的特徵，兩者常被放在一起誘答。106/107/110/111",
+   "answer": "皮下切片",
+   "hint": [],
+   "gloss": [
+    "skin snips"
+   ],
+   "sentence": "蟠尾絲蟲（Onchocerca volvulus）病媒為蚋（Simulium，黑蠅）；微絲蟲定居於皮膚（真皮層）與尿液中，皮下切片（skin snips）是主要診斷方法；重複感染可造成河川盲症（river blindness）、皮疹、硬而不痛的皮下結節、豹皮花紋（leopard skin）、鼠蹊懸垂（hanging groin）；肺部結節／錢幣狀病灶不是蟠尾絲蟲的表現，那是犬心絲蟲（Dirofilaria immitis）的特徵，兩者常被放在一起誘答。106/107/110/111",
+   "sentenceHash": "5580aaa6"
+  },
+  {
+   "cardId": "angiostrongyliasis-and-larva-migrans#k9",
+   "heading": "廣東住血線蟲症與幼蟲移行症（Angiostrongyliasis and Larva Migrans Syndromes）",
+   "face": "【＿＿＿】（【…】）終宿主為狗／貓，人為偶然宿主（幼蟲不會長成成蟲）；食入含胚卵的糞便污染物後，幼蟲在體內到處遊走造成內臟幼蟲移行症（VLM），最容易侵犯肝臟（肝腫大），也常侵犯肺（咳嗽）、眼睛（視網膜剝離，即眼部幼蟲移行症）、腦部；臨床特徵為高嗜伊紅性白血球症、高球蛋白血症、嗜伊紅性肉芽腫；好發於幼童（非成年人），因幼兒接觸受污染土壤／犬貓糞便機會較高。107/114",
+   "answer": "犬蛔蟲／貓蛔蟲",
+   "hint": [],
+   "gloss": [
+    "Toxocara canis/cati"
+   ],
+   "sentence": "犬蛔蟲／貓蛔蟲（Toxocara canis/cati）終宿主為狗／貓，人為偶然宿主（幼蟲不會長成成蟲）；食入含胚卵的糞便污染物後，幼蟲在體內到處遊走造成內臟幼蟲移行症（VLM），最容易侵犯肝臟（肝腫大），也常侵犯肺（咳嗽）、眼睛（視網膜剝離，即眼部幼蟲移行症）、腦部；臨床特徵為高嗜伊紅性白血球症、高球蛋白血症、嗜伊紅性肉芽腫；好發於幼童（非成年人），因幼兒接觸受污染土壤／犬貓糞便機會較高。107/114",
+   "sentenceHash": "ea8077c3"
+  },
+  {
+   "cardId": "liver-and-intestinal-flukes#k7",
+   "heading": "肝吸蟲與腸道吸蟲（Liver and Intestinal Flukes）",
+   "face": "【＿＿＿】（【…】）是人體內最小的吸蟲之一，經生食淡水魚感染，特徵是除口、腹吸盤外，在生殖孔附近另有第三吸盤（吸蟲中唯一）；成蟲鑽入腸黏膜產卵，蟲卵細小可進入微血管，隨血流、淋巴移行至心臟、腦部等處造成異位病變。104-2/110-1",
+   "answer": "異形吸蟲",
+   "hint": [],
+   "gloss": [
+    "Heterophyes heterophyes"
+   ],
+   "sentence": "異形吸蟲（Heterophyes heterophyes）是人體內最小的吸蟲之一，經生食淡水魚感染，特徵是除口、腹吸盤外，在生殖孔附近另有第三吸盤（吸蟲中唯一）；成蟲鑽入腸黏膜產卵，蟲卵細小可進入微血管，隨血流、淋巴移行至心臟、腦部等處造成異位病變。104-2/110-1",
+   "sentenceHash": "b6f4a81d"
+  },
+  {
+   "cardId": "schistosomiasis#k5",
+   "heading": "血吸蟲症（Schistosomiasis）",
+   "face": "曼森（曼氏）血吸蟲（Schistosoma mansoni）成蟲寄生於下腸繫膜靜脈（引流大腸），蟲卵具側刺（非尾刺）；病程為腸胃不適→肝脾腫大；三型血吸蟲中【＿＿＿】（【…】）；診斷靠糞便檢卵。107-2/113-2",
+   "answer": "分佈地區最廣",
+   "hint": [],
+   "gloss": [
+    "非洲、南美洲"
+   ],
+   "sentence": "曼森（曼氏）血吸蟲（Schistosoma mansoni）成蟲寄生於下腸繫膜靜脈（引流大腸），蟲卵具側刺（非尾刺）；病程為腸胃不適→肝脾腫大；三型血吸蟲中分佈地區最廣（非洲、南美洲）；診斷靠糞便檢卵。107-2/113-2",
+   "sentenceHash": "ca73fe93"
+  },
+  {
+   "cardId": "schistosomiasis#k7",
+   "heading": "血吸蟲症（Schistosomiasis）",
+   "face": "血吸蟲與其他吸蟲最大的差異在感染途徑：血吸蟲的尾動幼蟲（cercaria）【＿＿＿】，【…】（metacercaria）——第一中間宿主（螺類）就是全部所需的中間宿主。111-2/113-2",
+   "answer": "直接經皮膚鑽入人體",
+   "hint": [
+    "不需要第二中間宿主形成囊幼"
+   ],
+   "gloss": [],
+   "sentence": "血吸蟲與其他吸蟲最大的差異在感染途徑：血吸蟲的尾動幼蟲（cercaria）直接經皮膚鑽入人體，不需要第二中間宿主形成囊幼（metacercaria）——第一中間宿主（螺類）就是全部所需的中間宿主。111-2/113-2",
+   "sentenceHash": "8dfc93c9"
+  },
+  {
+   "cardId": "paragonimiasis-and-ectopic-lesions#k7",
+   "heading": "肺吸蟲症與吸蟲異位病變（Paragonimiasis and Ectopic Fluke Lesions）",
+   "face": "衛氏肺吸蟲（Paragonimus westermani）第一中間宿主為淡水螺類，第二中間宿主為【…】；人類經食入生食、鹽漬、醃製或未煮熟的【＿＿＿】而感染，感染型態是囊狀幼蟲（metacercaria），並非尾動幼蟲鑽皮、也不是食入水生植物或淡水魚。106-2/108-1/115-1",
+   "answer": "淡水蟹／螯蝦",
+   "hint": [
+    "蟹類與淡水螯蝦"
+   ],
+   "gloss": [],
+   "sentence": "衛氏肺吸蟲（Paragonimus westermani）第一中間宿主為淡水螺類，第二中間宿主為蟹類與淡水螯蝦；人類經食入生食、鹽漬、醃製或未煮熟的淡水蟹／螯蝦而感染，感染型態是囊狀幼蟲（metacercaria），並非尾動幼蟲鑽皮、也不是食入水生植物或淡水魚。106-2/108-1/115-1",
+   "sentenceHash": "a87d3f83"
+  },
+  {
+   "cardId": "paragonimiasis-and-ectopic-lesions#k6",
+   "heading": "肺吸蟲症與吸蟲異位病變（Paragonimiasis and Ectopic Fluke Lesions）",
+   "face": "美國有原生的【＿＿＿】（【…】），與衛氏肺吸蟲近緣，生食進口自美國的生鮮蝲蛄（crayfish）同樣有感染風險。105-2",
+   "answer": "克氏肺吸蟲",
+   "hint": [],
+   "gloss": [
+    "Paragonimus kellicotti"
+   ],
+   "sentence": "美國有原生的克氏肺吸蟲（Paragonimus kellicotti），與衛氏肺吸蟲近緣，生食進口自美國的生鮮蝲蛄（crayfish）同樣有感染風險。105-2",
+   "sentenceHash": "7b169698"
+  },
+  {
+   "cardId": "echinococcosis-and-small-tapeworms#k5",
+   "heading": "包生絛蟲症與小型絛蟲（Echinococcus, Hymenolepis, Dipylidium）",
+   "face": "顆粒性（單胞）包生絛蟲 E. granulosus：終宿主為狗，中間宿主為羊等草食動物；人因誤食蟲卵而感染（不是吃到未煮熟羊肉），主要在【＿＿＿】形成單房性包生囊（hydatid cyst），亦可波及肺部。105/110/112",
+   "answer": "肝臟",
+   "hint": [],
+   "gloss": [],
+   "sentence": "顆粒性（單胞）包生絛蟲 E. granulosus：終宿主為狗，中間宿主為羊等草食動物；人因誤食蟲卵而感染（不是吃到未煮熟羊肉），主要在肝臟形成單房性包生囊（hydatid cyst），亦可波及肺部。105/110/112",
+   "sentenceHash": "0f17d16b"
+  },
+  {
+   "cardId": "taeniasis-and-cysticercosis#k4",
+   "heading": "條蟲病與囊尾幼蟲症（Taeniasis and Cysticercosis: T. solium vs T. saginata）",
+   "face": "神經性囊尾幼蟲症（neurocysticercosis）最常見的病因是豬肉絛蟲；約 70% 感染者會出現【＿＿＿】（【…】）；血清或腦脊液抗體／抗原檢查有助診斷（血清敏感度約 80%、腦脊液約 90%）；影像學典型可見腦實質或腦室內多發囊體。108/111/115",
+   "answer": "癲癇",
+   "hint": [],
+   "gloss": [
+    "epilepsy"
+   ],
+   "sentence": "神經性囊尾幼蟲症（neurocysticercosis）最常見的病因是豬肉絛蟲；約 70% 感染者會出現癲癇（epilepsy）；血清或腦脊液抗體／抗原檢查有助診斷（血清敏感度約 80%、腦脊液約 90%）；影像學典型可見腦實質或腦室內多發囊體。108/111/115",
+   "sentenceHash": "df9855ef"
+  },
+  {
+   "cardId": "diphyllobothriasis-and-sparganosis#k9",
+   "heading": "廣節裂頭絛蟲症與孔雀蚴／裂頭蚴移行症（Diphyllobothriasis and Sparganosis）",
+   "face": "廣節裂頭絛蟲生活史：蟲卵（有【＿＿＿】 【…】）落水孵出纖毛幼蟲 → 第一中間宿主劍水蚤體內發育成原尾幼蟲 → 第二中間宿主淡水魚體內發育成長尾幼蟲（plerocercoid，人類感染期） → 人吃進未熟或醃製魚肉，成蟲寄生於小腸（空腸）。105/111",
+   "answer": "卵蓋",
+   "hint": [
+    "operculum"
+   ],
+   "gloss": [],
+   "sentence": "廣節裂頭絛蟲生活史：蟲卵（有卵蓋 operculum）落水孵出纖毛幼蟲 → 第一中間宿主劍水蚤體內發育成原尾幼蟲 → 第二中間宿主淡水魚體內發育成長尾幼蟲（plerocercoid，人類感染期） → 人吃進未熟或醃製魚肉，成蟲寄生於小腸（空腸）。105/111",
+   "sentenceHash": "a4f13ad3"
+  },
+  {
+   "cardId": "diphyllobothriasis-and-sparganosis#k4",
+   "heading": "廣節裂頭絛蟲症與孔雀蚴／裂頭蚴移行症（Diphyllobothriasis and Sparganosis）",
+   "face": "裂頭蚴移行症（sparganosis）感染途徑：飲用受感染劍水蚤污染的水、食用未熟蛙肉或蛇肉，或民間敷蛙肉／蛇肉於傷口或眼睛；因人類非其終宿主（貓、狗才是），幼蟲無法發育成成蟲，只能在組織間到處移行，形成移行性病灶，與 Echinococcus 穩定成囊的型態不同。「以搗碎蛙肉敷眼消腫、數週後眼周水腫發炎」是考選部反覆使用的經典病史，答【＿＿＿】（【…】）；短小／縮小包膜絛蟲（經口蟲卵或含似囊尾幼蟲的節肢動物）與包生絛蟲（誤食犬糞蟲卵）都與敷蛙肉無關。115-2",
+   "answer": "曼森裂頭絛蟲",
+   "hint": [],
+   "gloss": [
+    "Spirometra mansonoides"
+   ],
+   "sentence": "裂頭蚴移行症（sparganosis）感染途徑：飲用受感染劍水蚤污染的水、食用未熟蛙肉或蛇肉，或民間敷蛙肉／蛇肉於傷口或眼睛；因人類非其終宿主（貓、狗才是），幼蟲無法發育成成蟲，只能在組織間到處移行，形成移行性病灶，與 Echinococcus 穩定成囊的型態不同。「以搗碎蛙肉敷眼消腫、數週後眼周水腫發炎」是考選部反覆使用的經典病史，答曼森裂頭絛蟲（Spirometra mansonoides）；短小／縮小包膜絛蟲（經口蟲卵或含似囊尾幼蟲的節肢動物）與包生絛蟲（誤食犬糞蟲卵）都與敷蛙肉無關。115-2",
+   "sentenceHash": "5a283cdb"
+  },
+  {
+   "cardId": "intestinal-luminal-amoebae#k6",
+   "heading": "腸道管腔阿米巴：痢疾阿米巴與非致病性阿米巴（Intestinal Luminal Amoebae — E. histolytica vs Non-Pathogenic Species）",
+   "face": "【＿＿＿】（【…】）的滋養體也會吞噬紅血球，但牠寄生於口腔（【…】），與腸道致病無關；人體寄生性阿米巴的寄生部位並非全部都在大腸。106/107",
+   "answer": "齒齦阿米巴",
+   "hint": [
+    "牙齦、齒垢"
+   ],
+   "gloss": [
+    "Entamoeba gingivalis"
+   ],
+   "sentence": "齒齦阿米巴（Entamoeba gingivalis）的滋養體也會吞噬紅血球，但牠寄生於口腔（牙齦、齒垢），與腸道致病無關；人體寄生性阿米巴的寄生部位並非全部都在大腸。106/107",
+   "sentenceHash": "b5a830de"
+  },
+  {
+   "cardId": "intestinal-luminal-amoebae#k4",
+   "heading": "腸道管腔阿米巴：痢疾阿米巴與非致病性阿米巴（Intestinal Luminal Amoebae — E. histolytica vs Non-Pathogenic Species）",
+   "face": "痢疾阿米巴症（含阿米巴肝膿瘍）的首選治療藥物為 【＿＿＿】；mebendazole 是用於治療腸道蠕蟲，並非治療阿米巴的藥物。106",
+   "answer": "metronidazole",
+   "hint": [],
+   "gloss": [],
+   "sentence": "痢疾阿米巴症（含阿米巴肝膿瘍）的首選治療藥物為 metronidazole；mebendazole 是用於治療腸道蠕蟲，並非治療阿米巴的藥物。106",
+   "sentenceHash": "f74d6b3b"
+  },
+  {
+   "cardId": "intestinal-luminal-amoebae#k7",
+   "heading": "腸道管腔阿米巴：痢疾阿米巴與非致病性阿米巴（Intestinal Luminal Amoebae — E. histolytica vs Non-Pathogenic Species）",
+   "face": "痢疾阿米巴（Entamoeba histolytica）的滋養體會【＿＿＿】（【…】），是牠與非致病性近親（如哈氏阿米巴）最重要的鑑別特徵；哈氏阿米巴滋養體的胞內容物是細菌，不含紅血球。106/108",
+   "answer": "吞噬紅血球",
+   "hint": [],
+   "gloss": [
+    "erythrophagocytosis"
+   ],
+   "sentence": "痢疾阿米巴（Entamoeba histolytica）的滋養體會吞噬紅血球（erythrophagocytosis），是牠與非致病性近親（如哈氏阿米巴）最重要的鑑別特徵；哈氏阿米巴滋養體的胞內容物是細菌，不含紅血球。106/108",
+   "sentenceHash": "86cc40f8"
+  },
+  {
+   "cardId": "intestinal-luminal-amoebae#k8",
+   "heading": "腸道管腔阿米巴：痢疾阿米巴與非致病性阿米巴（Intestinal Luminal Amoebae — E. histolytica vs Non-Pathogenic Species）",
+   "face": "痢疾阿米巴與型態完全相同的迪斯帕阿米巴（Entamoeba dispar，非致病性）無法單靠形態學區分，須利用 【＿＿＿】才能鑑別兩者。106",
+   "answer": "PCR 技術",
+   "hint": [],
+   "gloss": [],
+   "sentence": "痢疾阿米巴與型態完全相同的迪斯帕阿米巴（Entamoeba dispar，非致病性）無法單靠形態學區分，須利用 PCR 技術才能鑑別兩者。106",
+   "sentenceHash": "a9dc8c5e"
+  },
+  {
+   "cardId": "malaria-plasmodium#k9",
+   "heading": "瘧原蟲與瘧疾（Plasmodium spp. and Malaria）",
+   "face": "諾氏瘧原蟲宿主專一性不強，可感染人類與【＿＿＿】（【…】）；裂殖體週期僅24小時，是所有瘧原蟲中最短；不形成隱眠小體、不復發；2005年台灣曾出現首例境外移入（自菲律賓巴拉望島返國）病例。104/113",
+   "answer": "非人靈長類",
+   "hint": [],
+   "gloss": [
+    "人畜共通"
+   ],
+   "sentence": "諾氏瘧原蟲宿主專一性不強，可感染人類與非人靈長類（人畜共通）；裂殖體週期僅24小時，是所有瘧原蟲中最短；不形成隱眠小體、不復發；2005年台灣曾出現首例境外移入（自菲律賓巴拉望島返國）病例。104/113",
+   "sentenceHash": "a5db13d7"
+  },
+  {
+   "cardId": "malaria-plasmodium#k10",
+   "heading": "瘧原蟲與瘧疾（Plasmodium spp. and Malaria）",
+   "face": "【＿＿＿】（【…】）：由惡性瘧引發的大量血管內溶血，患者產生抗體攻擊受感染紅血球導致破裂，釋出的血紅素超過結合珠蛋白（haptoglobin）的結合能力而經尿液排出，形成血紅素尿（hemoglobinuria），與自體免疫反應及補體活化有關，並非肝細胞受損所致、也與IFN-γ受體損傷無關。110/115",
+   "answer": "黑水熱",
+   "hint": [],
+   "gloss": [
+    "blackwater fever"
+   ],
+   "sentence": "黑水熱（blackwater fever）：由惡性瘧引發的大量血管內溶血，患者產生抗體攻擊受感染紅血球導致破裂，釋出的血紅素超過結合珠蛋白（haptoglobin）的結合能力而經尿液排出，形成血紅素尿（hemoglobinuria），與自體免疫反應及補體活化有關，並非肝細胞受損所致、也與IFN-γ受體損傷無關。110/115",
+   "sentenceHash": "33ec2336"
+  },
+  {
+   "cardId": "leishmaniasis#k5",
+   "heading": "利什曼原蟲症（Leishmaniasis）",
+   "face": "【＿＿＿】（【…】）由杜氏利什曼原蟲引起，典型三主症是發燒＋肝脾腫大＋貧血，常合併高球蛋白血症（hypergammaglobulinemia）、血小板與白血球減少（易誤診為再生不能性貧血）；診斷靠骨髓穿刺於巨噬細胞內找到無鞭毛體。104/106/109/111",
+   "answer": "黑熱病",
+   "hint": [],
+   "gloss": [
+    "kala-azar"
+   ],
+   "sentence": "黑熱病（kala-azar）由杜氏利什曼原蟲引起，典型三主症是發燒＋肝脾腫大＋貧血，常合併高球蛋白血症（hypergammaglobulinemia）、血小板與白血球減少（易誤診為再生不能性貧血）；診斷靠骨髓穿刺於巨噬細胞內找到無鞭毛體。104/106/109/111",
+   "sentenceHash": "f54fe1c3"
+  },
+  {
+   "cardId": "babesiosis#k8",
+   "heading": "巴貝氏原蟲病（Babesiosis）",
+   "face": "診斷以【＿＿＿】（【…】）為主；標準治療為克林達黴素（clindamycin）併用奎寧（quinine），另一常用方案是atovaquone併用azithromycin。108/115",
+   "answer": "血液抹片鏡檢配合免疫螢光抗體試驗",
+   "hint": [],
+   "gloss": [
+    "IFA"
+   ],
+   "sentence": "診斷以血液抹片鏡檢配合免疫螢光抗體試驗（IFA）為主；標準治療為克林達黴素（clindamycin）併用奎寧（quinine），另一常用方案是atovaquone併用azithromycin。108/115",
+   "sentenceHash": "face38ae"
+  },
+  {
+   "cardId": "toxoplasmosis#k4",
+   "heading": "弓蟲症（Toxoplasmosis）",
+   "face": "孕婦於懷孕期間（尤其第一孕期最嚴重）感染急性弓蟲症可能經胎盤垂直傳染，造成胎兒水腦症、腦脊髓炎、視網膜脈絡膜炎；spiramycin是文獻記載用於預防胎兒子宮內感染的藥物之一；弓蟲症在台灣屬於【＿＿＿】。105",
+   "answer": "第四類法定傳染病",
+   "hint": [],
+   "gloss": [],
+   "sentence": "孕婦於懷孕期間（尤其第一孕期最嚴重）感染急性弓蟲症可能經胎盤垂直傳染，造成胎兒水腦症、腦脊髓炎、視網膜脈絡膜炎；spiramycin是文獻記載用於預防胎兒子宮內感染的藥物之一；弓蟲症在台灣屬於第四類法定傳染病。105",
+   "sentenceHash": "c53daf35"
+  },
+  {
+   "cardId": "louse-flea-mechanical-vectors#k10",
+   "heading": "蝨與蚤：機械性傳播與病媒疾病（Lice, Fleas, and Mechanical Transmission）",
+   "face": "蠅蛆症（myiasis）是機械性寄生的特例——幼蟲直接鑽入或寄生在組織內：人膚蠅（Dermatobia hominis）廣泛分布於拉丁美洲熱帶地區（並非亞洲），產卵於【＿＿＿】，【…】把孵化的幼蟲帶入宿主皮膚傷口；院內蠅蛆症（nosocomial myiasis）好發於長期臥床且有開放性傷口的病患；耳部蠅蛆症常見蟲體爬動感、雜音與惡臭分泌物。108/113",
+   "answer": "吸血性蚊蠅腹部",
+   "hint": [
+    "藉由其叮咬"
+   ],
+   "gloss": [],
+   "sentence": "蠅蛆症（myiasis）是機械性寄生的特例——幼蟲直接鑽入或寄生在組織內：人膚蠅（Dermatobia hominis）廣泛分布於拉丁美洲熱帶地區（並非亞洲），產卵於吸血性蚊蠅腹部，藉由其叮咬把孵化的幼蟲帶入宿主皮膚傷口；院內蠅蛆症（nosocomial myiasis）好發於長期臥床且有開放性傷口的病患；耳部蠅蛆症常見蟲體爬動感、雜音與惡臭分泌物。108/113",
+   "sentenceHash": "034f5900"
+  },
+  {
+   "cardId": "louse-flea-mechanical-vectors#k8",
+   "heading": "蝨與蚤：機械性傳播與病媒疾病（Lice, Fleas, and Mechanical Transmission）",
+   "face": "節肢動物的【＿＿＿】（【…】）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是常見的錯誤誘答。114",
+   "answer": "馬氏管",
+   "hint": [],
+   "gloss": [
+    "Malpighian tubules"
+   ],
+   "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是常見的錯誤誘答。114",
+   "sentenceHash": "ecceb669"
+  },
+  {
+   "cardId": "louse-flea-mechanical-vectors#k9",
+   "heading": "蝨與蚤：機械性傳播與病媒疾病（Lice, Fleas, and Mechanical Transmission）",
+   "face": "機械性傳播：【＿＿＿】（【…】）藉由體毛、蠟質、黏液單純攜帶病原體、不在體內繁殖（傳播痢疾、傷寒、霍亂等）；相對地，蚊子、跳蚤、體蝨都屬於生物性傳播，病原體必須先在節肢動物體內生長繁殖才能傳播。106/114",
+   "answer": "家蠅",
+   "hint": [],
+   "gloss": [
+    "house fly"
+   ],
+   "sentence": "機械性傳播：家蠅（house fly）藉由體毛、蠟質、黏液單純攜帶病原體、不在體內繁殖（傳播痢疾、傷寒、霍亂等）；相對地，蚊子、跳蚤、體蝨都屬於生物性傳播，病原體必須先在節肢動物體內生長繁殖才能傳播。106/114",
+   "sentenceHash": "a51ecac1"
+  },
+  {
+   "cardId": "tick-borne-disease#k5",
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "face": "巴貝氏原蟲症（babesiosis）：Babesia 寄生【＿＿＿】、無性生殖形成類似瘧原蟲的環狀體，典型為4個merozoite排成馬爾他十字（Maltese cross）；多數患者呈現無症狀之低度寄生蟲血症（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+   "answer": "紅血球內",
+   "hint": [],
+   "gloss": [],
+   "sentence": "巴貝氏原蟲症（babesiosis）：Babesia 寄生紅血球內、無性生殖形成類似瘧原蟲的環狀體，典型為4個merozoite排成馬爾他十字（Maltese cross）；多數患者呈現無症狀之低度寄生蟲血症（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+   "sentenceHash": "b993e52a"
+  },
+  {
+   "cardId": "tick-borne-disease#k8",
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "face": "軟蜱（Ornithodoros spp.）傳播【＿＿＿】（【…】）與Q熱（Coxiella burnetii；Q熱硬蜱亦可傳播）；黑熱病（白蛉媒介）、戰壕熱（體蝨媒介）、黃熱病（斑蚊媒介）都不是蜱媒介疾病。109",
+   "answer": "蜱媒回歸熱",
+   "hint": [],
+   "gloss": [
+    "tick-borne relapsing fever"
+   ],
+   "sentence": "軟蜱（Ornithodoros spp.）傳播蜱媒回歸熱（tick-borne relapsing fever）與Q熱（Coxiella burnetii；Q熱硬蜱亦可傳播）；黑熱病（白蛉媒介）、戰壕熱（體蝨媒介）、黃熱病（斑蚊媒介）都不是蜱媒介疾病。109",
+   "sentenceHash": "16f370d9"
+  }
+ ]
+}

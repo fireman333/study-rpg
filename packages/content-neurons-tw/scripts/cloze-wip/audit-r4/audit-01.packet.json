@@ -1,0 +1,412 @@
+{
+ "group": "audit-01",
+ "cards": [
+  {
+   "cardId": "gametogenesis-fertilization#k4",
+   "heading": "配子形成與受精（Gametogenesis and Fertilization）",
+   "face": "【＿＿＿】（【…】）在月經週期中會出現兩次高峰：排卵前由優勢濾泡（dominant follicle）分泌，誘發黃體成長激素（LH）激增以觸發排卵；排卵後則由黃體（corpus luteum）分泌第二個高峰，藉此維持子宮內膜增厚。115",
+   "answer": "動情素",
+   "hint": [],
+   "gloss": [
+    "estrogen"
+   ],
+   "sentence": "動情素（estrogen）在月經週期中會出現兩次高峰：排卵前由優勢濾泡（dominant follicle）分泌，誘發黃體成長激素（LH）激增以觸發排卵；排卵後則由黃體（corpus luteum）分泌第二個高峰，藉此維持子宮內膜增厚。115",
+   "sentenceHash": "eb503d9b"
+  },
+  {
+   "cardId": "early-cleavage-implantation#k4",
+   "heading": "早期卵裂與著床（Early Cleavage and Implantation）",
+   "face": "受精後約 30 小時開始進行卵裂（cleavage，即有絲分裂 mitosis），約第 3–4 天形成實心細胞球狀的桑椹胚（morula），第 4–5 天桑椹胚中空並充滿液體形成囊胚（blastocyst）——【＿＿＿】（【…】）是這幾個構造中最早出現的腔室，早於羊膜腔、絨毛膜腔與初級卵黃囊。104/106",
+   "answer": "囊胚腔",
+   "hint": [],
+   "gloss": [
+    "blastocyst cavity"
+   ],
+   "sentence": "受精後約 30 小時開始進行卵裂（cleavage，即有絲分裂 mitosis），約第 3–4 天形成實心細胞球狀的桑椹胚（morula），第 4–5 天桑椹胚中空並充滿液體形成囊胚（blastocyst）——囊胚腔（blastocyst cavity）是這幾個構造中最早出現的腔室，早於羊膜腔、絨毛膜腔與初級卵黃囊。104/106",
+   "sentenceHash": "de6c17e7"
+  },
+  {
+   "cardId": "germ-layers-gastrulation#k8",
+   "heading": "三胚層形成與原腸胚形成（Germ Layers and Gastrulation）",
+   "face": "三胚層各自的主要衍生物詳見下方對照表；皮脂腺、汗腺、頭髮都屬於體表外胚層衍生物，但【＿＿＿】（【…】）是由真皮層的間葉組織分化而成，屬於中胚層衍生物，是這個題型最容易搞混的一組。113/115",
+   "answer": "豎毛肌",
+   "hint": [],
+   "gloss": [
+    "arrector pili muscle，附著於毛囊的平滑肌"
+   ],
+   "sentence": "三胚層各自的主要衍生物詳見下方對照表；皮脂腺、汗腺、頭髮都屬於體表外胚層衍生物，但豎毛肌（arrector pili muscle，附著於毛囊的平滑肌）是由真皮層的間葉組織分化而成，屬於中胚層衍生物，是這個題型最容易搞混的一組。113/115",
+   "sentenceHash": "9f01580d"
+  },
+  {
+   "cardId": "germ-layers-gastrulation#k3",
+   "heading": "三胚層形成與原腸胚形成（Germ Layers and Gastrulation）",
+   "face": "第二週結束（約第 14 天）前已出現的構造依序是：【＿＿＿】（【…】）→ 胚外中胚層（extraembryonic mesoderm，第 11–12 天）→ 次級臍囊／次級卵黃囊（secondary umbilical vesicle，第 13 天由下胚層細胞取代初級卵黃囊）；胚內中胚層（intraembryonic mesoderm）要到第三週原腸胚形成、上胚層細胞經原條內移時才出現，因此是「第二週結束前不會出現」這類題型的標準答案。115-2",
+   "answer": "羊膜腔",
+   "hint": [],
+   "gloss": [
+    "amniotic cavity，第 8 天由上胚層內的裂隙擴展而成"
+   ],
+   "sentence": "第二週結束（約第 14 天）前已出現的構造依序是：羊膜腔（amniotic cavity，第 8 天由上胚層內的裂隙擴展而成）→ 胚外中胚層（extraembryonic mesoderm，第 11–12 天）→ 次級臍囊／次級卵黃囊（secondary umbilical vesicle，第 13 天由下胚層細胞取代初級卵黃囊）；胚內中胚層（intraembryonic mesoderm）要到第三週原腸胚形成、上胚層細胞經原條內移時才出現，因此是「第二週結束前不會出現」這類題型的標準答案。115-2",
+   "sentenceHash": "b0f9637e"
+  },
+  {
+   "cardId": "germ-layers-gastrulation#k9",
+   "heading": "三胚層形成與原腸胚形成（Germ Layers and Gastrulation）",
+   "face": "軸旁中胚層（paraxial mesoderm）約在第 20–21 天分化形成【＿＿＿】（【…】），日後衍生出骨骼、骨骼肌與真皮結締組織；脊索、體腔、原條都不是軸旁中胚層的衍生物。106/111",
+   "answer": "體節",
+   "hint": [],
+   "gloss": [
+    "somite"
+   ],
+   "sentence": "軸旁中胚層（paraxial mesoderm）約在第 20–21 天分化形成體節（somite），日後衍生出骨骼、骨骼肌與真皮結締組織；脊索、體腔、原條都不是軸旁中胚層的衍生物。106/111",
+   "sentenceHash": "7512949e"
+  },
+  {
+   "cardId": "germ-layers-gastrulation#k10",
+   "heading": "三胚層形成與原腸胚形成（Germ Layers and Gastrulation）",
+   "face": "脊索形成後，其正上方的外胚層分化為神經外胚層：先形成扁平的神經板（neural plate），中央凹陷成【＿＿＿】（【…】），兩側隆起的神經摺（neural fold）向中線靠攏融合，最終形成封閉管狀的神經管（neural tube），日後發育為中樞神經系統；周邊神經系統則是由神經嵴（neural crest）發育而來，不是神經管。106/113",
+   "answer": "神經溝",
+   "hint": [],
+   "gloss": [
+    "neural groove，約第 18 天"
+   ],
+   "sentence": "脊索形成後，其正上方的外胚層分化為神經外胚層：先形成扁平的神經板（neural plate），中央凹陷成神經溝（neural groove，約第 18 天），兩側隆起的神經摺（neural fold）向中線靠攏融合，最終形成封閉管狀的神經管（neural tube），日後發育為中樞神經系統；周邊神經系統則是由神經嵴（neural crest）發育而來，不是神經管。106/113",
+   "sentenceHash": "45cce690"
+  },
+  {
+   "cardId": "pharyngeal-arches#k13",
+   "heading": "咽弓、咽囊與咽溝發育（含耳、顏面）（Pharyngeal Arches, Pouches, and Grooves）",
+   "face": "第四及第六咽弓皆由CN X（迷走神經；第四走上喉神經、第六走喉返神經）支配，衍生環甲肌、腭帆提肌、咽縮肌、喉內在肌、食道骨骼肌；軟骨衍生甲狀軟骨、環狀軟骨、杓狀軟骨、小角軟骨、楔形軟骨——唯獨不含會厭軟骨（會厭軟骨由【＿＿＿】hypopharyngeal eminence形成）。105/109/112",
+   "answer": "咽下隆起",
+   "hint": [],
+   "gloss": [],
+   "sentence": "第四及第六咽弓皆由CN X（迷走神經；第四走上喉神經、第六走喉返神經）支配，衍生環甲肌、腭帆提肌、咽縮肌、喉內在肌、食道骨骼肌；軟骨衍生甲狀軟骨、環狀軟骨、杓狀軟骨、小角軟骨、楔形軟骨——唯獨不含會厭軟骨（會厭軟骨由咽下隆起hypopharyngeal eminence形成）。105/109/112",
+   "sentenceHash": "5d9e01d8"
+  },
+  {
+   "cardId": "pharyngeal-arches#k14",
+   "heading": "咽弓、咽囊與咽溝發育（含耳、顏面）（Pharyngeal Arches, Pouches, and Grooves）",
+   "face": "舌頭發育分前後兩部分：前2/3（body of tongue）由第一咽弓的中央舌芽（median tongue bud）與左右兩個遠端舌芽（distal tongue bud）融合而成；後1/3（咽喉部pharyngeal part）由第二咽弓形成的聯合部（copula）與第三、四咽弓形成的【＿＿＿】（【…】）共同構成，但聯合部會被【…】；前2/3與後1/3則以terminal sulcus為界。112/114",
+   "answer": "咽下隆起",
+   "hint": [
+    "逐漸長大的咽下隆起擠壓而消失"
+   ],
+   "gloss": [
+    "hypopharyngeal eminence"
+   ],
+   "sentence": "舌頭發育分前後兩部分：前2/3（body of tongue）由第一咽弓的中央舌芽（median tongue bud）與左右兩個遠端舌芽（distal tongue bud）融合而成；後1/3（咽喉部pharyngeal part）由第二咽弓形成的聯合部（copula）與第三、四咽弓形成的咽下隆起（hypopharyngeal eminence）共同構成，但聯合部會被逐漸長大的咽下隆起擠壓而消失；前2/3與後1/3則以terminal sulcus為界。112/114",
+   "sentenceHash": "faa4e2d0"
+  },
+  {
+   "cardId": "pharyngeal-arches#k11",
+   "heading": "咽弓、咽囊與咽溝發育（含耳、顏面）（Pharyngeal Arches, Pouches, and Grooves）",
+   "face": "咽溝（咽裂）僅第一咽溝持續存在，衍生形成外聽道（external acoustic meatus）；第二至第四咽溝在正常發育中會退化，其殘留的【＿＿＿】（【…】）若閉鎖不全，會形成鰓竇／鰓囊腫等異常。104/109",
+   "answer": "頸竇",
+   "hint": [],
+   "gloss": [
+    "cervical sinus of His"
+   ],
+   "sentence": "咽溝（咽裂）僅第一咽溝持續存在，衍生形成外聽道（external acoustic meatus）；第二至第四咽溝在正常發育中會退化，其殘留的頸竇（cervical sinus of His）若閉鎖不全，會形成鰓竇／鰓囊腫等異常。104/109",
+   "sentenceHash": "9ab0d1ec"
+  },
+  {
+   "cardId": "pharyngeal-arches#k12",
+   "heading": "咽弓、咽囊與咽溝發育（含耳、顏面）（Pharyngeal Arches, Pouches, and Grooves）",
+   "face": "呼吸原基（respiratory primordium，即喉氣管憩室laryngotracheal diverticulum）起源於【＿＿＿】後方、原始咽（primordial pharynx）尾端腹側壁，日後發育為喉、氣管、支氣管及肺的上皮（皆為內胚層來源）。107",
+   "answer": "第四咽囊",
+   "hint": [],
+   "gloss": [],
+   "sentence": "呼吸原基（respiratory primordium，即喉氣管憩室laryngotracheal diverticulum）起源於第四咽囊後方、原始咽（primordial pharynx）尾端腹側壁，日後發育為喉、氣管、支氣管及肺的上皮（皆為內胚層來源）。107",
+   "sentenceHash": "418f3461"
+  },
+  {
+   "cardId": "pharyngeal-arches#k15",
+   "heading": "咽弓、咽囊與咽溝發育（含耳、顏面）（Pharyngeal Arches, Pouches, and Grooves）",
+   "face": "顏面由額鼻突起（frontonasal prominence，再分內側鼻突與外側鼻突）與上頷突起（maxillary prominence）共同融合而成：內側鼻突融合形成的中頷節（intermaxillary segment）發育為原始腭（primary palate，【…】）；上頷突起的腭側突向上翻轉、往內側融合形成次級腭（secondary palate）。【＿＿＿】（【…】）是原始腭與次級腭的交界，也是前腭唇裂與後腭唇裂的分界指標。105",
+   "answer": "門齒窩",
+   "hint": [
+    "即門齒窩以前的區域及四顆門牙"
+   ],
+   "gloss": [
+    "incisive fossa"
+   ],
+   "sentence": "顏面由額鼻突起（frontonasal prominence，再分內側鼻突與外側鼻突）與上頷突起（maxillary prominence）共同融合而成：內側鼻突融合形成的中頷節（intermaxillary segment）發育為原始腭（primary palate，即門齒窩以前的區域及四顆門牙）；上頷突起的腭側突向上翻轉、往內側融合形成次級腭（secondary palate）。門齒窩（incisive fossa）是原始腭與次級腭的交界，也是前腭唇裂與後腭唇裂的分界指標。105",
+   "sentenceHash": "4232206a"
+  },
+  {
+   "cardId": "cardiovascular-development#k1",
+   "heading": "心臟血管系統發育（Cardiovascular System Development）",
+   "face": "新生兒出生開始用肺呼吸時，主要變化是【＿＿＿】（【…】），【…】、【…】；同時體循環壓力大於肺循環，使左心房壓力大於右心房，促使卵圓孔瓣膜貼合第二中隔而完成功能性關閉。113",
+   "answer": "肺部血流量上升",
+   "hint": [
+    "而非肺血管阻力顯著上升",
+    "也非肺動脈管壁顯著增厚"
+   ],
+   "gloss": [
+    "供氣體交換所需"
+   ],
+   "sentence": "新生兒出生開始用肺呼吸時，主要變化是肺部血流量上升（供氣體交換所需），而非肺血管阻力顯著上升、也非肺動脈管壁顯著增厚；同時體循環壓力大於肺循環，使左心房壓力大於右心房，促使卵圓孔瓣膜貼合第二中隔而完成功能性關閉。113",
+   "sentenceHash": "db0923e9"
+  },
+  {
+   "cardId": "cardiovascular-development#k9",
+   "heading": "心臟血管系統發育（Cardiovascular System Development）",
+   "face": "心房中隔（interatrial septum）由第一中隔（septum primum）與第二中隔（septum secundum）依序發育：第一中隔自背側心房頂端向腹側心內膜墊（endocardial cushion）方向生長，與心內膜墊間尚未接合的空隙即為第一孔（foramen primum）；第一孔完全閉合（由【＿＿＿】而成，【…】）之前，第一中隔背側先發生細胞凋亡，形成第二孔（foramen secundum）。104/111",
+   "answer": "第一中隔與心內膜墊融合",
+   "hint": [
+    "非穿孔或新細胞增生"
+   ],
+   "gloss": [],
+   "sentence": "心房中隔（interatrial septum）由第一中隔（septum primum）與第二中隔（septum secundum）依序發育：第一中隔自背側心房頂端向腹側心內膜墊（endocardial cushion）方向生長，與心內膜墊間尚未接合的空隙即為第一孔（foramen primum）；第一孔完全閉合（由第一中隔與心內膜墊融合而成，非穿孔或新細胞增生）之前，第一中隔背側先發生細胞凋亡，形成第二孔（foramen secundum）。104/111",
+   "sentenceHash": "b7f03dd6"
+  },
+  {
+   "cardId": "cardiovascular-development#k13",
+   "heading": "心臟血管系統發育（Cardiovascular System Development）",
+   "face": "出生後動脈導管閉鎖形成【＿＿＿】（【…】），位於主動脈弓與肺動脈幹之間；左側喉返神經【…】，右側喉返神經則繞右鎖骨下動脈折返——左右喉返神經路徑不同，根源正是左右第四、六咽弓動脈發育不對稱。104/108",
+   "answer": "動脈韌帶",
+   "hint": [
+    "繞行動脈韌帶後折返"
+   ],
+   "gloss": [
+    "ligamentum arteriosum"
+   ],
+   "sentence": "出生後動脈導管閉鎖形成動脈韌帶（ligamentum arteriosum），位於主動脈弓與肺動脈幹之間；左側喉返神經繞行動脈韌帶後折返，右側喉返神經則繞右鎖骨下動脈折返——左右喉返神經路徑不同，根源正是左右第四、六咽弓動脈發育不對稱。104/108",
+   "sentenceHash": "0e99e05e"
+  },
+  {
+   "cardId": "neural-tube-development#k6",
+   "heading": "神經管與中樞神經系統發育（Neural Tube and Central Nervous System Development）",
+   "face": "次級腦泡與成人腦區的對應：端腦→大腦；間腦→視丘、下視丘、【＿＿＿】（【…】）、視囊（衍生視神經）、神經垂體（neurohypophysis，腦下垂體後葉）；中腦→頂蓋（tectum）、大腦導水管（cerebral aqueduct）；後腦→橋腦與小腦；髓腦→延腦。104/106/113/114/115",
+   "answer": "乳狀體",
+   "hint": [],
+   "gloss": [
+    "mammillary body"
+   ],
+   "sentence": "次級腦泡與成人腦區的對應：端腦→大腦；間腦→視丘、下視丘、乳狀體（mammillary body）、視囊（衍生視神經）、神經垂體（neurohypophysis，腦下垂體後葉）；中腦→頂蓋（tectum）、大腦導水管（cerebral aqueduct）；後腦→橋腦與小腦；髓腦→延腦。104/106/113/114/115",
+   "sentenceHash": "a221a23d"
+  },
+  {
+   "cardId": "body-wall-diaphragm-development#k5",
+   "heading": "體壁與橫膈發育（Body Wall and Diaphragm Development）",
+   "face": "胸腹膜若未在第 6 週末與橫中隔、食道背側繫膜完全融合，會造成先天性橫膈疝（CDH）；最好發位置是橫膈【＿＿＿】（【…】）的 Bochdalek 孔，佔 CDH 九成以上，且左側（約 80–85%）多於右側。104",
+   "answer": "後外側",
+   "hint": [],
+   "gloss": [
+    "posterolateral"
+   ],
+   "sentence": "胸腹膜若未在第 6 週末與橫中隔、食道背側繫膜完全融合，會造成先天性橫膈疝（CDH）；最好發位置是橫膈後外側（posterolateral）的 Bochdalek 孔，佔 CDH 九成以上，且左側（約 80–85%）多於右側。104",
+   "sentenceHash": "87173068"
+  },
+  {
+   "cardId": "body-wall-diaphragm-development#k3",
+   "heading": "體壁與橫膈發育（Body Wall and Diaphragm Development）",
+   "face": "胸心包膜（pleuropericardial membrane）將胸膜腔與心包腔分隔開來，本身演變為【＿＿＿】（【…】）（【…】）；膜內含膈神經與總主靜脈（common cardinal vein）。107/111",
+   "answer": "纖維性心包膜",
+   "hint": [
+    "而非漿液心包膜的臟層"
+   ],
+   "gloss": [
+    "fibrous pericardium"
+   ],
+   "sentence": "胸心包膜（pleuropericardial membrane）將胸膜腔與心包腔分隔開來，本身演變為纖維性心包膜（fibrous pericardium）（而非漿液心包膜的臟層）；膜內含膈神經與總主靜脈（common cardinal vein）。107/111",
+   "sentenceHash": "c689eade"
+  },
+  {
+   "cardId": "body-wall-diaphragm-development#k4",
+   "heading": "體壁與橫膈發育（Body Wall and Diaphragm Development）",
+   "face": "胚內體腔（intraembryonic coelom）最早出現於【＿＿＿】（【…】）——其壁層（parietal layer）日後形成襯覆體腔的漿膜（腹膜、肋膜、心包膜），【…】。113",
+   "answer": "外側（側板）中胚層",
+   "hint": [
+    "並非源自軸旁中胚層、中間中胚層或內胚層"
+   ],
+   "gloss": [
+    "lateral mesoderm"
+   ],
+   "sentence": "胚內體腔（intraembryonic coelom）最早出現於外側（側板）中胚層（lateral mesoderm）——其壁層（parietal layer）日後形成襯覆體腔的漿膜（腹膜、肋膜、心包膜），並非源自軸旁中胚層、中間中胚層或內胚層。113",
+   "sentenceHash": "f9f30cf8"
+  },
+  {
+   "cardId": "limb-axial-musculoskeletal-development#k5",
+   "heading": "四肢與中軸骨骼肌肉系統發育（Limb and Axial Musculoskeletal Development）",
+   "face": "肢芽（limb bud）於胚胎【＿＿＿】出現於體壁腹外側，遠端外胚層增厚形成頂外胚層嵴（apical ectodermal ridge, AER），誘導其下方的間葉組織（progress zone）快速增生，帶動肢體由近端往遠端生長；下肢芽的發育較上肢芽晚約 1 至 2 天。111",
+   "answer": "第 4 週末",
+   "hint": [],
+   "gloss": [],
+   "sentence": "肢芽（limb bud）於胚胎第 4 週末出現於體壁腹外側，遠端外胚層增厚形成頂外胚層嵴（apical ectodermal ridge, AER），誘導其下方的間葉組織（progress zone）快速增生，帶動肢體由近端往遠端生長；下肢芽的發育較上肢芽晚約 1 至 2 天。111",
+   "sentenceHash": "b5820dbf"
+  },
+  {
+   "cardId": "limb-axial-musculoskeletal-development#k9",
+   "heading": "四肢與中軸骨骼肌肉系統發育（Limb and Axial Musculoskeletal Development）",
+   "face": "顱蓋（calvaria）的囟門中，後囟門（posterior fontanelle，即枕囟門／lambda）最早關閉，前囟門（anterior fontanelle，即額囟門／bregma）最晚關閉；顱縫提早癒合（craniosynostosis）會依部位產生特定頭型，其中【＿＿＿】（【…】）提早閉合會造成前後拉長、左右狹窄的舟狀頭（scaphocephaly）。110/112",
+   "answer": "矢狀縫",
+   "hint": [],
+   "gloss": [
+    "sagittal suture"
+   ],
+   "sentence": "顱蓋（calvaria）的囟門中，後囟門（posterior fontanelle，即枕囟門／lambda）最早關閉，前囟門（anterior fontanelle，即額囟門／bregma）最晚關閉；顱縫提早癒合（craniosynostosis）會依部位產生特定頭型，其中矢狀縫（sagittal suture）提早閉合會造成前後拉長、左右狹窄的舟狀頭（scaphocephaly）。110/112",
+   "sentenceHash": "48fa82f1"
+  },
+  {
+   "cardId": "limb-axial-musculoskeletal-development#k10",
+   "heading": "四肢與中軸骨骼肌肉系統發育（Limb and Axial Musculoskeletal Development）",
+   "face": "【＿＿＿】（【…】）由軸旁中胚層（paraxial mesoderm）衍生而來——脊索（notochord）來自原結、體腔來自外側中胚層、原條來自尾端外胚層，【…】；【…】：生骨節（形成中軸骨骼）、肌節（形成骨骼肌）、皮節（形成真皮）。111",
+   "answer": "體節",
+   "hint": [
+    "皆非體節的直接來源",
+    "每個體節再分化出三部分"
+   ],
+   "gloss": [
+    "somite"
+   ],
+   "sentence": "體節（somite）由軸旁中胚層（paraxial mesoderm）衍生而來——脊索（notochord）來自原結、體腔來自外側中胚層、原條來自尾端外胚層，皆非體節的直接來源；每個體節再分化出三部分：生骨節（形成中軸骨骼）、肌節（形成骨骼肌）、皮節（形成真皮）。111",
+   "sentenceHash": "3bc08ce5"
+  },
+  {
+   "cardId": "GI-development#k2",
+   "heading": "消化系統發育（Gastrointestinal System Development）",
+   "face": "肝細胞於胚胎【＿＿＿】開始製造膽汁；此時膽囊與膽管（含連接肝管形成的總膽管）已發育完成，膽汁得以進入腸道。106",
+   "answer": "第 12 週",
+   "hint": [],
+   "gloss": [],
+   "sentence": "肝細胞於胚胎第 12 週開始製造膽汁；此時膽囊與膽管（含連接肝管形成的總膽管）已發育完成，膽汁得以進入腸道。106",
+   "sentenceHash": "e3fbd50b"
+  },
+  {
+   "cardId": "GI-development#k14",
+   "heading": "消化系統發育（Gastrointestinal System Development）",
+   "face": "十二指腸並非全部由前腸衍生（膽道開口以下段來自中腸）；連接卵黃柄（yolk stalk）的是中腸形成的 U 型環（midgut loop），不是「十二指腸環」；隨胃順時鐘旋轉 90 度、大彎轉左小彎轉右，十二指腸被動轉至右側並貼附後腹壁；十二指腸於胚胎第二個月【＿＿＿】成實心索，之後靠細胞凋亡再通化（recanalization），此過程失敗會造成十二指腸狹窄甚至閉鎖。108/113",
+   "answer": "因上皮細胞增生而一度閉鎖",
+   "hint": [],
+   "gloss": [],
+   "sentence": "十二指腸並非全部由前腸衍生（膽道開口以下段來自中腸）；連接卵黃柄（yolk stalk）的是中腸形成的 U 型環（midgut loop），不是「十二指腸環」；隨胃順時鐘旋轉 90 度、大彎轉左小彎轉右，十二指腸被動轉至右側並貼附後腹壁；十二指腸於胚胎第二個月因上皮細胞增生而一度閉鎖成實心索，之後靠細胞凋亡再通化（recanalization），此過程失敗會造成十二指腸狹窄甚至閉鎖。108/113",
+   "sentenceHash": "1cecdd5b"
+  },
+  {
+   "cardId": "GI-development#k15",
+   "heading": "消化系統發育（Gastrointestinal System Development）",
+   "face": "肛管以齒狀線／肛門膜為界分兩段：上 2/3 來自後腸內胚層，內襯單層柱狀上皮；下 1/3 來自【＿＿＿】（【…】）外胚層，內襯複層鱗狀上皮——第 26 天尿囊與後腸共同開口形成泄殖腔，被尿直腸中隔（urorectal septum）分隔後，肛門膜約於第 9 週破裂，開通肛管下 1/3（考選部 104-2）。104",
+   "answer": "原肛",
+   "hint": [],
+   "gloss": [
+    "proctodeum"
+   ],
+   "sentence": "肛管以齒狀線／肛門膜為界分兩段：上 2/3 來自後腸內胚層，內襯單層柱狀上皮；下 1/3 來自原肛（proctodeum）外胚層，內襯複層鱗狀上皮——第 26 天尿囊與後腸共同開口形成泄殖腔，被尿直腸中隔（urorectal septum）分隔後，肛門膜約於第 9 週破裂，開通肛管下 1/3（考選部 104-2）。104",
+   "sentenceHash": "f79384a7"
+  },
+  {
+   "cardId": "GI-development#k13",
+   "heading": "消化系統發育（Gastrointestinal System Development）",
+   "face": "胃的發育有三個常考點：① 胃原基背側生長快於腹側，因而形成胃大彎（greater curvature）；② 沿縱軸順時針旋轉 90 度，把胃大彎轉向左側、小彎轉向右側；③ 旋轉同時把【＿＿＿】（【…】）拉向左側，在胃後方圍出網膜囊（omental bursa）。另外，胃的先天畸形其實少見，臨床最常見的是肥厚性幽門狹窄（hypertrophic pyloric stenosis）、好發於男嬰，幽門閉鎖（pyloric atresia）極為罕見。115-2",
+   "answer": "原始背側胃繫膜",
+   "hint": [],
+   "gloss": [
+    "primordial dorsal mesogastrium"
+   ],
+   "sentence": "胃的發育有三個常考點：① 胃原基背側生長快於腹側，因而形成胃大彎（greater curvature）；② 沿縱軸順時針旋轉 90 度，把胃大彎轉向左側、小彎轉向右側；③ 旋轉同時把原始背側胃繫膜（primordial dorsal mesogastrium）拉向左側，在胃後方圍出網膜囊（omental bursa）。另外，胃的先天畸形其實少見，臨床最常見的是肥厚性幽門狹窄（hypertrophic pyloric stenosis）、好發於男嬰，幽門閉鎖（pyloric atresia）極為罕見。115-2",
+   "sentenceHash": "fa4c2fb4"
+  },
+  {
+   "cardId": "respiratory-development#k8",
+   "heading": "呼吸系統發育（Respiratory System Development）",
+   "face": "新生兒開始以肺呼吸後，【＿＿＿】（【…】）以增加氣體交換；同時左心房壓力升高、大於右心房，促使卵圓孔關閉，符合出生後體循環壓力大於肺循環的生理轉變。113",
+   "answer": "肺部血流量上升",
+   "hint": [],
+   "gloss": [
+    "而非血管阻力上升"
+   ],
+   "sentence": "新生兒開始以肺呼吸後，肺部血流量上升（而非血管阻力上升）以增加氣體交換；同時左心房壓力升高、大於右心房，促使卵圓孔關閉，符合出生後體循環壓力大於肺循環的生理轉變。113",
+   "sentenceHash": "38c64c1c"
+  },
+  {
+   "cardId": "urogenital-development#k11",
+   "heading": "泌尿生殖系統發育（Urogenital System Development）",
+   "face": "女性假陰陽人染色體為 【＿＿＿】，因先天性腎上腺增生症（CAH，皮質醇合成酵素缺陷）導致腎上腺過度分泌雄性素而外生殖器男性化，並非肇因於腎上腺萎縮。106",
+   "answer": "46, XX",
+   "hint": [],
+   "gloss": [],
+   "sentence": "女性假陰陽人染色體為 46, XX，因先天性腎上腺增生症（CAH，皮質醇合成酵素缺陷）導致腎上腺過度分泌雄性素而外生殖器男性化，並非肇因於腎上腺萎縮。106",
+   "sentenceHash": "05189b81"
+  },
+  {
+   "cardId": "urogenital-development#k13",
+   "heading": "泌尿生殖系統發育（Urogenital System Development）",
+   "face": "三條管路的衍生物一次分清：副中腎管（paramesonephric duct／Müllerian duct）→ 【＿＿＿】、子宮與陰道上段（男性因 Sertoli cell 分泌的 AMH 而退化）；中腎管（mesonephric duct／Wolffian duct）→ 副睪、輸精管、儲精囊與射精管；輸尿管芽（ureteric bud，由中腎管下段長出）→ 輸尿管、腎盂、腎盞與集尿管。【…】；射精管、輸精管、輸尿管三者都不是。115-2",
+   "answer": "輸卵管",
+   "hint": [
+    "問「何者由副中腎管衍生」答輸卵管"
+   ],
+   "gloss": [],
+   "sentence": "三條管路的衍生物一次分清：副中腎管（paramesonephric duct／Müllerian duct）→ 輸卵管、子宮與陰道上段（男性因 Sertoli cell 分泌的 AMH 而退化）；中腎管（mesonephric duct／Wolffian duct）→ 副睪、輸精管、儲精囊與射精管；輸尿管芽（ureteric bud，由中腎管下段長出）→ 輸尿管、腎盂、腎盞與集尿管。問「何者由副中腎管衍生」答輸卵管；射精管、輸精管、輸尿管三者都不是。115-2",
+   "sentenceHash": "39904593"
+  },
+  {
+   "cardId": "urogenital-development#k14",
+   "heading": "泌尿生殖系統發育（Urogenital System Development）",
+   "face": "精索積水（hydrocele of the spermatic cord）由【＿＿＿】（【…】）中段閉鎖不全造成，腹膜液滲入精索內腔；【…】，腹膜液大量流入則形成陰囊積水。109",
+   "answer": "鞘突",
+   "hint": [
+    "若鞘突全程未閉鎖"
+   ],
+   "gloss": [
+    "processus vaginalis"
+   ],
+   "sentence": "精索積水（hydrocele of the spermatic cord）由鞘突（processus vaginalis）中段閉鎖不全造成，腹膜液滲入精索內腔；若鞘突全程未閉鎖，腹膜液大量流入則形成陰囊積水。109",
+   "sentenceHash": "221a2141"
+  },
+  {
+   "cardId": "special-sense-integument-development#k10",
+   "heading": "特殊感覺器官與皮膚附屬器發育（Special Sense Organ and Integument Development）",
+   "face": "一般肌肉組織（肋間、心臟、消化道）皆由中胚層分化而來，但眼睛的虹膜肌來自【＿＿＿】（【…】）——更精確地說，瞳孔括約肌（sphincter pupillae）與瞳孔開大肌（dilator pupillae）源自視杯（optic cup）【…】，是人體極少數非中胚層來源的平滑肌，也是這類「哪個肌肉不是中胚層」題型的固定答案；【…】，不是生發層（stratum germinativum，那是表皮基底層）。106/115-2",
+   "answer": "神經外胚層",
+   "hint": [
+    "前緣的神經外胚層",
+    "答案要選神經外胚層"
+   ],
+   "gloss": [
+    "neuroectoderm"
+   ],
+   "sentence": "一般肌肉組織（肋間、心臟、消化道）皆由中胚層分化而來，但眼睛的虹膜肌來自神經外胚層（neuroectoderm）——更精確地說，瞳孔括約肌（sphincter pupillae）與瞳孔開大肌（dilator pupillae）源自視杯（optic cup）前緣的神經外胚層，是人體極少數非中胚層來源的平滑肌，也是這類「哪個肌肉不是中胚層」題型的固定答案；答案要選神經外胚層，不是生發層（stratum germinativum，那是表皮基底層）。106/115-2",
+   "sentenceHash": "7a5dc552"
+  },
+  {
+   "cardId": "special-sense-integument-development#k8",
+   "heading": "特殊感覺器官與皮膚附屬器發育（Special Sense Organ and Integument Development）",
+   "face": "視神經細胞（ganglion cells）源自神經外胚層（並非由大腦皮質衍生；視網膜與視柄都是間腦壁向外突出的視泡所形成）；視神經髓鞘僅包圍至【＿＿＿】（【…】）為止，且要到出生後約 10 週才發育完成（並非出生前已完全發育）；視神經源自視柄（前腦神經外胚層），並非神經嵴衍生。110",
+   "answer": "視神經盤",
+   "hint": [],
+   "gloss": [
+    "optic disc"
+   ],
+   "sentence": "視神經細胞（ganglion cells）源自神經外胚層（並非由大腦皮質衍生；視網膜與視柄都是間腦壁向外突出的視泡所形成）；視神經髓鞘僅包圍至視神經盤（optic disc）為止，且要到出生後約 10 週才發育完成（並非出生前已完全發育）；視神經源自視柄（前腦神經外胚層），並非神經嵴衍生。110",
+   "sentenceHash": "4777663d"
+  },
+  {
+   "cardId": "special-sense-integument-development#k11",
+   "heading": "特殊感覺器官與皮膚附屬器發育（Special Sense Organ and Integument Development）",
+   "face": "視囊（optic vesicle）由前腦中的間腦（diencephalon）向外側突出形成，並非髓腦（myelencephalon，發育為延腦）；【＿＿＿】（【…】）由中腦衍生、乳狀體（mammillary body）由間腦衍生、橋腦與小腦則由後腦（metencephalon）衍生。115",
+   "answer": "四疊體",
+   "hint": [],
+   "gloss": [
+    "tectum"
+   ],
+   "sentence": "視囊（optic vesicle）由前腦中的間腦（diencephalon）向外側突出形成，並非髓腦（myelencephalon，發育為延腦）；四疊體（tectum）由中腦衍生、乳狀體（mammillary body）由間腦衍生、橋腦與小腦則由後腦（metencephalon）衍生。115",
+   "sentenceHash": "9a727a02"
+  },
+  {
+   "cardId": "intestinal-nematodes-soil-transmitted#k6",
+   "heading": "腸道土壤傳播線蟲（Soil-Transmitted Intestinal Nematodes）",
+   "face": "【＿＿＿】（【…】）感染唯人類，好發於 5–9 歲兒童；蟲卵於小腸孵化後幼蟲循心肺移行路徑（鑽小腸壁→肝→心→肺→穿肺泡壁→氣管→會厭→小腸）發育為成蟲；重度感染幼童最容易出現異位性移行（ectopic migration）——蟲體鑽出正常路徑跑到膽道、胰管等處造成阻塞，是【…】的招牌考點。111",
+   "answer": "蛔蟲",
+   "hint": [
+    "蛔蟲區別於其他腸道線蟲"
+   ],
+   "gloss": [
+    "Ascaris lumbricoides"
+   ],
+   "sentence": "蛔蟲（Ascaris lumbricoides）感染唯人類，好發於 5–9 歲兒童；蟲卵於小腸孵化後幼蟲循心肺移行路徑（鑽小腸壁→肝→心→肺→穿肺泡壁→氣管→會厭→小腸）發育為成蟲；重度感染幼童最容易出現異位性移行（ectopic migration）——蟲體鑽出正常路徑跑到膽道、胰管等處造成阻塞，是蛔蟲區別於其他腸道線蟲的招牌考點。111",
+   "sentenceHash": "27b0933d"
+  }
+ ]
+}

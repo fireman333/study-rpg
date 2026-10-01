@@ -1,0 +1,343 @@
+{
+ "anchorId": "胚胎學::pharyngeal-arches",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "541e4cb78517b6b2",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "112-1-醫學一-胚胎學-Q33",
+     "stem": "下列何者為舌頭咽喉部（pharyngeal part of tongue）的胚胎起源？",
+     "trueOption": "咽下隆起（hypopharyngeal eminence）"
+    },
+    {
+     "id": "112-2-醫學一-胚胎學-Q32",
+     "stem": "下列何者在胚胎發育第三週結束時，尚未出現？",
+     "trueOption": "咽弓（pharyngeal arch）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "第四及第六咽弓皆由CN X（迷走神經；第四走上喉神經、第六走喉返神經）支配，衍生環甲肌、腭帆提肌、咽縮肌、喉內在肌、食道骨骼肌；軟骨衍生甲狀軟骨、環狀軟骨、杓狀軟骨、小角軟骨、楔形軟骨——唯獨不含會厭軟骨（會厭軟骨由咽下隆起hypopharyngeal eminence形成）。105/109/112",
+   "citeText": [
+    "105/109/112"
+   ],
+   "marks": [
+    "105",
+    "109",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q31",
+    "109-1-醫學一-胚胎學-Q33",
+    "109-1-醫學一-胚胎學-Q36",
+    "109-2-醫學一-胚胎學-Q36",
+    "112-1-醫學一-胚胎學-Q33",
+    "112-2-醫學一-胚胎學-Q32",
+    "112-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "門齒窩（incisive fossa）",
+    "4",
+    "5",
+    "會厭軟骨（epiglottis）",
+    "第一",
+    "臟顱（viscerocranium）是大腦的主要保護結構",
+    "神經外胚層（neuroectoderm）",
+    "咽下隆起（hypopharyngeal eminence）",
+    "咽弓（pharyngeal arch）",
+    "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）"
+   ],
+   "spans": [
+    {
+     "span": "唯獨不含會厭軟骨",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "tested": [
+    {
+     "id": "112-1-醫學一-胚胎學-Q33",
+     "stem": "下列何者為舌頭咽喉部（pharyngeal part of tongue）的胚胎起源？",
+     "trueOption": "咽下隆起（hypopharyngeal eminence）"
+    },
+    {
+     "id": "112-2-醫學一-胚胎學-Q32",
+     "stem": "下列何者在胚胎發育第三週結束時，尚未出現？",
+     "trueOption": "咽弓（pharyngeal arch）"
+    },
+    {
+     "id": "114-1-醫學一-胚胎學-Q36",
+     "stem": "嚼肌（masseter）主要是源自下列何者？",
+     "trueOption": "第一咽弓（first pharyngeal arch）"
+    },
+    {
+     "id": "114-2-醫學一-胚胎學-Q33",
+     "stem": "舌（tongue）的發育過程中，那一咽弓會形成聯合部（copula），且最後會被擠壓而消失？",
+     "trueOption": "第二咽弓（second pharyngeal arch）"
+    }
+   ],
+   "bulletIndex": 13,
+   "sentence": "舌頭發育分前後兩部分：前2/3（body of tongue）由第一咽弓的中央舌芽（median tongue bud）與左右兩個遠端舌芽（distal tongue bud）融合而成；後1/3（咽喉部pharyngeal part）由第二咽弓形成的聯合部（copula）與第三、四咽弓形成的咽下隆起（hypopharyngeal eminence）共同構成，但聯合部會被逐漸長大的咽下隆起擠壓而消失；前2/3與後1/3則以terminal sulcus為界。112/114",
+   "citeText": [
+    "112/114"
+   ],
+   "marks": [
+    "112",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q33",
+    "112-2-醫學一-胚胎學-Q32",
+    "112-2-醫學一-胚胎學-Q33",
+    "114-1-醫學一-胚胎學-Q36",
+    "114-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "咽下隆起（hypopharyngeal eminence）",
+    "咽弓（pharyngeal arch）",
+    "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）",
+    "第一咽弓（first pharyngeal arch）",
+    "第二咽弓（second pharyngeal arch）"
+   ],
+   "spans": [
+    {
+     "span": "聯合部會被逐漸長大的咽下隆起擠壓而消失",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "104-2-醫學一-胚胎學-Q32",
+     "stem": "嚼肌（masseter muscle）是衍生自那一咽弓（pharyngeal arch）？",
+     "trueOption": "第一咽弓"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "第一咽弓由CN V（三叉神經）支配，衍生咀嚼肌群（含嚼肌masseter、顳肌temporalis、翼內外肌）、下頷舌骨肌、二腹肌前腹、鼓膜張肌、腭帆張肌；經Meckel軟骨衍生錘骨（malleus）與砧骨（incus）。104/110/113/114",
+   "citeText": [
+    "104/110/113/114"
+   ],
+   "marks": [
+    "104",
+    "110",
+    "113",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q30",
+    "104-2-醫學一-胚胎學-Q32",
+    "110-1-醫學一-胚胎學-Q34",
+    "110-2-醫學一-胚胎學-Q34",
+    "113-1-醫學一-胚胎學-Q33",
+    "113-2-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q36",
+    "114-1-醫學一-胚胎學-Q36",
+    "114-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "頸竇（cervical sinus）",
+    "第一咽弓",
+    "升主動脈（ascending aorta）",
+    "第1和第2咽弓（pharyngeal arch）",
+    "顏面神經（facial nerve）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）",
+    "第一咽弓（first pharyngeal arch）",
+    "第一咽弓（first pharyngeal arch）",
+    "第二咽弓（second pharyngeal arch）"
+   ],
+   "spans": [],
+   "score": 3
+  },
+  {
+   "tested": [
+    {
+     "id": "104-1-醫學一-胚胎學-Q30",
+     "stem": "鰓竇（branchial sinus）形成的原因，肇因於胚胎時期下列何者閉鎖不全？",
+     "trueOption": "頸竇（cervical sinus）"
+    },
+    {
+     "id": "104-2-醫學一-胚胎學-Q32",
+     "stem": "嚼肌（masseter muscle）是衍生自那一咽弓（pharyngeal arch）？",
+     "trueOption": "第一咽弓"
+    }
+   ],
+   "bulletIndex": 7,
+   "sentence": "咽溝（咽裂）僅第一咽溝持續存在，衍生形成外聽道（external acoustic meatus）；第二至第四咽溝在正常發育中會退化，其殘留的頸竇（cervical sinus of His）若閉鎖不全，會形成鰓竇／鰓囊腫等異常。104/109",
+   "citeText": [
+    "104/109"
+   ],
+   "marks": [
+    "104",
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q30",
+    "104-2-醫學一-胚胎學-Q32",
+    "109-1-醫學一-胚胎學-Q33",
+    "109-1-醫學一-胚胎學-Q36",
+    "109-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "頸竇（cervical sinus）",
+    "第一咽弓",
+    "第一",
+    "臟顱（viscerocranium）是大腦的主要保護結構",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [],
+   "score": 2
+  },
+  {
+   "tested": [
+    {
+     "id": "107-1-醫學一-胚胎學-Q32",
+     "stem": "呼吸器官的原基（respiratory primordium）起源於下列何者的尾端（caudal end）？",
+     "trueOption": "第四咽囊（pharyngeal pouch）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "呼吸原基（respiratory primordium，即喉氣管憩室laryngotracheal diverticulum）起源於第四咽囊後方、原始咽（primordial pharynx）尾端腹側壁，日後發育為喉、氣管、支氣管及肺的上皮（皆為內胚層來源）。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "第四咽囊（pharyngeal pouch）"
+   ],
+   "spans": [],
+   "score": 1
+  },
+  {
+   "tested": [
+    {
+     "id": "109-1-醫學一-胚胎學-Q36",
+     "stem": "關於顱骨（cranium）發育的敘述，何項錯誤？",
+     "trueOption": "臟顱（viscerocranium）是大腦的主要保護結構"
+    }
+   ],
+   "bulletIndex": 10,
+   "sentence": "顱骨分為神經顱（neurocranium，保護大腦）與臟顱（viscerocranium，形成顏面骨骼，不是大腦的主要保護結構）；軟骨性臟顱由神經嵴細胞遷移至第一、二咽弓後形成，衍生三小聽骨、舌骨（喉部軟骨屬第四、六咽弓，見咽弓表，不由第一、二咽弓衍生）；膜性臟顱則形成上頷骨、下頷骨、顴骨、顳骨鱗部。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學一-胚胎學-Q33",
+    "109-1-醫學一-胚胎學-Q36",
+    "109-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "第一",
+    "臟顱（viscerocranium）是大腦的主要保護結構",
+    "神經外胚層（neuroectoderm）"
+   ],
+   "spans": [],
+   "score": 1
+  },
+  {
+   "tested": [
+    {
+     "id": "105-1-醫學一-胚胎學-Q30",
+     "stem": "下列何者作為前腭唇裂（cleft lip and palate）和後腭唇裂分界的指標？",
+     "trueOption": "門齒窩（incisive fossa）"
+    }
+   ],
+   "bulletIndex": 11,
+   "sentence": "顏面由額鼻突起（frontonasal prominence，再分內側鼻突與外側鼻突）與上頷突起（maxillary prominence）共同融合而成：內側鼻突融合形成的中頷節（intermaxillary segment）發育為原始腭（primary palate，即門齒窩以前的區域及四顆門牙）；上頷突起的腭側突向上翻轉、往內側融合形成次級腭（secondary palate）。門齒窩（incisive fossa）是原始腭與次級腭的交界，也是前腭唇裂與後腭唇裂的分界指標。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q31"
+   ],
+   "trueOptions": [
+    "門齒窩（incisive fossa）",
+    "4",
+    "5",
+    "會厭軟骨（epiglottis）"
+   ],
+   "spans": [],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "咽下隆起",
+   "why": "tested point"
+  },
+  {
+   "n": 2,
+   "span": "咽下隆起",
+   "why": "tested point",
+   "hide": [
+    "逐漸長大的咽下隆起擠壓而消失"
+   ]
+  },
+  {
+   "n": 3,
+   "span": "第一咽弓",
+   "why": "tested point"
+  },
+  {
+   "n": 4,
+   "span": "頸竇",
+   "why": "tested point"
+  },
+  {
+   "n": 5,
+   "span": "第四咽囊",
+   "why": "tested point"
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "negation"
+  },
+  {
+   "n": 7,
+   "span": "門齒窩",
+   "why": "tested point",
+   "hide": [
+    "即門齒窩以前的區域及四顆門牙"
+   ]
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"咽下隆起\", \"why\": \"tested point\"}, {\"n\": 2, \"span\": \"咽下隆起\", \"hide\": [\"逐漸長大的咽下隆起擠壓而消失\"], \"why\": \"tested point\"}, {\"n\": 3, \"span\": \"第一咽弓\", \"why\": \"tested point\"}, {\"n\": 4, \"span\": \"頸竇\", \"why\": \"tested point\"}, {\"n\": 5, \"span\": \"第四咽囊\", \"why\": \"tested point\"}, {\"n\": 6, \"skip\": true, \"why\": \"negation\"}, {\"n\": 7, \"span\": \"門齒窩\", \"hide\": [\"即門齒窩以前的區域及四顆門牙\"], \"why\": \"tested point\"}]"
+}

@@ -1,0 +1,1 @@
+[{"n":1,"span":"自體感染","why":"key feature"},{"n":2,"span":"眼眶周圍","why":"characteristic edema"},{"n":3,"span":"嗜伊紅性肉芽腫","why":"pathology"},{"n":4,"span":"逐日纏繞拉出蟲體","why":"traditional treatment"},{"n":5,"span":"肝臟活體切片","why":"diagnosis"},{"n":6,"span":"骨骼肌切片檢查","why":"diagnosis"},{"n":7,"skip":true,"why":"repeat/synonym"}]

@@ -1,0 +1,1 @@
+[{"n":1,"skip":true,"why":"leak"},{"n":2,"skip":true,"why":"leak"},{"n":3,"span":"thrombospondin","why":"receptor glycoprotein"},{"n":4,"span":"Schüffner氏斑點","why":"vivax stippling"},{"n":5,"span":"primaquine","why":"radical cure"},{"n":6,"skip":true,"why":"restated"},{"n":7,"span":"中腸","why":"fertilization site"}]

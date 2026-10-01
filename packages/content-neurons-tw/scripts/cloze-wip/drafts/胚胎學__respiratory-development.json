@@ -1,0 +1,61 @@
+{
+ "anchorId": "胚胎學::respiratory-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "2ee25bf933ff5801",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "113-1-醫學一-胚胎學-Q35",
+     "stem": "嬰兒剛出生使用肺部呼吸時，常會伴隨一些現象的改變，下列敘述何者正確？",
+     "trueOption": "肺部血流量上升"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "新生兒開始以肺呼吸後，肺部血流量上升（而非血管阻力上升）以增加氣體交換；同時左心房壓力升高、大於右心房，促使卵圓孔關閉，符合出生後體循環壓力大於肺循環的生理轉變。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q35",
+    "113-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "肺部血流量上升",
+    "末囊期（terminal sac stage）"
+   ],
+   "spans": [
+    {
+     "span": "肺部血流量上升",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option",
+      "contrast"
+     ],
+     "score": 9
+    }
+   ],
+   "score": 9
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "肺部血流量上升",
+   "why": "tested point",
+   "hide": [
+    "而非血管阻力上升"
+   ]
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"肺部血流量上升\", \"hide\": [\"而非血管阻力上升\"], \"why\": \"tested point\"}]"
+}

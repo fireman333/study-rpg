@@ -1,0 +1,294 @@
+{
+ "anchorId": "寄生蟲學::schistosomiasis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "8efd9fc9705585f4",
+ "candidates": [
+  {
+   "bulletIndex": 5,
+   "sentence": "埃及血吸蟲（Schistosoma haematobium）成蟲寄生於膀胱靜脈叢、前列腺靜脈（不是腸繫膜靜脈），蟲卵具尾刺（非側棘）；臨床表現為血尿、尿中嗜酸性白血球增加、膀胱鈣化，慢性感染是埃及及非洲其他地區膀胱癌的重要成因；診斷靠尿液檢卵。104-1/112-2/113-1",
+   "citeText": [
+    "104-1/112-2/113-1"
+   ],
+   "marks": [
+    "104-1",
+    "112-2",
+    "113-1"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q78",
+    "112-2-醫學二-寄生蟲學-Q31",
+    "113-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "僅①②",
+    "被認為是在埃及和非洲其他地區導致膀胱癌的主要原因",
+    "日本血吸蟲（Schistosoma japonicum）成蟲之每日產卵量（egg deposition）最多可超過3000 顆"
+   ],
+   "spans": [
+    {
+     "span": "膀胱靜脈叢、前列腺靜脈",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "contrast"
+     ],
+     "score": 8
+    },
+    {
+     "span": "尾刺",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "contrast"
+     ],
+     "score": 8
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "曼森（曼氏）血吸蟲（Schistosoma mansoni）成蟲寄生於下腸繫膜靜脈（引流大腸），蟲卵具側刺（非尾刺）；病程為腸胃不適→肝脾腫大；三型血吸蟲中分佈地區最廣（非洲、南美洲）；診斷靠糞便檢卵。107-2/113-2",
+   "citeText": [
+    "107-2/113-2"
+   ],
+   "marks": [
+    "107-2",
+    "113-2"
+   ],
+   "linkedQuestionIds": [
+    "107-2-醫學二-寄生蟲學-Q31",
+    "113-2-醫學二-藥理學-Q31"
+   ],
+   "trueOptions": [
+    "僅①③",
+    "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+    "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+    "致病機轉主要來自宿主對蟲卵的免疫反應"
+   ],
+   "spans": [
+    {
+     "span": "側刺",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "contrast"
+     ],
+     "score": 7
+    },
+    {
+     "span": "下腸繫膜靜脈",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "血吸蟲與其他吸蟲最大的差異在感染途徑：血吸蟲的尾動幼蟲（cercaria）直接經皮膚鑽入人體，不需要第二中間宿主形成囊幼（metacercaria）——第一中間宿主（螺類）就是全部所需的中間宿主。111-2/113-2",
+   "citeText": [
+    "111-2/113-2"
+   ],
+   "marks": [
+    "111-2",
+    "113-2"
+   ],
+   "linkedQuestionIds": [
+    "111-2-醫學二-寄生蟲學-Q32",
+    "113-2-醫學二-藥理學-Q31"
+   ],
+   "trueOptions": [
+    "均須經由螺類傳播",
+    "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+    "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+    "致病機轉主要來自宿主對蟲卵的免疫反應"
+   ],
+   "spans": [
+    {
+     "span": "感染途徑",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "血吸蟲為雌雄異體（其餘吸蟲多為雌雄同體），雄蟲具抱雌溝（gynecophoric canal）包覆雌蟲；蟲卵無卵蓋（operculum），與其他吸蟲的有卵蓋蟲卵不同。111-2/113-2",
+   "citeText": [
+    "111-2/113-2"
+   ],
+   "marks": [
+    "111-2",
+    "113-2"
+   ],
+   "linkedQuestionIds": [
+    "111-2-醫學二-寄生蟲學-Q32",
+    "113-2-醫學二-藥理學-Q31"
+   ],
+   "trueOptions": [
+    "均須經由螺類傳播",
+    "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+    "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+    "致病機轉主要來自宿主對蟲卵的免疫反應"
+   ],
+   "spans": [
+    {
+     "span": "雌雄異體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "無卵蓋",
+     "kind": "bold-polarity",
+     "base": 1,
+     "signals": [
+      "bold-polarity",
+      "marks×2"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "感染日本血吸蟲、曼森血吸蟲後2至8週，尾動幼蟲／幼蟲在血液中遊走可引發發燒、淋巴發炎等全身症狀，稱為片山熱（Katayama fever）。106-1/109-2",
+   "citeText": [
+    "106-1/109-2"
+   ],
+   "marks": [
+    "106-1",
+    "109-2"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q79",
+    "109-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "日本血吸蟲（Schistosoma japonicum）",
+    "日本血吸蟲（Schistosoma japonicum）"
+   ],
+   "spans": [
+    {
+     "span": "2至8週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "片山熱",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 7,
+   "sentence": "三型血吸蟲的治療首選藥物皆為 praziquantel，並非 metronidazole。112-2",
+   "citeText": [
+    "112-2"
+   ],
+   "marks": [
+    "112-2"
+   ],
+   "linkedQuestionIds": [
+    "112-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "被認為是在埃及和非洲其他地區導致膀胱癌的主要原因"
+   ],
+   "spans": [
+    {
+     "span": "praziquantel",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "皆為 praziquantel",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "膀胱靜脈叢",
+   "why": "埃及血吸蟲成蟲寄生部位"
+  },
+  {
+   "n": 2,
+   "span": "下腸繫膜靜脈",
+   "why": "曼森血吸蟲成蟲寄生部位"
+  },
+  {
+   "n": 3,
+   "span": "尾動幼蟲",
+   "why": "血吸蟲感染型，直接鑽皮"
+  },
+  {
+   "n": 4,
+   "span": "抱雌溝",
+   "why": "雄蟲特徵構造"
+  },
+  {
+   "n": 5,
+   "span": "片山熱",
+   "why": "急性血吸蟲症病名"
+  },
+  {
+   "n": 6,
+   "span": "praziquantel",
+   "why": "首選藥物"
+  }
+ ],
+ "reply": "[\n{\"n\":1,\"span\":\"膀胱靜脈叢\",\"why\":\"埃及血吸蟲成蟲寄生部位\"},\n{\"n\":2,\"span\":\"下腸繫膜靜脈\",\"why\":\"曼森血吸蟲成蟲寄生部位\"},\n{\"n\":3,\"span\":\"尾動幼蟲\",\"why\":\"血吸蟲感染型，直接鑽皮\"},\n{\"n\":4,\"span\":\"抱雌溝\",\"why\":\"雄蟲特徵構造\"},\n{\"n\":5,\"span\":\"片山熱\",\"why\":\"急性血吸蟲症病名\"},\n{\"n\":6,\"span\":\"praziquantel\",\"why\":\"首選藥物\"}\n]\n"
+}

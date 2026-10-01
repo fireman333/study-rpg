@@ -1,0 +1,534 @@
+{
+ "group": "r2-09",
+ "round": "r2",
+ "cards": [
+  {
+   "cardId": "pharyngeal-arches#k13",
+   "subjectId": "胚胎學",
+   "heading": "咽弓、咽囊與咽溝發育（含耳、顏面）（Pharyngeal Arches, Pouches, and Grooves）",
+   "tier": "常青必掃",
+   "kind": "llm",
+   "face": "第四及第六咽弓皆由CN X（迷走神經；第四走上喉神經、第六走喉返神經）支配，衍生環甲肌、腭帆提肌、咽縮肌、喉內在肌、食道骨骼肌；軟骨衍生甲狀軟骨、環狀軟骨、杓狀軟骨、小角軟骨、楔形軟骨——唯獨不含會厭軟骨（會厭軟骨由【＿＿＿】【…】 【…】形成）。105/109/112",
+   "answer": "咽下隆起",
+   "gloss": [],
+   "hint": [
+    "hypopharyngeal",
+    "eminence"
+   ],
+   "sentence": "第四及第六咽弓皆由CN X（迷走神經；第四走上喉神經、第六走喉返神經）支配，衍生環甲肌、腭帆提肌、咽縮肌、喉內在肌、食道骨骼肌；軟骨衍生甲狀軟骨、環狀軟骨、杓狀軟骨、小角軟骨、楔形軟骨——唯獨不含會厭軟骨（會厭軟骨由咽下隆起hypopharyngeal eminence形成）。105/109/112",
+   "why": "tested point | leak-audit hide (synonym)",
+   "linkedQuestions": [
+    {
+     "id": "105-2-醫學一-胚胎學-Q31",
+     "stem": "下列那一項喉軟骨的發育與第四及第六對咽弓（pharyngeal arch）的軟骨無關？",
+     "options": {
+      "A": "甲狀軟骨（thyroid cartilage）",
+      "B": "會厭軟骨（epiglottis）",
+      "C": "杓狀軟骨（arytenoid cartilage）",
+      "D": "環狀軟骨（cricoid cartilage）"
+     },
+     "answer": "B",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "甲狀軟骨由第四及第六對咽弓的軟骨衍生。",
+      "B": "會厭軟骨不由第四、六對咽弓衍生，故與題意相符。",
+      "C": "杓狀軟骨由第四及第六對咽弓的軟骨衍生。",
+      "D": "環狀軟骨由第四及第六對咽弓的軟骨衍生。"
+     }
+    },
+    {
+     "id": "112-1-醫學一-胚胎學-Q33",
+     "stem": "下列何者為舌頭咽喉部（pharyngeal part of tongue）的胚胎起源？",
+     "options": {
+      "A": "遠端舌芽（distal tongue bud）",
+      "B": "中央舌芽（median tongue bud）",
+      "C": "盲孔（foramen cecum）",
+      "D": "咽下隆起（hypopharyngeal eminence）"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "遠端舌芽形成舌頭前2/3（body），非咽喉部。",
+      "B": "中央舌芽消失，未形成舌頭後1/3的咽喉部。",
+      "C": "盲孔位在第一、二咽弧間，是甲狀腺發育殘跡，非舌咽部。",
+      "D": "咽下隆起由第四咽弧形成舌頭後1/3的咽喉部，正確。"
+     }
+    },
+    {
+     "id": "109-2-醫學一-胚胎學-Q36",
+     "stem": "下列何者不參與鼓膜（tympanic membrane）的形成？",
+     "options": {
+      "A": "第一與第二咽弓（pharyngeal arch）之間葉組織（mesenchyme）",
+      "B": "第一咽囊（pharyngeal pouch）之內胚層（endoderm）",
+      "C": "神經外胚層（neuroectoderm）",
+      "D": "第一咽溝（pharyngeal groove）之外胚層（ectoderm）"
+     },
+     "answer": "C",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "第一與第二咽弓之間葉組織參與鼓膜形成，位於外耳道與鼓室之間。",
+      "B": "第一咽囊之內胚層分化為鼓膜內層。",
+      "C": "神經外胚層不參與鼓膜形成，與咽弓及咽囊、咽溝無關。",
+      "D": "第一咽溝之外胚層形成外耳道，參與鼓膜形成。"
+     }
+    }
+   ]
+  },
+  {
+   "cardId": "foodborne-tissue-nematodes#k14",
+   "subjectId": "寄生蟲學",
+   "heading": "食因性與組織線蟲（Foodborne and Tissue-Invasive Nematodes）",
+   "tier": "常青必掃",
+   "kind": "bold",
+   "face": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；食入土壤中的胚胎化蟲卵後，幼蟲在腸道孵出、經肝門靜脈到達肝臟發育為成蟲，並於肝實質產卵，【…】須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於【＿＿＿】（【…】），【…】，是本科少見但曾出現的陷阱題。113",
+   "answer": "假性感染",
+   "gloss": [
+    "spurious infection"
+   ],
+   "hint": [
+    "並非真正的肝內感染",
+    "真感染"
+   ],
+   "sentence": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；食入土壤中的胚胎化蟲卵後，幼蟲在腸道孵出、經肝門靜脈到達肝臟發育為成蟲，並於肝實質產卵，真感染須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於假性感染（spurious infection），並非真正的肝內感染，是本科少見但曾出現的陷阱題。113",
+   "why": "asked concept | leak-audit hide (contrast)",
+   "linkedQuestions": [
+    {
+     "id": "113-2-醫學二-微生物暨免疫學-Q29",
+     "stem": "一名外籍移工剛至臺灣的第3天，於醫院接受腸道寄生蟲檢查，醫檢師發現其糞便內有許多肝毛線蟲 （Capillaria hepatica）蟲卵，下列敘述何者最適當？",
+     "options": {
+      "A": "該外籍移工在母國因為嗜食魚的肝臟，而受到肝毛線蟲蟲卵的感染（egg infection）",
+      "B": "該外籍移工在母國因為嗜食鼠的肝臟，而受到肝毛線蟲幼蟲的感染（larval infection）",
+      "C": "該外籍移工在母國因為嗜食鵝的肝臟，而受到肝毛線蟲蟲卵的感染（egg infection）",
+      "D": "該外籍移工其實是一種假性感染（spurious infection）"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "錯誤；肝毛線蟲不寄生於魚肝，而主要寄生於齧齒類肝臟",
+      "B": "錯誤；雖肝毛線蟲寄生於齧齒類，但本案例糞便中發現蟲卵，非真感染",
+      "C": "錯誤；肝毛線蟲不寄生於鵝肝，其最終宿主主要為齧齒類",
+      "D": "正確；糞便中發現肝毛線蟲蟲卵為假性感染，真感染需在肝活體切片發現蟲體"
+     }
+    }
+   ]
+  },
+  {
+   "cardId": "lymphatic-and-subcutaneous-filariasis#k9",
+   "subjectId": "寄生蟲學",
+   "heading": "淋巴絲蟲病與皮下絲蟲病（Lymphatic and Subcutaneous Filariasis）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "蟠尾絲蟲（Onchocerca volvulus）病媒為蚋（Simulium，黑蠅）；微絲蟲定居於【…】與尿液中，【＿＿＿】（【…】）是主要診斷方法；重複感染可造成河川盲症（river blindness）、皮疹、硬而不痛的【…】、豹皮花紋（leopard skin）、鼠蹊懸垂（hanging groin）；肺部結節／錢幣狀病灶不是蟠尾絲蟲的表現，那是犬心絲蟲（Dirofilaria immitis）的特徵，兩者常被放在一起誘答。106/107/110/111",
+   "answer": "皮下切片",
+   "gloss": [
+    "skin snips"
+   ],
+   "hint": [
+    "皮膚（真皮層）",
+    "皮下結節"
+   ],
+   "sentence": "蟠尾絲蟲（Onchocerca volvulus）病媒為蚋（Simulium，黑蠅）；微絲蟲定居於皮膚（真皮層）與尿液中，皮下切片（skin snips）是主要診斷方法；重複感染可造成河川盲症（river blindness）、皮疹、硬而不痛的皮下結節、豹皮花紋（leopard skin）、鼠蹊懸垂（hanging groin）；肺部結節／錢幣狀病灶不是蟠尾絲蟲的表現，那是犬心絲蟲（Dirofilaria immitis）的特徵，兩者常被放在一起誘答。106/107/110/111",
+   "why": "asked diagnostic method | leak-audit hide (restatement)",
+   "linkedQuestions": [
+    {
+     "id": "110-2-醫學二-寄生蟲學-Q29",
+     "stem": "關於蟠尾絲蟲（Onchocerca volvulus）的敘述，下列何者錯誤？",
+     "options": {
+      "A": "微絲蟲會侵犯患者眼睛造成失明",
+      "B": "自皮膚切片（skin snips）發現微絲蟲為主要診斷方法",
+      "C": "患者可能出現鼠蹊懸垂（hanging groin）",
+      "D": "患者常會出現肺部結節（pulmonary nodules）"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "正確，蟠尾絲蟲微絲蟲會侵犯眼睛造成失明。",
+      "B": "正確，皮膚切片檢驗微絲蟲是主要診斷方法。",
+      "C": "正確，患者可出現鼠蹊懸垂症狀。",
+      "D": "錯誤，肺部結節為犬心絲蟲之表現，非蟠尾絲蟲特徵。"
+     }
+    },
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q75",
+     "stem": "下列有關蟠尾絲蟲（Onchocerca volvulus）感染人體的敘述，有幾項敘述是正確的？①微絲蟲（microfilaria）也會出現在尿液 中 ②微絲蟲（microfilaria）可能引起失明 ③病患皮膚可能呈現豹皮花紋（leopard skin） ④病患肺部可能有硬幣大小的結 節病變（coin lesion）",
+     "options": {
+      "A": "1項",
+      "B": "2項",
+      "C": "3項",
+      "D": "4項"
+     },
+     "answer": "C",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "僅一項正確，不符合題目要求",
+      "B": "僅兩項正確，不符合題目要求",
+      "C": "①微絲蟲出現於尿液、②引起失明、③豹皮花紋皆正確，共三項",
+      "D": "硬幣大小結節為犬心絲蟲症狀，非蟠尾絲蟲，故僅三項正確非四項"
+     }
+    },
+    {
+     "id": "107-2-醫學二-寄生蟲學-Q30",
+     "stem": "做皮下切片（skin snips）檢查微絲蟲（microfilaria）是診斷下列何種寄生蟲感染的重要依據？",
+     "options": {
+      "A": "羅阿絲蟲（Loa loa）",
+      "B": "蟠尾絲蟲（Onchocerca volvulus）",
+      "C": "麥地那線蟲（Dracunculus medinensis）",
+      "D": "馬來亞絲蟲（Brugia malayi）"
+     },
+     "answer": "B",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "羅阿絲蟲之微絲蟲出現於血液中，應用血液檢查診斷，非皮下切片。",
+      "B": "蟠尾絲蟲之微絲蟲定居於真皮層，皮下切片檢查是診斷的重要依據。",
+      "C": "麥地那線蟲為組織線蟲，寄生於皮下組織，診斷不依賴微絲蟲檢查。",
+      "D": "馬來亞絲蟲之微絲蟲出現於夜間血液，應用血液檢查診斷，非皮下切片。"
+     }
+    }
+   ]
+  },
+  {
+   "cardId": "angiostrongyliasis-and-larva-migrans#k9",
+   "subjectId": "寄生蟲學",
+   "heading": "廣東住血線蟲症與幼蟲移行症（Angiostrongyliasis and Larva Migrans Syndromes）",
+   "tier": "穩定考點",
+   "kind": "bold",
+   "face": "【＿＿＿】（【…】）【…】，人為偶然宿主（幼蟲不會長成成蟲）；食入含胚卵的糞便污染物後，幼蟲在體內到處遊走造成內臟幼蟲移行症（VLM），最容易侵犯肝臟（肝腫大），也常侵犯肺（咳嗽）、眼睛（視網膜剝離，即眼部幼蟲移行症）、腦部；臨床特徵為高嗜伊紅性白血球症、高球蛋白血症、嗜伊紅性肉芽腫；好發於幼童（非成年人），因幼兒接觸受污染土壤／【…】機會較高。107/114",
+   "answer": "犬蛔蟲／貓蛔蟲",
+   "gloss": [
+    "Toxocara canis/cati"
+   ],
+   "hint": [
+    "終宿主為狗／貓",
+    "犬貓糞便"
+   ],
+   "sentence": "犬蛔蟲／貓蛔蟲（Toxocara canis/cati）終宿主為狗／貓，人為偶然宿主（幼蟲不會長成成蟲）；食入含胚卵的糞便污染物後，幼蟲在體內到處遊走造成內臟幼蟲移行症（VLM），最容易侵犯肝臟（肝腫大），也常侵犯肺（咳嗽）、眼睛（視網膜剝離，即眼部幼蟲移行症）、腦部；臨床特徵為高嗜伊紅性白血球症、高球蛋白血症、嗜伊紅性肉芽腫；好發於幼童（非成年人），因幼兒接觸受污染土壤／犬貓糞便機會較高。107/114",
+   "why": "asked pathogen of VLM | leak-audit hide (restatement)",
+   "linkedQuestions": [
+    {
+     "id": "107-1-醫學二-寄生蟲學-Q30",
+     "stem": "罹患內臟幼蟲移行症（visceral larva migrans）的病患通常有下列特徵，何者除外？",
+     "options": {
+      "A": "犬蛔蟲（Toxocara canis）為主要病原體",
+      "B": "常見肝腫大",
+      "C": "常見嗜酸性白血球增多",
+      "D": "大多發生於成年人"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "犬蛔蟲為內臟幼蟲移行症主要病原體。",
+      "B": "幼蟲遊走侵犯肝臟可造成肝脾腫大。",
+      "C": "感染海獸胃腺蟲時常見嗜酸性白血球增多。",
+      "D": "幼童誤食含蟲卵糞便常見，成人生吃海水魚感染，非僅成年人。"
+     }
+    },
+    {
+     "id": "114-2-醫學二-寄生蟲學-Q30",
+     "stem": "一位五歲的小朋友血液中嗜伊紅性白血球（eosinophil）異常增加，同時檢查出肝臟腫大，他最有可能感染 下列何種寄生蟲？",
+     "options": {
+      "A": "旋毛蟲（Trichinella spiralis）",
+      "B": "蟯蟲（Enterobius vermicularis）",
+      "C": "廣東住血線蟲（Angiostrongylus cantonensis）",
+      "D": "犬蛔蟲（Toxocara canis）"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "旋毛蟲感染主要導致肌肉痛，橫紋肌內有內囊胞化幼蟲，不易引發肝腫大。",
+      "B": "蟯蟲感染特有症狀為慢性骨盆腔腹膜炎，不會導致肝腫大與嗜伊紅增多。",
+      "C": "廣東住血線蟲引發嗜伊紅增多，但主要侵犯中樞神經系統導致腦膜炎，非肝臟腫大。",
+      "D": "犬蛔蟲導致內臟幼蟲移行症，最易侵犯肝臟引發肝腫大，併嗜伊紅性白血球增多。"
+     }
+    },
+    {
+     "id": "107-2-醫學二-寄生蟲學-Q29",
+     "stem": "蘇先生因個人養身因素而食用醃漬蝸牛及生蝸牛多年，日前急診就醫因疑似腦炎或腦膜腦炎而住院，經脊髓 穿刺發現腦脊髓液（CSF）內有高數量白血球（1500/µL），並伴隨有嗜酸性白血球增多症 （eosinophilia）。依據上述結果，蘇先生最可能感染下列何種寄生蟲？",
+     "options": {
+      "A": "旋毛蟲（Trichinella spiralis）",
+      "B": "廣節裂頭絛蟲（Diphyllobothrium latum）",
+      "C": "棘顎口線蟲（Gnathostoma spinigerum）",
+      "D": "廣東住血線蟲（Angiostrongylus cantonensis）"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "旋毛蟲感染來自未熟豬肉，會肌肉痛及嗜伊紅血球增生，不引起腦膜腦炎。",
+      "B": "廣節裂頭絛蟲寄生於小腸，主要造成維生素B12缺乏，不侵犯中樞神經。",
+      "C": "棘顎口線蟲經淡水魚或青蛙感染，造成幼蟲移行症及眼症，不引起腦膜腦炎。",
+      "D": "廣東住血線蟲幼蟲侵犯中樞神經，引起嗜伊紅性腦膜腦炎，血液及腦脊髓液可見嗜伊紅球增多。"
+     }
+    }
+   ]
+  },
+  {
+   "cardId": "schistosomiasis#k7",
+   "subjectId": "寄生蟲學",
+   "heading": "血吸蟲症（Schistosomiasis）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "血吸蟲與其他吸蟲最大的差異在感染途徑：血吸蟲的尾動幼蟲（cercaria）【＿＿＿】，【…】（metacercaria）——第一中間宿主（螺類）【…】。111-2/113-2",
+   "answer": "直接經皮膚鑽入人體",
+   "gloss": [],
+   "hint": [
+    "不需要第二中間宿主形成囊幼",
+    "就是全部所需的中間宿主"
+   ],
+   "sentence": "血吸蟲與其他吸蟲最大的差異在感染途徑：血吸蟲的尾動幼蟲（cercaria）直接經皮膚鑽入人體，不需要第二中間宿主形成囊幼（metacercaria）——第一中間宿主（螺類）就是全部所需的中間宿主。111-2/113-2",
+   "why": "asked infection route | leak-audit hide (restatement)",
+   "linkedQuestions": [
+    {
+     "id": "113-2-醫學二-藥理學-Q31",
+     "stem": "下列有關血吸蟲的敘述，何者錯誤？",
+     "options": {
+      "A": "雌雄同體，具口吸盤和腹吸盤",
+      "B": "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+      "C": "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+      "D": "致病機轉主要來自宿主對蟲卵的免疫反應"
+     },
+     "answer": "A",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "血吸蟲為雌雄異體，非雌雄同體，故前段錯誤。",
+      "B": "中間宿主釋出之尾動幼蟲可穿透人皮膚，引發尾蚴皮膚炎。",
+      "C": "曼森血吸蟲分布非洲、南美洲範圍最廣，而日本、埃及血吸蟲分布範圍較小。",
+      "D": "蟲卵分泌酵素導致組織壞死，引發宿主免疫反應造成肉芽腫與纖維化。"
+     }
+    },
+    {
+     "id": "111-2-醫學二-寄生蟲學-Q32",
+     "stem": "下列何者為吸蟲之共同特徵？",
+     "options": {
+      "A": "生活史中需要二個中間宿主",
+      "B": "雄性成蟲具抱雌溝",
+      "C": "蟲卵皆具有卵蓋",
+      "D": "均須經由螺類傳播"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "血吸蟲無第二中間宿主，其他吸蟲也不都需要二個中間宿主。",
+      "B": "一般吸蟲無抱雌溝，抱雌溝為血吸蟲特有特徵。",
+      "C": "血吸蟲卵無卵蓋，故此非吸蟲共同特徵。",
+      "D": "所有吸蟲的第一中間宿主均為螺類，是吸蟲共同特徵。"
+     }
+    }
+   ]
+  },
+  {
+   "cardId": "intestinal-luminal-amoebae#k7",
+   "subjectId": "寄生蟲學",
+   "heading": "腸道管腔阿米巴：痢疾阿米巴與非致病性阿米巴（Intestinal Luminal Amoebae — E. histolytica vs Non-Pathogenic Species）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "痢疾阿米巴（Entamoeba histolytica）的滋養體會【＿＿＿】（【…】），是牠與非致病性近親（如哈氏阿米巴）最重要的鑑別特徵；哈氏阿米巴滋養體的【…】。106/108",
+   "answer": "吞噬紅血球",
+   "gloss": [
+    "erythrophagocytosis"
+   ],
+   "hint": [
+    "胞內容物是細菌，不含紅血球"
+   ],
+   "sentence": "痢疾阿米巴（Entamoeba histolytica）的滋養體會吞噬紅血球（erythrophagocytosis），是牠與非致病性近親（如哈氏阿米巴）最重要的鑑別特徵；哈氏阿米巴滋養體的胞內容物是細菌，不含紅血球。106/108",
+   "why": "key feature | leak-audit hide (restatement)",
+   "linkedQuestions": [
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q81",
+     "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+     "options": {
+      "A": "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+      "B": "Metronidazole為痢疾阿米巴症之首選治療藥物",
+      "C": "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+      "D": "人體寄生性阿米巴之寄生部位均在大腸"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "PCR技術可有效鑑別痢疾阿米巴與迪斯帕阿米巴,此敘述正確。",
+      "B": "Metronidazole為痢疾阿米巴症首選藥物,特別是肝膿瘍治療,此敘述正確。",
+      "C": "痢疾阿米巴滋養體為活躍形態,會侵犯腸黏膜並吞噬紅血球造成潰瘍,此敘述正確。",
+      "D": "寄生性阿米巴中,痢疾阿米巴及部分種類寄生大腸,但內生鞭毛蟲寄生小腸,阿米巴齒齦蟲寄生口腔,故寄生部位不均在大腸,此敘述錯誤。"
+     }
+    },
+    {
+     "id": "108-1-醫學二-寄生蟲學-Q34",
+     "stem": "下列有關阿米巴之敘述中，何者正確？",
+     "options": {
+      "A": "嗜碘阿米巴（Iodamoeba bütschlii）的滋養體（trophozoites）具有⼀個很⼤的肝醣泡（glycogen vacuole）",
+      "B": "哈⽒阿米巴（Entamoeba hartmanni）的滋養體（trophozoites）也會吞噬紅⾎球",
+      "C": "痢疾阿米巴（Entamoeba histolytica）感染之⾼危險群包括男同性戀者及啟智、精神教養院⽣",
+      "D": "痢疾阿米巴（Entamoeba histolytica）的囊體中的類染⾊體（chromatoid bodies）之成分是DNA"
+     },
+     "answer": "C",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "嗜碘阿米巴的特徵是囊體含肝醣泡和空泡，容易被碘染上",
+      "B": "吞噬紅血球是痢疾阿米巴滋養體的特徵，哈氏阿米巴滋養體內容物為細菌",
+      "C": "感染阿米巴的高危險群包括男同性戀者及啟智、精神教養院生，可能與衛生習慣有關",
+      "D": "類染色體在囊體時期出現，成分為RNA及RNA結合蛋白，非DNA"
+     }
+    },
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q34",
+     "stem": "下列有關痢疾阿米巴（Entamoeba histolytica）的敘述中，何者正確？",
+     "options": {
+      "A": "阿米巴肝膿瘍（amebic liver abscess）常發生在左葉肝臟",
+      "B": "在膿瘍的中央採檢體，檢出其滋養體 （trophozoites）的機會比較大",
+      "C": "阿米巴肝膿瘍（amebic liver abscess）的第一線用藥為mebendazole",
+      "D": "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "痢疾阿米巴肝膿瘍常發生於肝右葉，不是左葉。",
+      "B": "膿瘍中央採檢發現囊體機會較大，而非滋養體。",
+      "C": "阿米巴肝膿瘍第一線治療為metronidazole，mebendazole用於腸道蠕蟲。",
+      "D": "阿米巴腫為慢性感染結果，可誤診為惡性腫瘤或發炎性腸病需鑑別。"
+     }
+    }
+   ]
+  },
+  {
+   "cardId": "intestinal-luminal-amoebae#k9",
+   "subjectId": "寄生蟲學",
+   "heading": "腸道管腔阿米巴：痢疾阿米巴與非致病性阿米巴（Intestinal Luminal Amoebae — E. histolytica vs Non-Pathogenic Species）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "阿米巴腫（ameboma）是慢性阿米巴感染在腸壁形成的肉芽腫性腫塊，外觀酷似【＿＿＿】，臨床上容易被誤診為【…】或發炎性腸病，需特別留意鑑別診斷。106",
+   "answer": "惡性腫瘤",
+   "gloss": [],
+   "hint": [
+    "癌症"
+   ],
+   "sentence": "阿米巴腫（ameboma）是慢性阿米巴感染在腸壁形成的肉芽腫性腫塊，外觀酷似惡性腫瘤，臨床上容易被誤診為癌症或發炎性腸病，需特別留意鑑別診斷。106",
+   "why": "asked misdiagnosis",
+   "linkedQuestions": [
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q34",
+     "stem": "下列有關痢疾阿米巴（Entamoeba histolytica）的敘述中，何者正確？",
+     "options": {
+      "A": "阿米巴肝膿瘍（amebic liver abscess）常發生在左葉肝臟",
+      "B": "在膿瘍的中央採檢體，檢出其滋養體 （trophozoites）的機會比較大",
+      "C": "阿米巴肝膿瘍（amebic liver abscess）的第一線用藥為mebendazole",
+      "D": "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "痢疾阿米巴肝膿瘍常發生於肝右葉，不是左葉。",
+      "B": "膿瘍中央採檢發現囊體機會較大，而非滋養體。",
+      "C": "阿米巴肝膿瘍第一線治療為metronidazole，mebendazole用於腸道蠕蟲。",
+      "D": "阿米巴腫為慢性感染結果，可誤診為惡性腫瘤或發炎性腸病需鑑別。"
+     }
+    },
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q81",
+     "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+     "options": {
+      "A": "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+      "B": "Metronidazole為痢疾阿米巴症之首選治療藥物",
+      "C": "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+      "D": "人體寄生性阿米巴之寄生部位均在大腸"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "PCR技術可有效鑑別痢疾阿米巴與迪斯帕阿米巴,此敘述正確。",
+      "B": "Metronidazole為痢疾阿米巴症首選藥物,特別是肝膿瘍治療,此敘述正確。",
+      "C": "痢疾阿米巴滋養體為活躍形態,會侵犯腸黏膜並吞噬紅血球造成潰瘍,此敘述正確。",
+      "D": "寄生性阿米巴中,痢疾阿米巴及部分種類寄生大腸,但內生鞭毛蟲寄生小腸,阿米巴齒齦蟲寄生口腔,故寄生部位不均在大腸,此敘述錯誤。"
+     }
+    },
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q82",
+     "stem": "下列那些原蟲的感染型（infective form）通常具有四個細胞核？",
+     "options": {
+      "A": "梨形鞭毛蟲（Giardia lamblia）及大腸阿米巴（Entamoeba coli）",
+      "B": "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+      "C": "哈氏阿米巴（Entamoeba hartmanni）及嗜碘阿米巴（Iodamoeba bütschlii）",
+      "D": "微小阿米巴（Endolimax nana）及雙核阿米巴（Dientamoeba fragilis）"
+     },
+     "answer": "B",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "梨形鞭毛蟲有四個核，但大腸阿米巴的囊體有八個核，不符合「通常具四個」之敘述。",
+      "B": "梨形鞭毛蟲與痢疾阿米巴的感染型（囊體）皆有四個核，符合題意。",
+      "C": "嗜碘阿米巴的囊體只有一個核，微小阿米巴雖有四個，但前者不符，故錯。",
+      "D": "微小阿米巴囊體有四個核，惟雙核阿米巴的感染型為滋養體而非囊體，且只有一至二個核。"
+     }
+    }
+   ]
+  },
+  {
+   "cardId": "tick-borne-disease#k5",
+   "subjectId": "寄生蟲學",
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "tier": "穩定考點",
+   "kind": "llm",
+   "face": "巴貝氏原蟲症（babesiosis）：Babesia 寄生【＿＿＿】、無性生殖形成【…】，典型為4個merozoite排成馬爾他十字（Maltese cross）；多數患者呈現無症狀之【…】（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+   "answer": "紅血球內",
+   "gloss": [],
+   "hint": [
+    "類似瘧原蟲的環狀體",
+    "低度寄生蟲血症"
+   ],
+   "sentence": "巴貝氏原蟲症（babesiosis）：Babesia 寄生紅血球內、無性生殖形成類似瘧原蟲的環狀體，典型為4個merozoite排成馬爾他十字（Maltese cross）；多數患者呈現無症狀之低度寄生蟲血症（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+   "why": "tested point | leak-audit hide (restatement)",
+   "linkedQuestions": [
+    {
+     "id": "108-2-醫學二-寄生蟲學-Q35",
+     "stem": "有關蜱媒介人巴貝氏原蟲病（human babesiosis）之敘述，下列何者錯誤？",
+     "options": {
+      "A": "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+      "B": "患者常呈現無症狀感染（asymptomatic infection）之高度寄生蟲血症（heavy parasitemia）",
+      "C": "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+      "D": "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+     },
+     "answer": "B",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "巴貝氏蟲在紅血球內無性生殖產生梅洛佐體，為其生活史特徵。",
+      "B": "患者通常呈現無症狀感染之低寄生蟲血症，非高度寄生蟲血症。",
+      "C": "脾臟切除、免疫缺損等患者病情較重，感染可能致死。",
+      "D": "血液抹片可見馬爾他十字勳章形狀的梅洛佐體；IFA可檢測抗體。"
+     }
+    },
+    {
+     "id": "105-2-醫學一-寄生蟲學-Q79",
+     "stem": "某科技公司主管林先生於二週前赴美國紐澤西地區參訪旅遊，旅遊期間曾遭受不知名具有八隻腳蟲體叮咬，回國一週後出現發 燒、寒顫、頭痛及肌痛等症狀，經醫院檢驗結果發現血小板減少、輕度溶血性貧血及紅血球內發現有雙核形（binucleate- form）之寄生蟲。依據上述結果，林先生最可能感染何種寄生蟲病？",
+     "options": {
+      "A": "萊姆病（Lyme disease）",
+      "B": "巴貝氏原蟲症（babesiosis）",
+      "C": "恙蟲病（scrub typhus）",
+      "D": "艾立克次體症（ehrlichiosis）"
+     },
+     "answer": "B",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "萊姆病由硬蜱傳播但主要症狀為皮膚紅斑和關節炎，不符合血小板減少與雙核形寄生蟲的檢驗結果",
+      "B": "巴貝氏原蟲由八隻腳硬蜱傳播，導致溶血性貧血與血小板減少，血液抹片發現雙核形寄生蟲符合所有臨床表現",
+      "C": "恙蟲病由螨傳播而非八隻腳蜱，主要症狀為焦痂、丘疹、淋巴腫大，不符合",
+      "D": "艾立克次體症由硬蜱傳播但無雙核形寄生蟲的檢驗發現，主要症狀無特異性血小板減少"
+     }
+    },
+    {
+     "id": "105-1-醫學一-寄生蟲學-Q82",
+     "stem": "病媒蜱（tick）目前仍是許多感染症之病媒，下列何種感染症不是經由病媒蜱所傳播？",
+     "options": {
+      "A": "巴貝氏原蟲症（babesiosis）",
+      "B": "艾利克次體症（ehrlichiosis）",
+      "C": "萊姆病（Lyme disease）",
+      "D": "戰壕熱（trench fever）"
+     },
+     "answer": "D",
+     "acceptedAnswers": null,
+     "optionExplanations": {
+      "A": "巴貝氏原蟲症由病媒蜱傳播，為蜱媒傳染病。",
+      "B": "艾利克次體症由病媒蜱傳播，為蜱媒傳染病。",
+      "C": "萊姆病由病媒蜱傳播，為蜱媒傳染病。",
+      "D": "戰壕熱由立克次體引起，經體蝨傳播而非病媒蜱傳播。"
+     }
+    }
+   ]
+  }
+ ]
+}

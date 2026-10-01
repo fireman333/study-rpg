@@ -1,0 +1,1 @@
+[{"n": 1, "span": "第 4 週末", "why": "tested point"}, {"n": 2, "span": "矢狀縫", "why": "tested point"}, {"n": 3, "span": "髓核", "hide": ["環繞髓核的纖維"], "why": "tested point"}, {"n": 4, "span": "體節", "hide": ["皆非體節的直接來源", "每個體節再分化出三部分"], "why": "tested point"}, {"n": 5, "skip": true, "why": "negation"}, {"n": 6, "span": "胸鎖乳突肌", "why": "tested point"}]

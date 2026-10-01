@@ -1,0 +1,191 @@
+[
+ {
+  "anchorId": "胚胎學::respiratory-development",
+  "n": 1,
+  "span": "肺部血流量上升",
+  "sentence": "新生兒開始以肺呼吸後，肺部血流量上升（而非血管阻力上升）以增加氣體交換；同時左心房壓力升高、大於右心房，促使卵圓孔關閉，符合出生後體循環壓力大於肺循環的生理轉變。113",
+  "hide": "而非血管阻力上升",
+  "stage": "hide",
+  "why": "hide phrase inside the automatic gloss: phrase dropped, card kept"
+ },
+ {
+  "anchorId": "胚胎學::early-cleavage-implantation",
+  "n": 2,
+  "span": "初級卵黃囊",
+  "sentence": "第 7 天，內細胞團分化為上、下兩層胚盤：上胚層（epiblast，高柱狀細胞）形成羊膜腔（amniotic cavity）；下胚層（hypoblast，立方細胞）形成初級卵黃囊（primary yolk sac）。104/107",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "early-cleavage-implantation#draft: 104-2-醫學一-胚胎學-Q29: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "胚胎學::germ-layers-gastrulation",
+  "n": 5,
+  "span": "原條",
+  "sentence": "原條（primitive streak）約在第 13–14 天由胚盤尾端的上胚層細胞（epiblast）增殖形成，功能是建立胚體兩側對稱，也是原腸胚形成（gastrulation）、三胚層分化的起點。106/111/112",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "germ-layers-gastrulation#draft: 111-1-醫學一-胚胎學-Q32: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "胚胎學::germ-layers-gastrulation",
+  "n": 5,
+  "span": "原條",
+  "sentence": "原條（primitive streak）約在第 13–14 天由胚盤尾端的上胚層細胞（epiblast）增殖形成，功能是建立胚體兩側對稱，也是原腸胚形成（gastrulation）、三胚層分化的起點。106/111/112",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "germ-layers-gastrulation#draft: 112-2-醫學一-胚胎學-Q32: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "胚胎學::germ-layers-gastrulation",
+  "n": 8,
+  "span": "咽弓",
+  "sentence": "第三週（約第 15–21 天）胚胎已具備原腸胚、脊索、神經溝等三胚層相關構造，但咽弓（pharyngeal arch）要到第四週（約第 21–28 天）才會出現——第一咽弓約第 21 天形成、第二三咽弓約第 22 天、第四六咽弓約第 28 天，是「第三週結束時尚未出現的構造」這類題型的標準答案。112/113",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "germ-layers-gastrulation#draft: 113-2-醫學一-胚胎學-Q32: answer occurs only in the keyed option of a negated stem"
+ },
+ {
+  "anchorId": "胚胎學::pharyngeal-arches",
+  "n": 3,
+  "span": "第一咽弓",
+  "sentence": "第一咽弓由CN V（三叉神經）支配，衍生咀嚼肌群（含嚼肌masseter、顳肌temporalis、翼內外肌）、下頷舌骨肌、二腹肌前腹、鼓膜張肌、腭帆張肌；經Meckel軟骨衍生錘骨（malleus）與砧骨（incus）。104/110/113/114",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "pharyngeal-arches#draft: 114-2-醫學一-胚胎學-Q33: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+  "n": 3,
+  "span": "髓核",
+  "sentence": "脊索本身只演變成髓核（nucleus pulposus）；椎體則是由相鄰兩個生骨節的頭端緻密間質細胞與尾端鬆散間質細胞共同形成（再分節現象），纖維環由環繞髓核的纖維形成，椎弓由神經管旁的間質細胞形成。108/110",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "limb-axial-musculoskeletal-development#draft: 110-1-醫學一-胚胎學-Q35: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+  "n": 6,
+  "span": "胸鎖乳突肌",
+  "sentence": "先天性斜頸（congenital torticollis／wryneck）多因單側胸鎖乳突肌（sternocleidomastoid muscle）痙攣或纖維化所致，典型姿勢是頭歪向患側、臉轉向健側；斜角肌、脊柱前肌、舌下肌的病變則不是造成典型斜頸姿勢的主因。110",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "limb-axial-musculoskeletal-development#draft: 110-2-醫學一-胚胎學-Q35: answer occurs only in the keyed option of a negated stem"
+ },
+ {
+  "anchorId": "胚胎學::urogenital-development",
+  "n": 2,
+  "span": "後腎憩室",
+  "sentence": "輸尿管的胚胎起源是後腎憩室（metanephric diverticulum），即中腎管突出形成的輸尿管芽，進一步衍生出輸尿管、腎盂、腎盞與集尿管；後腎中胚層則衍生腎小管與鮑氏囊，兩者不可混淆。107",
+  "stage": "gate",
+  "reason": "over-masked",
+  "why": "urogenital-development#draft: masks cover 40 of 97 characters of the bullet without <cite> (41% > 40%)"
+ },
+ {
+  "anchorId": "胚胎學::urogenital-development",
+  "n": 6,
+  "span": "睪丸網",
+  "sentence": "中腎管（mesonephric duct，Wolffian duct）末端衍生副睪、輸精管、儲精囊與射精管；但睪丸網（rete testis）與曲細精管是由初級生殖索（性腺髓質索）衍生，並非中腎管的產物，是這節反覆出現的誘答對照。109/111/112",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "urogenital-development#draft: 111-1-醫學一-胚胎學-Q34: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "胚胎學::GI-development",
+  "span": "咽下隆起",
+  "stage": "filter",
+  "why": "same fact as a card in 胚胎學::pharyngeal-arches"
+ },
+ {
+  "anchorId": "胚胎學::special-sense-integument-development",
+  "span": "豎毛肌",
+  "stage": "filter",
+  "why": "same fact as a card in 胚胎學::germ-layers-gastrulation"
+ },
+ {
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "n": 2,
+  "span": "廣東住血線蟲",
+  "sentence": "廣東住血線蟲幼蟲以第五期（L5）之姿侵犯腦脊髓，並非只侵犯腦脊髓（也可侵犯眼睛等其他部位），造成嗜伊紅性腦膜炎（腦膜腦炎）；確認診斷是在腦脊髓液中發現蟲體（L5）並伴隨嗜酸性白血球明顯增加；侵犯眼球時可見視力受損、角膜炎，甚至可在眼球內見到活蟲需手術移除（ocular angiostrongyliasis）。臺灣南部與東部曾因生食蝸牛等而有地方性流行，因此「臺灣本土流行＋眼部病變」的組合直接指向本蟲。107/109/114/115-2",
+  "stage": "filter",
+  "why": "answer is the topic's own name"
+ },
+ {
+  "anchorId": "寄生蟲學::free-living-amoebae-and-flagellates",
+  "n": 2,
+  "span": "福氏內格里阿米巴",
+  "sentence": "福氏內格里阿米巴（Naegleria fowleri）造成的是原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis, PAM），本質是化膿性（急性）發炎，不是肉芽腫性——後者是棘阿米巴的疾病型態，兩者容易被錯誤配對。104/106",
+  "stage": "pick",
+  "why": "no 0–12 char context (outside <cite>) makes the span unique in the topic"
+ },
+ {
+  "anchorId": "寄生蟲學::tick-borne-disease",
+  "n": 1,
+  "span": "硬蜱屬",
+  "sentence": "硬蜱屬（Ixodes spp.）是萊姆病（Borrelia burgdorferi）最主要的病媒；感染分三期：第一期慢性遊走性紅斑（erythema migrans）、第二期無菌性腦膜炎／貝爾氏麻痺／心臟傳導阻斷／心肌炎、第三期慢性關節炎與腦病變。螺旋菌無法／很難培養，臨床診斷以症狀或血清學（測抗體）為主，不是血液抹片鏡檢。104/105",
+  "stage": "pick",
+  "why": "no 0–12 char context (outside <cite>) makes the span unique in the topic"
+ },
+ {
+  "anchorId": "寄生蟲學::intestinal-nematodes-soil-transmitted",
+  "n": 1,
+  "span": "蟯蟲",
+  "sentence": "蟯蟲（Enterobius vermicularis）雌蟲夜間爬到肛門周圍產卵，蟲卵可經空氣傳播、也會經手部污染造成全家群聚感染；蟲卵或蟲體經生殖道逆行進入腹腔，可引起慢性骨盆腔腹膜炎；夜間肛門搔癢干擾睡眠，但這不等於「睡眠病（sleeping sickness）」——後者是非洲錐蟲病的專有名詞，兩者常被拿來當誘答。105/106/113",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "intestinal-nematodes-soil-transmitted#draft: 106-1-醫學一-寄生蟲學-Q77: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "n": 4,
+  "span": "麥地那線蟲",
+  "sentence": "麥地那線蟲（Dracunculus medinensis）經飲用含感染性水蚤（劍水蚤）的生水感染，是改善飲用水系統最能防治的寄生蟲病；成熟雌蟲移行至下肢（尤其足踝、腳背）等處皮下組織，可長達近 1 公尺（人體最長線蟲），造成皮下水泡潰瘍，傳統治療是逐日纏繞拉出蟲體；主要流行於非洲。104/111",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "foodborne-tissue-nematodes#draft: 111-1-醫學二-寄生蟲學-Q29: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "寄生蟲學::liver-and-intestinal-flukes",
+  "n": 1,
+  "span": "中華肝吸蟲",
+  "sentence": "中華肝吸蟲（Clonorchis sinensis）經生食帶囊幼（metacercaria）的淡水魚肉感染，寄生於肝內膽管，慢性重度感染可造成膽管慢性刺激、上皮增生、腺瘤樣病變，進而發展為膽管癌；台灣、中國大陸、泰國、越南皆為流行地區，臨床可見腹痛、黃疸、膽管阻塞。105-1/106-1/114-2",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "liver-and-intestinal-flukes#draft: 105-1-醫學一-寄生蟲學-Q77: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "寄生蟲學::liver-and-intestinal-flukes",
+  "n": 2,
+  "span": "槍狀肝吸蟲",
+  "sentence": "槍狀肝吸蟲（Dicrocoelium dendriticum）終宿主同樣是牛、羊，但第一中間宿主為陸生螺、第二中間宿主是螞蟻（非魚、非水生植物），因此與生魚片飲食史、halzoun 症狀都無關，是常見的鑑別誘答選項。105-1/112-1/113-1",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "liver-and-intestinal-flukes#draft: 112-1-醫學二-寄生蟲學-Q30: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "寄生蟲學::liver-and-intestinal-flukes",
+  "n": 3,
+  "span": "橫川吸蟲",
+  "sentence": "橫川吸蟲（Metagonimus yokogawai）同為小型腸道吸蟲，經生食淡水魚感染——第二中間宿主是香魚與鮭魚，所以「赴日生食鮭魚後腹瀉腹痛、嗜伊紅性白血球增多但沒有貧血、靠糞便鏡檢確診」是它的標準題型；寄生小腸引起消化不良、腹瀉，但不具第三吸盤，可與異形吸蟲（第二中間宿主為烏魚等半鹹水魚）區分。同題的另兩個誘答走別的器官：中華肝吸蟲（鯉科淡水魚→膽管）、衛氏肺吸蟲（溪蟹蝲蛄→肺）。棘口吸蟲（Echinostoma spp.）則單純寄生小腸造成腸胃道症狀，不會造成腦部異位病變。104-2/115-1/108-2/115-2",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "liver-and-intestinal-flukes#draft: 104-2-醫學一-寄生蟲學-Q77: answer occurs only in non-keyed options of a positive stem"
+ },
+ {
+  "anchorId": "寄生蟲學::schistosomiasis",
+  "n": 3,
+  "span": "宿主對蟲卵的免疫反應",
+  "sentence": "血吸蟲的致病機轉主要來自宿主對蟲卵的免疫反應（蟲卵分泌蛋白酶造成組織壞死、誘發肉芽腫與纖維化），而非成蟲本身的刺激。104-1/113-2",
+  "stage": "gate",
+  "reason": "over-masked",
+  "why": "schistosomiasis#draft: masks cover 42 of 58 characters of the bullet without <cite> (72% > 40%)"
+ },
+ {
+  "anchorId": "寄生蟲學::trypanosomiasis",
+  "n": 1,
+  "span": "Romaña's sign",
+  "sentence": "枯西氏錐蟲（T. cruzi）急性期典型徵象是單側眼瞼水腫合併結膜腫大，稱為Romaña's sign（叮咬處在眼周時出現），或叮咬處皮膚結節chagoma；慢性期則因自律神經節（如Auerbach氏神經叢）受免疫反應與寄生蟲破壞，出現心肌病變（心悸、心衰）、巨食道症、巨結腸症——機轉是神經節受破壞，並非補體直接攻擊。108/112/114",
+  "stage": "gate",
+  "reason": "false-option-only",
+  "why": "trypanosomiasis#draft: 112-1-醫學二-寄生蟲學-Q33: answer occurs only in non-keyed options of a positive stem"
+ }
+]

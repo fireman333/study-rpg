@@ -1,0 +1,148 @@
+{
+ "anchorId": "寄生蟲學::taeniasis-and-cysticercosis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "bba943e64a3cc995",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "108-1-醫學二-寄生蟲學-Q32",
+     "stem": "下列有關⼈罹患豬囊尾幼蟲症（cysticercosis cellulosae）的敘述，何者錯誤？",
+     "trueOption": "病患可能發⽣癲癇（epilepsy）"
+    },
+    {
+     "id": "115-1-醫學二-寄生蟲學-Q31",
+     "stem": "李先生因頭痛、肌肉痙攣及視力急速減退而就醫，血液檢查有輕微的嗜伊紅性白血球（eosinophil）上升， 糞便檢查未發現任何寄生蟲蟲卵或蟲體，電腦斷層掃描（CT）和磁振造影（MRI）在腦實質組織、腦室發現許 多囊體（直徑 4～15 毫米），患者先前曾被公司派駐墨西哥一年，他最可能罹患下列何種疾病？",
+     "trueOption": "囊尾幼蟲症（cysticercosis）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "神經性囊尾幼蟲症（neurocysticercosis）最常見的病因是豬肉絛蟲；約 70% 感染者會出現癲癇（epilepsy）；血清或腦脊液抗體／抗原檢查有助診斷（血清敏感度約 80%、腦脊液約 90%）；影像學典型可見腦實質或腦室內多發囊體。108/111/115",
+   "citeText": [
+    "108/111/115"
+   ],
+   "marks": [
+    "108",
+    "111",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q32",
+    "111-1-醫學二-寄生蟲學-Q32",
+    "111-2-醫學二-寄生蟲學-Q31",
+    "115-1-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "也會在肌⾁致病",
+    "病患可能發⽣癲癇（epilepsy）",
+    "⾎清抗體檢查有助於診斷",
+    "豬肉絛蟲（Taenia solium）",
+    "豬肉絛蟲（Taenia solium）",
+    "囊尾幼蟲症（cysticercosis）"
+   ],
+   "spans": [
+    {
+     "span": "豬肉絛蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "70%",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "80%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    },
+    {
+     "span": "90%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 9
+  },
+  {
+   "tested": [
+    {
+     "id": "111-1-醫學二-寄生蟲學-Q32",
+     "stem": "人類感染下列何種寄生蟲，最常造成神經性囊尾幼蟲症（neurocysticercosis）？",
+     "trueOption": "豬肉絛蟲（Taenia solium）"
+    },
+    {
+     "id": "111-2-醫學二-寄生蟲學-Q31",
+     "stem": "人類是下列何種寄生蟲的終宿主也是中間宿主？",
+     "trueOption": "豬肉絛蟲（Taenia solium）"
+    }
+   ],
+   "bulletIndex": 1,
+   "sentence": "人類是豬肉絛蟲（T. solium）同時身兼終宿主（腸道成蟲）與中間宿主（組織內囊尾幼蟲）最具代表性的絛蟲（短小包膜絛蟲 H. nana 亦可在人小腸絨毛內完成幼蟲期再發育為成蟲，人同樣兼具兩種角色，故不宜稱豬肉絛蟲為「唯一」）——這個「雙重宿主角色」正是豬肉絛蟲比其他絛蟲更危險的解剖生理基礎。111",
+   "citeText": [
+    "111"
+   ],
+   "marks": [
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學二-寄生蟲學-Q32",
+    "111-2-醫學二-寄生蟲學-Q31"
+   ],
+   "trueOptions": [
+    "豬肉絛蟲（Taenia solium）",
+    "豬肉絛蟲（Taenia solium）"
+   ],
+   "spans": [
+    {
+     "span": "同時身兼終宿主（腸道成蟲）與中間宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "癲癇",
+   "why": "題目問囊尾幼蟲症可能發生癲癇"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "豬肉絛蟲重複出現，無唯一片段"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"癲癇\",\"why\":\"題目問囊尾幼蟲症可能發生癲癇\"},{\"n\":2,\"skip\":true,\"why\":\"豬肉絛蟲重複出現，無唯一片段\"}]\n"
+}

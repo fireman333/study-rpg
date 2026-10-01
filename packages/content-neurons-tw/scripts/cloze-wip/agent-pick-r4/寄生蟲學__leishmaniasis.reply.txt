@@ -1,0 +1,2 @@
+[{"n":1,"skip":true,"why":"two-way contrast, other named"},
+{"n":2,"span":"黑熱病","why":"sandfly-borne disease"}]

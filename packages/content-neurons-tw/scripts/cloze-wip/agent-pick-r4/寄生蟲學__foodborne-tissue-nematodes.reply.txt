@@ -1,0 +1,7 @@
+[{"n":1,"span":"菲律賓毛線蟲","why":"asked organism"},
+{"n":2,"span":"旋毛蟲","why":"asked organism"},
+{"n":3,"span":"海獸胃線蟲","why":"asked organism"},
+{"n":4,"span":"麥地那線蟲","why":"asked organism"},
+{"n":5,"span":"假性感染","hide":["並非真正的肝內感染"],"why":"asked concept"},
+{"n":6,"skip":true,"why":"negation; list"},
+{"n":7,"span":"棘顎口線蟲","hide":["眼球棘顎口線蟲症"],"why":"asked organism"}]

@@ -1,0 +1,105 @@
+{
+ "anchorId": "寄生蟲學::paragonimiasis-and-ectopic-lesions",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "af0299e87d1fbf1c",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q31",
+     "stem": "衛氏肺吸蟲（Paragonimus westermani）的感染途徑為：",
+     "trueOption": "生食含囊狀幼蟲（metacercaria）的淡水螃蟹"
+    },
+    {
+     "id": "108-1-醫學二-寄生蟲學-Q31",
+     "stem": "于先⽣因嗜愛美食⽽食⽤浸酒⽑蟹（醉蟹）多年，⽇前因不明原因發燒、咳嗽、胸痛及⼤量帶⾎絲濃痰 （blood-tinged sputum）⽽就醫，經醫院檢查發現痰液內有許多深褐⾊蟲卵及卡格⾥登結晶（Charcot- Leyden crystals)，胸部X光顯⽰有斑狀浸潤及結節狀囊體陰影，並有胸膜積⽔（pleural effusion）及嗜酸性 ⽩⾎球增多（eosinophilia）現象。依據以上敘述，于先⽣最可能感染何種寄⽣蟲？",
+     "trueOption": "衛⽒肺吸蟲（Paragonimus westermani）"
+    },
+    {
+     "id": "115-1-醫學二-寄生蟲學-Q30",
+     "stem": "王先生赴中國江浙地區經商，期間經常食用醉蟹菜餚，返國一段時間後出現發燒、咳嗽且帶血稠痰，隨後經 痰液及糞便鏡檢而確診，據此病史最可能感染下列何種寄生蟲？",
+     "trueOption": "衛氏肺吸蟲（Paragonimus westermani）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "衛氏肺吸蟲（Paragonimus westermani）第一中間宿主為淡水螺類，第二中間宿主為蟹類與淡水螯蝦；人類經食入生食、鹽漬、醃製或未煮熟的淡水蟹／螯蝦而感染，感染型態是囊狀幼蟲（metacercaria），並非尾動幼蟲鑽皮、也不是食入水生植物或淡水魚。106-2/108-1/115-1",
+   "citeText": [
+    "106-2/108-1/115-1"
+   ],
+   "marks": [
+    "106-2",
+    "108-1",
+    "115-1"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學二-寄生蟲學-Q31",
+    "108-1-醫學二-寄生蟲學-Q31",
+    "115-1-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "生食含囊狀幼蟲（metacercaria）的淡水螃蟹",
+    "衛⽒肺吸蟲（Paragonimus westermani）",
+    "衛氏肺吸蟲（Paragonimus westermani）"
+   ],
+   "spans": [
+    {
+     "span": "蟹類與淡水螯蝦",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "tested": [
+    {
+     "id": "105-2-醫學一-寄生蟲學-Q78",
+     "stem": "下列有關寄生蟲之敘述中，何者錯誤？",
+     "trueOption": "生吃美國進口的生鮮蝲蛄（crayfish）有可能感染克氏肺吸蟲（Paragonimus kellicotti）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "美國有原生的克氏肺吸蟲（Paragonimus kellicotti），與衛氏肺吸蟲近緣，生食進口自美國的生鮮蝲蛄（crayfish）同樣有感染風險。105-2",
+   "citeText": [
+    "105-2"
+   ],
+   "marks": [
+    "105-2"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q78"
+   ],
+   "trueOptions": [
+    "除了血吸蟲（schistosomes）外，其他寄生人體的吸蟲類之蟲卵都具有卵蓋（operculum）",
+    "生吃美國進口的生鮮蝲蛄（crayfish）有可能感染克氏肺吸蟲（Paragonimus kellicotti）",
+    "埃及血吸蟲（Schistosoma haematobium）的慢性感染患者，罹患膀胱癌的機率較高"
+   ],
+   "spans": [],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "淡水蟹／螯蝦",
+   "why": "asked infection route",
+   "hide": [
+    "蟹類與淡水螯蝦"
+   ]
+  },
+  {
+   "n": 2,
+   "span": "克氏肺吸蟲",
+   "why": "asked organism"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"淡水蟹／螯蝦\",\"hide\":[\"蟹類與淡水螯蝦\"],\"why\":\"asked infection route\"},\n{\"n\":2,\"span\":\"克氏肺吸蟲\",\"why\":\"asked organism\"}]\n"
+}

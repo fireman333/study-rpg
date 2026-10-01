@@ -1,0 +1,167 @@
+{
+ "anchorId": "胚胎學::gametogenesis-fertilization",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "0ee28b97596367cc",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "動情素（estrogen）在月經週期中會出現兩次高峰：排卵前由優勢濾泡（dominant follicle）分泌，誘發黃體成長激素（LH）激增以觸發排卵；排卵後則由黃體（corpus luteum）分泌第二個高峰，藉此維持子宮內膜增厚。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q32",
+    "115-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "動情素（estrogen）",
+    "性染色體三倍症（trisomy of sex chromosomes），常在青春期時才發現"
+   ],
+   "spans": [
+    {
+     "span": "兩次高峰",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "濾泡刺激激素（follicle-stimulating hormone, FSH）與黃體成長激素（luteinizing hormone, LH）都只在排卵前出現單一高峰——LH 更在排卵前 24–36 小時形成激增（surge），是觸發排卵的關鍵訊號；排卵後兩者皆受黃體分泌之動情素與黃體酮負回饋抑制而維持低值，不像動情素會出現第二次高峰。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q32",
+    "115-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "動情素（estrogen）",
+    "性染色體三倍症（trisomy of sex chromosomes），常在青春期時才發現"
+   ],
+   "spans": [
+    {
+     "span": "單一高峰",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "24–36 小時",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "黃體酮（progesterone）在濾泡期濃度極低，排卵後隨黃體形成才大幅上升，於黃體期中期（mid-luteal phase）達到唯一一次高峰。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q32",
+    "115-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "動情素（estrogen）",
+    "性染色體三倍症（trisomy of sex chromosomes），常在青春期時才發現"
+   ],
+   "spans": [
+    {
+     "span": "唯一一次高峰",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "透納氏症（Turner syndrome, 45,X）的表現型是女性而非男性，因具有痕跡性腺（streak gonads）而缺乏動情素，臨床上呈現原發性無月經、第二性徵發育不良與身材矮小。115",
+   "citeText": [
+    "115"
+   ],
+   "marks": [
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "115-1-醫學一-胚胎學-Q32",
+    "115-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "動情素（estrogen）",
+    "性染色體三倍症（trisomy of sex chromosomes），常在青春期時才發現"
+   ],
+   "spans": [
+    {
+     "span": "女性",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "優勢濾泡",
+   "why": "key exam fact"
+  },
+  {
+   "n": 2,
+   "span": "負回饋抑制",
+   "why": "key exam fact"
+  },
+  {
+   "n": 3,
+   "span": "黃體期中期",
+   "why": "key exam fact"
+  },
+  {
+   "n": 4,
+   "span": "痕跡性腺",
+   "why": "key exam fact"
+  }
+ ],
+ "reply": "[\n {\n  \"n\": 1,\n  \"span\": \"優勢濾泡\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 2,\n  \"span\": \"負回饋抑制\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 3,\n  \"span\": \"黃體期中期\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 4,\n  \"span\": \"痕跡性腺\",\n  \"why\": \"key exam fact\"\n }\n]"
+}

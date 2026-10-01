@@ -1,0 +1,1 @@
+[{"n":1,"span":"高嗜伊紅性白血球症","why":"VLM feature"},{"n":2,"span":"腦脊髓液中發現蟲體","why":"diagnosis"},{"n":3,"skip":true,"why":"negation"},{"n":4,"skip":true,"why":"list"},{"n":5,"span":"老鼠","why":"definitive host"},{"n":6,"span":"糞小桿線蟲","why":"CLM cause"},{"n":7,"span":"黑蠅","why":"vector"}]

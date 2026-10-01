@@ -1,0 +1,434 @@
+{
+ "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "f04392fbe4f30db7",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "104-1-醫學一-寄生蟲學-Q76",
+     "stem": "低蛋白血症（hypoproteinemia）最常發生於感染下列何種寄生蟲的病患？",
+     "trueOption": "菲律賓毛線蟲（Capillaria philippinensis）"
+    },
+    {
+     "id": "110-1-醫學二-寄生蟲學-Q29",
+     "stem": "張先生嗜吃生魚片，最近常出現腹部絞痛、腹鳴（borborygmus）、腹瀉、厭食、噁心、嘔吐及低血壓等症 狀，並伴隨有低蛋白血症、低血鉀及低血鈣等嚴重電解質失衡病症，張先生最有可能感染下列何種寄生蟲？",
+     "trueOption": "菲律賓毛線蟲（Capillaria philippinensis）"
+    }
+   ],
+   "bulletIndex": 5,
+   "sentence": "菲律賓毛線蟲（Capillaria philippinensis）經食用受污染的淡水魚感染（人與食魚水鳥皆為終宿主），成蟲寄生小腸並具自體感染能力；長期感染造成腸道吸收不良、蛋白質流失，臨床可見腹瀉、低蛋白血症、低血鉀、低血鈣等嚴重電解質失衡，腹瀉病患須積極補充電解質。104/109/110",
+   "citeText": [
+    "104/109/110"
+   ],
+   "marks": [
+    "104",
+    "109",
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q75",
+    "104-1-醫學一-寄生蟲學-Q76",
+    "109-2-醫學二-寄生蟲學-Q29",
+    "110-1-醫學二-寄生蟲學-Q29",
+    "110-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "麥地那線蟲（Dracunculus medinensis）",
+    "菲律賓毛線蟲（Capillaria philippinensis）",
+    "因食入被蟲卵污染的魚肉而感染",
+    "菲律賓毛線蟲（Capillaria philippinensis）",
+    "特異性抗體檢查",
+    "臨床症狀",
+    "骨骼肌切片檢查（biopsy of skeletal muscle）"
+   ],
+   "spans": [
+    {
+     "span": "菲律賓毛線蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "自體感染能力",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 9
+  },
+  {
+   "tested": [
+    {
+     "id": "115-1-醫學二-寄生蟲學-Q29",
+     "stem": "下列何種寄生蟲感染人體後，其第三期幼蟲會在橫紋肌形成囊體，臨床上此時期亦為診斷期（diagnostic stage）？",
+     "trueOption": "旋毛蟲（Trichinella spiralis）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "旋毛蟲（Trichinella spiralis）經食入未熟帶蟲豬肉（或熊肉）感染；人與豬同時身兼終宿主與中間宿主；幼蟲隨血液循環到達橫紋肌並發育、囊化；症狀依病程分三期——腸道期腸胃症狀→肌肉侵犯（移行）期先出現局部（尤其眼眶周圍）水腫，並伴隨發燒、肌肉痛與高嗜伊紅性白血球症→囊化期症狀逐漸消退，肌肉痛不是最早出現的症狀，是常見誘答。106/115",
+   "citeText": [
+    "106/115"
+   ],
+   "marks": [
+    "106",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q76",
+    "115-1-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "3項",
+    "旋毛蟲（Trichinella spiralis）"
+   ],
+   "spans": [
+    {
+     "span": "旋毛蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "人與豬同時身兼終宿主與中間宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "肌肉痛不是最早出現的症狀",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "105-2-醫學一-寄生蟲學-Q75",
+     "stem": "葉先生日前參加日本旅遊而食用壽司及生魚片，當日即感覺上腹部疼痛、噁心及輕微嘔吐現象，返國後就醫檢查發現胃部有線 狀填充物缺陷（threadlike filling defect），並利用胃鏡鏡檢摘除數條寄生蟲體。依據上述結果，葉先生最可能感染下列何種寄 生蟲？",
+     "trueOption": "海獸胃線蟲（Anisakis spp.）"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "海獸胃線蟲（Anisakis spp.）經食用海水魚生魚片（壽司／生魚片）感染，需經兩種中間宿主（海水甲殼類→海水魚／烏賊）才具感染力；幼蟲鑽入胃或十二指腸壁，造成急性腹痛、胃部顯影攝影可見線狀填充物缺陷（threadlike filling defect），病理上為嗜伊紅性肉芽腫，常被誤認為胃癌；診斷靠胃鏡直視並摘除幼蟲，不是檢查糞便中的蟲卵。105/108",
+   "citeText": [
+    "105/108"
+   ],
+   "marks": [
+    "105",
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-寄生蟲學-Q75",
+    "108-1-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "海獸胃線蟲（Anisakis spp.）",
+    "必須經過在2種中間宿主中發育後，才具有感染⼈之能⼒",
+    "通常吃海⽔⿂⽣⿂片⽽感染",
+    "感染後常引起急性腹痛"
+   ],
+   "spans": [
+    {
+     "span": "海獸胃線蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "兩種中間宿主",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "線狀填充物缺陷",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "104-1-醫學一-寄生蟲學-Q75",
+     "stem": "藉由改善飲用水系統最能達到防治下列何種寄生蟲之感染？",
+     "trueOption": "麥地那線蟲（Dracunculus medinensis）"
+    },
+    {
+     "id": "111-2-醫學二-寄生蟲學-Q30",
+     "stem": "李先生經常往返臺灣及非洲經商，在非洲有時會喝到沒煮沸的水，最近他腳踝皮膚出現潰瘍，醫師從潰瘍處 拉出100 公分長的寄生蟲，您認為李先生最有可能感染下列何種寄生蟲？",
+     "trueOption": "麥地那線蟲（Dracunculus medinensis）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "麥地那線蟲（Dracunculus medinensis）經飲用含感染性水蚤（劍水蚤）的生水感染，是改善飲用水系統最能防治的寄生蟲病；成熟雌蟲移行至下肢（尤其足踝、腳背）等處皮下組織，可長達近 1 公尺（人體最長線蟲），造成皮下水泡潰瘍，傳統治療是逐日纏繞拉出蟲體；主要流行於非洲。104/111",
+   "citeText": [
+    "104/111"
+   ],
+   "marks": [
+    "104",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q75",
+    "104-1-醫學一-寄生蟲學-Q76",
+    "111-1-醫學二-寄生蟲學-Q29",
+    "111-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "麥地那線蟲（Dracunculus medinensis）",
+    "菲律賓毛線蟲（Capillaria philippinensis）",
+    "有棘頜口線蟲（Gnathostoma spinigerum）",
+    "麥地那線蟲（Dracunculus medinensis）"
+   ],
+   "spans": [
+    {
+     "span": "麥地那線蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    },
+    {
+     "span": "改善飲用水系統最能防治的寄生蟲病",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "113-2-醫學二-微生物暨免疫學-Q29",
+     "stem": "一名外籍移工剛至臺灣的第3天，於醫院接受腸道寄生蟲檢查，醫檢師發現其糞便內有許多肝毛線蟲 （Capillaria hepatica）蟲卵，下列敘述何者最適當？",
+     "trueOption": "該外籍移工其實是一種假性感染（spurious infection）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；食入土壤中的胚胎化蟲卵後，幼蟲在腸道孵出、經肝門靜脈到達肝臟發育為成蟲，並於肝實質產卵，真感染須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於假性感染（spurious infection），並非真正的肝內感染，是本科少見但曾出現的陷阱題。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-2-醫學二-微生物暨免疫學-Q29"
+   ],
+   "trueOptions": [
+    "該外籍移工其實是一種假性感染（spurious infection）"
+   ],
+   "spans": [
+    {
+     "span": "假性感染",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "糞便",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "110-2-醫學二-寄生蟲學-Q30",
+     "stem": "下列何者不適用於旋毛蟲（Trichinella spiralis）感染的診斷？",
+     "trueOption": "特異性抗體檢查"
+    }
+   ],
+   "bulletIndex": 1,
+   "sentence": "旋毛蟲感染不能靠檢查糞便中的蟲卵診斷（幼蟲寄生於肌肉，不在腸道產卵）；正確診斷方式為特異性抗體檢查、臨床症狀（肌肉痛、水腫）與骨骼肌切片檢查。（考選部題幹用語為「第三期幼蟲於橫紋肌形成囊體」，此一分期用語與部分教科書慣稱之 L1 有出入，惟以考選部題幹與答案為準。）110/115",
+   "citeText": [
+    "110/115"
+   ],
+   "marks": [
+    "110",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學二-寄生蟲學-Q29",
+    "110-2-醫學二-寄生蟲學-Q30",
+    "115-1-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "菲律賓毛線蟲（Capillaria philippinensis）",
+    "特異性抗體檢查",
+    "臨床症狀",
+    "骨骼肌切片檢查（biopsy of skeletal muscle）",
+    "旋毛蟲（Trichinella spiralis）"
+   ],
+   "spans": [
+    {
+     "span": "不能靠檢查糞便中的蟲卵診斷",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "斷方式為特異性抗體檢查",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "111-1-醫學二-寄生蟲學-Q29",
+     "stem": "林先生之前到中國旅遊時吃了淡水魚的生魚片，不久後出現腹痛，回國後眼眶附近浮腫，很幸運的在浮腫部 位摘除將近4 mm大小的蟲體，林先生最有可能感染下列何種寄生蟲？",
+     "trueOption": "有棘頜口線蟲（Gnathostoma spinigerum）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "棘顎口線蟲（Gnathostoma spinigerum）成蟲寄生於貓狗胃壁（人為非適當宿主，不會長成成蟲），需經水蚤（第一中間宿主）與淡水魚／蛙（第二中間宿主）兩種中間宿主，也可經蛙肉敷傷口感染；感染人體後同時可造成皮膚幼蟲移行症（爬行疹）與內臟幼蟲移行症（嗜伊紅性腦脊髓炎），並非「只侵犯皮下組織」；侵犯眼周可造成長江浮腫（眼周浮腫）與眼球棘顎口線蟲症。111/112",
+   "citeText": [
+    "111/112"
+   ],
+   "marks": [
+    "111",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學二-寄生蟲學-Q29",
+    "111-2-醫學二-寄生蟲學-Q30",
+    "112-1-醫學二-寄生蟲學-Q29",
+    "112-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "有棘頜口線蟲（Gnathostoma spinigerum）",
+    "麥地那線蟲（Dracunculus medinensis）",
+    "成蟲可寄生於貓的胃壁",
+    "完成生活史需2個中間宿主",
+    "食入未熟帶蟲之淡水魚而被感染",
+    "海獸胃線蟲（Anisakis spp.）"
+   ],
+   "spans": [],
+   "score": 2
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "菲律賓毛線蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 2,
+   "span": "旋毛蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 3,
+   "span": "海獸胃線蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 4,
+   "span": "麥地那線蟲",
+   "why": "asked organism"
+  },
+  {
+   "n": 5,
+   "span": "假性感染",
+   "why": "asked concept | leak-audit hide (contrast)",
+   "hide": [
+    "並非真正的肝內感染",
+    "真感染"
+   ]
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "negation; list"
+  },
+  {
+   "n": 7,
+   "span": "棘顎口線蟲",
+   "why": "asked organism",
+   "hide": [
+    "眼球棘顎口線蟲症"
+   ]
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"菲律賓毛線蟲\",\"why\":\"asked organism\"},\n{\"n\":2,\"span\":\"旋毛蟲\",\"why\":\"asked organism\"},\n{\"n\":3,\"span\":\"海獸胃線蟲\",\"why\":\"asked organism\"},\n{\"n\":4,\"span\":\"麥地那線蟲\",\"why\":\"asked organism\"},\n{\"n\":5,\"span\":\"假性感染\",\"hide\":[\"並非真正的肝內感染\"],\"why\":\"asked concept\"},\n{\"n\":6,\"skip\":true,\"why\":\"negation; list\"},\n{\"n\":7,\"span\":\"棘顎口線蟲\",\"hide\":[\"眼球棘顎口線蟲症\"],\"why\":\"asked organism\"}]\n"
+}

@@ -1,0 +1,109 @@
+{
+ "anchorId": "寄生蟲學::malaria-plasmodium",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "e7c36273b04ba388",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "113-1-醫學二-寄生蟲學-Q34",
+     "stem": "有關諾氏瘧原蟲（Plasmodium knowlesi）的敘述，下列何者錯誤？",
+     "trueOption": "宿主專一性不強，可感染人類或非人靈長類"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "諾氏瘧原蟲宿主專一性不強，可感染人類與非人靈長類（人畜共通）；裂殖體週期僅24小時，是所有瘧原蟲中最短；不形成隱眠小體、不復發；2005年台灣曾出現首例境外移入（自菲律賓巴拉望島返國）病例。104/113",
+   "citeText": [
+    "104/113"
+   ],
+   "marks": [
+    "104",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q79",
+    "104-2-醫學一-寄生蟲學-Q81",
+    "113-1-醫學二-寄生蟲學-Q34",
+    "113-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "臺灣近年有境外移入諾氏瘧原蟲（Plasmodium knowlesi）感染的病例",
+    "惡性瘧原蟲（Plasmodium falciparum）",
+    "宿主專一性不強，可感染人類或非人靈長類",
+    "並不限定入侵年輕或老的紅血球",
+    "生活史中的裂殖體週期（schizogonic cycle）僅需24 小時",
+    "其裂殖子（merozoite）主要侵犯年輕的紅血球，如網狀紅血球（reticulocyte）",
+    "Duffy血型抗原是該瘧原蟲的附著部位",
+    "因紅血球破裂，大量裂殖子（merozoite）、細胞殘骸及血紅素釋出，造成畏寒、發燒的臨床症狀"
+   ],
+   "spans": [
+    {
+     "span": "24小時",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    }
+   ],
+   "score": 8
+  },
+  {
+   "tested": [
+    {
+     "id": "110-1-醫學二-寄生蟲學-Q33",
+     "stem": "有關罹患瘧疾（malaria）後產生併發症的敘述，下列何者正確？",
+     "trueOption": "黑水熱（blackwater fever）：和自體免疫有關，患者產生抗體攻擊受瘧原蟲感染的紅血球，導致破裂而造成"
+    },
+    {
+     "id": "115-1-醫學二-寄生蟲學-Q35",
+     "stem": "有關黑水熱（blackwater fever）的敘述，下列何者最為適當？",
+     "trueOption": "血管內大量溶血併發血紅素尿（hemoglobinuria）所造成的症狀"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "黑水熱（blackwater fever）：由惡性瘧引發的大量血管內溶血，患者產生抗體攻擊受感染紅血球導致破裂，釋出的血紅素超過結合珠蛋白（haptoglobin）的結合能力而經尿液排出，形成血紅素尿（hemoglobinuria），與自體免疫反應及補體活化有關，並非肝細胞受損所致、也與IFN-γ受體損傷無關。110/115",
+   "citeText": [
+    "110/115"
+   ],
+   "marks": [
+    "110",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學二-寄生蟲學-Q33",
+    "110-2-醫學二-寄生蟲學-Q32",
+    "115-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "黑水熱（blackwater fever）：和自體免疫有關，患者產生抗體攻擊受瘧原蟲感染的紅血球，導致破裂而造成",
+    "人體內裂殖子（merozoite）會轉變成為大 ／小配子母細胞（macro- / micro-gametocyte）",
+    "血管內大量溶血併發血紅素尿（hemoglobinuria）所造成的症狀"
+   ],
+   "spans": [],
+   "score": 2
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "非人靈長類",
+   "why": "asked host range",
+   "hide": [
+    "人畜共通"
+   ]
+  },
+  {
+   "n": 2,
+   "span": "黑水熱",
+   "why": "disease name"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"非人靈長類\",\"hide\":[\"人畜共通\"],\"why\":\"asked host range\"},\n{\"n\":2,\"span\":\"黑水熱\",\"why\":\"disease name\"}]\n"
+}

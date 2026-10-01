@@ -1,0 +1,542 @@
+{
+ "anchorId": "胚胎學::GI-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "f489f476c97c6324",
+ "candidates": [
+  {
+   "bulletIndex": 7,
+   "sentence": "中腸環（midgut loop）以腸繫膜上動脈（SMA）為軸心旋轉，從腹面觀共逆時針旋轉270 度：第 6 週先逆轉 90 度（此時中腸因生長過快與肝腎等器官佔位而形成生理性臍疝氣，突出臍帶外）、第 10 週返回腹腔的同時再逆轉 180 度；旋轉全部完成於第 11 週，此時盲腸落在肝臟下方右髂嵴處；若中腸未能順利返回腹腔，即形成先天性缺陷「臍膨出（omphalocele）」。109/110/111",
+   "citeText": [
+    "109/110/111"
+   ],
+   "marks": [
+    "109",
+    "110",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "109-2-醫學一-胚胎學-Q33",
+    "110-1-醫學一-胚胎學-Q33",
+    "110-2-醫學一-胚胎學-Q33",
+    "111-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "腸繫膜上動脈（superior mesenteric artery）",
+    "逆時針方向作270度旋轉",
+    "前腸（foregut）",
+    "第十週"
+   ],
+   "spans": [
+    {
+     "span": "腸繫膜上動脈",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "270 度",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "6 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    },
+    {
+     "span": "10 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    },
+    {
+     "span": "11 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×3"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 9
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "肝細胞於胚胎第 12 週開始製造膽汁；此時膽囊與膽管（含連接肝管形成的總膽管）已發育完成，膽汁得以進入腸道。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-胚胎學-Q29",
+    "106-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "第12週",
+    "源自前腸（foregut）內胚層（endoderm）"
+   ],
+   "spans": [
+    {
+     "span": "第 12 週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "12 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 10,
+   "sentence": "胰臟由內胚層（非中胚層）衍生，分先長的背側胰芽與後長的腹側胰芽；隨十二指腸旋轉成 C 字型，腹側胰芽被甩轉至背側與背側胰芽融合——腹側胰芽發育為鉤狀突與部分胰頭；主胰管由腹側胰管與背側胰管遠端合併而成，背側胰管近端若保留則成為副胰管；環狀胰臟（annular pancreas）是罕見的先天缺陷，主要造成十二指腸阻塞（而非胃阻塞）。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學一-胚胎學-Q34",
+    "114-2-醫學一-胚胎學-Q32",
+    "114-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "腹胰芽（ventral pancreatic buds）主要發育為胰臟的鉤狀突（uncinate process）以及部分的頭端",
+    "黑色素細胞（melanocyte）",
+    "交感節後神經元（postganglionic sympathetic neuron）",
+    "腎上腺髓質之嗜鉻細胞（chromaffin cell of adrenal medulla）",
+    "第二咽弓（second pharyngeal arch）"
+   ],
+   "spans": [
+    {
+     "span": "內胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "contrast"
+     ],
+     "score": 6
+    },
+    {
+     "span": "十二指腸阻塞",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "contrast"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "十二指腸並非全部由前腸衍生（膽道開口以下段來自中腸）；連接卵黃柄（yolk stalk）的是中腸形成的 U 型環（midgut loop），不是「十二指腸環」；隨胃順時鐘旋轉 90 度、大彎轉左小彎轉右，十二指腸被動轉至右側並貼附後腹壁；十二指腸於胚胎第二個月因上皮細胞增生而一度閉鎖成實心索，之後靠細胞凋亡再通化（recanalization），此過程失敗會造成十二指腸狹窄甚至閉鎖。108/113",
+   "citeText": [
+    "108/113"
+   ],
+   "marks": [
+    "108",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學一-胚胎學-Q34",
+    "113-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "因上皮細胞增生而一度閉鎖（obliteration）",
+    "因胃（stomach）的旋轉使十二指腸旋轉至右側，並且大部分貼在後腹壁"
+   ],
+   "spans": [
+    {
+     "span": "並非",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "右側",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 9,
+   "sentence": "舌頭前 2/3（body of tongue）由第一咽弓的中央舌芽與一對遠端舌芽（往中間生長使中央舌芽消失）形成；後 1/3（pharyngeal part）則由第三、四咽弓形成的咽下隆起（hypopharyngeal eminence）形成；第二咽弓先形成的聯合部（copula）會被隨後長大的咽下隆起擠壓而消失；盲孔（foramen cecum，甲狀腺發育殘跡）則位於舌前 2/3 與後 1/3 交界（terminal sulcus 的 V 型尖端）。112/114",
+   "citeText": [
+    "112/114"
+   ],
+   "marks": [
+    "112",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q33",
+    "114-1-醫學一-胚胎學-Q34",
+    "114-2-醫學一-胚胎學-Q32",
+    "114-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "咽下隆起（hypopharyngeal eminence）",
+    "腹胰芽（ventral pancreatic buds）主要發育為胰臟的鉤狀突（uncinate process）以及部分的頭端",
+    "黑色素細胞（melanocyte）",
+    "交感節後神經元（postganglionic sympathetic neuron）",
+    "腎上腺髓質之嗜鉻細胞（chromaffin cell of adrenal medulla）",
+    "第二咽弓（second pharyngeal arch）"
+   ],
+   "spans": [
+    {
+     "span": "聯合部",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "肛管以齒狀線／肛門膜為界分兩段：上 2/3 來自後腸內胚層，內襯單層柱狀上皮；下 1/3 來自原肛（proctodeum）外胚層，內襯複層鱗狀上皮——第 26 天尿囊與後腸共同開口形成泄殖腔，被泌尿生殖橫膈分隔後，肛門膜約於第 9 週破裂，開通肛管下 1/3（考選部 104-2）。104",
+   "citeText": [
+    "104"
+   ],
+   "marks": [
+    "104"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q30"
+   ],
+   "trueOptions": [
+    "原肛（proctodeum）"
+   ],
+   "spans": [
+    {
+     "span": "後腸內胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "原肛（proctodeum）外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "26 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "9 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "口咽膜（oropharyngeal membrane，由內胚層口腔上皮與外胚層原口上皮組成）於胚胎發育第 4 週（約第 26–27 天）破裂，形成連接前腸與原口的通道。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-2-醫學一-胚胎學-Q30"
+   ],
+   "trueOptions": [
+    "4",
+    "5"
+   ],
+   "spans": [
+    {
+     "span": "第 4 週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "4 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "26–27 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "前腸衍生食道、胃、十二指腸（膽道開口以上）與肝膽胰；中腸衍生十二指腸（膽道開口以下）、空腸、迴腸、盲腸、闌尾、升結腸與橫結腸前 2/3；後腸衍生橫結腸後 1/3、降結腸、乙狀結腸、直腸與肛管上部，以及膀胱與大部分尿道；脾臟不屬消化道衍生物，是這條分類表最容易誘答的地方。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q33",
+    "107-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "膽囊（gallbladder）",
+    "氣管食道瘻管（tracheoesophageal fistula）"
+   ],
+   "spans": [
+    {
+     "span": "脾臟不屬消化道衍生物",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "大部分腹側腸繫膜於發育過程中消失，唯獨前腸尾端（胃與十二指腸近端）保留，形成小網膜與鐮狀韌帶（並與肝臟、前胸壁相連）；中腸與後腸皆沒有腹側腸繫膜，只靠背側腸繫膜固定於後腹壁。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q33",
+    "110-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "逆時針方向作270度旋轉",
+    "前腸（foregut）"
+   ],
+   "spans": [
+    {
+     "span": "前腸尾端",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "沒有",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 12,
+   "sentence": "胃的發育有三個常考點：① 胃原基背側生長快於腹側，因而形成胃大彎（greater curvature）；② 沿縱軸順時針旋轉 90 度，把胃大彎轉向左側、小彎轉向右側；③ 旋轉同時把原始背側胃繫膜（primordial dorsal mesogastrium）拉向左側，在胃後方圍出網膜囊（omental bursa）。另外，胃的先天畸形其實少見，臨床最常見的是肥厚性幽門狹窄（hypertrophic pyloric stenosis）、好發於男嬰，幽門閉鎖（pyloric atresia）極為罕見。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "原始背側胃繫膜（primordial dorsal mesogastrium）因胃旋轉被帶至左側，形成網膜囊（omental bursa）"
+   ],
+   "spans": [
+    {
+     "span": "背側生長快於腹側",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "順時針旋轉 90 度",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "肥厚性幽門狹窄",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "逆時針",
+   "why": "key fact"
+  },
+  {
+   "n": 2,
+   "span": "第 12 週",
+   "why": "key fact"
+  },
+  {
+   "n": 3,
+   "span": "鉤狀突",
+   "why": "key fact"
+  },
+  {
+   "n": 4,
+   "span": "上皮細胞增生",
+   "why": "key fact"
+  },
+  {
+   "n": 5,
+   "span": "第三、四咽弓",
+   "why": "key fact"
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 7,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 8,
+   "span": "膀胱與大部分尿道",
+   "why": "key fact"
+  },
+  {
+   "n": 9,
+   "span": "小網膜與鐮狀韌帶",
+   "why": "key fact"
+  },
+  {
+   "n": 10,
+   "span": "順時針",
+   "why": "key fact"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"逆時針\", \"why\": \"key fact\"}, {\"n\": 2, \"span\": \"第 12 週\", \"why\": \"key fact\"}, {\"n\": 3, \"span\": \"鉤狀突\", \"why\": \"key fact\"}, {\"n\": 4, \"span\": \"上皮細胞增生\", \"why\": \"key fact\"}, {\"n\": 5, \"span\": \"第三、四咽弓\", \"why\": \"key fact\"}, {\"n\": 6, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 7, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 8, \"span\": \"膀胱與大部分尿道\", \"why\": \"key fact\"}, {\"n\": 9, \"span\": \"小網膜與鐮狀韌帶\", \"why\": \"key fact\"}, {\"n\": 10, \"span\": \"順時針\", \"why\": \"key fact\"}]"
+}

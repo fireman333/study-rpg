@@ -1,0 +1,166 @@
+{
+ "anchorId": "胚胎學::early-cleavage-implantation",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "6b1b3a223ee5ec22",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "104-2-醫學一-胚胎學-Q29",
+     "stem": "胚胎早期發育時，下列何者最早出現？",
+     "trueOption": "囊胚腔（blastocyst cavity）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "受精後約 30 小時開始進行卵裂（cleavage，即有絲分裂 mitosis），約第 3–4 天形成實心細胞球狀的桑椹胚（morula），第 4–5 天桑椹胚中空並充滿液體形成囊胚（blastocyst）——囊胚腔（blastocyst cavity）是這幾個構造中最早出現的腔室，早於羊膜腔、絨毛膜腔與初級卵黃囊。104/106",
+   "citeText": [
+    "104/106"
+   ],
+   "marks": [
+    "104",
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q29",
+    "106-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "囊胚腔（blastocyst cavity）",
+    "原條（primitive streak）"
+   ],
+   "spans": [
+    {
+     "span": "30 小時",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "3–4 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "4–5 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學一-胚胎學-Q32",
+     "stem": "下列何者不是由內細胞團（inner cell mass）衍生而成？",
+     "trueOption": "卵黃囊（yolk sac）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "第 7 天，內細胞團分化為上、下兩層胚盤：上胚層（epiblast，高柱狀細胞）形成羊膜腔（amniotic cavity）；下胚層（hypoblast，立方細胞）形成初級卵黃囊（primary yolk sac）。104/107",
+   "citeText": [
+    "104/107"
+   ],
+   "marks": [
+    "104",
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q29",
+    "107-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "囊胚腔（blastocyst cavity）",
+    "卵黃囊（yolk sac）",
+    "接合莖（connecting stalk）",
+    "羊膜（amnion）"
+   ],
+   "spans": [
+    {
+     "span": "7 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學一-胚胎學-Q32",
+     "stem": "下列何者不是由內細胞團（inner cell mass）衍生而成？",
+     "trueOption": "接合莖（connecting stalk）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "內細胞團可衍生出羊膜、卵黃囊，以及由胚外中胚層與絨毛膜連接而成的接合莖（connecting stalk），但滋養層並非內細胞團的衍生物——它是囊胚外層的獨立細胞系。107",
+   "citeText": [
+    "107"
+   ],
+   "marks": [
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "107-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "卵黃囊（yolk sac）",
+    "接合莖（connecting stalk）",
+    "羊膜（amnion）"
+   ],
+   "spans": [
+    {
+     "span": "滋養層並非內細胞團的衍生物",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "囊胚腔",
+   "why": "考最早出現的腔室"
+  },
+  {
+   "n": 2,
+   "span": "初級卵黃囊",
+   "why": "考內細胞團衍生的卵黃囊"
+  },
+  {
+   "n": 3,
+   "span": "接合莖",
+   "why": "考內細胞團衍生物之一：接合莖"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"囊胚腔\",\"why\":\"考最早出現的腔室\"},{\"n\":2,\"span\":\"初級卵黃囊\",\"why\":\"考內細胞團衍生的卵黃囊\"},{\"n\":3,\"span\":\"接合莖\",\"why\":\"考內細胞團衍生物之一：接合莖\"}]\n"
+}

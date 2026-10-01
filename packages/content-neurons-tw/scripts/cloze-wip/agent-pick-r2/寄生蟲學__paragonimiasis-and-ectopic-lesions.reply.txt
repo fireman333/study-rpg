@@ -1,0 +1,1 @@
+[{"n":1,"span":"淡水螺類","why":"first intermediate host"},{"n":2,"span":"螺類","why":"first host of flukes"},{"n":3,"skip":true,"why":"restated"}]

@@ -1,0 +1,47 @@
+[
+ {
+  "issueId": "J01",
+  "anchorId": "胚胎學::respiratory-development",
+  "decision": "fix",
+  "reason": "107-1 Q32 答 D（第四咽囊尾端）。喉氣管憩室位於原始咽（前腸頭端）尾端的腹側壁；「前腸尾端」易被讀成靠近十二指腸的前腸末端，改為原始咽以避免誤解，仍與答案一致。",
+  "examRef": "107-1-醫學一-胚胎學-Q32",
+  "oldText": "<b>第四咽囊</b>之後、前腸尾端腹側，",
+  "newText": "<b>第四咽囊</b>尾側、原始咽（前腸頭端）尾端的腹側壁，"
+ },
+ {
+  "issueId": "J02",
+  "anchorId": "胚胎學::special-sense-integument-development",
+  "decision": "fix",
+  "reason": "110-1 Q36 答 C；B「視神經細胞由大腦皮質部衍生」為錯。嗅球是端腦的外突，並非由大腦皮質衍生，括號後半刪去、改為正確說法。",
+  "examRef": "110-1-醫學一-胚胎學-Q36",
+  "oldText": "（並非大腦皮質，皮質衍生的是嗅球）",
+  "newText": "（並非由大腦皮質衍生；視網膜與視柄都是間腦壁向外突出的視泡所形成）"
+ },
+ {
+  "issueId": "J03",
+  "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+  "decision": "fix",
+  "reason": "113-2 Q35 答 C（地方性斑疹傷寒病媒是鼠蚤），只考病媒，與傳播細節無衝突。B. recurrentis 不隨蝨糞排出，而是蝨體被壓碎、體腔液經抓傷處進入；只有 R. prowazekii 與 B. quintana 經蝨糞傳播。",
+  "examRef": "113-2-醫學二-寄生蟲學-Q35",
+  "oldText": "三者皆非叮咬直接注入病原體，而是蝨的糞便經由抓癢處的皮膚傷口進入人體。",
+  "newText": "三者皆非叮咬直接注入病原體：流行性斑疹傷寒與戰壕熱是蝨的糞便經由抓癢處的皮膚傷口進入人體，回歸熱則是蝨體被抓破壓碎後，體腔液經傷口進入人體。"
+ },
+ {
+  "issueId": "J04",
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "decision": "fix",
+  "reason": "108-2 Q30 答 B（犬鉤蟲）。Gnathostoma 的考選部譯名為棘顎口線蟲（105-2 Q75 選項 D）；「棘口」是 Echinostoma（棘口吸蟲），誤植會與講義他處的棘口吸蟲混淆。同 li 其餘內容與講義 CLM 表一致，僅改名。",
+  "examRef": "108-2-醫學二-寄生蟲學-Q30",
+  "oldText": "糞小桿線蟲與棘口線蟲（Gnathostoma）也可造成 CLM。",
+  "newText": "糞小桿線蟲與棘顎口線蟲（Gnathostoma）也可造成 CLM。"
+ },
+ {
+  "issueId": "J05",
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "decision": "fix",
+  "reason": "105-2 Q75 答 B（海獸胃線蟲）。線狀填充物缺陷（filling defect）是胃部顯影攝影的所見，嗜伊紅性肉芽腫是病理所見，兩者都不是胃鏡直視影像；胃鏡的角色是直視並摘除幼蟲（原句後半保留）。",
+  "examRef": "105-2-醫學一-寄生蟲學-Q75",
+  "oldText": "胃鏡下可見<b>線狀填充物缺陷（threadlike filling defect）</b>與嗜伊紅性肉芽腫，",
+  "newText": "胃部顯影攝影可見<b>線狀填充物缺陷（threadlike filling defect）</b>，病理上為嗜伊紅性肉芽腫，"
+ }
+]

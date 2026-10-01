@@ -1,0 +1,6050 @@
+{
+ "signalVersion": "neurons-select-v2",
+ "topics": [
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::gametogenesis-fertilization",
+   "leafId": "gametogenesis-fertilization",
+   "leafIds": [
+    "gametogenesis-fertilization"
+   ],
+   "heading": "配子形成與受精（Gametogenesis and Fertilization）",
+   "tier": "low-yield",
+   "maxCards": 3,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "115-1-醫學一-胚胎學-Q32",
+       "stem": "女性在青春期時，體內何種激素（hormone）的釋放量，會在排卵前與排卵後，分別出現一次高峰？",
+       "trueOption": "動情素（estrogen）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "動情素（estrogen）在月經週期中會出現兩次高峰：排卵前由優勢濾泡（dominant follicle）分泌，誘發黃體成長激素（LH）激增以觸發排卵；排卵後則由黃體（corpus luteum）分泌第二個高峰，藉此維持子宮內膜增厚。115",
+     "citeText": [
+      "115"
+     ],
+     "marks": [
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "115-1-醫學一-胚胎學-Q32",
+      "115-1-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "動情素（estrogen）",
+      "性染色體三倍症（trisomy of sex chromosomes），常在青春期時才發現"
+     ],
+     "spans": [
+      {
+       "span": "兩次高峰",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::early-cleavage-implantation",
+   "leafId": "early-cleavage-implantation",
+   "leafIds": [
+    "early-cleavage-implantation"
+   ],
+   "heading": "早期卵裂與著床（Early Cleavage and Implantation）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "104-2-醫學一-胚胎學-Q29",
+       "stem": "胚胎早期發育時，下列何者最早出現？",
+       "trueOption": "囊胚腔（blastocyst cavity）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "受精後約 30 小時開始進行卵裂（cleavage，即有絲分裂 mitosis），約第 3–4 天形成實心細胞球狀的桑椹胚（morula），第 4–5 天桑椹胚中空並充滿液體形成囊胚（blastocyst）——囊胚腔（blastocyst cavity）是這幾個構造中最早出現的腔室，早於羊膜腔、絨毛膜腔與初級卵黃囊。104/106",
+     "citeText": [
+      "104/106"
+     ],
+     "marks": [
+      "104",
+      "106"
+     ],
+     "linkedQuestionIds": [
+      "104-2-醫學一-胚胎學-Q29",
+      "106-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "囊胚腔（blastocyst cavity）",
+      "原條（primitive streak）"
+     ],
+     "spans": [
+      {
+       "span": "30 小時",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      },
+      {
+       "span": "3–4 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      },
+      {
+       "span": "4–5 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學一-胚胎學-Q32",
+       "stem": "下列何者不是由內細胞團（inner cell mass）衍生而成？",
+       "trueOption": "卵黃囊（yolk sac）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "第 7 天，內細胞團分化為上、下兩層胚盤：上胚層（epiblast，高柱狀細胞）形成羊膜腔（amniotic cavity）；下胚層（hypoblast，立方細胞）形成初級卵黃囊（primary yolk sac）。104/107",
+     "citeText": [
+      "104/107"
+     ],
+     "marks": [
+      "104",
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "104-2-醫學一-胚胎學-Q29",
+      "107-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "囊胚腔（blastocyst cavity）",
+      "卵黃囊（yolk sac）",
+      "接合莖（connecting stalk）",
+      "羊膜（amnion）"
+     ],
+     "spans": [
+      {
+       "span": "7 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學一-胚胎學-Q32",
+       "stem": "下列何者不是由內細胞團（inner cell mass）衍生而成？",
+       "trueOption": "接合莖（connecting stalk）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "內細胞團可衍生出羊膜、卵黃囊，以及由胚外中胚層與絨毛膜連接而成的接合莖（connecting stalk），但滋養層並非內細胞團的衍生物——它是囊胚外層的獨立細胞系。107",
+     "citeText": [
+      "107"
+     ],
+     "marks": [
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "107-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "卵黃囊（yolk sac）",
+      "接合莖（connecting stalk）",
+      "羊膜（amnion）"
+     ],
+     "spans": [
+      {
+       "span": "滋養層並非內細胞團的衍生物",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::germ-layers-gastrulation",
+   "leafId": "germ-layers-gastrulation",
+   "leafIds": [
+    "germ-layers-gastrulation"
+   ],
+   "heading": "三胚層形成與原腸胚形成（Germ Layers and Gastrulation）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "113-1-醫學一-胚胎學-Q32",
+       "stem": "胚胎的胚內體腔（intraembryonic coelom），最早出現在下列何者？",
+       "trueOption": "外側中胚層（lateral mesoderm）"
+      },
+      {
+       "id": "113-2-醫學一-胚胎學-Q32",
+       "stem": "胚胎發育的第三週（第15～21天）期間，下列何者不會出現？",
+       "trueOption": "原腸胚（gastrula）"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "原腸胚形成（gastrulation）：原條處的上胚層細胞向下內陷，進入上、下胚層之間形成中胚層（mesoderm）；上胚層同時向下取代部分下胚層，形成內胚層（endoderm）；具備三個胚層的胚胎即稱為原腸胚（gastrula），約在第 15–16 天形成。111/113",
+     "citeText": [
+      "111/113"
+     ],
+     "marks": [
+      "111",
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "111-1-醫學一-胚胎學-Q32",
+      "113-1-醫學一-胚胎學-Q32",
+      "113-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "體節（somite）",
+      "外側中胚層（lateral mesoderm）",
+      "原腸胚（gastrula）",
+      "脊索（notochord）",
+      "神經溝（neural groove）"
+     ],
+     "spans": [
+      {
+       "span": "中胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "15–16 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      },
+      {
+       "span": "內胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-distractor"
+       ],
+       "score": 2
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "115-1-醫學一-胚胎學-Q35",
+       "stem": "下列何種構造之來源不是外胚層（ectoderm）？",
+       "trueOption": "豎毛肌（arrector pili muscle）"
+      }
+     ],
+     "bulletIndex": 8,
+     "sentence": "三胚層各自的主要衍生物詳見下方對照表；皮脂腺、汗腺、頭髮都屬於體表外胚層衍生物，但豎毛肌（arrector pili muscle，附著於毛囊的平滑肌）是由真皮層的間葉組織分化而成，屬於中胚層衍生物，是這個題型最容易搞混的一組。113/115",
+     "citeText": [
+      "113/115"
+     ],
+     "marks": [
+      "113",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "113-1-醫學一-胚胎學-Q32",
+      "113-2-醫學一-胚胎學-Q32",
+      "115-1-醫學一-胚胎學-Q35",
+      "115-2-醫學一-胚胎學-Q32",
+      "115-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "外側中胚層（lateral mesoderm）",
+      "原腸胚（gastrula）",
+      "脊索（notochord）",
+      "神經溝（neural groove）",
+      "豎毛肌（arrector pili muscle）",
+      "羊膜腔（amniotic cavity）",
+      "次級臍囊（secondary umbilical vesicle）",
+      "胚外中胚層（extraembryonic mesoderm）",
+      "神經外胚層（neuroectoderm）"
+     ],
+     "spans": [
+      {
+       "span": "中胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "體表外胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "113-1-醫學一-胚胎學-Q32",
+       "stem": "胚胎的胚內體腔（intraembryonic coelom），最早出現在下列何者？",
+       "trueOption": "外側中胚層（lateral mesoderm）"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "胚內體腔（intraembryonic coelom）最早出現於外側中胚層（lateral mesoderm）的壁層（parietal layer）；軸旁中胚層衍生體節、中間中胚層衍生泌尿生殖上皮、內胚層衍生消化呼吸道上皮，都與胚內體腔的形成無關。113",
+     "citeText": [
+      "113"
+     ],
+     "marks": [
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "113-1-醫學一-胚胎學-Q32",
+      "113-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "外側中胚層（lateral mesoderm）",
+      "原腸胚（gastrula）",
+      "脊索（notochord）",
+      "神經溝（neural groove）"
+     ],
+     "spans": [
+      {
+       "span": "外側中胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學一-胚胎學-Q32",
+       "stem": "下列何者不會在胚胎發育第二週結束前出現？",
+       "trueOption": "羊膜腔（amniotic cavity）"
+      }
+     ],
+     "bulletIndex": 9,
+     "sentence": "第二週結束（約第 14 天）前已出現的構造依序是：羊膜腔（amniotic cavity，第 8 天由上胚層內的裂隙擴展而成）→ 胚外中胚層（extraembryonic mesoderm，第 11–12 天）→ 次級臍囊／次級卵黃囊（secondary umbilical vesicle，第 13 天由下胚層細胞取代初級卵黃囊）；胚內中胚層（intraembryonic mesoderm）要到第三週原腸胚形成、上胚層細胞經原條內移時才出現，因此是「第二週結束前不會出現」這類題型的標準答案。115-2",
+     "citeText": [
+      "115-2"
+     ],
+     "marks": [
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "115-2-醫學一-胚胎學-Q32",
+      "115-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "羊膜腔（amniotic cavity）",
+      "次級臍囊（secondary umbilical vesicle）",
+      "胚外中胚層（extraembryonic mesoderm）",
+      "神經外胚層（neuroectoderm）"
+     ],
+     "spans": [
+      {
+       "span": "羊膜腔",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "胚外中胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "次級臍囊／次級卵黃囊",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "14 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "8 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "11–12 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "13 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學一-胚胎學-Q32",
+       "stem": "下列何者在胚胎早期發育中最晚出現？",
+       "trueOption": "原條（primitive streak）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "原條（primitive streak）約在第 13–14 天由胚盤尾端的上胚層細胞（epiblast）增殖形成，功能是建立胚體兩側對稱，也是原腸胚形成（gastrulation）、三胚層分化的起點。106/111/112",
+     "citeText": [
+      "106/111/112"
+     ],
+     "marks": [
+      "106",
+      "111",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "106-2-醫學一-胚胎學-Q32",
+      "111-1-醫學一-胚胎學-Q32",
+      "112-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "原條（primitive streak）",
+      "體節（somite）",
+      "咽弓（pharyngeal arch）"
+     ],
+     "spans": [
+      {
+       "span": "13–14 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×3"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "111-1-醫學一-胚胎學-Q32",
+       "stem": "下列何者由軸旁中胚層（paraxial mesoderm）衍生而來？",
+       "trueOption": "體節（somite）"
+      }
+     ],
+     "bulletIndex": 5,
+     "sentence": "軸旁中胚層（paraxial mesoderm）約在第 20–21 天分化形成體節（somite），日後衍生出骨骼、骨骼肌與真皮結締組織；脊索、體腔、原條都不是軸旁中胚層的衍生物。106/111",
+     "citeText": [
+      "106/111"
+     ],
+     "marks": [
+      "106",
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "106-2-醫學一-胚胎學-Q32",
+      "111-1-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "原條（primitive streak）",
+      "體節（somite）"
+     ],
+     "spans": [
+      {
+       "span": "體節",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "20–21 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "113-2-醫學一-胚胎學-Q32",
+       "stem": "胚胎發育的第三週（第15～21天）期間，下列何者不會出現？",
+       "trueOption": "神經溝（neural groove）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "脊索形成後，其正上方的外胚層分化為神經外胚層：先形成扁平的神經板（neural plate），中央凹陷成神經溝（neural groove，約第 18 天），兩側隆起的神經摺（neural fold）向中線靠攏融合，最終形成封閉管狀的神經管（neural tube），日後發育為中樞神經系統；周邊神經系統則是由神經嵴（neural crest）發育而來，不是神經管。106/113",
+     "citeText": [
+      "106/113"
+     ],
+     "marks": [
+      "106",
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "106-2-醫學一-胚胎學-Q32",
+      "113-1-醫學一-胚胎學-Q32",
+      "113-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "原條（primitive streak）",
+      "外側中胚層（lateral mesoderm）",
+      "原腸胚（gastrula）",
+      "脊索（notochord）",
+      "神經溝（neural groove）"
+     ],
+     "spans": [
+      {
+       "span": "18 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "112-2-醫學一-胚胎學-Q32",
+       "stem": "下列何者在胚胎發育第三週結束時，尚未出現？",
+       "trueOption": "咽弓（pharyngeal arch）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "第三週（約第 15–21 天）胚胎已具備原腸胚、脊索、神經溝等三胚層相關構造，但咽弓（pharyngeal arch）要到第四週（約第 21–28 天）才會出現——第一咽弓約第 21 天形成、第二三咽弓約第 22 天、第四六咽弓約第 28 天，是「第三週結束時尚未出現的構造」這類題型的標準答案。112/113",
+     "citeText": [
+      "112/113"
+     ],
+     "marks": [
+      "112",
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "112-2-醫學一-胚胎學-Q32",
+      "113-1-醫學一-胚胎學-Q32",
+      "113-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "咽弓（pharyngeal arch）",
+      "外側中胚層（lateral mesoderm）",
+      "原腸胚（gastrula）",
+      "脊索（notochord）",
+      "神經溝（neural groove）"
+     ],
+     "spans": [
+      {
+       "span": "15–21 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      },
+      {
+       "span": "21–28 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      },
+      {
+       "span": "22 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::pharyngeal-arches",
+   "leafId": "pharyngeal-arches",
+   "leafIds": [
+    "pharyngeal-arches"
+   ],
+   "heading": "咽弓、咽囊與咽溝發育（含耳、顏面）（Pharyngeal Arches, Pouches, and Grooves）",
+   "tier": "常青必掃",
+   "maxCards": 5,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "112-1-醫學一-胚胎學-Q33",
+       "stem": "下列何者為舌頭咽喉部（pharyngeal part of tongue）的胚胎起源？",
+       "trueOption": "咽下隆起（hypopharyngeal eminence）"
+      },
+      {
+       "id": "112-2-醫學一-胚胎學-Q32",
+       "stem": "下列何者在胚胎發育第三週結束時，尚未出現？",
+       "trueOption": "咽弓（pharyngeal arch）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "第四及第六咽弓皆由CN X（迷走神經；第四走上喉神經、第六走喉返神經）支配，衍生環甲肌、腭帆提肌、咽縮肌、喉內在肌、食道骨骼肌；軟骨衍生甲狀軟骨、環狀軟骨、杓狀軟骨、小角軟骨、楔形軟骨——唯獨不含會厭軟骨（會厭軟骨由咽下隆起hypopharyngeal eminence形成）。105/109/112",
+     "citeText": [
+      "105/109/112"
+     ],
+     "marks": [
+      "105",
+      "109",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-胚胎學-Q30",
+      "105-2-醫學一-胚胎學-Q30",
+      "105-2-醫學一-胚胎學-Q31",
+      "109-1-醫學一-胚胎學-Q33",
+      "109-1-醫學一-胚胎學-Q36",
+      "109-2-醫學一-胚胎學-Q36",
+      "112-1-醫學一-胚胎學-Q33",
+      "112-2-醫學一-胚胎學-Q32",
+      "112-2-醫學一-胚胎學-Q33"
+     ],
+     "trueOptions": [
+      "門齒窩（incisive fossa）",
+      "4",
+      "5",
+      "會厭軟骨（epiglottis）",
+      "第一",
+      "臟顱（viscerocranium）是大腦的主要保護結構",
+      "神經外胚層（neuroectoderm）",
+      "咽下隆起（hypopharyngeal eminence）",
+      "咽弓（pharyngeal arch）",
+      "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）"
+     ],
+     "spans": [
+      {
+       "span": "唯獨不含會厭軟骨",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 6
+    },
+    {
+     "tested": [
+      {
+       "id": "112-1-醫學一-胚胎學-Q33",
+       "stem": "下列何者為舌頭咽喉部（pharyngeal part of tongue）的胚胎起源？",
+       "trueOption": "咽下隆起（hypopharyngeal eminence）"
+      },
+      {
+       "id": "112-2-醫學一-胚胎學-Q32",
+       "stem": "下列何者在胚胎發育第三週結束時，尚未出現？",
+       "trueOption": "咽弓（pharyngeal arch）"
+      },
+      {
+       "id": "114-1-醫學一-胚胎學-Q36",
+       "stem": "嚼肌（masseter）主要是源自下列何者？",
+       "trueOption": "第一咽弓（first pharyngeal arch）"
+      },
+      {
+       "id": "114-2-醫學一-胚胎學-Q33",
+       "stem": "舌（tongue）的發育過程中，那一咽弓會形成聯合部（copula），且最後會被擠壓而消失？",
+       "trueOption": "第二咽弓（second pharyngeal arch）"
+      }
+     ],
+     "bulletIndex": 13,
+     "sentence": "舌頭發育分前後兩部分：前2/3（body of tongue）由第一咽弓的中央舌芽（median tongue bud）與左右兩個遠端舌芽（distal tongue bud）融合而成；後1/3（咽喉部pharyngeal part）由第二咽弓形成的聯合部（copula）與第三、四咽弓形成的咽下隆起（hypopharyngeal eminence）共同構成，但聯合部會被逐漸長大的咽下隆起擠壓而消失；前2/3與後1/3則以terminal sulcus為界。112/114",
+     "citeText": [
+      "112/114"
+     ],
+     "marks": [
+      "112",
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "112-1-醫學一-胚胎學-Q33",
+      "112-2-醫學一-胚胎學-Q32",
+      "112-2-醫學一-胚胎學-Q33",
+      "114-1-醫學一-胚胎學-Q36",
+      "114-2-醫學一-胚胎學-Q33"
+     ],
+     "trueOptions": [
+      "咽下隆起（hypopharyngeal eminence）",
+      "咽弓（pharyngeal arch）",
+      "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）",
+      "第一咽弓（first pharyngeal arch）",
+      "第二咽弓（second pharyngeal arch）"
+     ],
+     "spans": [
+      {
+       "span": "聯合部會被逐漸長大的咽下隆起擠壓而消失",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "104-2-醫學一-胚胎學-Q32",
+       "stem": "嚼肌（masseter muscle）是衍生自那一咽弓（pharyngeal arch）？",
+       "trueOption": "第一咽弓"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "第一咽弓由CN V（三叉神經）支配，衍生咀嚼肌群（含嚼肌masseter、顳肌temporalis、翼內外肌）、下頷舌骨肌、二腹肌前腹、鼓膜張肌、腭帆張肌；經Meckel軟骨衍生錘骨（malleus）與砧骨（incus）。104/110/113/114",
+     "citeText": [
+      "104/110/113/114"
+     ],
+     "marks": [
+      "104",
+      "110",
+      "113",
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-胚胎學-Q30",
+      "104-2-醫學一-胚胎學-Q32",
+      "110-1-醫學一-胚胎學-Q34",
+      "110-2-醫學一-胚胎學-Q34",
+      "113-1-醫學一-胚胎學-Q33",
+      "113-2-醫學一-胚胎學-Q32",
+      "113-2-醫學一-胚胎學-Q36",
+      "114-1-醫學一-胚胎學-Q36",
+      "114-2-醫學一-胚胎學-Q33"
+     ],
+     "trueOptions": [
+      "頸竇（cervical sinus）",
+      "第一咽弓",
+      "升主動脈（ascending aorta）",
+      "第1和第2咽弓（pharyngeal arch）",
+      "顏面神經（facial nerve）",
+      "原腸胚（gastrula）",
+      "脊索（notochord）",
+      "神經溝（neural groove）",
+      "第一咽弓（first pharyngeal arch）",
+      "第一咽弓（first pharyngeal arch）",
+      "第二咽弓（second pharyngeal arch）"
+     ],
+     "spans": [],
+     "score": 3
+    },
+    {
+     "tested": [
+      {
+       "id": "104-1-醫學一-胚胎學-Q30",
+       "stem": "鰓竇（branchial sinus）形成的原因，肇因於胚胎時期下列何者閉鎖不全？",
+       "trueOption": "頸竇（cervical sinus）"
+      },
+      {
+       "id": "104-2-醫學一-胚胎學-Q32",
+       "stem": "嚼肌（masseter muscle）是衍生自那一咽弓（pharyngeal arch）？",
+       "trueOption": "第一咽弓"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "咽溝（咽裂）僅第一咽溝持續存在，衍生形成外聽道（external acoustic meatus）；第二至第四咽溝在正常發育中會退化，其殘留的頸竇（cervical sinus of His）若閉鎖不全，會形成鰓竇／鰓囊腫等異常。104/109",
+     "citeText": [
+      "104/109"
+     ],
+     "marks": [
+      "104",
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-胚胎學-Q30",
+      "104-2-醫學一-胚胎學-Q32",
+      "109-1-醫學一-胚胎學-Q33",
+      "109-1-醫學一-胚胎學-Q36",
+      "109-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "頸竇（cervical sinus）",
+      "第一咽弓",
+      "第一",
+      "臟顱（viscerocranium）是大腦的主要保護結構",
+      "神經外胚層（neuroectoderm）"
+     ],
+     "spans": [],
+     "score": 2
+    },
+    {
+     "tested": [
+      {
+       "id": "107-1-醫學一-胚胎學-Q32",
+       "stem": "呼吸器官的原基（respiratory primordium）起源於下列何者的尾端（caudal end）？",
+       "trueOption": "第四咽囊（pharyngeal pouch）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "呼吸原基（respiratory primordium，即喉氣管憩室laryngotracheal diverticulum）起源於第四咽囊後方、原始咽（primordial pharynx）尾端腹側壁，日後發育為喉、氣管、支氣管及肺的上皮（皆為內胚層來源）。107",
+     "citeText": [
+      "107"
+     ],
+     "marks": [
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "第四咽囊（pharyngeal pouch）"
+     ],
+     "spans": [],
+     "score": 1
+    },
+    {
+     "tested": [
+      {
+       "id": "109-1-醫學一-胚胎學-Q36",
+       "stem": "關於顱骨（cranium）發育的敘述，何項錯誤？",
+       "trueOption": "臟顱（viscerocranium）是大腦的主要保護結構"
+      }
+     ],
+     "bulletIndex": 10,
+     "sentence": "顱骨分為神經顱（neurocranium，保護大腦）與臟顱（viscerocranium，形成顏面骨骼，不是大腦的主要保護結構）；軟骨性臟顱由神經嵴細胞遷移至第一、二咽弓後形成，衍生三小聽骨、舌骨（喉部軟骨屬第四、六咽弓，見咽弓表，不由第一、二咽弓衍生）；膜性臟顱則形成上頷骨、下頷骨、顴骨、顳骨鱗部。109",
+     "citeText": [
+      "109"
+     ],
+     "marks": [
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "109-1-醫學一-胚胎學-Q33",
+      "109-1-醫學一-胚胎學-Q36",
+      "109-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "第一",
+      "臟顱（viscerocranium）是大腦的主要保護結構",
+      "神經外胚層（neuroectoderm）"
+     ],
+     "spans": [],
+     "score": 1
+    },
+    {
+     "tested": [
+      {
+       "id": "105-1-醫學一-胚胎學-Q30",
+       "stem": "下列何者作為前腭唇裂（cleft lip and palate）和後腭唇裂分界的指標？",
+       "trueOption": "門齒窩（incisive fossa）"
+      }
+     ],
+     "bulletIndex": 11,
+     "sentence": "顏面由額鼻突起（frontonasal prominence，再分內側鼻突與外側鼻突）與上頷突起（maxillary prominence）共同融合而成：內側鼻突融合形成的中頷節（intermaxillary segment）發育為原始腭（primary palate，即門齒窩以前的區域及四顆門牙）；上頷突起的腭側突向上翻轉、往內側融合形成次級腭（secondary palate）。門齒窩（incisive fossa）是原始腭與次級腭的交界，也是前腭唇裂與後腭唇裂的分界指標。105",
+     "citeText": [
+      "105"
+     ],
+     "marks": [
+      "105"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-胚胎學-Q30",
+      "105-2-醫學一-胚胎學-Q30",
+      "105-2-醫學一-胚胎學-Q31"
+     ],
+     "trueOptions": [
+      "門齒窩（incisive fossa）",
+      "4",
+      "5",
+      "會厭軟骨（epiglottis）"
+     ],
+     "spans": [],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::cardiovascular-development",
+   "leafId": "cardiovascular-development",
+   "leafIds": [
+    "cardiovascular-development"
+   ],
+   "heading": "心臟血管系統發育（Cardiovascular System Development）",
+   "tier": "常青必掃",
+   "maxCards": 5,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "113-1-醫學一-胚胎學-Q35",
+       "stem": "嬰兒剛出生使用肺部呼吸時，常會伴隨一些現象的改變，下列敘述何者正確？",
+       "trueOption": "肺部血流量上升"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "新生兒出生開始用肺呼吸時，主要變化是肺部血流量上升（供氣體交換所需），而非肺血管阻力顯著上升、也非肺動脈管壁顯著增厚；同時體循環壓力大於肺循環，使左心房壓力大於右心房，促使卵圓孔瓣膜貼合第二中隔而完成功能性關閉。113",
+     "citeText": [
+      "113"
+     ],
+     "marks": [
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "113-1-醫學一-胚胎學-Q35",
+      "113-2-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "肺部血流量上升",
+      "卵黃靜脈（vitelline vein）"
+     ],
+     "spans": [
+      {
+       "span": "肺部血流量上升",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "左心房壓力大於右心房",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "104-1-醫學一-胚胎學-Q31",
+       "stem": "下列有關心房間隔（interatrial septum）的敘述，何項正確？",
+       "trueOption": "第二中隔（septum secundum）在左右心房間的不完全分隔，形成卵圓孔（oval foramen）"
+      },
+      {
+       "id": "111-2-醫學一-胚胎學-Q35",
+       "stem": "在胚胎時期心房間隔（interatrial septum）的發育，其第一孔（foramen primum）之封閉是由於：",
+       "trueOption": "第一中隔（septum primum）與心內膜墊（endocardial cushion）之融合"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "心房中隔（interatrial septum）由第一中隔（septum primum）與第二中隔（septum secundum）依序發育：第一中隔自背側心房頂端向腹側心內膜墊（endocardial cushion）方向生長，與心內膜墊間尚未接合的空隙即為第一孔（foramen primum）；第一孔完全閉合（由第一中隔與心內膜墊融合而成，非穿孔或新細胞增生）之前，第一中隔背側先發生細胞凋亡，形成第二孔（foramen secundum）。104/111",
+     "citeText": [
+      "104/111"
+     ],
+     "marks": [
+      "104",
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-胚胎學-Q31",
+      "104-2-醫學一-胚胎學-Q31",
+      "111-1-醫學一-胚胎學-Q35",
+      "111-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "第二中隔（septum secundum）在左右心房間的不完全分隔，形成卵圓孔（oval foramen）",
+      "出生後，閉鎖形成動脈韌帶（ligamentum arteriosum）",
+      "左側第六動脈弓（aortic arch）",
+      "第一中隔（septum primum）與心內膜墊（endocardial cushion）之融合"
+     ],
+     "spans": [
+      {
+       "span": "第二孔",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "104-2-醫學一-胚胎學-Q31",
+       "stem": "下列有關動脈導管（ductus arteriosus）之敘述，何者正確？",
+       "trueOption": "出生後，閉鎖形成動脈韌帶（ligamentum arteriosum）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "出生後動脈導管閉鎖形成動脈韌帶（ligamentum arteriosum），位於主動脈弓與肺動脈幹之間；左側喉返神經繞行動脈韌帶後折返，右側喉返神經則繞右鎖骨下動脈折返——左右喉返神經路徑不同，根源正是左右第四、六咽弓動脈發育不對稱。104/108",
+     "citeText": [
+      "104/108"
+     ],
+     "marks": [
+      "104",
+      "108"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-胚胎學-Q31",
+      "104-2-醫學一-胚胎學-Q31",
+      "108-1-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "第二中隔（septum secundum）在左右心房間的不完全分隔，形成卵圓孔（oval foramen）",
+      "出生後，閉鎖形成動脈韌帶（ligamentum arteriosum）",
+      "位於主動脈⼸（aortic arch）與肺動脈幹（pulmonary trunk）間"
+     ],
+     "spans": [
+      {
+       "span": "左側喉返神經",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "114-2-醫學一-胚胎學-Q35",
+       "stem": "內側臍韌帶（medial umbilical ligament）主要為何構造的遺跡？",
+       "trueOption": "臍動脈（umbilical artery）"
+      }
+     ],
+     "bulletIndex": 8,
+     "sentence": "出生後臍血管與靜脈導管的最終命名：臍動脈（左右兩條）閉鎖遺跡→內側臍韌帶（medial umbilical ligament）；臍靜脈（左側保留、右側退化）閉鎖後→肝圓韌帶（ligamentum teres hepatis）；靜脈導管閉鎖後→靜脈韌帶（ligamentum venosum）；動脈導管閉鎖後→動脈韌帶（見前）。四條血管、四種韌帶要精準配對。114",
+     "citeText": [
+      "114"
+     ],
+     "marks": [
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "114-1-醫學一-胚胎學-Q35",
+      "114-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "後主靜脈（posterior cardinal vein）",
+      "臍動脈（umbilical artery）"
+     ],
+     "spans": [
+      {
+       "span": "內側臍韌帶",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "肝圓韌帶",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "靜脈韌帶",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "114-1-醫學一-胚胎學-Q35",
+       "stem": "胚胎正常發育時，奇靜脈根部（root of azygos vein）的起源是：",
+       "trueOption": "後主靜脈（posterior cardinal vein）"
+      }
+     ],
+     "bulletIndex": 13,
+     "sentence": "奇靜脈根部（root of azygos vein）主要源自右側後主靜脈（posterior cardinal vein），約在胚胎第八週形成；前主靜脈主要引流頭部與上肢，總主靜脈是前、後主靜脈匯合入心臟前的共同幹，與奇靜脈根部無直接關係。114",
+     "citeText": [
+      "114"
+     ],
+     "marks": [
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "114-1-醫學一-胚胎學-Q35",
+      "114-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "後主靜脈（posterior cardinal vein）",
+      "臍動脈（umbilical artery）"
+     ],
+     "spans": [
+      {
+       "span": "右側後主靜脈",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "110-1-醫學一-胚胎學-Q34",
+       "stem": "下列何項構造不是源自胚胎咽弓（pharyngeal arch）？",
+       "trueOption": "升主動脈（ascending aorta）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "主動脈弓動脈的衍生物依咽弓序號各自不同：第一咽弓→上頷動脈；第二咽弓→鐙骨動脈與舌骨動脈；第三咽弓→頸總動脈及頸內動脈近端；第四咽弓（左）→主動脈弓（介於左頸總動脈與左鎖骨下動脈之間）、（右）→右鎖骨下動脈近端；第六咽弓（左）→左肺動脈與動脈導管、（右）→右肺動脈。升主動脈（ascending aorta）與肺動脈幹都源自動脈幹（truncus arteriosus），不屬於咽弓動脈的衍生物。110",
+     "citeText": [
+      "110"
+     ],
+     "marks": [
+      "110"
+     ],
+     "linkedQuestionIds": [
+      "110-1-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "升主動脈（ascending aorta）"
+     ],
+     "spans": [],
+     "score": 1
+    },
+    {
+     "tested": [
+      {
+       "id": "109-1-醫學一-胚胎學-Q35",
+       "stem": "下列何項構造不會在前腹壁上造成腹膜皺襞（peritoneal fold）？",
+       "trueOption": "靜脈導管（ductus venosus）"
+      },
+      {
+       "id": "109-2-醫學一-胚胎學-Q35",
+       "stem": "胎兒循環中，下列何種血管的含氧量最高？",
+       "trueOption": "臍靜脈（umbilical vein）"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "前腹壁上由胎兒血管退化形成的三條腹膜皺褶：臍尿管（urachus）退化→正中臍皺褶；臍動脈退化→內側臍皺褶（medial umbilical fold）；上腹下動脈（inferior epigastric artery）→外側臍皺褶（lateral umbilical fold）。靜脈導管（ductus venosus）退化後不在前腹壁形成皺褶，因其原走行於肝臟內、終端注入下腔靜脈，屬另一系統。109",
+     "citeText": [
+      "109"
+     ],
+     "marks": [
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "109-1-醫學一-胚胎學-Q35",
+      "109-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "靜脈導管（ductus venosus）",
+      "臍靜脈（umbilical vein）"
+     ],
+     "spans": [],
+     "score": 1
+    },
+    {
+     "tested": [
+      {
+       "id": "112-2-醫學一-胚胎學-Q35",
+       "stem": "胚胎第四週時，下列那一條血管不注入胎兒心臟？",
+       "trueOption": "子宮內膜靜脈（endometrial vein）"
+      }
+     ],
+     "bulletIndex": 11,
+     "sentence": "胚胎第四週會注入胎兒心臟（靜脈竇）的血管有三：卵黃囊靜脈（vitelline vein）、臍靜脈（umbilical vein）、總主靜脈（common cardinal vein，由前、後主靜脈匯集而成）；子宮內膜靜脈（endometrial vein）屬母體循環，不會注入胎兒心臟。112",
+     "citeText": [
+      "112"
+     ],
+     "marks": [
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "112-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "子宮內膜靜脈（endometrial vein）"
+     ],
+     "spans": [],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::neural-tube-development",
+   "leafId": "neural-tube-development",
+   "leafIds": [
+    "neural-tube-development"
+   ],
+   "heading": "神經管與中樞神經系統發育（Neural Tube and Central Nervous System Development）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "112-1-醫學一-胚胎學-Q32",
+       "stem": "下列關於頭側神經孔（rostral neuropore）與尾側神經孔（caudal neuropore）關閉時間的比較，何者正確？",
+       "trueOption": "頭側神經孔提早2~3 天關閉"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "神經管由神經板摺疊癒合而成，癒合最先發生在頸部體節（約第五體節）高度，再同時朝頭端與尾端方向進行；頭側神經孔（rostral neuropore）約於第 25 天關閉，尾側神經孔（caudal neuropore）約於第 28 天關閉，頭側比尾側提早 2 至 3 天閉合。112",
+     "citeText": [
+      "112"
+     ],
+     "marks": [
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "112-1-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "頭側神經孔提早2~3 天關閉"
+     ],
+     "spans": [
+      {
+       "span": "頭側神經孔",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "25 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "28 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "2 至 3 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "尾側神經孔",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "115-1-醫學一-胚胎學-Q36",
+       "stem": "下列構造與其發育來源的位置配對，何者錯誤？",
+       "trueOption": "乳狀體（mammillary body）：間腦（diencephalon）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "次級腦泡與成人腦區的對應：端腦→大腦；間腦→視丘、下視丘、乳狀體（mammillary body）、視囊（衍生視神經）、神經垂體（neurohypophysis，腦下垂體後葉）；中腦→頂蓋（tectum）、大腦導水管（cerebral aqueduct）；後腦→橋腦與小腦；髓腦→延腦。104/106/113/114/115",
+     "citeText": [
+      "104/106/113/114/115"
+     ],
+     "marks": [
+      "104",
+      "106",
+      "113",
+      "114",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-胚胎學-Q32",
+      "106-2-醫學一-胚胎學-Q36",
+      "113-1-醫學一-胚胎學-Q36",
+      "114-2-醫學一-胚胎學-Q32",
+      "114-2-醫學一-胚胎學-Q36",
+      "115-1-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "視神經（optic nerve）",
+      "橋腦（pons）－後腦（rhombencephalon）",
+      "視丘（thalamus）－前腦（prosencephalon）",
+      "頂蓋（tectum）－中腦（mesencephalon）",
+      "中腦（mesencephalon）",
+      "黑色素細胞（melanocyte）",
+      "交感節後神經元（postganglionic sympathetic neuron）",
+      "腎上腺髓質之嗜鉻細胞（chromaffin cell of adrenal medulla）",
+      "間腦（diencephalon）",
+      "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+      "四疊體（tectum）：中腦（mesencephalon）",
+      "乳狀體（mammillary body）：間腦（diencephalon）"
+     ],
+     "spans": [],
+     "score": 3
+    },
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學一-胚胎學-Q36",
+       "stem": "有關成體腦區與胚胎時期腦泡（brain vesicle）發育起源之關聯，何者錯誤？",
+       "trueOption": "橋腦（pons）－後腦（rhombencephalon）"
+      },
+      {
+       "id": "115-1-醫學一-胚胎學-Q36",
+       "stem": "下列構造與其發育來源的位置配對，何者錯誤？",
+       "trueOption": "四疊體（tectum）：中腦（mesencephalon）"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "神經管頭端先膨大成三個原始腦泡：前腦（prosencephalon）、中腦（mesencephalon）、菱腦（rhombencephalon），再進一步分化成五個次級腦泡：端腦（telencephalon）與間腦（diencephalon）（皆源自前腦）、中腦維持不變、後腦（metencephalon）與髓腦（myelencephalon）（皆源自菱腦）。106/115",
+     "citeText": [
+      "106/115"
+     ],
+     "marks": [
+      "106",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "106-2-醫學一-胚胎學-Q36",
+      "115-1-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "橋腦（pons）－後腦（rhombencephalon）",
+      "視丘（thalamus）－前腦（prosencephalon）",
+      "頂蓋（tectum）－中腦（mesencephalon）",
+      "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+      "四疊體（tectum）：中腦（mesencephalon）",
+      "乳狀體（mammillary body）：間腦（diencephalon）"
+     ],
+     "spans": [],
+     "score": 2
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::body-wall-diaphragm-development",
+   "leafId": "body-wall-diaphragm-development",
+   "leafIds": [
+    "body-wall-diaphragm-development"
+   ],
+   "heading": "體壁與橫膈發育（Body Wall and Diaphragm Development）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "104-1-醫學一-胚胎學-Q29",
+       "stem": "橫膈（diaphragm）的那一部分最容易產生先天性缺損？",
+       "trueOption": "後外側（posterolateral）"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "胸腹膜若未在第 6 週末與橫中隔、食道背側繫膜完全融合，會造成先天性橫膈疝（CDH）；最好發位置是橫膈後外側（posterolateral）的 Bochdalek 孔，佔 CDH 九成以上，且左側（約 80–85%）多於右側。104",
+     "citeText": [
+      "104"
+     ],
+     "marks": [
+      "104"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-胚胎學-Q29"
+     ],
+     "trueOptions": [
+      "後外側（posterolateral）"
+     ],
+     "spans": [
+      {
+       "span": "後外側",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "6 週",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "80–85%",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學一-胚胎學-Q33",
+       "stem": "下列何者參與形成初始橫膈（primordial diaphragm），在早期胎兒橫膈（early fetal diaphragm）時占大部 分，而在新生嬰兒之橫膈（neonate's diaphragm）只佔相當小的部分？",
+       "trueOption": "胸腹膜（pleuroperitoneal membrane）"
+      },
+      {
+       "id": "111-2-醫學一-胚胎學-Q32",
+       "stem": "下列關於胚胎之胸心包膜（pleuropericardial membrane）的敘述，何項錯誤？",
+       "trueOption": "形成漿液心包膜的臟層（visceral layer of serous pericardium）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "胸心包膜（pleuropericardial membrane）將胸膜腔與心包腔分隔開來，本身演變為纖維性心包膜（fibrous pericardium）（而非漿液心包膜的臟層）；膜內含膈神經與總主靜脈（common cardinal vein）。107/111",
+     "citeText": [
+      "107/111"
+     ],
+     "marks": [
+      "107",
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學一-胚胎學-Q35",
+      "107-2-醫學一-胚胎學-Q33",
+      "111-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "膈神經（phrenic nerve）",
+      "胸腹膜（pleuroperitoneal membrane）",
+      "形成漿液心包膜的臟層（visceral layer of serous pericardium）"
+     ],
+     "spans": [
+      {
+       "span": "纖維性心包膜",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "113-1-醫學一-胚胎學-Q32",
+       "stem": "胚胎的胚內體腔（intraembryonic coelom），最早出現在下列何者？",
+       "trueOption": "外側中胚層（lateral mesoderm）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "胚內體腔（intraembryonic coelom）最早出現於外側（側板）中胚層（lateral mesoderm）——其壁層（parietal layer）日後形成襯覆體腔的漿膜（腹膜、肋膜、心包膜），並非源自軸旁中胚層、中間中胚層或內胚層。113",
+     "citeText": [
+      "113"
+     ],
+     "marks": [
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "113-1-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "外側中胚層（lateral mesoderm）"
+     ],
+     "spans": [
+      {
+       "span": "外側（側板）中胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學一-胚胎學-Q33",
+       "stem": "下列何者參與形成初始橫膈（primordial diaphragm），在早期胎兒橫膈（early fetal diaphragm）時占大部 分，而在新生嬰兒之橫膈（neonate's diaphragm）只佔相當小的部分？",
+       "trueOption": "胸腹膜（pleuroperitoneal membrane）"
+      },
+      {
+       "id": "110-1-醫學一-胚胎學-Q32",
+       "stem": "肌原母細胞（myoblast）進入下列何者內，衍生形成橫膈雙腳（crura of diaphragm）？",
+       "trueOption": "食道背繫膜（dorsal mesentery of esophagus）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "橫膈由四個各自獨立的胚胎構造融合而成：橫中隔（septum transversum，→中央肌腱）、胸腹膜（pleuroperitoneal membrane，早期佔大部分，出生時退化僅剩小部分）、食道背側繫膜（dorsal mesentery of esophagus，肌原母細胞遷入後形成橫膈雙腳）、外側體壁向內生長之肌肉（muscular ingrowth，形成肋橫膈隱窩）。107/110",
+     "citeText": [
+      "107/110"
+     ],
+     "marks": [
+      "107",
+      "110"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學一-胚胎學-Q35",
+      "107-2-醫學一-胚胎學-Q33",
+      "110-1-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "膈神經（phrenic nerve）",
+      "胸腹膜（pleuroperitoneal membrane）",
+      "食道背繫膜（dorsal mesentery of esophagus）"
+     ],
+     "spans": [],
+     "score": 2
+    },
+    {
+     "tested": [
+      {
+       "id": "109-1-醫學一-胚胎學-Q35",
+       "stem": "下列何項構造不會在前腹壁上造成腹膜皺襞（peritoneal fold）？",
+       "trueOption": "靜脈導管（ductus venosus）"
+      }
+     ],
+     "bulletIndex": 5,
+     "sentence": "出生後前腹壁的臍皺襞各有不同來源：正中臍皺襞來自退化的臍尿管（urachus）；內側臍皺襞來自退化的臍動脈（umbilical artery）；外側臍皺襞覆蓋下腹壁動脈（inferior epigastric artery）；靜脈導管（ductus venosus，胎兒期臍靜脈終端注入下腔靜脈的構造）出生後雖也退化，卻不會在前腹壁形成腹膜皺襞。109",
+     "citeText": [
+      "109"
+     ],
+     "marks": [
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "109-1-醫學一-胚胎學-Q32",
+      "109-1-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "L1",
+      "靜脈導管（ductus venosus）"
+     ],
+     "spans": [
+      {
+       "span": "不會",
+       "kind": "bold-polarity",
+       "base": 1,
+       "signals": [
+        "bold-polarity",
+        "marks×1"
+       ],
+       "score": 2
+      }
+     ],
+     "score": 2
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+   "leafId": "limb-axial-musculoskeletal-development",
+   "leafIds": [
+    "limb-axial-musculoskeletal-development"
+   ],
+   "heading": "四肢與中軸骨骼肌肉系統發育（Limb and Axial Musculoskeletal Development）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "111-1-醫學一-胚胎學-Q36",
+       "stem": "下列有關四肢（limbs）發育的敘述，何者錯誤？",
+       "trueOption": "肢芽（limb buds）於胚胎第四週末時，開始出現於體壁腹外側"
+      }
+     ],
+     "bulletIndex": 8,
+     "sentence": "肢芽（limb bud）於胚胎第 4 週末出現於體壁腹外側，遠端外胚層增厚形成頂外胚層嵴（apical ectodermal ridge, AER），誘導其下方的間葉組織（progress zone）快速增生，帶動肢體由近端往遠端生長；下肢芽的發育較上肢芽晚約 1 至 2 天。111",
+     "citeText": [
+      "111"
+     ],
+     "marks": [
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "111-1-醫學一-胚胎學-Q32",
+      "111-1-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "體節（somite）",
+      "肢芽（limb buds）於胚胎第四週末時，開始出現於體壁腹外側",
+      "頂外胚層嵴（apical ectodermal ridge）誘導肢芽（limb buds）的生長及發育",
+      "下肢芽（lower limb buds）較上肢芽（upper limb buds）晚一或二天發育"
+     ],
+     "spans": [
+      {
+       "span": "頂外胚層嵴",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "第 4 週末",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "4 週",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "1 至 2 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "112-2-醫學一-胚胎學-Q36",
+       "stem": "下列那一構造，因出生以前的提早閉合而造成長楔形之舟形頭（scaphocephaly）？",
+       "trueOption": "矢狀縫（sagittal suture）"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "顱蓋（calvaria）的囟門中，後囟門（posterior fontanelle，即枕囟門／lambda）最早關閉，前囟門（anterior fontanelle，即額囟門／bregma）最晚關閉；顱縫提早癒合（craniosynostosis）會依部位產生特定頭型，其中矢狀縫（sagittal suture）提早閉合會造成前後拉長、左右狹窄的舟狀頭（scaphocephaly）。110/112",
+     "citeText": [
+      "110/112"
+     ],
+     "marks": [
+      "110",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "110-1-醫學一-胚胎學-Q35",
+      "110-2-醫學一-胚胎學-Q35",
+      "112-1-醫學一-生理學-Q35",
+      "112-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "脊椎骨（vertebra）",
+      "斜角肌（scalene muscle）",
+      "脊柱前肌（prevertebral muscle）",
+      "舌下肌（infrahyoid muscle）",
+      "①④",
+      "矢狀縫（sagittal suture）"
+     ],
+     "spans": [
+      {
+       "span": "舟狀頭",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "108-1-醫學一-胚胎學-Q36",
+       "stem": "下列何者衍⽣⾃脊索（notochord）？",
+       "trueOption": "髓核（nucleus pulposus）"
+      }
+     ],
+     "bulletIndex": 1,
+     "sentence": "脊索本身只演變成髓核（nucleus pulposus）；椎體則是由相鄰兩個生骨節的頭端緻密間質細胞與尾端鬆散間質細胞共同形成（再分節現象），纖維環由環繞髓核的纖維形成，椎弓由神經管旁的間質細胞形成。108/110",
+     "citeText": [
+      "108/110"
+     ],
+     "marks": [
+      "108",
+      "110"
+     ],
+     "linkedQuestionIds": [
+      "108-1-醫學一-胚胎學-Q36",
+      "110-1-醫學一-胚胎學-Q35",
+      "110-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "髓核（nucleus pulposus）",
+      "脊椎骨（vertebra）",
+      "斜角肌（scalene muscle）",
+      "脊柱前肌（prevertebral muscle）",
+      "舌下肌（infrahyoid muscle）"
+     ],
+     "spans": [],
+     "score": 2
+    },
+    {
+     "tested": [
+      {
+       "id": "111-1-醫學一-胚胎學-Q32",
+       "stem": "下列何者由軸旁中胚層（paraxial mesoderm）衍生而來？",
+       "trueOption": "體節（somite）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "體節（somite）由軸旁中胚層（paraxial mesoderm）衍生而來——脊索（notochord）來自原結、體腔來自外側中胚層、原條來自尾端外胚層，皆非體節的直接來源；每個體節再分化出三部分：生骨節（形成中軸骨骼）、肌節（形成骨骼肌）、皮節（形成真皮）。111",
+     "citeText": [
+      "111"
+     ],
+     "marks": [
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "111-1-醫學一-胚胎學-Q32",
+      "111-1-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "體節（somite）",
+      "肢芽（limb buds）於胚胎第四週末時，開始出現於體壁腹外側",
+      "頂外胚層嵴（apical ectodermal ridge）誘導肢芽（limb buds）的生長及發育",
+      "下肢芽（lower limb buds）較上肢芽（upper limb buds）晚一或二天發育"
+     ],
+     "spans": [],
+     "score": 1
+    },
+    {
+     "tested": [
+      {
+       "id": "109-1-醫學一-胚胎學-Q36",
+       "stem": "關於顱骨（cranium）發育的敘述，何項錯誤？",
+       "trueOption": "臟顱（viscerocranium）是大腦的主要保護結構"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "顱骨（cranium）由神經顱（neurocranium，保護腦部）與臟顱（viscerocranium，構成顏面骨架）組成——臟顱並非大腦的主要保護結構；兩者又各自分成軟骨性與膜性部分，第一、二對咽弓的軟骨（Meckel's／Reichert's cartilage）即演變成軟骨性臟顱的聽小骨與舌骨（喉部軟骨屬第四、六咽弓，非此處）。109",
+     "citeText": [
+      "109"
+     ],
+     "marks": [
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "109-1-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "臟顱（viscerocranium）是大腦的主要保護結構"
+     ],
+     "spans": [
+      {
+       "span": "神經顱",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      }
+     ],
+     "score": 1
+    },
+    {
+     "tested": [
+      {
+       "id": "110-2-醫學一-胚胎學-Q35",
+       "stem": "下列何者發育不正常，最可能會造成先天斜頸（congenital torticollis/wryneck）？",
+       "trueOption": "斜角肌（scalene muscle）"
+      }
+     ],
+     "bulletIndex": 10,
+     "sentence": "先天性斜頸（congenital torticollis／wryneck）多因單側胸鎖乳突肌（sternocleidomastoid muscle）痙攣或纖維化所致，典型姿勢是頭歪向患側、臉轉向健側；斜角肌、脊柱前肌、舌下肌的病變則不是造成典型斜頸姿勢的主因。110",
+     "citeText": [
+      "110"
+     ],
+     "marks": [
+      "110"
+     ],
+     "linkedQuestionIds": [
+      "110-1-醫學一-胚胎學-Q35",
+      "110-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "脊椎骨（vertebra）",
+      "斜角肌（scalene muscle）",
+      "脊柱前肌（prevertebral muscle）",
+      "舌下肌（infrahyoid muscle）"
+     ],
+     "spans": [
+      {
+       "span": "胸鎖乳突肌",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      }
+     ],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::GI-development",
+   "leafId": "GI-development",
+   "leafIds": [
+    "GI-development"
+   ],
+   "heading": "消化系統發育（Gastrointestinal System Development）",
+   "tier": "常青必掃",
+   "maxCards": 5,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "106-1-醫學一-胚胎學-Q29",
+       "stem": "胚胎發育至第幾週時，肝細胞（hepatocyte）開始製造膽汁（bile）？",
+       "trueOption": "第12週"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "肝細胞於胚胎第 12 週開始製造膽汁；此時膽囊與膽管（含連接肝管形成的總膽管）已發育完成，膽汁得以進入腸道。106",
+     "citeText": [
+      "106"
+     ],
+     "marks": [
+      "106"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-胚胎學-Q29",
+      "106-2-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "第12週",
+      "源自前腸（foregut）內胚層（endoderm）"
+     ],
+     "spans": [
+      {
+       "span": "第 12 週",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "12 週",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "108-2-醫學一-胚胎學-Q34",
+       "stem": "下列關於十二指腸（duodenum）發育之敘述，何者正確？",
+       "trueOption": "因上皮細胞增生而一度閉鎖（obliteration）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "十二指腸並非全部由前腸衍生（膽道開口以下段來自中腸）；連接卵黃柄（yolk stalk）的是中腸形成的 U 型環（midgut loop），不是「十二指腸環」；隨胃順時鐘旋轉 90 度、大彎轉左小彎轉右，十二指腸被動轉至右側並貼附後腹壁；十二指腸於胚胎第二個月因上皮細胞增生而一度閉鎖成實心索，之後靠細胞凋亡再通化（recanalization），此過程失敗會造成十二指腸狹窄甚至閉鎖。108/113",
+     "citeText": [
+      "108/113"
+     ],
+     "marks": [
+      "108",
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "108-2-醫學一-胚胎學-Q34",
+      "113-1-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "因上皮細胞增生而一度閉鎖（obliteration）",
+      "因胃（stomach）的旋轉使十二指腸旋轉至右側，並且大部分貼在後腹壁"
+     ],
+     "spans": [
+      {
+       "span": "並非",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "右側",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "112-1-醫學一-胚胎學-Q33",
+       "stem": "下列何者為舌頭咽喉部（pharyngeal part of tongue）的胚胎起源？",
+       "trueOption": "咽下隆起（hypopharyngeal eminence）"
+      },
+      {
+       "id": "114-2-醫學一-胚胎學-Q33",
+       "stem": "舌（tongue）的發育過程中，那一咽弓會形成聯合部（copula），且最後會被擠壓而消失？",
+       "trueOption": "第二咽弓（second pharyngeal arch）"
+      }
+     ],
+     "bulletIndex": 9,
+     "sentence": "舌頭前 2/3（body of tongue）由第一咽弓的中央舌芽與一對遠端舌芽（往中間生長使中央舌芽消失）形成；後 1/3（pharyngeal part）則由第三、四咽弓形成的咽下隆起（hypopharyngeal eminence）形成；第二咽弓先形成的聯合部（copula）會被隨後長大的咽下隆起擠壓而消失；盲孔（foramen cecum，甲狀腺發育殘跡）則位於舌前 2/3 與後 1/3 交界（terminal sulcus 的 V 型尖端）。112/114",
+     "citeText": [
+      "112/114"
+     ],
+     "marks": [
+      "112",
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "112-1-醫學一-胚胎學-Q33",
+      "114-1-醫學一-胚胎學-Q34",
+      "114-2-醫學一-胚胎學-Q32",
+      "114-2-醫學一-胚胎學-Q33"
+     ],
+     "trueOptions": [
+      "咽下隆起（hypopharyngeal eminence）",
+      "腹胰芽（ventral pancreatic buds）主要發育為胰臟的鉤狀突（uncinate process）以及部分的頭端",
+      "黑色素細胞（melanocyte）",
+      "交感節後神經元（postganglionic sympathetic neuron）",
+      "腎上腺髓質之嗜鉻細胞（chromaffin cell of adrenal medulla）",
+      "第二咽弓（second pharyngeal arch）"
+     ],
+     "spans": [
+      {
+       "span": "聯合部",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "104-2-醫學一-胚胎學-Q30",
+       "stem": "下列何者衍生成為肛管（anal canal）的下1/3段？",
+       "trueOption": "原肛（proctodeum）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "肛管以齒狀線／肛門膜為界分兩段：上 2/3 來自後腸內胚層，內襯單層柱狀上皮；下 1/3 來自原肛（proctodeum）外胚層，內襯複層鱗狀上皮——第 26 天尿囊與後腸共同開口形成泄殖腔，被尿直腸中隔（urorectal septum）分隔後，肛門膜約於第 9 週破裂，開通肛管下 1/3（考選部 104-2）。104",
+     "citeText": [
+      "104"
+     ],
+     "marks": [
+      "104"
+     ],
+     "linkedQuestionIds": [
+      "104-2-醫學一-胚胎學-Q30"
+     ],
+     "trueOptions": [
+      "原肛（proctodeum）"
+     ],
+     "spans": [
+      {
+       "span": "後腸內胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "原肛（proctodeum）外胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "26 天",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      },
+      {
+       "span": "9 週",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學一-胚胎學-Q34",
+       "stem": "下列關於胃（stomach）發育的敘述，何者正確？",
+       "trueOption": "原始背側胃繫膜（primordial dorsal mesogastrium）因胃旋轉被帶至左側，形成網膜囊（omental bursa）"
+      }
+     ],
+     "bulletIndex": 12,
+     "sentence": "胃的發育有三個常考點：① 胃原基背側生長快於腹側，因而形成胃大彎（greater curvature）；② 沿縱軸順時針旋轉 90 度，把胃大彎轉向左側、小彎轉向右側；③ 旋轉同時把原始背側胃繫膜（primordial dorsal mesogastrium）拉向左側，在胃後方圍出網膜囊（omental bursa）。另外，胃的先天畸形其實少見，臨床最常見的是肥厚性幽門狹窄（hypertrophic pyloric stenosis）、好發於男嬰，幽門閉鎖（pyloric atresia）極為罕見。115-2",
+     "citeText": [
+      "115-2"
+     ],
+     "marks": [
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "115-2-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "原始背側胃繫膜（primordial dorsal mesogastrium）因胃旋轉被帶至左側，形成網膜囊（omental bursa）"
+     ],
+     "spans": [
+      {
+       "span": "背側生長快於腹側",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "順時針旋轉 90 度",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "肥厚性幽門狹窄",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::respiratory-development",
+   "leafId": "respiratory-development",
+   "leafIds": [
+    "respiratory-development"
+   ],
+   "heading": "呼吸系統發育（Respiratory System Development）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "113-1-醫學一-胚胎學-Q35",
+       "stem": "嬰兒剛出生使用肺部呼吸時，常會伴隨一些現象的改變，下列敘述何者正確？",
+       "trueOption": "肺部血流量上升"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "新生兒開始以肺呼吸後，肺部血流量上升（而非血管阻力上升）以增加氣體交換；同時左心房壓力升高、大於右心房，促使卵圓孔關閉，符合出生後體循環壓力大於肺循環的生理轉變。113",
+     "citeText": [
+      "113"
+     ],
+     "marks": [
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "113-1-醫學一-胚胎學-Q35",
+      "113-2-醫學一-胚胎學-Q33"
+     ],
+     "trueOptions": [
+      "肺部血流量上升",
+      "末囊期（terminal sac stage）"
+     ],
+     "spans": [
+      {
+       "span": "肺部血流量上升",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option",
+        "contrast"
+       ],
+       "score": 9
+      }
+     ],
+     "score": 9
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::urogenital-development",
+   "leafId": "urogenital-development",
+   "leafIds": [
+    "urogenital-development"
+   ],
+   "heading": "泌尿生殖系統發育（Urogenital System Development）",
+   "tier": "常青必掃",
+   "maxCards": 5,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "105-2-醫學一-胚胎學-Q32",
+       "stem": "有關男性假陰陽人（male pseudohermaphroditism）之特徵，下列何者錯誤？",
+       "trueOption": "睪丸發育可能正常或退化"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "男性假陰陽人染色體為 46, XY（非 46, XX），因睪丸製造睪固酮不足或雄性素受體不敏感而呈現女性外生殖器，因具 Y 染色體而不含性染色質（Barr body），睪丸發育可能正常或退化。105",
+     "citeText": [
+      "105"
+     ],
+     "marks": [
+      "105"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-胚胎學-Q31",
+      "105-2-醫學一-胚胎學-Q29",
+      "105-2-醫學一-胚胎學-Q32"
+     ],
+     "trueOptions": [
+      "集尿小管（collecting tubule）",
+      "Y",
+      "testosterone分泌不足",
+      "不含性染色質（sex chromatin）",
+      "睪丸發育可能正常或退化"
+     ],
+     "spans": [
+      {
+       "span": "不含性染色質",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "46, XY",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "contrast"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學一-胚胎學-Q35",
+       "stem": "輸尿管（ureter）的胚胎起源為何？",
+       "trueOption": "後腎憩室（metanephric diverticulum）"
+      }
+     ],
+     "bulletIndex": 5,
+     "sentence": "輸尿管的胚胎起源是後腎憩室（metanephric diverticulum），即中腎管突出形成的輸尿管芽，進一步衍生出輸尿管、腎盂、腎盞與集尿管；後腎中胚層則衍生腎小管與鮑氏囊，兩者不可混淆。107",
+     "citeText": [
+      "107"
+     ],
+     "marks": [
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學一-胚胎學-Q34",
+      "107-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "睪丸支持細胞（Sertoli cell）",
+      "後腎憩室（metanephric diverticulum）"
+     ],
+     "spans": [
+      {
+       "span": "後腎憩室",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "106-1-醫學一-胚胎學-Q30",
+       "stem": "有關女性假陰陽人（female pseudohermaphroditism）具有特徵之敘述，下列何者錯誤？",
+       "trueOption": "染色體46, XX"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "女性假陰陽人染色體為 46, XX，因先天性腎上腺增生症（CAH，皮質醇合成酵素缺陷）導致腎上腺過度分泌雄性素而外生殖器男性化，並非肇因於腎上腺萎縮。106",
+     "citeText": [
+      "106"
+     ],
+     "marks": [
+      "106"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-胚胎學-Q30"
+     ],
+     "trueOptions": [
+      "男性荷爾蒙分泌太多",
+      "染色體46, XX",
+      "外生殖器官男性化"
+     ],
+     "spans": [
+      {
+       "span": "先天性腎上腺增生症",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "107-1-醫學一-胚胎學-Q34",
+       "stem": "下列何者分泌穆勒氏抑制物（Müllerian inhibiting substance, MIS），使副中腎管（paramesonephric duct） 退化？",
+       "trueOption": "睪丸支持細胞（Sertoli cell）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "睪丸的塞托利氏細胞（Sertoli cell）分泌穆勒氏管抑制物（MIS，即 AMH），使副中腎管（Müllerian duct）退化；間質細胞（Leydig cell）則分泌睪固酮，兩者分工是泌尿生殖胚胎學的核心配對。107",
+     "citeText": [
+      "107"
+     ],
+     "marks": [
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學一-胚胎學-Q34",
+      "107-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "睪丸支持細胞（Sertoli cell）",
+      "後腎憩室（metanephric diverticulum）"
+     ],
+     "spans": [
+      {
+       "span": "塞托利氏細胞",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "間質細胞",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學一-胚胎學-Q35",
+       "stem": "下列何者是由副中腎管（paramesonephric duct）衍生形成的構造？",
+       "trueOption": "輸卵管（oviduct）"
+      }
+     ],
+     "bulletIndex": 11,
+     "sentence": "三條管路的衍生物一次分清：副中腎管（paramesonephric duct／Müllerian duct）→ 輸卵管、子宮與陰道上段（男性因 Sertoli cell 分泌的 AMH 而退化）；中腎管（mesonephric duct／Wolffian duct）→ 副睪、輸精管、儲精囊與射精管；輸尿管芽（ureteric bud，由中腎管下段長出）→ 輸尿管、腎盂、腎盞與集尿管。問「何者由副中腎管衍生」答輸卵管；射精管、輸精管、輸尿管三者都不是。115-2",
+     "citeText": [
+      "115-2"
+     ],
+     "marks": [
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "115-2-醫學一-胚胎學-Q35"
+     ],
+     "trueOptions": [
+      "輸卵管（oviduct）"
+     ],
+     "spans": [
+      {
+       "span": "輸尿管芽",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "109-2-醫學一-胚胎學-Q34",
+       "stem": "下列何種構造不是由中腎管（mesonephric duct）衍生而成？",
+       "trueOption": "睪丸網（rete testis）"
+      }
+     ],
+     "bulletIndex": 9,
+     "sentence": "中腎管（mesonephric duct，Wolffian duct）末端衍生副睪、輸精管、儲精囊與射精管；但睪丸網（rete testis）與曲細精管是由初級生殖索（性腺髓質索）衍生，並非中腎管的產物，是這節反覆出現的誘答對照。109/111/112",
+     "citeText": [
+      "109/111/112"
+     ],
+     "marks": [
+      "109",
+      "111",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "109-1-醫學一-胚胎學-Q34",
+      "109-2-醫學一-胚胎學-Q34",
+      "111-1-醫學一-胚胎學-Q34",
+      "112-2-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "鞘突（processus vaginalis）",
+      "睪丸網（rete testis）",
+      "射精管（ejaculatory duct）",
+      "精囊（seminal vesicle）"
+     ],
+     "spans": [],
+     "score": 3
+    },
+    {
+     "tested": [
+      {
+       "id": "109-1-醫學一-胚胎學-Q34",
+       "stem": "精索積水（hydrocele of the spermatic cord）是由於下列何者閉鎖不全造成？",
+       "trueOption": "鞘突（processus vaginalis）"
+      }
+     ],
+     "bulletIndex": 8,
+     "sentence": "精索積水（hydrocele of the spermatic cord）由鞘突（processus vaginalis）中段閉鎖不全造成，腹膜液滲入精索內腔；若鞘突全程未閉鎖，腹膜液大量流入則形成陰囊積水。109",
+     "citeText": [
+      "109"
+     ],
+     "marks": [
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "109-1-醫學一-胚胎學-Q34",
+      "109-2-醫學一-胚胎學-Q34"
+     ],
+     "trueOptions": [
+      "鞘突（processus vaginalis）",
+      "睪丸網（rete testis）"
+     ],
+     "spans": [],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "胚胎學",
+   "relPath": "packages/content-neurons-tw/src/handout/胚胎學.html",
+   "anchorId": "胚胎學::special-sense-integument-development",
+   "leafId": "special-sense-integument-development",
+   "leafIds": [
+    "special-sense-integument-development"
+   ],
+   "heading": "特殊感覺器官與皮膚附屬器發育（Special Sense Organ and Integument Development）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "115-1-醫學一-胚胎學-Q35",
+       "stem": "下列何種構造之來源不是外胚層（ectoderm）？",
+       "trueOption": "豎毛肌（arrector pili muscle）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "皮脂腺、汗腺與頭髮皆源自外胚層（皆由表皮或毛囊上皮增生而成）；豎毛肌（arrector pili muscle）則是真皮間葉組織分化而成的平滑肌，來自中胚層，是這節最經典的胚層歸類誘答。115",
+     "citeText": [
+      "115"
+     ],
+     "marks": [
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "115-1-醫學一-胚胎學-Q35",
+      "115-1-醫學一-胚胎學-Q36",
+      "115-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "豎毛肌（arrector pili muscle）",
+      "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+      "四疊體（tectum）：中腦（mesencephalon）",
+      "乳狀體（mammillary body）：間腦（diencephalon）",
+      "神經外胚層（neuroectoderm）"
+     ],
+     "spans": [
+      {
+       "span": "外胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "豎毛肌",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "中胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學一-胚胎學-Q36",
+       "stem": "瞳孔擴張及括約肌（dilator and sphincter pupillae），是源自何處？",
+       "trueOption": "神經外胚層（neuroectoderm）"
+      }
+     ],
+     "bulletIndex": 1,
+     "sentence": "一般肌肉組織（肋間、心臟、消化道）皆由中胚層分化而來，但眼睛的虹膜肌來自神經外胚層（neuroectoderm）——更精確地說，瞳孔括約肌（sphincter pupillae）與瞳孔開大肌（dilator pupillae）源自視杯（optic cup）前緣的神經外胚層，是人體極少數非中胚層來源的平滑肌，也是這類「哪個肌肉不是中胚層」題型的固定答案；答案要選神經外胚層，不是生發層（stratum germinativum，那是表皮基底層）。106/115-2",
+     "citeText": [
+      "106/115-2"
+     ],
+     "marks": [
+      "106",
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-胚胎學-Q32",
+      "115-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "虹膜（iris）",
+      "神經外胚層（neuroectoderm）"
+     ],
+     "spans": [
+      {
+       "span": "虹膜肌來自神經外胚層",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "110-1-醫學一-胚胎學-Q36",
+       "stem": "下列有關視神經（optic nerve）發育的敘述，何者正確？",
+       "trueOption": "視神經髓鞘僅包圍至視神經盤（optic nerve disc）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "視神經細胞（ganglion cells）源自神經外胚層（並非由大腦皮質衍生；視網膜與視柄都是間腦壁向外突出的視泡所形成）；視神經髓鞘僅包圍至視神經盤（optic disc）為止，且要到出生後約 10 週才發育完成（並非出生前已完全發育）；視神經源自視柄（前腦神經外胚層），並非神經嵴衍生。110",
+     "citeText": [
+      "110"
+     ],
+     "marks": [
+      "110"
+     ],
+     "linkedQuestionIds": [
+      "110-1-醫學一-胚胎學-Q36",
+      "110-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "視神經髓鞘僅包圍至視神經盤（optic nerve disc）",
+      "體表外胚層（surface ectoderm）"
+     ],
+     "spans": [
+      {
+       "span": "出生後約 10 週",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "10 週",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "115-1-醫學一-胚胎學-Q36",
+       "stem": "下列構造與其發育來源的位置配對，何者錯誤？",
+       "trueOption": "四疊體（tectum）：中腦（mesencephalon）"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "視囊（optic vesicle）由前腦中的間腦（diencephalon）向外側突出形成，並非髓腦（myelencephalon，發育為延腦）；四疊體（tectum）由中腦衍生、乳狀體（mammillary body）由間腦衍生、橋腦與小腦則由後腦（metencephalon）衍生。115",
+     "citeText": [
+      "115"
+     ],
+     "marks": [
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "115-1-醫學一-胚胎學-Q35",
+      "115-1-醫學一-胚胎學-Q36",
+      "115-2-醫學一-胚胎學-Q36"
+     ],
+     "trueOptions": [
+      "豎毛肌（arrector pili muscle）",
+      "橋腦及小腦（pons and cerebellum）：後腦（metencephalon）",
+      "四疊體（tectum）：中腦（mesencephalon）",
+      "乳狀體（mammillary body）：間腦（diencephalon）",
+      "神經外胚層（neuroectoderm）"
+     ],
+     "spans": [],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::intestinal-nematodes-soil-transmitted",
+   "leafId": "intestinal-nematodes-soil-transmitted",
+   "leafIds": [
+    "intestinal-nematodes-soil-transmitted"
+   ],
+   "heading": "腸道土壤傳播線蟲（Soil-Transmitted Intestinal Nematodes）",
+   "tier": "常青必掃",
+   "maxCards": 5,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學二-寄生蟲學-Q30",
+       "stem": "下列何種人體寄生蟲可因入侵生殖系統進入腹腔（peritoneal cavity）而導致慢性骨盆腔腹膜炎（chronic pelvic peritonitis）？",
+       "trueOption": "蟯蟲（Enterobius vermicularis）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "蟯蟲（Enterobius vermicularis）雌蟲夜間爬到肛門周圍產卵，蟲卵可經空氣傳播、也會經手部污染造成全家群聚感染；蟲卵或蟲體經生殖道逆行進入腹腔，可引起慢性骨盆腔腹膜炎；夜間肛門搔癢干擾睡眠，但這不等於「睡眠病（sleeping sickness）」——後者是非洲錐蟲病的專有名詞，兩者常被拿來當誘答。105/106/113",
+     "citeText": [
+      "105/106/113"
+     ],
+     "marks": [
+      "105",
+      "106",
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q75",
+      "105-2-醫學一-寄生蟲學-Q76",
+      "106-1-醫學一-寄生蟲學-Q77",
+      "106-2-醫學二-寄生蟲學-Q30",
+      "113-1-醫學二-寄生蟲學-Q29",
+      "113-1-醫學二-寄生蟲學-Q30",
+      "113-2-醫學二-微生物暨免疫學-Q30"
+     ],
+     "trueOptions": [
+      "蟲卵可藉空氣傳播感染人體",
+      "感染後易干擾夜間睡眠",
+      "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+      "僅②③",
+      "糞小桿線蟲（Strongyloides stercoralis）",
+      "蟯蟲（Enterobius vermicularis）",
+      "僅①②④",
+      "十二指腸鉤蟲（Ancylostoma duodenale）",
+      "蟲卵可藉空氣傳播感染人體",
+      "婦女感染後有可能引起慢性骨盆腔腹膜炎（pelvic peritonitis）",
+      "最正確的診斷方式為肛圍擦拭法（perianal swab）檢查是否有蟲卵"
+     ],
+     "spans": [
+      {
+       "span": "慢性骨盆腔腹膜炎",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "in-true-option"
+       ],
+       "score": 9
+      },
+      {
+       "span": "蟯蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 9
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學二-寄生蟲學-Q29",
+       "stem": "赤腳踏在泥土田埂上享受稻香的芬芳，最容易被下列何種寄生蟲的絲狀（filarial form）幼蟲經皮膚鑽入造 成感染？",
+       "trueOption": "十二指腸鉤蟲（Ancylostoma duodenale）"
+      }
+     ],
+     "bulletIndex": 9,
+     "sentence": "「赤腳下田／踩泥土」這條病史直指絲狀幼蟲（filariform larva）經皮膚鑽入，答案是十二指腸鉤蟲（Ancylostoma duodenale）（糞小桿線蟲也走這條路）。同題常見三個誘答走的都是經口：犬蛔蟲（Toxocara canis）食入含胚卵→內臟幼蟲移行症、肝毛線蟲（Capillaria hepatica）食入受泥土含胚卵污染的飲水食物→寄生肝臟、有棘頜口線蟲（Gnathostoma spinigerum）生食淡水魚蛙蛇→幼蟲移行症。115-2",
+     "citeText": [
+      "115-2"
+     ],
+     "marks": [
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "115-2-醫學二-寄生蟲學-Q29"
+     ],
+     "trueOptions": [
+      "十二指腸鉤蟲（Ancylostoma duodenale）"
+     ],
+     "spans": [
+      {
+       "span": "十二指腸鉤蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "經口",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "111-1-醫學二-寄生蟲學-Q30",
+       "stem": "有關鞭蟲（Trichuris trichiura）感染人體的敘述，下列何者錯誤？",
+       "trueOption": "幼蟲直接在腸道發育為成蟲"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "鞭蟲（Trichuris trichiura）蟲卵在小腸孵化、幼蟲直接於大腸（盲腸～直腸）發育為成蟲，不經肺臟移行、也不具自體感染能力（自體感染是糞小桿線蟲的特徵，勿混）；蟲體前端細長鑽入腸黏膜、後端粗大游離腸腔，蟲卵兩端具透明卵塞（酒桶型）；重度感染兒童可導致貧血與直腸脫垂（rectal prolapse）。105/111/114",
+     "citeText": [
+      "105/111/114"
+     ],
+     "marks": [
+      "105",
+      "111",
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q75",
+      "105-2-醫學一-寄生蟲學-Q76",
+      "111-1-醫學二-寄生蟲學-Q30",
+      "111-2-醫學二-寄生蟲學-Q29",
+      "114-1-醫學二-寄生蟲學-Q30",
+      "114-2-醫學二-寄生蟲學-Q29"
+     ],
+     "trueOptions": [
+      "蟲卵可藉空氣傳播感染人體",
+      "感染後易干擾夜間睡眠",
+      "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+      "僅②③",
+      "幼蟲直接在腸道發育為成蟲",
+      "成蟲主要寄生在大腸",
+      "幼童重度感染可能會引起脫肛（rectum prolapse）",
+      "蛔蟲（Ascaris lumbricoides）",
+      "①②③",
+      "②③④"
+     ],
+     "spans": [
+      {
+       "span": "鞭蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      },
+      {
+       "span": "不經肺臟移行、也不具自體感染能力",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 6
+    },
+    {
+     "tested": [
+      {
+       "id": "111-2-醫學二-寄生蟲學-Q29",
+       "stem": "下列何種寄生蟲重度感染幼童時，最有可能造成異位性移行（ectopic migration）寄生？",
+       "trueOption": "蛔蟲（Ascaris lumbricoides）"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "蛔蟲（Ascaris lumbricoides）感染唯人類，好發於 5–9 歲兒童；蟲卵於小腸孵化後幼蟲循心肺移行路徑（鑽小腸壁→肝→心→肺→穿肺泡壁→氣管→會厭→小腸）發育為成蟲；重度感染幼童最容易出現異位性移行（ectopic migration）——蟲體鑽出正常路徑跑到膽道、胰管等處造成阻塞，是蛔蟲區別於其他腸道線蟲的招牌考點。111",
+     "citeText": [
+      "111"
+     ],
+     "marks": [
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "111-1-醫學二-寄生蟲學-Q30",
+      "111-2-醫學二-寄生蟲學-Q29"
+     ],
+     "trueOptions": [
+      "幼蟲直接在腸道發育為成蟲",
+      "成蟲主要寄生在大腸",
+      "幼童重度感染可能會引起脫肛（rectum prolapse）",
+      "蛔蟲（Ascaris lumbricoides）"
+     ],
+     "spans": [
+      {
+       "span": "異位性移行",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "5–9 歲",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+   "leafId": "foodborne-tissue-nematodes",
+   "leafIds": [
+    "foodborne-tissue-nematodes"
+   ],
+   "heading": "食因性與組織線蟲（Foodborne and Tissue-Invasive Nematodes）",
+   "tier": "常青必掃",
+   "maxCards": 5,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "104-1-醫學一-寄生蟲學-Q76",
+       "stem": "低蛋白血症（hypoproteinemia）最常發生於感染下列何種寄生蟲的病患？",
+       "trueOption": "菲律賓毛線蟲（Capillaria philippinensis）"
+      },
+      {
+       "id": "110-1-醫學二-寄生蟲學-Q29",
+       "stem": "張先生嗜吃生魚片，最近常出現腹部絞痛、腹鳴（borborygmus）、腹瀉、厭食、噁心、嘔吐及低血壓等症 狀，並伴隨有低蛋白血症、低血鉀及低血鈣等嚴重電解質失衡病症，張先生最有可能感染下列何種寄生蟲？",
+       "trueOption": "菲律賓毛線蟲（Capillaria philippinensis）"
+      }
+     ],
+     "bulletIndex": 5,
+     "sentence": "菲律賓毛線蟲（Capillaria philippinensis）經食用受污染的淡水魚感染（人與食魚水鳥皆為終宿主），成蟲寄生小腸並具自體感染能力；長期感染造成腸道吸收不良、蛋白質流失，臨床可見腹瀉、低蛋白血症、低血鉀、低血鈣等嚴重電解質失衡，腹瀉病患須積極補充電解質。104/109/110",
+     "citeText": [
+      "104/109/110"
+     ],
+     "marks": [
+      "104",
+      "109",
+      "110"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-寄生蟲學-Q75",
+      "104-1-醫學一-寄生蟲學-Q76",
+      "109-2-醫學二-寄生蟲學-Q29",
+      "110-1-醫學二-寄生蟲學-Q29",
+      "110-2-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "麥地那線蟲（Dracunculus medinensis）",
+      "菲律賓毛線蟲（Capillaria philippinensis）",
+      "因食入被蟲卵污染的魚肉而感染",
+      "菲律賓毛線蟲（Capillaria philippinensis）",
+      "特異性抗體檢查",
+      "臨床症狀",
+      "骨骼肌切片檢查（biopsy of skeletal muscle）"
+     ],
+     "spans": [
+      {
+       "span": "菲律賓毛線蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "in-true-option"
+       ],
+       "score": 9
+      },
+      {
+       "span": "自體感染能力",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 9
+    },
+    {
+     "tested": [
+      {
+       "id": "115-1-醫學二-寄生蟲學-Q29",
+       "stem": "下列何種寄生蟲感染人體後，其第三期幼蟲會在橫紋肌形成囊體，臨床上此時期亦為診斷期（diagnostic stage）？",
+       "trueOption": "旋毛蟲（Trichinella spiralis）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "旋毛蟲（Trichinella spiralis）經食入未熟帶蟲豬肉（或熊肉）感染；人與豬同時身兼終宿主與中間宿主；幼蟲隨血液循環到達橫紋肌並發育、囊化；症狀依病程分三期——腸道期腸胃症狀→肌肉侵犯（移行）期先出現局部（尤其眼眶周圍）水腫，並伴隨發燒、肌肉痛與高嗜伊紅性白血球症→囊化期症狀逐漸消退，肌肉痛不是最早出現的症狀，是常見誘答。106/115",
+     "citeText": [
+      "106/115"
+     ],
+     "marks": [
+      "106",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q76",
+      "115-1-醫學二-寄生蟲學-Q29"
+     ],
+     "trueOptions": [
+      "3項",
+      "旋毛蟲（Trichinella spiralis）"
+     ],
+     "spans": [
+      {
+       "span": "旋毛蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "人與豬同時身兼終宿主與中間宿主",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "肌肉痛不是最早出現的症狀",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "105-2-醫學一-寄生蟲學-Q75",
+       "stem": "葉先生日前參加日本旅遊而食用壽司及生魚片，當日即感覺上腹部疼痛、噁心及輕微嘔吐現象，返國後就醫檢查發現胃部有線 狀填充物缺陷（threadlike filling defect），並利用胃鏡鏡檢摘除數條寄生蟲體。依據上述結果，葉先生最可能感染下列何種寄 生蟲？",
+       "trueOption": "海獸胃線蟲（Anisakis spp.）"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "海獸胃線蟲（Anisakis spp.）經食用海水魚生魚片（壽司／生魚片）感染，需經兩種中間宿主（海水甲殼類→海水魚／烏賊）才具感染力；幼蟲鑽入胃或十二指腸壁，造成急性腹痛、胃部顯影攝影可見線狀填充物缺陷（threadlike filling defect），病理上為嗜伊紅性肉芽腫，常被誤認為胃癌；診斷靠胃鏡直視並摘除幼蟲，不是檢查糞便中的蟲卵。105/108",
+     "citeText": [
+      "105/108"
+     ],
+     "marks": [
+      "105",
+      "108"
+     ],
+     "linkedQuestionIds": [
+      "105-2-醫學一-寄生蟲學-Q75",
+      "108-1-醫學二-寄生蟲學-Q29"
+     ],
+     "trueOptions": [
+      "海獸胃線蟲（Anisakis spp.）",
+      "必須經過在2種中間宿主中發育後，才具有感染⼈之能⼒",
+      "通常吃海⽔⿂⽣⿂片⽽感染",
+      "感染後常引起急性腹痛"
+     ],
+     "spans": [
+      {
+       "span": "海獸胃線蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "兩種中間宿主",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "線狀填充物缺陷",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "104-1-醫學一-寄生蟲學-Q75",
+       "stem": "藉由改善飲用水系統最能達到防治下列何種寄生蟲之感染？",
+       "trueOption": "麥地那線蟲（Dracunculus medinensis）"
+      },
+      {
+       "id": "111-2-醫學二-寄生蟲學-Q30",
+       "stem": "李先生經常往返臺灣及非洲經商，在非洲有時會喝到沒煮沸的水，最近他腳踝皮膚出現潰瘍，醫師從潰瘍處 拉出100 公分長的寄生蟲，您認為李先生最有可能感染下列何種寄生蟲？",
+       "trueOption": "麥地那線蟲（Dracunculus medinensis）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "麥地那線蟲（Dracunculus medinensis）經飲用含感染性水蚤（劍水蚤）的生水感染，是改善飲用水系統最能防治的寄生蟲病；成熟雌蟲移行至下肢（尤其足踝、腳背）等處皮下組織，可長達近 1 公尺（人體最長線蟲），造成皮下水泡潰瘍，傳統治療是逐日纏繞拉出蟲體；主要流行於非洲。104/111",
+     "citeText": [
+      "104/111"
+     ],
+     "marks": [
+      "104",
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-寄生蟲學-Q75",
+      "104-1-醫學一-寄生蟲學-Q76",
+      "111-1-醫學二-寄生蟲學-Q29",
+      "111-2-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "麥地那線蟲（Dracunculus medinensis）",
+      "菲律賓毛線蟲（Capillaria philippinensis）",
+      "有棘頜口線蟲（Gnathostoma spinigerum）",
+      "麥地那線蟲（Dracunculus medinensis）"
+     ],
+     "spans": [
+      {
+       "span": "麥地那線蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "改善飲用水系統最能防治的寄生蟲病",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "113-2-醫學二-微生物暨免疫學-Q29",
+       "stem": "一名外籍移工剛至臺灣的第3天，於醫院接受腸道寄生蟲檢查，醫檢師發現其糞便內有許多肝毛線蟲 （Capillaria hepatica）蟲卵，下列敘述何者最適當？",
+       "trueOption": "該外籍移工其實是一種假性感染（spurious infection）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；食入土壤中的胚胎化蟲卵後，幼蟲在腸道孵出、經肝門靜脈到達肝臟發育為成蟲，並於肝實質產卵，真感染須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於假性感染（spurious infection），並非真正的肝內感染，是本科少見但曾出現的陷阱題。113",
+     "citeText": [
+      "113"
+     ],
+     "marks": [
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "113-2-醫學二-微生物暨免疫學-Q29"
+     ],
+     "trueOptions": [
+      "該外籍移工其實是一種假性感染（spurious infection）"
+     ],
+     "spans": [
+      {
+       "span": "假性感染",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "糞便",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "110-2-醫學二-寄生蟲學-Q30",
+       "stem": "下列何者不適用於旋毛蟲（Trichinella spiralis）感染的診斷？",
+       "trueOption": "特異性抗體檢查"
+      }
+     ],
+     "bulletIndex": 1,
+     "sentence": "旋毛蟲感染不能靠檢查糞便中的蟲卵診斷（幼蟲寄生於肌肉，不在腸道產卵）；正確診斷方式為特異性抗體檢查、臨床症狀（肌肉痛、水腫）與骨骼肌切片檢查。（考選部題幹用語為「第三期幼蟲於橫紋肌形成囊體」，此一分期用語與部分教科書慣稱之 L1 有出入，惟以考選部題幹與答案為準。）110/115",
+     "citeText": [
+      "110/115"
+     ],
+     "marks": [
+      "110",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "110-1-醫學二-寄生蟲學-Q29",
+      "110-2-醫學二-寄生蟲學-Q30",
+      "115-1-醫學二-寄生蟲學-Q29"
+     ],
+     "trueOptions": [
+      "菲律賓毛線蟲（Capillaria philippinensis）",
+      "特異性抗體檢查",
+      "臨床症狀",
+      "骨骼肌切片檢查（biopsy of skeletal muscle）",
+      "旋毛蟲（Trichinella spiralis）"
+     ],
+     "spans": [
+      {
+       "span": "不能靠檢查糞便中的蟲卵診斷",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "斷方式為特異性抗體檢查",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "111-1-醫學二-寄生蟲學-Q29",
+       "stem": "林先生之前到中國旅遊時吃了淡水魚的生魚片，不久後出現腹痛，回國後眼眶附近浮腫，很幸運的在浮腫部 位摘除將近4 mm大小的蟲體，林先生最有可能感染下列何種寄生蟲？",
+       "trueOption": "有棘頜口線蟲（Gnathostoma spinigerum）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "棘顎口線蟲（Gnathostoma spinigerum）成蟲寄生於貓狗胃壁（人為非適當宿主，不會長成成蟲），需經水蚤（第一中間宿主）與淡水魚／蛙（第二中間宿主）兩種中間宿主，也可經蛙肉敷傷口感染；感染人體後同時可造成皮膚幼蟲移行症（爬行疹）與內臟幼蟲移行症（嗜伊紅性腦脊髓炎），並非「只侵犯皮下組織」；侵犯眼周可造成長江浮腫（眼周浮腫）與眼球棘顎口線蟲症。111/112",
+     "citeText": [
+      "111/112"
+     ],
+     "marks": [
+      "111",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "111-1-醫學二-寄生蟲學-Q29",
+      "111-2-醫學二-寄生蟲學-Q30",
+      "112-1-醫學二-寄生蟲學-Q29",
+      "112-2-醫學二-寄生蟲學-Q29"
+     ],
+     "trueOptions": [
+      "有棘頜口線蟲（Gnathostoma spinigerum）",
+      "麥地那線蟲（Dracunculus medinensis）",
+      "成蟲可寄生於貓的胃壁",
+      "完成生活史需2個中間宿主",
+      "食入未熟帶蟲之淡水魚而被感染",
+      "海獸胃線蟲（Anisakis spp.）"
+     ],
+     "spans": [],
+     "score": 2
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::lymphatic-and-subcutaneous-filariasis",
+   "leafId": "lymphatic-and-subcutaneous-filariasis",
+   "leafIds": [
+    "lymphatic-and-subcutaneous-filariasis"
+   ],
+   "heading": "淋巴絲蟲病與皮下絲蟲病（Lymphatic and Subcutaneous Filariasis）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學二-寄生蟲學-Q29",
+       "stem": "班氏絲蟲（Wuchereria bancrofti）之患者服用下列何種藥物有助於白天採血檢查微絲蟲（microfilaria）？",
+       "trueOption": "diethylcarbamazine"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "班氏絲蟲（Wuchereria bancrofti）病媒為熱帶家蚊（曾流行於台澎金馬及中國南方）；成蟲寄生於淋巴管，微絲蟲具有夜間週期性（白天聚集於肺部小血管，夜間才大量出現於末梢血液），臨床上可用 diethylcarbamazine（DEC）誘發試驗讓微絲蟲白天也能被採血檢出；感染造成淋巴管炎、象皮病、陰囊水腫、乳糜尿。106/108/112",
+     "citeText": [
+      "106/108/112"
+     ],
+     "marks": [
+      "106",
+      "108",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q75",
+      "106-2-醫學二-寄生蟲學-Q29",
+      "108-1-醫學二-寄生蟲學-Q30",
+      "112-1-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "3項",
+      "diethylcarbamazine",
+      "蟲體在淋巴管發育為成蟲",
+      "只有在夜間微絲蟲（microfilaria）才會⼤量出現在末梢⾎液",
+      "在乳糜尿（chyluria）中也可能發現微絲蟲（microfilaria）",
+      "熱帶家蚊（Culex quinquefasciatus / fatigans）"
+     ],
+     "spans": [
+      {
+       "span": "熱帶家蚊",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "in-true-option"
+       ],
+       "score": 9
+      },
+      {
+       "span": "班氏絲蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      },
+      {
+       "span": "夜間週期性",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 9
+    },
+    {
+     "tested": [
+      {
+       "id": "104-2-醫學一-寄生蟲學-Q75",
+       "stem": "下列有關羅阿絲蟲（Loa loa）感染人體的敘述，何者錯誤？",
+       "trueOption": "成蟲主要寄生在皮下組織"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "羅阿絲蟲（Loa loa）病媒為虻（Chrysops，鹿蠅）；成蟲主要寄生於皮下組織、微絲蟲於白天出現在血液中；成蟲移行雖在皮下，但多不引起劇痛，只因蟲體分泌物過敏反應造成暫時性的卡拉巴腫（Calabar swelling）；跑到眼結膜下可造成眼蟲病（大量流淚、疼痛、不安），但不會造成失明——會致盲的是蟠尾絲蟲。104",
+     "citeText": [
+      "104"
+     ],
+     "marks": [
+      "104"
+     ],
+     "linkedQuestionIds": [
+      "104-2-醫學一-寄生蟲學-Q75"
+     ],
+     "trueOptions": [
+      "成蟲主要寄生在皮下組織",
+      "微絲蟲（microfilaria）會出現在血液內",
+      "大多數病患之嗜酸性白血球會明顯增高"
+     ],
+     "spans": [
+      {
+       "span": "羅阿絲蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "白天",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "多不引起劇痛",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "不會造成失明",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學二-寄生蟲學-Q30",
+       "stem": "做皮下切片（skin snips）檢查微絲蟲（microfilaria）是診斷下列何種寄生蟲感染的重要依據？",
+       "trueOption": "蟠尾絲蟲（Onchocerca volvulus）"
+      },
+      {
+       "id": "110-2-醫學二-寄生蟲學-Q29",
+       "stem": "關於蟠尾絲蟲（Onchocerca volvulus）的敘述，下列何者錯誤？",
+       "trueOption": "自皮膚切片（skin snips）發現微絲蟲為主要診斷方法"
+      },
+      {
+       "id": "111-2-醫學二-寄生蟲學-Q34",
+       "stem": "下列何者是傳播蟠尾絲蟲（Onchocerca volvulus）之主要病媒？",
+       "trueOption": "蚋（Simulium spp.）"
+      }
+     ],
+     "bulletIndex": 5,
+     "sentence": "蟠尾絲蟲（Onchocerca volvulus）病媒為蚋（Simulium，黑蠅）；微絲蟲定居於皮膚（真皮層）與尿液中，皮下切片（skin snips）是主要診斷方法；重複感染可造成河川盲症（river blindness）、皮疹、硬而不痛的皮下結節、豹皮花紋（leopard skin）、鼠蹊懸垂（hanging groin）；肺部結節／錢幣狀病灶不是蟠尾絲蟲的表現，那是犬心絲蟲（Dirofilaria immitis）的特徵，兩者常被放在一起誘答。106/107/110/111",
+     "citeText": [
+      "106/107/110/111"
+     ],
+     "marks": [
+      "106",
+      "107",
+      "110",
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q75",
+      "106-2-醫學二-寄生蟲學-Q29",
+      "107-2-醫學二-寄生蟲學-Q30",
+      "110-2-醫學二-寄生蟲學-Q29",
+      "111-2-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "3項",
+      "diethylcarbamazine",
+      "蟠尾絲蟲（Onchocerca volvulus）",
+      "微絲蟲會侵犯患者眼睛造成失明",
+      "自皮膚切片（skin snips）發現微絲蟲為主要診斷方法",
+      "患者可能出現鼠蹊懸垂（hanging groin）",
+      "蚋（Simulium spp.）"
+     ],
+     "spans": [],
+     "score": 3
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+   "leafId": "angiostrongyliasis-and-larva-migrans",
+   "leafIds": [
+    "angiostrongyliasis-and-larva-migrans"
+   ],
+   "heading": "廣東住血線蟲症與幼蟲移行症（Angiostrongyliasis and Larva Migrans Syndromes）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "107-1-醫學二-寄生蟲學-Q30",
+       "stem": "罹患內臟幼蟲移行症（visceral larva migrans）的病患通常有下列特徵，何者除外？",
+       "trueOption": "犬蛔蟲（Toxocara canis）為主要病原體"
+      },
+      {
+       "id": "114-2-醫學二-寄生蟲學-Q30",
+       "stem": "一位五歲的小朋友血液中嗜伊紅性白血球（eosinophil）異常增加，同時檢查出肝臟腫大，他最有可能感染 下列何種寄生蟲？",
+       "trueOption": "犬蛔蟲（Toxocara canis）"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "犬蛔蟲／貓蛔蟲（Toxocara canis/cati）終宿主為狗／貓，人為偶然宿主（幼蟲不會長成成蟲）；食入含胚卵的糞便污染物後，幼蟲在體內到處遊走造成內臟幼蟲移行症（VLM），最容易侵犯肝臟（肝腫大），也常侵犯肺（咳嗽）、眼睛（視網膜剝離，即眼部幼蟲移行症）、腦部；臨床特徵為高嗜伊紅性白血球症、高球蛋白血症、嗜伊紅性肉芽腫；好發於幼童（非成年人），因幼兒接觸受污染土壤／犬貓糞便機會較高。107/114",
+     "citeText": [
+      "107/114"
+     ],
+     "marks": [
+      "107",
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學二-寄生蟲學-Q30",
+      "107-2-醫學二-寄生蟲學-Q29",
+      "114-2-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "犬蛔蟲（Toxocara canis）為主要病原體",
+      "常見肝腫大",
+      "常見嗜酸性白血球增多",
+      "廣東住血線蟲（Angiostrongylus cantonensis）",
+      "犬蛔蟲（Toxocara canis）"
+     ],
+     "spans": [
+      {
+       "span": "好發於幼童",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "contrast"
+       ],
+       "score": 7
+      },
+      {
+       "span": "犬蛔蟲／貓蛔蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "內臟幼蟲移行症",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "肝臟",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學二-寄生蟲學-Q29",
+       "stem": "蘇先生因個人養身因素而食用醃漬蝸牛及生蝸牛多年，日前急診就醫因疑似腦炎或腦膜腦炎而住院，經脊髓 穿刺發現腦脊髓液（CSF）內有高數量白血球（1500/µL），並伴隨有嗜酸性白血球增多症 （eosinophilia）。依據上述結果，蘇先生最可能感染下列何種寄生蟲？",
+       "trueOption": "廣東住血線蟲（Angiostrongylus cantonensis）"
+      },
+      {
+       "id": "115-2-醫學二-寄生蟲學-Q30",
+       "stem": "下列何種寄生蟲曾在臺灣東部、南部造成地方性流行，可能侵犯患者眼睛導致病變？",
+       "trueOption": "廣東住血線蟲（Angiostrongylus cantonensis）"
+      }
+     ],
+     "bulletIndex": 1,
+     "sentence": "廣東住血線蟲幼蟲以第五期（L5）之姿侵犯腦脊髓，並非只侵犯腦脊髓（也可侵犯眼睛等其他部位），造成嗜伊紅性腦膜炎（腦膜腦炎）；確認診斷是在腦脊髓液中發現蟲體（L5）並伴隨嗜酸性白血球明顯增加；侵犯眼球時可見視力受損、角膜炎，甚至可在眼球內見到活蟲需手術移除（ocular angiostrongyliasis）。臺灣南部與東部曾因生食蝸牛等而有地方性流行，因此「臺灣本土流行＋眼部病變」的組合直接指向本蟲。107/109/114/115-2",
+     "citeText": [
+      "107/109/114/115-2"
+     ],
+     "marks": [
+      "107",
+      "109",
+      "114",
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學二-寄生蟲學-Q30",
+      "107-2-醫學二-寄生蟲學-Q29",
+      "109-1-醫學二-微生物暨免疫學-Q30",
+      "114-2-醫學二-寄生蟲學-Q30",
+      "115-2-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "犬蛔蟲（Toxocara canis）為主要病原體",
+      "常見肝腫大",
+      "常見嗜酸性白血球增多",
+      "廣東住血線蟲（Angiostrongylus cantonensis）",
+      "2項",
+      "犬蛔蟲（Toxocara canis）",
+      "廣東住血線蟲（Angiostrongylus cantonensis）"
+     ],
+     "spans": [
+      {
+       "span": "並非只侵犯腦脊髓",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×4"
+       ],
+       "score": 6
+      },
+      {
+       "span": "腦脊髓液中發現蟲體",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×4"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 6
+    },
+    {
+     "tested": [
+      {
+       "id": "112-2-醫學二-寄生蟲學-Q30",
+       "stem": "邱先生買了一塊農地種菜，經常弄得手腳滿是污泥，最近手臂發癢並出現延伸的紅斑，下列敘述那一項最不 適當？",
+       "trueOption": "可能是東方毛線蟲（Trichostrongylus orientalis）感染造成的"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "東方毛線蟲（Trichostrongylus orientalis）雖與腸道及皮膚接觸病史（如農務、接觸泥土）相關，但其絲狀幼蟲不易鑽入皮膚，主要經食入附有幼蟲的受污染蔬菜或飲水感染，並不會造成皮膚延伸性紅疹（不是 CLM 病原）——農地工作者皮膚搔癢合併延伸紅斑，較可能是鉤蟲爬行疹或搔抓後細菌感染，而非東方毛線蟲。112",
+     "citeText": [
+      "112"
+     ],
+     "marks": [
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "112-2-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "可能是東方毛線蟲（Trichostrongylus orientalis）感染造成的"
+     ],
+     "spans": [
+      {
+       "span": "並不會造成皮膚延伸性紅疹",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "contrast"
+       ],
+       "score": 6
+      },
+      {
+       "span": "不易鑽入皮膚",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 6
+    },
+    {
+     "tested": [
+      {
+       "id": "108-2-醫學二-寄生蟲學-Q30",
+       "stem": "下列何種寄生蟲感染會導致皮膚幼蟲移行症（cutaneous larva migrans）？",
+       "trueOption": "犬鉤蟲（Ancylostoma caninum）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "皮膚幼蟲移行症（cutaneous larva migrans, CLM）的典型病原是犬鉤蟲（Ancylostoma caninum）與巴西鉤蟲（A. braziliense）：幼蟲鑽入人體皮膚後無法成熟，只能在皮下移行，造成蜿蜒延伸的爬行疹（creeping eruption）；糞小桿線蟲與棘顎口線蟲（Gnathostoma）也可造成 CLM。108",
+     "citeText": [
+      "108"
+     ],
+     "marks": [
+      "108"
+     ],
+     "linkedQuestionIds": [
+      "108-2-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "犬鉤蟲（Ancylostoma caninum）"
+     ],
+     "spans": [
+      {
+       "span": "皮膚幼蟲移行症",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學二-寄生蟲學-Q30",
+       "stem": "下列何種寄生蟲曾在臺灣東部、南部造成地方性流行，可能侵犯患者眼睛導致病變？",
+       "trueOption": "廣東住血線蟲（Angiostrongylus cantonensis）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "「眼部病變」不是廣東住血線蟲的專利，鑑別要靠流行病學：旋毛蟲（Trichinella spiralis）吃未熟豬肉、幼蟲寄生肌肉，眼部表現是眼眶周圍水腫（periorbital edema）而非蟲體侵入眼球；犬鉤蟲（Ancylostoma caninum）造成皮膚幼蟲移行症或嗜酸性腸炎；蟠尾絲蟲（Onchocerca volvulus）由黑蠅傳播、造成河川盲（river blindness），流行於非洲與美洲熱帶，臺灣不是流行區。115-2",
+     "citeText": [
+      "115-2"
+     ],
+     "marks": [
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "115-2-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "廣東住血線蟲（Angiostrongylus cantonensis）"
+     ],
+     "spans": [
+      {
+       "span": "眼眶周圍水腫",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "臺灣不是流行區",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "旋毛蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      },
+      {
+       "span": "犬鉤蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      },
+      {
+       "span": "蟠尾絲蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-distractor"
+       ],
+       "score": 1
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::liver-and-intestinal-flukes",
+   "leafId": "liver-and-intestinal-flukes",
+   "leafIds": [
+    "liver-and-intestinal-flukes"
+   ],
+   "heading": "肝吸蟲與腸道吸蟲（Liver and Intestinal Flukes）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "106-1-醫學一-寄生蟲學-Q78",
+       "stem": "下列有關中華肝吸蟲（Clonorchis sinensis）感染人體的敘述，何者錯誤？",
+       "trueOption": "其囊幼（metacercaria）具感染人體之能力"
+      },
+      {
+       "id": "114-2-醫學二-寄生蟲學-Q32",
+       "stem": "李同學於暑假期間赴香港旅遊，期間遍嚐各種魚類美食，返國後因腹部嚴重不適就醫，經醫師診斷疑似膽囊 炎住院，隨後經糞便鏡檢而確認診斷，據此病史最可能感染下列何種寄生蟲？",
+       "trueOption": "中華肝吸蟲（Clonorchis sinensis）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "中華肝吸蟲（Clonorchis sinensis）經生食帶囊幼（metacercaria）的淡水魚肉感染，寄生於肝內膽管，慢性重度感染可造成膽管慢性刺激、上皮增生、腺瘤樣病變，進而發展為膽管癌；台灣、中國大陸、泰國、越南皆為流行地區，臨床可見腹痛、黃疸、膽管阻塞。105-1/106-1/114-2",
+     "citeText": [
+      "105-1/106-1/114-2"
+     ],
+     "marks": [
+      "105-1",
+      "106-1",
+      "114-2"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q77",
+      "106-1-醫學一-寄生蟲學-Q78",
+      "114-2-醫學二-寄生蟲學-Q32"
+     ],
+     "trueOptions": [
+      "槍狀肝吸蟲（Dicrocoelium dendriticum）",
+      "因食入帶蟲淡水魚肉而感染",
+      "其囊幼（metacercaria）具感染人體之能力",
+      "在慢性重度感染者可能引發膽管癌",
+      "中華肝吸蟲（Clonorchis sinensis）"
+     ],
+     "spans": [
+      {
+       "span": "中華肝吸蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "in-true-option"
+       ],
+       "score": 9
+      },
+      {
+       "span": "膽管癌",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "in-true-option"
+       ],
+       "score": 9
+      }
+     ],
+     "score": 9
+    },
+    {
+     "tested": [
+      {
+       "id": "105-1-醫學一-寄生蟲學-Q77",
+       "stem": "朱先生近年來因業務關係而經常前往中國大陸、泰國及越南等地區，其本人嗜食生魚片及魚 生粥，日前因腹部不適及出現黃疸病症（jaundice）而就醫，經醫院檢查發現有膽管阻塞， 並經手術取出數條蟲體。依據上述結果，朱先生最不可能感染何種寄生蟲？",
+       "trueOption": "槍狀肝吸蟲（Dicrocoelium dendriticum）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "槍狀肝吸蟲（Dicrocoelium dendriticum）終宿主同樣是牛、羊，但第一中間宿主為陸生螺、第二中間宿主是螞蟻（非魚、非水生植物），因此與生魚片飲食史、halzoun 症狀都無關，是常見的鑑別誘答選項。105-1/112-1/113-1",
+     "citeText": [
+      "105-1/112-1/113-1"
+     ],
+     "marks": [
+      "105-1",
+      "112-1",
+      "113-1"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q77",
+      "112-1-醫學二-寄生蟲學-Q30",
+      "113-1-醫學二-寄生蟲學-Q32"
+     ],
+     "trueOptions": [
+      "槍狀肝吸蟲（Dicrocoelium dendriticum）",
+      "牛羊肝吸蟲（Fasciola hepatica）",
+      "①②"
+     ],
+     "spans": [
+      {
+       "span": "螞蟻",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "contrast"
+       ],
+       "score": 8
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學二-寄生蟲學-Q32",
+       "stem": "李小姐於赴日本旅遊期間曾多次生食鮭魚，返國後因腹瀉及腹部疼痛而就醫，臨床檢驗呈現嗜伊紅性白血球 增多症（eosinophilia），但無貧血病徵，經寄生蟲學專家進行糞便鏡檢而確診，據此病史最可能感染下列 何種寄生蟲？",
+       "trueOption": "橫川氏吸蟲（Metagonimus yokogawai）"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "橫川吸蟲（Metagonimus yokogawai）同為小型腸道吸蟲，經生食淡水魚感染——第二中間宿主是香魚與鮭魚，所以「赴日生食鮭魚後腹瀉腹痛、嗜伊紅性白血球增多但沒有貧血、靠糞便鏡檢確診」是它的標準題型；寄生小腸引起消化不良、腹瀉，但不具第三吸盤，可與異形吸蟲（第二中間宿主為烏魚等半鹹水魚）區分。同題的另兩個誘答走別的器官：中華肝吸蟲（鯉科淡水魚→膽管）、衛氏肺吸蟲（溪蟹蝲蛄→肺）。棘口吸蟲（Echinostoma spp.）則單純寄生小腸造成腸胃道症狀，不會造成腦部異位病變。104-2/115-1/108-2/115-2",
+     "citeText": [
+      "104-2/115-1/108-2/115-2"
+     ],
+     "marks": [
+      "104-2",
+      "115-1",
+      "108-2",
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "104-2-醫學一-寄生蟲學-Q77",
+      "108-2-醫學二-公共衛生學-Q31",
+      "115-2-醫學二-寄生蟲學-Q32"
+     ],
+     "trueOptions": [
+      "異形吸蟲（Heterophyes heterophyes）",
+      "日本血吸蟲（Schistosoma japonicum）",
+      "豬肉絛蟲（Taenia solium）",
+      "單胞絛蟲（Echinococcus granulosus）",
+      "橫川氏吸蟲（Metagonimus yokogawai）"
+     ],
+     "spans": [
+      {
+       "span": "第二中間宿主是香魚與鮭魚",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×4"
+       ],
+       "score": 6
+      },
+      {
+       "span": "沒有貧血",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×4"
+       ],
+       "score": 6
+      },
+      {
+       "span": "不具第三吸盤",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×4"
+       ],
+       "score": 6
+      },
+      {
+       "span": "是它的標準題型",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×4"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 6
+    },
+    {
+     "tested": [
+      {
+       "id": "104-2-醫學一-寄生蟲學-Q77",
+       "stem": "有一間歇性腹瀉（chronic intermittent diarrhea）的病患，在其糞便中發現大小約2.3 mm的 蟲體，除口、腹吸盤特徵外，在生殖孔附近有第三吸盤，該病患最可能感染下列何種寄生 蟲？",
+       "trueOption": "異形吸蟲（Heterophyes heterophyes）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "異形吸蟲（Heterophyes heterophyes）是人體內最小的吸蟲之一，經生食淡水魚感染，特徵是除口、腹吸盤外，在生殖孔附近另有第三吸盤（吸蟲中唯一）；成蟲鑽入腸黏膜產卵，蟲卵細小可進入微血管，隨血流、淋巴移行至心臟、腦部等處造成異位病變。104-2/110-1",
+     "citeText": [
+      "104-2/110-1"
+     ],
+     "marks": [
+      "104-2",
+      "110-1"
+     ],
+     "linkedQuestionIds": [
+      "104-2-醫學一-寄生蟲學-Q77",
+      "110-1-醫學二-寄生蟲學-Q32"
+     ],
+     "trueOptions": [
+      "異形吸蟲（Heterophyes heterophyes）",
+      "薑片蟲（Fasciolopsis buski）"
+     ],
+     "spans": [
+      {
+       "span": "第三吸盤",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::schistosomiasis",
+   "leafId": "schistosomiasis",
+   "leafIds": [
+    "schistosomiasis"
+   ],
+   "heading": "血吸蟲症（Schistosomiasis）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "113-2-醫學二-藥理學-Q31",
+       "stem": "下列有關血吸蟲的敘述，何者錯誤？",
+       "trueOption": "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "曼森（曼氏）血吸蟲（Schistosoma mansoni）成蟲寄生於下腸繫膜靜脈（引流大腸），蟲卵具側刺（非尾刺）；病程為腸胃不適→肝脾腫大；三型血吸蟲中分佈地區最廣（非洲、南美洲）；診斷靠糞便檢卵。107-2/113-2",
+     "citeText": [
+      "107-2/113-2"
+     ],
+     "marks": [
+      "107-2",
+      "113-2"
+     ],
+     "linkedQuestionIds": [
+      "107-2-醫學二-寄生蟲學-Q31",
+      "113-2-醫學二-藥理學-Q31"
+     ],
+     "trueOptions": [
+      "僅①③",
+      "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+      "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+      "致病機轉主要來自宿主對蟲卵的免疫反應"
+     ],
+     "spans": [
+      {
+       "span": "側刺",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "contrast"
+       ],
+       "score": 7
+      },
+      {
+       "span": "下腸繫膜靜脈",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "113-2-醫學二-藥理學-Q31",
+       "stem": "下列有關血吸蟲的敘述，何者錯誤？",
+       "trueOption": "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "血吸蟲與其他吸蟲最大的差異在感染途徑：血吸蟲的尾動幼蟲（cercaria）直接經皮膚鑽入人體，不需要第二中間宿主形成囊幼（metacercaria）——第一中間宿主（螺類）就是全部所需的中間宿主。111-2/113-2",
+     "citeText": [
+      "111-2/113-2"
+     ],
+     "marks": [
+      "111-2",
+      "113-2"
+     ],
+     "linkedQuestionIds": [
+      "111-2-醫學二-寄生蟲學-Q32",
+      "113-2-醫學二-藥理學-Q31"
+     ],
+     "trueOptions": [
+      "均須經由螺類傳播",
+      "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+      "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+      "致病機轉主要來自宿主對蟲卵的免疫反應"
+     ],
+     "spans": [
+      {
+       "span": "感染途徑",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "113-2-醫學二-藥理學-Q31",
+       "stem": "下列有關血吸蟲的敘述，何者錯誤？",
+       "trueOption": "致病機轉主要來自宿主對蟲卵的免疫反應"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "血吸蟲的致病機轉主要來自宿主對蟲卵的免疫反應（蟲卵分泌蛋白酶造成組織壞死、誘發肉芽腫與纖維化），而非成蟲本身的刺激。104-1/113-2",
+     "citeText": [
+      "104-1/113-2"
+     ],
+     "marks": [
+      "104-1",
+      "113-2"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-寄生蟲學-Q78",
+      "113-2-醫學二-藥理學-Q31"
+     ],
+     "trueOptions": [
+      "僅①②",
+      "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+      "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+      "致病機轉主要來自宿主對蟲卵的免疫反應"
+     ],
+     "spans": [],
+     "score": 2
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::paragonimiasis-and-ectopic-lesions",
+   "leafId": "paragonimiasis-and-ectopic-lesions",
+   "leafIds": [
+    "paragonimiasis-and-ectopic-lesions"
+   ],
+   "heading": "肺吸蟲症與吸蟲異位病變（Paragonimiasis and Ectopic Fluke Lesions）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學二-寄生蟲學-Q31",
+       "stem": "衛氏肺吸蟲（Paragonimus westermani）的感染途徑為：",
+       "trueOption": "生食含囊狀幼蟲（metacercaria）的淡水螃蟹"
+      },
+      {
+       "id": "108-1-醫學二-寄生蟲學-Q31",
+       "stem": "于先⽣因嗜愛美食⽽食⽤浸酒⽑蟹（醉蟹）多年，⽇前因不明原因發燒、咳嗽、胸痛及⼤量帶⾎絲濃痰 （blood-tinged sputum）⽽就醫，經醫院檢查發現痰液內有許多深褐⾊蟲卵及卡格⾥登結晶（Charcot- Leyden crystals)，胸部X光顯⽰有斑狀浸潤及結節狀囊體陰影，並有胸膜積⽔（pleural effusion）及嗜酸性 ⽩⾎球增多（eosinophilia）現象。依據以上敘述，于先⽣最可能感染何種寄⽣蟲？",
+       "trueOption": "衛⽒肺吸蟲（Paragonimus westermani）"
+      },
+      {
+       "id": "115-1-醫學二-寄生蟲學-Q30",
+       "stem": "王先生赴中國江浙地區經商，期間經常食用醉蟹菜餚，返國一段時間後出現發燒、咳嗽且帶血稠痰，隨後經 痰液及糞便鏡檢而確診，據此病史最可能感染下列何種寄生蟲？",
+       "trueOption": "衛氏肺吸蟲（Paragonimus westermani）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "衛氏肺吸蟲（Paragonimus westermani）第一中間宿主為淡水螺類，第二中間宿主為蟹類與淡水螯蝦；人類經食入生食、鹽漬、醃製或未煮熟的淡水蟹／螯蝦而感染，感染型態是囊狀幼蟲（metacercaria），並非尾動幼蟲鑽皮、也不是食入水生植物或淡水魚。106-2/108-1/115-1",
+     "citeText": [
+      "106-2/108-1/115-1"
+     ],
+     "marks": [
+      "106-2",
+      "108-1",
+      "115-1"
+     ],
+     "linkedQuestionIds": [
+      "106-2-醫學二-寄生蟲學-Q31",
+      "108-1-醫學二-寄生蟲學-Q31",
+      "115-1-醫學二-寄生蟲學-Q30"
+     ],
+     "trueOptions": [
+      "生食含囊狀幼蟲（metacercaria）的淡水螃蟹",
+      "衛⽒肺吸蟲（Paragonimus westermani）",
+      "衛氏肺吸蟲（Paragonimus westermani）"
+     ],
+     "spans": [
+      {
+       "span": "蟹類與淡水螯蝦",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 6
+    },
+    {
+     "tested": [
+      {
+       "id": "105-2-醫學一-寄生蟲學-Q78",
+       "stem": "下列有關寄生蟲之敘述中，何者錯誤？",
+       "trueOption": "生吃美國進口的生鮮蝲蛄（crayfish）有可能感染克氏肺吸蟲（Paragonimus kellicotti）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "美國有原生的克氏肺吸蟲（Paragonimus kellicotti），與衛氏肺吸蟲近緣，生食進口自美國的生鮮蝲蛄（crayfish）同樣有感染風險。105-2",
+     "citeText": [
+      "105-2"
+     ],
+     "marks": [
+      "105-2"
+     ],
+     "linkedQuestionIds": [
+      "105-2-醫學一-寄生蟲學-Q78"
+     ],
+     "trueOptions": [
+      "除了血吸蟲（schistosomes）外，其他寄生人體的吸蟲類之蟲卵都具有卵蓋（operculum）",
+      "生吃美國進口的生鮮蝲蛄（crayfish）有可能感染克氏肺吸蟲（Paragonimus kellicotti）",
+      "埃及血吸蟲（Schistosoma haematobium）的慢性感染患者，罹患膀胱癌的機率較高"
+     ],
+     "spans": [],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::echinococcosis-and-small-tapeworms",
+   "leafId": "echinococcosis-and-small-tapeworms",
+   "leafIds": [
+    "echinococcosis-and-small-tapeworms"
+   ],
+   "heading": "包生絛蟲症與小型絛蟲（Echinococcus, Hymenolepis, Dipylidium）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "110-1-醫學二-寄生蟲學-Q31",
+       "stem": "有關人類感染顆粒性包生絛蟲（Echinococcus granulosus）之敘述，下列何者正確 ？",
+       "trueOption": "會在患者肝臟形成包生囊（hydatid cyst）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "顆粒性（單胞）包生絛蟲 E. granulosus：終宿主為狗，中間宿主為羊等草食動物；人因誤食蟲卵而感染（不是吃到未煮熟羊肉），主要在肝臟形成單房性包生囊（hydatid cyst），亦可波及肺部。105/110/112",
+     "citeText": [
+      "105/110/112"
+     ],
+     "marks": [
+      "105",
+      "110",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "105-2-醫學一-寄生蟲學-Q77",
+      "110-1-醫學二-寄生蟲學-Q31",
+      "110-1-醫學二-寄生蟲學-Q34",
+      "110-2-醫學二-寄生蟲學-Q31",
+      "112-1-醫學二-寄生蟲學-Q31"
+     ],
+     "trueOptions": [
+      "4項",
+      "會在患者肝臟形成包生囊（hydatid cyst）",
+      "犬複殖器絛蟲（Dipylidium caninum）",
+      "短小包膜絛蟲（Hymenolepis nana）",
+      "顆粒性包生絛蟲（Echinococcus granulosus）"
+     ],
+     "spans": [
+      {
+       "span": "誤食蟲卵",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "contrast"
+       ],
+       "score": 8
+      },
+      {
+       "span": "E. granulosus",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      },
+      {
+       "span": "肝臟",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      },
+      {
+       "span": "單房性",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 8
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::taeniasis-and-cysticercosis",
+   "leafId": "taeniasis-and-cysticercosis",
+   "leafIds": [
+    "taeniasis-and-cysticercosis"
+   ],
+   "heading": "條蟲病與囊尾幼蟲症（Taeniasis and Cysticercosis: T. solium vs T. saginata）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "108-1-醫學二-寄生蟲學-Q32",
+       "stem": "下列有關⼈罹患豬囊尾幼蟲症（cysticercosis cellulosae）的敘述，何者錯誤？",
+       "trueOption": "病患可能發⽣癲癇（epilepsy）"
+      },
+      {
+       "id": "115-1-醫學二-寄生蟲學-Q31",
+       "stem": "李先生因頭痛、肌肉痙攣及視力急速減退而就醫，血液檢查有輕微的嗜伊紅性白血球（eosinophil）上升， 糞便檢查未發現任何寄生蟲蟲卵或蟲體，電腦斷層掃描（CT）和磁振造影（MRI）在腦實質組織、腦室發現許 多囊體（直徑 4～15 毫米），患者先前曾被公司派駐墨西哥一年，他最可能罹患下列何種疾病？",
+       "trueOption": "囊尾幼蟲症（cysticercosis）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "神經性囊尾幼蟲症（neurocysticercosis）最常見的病因是豬肉絛蟲；約 70% 感染者會出現癲癇（epilepsy）；血清或腦脊液抗體／抗原檢查有助診斷（血清敏感度約 80%、腦脊液約 90%）；影像學典型可見腦實質或腦室內多發囊體。108/111/115",
+     "citeText": [
+      "108/111/115"
+     ],
+     "marks": [
+      "108",
+      "111",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "108-1-醫學二-寄生蟲學-Q32",
+      "111-1-醫學二-寄生蟲學-Q32",
+      "111-2-醫學二-寄生蟲學-Q31",
+      "115-1-醫學二-寄生蟲學-Q31"
+     ],
+     "trueOptions": [
+      "也會在肌⾁致病",
+      "病患可能發⽣癲癇（epilepsy）",
+      "⾎清抗體檢查有助於診斷",
+      "豬肉絛蟲（Taenia solium）",
+      "豬肉絛蟲（Taenia solium）",
+      "囊尾幼蟲症（cysticercosis）"
+     ],
+     "spans": [
+      {
+       "span": "豬肉絛蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "in-true-option"
+       ],
+       "score": 9
+      },
+      {
+       "span": "70%",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      },
+      {
+       "span": "80%",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×3"
+       ],
+       "score": 5
+      },
+      {
+       "span": "90%",
+       "kind": "number",
+       "base": 2,
+       "signals": [
+        "number",
+        "marks×3"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 9
+    },
+    {
+     "tested": [
+      {
+       "id": "111-1-醫學二-寄生蟲學-Q32",
+       "stem": "人類感染下列何種寄生蟲，最常造成神經性囊尾幼蟲症（neurocysticercosis）？",
+       "trueOption": "豬肉絛蟲（Taenia solium）"
+      },
+      {
+       "id": "111-2-醫學二-寄生蟲學-Q31",
+       "stem": "人類是下列何種寄生蟲的終宿主也是中間宿主？",
+       "trueOption": "豬肉絛蟲（Taenia solium）"
+      }
+     ],
+     "bulletIndex": 1,
+     "sentence": "人類是豬肉絛蟲（T. solium）同時身兼終宿主（腸道成蟲）與中間宿主（組織內囊尾幼蟲）最具代表性的絛蟲（短小包膜絛蟲 H. nana 亦可在人小腸絨毛內完成幼蟲期再發育為成蟲，人同樣兼具兩種角色，故不宜稱豬肉絛蟲為「唯一」）——這個「雙重宿主角色」正是豬肉絛蟲比其他絛蟲更危險的解剖生理基礎。111",
+     "citeText": [
+      "111"
+     ],
+     "marks": [
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "111-1-醫學二-寄生蟲學-Q32",
+      "111-2-醫學二-寄生蟲學-Q31"
+     ],
+     "trueOptions": [
+      "豬肉絛蟲（Taenia solium）",
+      "豬肉絛蟲（Taenia solium）"
+     ],
+     "spans": [
+      {
+       "span": "同時身兼終宿主（腸道成蟲）與中間宿主",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::diphyllobothriasis-and-sparganosis",
+   "leafId": "diphyllobothriasis-and-sparganosis",
+   "leafIds": [
+    "diphyllobothriasis-and-sparganosis"
+   ],
+   "heading": "廣節裂頭絛蟲症與孔雀蚴／裂頭蚴移行症（Diphyllobothriasis and Sparganosis）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "105-1-醫學一-寄生蟲學-Q78",
+       "stem": "下列有關廣節裂頭絛蟲（Diphyllobothrium latum）的敘述，何者錯誤？",
+       "trueOption": "蟲卵具有卵蓋（operculum）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "廣節裂頭絛蟲生活史：蟲卵（有卵蓋 operculum）落水孵出纖毛幼蟲 → 第一中間宿主劍水蚤體內發育成原尾幼蟲 → 第二中間宿主淡水魚體內發育成長尾幼蟲（plerocercoid，人類感染期） → 人吃進未熟或醃製魚肉，成蟲寄生於小腸（空腸）。105/111",
+     "citeText": [
+      "105/111"
+     ],
+     "marks": [
+      "105",
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q78",
+      "111-1-醫學二-寄生蟲學-Q31"
+     ],
+     "trueOptions": [
+      "蟲卵具有卵蓋（operculum）",
+      "長尾幼蟲（plerocercoid）具感染人體之能力",
+      "生活史須經過兩個中間宿主的發育過程",
+      "廣節裂頭絛蟲（Diphyllobothrium latum）"
+     ],
+     "spans": [
+      {
+       "span": "長尾幼蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "卵蓋 operculum",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "劍水蚤",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "淡水魚",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "115-2-醫學二-寄生蟲學-Q31",
+       "stem": "陳先生接受民俗療法以搗碎蛙肉塗敷眼睛周圍，藉以消腫，經數週後眼睛周圍呈現水腫及局部發炎症狀，據 此病史最可能為下列何種寄生蟲感染？",
+       "trueOption": "曼森裂頭絛蟲（Spirometra mansonoides）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "裂頭蚴移行症（sparganosis）感染途徑：飲用受感染劍水蚤污染的水、食用未熟蛙肉或蛇肉，或民間敷蛙肉／蛇肉於傷口或眼睛；因人類非其終宿主（貓、狗才是），幼蟲無法發育成成蟲，只能在組織間到處移行，形成移行性病灶，與 Echinococcus 穩定成囊的型態不同。「以搗碎蛙肉敷眼消腫、數週後眼周水腫發炎」是考選部反覆使用的經典病史，答曼森裂頭絛蟲（Spirometra mansonoides）；短小／縮小包膜絛蟲（經口蟲卵或含似囊尾幼蟲的節肢動物）與包生絛蟲（誤食犬糞蟲卵）都與敷蛙肉無關。115-2",
+     "citeText": [
+      "115-2"
+     ],
+     "marks": [
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "115-2-醫學二-寄生蟲學-Q31"
+     ],
+     "trueOptions": [
+      "曼森裂頭絛蟲（Spirometra mansonoides）"
+     ],
+     "spans": [
+      {
+       "span": "非其終宿主",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::free-living-amoebae-and-flagellates",
+   "leafId": "free-living-amoebae-and-flagellates",
+   "leafIds": [
+    "free-living-amoebae-and-flagellates"
+   ],
+   "heading": "自由生活阿米巴：中樞神經與眼睛感染軸（Free-Living Amoebae — CNS and Ocular Axis）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "105-1-醫學一-寄生蟲學-Q80",
+       "stem": "下列敘述何者錯誤？",
+       "trueOption": "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍"
+      },
+      {
+       "id": "107-2-醫學二-寄生蟲學-Q33",
+       "stem": "下列之寄生蟲配對中，何者在患者組織切片皆可能檢出其囊體期（cyst stage）？",
+       "trueOption": "棘阿米巴（Acanthamoeba spp.）及巴氏阿米巴（Balamuthia mandrillaris）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "若在患者組織切片中同時發現滋養體與囊體，最可能的病原是棘阿米巴（Acanthamoeba spp.）或巴氏阿米巴（Balamuthia mandrillaris）——兩者生活模式相近，皆經水環境感染，且都會在組織中形成囊體；福氏內格里阿米巴則不會。105/107",
+     "citeText": [
+      "105/107"
+     ],
+     "marks": [
+      "105",
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q79",
+      "105-1-醫學一-寄生蟲學-Q80",
+      "107-2-醫學二-寄生蟲學-Q33"
+     ],
+     "trueOptions": [
+      "雙核阿米巴（Dientamoeba fragilis）及腸道滴蟲［Trichomonas（Pentatrichomonas） hominis］",
+      "原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者，如未及時診治，通 常在症狀出現後3～6天內死亡",
+      "如在患者組織切片中同時發現滋養體（trophozoites）及囊體（cysts），患者最可能是感 染了棘阿米巴（Acanthamoeba spp.）",
+      "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍",
+      "棘阿米巴（Acanthamoeba spp.）及巴氏阿米巴（Balamuthia mandrillaris）"
+     ],
+     "spans": [
+      {
+       "span": "同時",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學二-寄生蟲學-Q32",
+       "stem": "李姓學童日前於居家附近池塘游泳返家後，陸續出現發燒、頭痛、鼻塞及嗅覺失常等症狀，經住院檢查發現 白血球高達24,000/cmm（>90%為嗜中性白血球）、頸部僵硬及凱尼格氏徵象（Kernig’s sign），並於住院五 天後死亡。依據上述結果，李姓學童最可能感染何種寄生蟲？",
+       "trueOption": "福氏內格里阿米巴（Naegleria fowleri）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "福氏內格里阿米巴（Naegleria fowleri）造成的是原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis, PAM），本質是化膿性（急性）發炎，不是肉芽腫性——後者是棘阿米巴的疾病型態，兩者容易被錯誤配對。104/106",
+     "citeText": [
+      "104/106"
+     ],
+     "marks": [
+      "104",
+      "106"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-寄生蟲學-Q80",
+      "104-2-醫學一-寄生蟲學-Q80",
+      "106-1-醫學一-寄生蟲學-Q80",
+      "106-1-醫學一-寄生蟲學-Q82",
+      "106-2-醫學二-寄生蟲學-Q32"
+     ],
+     "trueOptions": [
+      "大腸纖毛蟲（Balantidium coli）－赤痢（dysentery）",
+      "沒有保蟲宿主（reservoir host）",
+      "女性患者之症狀包括陰道搔癢、白帶增多且常呈黃綠色等",
+      "根據非洲的研究顯示，陰道滴蟲症（vaginal trichomoniasis）患者感染HIV的機率較高",
+      "大腸纖毛蟲（Balantidium coli）及梨形鞭毛蟲（Giardia lamblia）之滋養體（trophozoites）都具有兩個細胞核",
+      "目前治療陰道滴蟲症（vaginal trichomoniasis）的首選用藥為metronidazole",
+      "野外露營如果無法煮沸飲水，可利用碘液處理方式殺死水中梨形鞭毛蟲（Giardia lamblia）的囊體",
+      "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+      "福氏內格里阿米巴（Naegleria fowleri）"
+     ],
+     "spans": [],
+     "score": 2
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::intestinal-luminal-amoebae",
+   "leafId": "intestinal-luminal-amoebae",
+   "leafIds": [
+    "intestinal-luminal-amoebae"
+   ],
+   "heading": "腸道管腔阿米巴：痢疾阿米巴與非致病性阿米巴（Intestinal Luminal Amoebae — E. histolytica vs Non-Pathogenic Species）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "107-1-醫學二-寄生蟲學-Q33",
+       "stem": "下列敘述，何者錯誤？",
+       "trueOption": "齒齦阿米巴（Entamoeba gingivalis）的滋養體（trophozoites）會吞噬紅血球"
+      }
+     ],
+     "bulletIndex": 7,
+     "sentence": "齒齦阿米巴（Entamoeba gingivalis）的滋養體也會吞噬紅血球，但牠寄生於口腔（牙齦、齒垢），與腸道致病無關；人體寄生性阿米巴的寄生部位並非全部都在大腸。106/107",
+     "citeText": [
+      "106/107"
+     ],
+     "marks": [
+      "106",
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q81",
+      "106-1-醫學一-寄生蟲學-Q82",
+      "106-2-醫學二-寄生蟲學-Q34",
+      "107-1-醫學二-寄生蟲學-Q33"
+     ],
+     "trueOptions": [
+      "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+      "Metronidazole為痢疾阿米巴症之首選治療藥物",
+      "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+      "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+      "阿米巴腫（ameboma）常易被誤診為惡性腫瘤",
+      "齒齦阿米巴（Entamoeba gingivalis）的滋養體（trophozoites）會吞噬紅血球",
+      "大腸纖毛蟲（Balantidium coli）是體型最大的人體寄生性原蟲",
+      "大腸纖毛蟲（Balantidium coli）具有大核及小核"
+     ],
+     "spans": [
+      {
+       "span": "口腔",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    },
+    {
+     "tested": [
+      {
+       "id": "106-1-醫學一-寄生蟲學-Q81",
+       "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+       "trueOption": "Metronidazole為痢疾阿米巴症之首選治療藥物"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "痢疾阿米巴症（含阿米巴肝膿瘍）的首選治療藥物為 metronidazole；mebendazole 是用於治療腸道蠕蟲，並非治療阿米巴的藥物。106",
+     "citeText": [
+      "106"
+     ],
+     "marks": [
+      "106"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q81",
+      "106-1-醫學一-寄生蟲學-Q82",
+      "106-2-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+      "Metronidazole為痢疾阿米巴症之首選治療藥物",
+      "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+      "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+      "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+     ],
+     "spans": [
+      {
+       "span": "藥物為 metronidazole",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×1"
+       ],
+       "score": 3
+      }
+     ],
+     "score": 3
+    },
+    {
+     "tested": [
+      {
+       "id": "106-1-醫學一-寄生蟲學-Q81",
+       "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+       "trueOption": "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "痢疾阿米巴（Entamoeba histolytica）的滋養體會吞噬紅血球（erythrophagocytosis），是牠與非致病性近親（如哈氏阿米巴）最重要的鑑別特徵；哈氏阿米巴滋養體的胞內容物是細菌，不含紅血球。106/108",
+     "citeText": [
+      "106/108"
+     ],
+     "marks": [
+      "106",
+      "108"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q81",
+      "106-1-醫學一-寄生蟲學-Q82",
+      "106-2-醫學二-寄生蟲學-Q34",
+      "108-1-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+      "Metronidazole為痢疾阿米巴症之首選治療藥物",
+      "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+      "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+      "阿米巴腫（ameboma）常易被誤診為惡性腫瘤",
+      "痢疾阿米巴（Entamoeba histolytica）感染之⾼危險群包括男同性戀者及啟智、精神教養院⽣"
+     ],
+     "spans": [],
+     "score": 2
+    },
+    {
+     "tested": [
+      {
+       "id": "106-1-醫學一-寄生蟲學-Q81",
+       "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+       "trueOption": "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）"
+      }
+     ],
+     "bulletIndex": 1,
+     "sentence": "痢疾阿米巴與型態完全相同的迪斯帕阿米巴（Entamoeba dispar，非致病性）無法單靠形態學區分，須利用 PCR 技術才能鑑別兩者。106",
+     "citeText": [
+      "106"
+     ],
+     "marks": [
+      "106"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q81",
+      "106-1-醫學一-寄生蟲學-Q82",
+      "106-2-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+      "Metronidazole為痢疾阿米巴症之首選治療藥物",
+      "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+      "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+      "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+     ],
+     "spans": [],
+     "score": 1
+    },
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學二-寄生蟲學-Q34",
+       "stem": "下列有關痢疾阿米巴（Entamoeba histolytica）的敘述中，何者正確？",
+       "trueOption": "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "阿米巴腫（ameboma）是慢性阿米巴感染在腸壁形成的肉芽腫性腫塊，外觀酷似惡性腫瘤，臨床上容易被誤診為癌症或發炎性腸病，需特別留意鑑別診斷。106",
+     "citeText": [
+      "106"
+     ],
+     "marks": [
+      "106"
+     ],
+     "linkedQuestionIds": [
+      "106-1-醫學一-寄生蟲學-Q81",
+      "106-1-醫學一-寄生蟲學-Q82",
+      "106-2-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+      "Metronidazole為痢疾阿米巴症之首選治療藥物",
+      "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+      "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+      "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+     ],
+     "spans": [],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::malaria-plasmodium",
+   "leafId": "malaria-plasmodium",
+   "leafIds": [
+    "malaria-plasmodium"
+   ],
+   "heading": "瘧原蟲與瘧疾（Plasmodium spp. and Malaria）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "113-1-醫學二-寄生蟲學-Q34",
+       "stem": "有關諾氏瘧原蟲（Plasmodium knowlesi）的敘述，下列何者錯誤？",
+       "trueOption": "宿主專一性不強，可感染人類或非人靈長類"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "諾氏瘧原蟲宿主專一性不強，可感染人類與非人靈長類（人畜共通）；裂殖體週期僅24小時，是所有瘧原蟲中最短；不形成隱眠小體、不復發；2005年台灣曾出現首例境外移入（自菲律賓巴拉望島返國）病例。104/113",
+     "citeText": [
+      "104/113"
+     ],
+     "marks": [
+      "104",
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-寄生蟲學-Q79",
+      "104-2-醫學一-寄生蟲學-Q81",
+      "113-1-醫學二-寄生蟲學-Q34",
+      "113-2-醫學二-寄生蟲學-Q33"
+     ],
+     "trueOptions": [
+      "臺灣近年有境外移入諾氏瘧原蟲（Plasmodium knowlesi）感染的病例",
+      "惡性瘧原蟲（Plasmodium falciparum）",
+      "宿主專一性不強，可感染人類或非人靈長類",
+      "並不限定入侵年輕或老的紅血球",
+      "生活史中的裂殖體週期（schizogonic cycle）僅需24 小時",
+      "其裂殖子（merozoite）主要侵犯年輕的紅血球，如網狀紅血球（reticulocyte）",
+      "Duffy血型抗原是該瘧原蟲的附著部位",
+      "因紅血球破裂，大量裂殖子（merozoite）、細胞殘骸及血紅素釋出，造成畏寒、發燒的臨床症狀"
+     ],
+     "spans": [
+      {
+       "span": "24小時",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "110-1-醫學二-寄生蟲學-Q33",
+       "stem": "有關罹患瘧疾（malaria）後產生併發症的敘述，下列何者正確？",
+       "trueOption": "黑水熱（blackwater fever）：和自體免疫有關，患者產生抗體攻擊受瘧原蟲感染的紅血球，導致破裂而造成"
+      },
+      {
+       "id": "115-1-醫學二-寄生蟲學-Q35",
+       "stem": "有關黑水熱（blackwater fever）的敘述，下列何者最為適當？",
+       "trueOption": "血管內大量溶血併發血紅素尿（hemoglobinuria）所造成的症狀"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "黑水熱（blackwater fever）：由惡性瘧引發的大量血管內溶血，患者產生抗體攻擊受感染紅血球導致破裂，釋出的血紅素超過結合珠蛋白（haptoglobin）的結合能力而經尿液排出，形成血紅素尿（hemoglobinuria），與自體免疫反應及補體活化有關，並非肝細胞受損所致、也與IFN-γ受體損傷無關。110/115",
+     "citeText": [
+      "110/115"
+     ],
+     "marks": [
+      "110",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "110-1-醫學二-寄生蟲學-Q33",
+      "110-2-醫學二-寄生蟲學-Q32",
+      "115-1-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "黑水熱（blackwater fever）：和自體免疫有關，患者產生抗體攻擊受瘧原蟲感染的紅血球，導致破裂而造成",
+      "人體內裂殖子（merozoite）會轉變成為大 ／小配子母細胞（macro- / micro-gametocyte）",
+      "血管內大量溶血併發血紅素尿（hemoglobinuria）所造成的症狀"
+     ],
+     "spans": [],
+     "score": 2
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::leishmaniasis",
+   "leafId": "leishmaniasis",
+   "leafIds": [
+    "leishmaniasis"
+   ],
+   "heading": "利什曼原蟲症（Leishmaniasis）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "108-2-醫學二-病理學-Q34",
+       "stem": "下列各病症與其病原蟲之配對中，何者錯誤？",
+       "trueOption": "Espundia－巴西利什曼原蟲（Leishmania braziliensis）"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "chiclero's ulcer（侵蝕耳朵軟骨）由墨西哥利什曼原蟲（L. mexicana）引起，勿與巴西利什曼原蟲（L. braziliensis）引起的espundia（黏膜破壞）混淆；兩者都屬於非內臟型，但侵犯部位與病灶型態不同。108/109",
+     "citeText": [
+      "108/109"
+     ],
+     "marks": [
+      "108",
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "108-2-醫學二-病理學-Q34",
+      "109-1-醫學二-微生物暨免疫學-Q34"
+     ],
+     "trueOptions": [
+      "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）",
+      "Winterbottom's sign－岡比亞錐蟲（Trypanosoma brucei gambiense）",
+      "Espundia－巴西利什曼原蟲（Leishmania braziliensis）",
+      "杜氏利什曼原蟲（Leishmania donovani）是黑熱病（kala-azar）的致病原"
+     ],
+     "spans": [
+      {
+       "span": "espundia",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "墨西哥利什曼原蟲",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "104-1-醫學一-寄生蟲學-Q81",
+       "stem": "白蛉（sandfly）可以媒介下列何種寄生蟲感染症？",
+       "trueOption": "黑熱病（kala-azar）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "黑熱病（kala-azar）由杜氏利什曼原蟲引起，典型三主症是發燒＋肝脾腫大＋貧血，常合併高球蛋白血症（hypergammaglobulinemia）、血小板與白血球減少（易誤診為再生不能性貧血）；診斷靠骨髓穿刺於巨噬細胞內找到無鞭毛體。104/106/109/111",
+     "citeText": [
+      "104/106/109/111"
+     ],
+     "marks": [
+      "104",
+      "106",
+      "109",
+      "111"
+     ],
+     "linkedQuestionIds": [
+      "104-1-醫學一-寄生蟲學-Q81",
+      "104-2-醫學一-寄生蟲學-Q79",
+      "106-2-醫學二-寄生蟲學-Q33",
+      "109-1-醫學二-微生物暨免疫學-Q34",
+      "111-1-醫學二-寄生蟲學-Q34",
+      "111-2-醫學二-寄生蟲學-Q33"
+     ],
+     "trueOptions": [
+      "黑熱病（kala-azar）",
+      "杜氏利什曼原蟲（Leishmania donovani）",
+      "黑熱病（black fever）",
+      "杜氏利什曼原蟲（Leishmania donovani）是黑熱病（kala-azar）的致病原",
+      "黑水熱（blackwater fever）",
+      "有部分患者皮膚會出現紅腫及結節（depigmented nodule）的後黑熱病（post-kala-azar）症狀"
+     ],
+     "spans": [
+      {
+       "span": "發燒＋肝脾腫大＋貧血",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×4"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 6
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::trypanosomiasis",
+   "leafId": "trypanosomiasis",
+   "leafIds": [
+    "trypanosomiasis"
+   ],
+   "heading": "錐蟲病（Trypanosomiasis：Chagas 病與非洲昏睡病）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "108-2-醫學二-病理學-Q34",
+       "stem": "下列各病症與其病原蟲之配對中，何者錯誤？",
+       "trueOption": "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "枯西氏錐蟲（T. cruzi）急性期典型徵象是單側眼瞼水腫合併結膜腫大，稱為Romaña's sign（叮咬處在眼周時出現），或叮咬處皮膚結節chagoma；慢性期則因自律神經節（如Auerbach氏神經叢）受免疫反應與寄生蟲破壞，出現心肌病變（心悸、心衰）、巨食道症、巨結腸症——機轉是神經節受破壞，並非補體直接攻擊。108/112/114",
+     "citeText": [
+      "108/112/114"
+     ],
+     "marks": [
+      "108",
+      "112",
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "108-2-醫學二-病理學-Q33",
+      "108-2-醫學二-病理學-Q34",
+      "112-1-醫學二-寄生蟲學-Q33",
+      "114-1-醫學二-寄生蟲學-Q33"
+     ],
+     "trueOptions": [
+      "有些黑熱病（kala-azar）患者如果治療不當，在一、兩年後同樣的病原蟲可能在皮膚產生病灶",
+      "美國境內也曾有本土性枯西氏錐蟲（Trypanosoma cruzi）人體感染的病例",
+      "歐美人士至東非野生動物保護區旅行，曾有因此感染羅得西亞錐蟲（Trypanosoma brucei rhodesiense）的病 例發生",
+      "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）",
+      "Winterbottom's sign－岡比亞錐蟲（Trypanosoma brucei gambiense）",
+      "Espundia－巴西利什曼原蟲（Leishmania braziliensis）",
+      "黑熱病（kala-azar）",
+      "性行為與輸血均可傳播本疾病"
+     ],
+     "spans": [
+      {
+       "span": "Romaña's sign",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3",
+        "in-true-option"
+       ],
+       "score": 9
+      }
+     ],
+     "score": 9
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::babesiosis",
+   "leafId": "babesiosis",
+   "leafIds": [
+    "babesiosis"
+   ],
+   "heading": "巴貝氏原蟲病（Babesiosis）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "108-2-醫學二-寄生蟲學-Q35",
+       "stem": "有關蜱媒介人巴貝氏原蟲病（human babesiosis）之敘述，下列何者錯誤？",
+       "trueOption": "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "診斷以血液抹片鏡檢配合免疫螢光抗體試驗（IFA）為主；標準治療為克林達黴素（clindamycin）併用奎寧（quinine），另一常用方案是atovaquone併用azithromycin。108/115",
+     "citeText": [
+      "108/115"
+     ],
+     "marks": [
+      "108",
+      "115"
+     ],
+     "linkedQuestionIds": [
+      "108-2-醫學二-寄生蟲學-Q35",
+      "115-1-醫學二-寄生蟲學-Q33"
+     ],
+     "trueOptions": [
+      "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+      "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+      "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主",
+      "③④"
+     ],
+     "spans": [
+      {
+       "span": "血液抹片鏡檢配合免疫螢光抗體試驗",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    },
+    {
+     "tested": [
+      {
+       "id": "110-2-醫學二-寄生蟲學-Q35",
+       "stem": "下列何者為傳播人巴貝氏原蟲症（human babesiosis）之主要病媒？",
+       "trueOption": "硬蜱屬（Ixodes spp.）"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "硬蜱屬（Ixodes spp.）是傳播人巴貝氏原蟲病的主要病媒，同屬也傳播萊姆病與艾利希體症；革蜱屬（Dermacentor spp.）傳播落磯山斑疹熱，花蜱屬（Amblyomma spp.）與血蜱屬（Haemaphysalis spp.）則分別對應其他立克次體疾病，四屬蜱蟲各有偏好的傳播疾病組合。107/108/110",
+     "citeText": [
+      "107/108/110"
+     ],
+     "marks": [
+      "107",
+      "108",
+      "110"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學二-寄生蟲學-Q34",
+      "107-2-醫學二-寄生蟲學-Q35",
+      "108-2-醫學二-寄生蟲學-Q35",
+      "110-2-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "萊姆病（Lyme disease）",
+      "巴貝氏原蟲症（babesiosis）",
+      "落磯山斑疹熱（Rocky Mountain spotted fever）",
+      "巴貝氏原蟲症（babesiosis）",
+      "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+      "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+      "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主",
+      "硬蜱屬（Ixodes spp.）"
+     ],
+     "spans": [],
+     "score": 3
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::toxoplasmosis",
+   "leafId": "toxoplasmosis",
+   "leafIds": [
+    "toxoplasmosis"
+   ],
+   "heading": "弓蟲症（Toxoplasmosis）",
+   "tier": "low-yield",
+   "maxCards": 3,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "105-2-醫學一-寄生蟲學-Q80",
+       "stem": "以下關於弓蟲（Toxoplasma gondii）的敘述中，何者錯誤？",
+       "trueOption": "弓蟲症在台灣屬第四類法定傳染病"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "孕婦於懷孕期間（尤其第一孕期最嚴重）感染急性弓蟲症可能經胎盤垂直傳染，造成胎兒水腦症、腦脊髓炎、視網膜脈絡膜炎；spiramycin是文獻記載用於預防胎兒子宮內感染的藥物之一；弓蟲症在台灣屬於第四類法定傳染病。105",
+     "citeText": [
+      "105"
+     ],
+     "marks": [
+      "105"
+     ],
+     "linkedQuestionIds": [
+      "105-2-醫學一-寄生蟲學-Q80"
+     ],
+     "trueOptions": [
+      "在愛滋病患者可能導致弓蟲性腦炎（Toxoplasma encephalitis）",
+      "文獻記載，孕婦得到急性弓蟲症（toxoplasmosis）時，spiramycin為預防其胎兒子宮內感染的用藥之一",
+      "弓蟲症在台灣屬第四類法定傳染病"
+     ],
+     "spans": [],
+     "score": 1
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+   "leafId": "louse-flea-mechanical-vectors",
+   "leafIds": [
+    "louse-flea-mechanical-vectors"
+   ],
+   "heading": "蝨與蚤：機械性傳播與病媒疾病（Lice, Fleas, and Mechanical Transmission）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "108-1-醫學二-寄生蟲學-Q35",
+       "stem": "有關蠅蛆症（myiasis）之敘述，下列何者錯誤？",
+       "trueOption": "⼈膚蠅（Dermatobia hominis）產卵於吸⾎性蚊/蠅之腹部⽽致孵化之幼蟲鑽入宿主⽪膚傷⼝"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "蠅蛆症（myiasis）是機械性寄生的特例——幼蟲直接鑽入或寄生在組織內：人膚蠅（Dermatobia hominis）廣泛分布於拉丁美洲熱帶地區（並非亞洲），產卵於吸血性蚊蠅腹部，藉由其叮咬把孵化的幼蟲帶入宿主皮膚傷口；院內蠅蛆症（nosocomial myiasis）好發於長期臥床且有開放性傷口的病患；耳部蠅蛆症常見蟲體爬動感、雜音與惡臭分泌物。108/113",
+     "citeText": [
+      "108/113"
+     ],
+     "marks": [
+      "108",
+      "113"
+     ],
+     "linkedQuestionIds": [
+      "108-1-醫學二-寄生蟲學-Q35",
+      "113-1-醫學二-寄生蟲學-Q35",
+      "113-2-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "⼈膚蠅（Dermatobia hominis）產卵於吸⾎性蚊/蠅之腹部⽽致孵化之幼蟲鑽入宿主⽪膚傷⼝",
+      "院內蠅蛆症（nosocomial myiasis）常發⽣於⻑期臥床且有開放性傷⼝病患",
+      "⽿部蠅蛆症（aural myiasis）病患常有蟲體爬動感、雜⾳及惡臭分泌物",
+      "綠蠅",
+      "地方性斑疹傷寒（endemic typhus）"
+     ],
+     "spans": [
+      {
+       "span": "Dermatobia hominis",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "拉丁美洲熱帶地區",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "contrast"
+       ],
+       "score": 7
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "114-1-醫學二-寄生蟲學-Q35",
+       "stem": "下列有關病媒（vector）的敘述，何者最為適當？",
+       "trueOption": "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+      }
+     ],
+     "bulletIndex": 4,
+     "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是常見的錯誤誘答。114",
+     "citeText": [
+      "114"
+     ],
+     "marks": [
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "114-1-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+     ],
+     "spans": [
+      {
+       "span": "馬氏管",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "106-2-醫學二-寄生蟲學-Q35",
+       "stem": "下列何種節肢動物，主要以機械性傳播（mechanical transmission）方式媒介病原體？",
+       "trueOption": "家蠅（house fly）"
+      }
+     ],
+     "bulletIndex": 0,
+     "sentence": "機械性傳播：家蠅（house fly）藉由體毛、蠟質、黏液單純攜帶病原體、不在體內繁殖（傳播痢疾、傷寒、霍亂等）；相對地，蚊子、跳蚤、體蝨都屬於生物性傳播，病原體必須先在節肢動物體內生長繁殖才能傳播。106/114",
+     "citeText": [
+      "106/114"
+     ],
+     "marks": [
+      "106",
+      "114"
+     ],
+     "linkedQuestionIds": [
+      "106-2-醫學二-寄生蟲學-Q35",
+      "114-1-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "家蠅（house fly）",
+      "節肢動物的馬氏管（Malpighian tubules）主要負責移除含氮廢物"
+     ],
+     "spans": [
+      {
+       "span": "生物性傳播",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::tick-borne-disease",
+   "leafId": "tick-borne-disease",
+   "leafIds": [
+    "tick-borne-disease"
+   ],
+   "heading": "蜱媒介疾病（Tick-Borne Disease）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "104-2-醫學一-寄生蟲學-Q82",
+       "stem": "下列有關蜱媒介人畜共通萊姆病（Lyme disease）之敘述，何者錯誤？",
+       "trueOption": "其致病原為伯氏疏螺旋體（Borrelia burgdorferi）"
+      },
+      {
+       "id": "105-2-醫學一-寄生蟲學-Q81",
+       "stem": "下列何者為傳播人畜共通萊姆病（Lyme disease）之主要病媒（vector）？",
+       "trueOption": "硬蜱屬（Ixodes spp.）"
+      }
+     ],
+     "bulletIndex": 1,
+     "sentence": "硬蜱屬（Ixodes spp.）是萊姆病（Borrelia burgdorferi）最主要的病媒；感染分三期：第一期慢性遊走性紅斑（erythema migrans）、第二期無菌性腦膜炎／貝爾氏麻痺／心臟傳導阻斷／心肌炎、第三期慢性關節炎與腦病變。螺旋菌無法／很難培養，臨床診斷以症狀或血清學（測抗體）為主，不是血液抹片鏡檢。104/105",
+     "citeText": [
+      "104/105"
+     ],
+     "marks": [
+      "104",
+      "105"
+     ],
+     "linkedQuestionIds": [
+      "104-2-醫學一-寄生蟲學-Q82",
+      "105-1-醫學一-寄生蟲學-Q82",
+      "105-2-醫學一-寄生蟲學-Q79",
+      "105-2-醫學一-寄生蟲學-Q81"
+     ],
+     "trueOptions": [
+      "高度流行區內常有共同感染（co-infection）巴貝氏原蟲（Babesia spp.）",
+      "其致病原為伯氏疏螺旋體（Borrelia burgdorferi）",
+      "感染早期以遊走性紅斑（erythema migrans）為主要病癥",
+      "戰壕熱（trench fever）",
+      "巴貝氏原蟲症（babesiosis）",
+      "硬蜱屬（Ixodes spp.）"
+     ],
+     "spans": [
+      {
+       "span": "硬蜱屬",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "Borrelia burgdorferi",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 8
+      },
+      {
+       "span": "不是血液抹片鏡檢",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "症狀或血清學",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 8
+    },
+    {
+     "tested": [
+      {
+       "id": "105-2-醫學一-寄生蟲學-Q79",
+       "stem": "某科技公司主管林先生於二週前赴美國紐澤西地區參訪旅遊，旅遊期間曾遭受不知名具有八隻腳蟲體叮咬，回國一週後出現發 燒、寒顫、頭痛及肌痛等症狀，經醫院檢驗結果發現血小板減少、輕度溶血性貧血及紅血球內發現有雙核形（binucleate- form）之寄生蟲。依據上述結果，林先生最可能感染何種寄生蟲病？",
+       "trueOption": "巴貝氏原蟲症（babesiosis）"
+      },
+      {
+       "id": "108-2-醫學二-寄生蟲學-Q35",
+       "stem": "有關蜱媒介人巴貝氏原蟲病（human babesiosis）之敘述，下列何者錯誤？",
+       "trueOption": "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內"
+      }
+     ],
+     "bulletIndex": 3,
+     "sentence": "巴貝氏原蟲症（babesiosis）：Babesia 寄生紅血球內、無性生殖形成類似瘧原蟲的環狀體，典型為4個merozoite排成馬爾他十字（Maltese cross）；多數患者呈現無症狀之低度寄生蟲血症（並非高度寄生蟲血症）；免疫缺損（脾臟切除、癌症、愛滋病）、老年人、5歲以下孩童感染較嚴重甚至致死；臨床診斷以血液抹片配合免疫螢光抗體試驗（IFA）為主。105/108",
+     "citeText": [
+      "105/108"
+     ],
+     "marks": [
+      "105",
+      "108"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q82",
+      "105-2-醫學一-寄生蟲學-Q79",
+      "105-2-醫學一-寄生蟲學-Q81",
+      "108-2-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "戰壕熱（trench fever）",
+      "巴貝氏原蟲症（babesiosis）",
+      "硬蜱屬（Ixodes spp.）",
+      "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+      "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+      "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+     ],
+     "spans": [
+      {
+       "span": "無症狀之低度寄生蟲血症",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2",
+        "contrast"
+       ],
+       "score": 7
+      },
+      {
+       "span": "血液抹片配合免疫螢光抗體試驗",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×2",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "馬爾他十字",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "5歲",
+       "kind": "number",
+       "base": 3,
+       "signals": [
+        "number",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "4個merozoite排成馬爾他十字",
+       "kind": "trigger",
+       "base": 2,
+       "signals": [
+        "trigger",
+        "marks×2"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "107-1-醫學二-寄生蟲學-Q34",
+       "stem": "下列何者不屬於蜱媒介人畜共通感染症（tick-borne zoonoses）？",
+       "trueOption": "落磯山斑疹熱（Rocky Mountain spotted fever）"
+      }
+     ],
+     "bulletIndex": 5,
+     "sentence": "落磯山斑疹熱（Rocky Mountain spotted fever）由革蜱屬（Dermacentor spp.）傳播Rickettsia rickettsii；西尼羅病毒症（West Nile）是家蚊（Culex）叮咬傳播，不屬於蜱媒介人畜共通感染症。107",
+     "citeText": [
+      "107"
+     ],
+     "marks": [
+      "107"
+     ],
+     "linkedQuestionIds": [
+      "107-1-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "萊姆病（Lyme disease）",
+      "巴貝氏原蟲症（babesiosis）",
+      "落磯山斑疹熱（Rocky Mountain spotted fever）"
+     ],
+     "spans": [
+      {
+       "span": "落磯山斑疹熱",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1",
+        "in-true-option"
+       ],
+       "score": 7
+      },
+      {
+       "span": "Dermacentor spp.",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "不屬於蜱媒介人畜共通感染症",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 7
+    },
+    {
+     "tested": [
+      {
+       "id": "109-2-醫學二-寄生蟲學-Q34",
+       "stem": "病媒蜱（vector tick）可以藉由叮咬而傳播下列何種人類感染症？",
+       "trueOption": "回歸熱（relapsing fever）"
+      }
+     ],
+     "bulletIndex": 6,
+     "sentence": "軟蜱（Ornithodoros spp.）傳播蜱媒回歸熱（tick-borne relapsing fever）與Q熱（Coxiella burnetii；Q熱硬蜱亦可傳播）；黑熱病（白蛉媒介）、戰壕熱（體蝨媒介）、黃熱病（斑蚊媒介）都不是蜱媒介疾病。109",
+     "citeText": [
+      "109"
+     ],
+     "marks": [
+      "109"
+     ],
+     "linkedQuestionIds": [
+      "109-2-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "回歸熱（relapsing fever）"
+     ],
+     "spans": [
+      {
+       "span": "軟蜱",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      },
+      {
+       "span": "Coxiella burnetii",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×1"
+       ],
+       "score": 4
+      }
+     ],
+     "score": 4
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::scrub-typhus-chigger-mite",
+   "leafId": "scrub-typhus-chigger-mite",
+   "leafIds": [
+    "scrub-typhus-chigger-mite"
+   ],
+   "heading": "恙蟲病與恙蟎媒介（Scrub Typhus and Chigger Mite）",
+   "tier": "穩定考點",
+   "maxCards": 4,
+   "candidates": [
+    {
+     "tested": [
+      {
+       "id": "107-2-醫學二-寄生蟲學-Q34",
+       "stem": "人類感染恙蟲病（scrub typhus）主要是經由下列何者之叮咬而感染？",
+       "trueOption": "感染性幼蟎（mite）"
+      }
+     ],
+     "bulletIndex": 2,
+     "sentence": "台灣本土病媒蟎種主要為地里恙蟎（Leptotrombidium deliense）；焦痂（eschar）是恙蟲病重要的臨床辨識徵象，常合併發燒與淋巴結腫大，與落磯山斑疹熱、流行性斑疹傷寒、地方性斑疹傷寒（皆非恙蟎傳播）互為鑑別誘答。臨床情境題只要出現蘭嶼、花東或離島旅遊史＋蟎（mite）叮咬就答恙蟲病——犬心絲蟲症靠蚊、瘧疾靠瘧蚊、黃熱病靠斑蚊，三者都不是蟎媒。107/109/115-2",
+     "citeText": [
+      "107/109/115-2"
+     ],
+     "marks": [
+      "107",
+      "109",
+      "115-2"
+     ],
+     "linkedQuestionIds": [
+      "107-2-醫學二-寄生蟲學-Q34",
+      "109-2-醫學二-寄生蟲學-Q35",
+      "115-2-醫學二-寄生蟲學-Q35"
+     ],
+     "trueOptions": [
+      "感染性幼蟎（mite）",
+      "叢林斑疹傷寒（scrub typhus）",
+      "恙蟲病（scrub typhus）"
+     ],
+     "spans": [
+      {
+       "span": "地里恙蟎",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      },
+      {
+       "span": "焦痂",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×3"
+       ],
+       "score": 6
+      }
+     ],
+     "score": 6
+    }
+   ]
+  },
+  {
+   "subjectId": "寄生蟲學",
+   "relPath": "packages/content-neurons-tw/src/handout/寄生蟲學.html",
+   "anchorId": "寄生蟲學::dust-mite-allergy",
+   "leafId": "dust-mite-allergy",
+   "leafIds": [
+    "dust-mite-allergy"
+   ],
+   "heading": "塵蟎過敏原與氣喘（House Dust Mite Allergen）",
+   "tier": "low-yield",
+   "maxCards": 3,
+   "candidates": [
+    {
+     "tested": [],
+     "bulletIndex": 0,
+     "sentence": "塵蟎屬（Dermatophagoides spp.）是兒童氣喘與過敏性鼻炎最常見的致敏原（Der p1，IgE媒介），並非疥蟎（疥瘡）、毛囊蟎、恙蟎（恙蟲病）、跳蚤或狗蜱。105/112",
+     "citeText": [
+      "105/112"
+     ],
+     "marks": [
+      "105",
+      "112"
+     ],
+     "linkedQuestionIds": [
+      "105-1-醫學一-寄生蟲學-Q81",
+      "112-2-醫學二-寄生蟲學-Q34"
+     ],
+     "trueOptions": [
+      "塵蟎（dust mite）",
+      "塵蟎（dust mite）"
+     ],
+     "spans": [
+      {
+       "span": "塵蟎屬",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      },
+      {
+       "span": "Der p1",
+       "kind": "bold",
+       "base": 3,
+       "signals": [
+        "bold",
+        "marks×2"
+       ],
+       "score": 5
+      }
+     ],
+     "score": 5
+    }
+   ]
+  }
+ ]
+}

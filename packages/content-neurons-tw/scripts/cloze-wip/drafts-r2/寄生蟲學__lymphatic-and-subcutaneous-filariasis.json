@@ -1,0 +1,306 @@
+{
+ "anchorId": "寄生蟲學::lymphatic-and-subcutaneous-filariasis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "554f1b2ea9567820",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "班氏絲蟲（Wuchereria bancrofti）病媒為熱帶家蚊（曾流行於台澎金馬及中國南方）；成蟲寄生於淋巴管，微絲蟲具有夜間週期性（白天聚集於肺部小血管，夜間才大量出現於末梢血液），臨床上可用 diethylcarbamazine（DEC）誘發試驗讓微絲蟲白天也能被採血檢出；感染造成淋巴管炎、象皮病、陰囊水腫、乳糜尿。106/108/112",
+   "citeText": [
+    "106/108/112"
+   ],
+   "marks": [
+    "106",
+    "108",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q75",
+    "106-2-醫學二-寄生蟲學-Q29",
+    "108-1-醫學二-寄生蟲學-Q30",
+    "112-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "3項",
+    "diethylcarbamazine",
+    "蟲體在淋巴管發育為成蟲",
+    "只有在夜間微絲蟲（microfilaria）才會⼤量出現在末梢⾎液",
+    "在乳糜尿（chyluria）中也可能發現微絲蟲（microfilaria）",
+    "熱帶家蚊（Culex quinquefasciatus / fatigans）"
+   ],
+   "spans": [
+    {
+     "span": "熱帶家蚊",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "班氏絲蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "夜間週期性",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 9
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "蚊子叮咬吸血時不會直接把微絲蟲注入人體——蚊子是先吸入帶菌者血液中的微絲蟲，在蚊體內發育成感染型 L3 後，才在下次叮咬時把 L3 注入健康人體內。108",
+   "citeText": [
+    "108"
+   ],
+   "marks": [
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "蟲體在淋巴管發育為成蟲",
+    "只有在夜間微絲蟲（microfilaria）才會⼤量出現在末梢⾎液",
+    "在乳糜尿（chyluria）中也可能發現微絲蟲（microfilaria）"
+   ],
+   "spans": [
+    {
+     "span": "不會直接把微絲蟲注入人體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "馬來絲蟲（Brugia malayi）與班氏絲蟲同樣寄生淋巴管、造成象皮病（好發膝蓋以下），但微絲蟲尾端具有 2 個尾核是馬來絲蟲的招牌鑑別特徵（班氏絲蟲微絲蟲無尾核）；馬來絲蟲的診斷仍靠夜間血液抹片，不是皮膚切片（皮膚切片是蟠尾絲蟲的診斷方式）。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "於患者血液之微絲蟲（microfilaria）尾端出現尾核"
+   ],
+   "spans": [
+    {
+     "span": "微絲蟲尾端具有 2 個尾核",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "不是皮膚切片",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "熱帶肺部嗜酸性白血球增多症（tropical pulmonary eosinophilia, TPE）由絲蟲感染引發：血清抗絲蟲抗體效價高、末梢血液嗜伊紅性白血球明顯增多、以 DEC 治療有效，但末梢血液中通常檢查不到微絲蟲——這個「症狀典型卻驗不到蟲」的矛盾正是 TPE 的診斷重點與常考陷阱。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q76"
+   ],
+   "trueOptions": [
+    "血清中呈現高效價抗絲蟲抗體",
+    "除肺部外，末梢血液中之嗜酸性白血球也增多",
+    "用diethylcarbamazine治療有效"
+   ],
+   "spans": [
+    {
+     "span": "熱帶肺部嗜酸性白血球增多症",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "但末梢血液中通常檢查不到微絲蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "羅阿絲蟲（Loa loa）病媒為虻（Chrysops，鹿蠅）；成蟲主要寄生於皮下組織、微絲蟲於白天出現在血液中；成蟲移行雖在皮下，但多不引起劇痛，只因蟲體分泌物過敏反應造成暫時性的卡拉巴腫（Calabar swelling）；跑到眼結膜下可造成眼蟲病（大量流淚、疼痛、不安），但不會造成失明——會致盲的是蟠尾絲蟲。104",
+   "citeText": [
+    "104"
+   ],
+   "marks": [
+    "104"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-寄生蟲學-Q75"
+   ],
+   "trueOptions": [
+    "成蟲主要寄生在皮下組織",
+    "微絲蟲（microfilaria）會出現在血液內",
+    "大多數病患之嗜酸性白血球會明顯增高"
+   ],
+   "spans": [
+    {
+     "span": "羅阿絲蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "白天",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "多不引起劇痛",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "不會造成失明",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "蟠尾絲蟲（Onchocerca volvulus）病媒為蚋（Simulium，黑蠅）；微絲蟲定居於皮膚（真皮層）與尿液中，皮下切片（skin snips）是主要診斷方法；重複感染可造成河川盲症（river blindness）、皮疹、硬而不痛的皮下結節、豹皮花紋（leopard skin）、鼠蹊懸垂（hanging groin）；肺部結節／錢幣狀病灶不是蟠尾絲蟲的表現，那是犬心絲蟲（Dirofilaria immitis）的特徵，兩者常被放在一起誘答。106/107/110/111",
+   "citeText": [
+    "106/107/110/111"
+   ],
+   "marks": [
+    "106",
+    "107",
+    "110",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q75",
+    "106-2-醫學二-寄生蟲學-Q29",
+    "107-2-醫學二-寄生蟲學-Q30",
+    "110-2-醫學二-寄生蟲學-Q29",
+    "111-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "3項",
+    "diethylcarbamazine",
+    "蟠尾絲蟲（Onchocerca volvulus）",
+    "微絲蟲會侵犯患者眼睛造成失明",
+    "自皮膚切片（skin snips）發現微絲蟲為主要診斷方法",
+    "患者可能出現鼠蹊懸垂（hanging groin）",
+    "蚋（Simulium spp.）"
+   ],
+   "spans": [],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "熱帶家蚊",
+   "why": "vector"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "restated"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "restated"
+  },
+  {
+   "n": 4,
+   "span": "DEC",
+   "why": "treatment response"
+  },
+  {
+   "n": 5,
+   "span": "蟠尾絲蟲",
+   "why": "causes blindness"
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "english leak"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"熱帶家蚊\",\"why\":\"vector\"},{\"n\":2,\"skip\":true,\"why\":\"restated\"},{\"n\":3,\"skip\":true,\"why\":\"restated\"},{\"n\":4,\"span\":\"DEC\",\"why\":\"treatment response\"},{\"n\":5,\"span\":\"蟠尾絲蟲\",\"why\":\"causes blindness\"},{\"n\":6,\"skip\":true,\"why\":\"english leak\"}]\n"
+}

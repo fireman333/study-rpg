@@ -1,0 +1,32 @@
+[
+ {
+  "anchorId": "胚胎學::cardiovascular-development",
+  "cardId": "cardiovascular-development#k12",
+  "sentence": "升主動脈（ascending aorta）源自動脈幹（truncus arteriosus），是唯一與咽弓動脈無關的心臟大血管。",
+  "problem": "「唯一」錯誤：肺動脈幹同樣源自動脈幹、與咽弓動脈無關。",
+  "suggestedFix": "升主動脈（ascending aorta）與肺動脈幹皆源自動脈幹（truncus arteriosus），不屬咽弓動脈衍生物。",
+  "examRef": "110-1-醫學一-胚胎學-Q34",
+  "source": "r2-05",
+  "issueId": "K01"
+ },
+ {
+  "anchorId": "胚胎學::GI-development",
+  "cardId": "GI-development#k12",
+  "sentence": "第 26 天尿囊與後腸共同開口形成泄殖腔，被泌尿生殖橫膈分隔後，肛門膜約於第 9 週破裂",
+  "problem": "分隔泄殖腔的是尿直腸中隔（urorectal septum），不是泌尿生殖橫膈。",
+  "suggestedFix": "泄殖腔被尿直腸中隔（urorectal septum）分隔後",
+  "examRef": "104-2-醫學一-胚胎學-Q30",
+  "source": "r2-05",
+  "issueId": "K02"
+ },
+ {
+  "anchorId": "寄生蟲學::toxoplasmosis",
+  "cardId": "toxoplasmosis#k4",
+  "sentence": "弓蟲症在台灣屬於第四類法定傳染病。105",
+  "problem": "官方答案 vs 現況：105-2 Q80 以此為正確敘述，但現行疾管署法定傳染病分類中未見弓蟲症，可能已過時；需查證後依 hdt-intl 政策加註。",
+  "suggestedFix": "保留考題答案並加註 <span class=\"hdt-intl\">（⚠️ 現行法定傳染病分類請以疾管署公告為準；作答以歷屆考題答案為準）</span>",
+  "examRef": "105-2-醫學一-寄生蟲學-Q80",
+  "source": "r2-06",
+  "issueId": "K03"
+ }
+]

@@ -1,0 +1,159 @@
+{
+ "anchorId": "寄生蟲學::schistosomiasis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "4064caa9d662051f",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "113-2-醫學二-藥理學-Q31",
+     "stem": "下列有關血吸蟲的敘述，何者錯誤？",
+     "trueOption": "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "曼森（曼氏）血吸蟲（Schistosoma mansoni）成蟲寄生於下腸繫膜靜脈（引流大腸），蟲卵具側刺（非尾刺）；病程為腸胃不適→肝脾腫大；三型血吸蟲中分佈地區最廣（非洲、南美洲）；診斷靠糞便檢卵。107-2/113-2",
+   "citeText": [
+    "107-2/113-2"
+   ],
+   "marks": [
+    "107-2",
+    "113-2"
+   ],
+   "linkedQuestionIds": [
+    "107-2-醫學二-寄生蟲學-Q31",
+    "113-2-醫學二-藥理學-Q31"
+   ],
+   "trueOptions": [
+    "僅①③",
+    "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+    "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+    "致病機轉主要來自宿主對蟲卵的免疫反應"
+   ],
+   "spans": [
+    {
+     "span": "側刺",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "contrast"
+     ],
+     "score": 7
+    },
+    {
+     "span": "下腸繫膜靜脈",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "113-2-醫學二-藥理學-Q31",
+     "stem": "下列有關血吸蟲的敘述，何者錯誤？",
+     "trueOption": "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "血吸蟲與其他吸蟲最大的差異在感染途徑：血吸蟲的尾動幼蟲（cercaria）直接經皮膚鑽入人體，不需要第二中間宿主形成囊幼（metacercaria）——第一中間宿主（螺類）就是全部所需的中間宿主。111-2/113-2",
+   "citeText": [
+    "111-2/113-2"
+   ],
+   "marks": [
+    "111-2",
+    "113-2"
+   ],
+   "linkedQuestionIds": [
+    "111-2-醫學二-寄生蟲學-Q32",
+    "113-2-醫學二-藥理學-Q31"
+   ],
+   "trueOptions": [
+    "均須經由螺類傳播",
+    "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+    "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+    "致病機轉主要來自宿主對蟲卵的免疫反應"
+   ],
+   "spans": [
+    {
+     "span": "感染途徑",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "113-2-醫學二-藥理學-Q31",
+     "stem": "下列有關血吸蟲的敘述，何者錯誤？",
+     "trueOption": "致病機轉主要來自宿主對蟲卵的免疫反應"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "血吸蟲的致病機轉主要來自宿主對蟲卵的免疫反應（蟲卵分泌蛋白酶造成組織壞死、誘發肉芽腫與纖維化），而非成蟲本身的刺激。104-1/113-2",
+   "citeText": [
+    "104-1/113-2"
+   ],
+   "marks": [
+    "104-1",
+    "113-2"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q78",
+    "113-2-醫學二-藥理學-Q31"
+   ],
+   "trueOptions": [
+    "僅①②",
+    "中間宿主釋出之尾動幼蟲（cercaria）可以穿透人的皮膚",
+    "曼森血吸蟲（Schistosoma mansoni）的分布地區最廣",
+    "致病機轉主要來自宿主對蟲卵的免疫反應"
+   ],
+   "spans": [],
+   "score": 2
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "分佈地區最廣",
+   "why": "leak-audit drop (not-unique): Vague; 最廣/最常見 etc. are all plausible.",
+   "skip": true
+  },
+  {
+   "n": 2,
+   "span": "直接經皮膚鑽入人體",
+   "why": "asked infection route | leak-audit hide (restatement)",
+   "hide": [
+    "不需要第二中間宿主形成囊幼",
+    "就是全部所需的中間宿主"
+   ]
+  },
+  {
+   "n": 3,
+   "span": "宿主對蟲卵的免疫反應",
+   "why": "asked pathogenesis",
+   "hide": [
+    "而非成蟲本身的刺激"
+   ]
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"分佈地區最廣\",\"why\":\"asked distribution\"},\n{\"n\":2,\"span\":\"直接經皮膚鑽入人體\",\"hide\":[\"不需要第二中間宿主形成囊幼\"],\"why\":\"asked infection route\"},\n{\"n\":3,\"span\":\"宿主對蟲卵的免疫反應\",\"hide\":[\"而非成蟲本身的刺激\"],\"why\":\"asked pathogenesis\"}]\n"
+}

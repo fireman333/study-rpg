@@ -1,0 +1,350 @@
+{
+ "anchorId": "寄生蟲學::malaria-plasmodium",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "2363ad93ca2a60b8",
+ "candidates": [
+  {
+   "bulletIndex": 3,
+   "sentence": "諾氏瘧原蟲宿主專一性不強，可感染人類與非人靈長類（人畜共通）；裂殖體週期僅24小時，是所有瘧原蟲中最短；不形成隱眠小體、不復發；2005年台灣曾出現首例境外移入（自菲律賓巴拉望島返國）病例。104/113",
+   "citeText": [
+    "104/113"
+   ],
+   "marks": [
+    "104",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-寄生蟲學-Q79",
+    "104-2-醫學一-寄生蟲學-Q81",
+    "113-1-醫學二-寄生蟲學-Q34",
+    "113-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "臺灣近年有境外移入諾氏瘧原蟲（Plasmodium knowlesi）感染的病例",
+    "惡性瘧原蟲（Plasmodium falciparum）",
+    "宿主專一性不強，可感染人類或非人靈長類",
+    "並不限定入侵年輕或老的紅血球",
+    "生活史中的裂殖體週期（schizogonic cycle）僅需24 小時",
+    "其裂殖子（merozoite）主要侵犯年輕的紅血球，如網狀紅血球（reticulocyte）",
+    "Duffy血型抗原是該瘧原蟲的附著部位",
+    "因紅血球破裂，大量裂殖子（merozoite）、細胞殘骸及血紅素釋出，造成畏寒、發燒的臨床症狀"
+   ],
+   "spans": [
+    {
+     "span": "24小時",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 8
+    }
+   ],
+   "score": 8
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "間日瘧原蟲入侵紅血球需要宿主表現Duffy血型抗原作為受器；西非90%以上人口為Duffy陰性，對間日瘧感染具天然抵抗力，故間日瘧在西非地區反而少見（易誤以為西非瘧疾盛行故間日瘧也最常見）。鐮刀型貧血與G6PD缺乏則是對惡性瘧提供保護。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學二-寄生蟲學-Q34",
+    "113-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "宿主專一性不強，可感染人類或非人靈長類",
+    "並不限定入侵年輕或老的紅血球",
+    "生活史中的裂殖體週期（schizogonic cycle）僅需24 小時",
+    "其裂殖子（merozoite）主要侵犯年輕的紅血球，如網狀紅血球（reticulocyte）",
+    "Duffy血型抗原是該瘧原蟲的附著部位",
+    "因紅血球破裂，大量裂殖子（merozoite）、細胞殘骸及血紅素釋出，造成畏寒、發燒的臨床症狀"
+   ],
+   "spans": [
+    {
+     "span": "Duffy血型抗原",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "90%",
+     "kind": "number",
+     "base": 3,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "為西非瘧疾盛行故間日瘧也",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "腦性瘧（cerebral malaria）與局部組織灌流不足，源自惡性瘧特有的細胞附著現象（cytoadherence）：受感染紅血球表面表現寄生蟲來源的配體（ligand，位於電子緻密的knob構造上），與內皮細胞上的特定受體複合物結合，醣蛋白thrombospondin可能是此受體複合物的一員（促進而非抑制附著能力），造成紅血球堆積阻塞微血管、局部缺血——腦部缺血即腦性瘧，肝臟缺血致黃疸，腎臟缺血致無尿。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-2-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "局部組織血液流量減少係因惡性瘧原蟲（Plasmodium falciparum）的細胞附著現象（cytoadherence）所引起",
+    "被瘧原蟲寄生的紅血球表面會產生結合體（ligand）蛋白，並與內皮細胞上的特定受體形成複合物（ligand- receptor complex）造成細胞附著能力增加",
+    "造成患者貧血的部分原因，為體內未受瘧原蟲感染的紅血球被活化並遭受破壞"
+   ],
+   "spans": [
+    {
+     "span": "細胞附著現象",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "五種瘧原蟲對紅血球齡的偏好是重要鑑別點：間日瘧、卵形瘧偏好年輕紅血球（網狀紅血球）使RBC脹大，伴Schüffner氏斑點；三日瘧偏好成熟（老）紅血球使RBC縮小，伴Ziemann氏斑點與帶狀滋養體（band form trophozoite，三日瘧的專屬鑑定特徵）；惡性瘧與諾氏瘧則老少通吃，惡性瘧常見一顆紅血球內雙重甚至三重感染，血片可見Maurer氏斑點與新月形（crescent-shaped）配子體。108/110/113",
+   "citeText": [
+    "108/110/113"
+   ],
+   "marks": [
+    "108",
+    "110",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "108-1-醫學二-寄生蟲學-Q33",
+    "110-1-醫學二-寄生蟲學-Q33",
+    "110-2-醫學二-寄生蟲學-Q32",
+    "113-1-醫學二-寄生蟲學-Q34",
+    "113-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "瘧疾發作（paroxysm）之過程依序為：惡寒（chill）、發燒（fever）、發汗（sweat）",
+    "三⽇瘧原蟲（Plasmodium malariae）較喜侵入成熟的紅⾎球中分裂增殖",
+    "在瘧疾流⾏地區，六個⽉以下的嬰兒常因為得⾃⺟體抗體的保護作⽤，甚少罹患瘧疾",
+    "黑水熱（blackwater fever）：和自體免疫有關，患者產生抗體攻擊受瘧原蟲感染的紅血球，導致破裂而造成",
+    "人體內裂殖子（merozoite）會轉變成為大 ／小配子母細胞（macro- / micro-gametocyte）",
+    "宿主專一性不強，可感染人類或非人靈長類",
+    "並不限定入侵年輕或老的紅血球",
+    "生活史中的裂殖體週期（schizogonic cycle）僅需24 小時",
+    "其裂殖子（merozoite）主要侵犯年輕的紅血球，如網狀紅血球（reticulocyte）",
+    "Duffy血型抗原是該瘧原蟲的附著部位",
+    "因紅血球破裂，大量裂殖子（merozoite）、細胞殘骸及血紅素釋出，造成畏寒、發燒的臨床症狀"
+   ],
+   "spans": [
+    {
+     "span": "年輕紅血球",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "成熟（老）紅血球",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "老少通吃",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "只有間日瘧與卵形瘧會在肝細胞形成休眠之隱眠小體（hypnozoite），數週至數年後活化造成復發（relapse）；惡性瘧、三日瘧、諾氏瘧都沒有隱眠小體，不會因肝內休眠蟲體而復發。根治間日瘧／卵形瘧復發須用primaquine清除肝內隱眠小體，用藥前務必先篩檢G6PD缺乏症。109/110/113",
+   "citeText": [
+    "109/110/113"
+   ],
+   "marks": [
+    "109",
+    "110",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "109-2-醫學二-寄生蟲學-Q32",
+    "110-1-醫學二-寄生蟲學-Q33",
+    "110-2-醫學二-寄生蟲學-Q32",
+    "113-1-醫學二-寄生蟲學-Q34",
+    "113-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "局部組織血液流量減少係因惡性瘧原蟲（Plasmodium falciparum）的細胞附著現象（cytoadherence）所引起",
+    "被瘧原蟲寄生的紅血球表面會產生結合體（ligand）蛋白，並與內皮細胞上的特定受體形成複合物（ligand- receptor complex）造成細胞附著能力增加",
+    "造成患者貧血的部分原因，為體內未受瘧原蟲感染的紅血球被活化並遭受破壞",
+    "黑水熱（blackwater fever）：和自體免疫有關，患者產生抗體攻擊受瘧原蟲感染的紅血球，導致破裂而造成",
+    "人體內裂殖子（merozoite）會轉變成為大 ／小配子母細胞（macro- / micro-gametocyte）",
+    "宿主專一性不強，可感染人類或非人靈長類",
+    "並不限定入侵年輕或老的紅血球",
+    "生活史中的裂殖體週期（schizogonic cycle）僅需24 小時",
+    "其裂殖子（merozoite）主要侵犯年輕的紅血球，如網狀紅血球（reticulocyte）",
+    "Duffy血型抗原是該瘧原蟲的附著部位",
+    "因紅血球破裂，大量裂殖子（merozoite）、細胞殘骸及血紅素釋出，造成畏寒、發燒的臨床症狀"
+   ],
+   "spans": [
+    {
+     "span": "沒有隱眠小體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "瘧色素（hemozoin）是瘧原蟲消化血紅素後產生的含鐵色素（非蛋白質），原料來自宿主的血紅素而非乳鐵蛋白；chloroquine、quinine等藥物正是透過抑制血紅素轉化為無毒瘧色素的機轉來殺蟲。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學二-寄生蟲學-Q33",
+    "110-2-醫學二-寄生蟲學-Q32"
+   ],
+   "trueOptions": [
+    "黑水熱（blackwater fever）：和自體免疫有關，患者產生抗體攻擊受瘧原蟲感染的紅血球，導致破裂而造成",
+    "人體內裂殖子（merozoite）會轉變成為大 ／小配子母細胞（macro- / micro-gametocyte）"
+   ],
+   "spans": [
+    {
+     "span": "含鐵色素",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "contrast"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 9,
+   "sentence": "瘧原蟲在瘧蚊體內的發育順序：雌瘧蚊吸入雌雄配子母細胞→中腸內受精成合子→發育成具運動力的卵動子並穿過腸壁→在腸壁外形成卵囊、孢子母細胞增殖產生孢子體→孢子體移至唾液腺；卵動子是「穿腸壁形成卵囊」，並非直接鑽入唾液腺。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "瘧蚊叮咬感染宿主而吸入雌或雄配子母細胞（gametocyte）",
+    "受精合子（zygote）發育成具活性卵動子（ookinete）",
+    "依瘧原蟲種類不同，在蚊體內生長發育約8～35日不等時程"
+   ],
+   "spans": [
+    {
+     "span": "穿過腸壁",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "leak"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "leak"
+  },
+  {
+   "n": 3,
+   "span": "thrombospondin",
+   "why": "receptor glycoprotein"
+  },
+  {
+   "n": 4,
+   "span": "Schüffner氏斑點",
+   "why": "vivax stippling"
+  },
+  {
+   "n": 5,
+   "span": "primaquine",
+   "why": "radical cure"
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "restated"
+  },
+  {
+   "n": 7,
+   "span": "中腸",
+   "why": "fertilization site"
+  }
+ ],
+ "reply": "[{\"n\":1,\"skip\":true,\"why\":\"leak\"},{\"n\":2,\"skip\":true,\"why\":\"leak\"},{\"n\":3,\"span\":\"thrombospondin\",\"why\":\"receptor glycoprotein\"},{\"n\":4,\"span\":\"Schüffner氏斑點\",\"why\":\"vivax stippling\"},{\"n\":5,\"span\":\"primaquine\",\"why\":\"radical cure\"},{\"n\":6,\"skip\":true,\"why\":\"restated\"},{\"n\":7,\"span\":\"中腸\",\"why\":\"fertilization site\"}]\n"
+}

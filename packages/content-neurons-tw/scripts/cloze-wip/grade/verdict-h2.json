@@ -1,0 +1,128 @@
+[
+ {
+  "issueId": "I01",
+  "anchorId": "foodborne-tissue-nematodes",
+  "decision": "fix",
+  "reason": "[G1 旋毛蟲分期] 106-1-Q76 官方答案 C（3 項對）僅③「最早症狀為肌肉痛」錯，與講義一致；但嗜伊紅性白血球增多與肌肉痛屬肌肉侵犯（移行）期、囊化期為症狀消退期，第一期應為腸道期。修正分期，保留「肌肉痛不是最早症狀」。",
+  "examRef": "106-1-醫學一-寄生蟲學-Q76",
+  "oldText": "症狀依病程分三期——潛伏期腸胃症狀→<b>移行期最早出現局部（尤其眼眶周圍）水腫</b>→囊化期才出現高嗜伊紅性白血球症與肌肉痛，",
+  "newText": "症狀依病程分三期——腸道期腸胃症狀→<b>肌肉侵犯（移行）期先出現局部（尤其眼眶周圍）水腫</b>，並伴隨發燒、肌肉痛與高嗜伊紅性白血球症→囊化期症狀逐漸消退，"
+ },
+ {
+  "issueId": "I02",
+  "anchorId": "liver-and-intestinal-flukes",
+  "decision": "fix",
+  "reason": "[G2 槍狀肝吸蟲] 113-1-Q32 答 A（①②），④槍狀肝吸蟲非水生植物，與講義一致；但其生活史有兩個中間宿主（第一陸生螺、第二螞蟻），補上第一中間宿主，不影響任何考題答案。",
+  "examRef": "113-1-醫學二-寄生蟲學-Q32",
+  "oldText": "但中間宿主是<b>螞蟻</b>（非魚、非水生植物）",
+  "newText": "但第一中間宿主為陸生螺、第二中間宿主是<b>螞蟻</b>（非魚、非水生植物）"
+ },
+ {
+  "issueId": "I03",
+  "anchorId": "free-living-amoebae-and-flagellates",
+  "decision": "fix",
+  "reason": "[G3 棘阿米巴角膜炎治療] 112-2-Q33 答 C，D「都必需角膜移植」為錯誤選項，講義結論一致；但治療主軸為局部抗阿米巴藥物（biguanide＋diamidine），刮除/清創僅為輔助，改寫保留「並非都需角膜移植」。",
+  "examRef": "112-2-醫學二-寄生蟲學-Q33",
+  "oldText": "棘阿米巴性角膜炎（Acanthamoeba keratitis）病情輕微者僅需角膜刮除即可改善，",
+  "newText": "棘阿米巴性角膜炎（Acanthamoeba keratitis）以長期局部抗阿米巴藥物（如 PHMB／chlorhexidine 合併 propamidine）治療為主，早期病灶可輔以角膜上皮清創，"
+ },
+ {
+  "issueId": "I04",
+  "anchorId": "foodborne-tissue-nematodes",
+  "decision": "fix",
+  "reason": "[G4 麥地那線蟲] 111-2-Q30 答 D（腳踝潰瘍拉出 100 公分蟲體），寄生下肢皮下、造成潰瘍的是成熟雌蟲而非幼蟲；改主詞，與考題一致。",
+  "examRef": "111-2-醫學二-寄生蟲學-Q30",
+  "oldText": "幼蟲寄生於下肢（尤其腳背）與陰囊皮下組織，成熟雌蟲可長達近 1 公尺（人體最長線蟲）",
+  "newText": "成熟雌蟲移行至下肢（尤其足踝、腳背）等處皮下組織，可長達近 1 公尺（人體最長線蟲）"
+ },
+ {
+  "issueId": "I05",
+  "anchorId": "louse-flea-mechanical-vectors",
+  "decision": "fix",
+  "reason": "[G5 馬氏管] 114-1-Q35 答 C（馬氏管移除含氮廢物）為正答；原句字面把正答也歸為錯誤誘答，改寫區分正答與誘答。",
+  "examRef": "114-1-醫學二-寄生蟲學-Q35",
+  "oldText": "負責移除含氮廢物並維持滲透壓平衡——與「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」都是同一題常見的錯誤誘答敘述。",
+  "newText": "負責移除含氮廢物並維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是常見的錯誤誘答。"
+ },
+ {
+  "issueId": "I06",
+  "anchorId": "scrub-typhus-chigger-mite",
+  "decision": "note",
+  "reason": "[G6 恙蟲病儲存宿主] 104-1-Q82 答 C（世界性分布為錯），選項 A「鼠類為主要儲菌宿主」被視為正確敘述，講義與官方答案一致；國際教科書以恙蟎（經卵傳遞）為真正儲存宿主 → 保留答案、加 hdt-intl 註記。",
+  "examRef": "104-1-醫學一-寄生蟲學-Q82",
+  "oldText": "未經及時治療死亡率約1–60%，鼠類為主要儲菌宿主（reservoir host）。",
+  "newText": "未經及時治療死亡率約1–60%，鼠類為主要儲菌宿主（reservoir host）<span class=\"hdt-intl\">（⚠️ 國際教科書：Orientia tsutsugamushi 在恙蟎體內可經卵傳遞，恙蟎本身才是主要儲存宿主，鼠類主要是恙蟎幼蟲吸血的宿主；作答以歷屆考題答案為準）</span>。"
+ },
+ {
+  "issueId": "I21",
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "decision": "fix",
+  "reason": "[G1 旋毛蟲分期] 106-1-Q76 官方答案 C（3 項對）僅③「最早症狀為肌肉痛」錯，與講義一致；但嗜伊紅性白血球增多與肌肉痛屬肌肉侵犯（移行）期、囊化期為症狀消退期，第一期應為腸道期。修正分期，保留「肌肉痛不是最早症狀」。",
+  "examRef": "106-1-醫學一-寄生蟲學-Q76",
+  "oldText": "症狀依病程分三期——潛伏期腸胃症狀→<b>移行期最早出現局部（尤其眼眶周圍）水腫</b>→囊化期才出現高嗜伊紅性白血球症與肌肉痛，",
+  "newText": "症狀依病程分三期——腸道期腸胃症狀→<b>肌肉侵犯（移行）期先出現局部（尤其眼眶周圍）水腫</b>，並伴隨發燒、肌肉痛與高嗜伊紅性白血球症→囊化期症狀逐漸消退，"
+ },
+ {
+  "issueId": "I22",
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "decision": "fix",
+  "reason": "[G4 麥地那線蟲] 111-2-Q30 答 D（腳踝潰瘍拉出 100 公分蟲體），寄生下肢皮下、造成潰瘍的是成熟雌蟲而非幼蟲；改主詞，與考題一致。",
+  "examRef": "111-2-醫學二-寄生蟲學-Q30",
+  "oldText": "幼蟲寄生於下肢（尤其腳背）與陰囊皮下組織，成熟雌蟲可長達近 1 公尺（人體最長線蟲）",
+  "newText": "成熟雌蟲移行至下肢（尤其足踝、腳背）等處皮下組織，可長達近 1 公尺（人體最長線蟲）"
+ },
+ {
+  "issueId": "I23",
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "decision": "fix",
+  "reason": "[G7 肝毛線蟲] 113-2-Q29 答 D（假性感染），講義結論一致；但經肝門靜脈到肝的是腸道孵出的幼蟲（人食入胚胎化蟲卵），不是蟲卵，成蟲才在肝實質產卵。修正生活史，不影響答案。",
+  "examRef": "113-2-醫學二-微生物暨免疫學-Q29",
+  "oldText": "人偶然感染；蟲卵經肝門靜脈循環到達肝臟並於肝實質產卵",
+  "newText": "人偶然感染；食入土壤中的胚胎化蟲卵後，幼蟲在腸道孵出、經肝門靜脈到達肝臟發育為成蟲，並於肝實質產卵"
+ },
+ {
+  "issueId": "I24",
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "decision": "fix",
+  "reason": "[G8 廣東住血線蟲途徑] 110-1-Q30 答 C；109-1-Q30 答 B（①④對，③「只侵犯腦脊髓」錯）。本蟲僅經口感染、無經皮途徑；「並非只侵犯腦脊髓」的理由應是也可侵犯眼睛等部位（同 li 後文與 112-2-Q29、115-2-Q30 支持），改括號內容。",
+  "examRef": "110-1-醫學二-寄生蟲學-Q30",
+  "oldText": "（感染途徑本身經消化道甚至皮膚）",
+  "newText": "（也可侵犯眼睛等其他部位）"
+ },
+ {
+  "issueId": "I25",
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "decision": "fix",
+  "reason": "[G9 生菜非宿主] 110-1-Q30 答 C「吃生菜沙拉不會感染」為錯誤敘述 → 生菜是感染途徑；改寫為「傳播載體（非宿主）」，保留後句「皆可能感染」，與官方答案一致。",
+  "examRef": "110-1-醫學二-寄生蟲學-Q30",
+  "oldText": "保幼蟲宿主包括淡水蝦、陸蟹、蛙類與受污染的<b>生菜</b>；",
+  "newText": "保幼蟲宿主包括淡水蝦、陸蟹、蛙類，被其黏液污染的<b>生菜</b>則是傳播載體（非宿主）；"
+ },
+ {
+  "issueId": "I26",
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "decision": "fix",
+  "reason": "[G10 東方毛線蟲途徑] 112-2-Q30 答 C（東方毛線蟲不致延伸紅斑），講義結論一致；感染途徑為食入附於蔬菜/水中的絲狀幼蟲，食入動物內臟並非其途徑，刪除並改為蔬菜或飲水。",
+  "examRef": "112-2-醫學二-寄生蟲學-Q30",
+  "oldText": "主要經食入受污染蔬菜或動物內臟感染",
+  "newText": "主要經食入附有幼蟲的受污染蔬菜或飲水感染"
+ },
+ {
+  "issueId": "I27",
+  "anchorId": "寄生蟲學::paragonimiasis-and-ectopic-lesions",
+  "decision": "fix",
+  "reason": "[G11 保蟲宿主定義] 105-2-Q78 答 B（野豬是保蟲宿主為錯），講義結論一致；但 reservoir host 指人以外能維持生活史的動物，人是終宿主不應列入，修正定義。",
+  "examRef": "105-2-醫學一-寄生蟲學-Q78",
+  "oldText": "——後者指人與野生貓科、犬科動物等能讓成蟲完成生活史的宿主；",
+  "newText": "——後者指野生貓科、犬科動物等人以外、能讓成蟲完成生活史的動物；"
+ },
+ {
+  "issueId": "I28",
+  "anchorId": "寄生蟲學::free-living-amoebae-and-flagellates",
+  "decision": "fix",
+  "reason": "[G3 棘阿米巴角膜炎治療] 112-2-Q33 答 C，D「都必需角膜移植」為錯誤選項，講義結論一致；但治療主軸為局部抗阿米巴藥物（biguanide＋diamidine），刮除/清創僅為輔助，改寫保留「並非都需角膜移植」。",
+  "examRef": "112-2-醫學二-寄生蟲學-Q33",
+  "oldText": "棘阿米巴性角膜炎（Acanthamoeba keratitis）病情輕微者僅需角膜刮除即可改善，",
+  "newText": "棘阿米巴性角膜炎（Acanthamoeba keratitis）以長期局部抗阿米巴藥物（如 PHMB／chlorhexidine 合併 propamidine）治療為主，早期病灶可輔以角膜上皮清創，"
+ }
+]

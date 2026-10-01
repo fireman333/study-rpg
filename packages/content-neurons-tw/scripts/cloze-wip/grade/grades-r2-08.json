@@ -1,0 +1,218 @@
+{
+ "group": "r2-08",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r2",
+ "grades": {
+  "lymphatic-and-subcutaneous-filariasis#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "107-2-醫學二-寄生蟲學-Q30",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "107-2 Q30 直接考皮下切片診斷蟠尾絲蟲，110-2 Q29 選項 B 亦為正確敘述；答案唯一。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-2-醫學二-寄生蟲學-Q30",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "114-2 Q30 幼童嗜伊紅增加＋肝腫大答犬蛔蟲，107-1 Q30 選項 A 亦為正確敘述；卡面只寫終宿主狗／貓，仍需知道蛔蟲。"
+  },
+  "liver-and-intestinal-flukes#k7": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-寄生蟲學-Q77",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "104-2 Q77 以第三吸盤考異形吸蟲，答案唯一。"
+  },
+  "schistosomiasis#k5": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學二-藥理學-Q31",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "113-2 Q31 選項 C（曼森分布最廣）為正確敘述，與卡一致；但「三型血吸蟲中【＿＿＿】」句式開放，括註遮掉後填不出唯一答案。"
+  },
+  "schistosomiasis#k7": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學二-藥理學-Q31",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "113-2 Q31 選項 B（尾動幼蟲穿透皮膚）為正確敘述、111-2 Q32 相關；答案為描述性片語，措辭不唯一。"
+  },
+  "paragonimiasis-and-ectopic-lesions#k7": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學二-寄生蟲學-Q31",
+   "leak": "elimination",
+   "medicalError": false,
+   "reason": "106-2 Q31 考淡水蟹，但句末列出「尾動幼蟲鑽皮、水生植物、淡水魚」三個其餘選項，可用消去法填出。"
+  },
+  "paragonimiasis-and-ectopic-lesions#k6": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-寄生蟲學-Q78",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "105-2 Q78 選項 C（美國蝲蛄→克氏肺吸蟲）為正確敘述；冷門單一事實，價值普通。"
+  },
+  "echinococcosis-and-small-tapeworms#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學二-寄生蟲學-Q31",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "110-1 Q31 正解 B 為肝臟形成包生囊，105-2 Q77 亦考部位；答案唯一。"
+  },
+  "diphyllobothriasis-and-sparganosis#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-1-醫學一-寄生蟲學-Q78",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "105-1 Q78 選項 A（蟲卵具卵蓋）為正確敘述（否定題給分 C）；operculum 已遮住。"
+  },
+  "diphyllobothriasis-and-sparganosis#k4": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學二-寄生蟲學-Q31",
+   "leak": "elimination",
+   "medicalError": false,
+   "reason": "115-2 Q31 考曼森裂頭絛蟲，但句中列出短小／縮小包膜絛蟲與包生絛蟲三個其餘選項，加上前文 sparganosis 與標題裂頭蚴，可消去法填出。"
+  },
+  "intestinal-luminal-amoebae#k6": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "107-1-醫學二-寄生蟲學-Q33",
+   "leak": "synonym",
+   "medicalError": false,
+   "reason": "107-1 Q33 選項 A（齒齦阿米巴吞噬紅血球）為正確敘述；但卡面「寄生於口腔」仍可見，等同直接點出齒齦。"
+  },
+  "intestinal-luminal-amoebae#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-寄生蟲學-Q81",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "106-1 Q81 選項 B（metronidazole 首選）為正確敘述，106-2 Q34 以 mebendazole 誘答；答案唯一。"
+  },
+  "intestinal-luminal-amoebae#k7": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-寄生蟲學-Q81",
+   "leak": "contrast",
+   "medicalError": false,
+   "reason": "106-1 Q81 C 與 108-1 Q34 B 考吞噬紅血球；但後句「哈氏阿米巴…不含紅血球」對照直接推出答案。"
+  },
+  "intestinal-luminal-amoebae#k8": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-寄生蟲學-Q81",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "106-1 Q81 選項 A（PCR 鑑別 E. histolytica 與 E. dispar）為正確敘述；答案具體。"
+  },
+  "malaria-plasmodium#k9": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學二-寄生蟲學-Q34",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "113-1 Q34 選項 A（可感染人類或非人靈長類）為正確敘述（否定題給分 D）；答案具體。"
+  },
+  "malaria-plasmodium#k10": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-1-醫學二-寄生蟲學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "115-1 Q35 與 110-1 Q33 B 均考黑水熱之血管內溶血／自體免疫機轉；由定義填病名，答案唯一。"
+  },
+  "leishmaniasis#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學二-寄生蟲學-Q33",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "106-2 Q33 與 104-2 Q79 以發燒＋肝脾腫大＋貧血＋骨髓無鞭毛體考黑熱病；答案唯一。"
+  },
+  "babesiosis#k8": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學二-寄生蟲學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "108-2 Q35 選項 D（血液抹片配合 IFA）為正確敘述；答案為冗長複合片語，難以逐字填出。"
+  },
+  "toxoplasmosis#k4": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-寄生蟲學-Q80",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "105-2 Q80 選項 D（第四類法定傳染病）為正確敘述（否定題給分 A）；行政分類事實，價值普通。"
+  },
+  "louse-flea-mechanical-vectors#k10": {
+   "grade": "ordinary",
+   "examAlignment": "tested",
+   "examRef": "108-1-醫學二-寄生蟲學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "108-1 Q35 選項 A（產卵於吸血性蚊蠅腹部）為正確敘述（否定題給分 D）；答案片語長、措辭不唯一，遮掉「藉由其叮咬」後句意仍可讀。"
+  },
+  "louse-flea-mechanical-vectors#k8": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-1-醫學二-寄生蟲學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "114-1 Q35 正解 C 即馬氏管排除含氮廢物；答案唯一。"
+  },
+  "louse-flea-mechanical-vectors#k9": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學二-寄生蟲學-Q35",
+   "leak": "elimination",
+   "medicalError": false,
+   "reason": "106-2 Q35 考家蠅，但後句列出蚊子、跳蚤、體蝨三個其餘選項為生物性傳播，可消去法填出。"
+  },
+  "tick-borne-disease#k5": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學二-寄生蟲學-Q35",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "108-2 Q35 選項 A（寄生在紅血球內）為正確敘述，105-2 Q79 題幹亦為紅血球內雙核形；答案唯一。"
+  },
+  "tick-borne-disease#k8": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "109-2-醫學二-寄生蟲學-Q34",
+   "leak": "elimination",
+   "medicalError": false,
+   "reason": "109-2 Q34 考蜱傳回歸熱，但句中列出黑熱病、戰壕熱、黃熱病三個其餘選項並說明皆非蜱媒介，且答案含「蜱」字，可消去法填出。"
+  },
+  "taeniasis-and-cysticercosis#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "108-1-醫學二-寄生蟲學-Q32",
+   "leak": "none",
+   "medicalError": false,
+   "reason": "108-1 Q32 選項 C（病患可能發生癲癇）為正確敘述（否定題給分 A）；神經囊尾幼蟲症最常見表現，答案唯一。"
+  }
+ },
+ "handoutIssues": [
+  {
+   "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+   "cardId": "louse-flea-mechanical-vectors#k8",
+   "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是常見的錯誤誘答。114",
+   "problem": "句中夾雜解題後設語（「此為正確敘述；同題的…錯誤誘答」），不是教學敘述，脫離考題就讀不懂。",
+   "suggestedFix": "改寫為：節肢動物的馬氏管是主要排泄器官，負責移除含氮廢物；蒼蠅主要為機械性傳播（非經卵傳播），腮腺炎為飛沫傳染（非昆蟲媒介）。",
+   "examRef": "114-1-醫學二-寄生蟲學-Q35"
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+[{"n":1,"span":"齒齦阿米巴","hide":["牙齦、齒垢"],"why":"asked organism"},
+{"n":2,"span":"metronidazole","why":"first-line drug"},
+{"n":3,"span":"吞噬紅血球","why":"key feature"},
+{"n":4,"span":"PCR 技術","why":"asked method"},
+{"n":5,"span":"惡性腫瘤","hide":["癌症"],"why":"asked misdiagnosis"}]

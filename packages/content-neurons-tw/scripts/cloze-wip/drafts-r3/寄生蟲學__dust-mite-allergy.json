@@ -1,0 +1,61 @@
+{
+ "anchorId": "寄生蟲學::dust-mite-allergy",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "9658ac9b7174e044",
+ "candidates": [
+  {
+   "tested": [],
+   "bulletIndex": 0,
+   "sentence": "塵蟎屬（Dermatophagoides spp.）是兒童氣喘與過敏性鼻炎最常見的致敏原（Der p1，IgE媒介），並非疥蟎（疥瘡）、毛囊蟎、恙蟎（恙蟲病）、跳蚤或狗蜱。105/112",
+   "citeText": [
+    "105/112"
+   ],
+   "marks": [
+    "105",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q81",
+    "112-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "塵蟎（dust mite）",
+    "塵蟎（dust mite）"
+   ],
+   "spans": [
+    {
+     "span": "塵蟎屬",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "Der p1",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "答案近似考點名稱且無連結考題"
+  }
+ ],
+ "reply": "[{\"n\":1,\"skip\":true,\"why\":\"答案近似考點名稱且無連結考題\"}]\n"
+}

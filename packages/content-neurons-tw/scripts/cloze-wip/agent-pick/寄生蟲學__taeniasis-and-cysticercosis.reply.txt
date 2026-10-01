@@ -1,0 +1,27 @@
+[
+ {
+  "n": 1,
+  "span": "豬肉絛蟲",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "糞便中驗不到蟲卵或蟲體",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "skip": true,
+  "why": "ambiguous or negation/duplicate answer"
+ },
+ {
+  "n": 4,
+  "span": "六鉤幼蟲",
+  "why": "key exam fact"
+ },
+ {
+  "n": 5,
+  "skip": true,
+  "why": "ambiguous or negation/duplicate answer"
+ }
+]

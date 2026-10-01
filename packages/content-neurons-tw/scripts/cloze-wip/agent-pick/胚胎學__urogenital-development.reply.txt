@@ -1,0 +1,52 @@
+[
+ {
+  "n": 1,
+  "span": "雄性素受體不敏感",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "後腎憩室",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "泌尿生殖竇",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "span": "竇陰道球泡",
+  "why": "key exam fact"
+ },
+ {
+  "n": 5,
+  "span": "鮑氏囊",
+  "why": "key exam fact"
+ },
+ {
+  "n": 6,
+  "span": "SOX9",
+  "why": "key exam fact"
+ },
+ {
+  "n": 7,
+  "span": "先天性腎上腺增生症",
+  "why": "key exam fact"
+ },
+ {
+  "n": 8,
+  "span": "穆勒氏管抑制物",
+  "why": "key exam fact"
+ },
+ {
+  "n": 9,
+  "span": "皮質索",
+  "why": "key exam fact"
+ },
+ {
+  "n": 10,
+  "span": "輸卵管、子宮與陰道上段",
+  "why": "key exam fact"
+ }
+]

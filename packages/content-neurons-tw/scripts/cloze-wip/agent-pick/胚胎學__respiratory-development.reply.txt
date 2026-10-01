@@ -1,0 +1,37 @@
+[
+ {
+  "n": 1,
+  "span": "卵圓孔",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "表面張力劑",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "會厭軟骨",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "span": "第四咽囊",
+  "why": "key exam fact"
+ },
+ {
+  "n": 5,
+  "span": "偽腺期",
+  "why": "key exam fact"
+ },
+ {
+  "n": 6,
+  "span": "氣管食道中膈",
+  "why": "key exam fact"
+ },
+ {
+  "n": 7,
+  "span": "前腸內胚層",
+  "why": "key exam fact"
+ }
+]

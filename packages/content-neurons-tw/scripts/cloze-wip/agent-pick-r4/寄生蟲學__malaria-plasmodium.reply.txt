@@ -1,0 +1,2 @@
+[{"n":1,"span":"非人靈長類","hide":["人畜共通"],"why":"asked host range"},
+{"n":2,"span":"黑水熱","why":"disease name"}]

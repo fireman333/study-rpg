@@ -1,0 +1,279 @@
+[
+ {
+  "anchorId": "foodborne-tissue-nematodes",
+  "cardId": "foodborne-tissue-nematodes#k2",
+  "sentence": "症狀依病程分三期——潛伏期腸胃症狀→移行期最早出現局部（尤其眼眶周圍）水腫→囊化期才出現高嗜伊紅性白血球症與肌肉痛",
+  "problem": "教科書分期中，肌肉痛、發燒、眼眶周圍水腫與嗜伊紅性白血球增多都屬肌肉侵犯（移行）期，嗜伊紅性白血球約在第 2–4 週達高峰；囊化期是恢復期、症狀消退。把嗜伊紅性白血球增多與肌肉痛歸到囊化期不正確。",
+  "suggestedFix": "改為「腸道期腸胃症狀→肌肉侵犯期出現眼眶周圍水腫、發燒、肌肉痛與高嗜伊紅性白血球症（眼眶水腫常早於明顯肌痛）→囊化期症狀漸退」",
+  "examRef": "106-1-醫學一-寄生蟲學-Q76",
+  "source": "r1-寄生蟲學-1",
+  "issueId": "I01"
+ },
+ {
+  "anchorId": "liver-and-intestinal-flukes",
+  "cardId": "liver-and-intestinal-flukes#k2",
+  "sentence": "槍狀肝吸蟲（Dicrocoelium dendriticum）終宿主同樣是牛、羊，但中間宿主是螞蟻",
+  "problem": "槍狀肝吸蟲有兩個中間宿主：第一中間宿主為陸生螺，第二中間宿主才是螞蟻；只寫「中間宿主是螞蟻」不完整。",
+  "suggestedFix": "「第一中間宿主為陸生螺、第二中間宿主為螞蟻」",
+  "examRef": "113-1-醫學二-寄生蟲學-Q32",
+  "source": "r1-寄生蟲學-1",
+  "issueId": "I02"
+ },
+ {
+  "anchorId": "free-living-amoebae-and-flagellates",
+  "cardId": "free-living-amoebae-and-flagellates#k3",
+  "sentence": "棘阿米巴性角膜炎（Acanthamoeba keratitis）病情輕微者僅需角膜刮除即可改善，並非所有患者都必須接受角膜移植才能恢復視力。",
+  "problem": "治療主軸是長期局部抗阿米巴藥物（biguanide 如 PHMB／chlorhexidine，合併 diamidine 如 propamidine），早期上皮病變可輔以上皮刮除；「僅需角膜刮除即可」會誤導。考題 112-2 只考「不是都需要角膜移植」。",
+  "suggestedFix": "「早期病例以局部抗阿米巴藥物（PHMB／chlorhexidine＋propamidine）治療，可合併上皮刮除；並非所有患者都需角膜移植」",
+  "examRef": "112-2-醫學二-寄生蟲學-Q33",
+  "source": "r1-寄生蟲學-1",
+  "issueId": "I03"
+ },
+ {
+  "anchorId": "foodborne-tissue-nematodes",
+  "cardId": "foodborne-tissue-nematodes#k3",
+  "sentence": "幼蟲寄生於下肢（尤其腳背）與陰囊皮下組織，成熟雌蟲可長達近 1 公尺",
+  "problem": "寄生於下肢皮下並造成水泡潰瘍的是成熟雌成蟲，不是幼蟲；幼蟲是從潰瘍處釋出到水中。",
+  "suggestedFix": "「雌成蟲移行至下肢（尤其足踝、腳背）皮下組織」",
+  "examRef": "111-2-醫學二-寄生蟲學-Q30",
+  "source": "r1-寄生蟲學-1",
+  "issueId": "I04"
+ },
+ {
+  "anchorId": "louse-flea-mechanical-vectors",
+  "cardId": "louse-flea-mechanical-vectors#k2",
+  "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡——與「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」都是同一題常見的錯誤誘答敘述。114",
+  "problem": "句尾「與…都是同一題常見的錯誤誘答敘述」字面上把馬氏管敘述也歸為錯誤誘答，但它是114-1 Q35 的正答（何者最為適當）。",
+  "suggestedFix": "改為「…維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是錯誤誘答。」",
+  "examRef": "114-1-醫學二-寄生蟲學-Q35",
+  "source": "r1-寄生蟲學-2",
+  "issueId": "I05"
+ },
+ {
+  "anchorId": "scrub-typhus-chigger-mite",
+  "cardId": "scrub-typhus-chigger-mite#k2",
+  "sentence": "恙蟲病分布侷限於亞洲地區（…），並非世界性分布；未經及時治療死亡率約1–60%，鼠類為主要儲菌宿主（reservoir host）。104",
+  "problem": "官方答案 vs 教科書：104-1 Q82 將「鼠類為主要儲菌宿主」視為正確敘述；但國際教科書多指 Orientia tsutsugamushi 的真正儲存宿主為恙蟎本身（經卵傳遞），鼠類主要是恙蟎幼蟲的宿主。",
+  "suggestedFix": "可考慮加 hdt-intl 註記說明恙蟎本身亦為儲存宿主。",
+  "examRef": "104-1-醫學一-寄生蟲學-Q82",
+  "source": "r1-寄生蟲學-2",
+  "issueId": "I06"
+ },
+ {
+  "anchorId": "germ-layers-gastrulation",
+  "cardId": "germ-layers-gastrulation#k4",
+  "sentence": "原條……由胚盤尾端的上胚層細胞（即體外胚層）增殖形成",
+  "problem": "上胚層（epiblast）不是體外胚層（surface ectoderm）；體外胚層是原腸胚形成後的外胚層衍生物。",
+  "suggestedFix": "刪除「（即體外胚層）」。",
+  "source": "r1-胚胎學-1",
+  "issueId": "I07"
+ },
+ {
+  "anchorId": "cardiovascular-development",
+  "cardId": "cardiovascular-development#k5",
+  "sentence": "只有右鎖骨下動脈才是第四咽弓的衍生物。",
+  "problem": "主動脈弓（左頸總動脈與左鎖骨下動脈之間段）亦源自左側第四咽弓動脈，「只有」錯誤。",
+  "suggestedFix": "改為「左右鎖骨下動脈中，只有右鎖骨下動脈（近端）源自第四咽弓」。",
+  "examRef": "110-1-醫學一-胚胎學-Q34",
+  "source": "r1-胚胎學-1",
+  "issueId": "I08"
+ },
+ {
+  "anchorId": "pharyngeal-arches",
+  "cardId": "pharyngeal-arches#k2",
+  "sentence": "聯合部會被逐漸長大的咽下隆起擠壓而消失，消失處即 terminal sulcus",
+  "problem": "terminal sulcus 是第一咽弓部（前2/3）與咽下隆起部（後1/3）的交界，不等於聯合部消失處，敘述不精確。",
+  "suggestedFix": "改為「聯合部被咽下隆起覆蓋而消失；前2/3與後1/3以 terminal sulcus 為界」。",
+  "source": "r1-胚胎學-1",
+  "issueId": "I09"
+ },
+ {
+  "anchorId": "GI-development",
+  "cardId": "GI-development#k3",
+  "sentence": "腹側胰芽發育為胰臟頭端與鉤狀突（主胰管由此形成），背側胰芽遠端形成副胰管",
+  "problem": "主胰管由腹側胰管加背側胰管遠端組成；副胰管來自背側胰管近端，原句說反。",
+  "suggestedFix": "改為「主胰管由腹側胰管與背側胰管遠端合成，副胰管為背側胰管近端殘留」。",
+  "examRef": "114-1-醫學一-胚胎學-Q34",
+  "source": "r1-胚胎學-1",
+  "issueId": "I10"
+ },
+ {
+  "anchorId": "GI-development",
+  "cardId": "GI-development#k5",
+  "sentence": "後 1/3（pharyngeal part）則由第二、三、四咽弓形成的咽下隆起（hypopharyngeal eminence）形成",
+  "problem": "咽下隆起來自第三、四咽弓；第二咽弓形成的是聯合部（被覆蓋消失），與同講義咽弓節敘述不一致。",
+  "suggestedFix": "改為「由第三、四咽弓形成的咽下隆起」。",
+  "examRef": "114-2-醫學一-胚胎學-Q33",
+  "source": "r1-胚胎學-1",
+  "issueId": "I11"
+ },
+ {
+  "anchorId": "urogenital-development",
+  "cardId": "urogenital-development#k3",
+  "sentence": "膀胱內襯上皮源自內胚層（泌尿生殖竇），胚胎時期與尿囊相連，第六週進入大骨盆",
+  "problem": "膀胱約於「六歲」才進入大骨盆（青春期後進入小骨盆），不是第六週；108-1 Q34 C選項「六歲時進入大骨盆」為正確敘述。",
+  "suggestedFix": "「第六週」改為「約六歲」。",
+  "examRef": "108-1-醫學一-胚胎學-Q34",
+  "source": "r1-胚胎學-1",
+  "issueId": "I12"
+ },
+ {
+  "anchorId": "respiratory-development",
+  "cardId": "respiratory-development#k2",
+  "sentence": "肺泡期（出生後至 8–10 歲，約 95% 肺泡在出生後才真正長成）",
+  "problem": "教科書（Moore）肺泡期始於胎兒晚期（約32週）至約8歲，非出生後才開始；屬小瑕疵。",
+  "suggestedFix": "改為「肺泡期（約32週至8歲，多數肺泡於出生後形成）」。",
+  "source": "r1-胚胎學-1",
+  "issueId": "I13"
+ },
+ {
+  "anchorId": "胚胎學::germ-layers-gastrulation",
+  "cardId": "germ-layers-gastrulation#k4",
+  "sentence": "原條（primitive streak）約在第 13–14 天由胚盤尾端的上胚層細胞（即體外胚層）增殖形成，功能是建立胚體兩側對稱，也是原腸胚形成（gastrulation）、三胚層分化的起點。106/111/112",
+  "problem": "上胚層（epiblast）不等於體外胚層；上胚層是三胚層的共同來源",
+  "suggestedFix": "改為「上胚層細胞（epiblast）」，刪去「即體外胚層」",
+  "examRef": "",
+  "source": "r2-01",
+  "issueId": "I14"
+ },
+ {
+  "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+  "cardId": "limb-axial-musculoskeletal-development#k2",
+  "sentence": "骨骼系統整體只有兩個來源：頭骨以外的中軸與大部分骨骼由中胚層（經體節分化）形成；頭骨（尤其顏面骨）主要由遷移到咽弓的神經嵴（neural crest）衍生間質形成——內胚層與神經外胚層都不是骨骼的來源；四肢骨（appendicular skeleton）則是肢芽內側板中胚層凝集而成，同樣不屬於生骨節衍生物。110/112",
+  "problem": "四肢骨來自外側板中胚層（體壁層），不是「內側板中胚層」",
+  "suggestedFix": "「肢芽內側板中胚層」→「肢芽內的外側板中胚層（體壁層）」",
+  "examRef": "110-1-醫學一-胚胎學-Q35",
+  "source": "r2-01",
+  "issueId": "I15"
+ },
+ {
+  "anchorId": "胚胎學::limb-axial-musculoskeletal-development",
+  "cardId": "limb-axial-musculoskeletal-development#k4",
+  "sentence": "全身骨骼肌與大部分平滑肌（含心臟、消化道）皆由中胚層分化而來；唯一的例外是眼睛的虹膜與睫狀肌，因與眼球神經發育關係密切，改由神經外胚層（neuroectoderm）形成。106",
+  "problem": "睫狀肌源自間葉（神經嵴），非神經外胚層；心肌不是平滑肌；且肌上皮細胞等亦為外胚層例外，「唯一例外」過度",
+  "suggestedFix": "改為「虹膜的瞳孔括約肌與開大肌由神經外胚層形成」，心臟另列心肌",
+  "examRef": "106-1-醫學一-胚胎學-Q32",
+  "source": "r2-01",
+  "issueId": "I16"
+ },
+ {
+  "anchorId": "胚胎學::special-sense-integument-development",
+  "cardId": "special-sense-integument-development#k3",
+  "sentence": "一般肌肉組織（肋間、心臟、消化道）皆由中胚層分化而來，但眼睛的虹膜肌與睫狀肌來自神經外胚層（neuroectoderm）——更精確地說，瞳孔括約肌（sphincter pupillae）與瞳孔開大肌（dilator pupillae）源自視杯（optic cup）前緣的神經外胚層，是人體極少數非中胚層來源的平滑肌，也是這類「哪個肌肉不是中胚層」題型的固定答案；答案要選神經外胚層，不是生發層（stratum germinativum，那是表皮基底層）。106/115-2",
+  "problem": "「虹膜肌與睫狀肌來自神經外胚層」— 睫狀肌源自間葉（神經嵴）",
+  "suggestedFix": "刪去「與睫狀肌」",
+  "examRef": "115-2-醫學一-胚胎學-Q36",
+  "source": "r2-01",
+  "issueId": "I17"
+ },
+ {
+  "anchorId": "胚胎學::GI-development",
+  "cardId": "GI-development#k3",
+  "sentence": "胰臟由內胚層（非中胚層）衍生，分先長的背側胰芽與後長的腹側胰芽；隨十二指腸旋轉成 C 字型，腹側胰芽被甩轉至背側與背側胰芽融合——腹側胰芽發育為胰臟頭端與鉤狀突（主胰管由此形成），背側胰芽遠端形成副胰管；環狀胰臟（annular pancreas）是罕見的先天缺陷，主要造成十二指腸阻塞（而非胃阻塞）。114",
+  "problem": "副胰管來自背胰管近端；背胰管遠端與腹胰管共同形成主胰管",
+  "suggestedFix": "「背側胰芽遠端形成副胰管」→「背胰管近端形成副胰管，遠端與腹胰管合成主胰管」",
+  "examRef": "114-1-醫學一-胚胎學-Q34",
+  "source": "r2-01",
+  "issueId": "I18"
+ },
+ {
+  "anchorId": "胚胎學::GI-development",
+  "cardId": "GI-development#k5",
+  "sentence": "舌頭前 2/3（body of tongue）由第一咽弓的中央舌芽與一對遠端舌芽（往中間生長使中央舌芽消失）形成；後 1/3（pharyngeal part）則由第二、三、四咽弓形成的咽下隆起（hypopharyngeal eminence）形成；第二咽弓先形成的聯合部（copula）會被隨後長大的咽下隆起擠壓而消失；盲孔（foramen cecum，甲狀腺發育殘跡）則位於舌前 2/3 與後 1/3 交界（terminal sulcus 的 V 型尖端）。112/114",
+  "problem": "咽下隆起由第三、四咽弓形成，非第二、三、四；與 pharyngeal-arches#k2 及 114-2 Q33 不一致",
+  "suggestedFix": "「第二、三、四咽弓形成的咽下隆起」→「第三、四咽弓形成的咽下隆起」",
+  "examRef": "114-2-醫學一-胚胎學-Q33",
+  "source": "r2-01",
+  "issueId": "I19"
+ },
+ {
+  "anchorId": "胚胎學::urogenital-development",
+  "cardId": "urogenital-development#k3",
+  "sentence": "膀胱內襯上皮源自內胚層（泌尿生殖竇），胚胎時期與尿囊相連，第六週進入大骨盆；但膀胱三角（trigone）由左右尾端中腎管（Wolffian duct，總排泄管）併入膀胱後壁形成（中胚層來源），非源自輸尿管本身（考選部 108-1 將「三角源自輸尿管末端」列為錯誤敘述）。108",
+  "problem": "膀胱約六歲才進入大骨盆（108-1 Q34 選項 C 為正確敘述），不是「第六週」",
+  "suggestedFix": "「第六週進入大骨盆」→「約六歲時進入大骨盆」",
+  "examRef": "108-1-醫學一-胚胎學-Q34",
+  "source": "r2-01",
+  "issueId": "I20"
+ },
+ {
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "cardId": "foodborne-tissue-nematodes#k2",
+  "sentence": "旋毛蟲（Trichinella spiralis）經食入未熟帶蟲豬肉（或熊肉）感染；人與豬同時身兼終宿主與中間宿主；幼蟲隨血液循環到達橫紋肌並發育、囊化；症狀依病程分三期——潛伏期腸胃症狀→移行期最早出現局部（尤其眼眶周圍）水腫→囊化期才出現高嗜伊紅性白血球症與肌肉痛，肌肉痛不是最早出現的症狀，是常見誘答。106/115",
+  "problem": "嗜伊紅性白血球增多與肌肉痛出現在肌肉侵入（移行）期，不是囊化期；第一期為腸道期而非潛伏期",
+  "suggestedFix": "改為「腸道期腸胃症狀→移行（肌肉侵入）期眼眶周圍水腫、肌痛、嗜伊紅性白血球增多→囊化期」",
+  "examRef": "106-1-醫學一-寄生蟲學-Q76",
+  "source": "r2-01",
+  "issueId": "I21"
+ },
+ {
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "cardId": "foodborne-tissue-nematodes#k3",
+  "sentence": "麥地那線蟲（Dracunculus medinensis）經飲用含感染性水蚤（劍水蚤）的生水感染，是改善飲用水系統最能防治的寄生蟲病；幼蟲寄生於下肢（尤其腳背）與陰囊皮下組織，成熟雌蟲可長達近 1 公尺（人體最長線蟲），造成皮下水泡潰瘍，傳統治療是逐日纏繞拉出蟲體；主要流行於非洲。104/111",
+  "problem": "寄生於下肢皮下組織的是成熟雌蟲，不是幼蟲（同句後半即寫成熟雌蟲）",
+  "suggestedFix": "「幼蟲寄生於下肢」→「成熟雌蟲移行至下肢」",
+  "examRef": "111-2-醫學二-寄生蟲學-Q30",
+  "source": "r2-01",
+  "issueId": "I22"
+ },
+ {
+  "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+  "cardId": "foodborne-tissue-nematodes#k4",
+  "sentence": "肝毛線蟲（Capillaria hepatica）終宿主主要為齧齒類，人偶然感染；蟲卵經肝門靜脈循環到達肝臟並於肝實質產卵，真感染須在肝臟活體切片中發現蟲體或蟲卵才能確診；若只是在糞便中發現肝毛線蟲蟲卵（多因食入受感染齧齒類肝臟後蟲卵單純通過腸道排出），屬於假性感染（spurious infection），並非真正的肝內感染，是本科少見但曾出現的陷阱題。113",
+  "problem": "經肝門靜脈到肝臟的是孵出的幼蟲，不是蟲卵；成蟲才在肝實質產卵",
+  "suggestedFix": "「蟲卵經肝門靜脈循環到達肝臟」→「食入含胚卵後幼蟲在腸孵出、經肝門靜脈到肝臟發育為成蟲」",
+  "examRef": "113-2-醫學二-微生物暨免疫學-Q29",
+  "source": "r2-01",
+  "issueId": "I23"
+ },
+ {
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "cardId": "angiostrongyliasis-and-larva-migrans#k2",
+  "sentence": "廣東住血線蟲幼蟲以第五期（L5）之姿侵犯腦脊髓，並非只侵犯腦脊髓（感染途徑本身經消化道甚至皮膚），造成嗜伊紅性腦膜炎（腦膜腦炎）；確認診斷是在腦脊髓液中發現蟲體（L5）並伴隨嗜酸性白血球明顯增加；侵犯眼球時可見視力受損、角膜炎，甚至可在眼球內見到活蟲需手術移除（ocular angiostrongyliasis）。臺灣南部與東部曾因生食蝸牛等而有地方性流行，因此「臺灣本土流行＋眼部病變」的組合直接指向本蟲。107/109/114/115-2",
+  "problem": "「感染途徑本身經消化道甚至皮膚」：廣東住血線蟲感染途徑為經口食入 L3（中間/保幼宿主或污染蔬菜），並無經皮膚感染；句構「並非只侵犯腦脊髓」亦混亂",
+  "suggestedFix": "刪去「甚至皮膚」，改為「感染途徑為經口食入」",
+  "examRef": "110-1-醫學二-寄生蟲學-Q30",
+  "source": "r2-02",
+  "issueId": "I24"
+ },
+ {
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "cardId": "angiostrongyliasis-and-larva-migrans#k4",
+  "sentence": "廣東住血線蟲（Angiostrongylus cantonensis）終宿主為老鼠（成蟲寄生其肺動脈），人並非終宿主；中間宿主為蝸牛、蛞蝓（經典例子是非洲大蝸牛），保幼蟲宿主包括淡水蝦、陸蟹、蛙類與受污染的生菜；人食入未熟帶蟲的中間／保幼蟲宿主，或食入被其黏液污染的生菜沙拉，皆可能感染（「吃生菜沙拉不會感染」是錯誤敘述）。109/110",
+  "problem": "保幼蟲宿主清單列入「受污染的生菜」，生菜是污染載體，不是宿主",
+  "suggestedFix": "改為「保幼蟲宿主包括淡水蝦、陸蟹、蛙類；受其黏液污染的生菜亦可傳播」",
+  "examRef": "110-1-醫學二-寄生蟲學-Q30",
+  "source": "r2-02",
+  "issueId": "I25"
+ },
+ {
+  "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+  "cardId": "angiostrongyliasis-and-larva-migrans#k3",
+  "sentence": "東方毛線蟲（Trichostrongylus orientalis）雖與腸道及皮膚接觸病史（如農務、接觸泥土）相關，但其絲狀幼蟲不易鑽入皮膚，主要經食入受污染蔬菜或動物內臟感染，並不會造成皮膚延伸性紅疹（不是 CLM 病原）——農地工作者皮膚搔癢合併延伸紅斑，較可能是鉤蟲爬行疹或搔抓後細菌感染，而非東方毛線蟲。112",
+  "problem": "東方毛線蟲感染途徑寫「食入受污染蔬菜或動物內臟」，食入動物內臟並非其感染途徑（L3 附於蔬菜/水經口感染）",
+  "suggestedFix": "刪去「或動物內臟」",
+  "examRef": "112-2-醫學二-寄生蟲學-Q30",
+  "source": "r2-02",
+  "issueId": "I26"
+ },
+ {
+  "anchorId": "寄生蟲學::paragonimiasis-and-ectopic-lesions",
+  "cardId": "paragonimiasis-and-ectopic-lesions#k3",
+  "sentence": "野豬、野熊、猴子是衛氏肺吸蟲的保幼（待轉）宿主（paratenic host，可攜帶幼蟲但非其固有終宿主），不是保蟲宿主（reservoir host）——後者指人與野生貓科、犬科動物等能讓成蟲完成生活史的宿主；食入這些保幼宿主的生肉、內臟同樣可能感染。105-2",
+  "problem": "保蟲宿主定義寫「指人與野生貓科、犬科動物」：人為終宿主，保蟲宿主（reservoir host）指人以外可維持生活史的動物",
+  "suggestedFix": "改為「保蟲宿主指野生貓科、犬科等人以外能讓成蟲完成生活史的動物」",
+  "examRef": "105-2-醫學一-寄生蟲學-Q78",
+  "source": "r2-02",
+  "issueId": "I27"
+ },
+ {
+  "anchorId": "寄生蟲學::free-living-amoebae-and-flagellates",
+  "cardId": "free-living-amoebae-and-flagellates#k3",
+  "sentence": "棘阿米巴性角膜炎（Acanthamoeba keratitis）病情輕微者僅需角膜刮除即可改善，並非所有患者都必須接受角膜移植才能恢復視力。112",
+  "problem": "「病情輕微者僅需角膜刮除即可改善」過度簡化：棘阿米巴角膜炎主要治療為局部 biguanide（PHMB/chlorhexidine）± diamidine 藥物，刮除為輔助",
+  "suggestedFix": "改為「多數患者以局部抗阿米巴藥物（±角膜清創）治療即可改善，並非都須角膜移植」",
+  "examRef": "112-2-醫學二-寄生蟲學-Q33",
+  "source": "r2-02",
+  "issueId": "I28"
+ }
+]

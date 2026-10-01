@@ -1,0 +1,23 @@
+[
+ {
+  "file": "packages/content-neurons-tw/src/handout/胚胎學.html",
+  "relatedIssueId": "I08",
+  "oldText": "（僅右鎖骨下動脈才是第四咽弓衍生物）",
+  "newText": "（左右鎖骨下動脈中，僅右鎖骨下動脈近端源自第四咽弓）",
+  "contextChecked": true
+ },
+ {
+  "file": "packages/content-neurons-tw/src/handout/胚胎學.html",
+  "relatedIssueId": "I13",
+  "oldText": "<td>出生後至 8–10 歲</td>",
+  "newText": "<td>約第 32–36 週至 8–10 歲</td>",
+  "contextChecked": true
+ },
+ {
+  "file": "packages/content-neurons-tw/src/handout/胚胎學.html",
+  "relatedIssueId": "I17",
+  "oldText": "<td>虹膜肌、睫狀肌</td>",
+  "newText": "<td>虹膜肌（瞳孔括約肌、瞳孔開大肌）</td>",
+  "contextChecked": true
+ }
+]

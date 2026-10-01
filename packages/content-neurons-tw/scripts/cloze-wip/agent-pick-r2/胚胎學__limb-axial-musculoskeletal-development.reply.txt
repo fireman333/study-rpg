@@ -1,0 +1,1 @@
+[{"n": 1, "span": "第 4 週末", "why": "key fact"}, {"n": 2, "span": "外側板中胚層", "why": "key fact"}, {"n": 3, "skip": true, "why": "leak or ambiguous"}, {"n": 4, "span": "瞳孔括約肌與瞳孔開大肌", "why": "key fact"}, {"n": 5, "span": "青春期", "why": "key fact"}, {"n": 6, "skip": true, "why": "leak or ambiguous"}]

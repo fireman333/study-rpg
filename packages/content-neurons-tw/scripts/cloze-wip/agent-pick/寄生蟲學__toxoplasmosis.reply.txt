@@ -1,0 +1,12 @@
+[
+ {
+  "n": 1,
+  "span": "弓蟲性腦炎",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "唯一的終宿主",
+  "why": "key exam fact"
+ }
+]

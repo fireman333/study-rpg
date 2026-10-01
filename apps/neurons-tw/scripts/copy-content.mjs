@@ -4,7 +4,7 @@
  *
  * Run automatically via predev / prebuild hooks in package.json.
  */
-import { mkdirSync, copyFileSync, existsSync, readdirSync } from 'node:fs'
+import { mkdirSync, copyFileSync, existsSync, readdirSync, rmSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -24,10 +24,14 @@ for (const file of ['meta.json', 'subjects.json', 'questions.json']) {
 }
 // Concept-tag artifacts (add-neurons-concept-tags §4.5): per-question tags for search + labels,
 // and the recurrence dataset for downstream 押題. cram.json (add-neurons-cram-tab): the 考前猜題
-// dataset, lazy-fetched by /cram (not via getContentPack). Optional — skip if not yet built.
-for (const file of ['concept-tags.json', 'concept-recurrence.json', 'cram.json', 'handout.json']) {
+// dataset, lazy-fetched by /cram (not via getContentPack). handout-cloze.json
+// (add-neurons-handout-cloze-corpus): the gated cloze card corpus, no app consumer yet. Optional —
+// skip if not yet built. handout-cloze.json is gated: when the build did not produce it (a failed cloze
+// gate deletes it), the served copy is removed too so a stale corpus never survives a failed build.
+for (const file of ['concept-tags.json', 'concept-recurrence.json', 'cram.json', 'handout.json', 'handout-cloze.json']) {
   const src = resolve(SRC_DIR, file)
   if (existsSync(src)) copyFileSync(src, resolve(DEST_DIR, file))
+  else if (file === 'handout-cloze.json') rmSync(resolve(DEST_DIR, file), { force: true })
 }
 
 // 考前速看 A4 PDFs (add-neurons-cram-tab): committed content-pack source → served under content/

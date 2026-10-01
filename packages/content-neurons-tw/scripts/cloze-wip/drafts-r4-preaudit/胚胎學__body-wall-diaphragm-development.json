@@ -1,0 +1,256 @@
+{
+ "anchorId": "胚胎學::body-wall-diaphragm-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "91f56be4186655ae",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "104-1-醫學一-胚胎學-Q29",
+     "stem": "橫膈（diaphragm）的那一部分最容易產生先天性缺損？",
+     "trueOption": "後外側（posterolateral）"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "胸腹膜若未在第 6 週末與橫中隔、食道背側繫膜完全融合，會造成先天性橫膈疝（CDH）；最好發位置是橫膈後外側（posterolateral）的 Bochdalek 孔，佔 CDH 九成以上，且左側（約 80–85%）多於右側。104",
+   "citeText": [
+    "104"
+   ],
+   "marks": [
+    "104"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q29"
+   ],
+   "trueOptions": [
+    "後外側（posterolateral）"
+   ],
+   "spans": [
+    {
+     "span": "後外側",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "6 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "80–85%",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學一-胚胎學-Q33",
+     "stem": "下列何者參與形成初始橫膈（primordial diaphragm），在早期胎兒橫膈（early fetal diaphragm）時占大部 分，而在新生嬰兒之橫膈（neonate's diaphragm）只佔相當小的部分？",
+     "trueOption": "胸腹膜（pleuroperitoneal membrane）"
+    },
+    {
+     "id": "111-2-醫學一-胚胎學-Q32",
+     "stem": "下列關於胚胎之胸心包膜（pleuropericardial membrane）的敘述，何項錯誤？",
+     "trueOption": "形成漿液心包膜的臟層（visceral layer of serous pericardium）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "胸心包膜（pleuropericardial membrane）將胸膜腔與心包腔分隔開來，本身演變為纖維性心包膜（fibrous pericardium）（而非漿液心包膜的臟層）；膜內含膈神經與總主靜脈（common cardinal vein）。107/111",
+   "citeText": [
+    "107/111"
+   ],
+   "marks": [
+    "107",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q35",
+    "107-2-醫學一-胚胎學-Q33",
+    "111-2-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "膈神經（phrenic nerve）",
+    "胸腹膜（pleuroperitoneal membrane）",
+    "形成漿液心包膜的臟層（visceral layer of serous pericardium）"
+   ],
+   "spans": [
+    {
+     "span": "纖維性心包膜",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "113-1-醫學一-胚胎學-Q32",
+     "stem": "胚胎的胚內體腔（intraembryonic coelom），最早出現在下列何者？",
+     "trueOption": "外側中胚層（lateral mesoderm）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "胚內體腔（intraembryonic coelom）最早出現於外側（側板）中胚層（lateral mesoderm）——其壁層（parietal layer）日後形成襯覆體腔的漿膜（腹膜、肋膜、心包膜），並非源自軸旁中胚層、中間中胚層或內胚層。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "外側中胚層（lateral mesoderm）"
+   ],
+   "spans": [
+    {
+     "span": "外側（側板）中胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學一-胚胎學-Q33",
+     "stem": "下列何者參與形成初始橫膈（primordial diaphragm），在早期胎兒橫膈（early fetal diaphragm）時占大部 分，而在新生嬰兒之橫膈（neonate's diaphragm）只佔相當小的部分？",
+     "trueOption": "胸腹膜（pleuroperitoneal membrane）"
+    },
+    {
+     "id": "110-1-醫學一-胚胎學-Q32",
+     "stem": "肌原母細胞（myoblast）進入下列何者內，衍生形成橫膈雙腳（crura of diaphragm）？",
+     "trueOption": "食道背繫膜（dorsal mesentery of esophagus）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "橫膈由四個各自獨立的胚胎構造融合而成：橫中隔（septum transversum，→中央肌腱）、胸腹膜（pleuroperitoneal membrane，早期佔大部分，出生時退化僅剩小部分）、食道背側繫膜（dorsal mesentery of esophagus，肌原母細胞遷入後形成橫膈雙腳）、外側體壁向內生長之肌肉（muscular ingrowth，形成肋橫膈隱窩）。107/110",
+   "citeText": [
+    "107/110"
+   ],
+   "marks": [
+    "107",
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q35",
+    "107-2-醫學一-胚胎學-Q33",
+    "110-1-醫學一-胚胎學-Q32"
+   ],
+   "trueOptions": [
+    "膈神經（phrenic nerve）",
+    "胸腹膜（pleuroperitoneal membrane）",
+    "食道背繫膜（dorsal mesentery of esophagus）"
+   ],
+   "spans": [],
+   "score": 2
+  },
+  {
+   "tested": [
+    {
+     "id": "109-1-醫學一-胚胎學-Q35",
+     "stem": "下列何項構造不會在前腹壁上造成腹膜皺襞（peritoneal fold）？",
+     "trueOption": "靜脈導管（ductus venosus）"
+    }
+   ],
+   "bulletIndex": 5,
+   "sentence": "出生後前腹壁的臍皺襞各有不同來源：正中臍皺襞來自退化的臍尿管（urachus）；內側臍皺襞來自退化的臍動脈（umbilical artery）；外側臍皺襞覆蓋下腹壁動脈（inferior epigastric artery）；靜脈導管（ductus venosus，胎兒期臍靜脈終端注入下腔靜脈的構造）出生後雖也退化，卻不會在前腹壁形成腹膜皺襞。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學一-胚胎學-Q32",
+    "109-1-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "L1",
+    "靜脈導管（ductus venosus）"
+   ],
+   "spans": [
+    {
+     "span": "不會",
+     "kind": "bold-polarity",
+     "base": 1,
+     "signals": [
+      "bold-polarity",
+      "marks×1"
+     ],
+     "score": 2
+    }
+   ],
+   "score": 2
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "後外側",
+   "why": "tested point"
+  },
+  {
+   "n": 2,
+   "span": "纖維性心包膜",
+   "why": "tested point",
+   "hide": [
+    "而非漿液心包膜的臟層"
+   ]
+  },
+  {
+   "n": 3,
+   "span": "外側（側板）中胚層",
+   "why": "tested point",
+   "hide": [
+    "並非源自軸旁中胚層、中間中胚層或內胚層"
+   ]
+  },
+  {
+   "n": 4,
+   "skip": true,
+   "why": "elimination among listed structures"
+  },
+  {
+   "n": 5,
+   "skip": true,
+   "why": "description leaks"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"後外側\", \"why\": \"tested point\"}, {\"n\": 2, \"span\": \"纖維性心包膜\", \"hide\": [\"而非漿液心包膜的臟層\"], \"why\": \"tested point\"}, {\"n\": 3, \"span\": \"外側（側板）中胚層\", \"hide\": [\"並非源自軸旁中胚層、中間中胚層或內胚層\"], \"why\": \"tested point\"}, {\"n\": 4, \"skip\": true, \"why\": \"elimination among listed structures\"}, {\"n\": 5, \"skip\": true, \"why\": \"description leaks\"}]"
+}

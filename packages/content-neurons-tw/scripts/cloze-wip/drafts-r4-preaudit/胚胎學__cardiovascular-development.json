@@ -1,0 +1,379 @@
+{
+ "anchorId": "胚胎學::cardiovascular-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "8c2e413f2d58099f",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "113-1-醫學一-胚胎學-Q35",
+     "stem": "嬰兒剛出生使用肺部呼吸時，常會伴隨一些現象的改變，下列敘述何者正確？",
+     "trueOption": "肺部血流量上升"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "新生兒出生開始用肺呼吸時，主要變化是肺部血流量上升（供氣體交換所需），而非肺血管阻力顯著上升、也非肺動脈管壁顯著增厚；同時體循環壓力大於肺循環，使左心房壓力大於右心房，促使卵圓孔瓣膜貼合第二中隔而完成功能性關閉。113",
+   "citeText": [
+    "113"
+   ],
+   "marks": [
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "113-1-醫學一-胚胎學-Q35",
+    "113-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "肺部血流量上升",
+    "卵黃靜脈（vitelline vein）"
+   ],
+   "spans": [
+    {
+     "span": "肺部血流量上升",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "左心房壓力大於右心房",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "104-1-醫學一-胚胎學-Q31",
+     "stem": "下列有關心房間隔（interatrial septum）的敘述，何項正確？",
+     "trueOption": "第二中隔（septum secundum）在左右心房間的不完全分隔，形成卵圓孔（oval foramen）"
+    },
+    {
+     "id": "111-2-醫學一-胚胎學-Q35",
+     "stem": "在胚胎時期心房間隔（interatrial septum）的發育，其第一孔（foramen primum）之封閉是由於：",
+     "trueOption": "第一中隔（septum primum）與心內膜墊（endocardial cushion）之融合"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "心房中隔（interatrial septum）由第一中隔（septum primum）與第二中隔（septum secundum）依序發育：第一中隔自背側心房頂端向腹側心內膜墊（endocardial cushion）方向生長，與心內膜墊間尚未接合的空隙即為第一孔（foramen primum）；第一孔完全閉合（由第一中隔與心內膜墊融合而成，非穿孔或新細胞增生）之前，第一中隔背側先發生細胞凋亡，形成第二孔（foramen secundum）。104/111",
+   "citeText": [
+    "104/111"
+   ],
+   "marks": [
+    "104",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q31",
+    "104-2-醫學一-胚胎學-Q31",
+    "111-1-醫學一-胚胎學-Q35",
+    "111-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "第二中隔（septum secundum）在左右心房間的不完全分隔，形成卵圓孔（oval foramen）",
+    "出生後，閉鎖形成動脈韌帶（ligamentum arteriosum）",
+    "左側第六動脈弓（aortic arch）",
+    "第一中隔（septum primum）與心內膜墊（endocardial cushion）之融合"
+   ],
+   "spans": [
+    {
+     "span": "第二孔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "104-2-醫學一-胚胎學-Q31",
+     "stem": "下列有關動脈導管（ductus arteriosus）之敘述，何者正確？",
+     "trueOption": "出生後，閉鎖形成動脈韌帶（ligamentum arteriosum）"
+    }
+   ],
+   "bulletIndex": 3,
+   "sentence": "出生後動脈導管閉鎖形成動脈韌帶（ligamentum arteriosum），位於主動脈弓與肺動脈幹之間；左側喉返神經繞行動脈韌帶後折返，右側喉返神經則繞右鎖骨下動脈折返——左右喉返神經路徑不同，根源正是左右第四、六咽弓動脈發育不對稱。104/108",
+   "citeText": [
+    "104/108"
+   ],
+   "marks": [
+    "104",
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q31",
+    "104-2-醫學一-胚胎學-Q31",
+    "108-1-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "第二中隔（septum secundum）在左右心房間的不完全分隔，形成卵圓孔（oval foramen）",
+    "出生後，閉鎖形成動脈韌帶（ligamentum arteriosum）",
+    "位於主動脈⼸（aortic arch）與肺動脈幹（pulmonary trunk）間"
+   ],
+   "spans": [
+    {
+     "span": "左側喉返神經",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "114-2-醫學一-胚胎學-Q35",
+     "stem": "內側臍韌帶（medial umbilical ligament）主要為何構造的遺跡？",
+     "trueOption": "臍動脈（umbilical artery）"
+    }
+   ],
+   "bulletIndex": 8,
+   "sentence": "出生後臍血管與靜脈導管的最終命名：臍動脈（左右兩條）閉鎖遺跡→內側臍韌帶（medial umbilical ligament）；臍靜脈（左側保留、右側退化）閉鎖後→肝圓韌帶（ligamentum teres hepatis）；靜脈導管閉鎖後→靜脈韌帶（ligamentum venosum）；動脈導管閉鎖後→動脈韌帶（見前）。四條血管、四種韌帶要精準配對。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學一-胚胎學-Q35",
+    "114-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "後主靜脈（posterior cardinal vein）",
+    "臍動脈（umbilical artery）"
+   ],
+   "spans": [
+    {
+     "span": "內側臍韌帶",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "肝圓韌帶",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "靜脈韌帶",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "114-1-醫學一-胚胎學-Q35",
+     "stem": "胚胎正常發育時，奇靜脈根部（root of azygos vein）的起源是：",
+     "trueOption": "後主靜脈（posterior cardinal vein）"
+    }
+   ],
+   "bulletIndex": 13,
+   "sentence": "奇靜脈根部（root of azygos vein）主要源自右側後主靜脈（posterior cardinal vein），約在胚胎第八週形成；前主靜脈主要引流頭部與上肢，總主靜脈是前、後主靜脈匯合入心臟前的共同幹，與奇靜脈根部無直接關係。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學一-胚胎學-Q35",
+    "114-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "後主靜脈（posterior cardinal vein）",
+    "臍動脈（umbilical artery）"
+   ],
+   "spans": [
+    {
+     "span": "右側後主靜脈",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "110-1-醫學一-胚胎學-Q34",
+     "stem": "下列何項構造不是源自胚胎咽弓（pharyngeal arch）？",
+     "trueOption": "升主動脈（ascending aorta）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "主動脈弓動脈的衍生物依咽弓序號各自不同：第一咽弓→上頷動脈；第二咽弓→鐙骨動脈與舌骨動脈；第三咽弓→頸總動脈及頸內動脈近端；第四咽弓（左）→主動脈弓（介於左頸總動脈與左鎖骨下動脈之間）、（右）→右鎖骨下動脈近端；第六咽弓（左）→左肺動脈與動脈導管、（右）→右肺動脈。升主動脈（ascending aorta）與肺動脈幹都源自動脈幹（truncus arteriosus），不屬於咽弓動脈的衍生物。110",
+   "citeText": [
+    "110"
+   ],
+   "marks": [
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "升主動脈（ascending aorta）"
+   ],
+   "spans": [],
+   "score": 1
+  },
+  {
+   "tested": [
+    {
+     "id": "109-1-醫學一-胚胎學-Q35",
+     "stem": "下列何項構造不會在前腹壁上造成腹膜皺襞（peritoneal fold）？",
+     "trueOption": "靜脈導管（ductus venosus）"
+    },
+    {
+     "id": "109-2-醫學一-胚胎學-Q35",
+     "stem": "胎兒循環中，下列何種血管的含氧量最高？",
+     "trueOption": "臍靜脈（umbilical vein）"
+    }
+   ],
+   "bulletIndex": 7,
+   "sentence": "前腹壁上由胎兒血管退化形成的三條腹膜皺褶：臍尿管（urachus）退化→正中臍皺褶；臍動脈退化→內側臍皺褶（medial umbilical fold）；上腹下動脈（inferior epigastric artery）→外側臍皺褶（lateral umbilical fold）。靜脈導管（ductus venosus）退化後不在前腹壁形成皺褶，因其原走行於肝臟內、終端注入下腔靜脈，屬另一系統。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學一-胚胎學-Q35",
+    "109-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "靜脈導管（ductus venosus）",
+    "臍靜脈（umbilical vein）"
+   ],
+   "spans": [],
+   "score": 1
+  },
+  {
+   "tested": [
+    {
+     "id": "112-2-醫學一-胚胎學-Q35",
+     "stem": "胚胎第四週時，下列那一條血管不注入胎兒心臟？",
+     "trueOption": "子宮內膜靜脈（endometrial vein）"
+    }
+   ],
+   "bulletIndex": 11,
+   "sentence": "胚胎第四週會注入胎兒心臟（靜脈竇）的血管有三：卵黃囊靜脈（vitelline vein）、臍靜脈（umbilical vein）、總主靜脈（common cardinal vein，由前、後主靜脈匯集而成）；子宮內膜靜脈（endometrial vein）屬母體循環，不會注入胎兒心臟。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-2-醫學一-胚胎學-Q35"
+   ],
+   "trueOptions": [
+    "子宮內膜靜脈（endometrial vein）"
+   ],
+   "spans": [],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "肺部血流量上升",
+   "why": "tested point",
+   "hide": [
+    "而非肺血管阻力顯著上升",
+    "也非肺動脈管壁顯著增厚"
+   ]
+  },
+  {
+   "n": 2,
+   "span": "第一中隔與心內膜墊融合",
+   "why": "tested point",
+   "hide": [
+    "非穿孔或新細胞增生"
+   ]
+  },
+  {
+   "n": 3,
+   "span": "動脈韌帶",
+   "why": "tested point",
+   "hide": [
+    "繞行動脈韌帶後折返"
+   ]
+  },
+  {
+   "n": 4,
+   "skip": true,
+   "why": "elimination"
+  },
+  {
+   "n": 5,
+   "skip": true,
+   "why": "elimination by negatives"
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "answer not unique"
+  },
+  {
+   "n": 7,
+   "skip": true,
+   "why": "description leaks"
+  },
+  {
+   "n": 8,
+   "skip": true,
+   "why": "leaks via description"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"肺部血流量上升\", \"hide\": [\"而非肺血管阻力顯著上升\", \"也非肺動脈管壁顯著增厚\"], \"why\": \"tested point\"}, {\"n\": 2, \"span\": \"第一中隔與心內膜墊融合\", \"hide\": [\"非穿孔或新細胞增生\"], \"why\": \"tested point\"}, {\"n\": 3, \"span\": \"動脈韌帶\", \"hide\": [\"繞行動脈韌帶後折返\"], \"why\": \"tested point\"}, {\"n\": 4, \"skip\": true, \"why\": \"elimination\"}, {\"n\": 5, \"skip\": true, \"why\": \"elimination by negatives\"}, {\"n\": 6, \"skip\": true, \"why\": \"answer not unique\"}, {\"n\": 7, \"skip\": true, \"why\": \"description leaks\"}, {\"n\": 8, \"skip\": true, \"why\": \"leaks via description\"}]"
+}

@@ -1,0 +1,825 @@
+{
+  "version": 1,
+  "cards": [
+    {
+      "cardId": "intestinal-nematodes-soil-transmitted#k6",
+      "anchorId": "寄生蟲學::intestinal-nematodes-soil-transmitted",
+      "masks": [
+        {
+          "exact": "蛔蟲",
+          "prefix": "",
+          "suffix": "（A",
+          "role": "answer"
+        },
+        {
+          "exact": "Ascaris lumbricoides",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "蛔蟲區別於其他腸道線蟲",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "111-1-醫學二-寄生蟲學-Q30",
+        "111-2-醫學二-寄生蟲學-Q29"
+      ],
+      "kind": "llm",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "foodborne-tissue-nematodes#k11",
+      "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+      "masks": [
+        {
+          "exact": "菲律賓毛線蟲",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "Capillaria philippinensis",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "104",
+        "109",
+        "110"
+      ],
+      "linkedQuestionIds": [
+        "104-1-醫學一-寄生蟲學-Q75",
+        "104-1-醫學一-寄生蟲學-Q76",
+        "109-2-醫學二-寄生蟲學-Q29",
+        "110-1-醫學二-寄生蟲學-Q29",
+        "110-2-醫學二-寄生蟲學-Q30"
+      ],
+      "kind": "bold",
+      "signalScore": 9,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "foodborne-tissue-nematodes#k12",
+      "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+      "masks": [
+        {
+          "exact": "旋毛蟲",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "Trichinella spiralis",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "106",
+        "115"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-寄生蟲學-Q76",
+        "115-1-醫學二-寄生蟲學-Q29"
+      ],
+      "kind": "bold",
+      "signalScore": 8,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "foodborne-tissue-nematodes#k13",
+      "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+      "masks": [
+        {
+          "exact": "海獸胃線蟲",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "Anisakis spp.",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "105",
+        "108"
+      ],
+      "linkedQuestionIds": [
+        "105-2-醫學一-寄生蟲學-Q75",
+        "108-1-醫學二-寄生蟲學-Q29"
+      ],
+      "kind": "bold",
+      "signalScore": 8,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "foodborne-tissue-nematodes#k14",
+      "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+      "masks": [
+        {
+          "exact": "假性感染",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "spurious infection",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "並非真正的肝內感染",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "真感染",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "113"
+      ],
+      "linkedQuestionIds": [
+        "113-2-醫學二-微生物暨免疫學-Q29"
+      ],
+      "kind": "bold",
+      "signalScore": 7,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "foodborne-tissue-nematodes#k15",
+      "anchorId": "寄生蟲學::foodborne-tissue-nematodes",
+      "masks": [
+        {
+          "exact": "棘顎口線蟲",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "Gnathostoma spinigerum",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "眼球棘顎口線蟲症",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "111",
+        "112"
+      ],
+      "linkedQuestionIds": [
+        "111-1-醫學二-寄生蟲學-Q29",
+        "111-2-醫學二-寄生蟲學-Q30",
+        "112-1-醫學二-寄生蟲學-Q29",
+        "112-2-醫學二-寄生蟲學-Q29"
+      ],
+      "kind": "llm",
+      "signalScore": 2,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "常青必掃"
+    },
+    {
+      "cardId": "lymphatic-and-subcutaneous-filariasis#k7",
+      "anchorId": "寄生蟲學::lymphatic-and-subcutaneous-filariasis",
+      "masks": [
+        {
+          "exact": "diethylcarbamazine",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "DEC",
+          "prefix": "",
+          "suffix": "）",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "106",
+        "108",
+        "112"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-寄生蟲學-Q75",
+        "106-2-醫學二-寄生蟲學-Q29",
+        "108-1-醫學二-寄生蟲學-Q30",
+        "112-1-醫學二-寄生蟲學-Q35"
+      ],
+      "kind": "llm",
+      "signalScore": 9,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "lymphatic-and-subcutaneous-filariasis#k8",
+      "anchorId": "寄生蟲學::lymphatic-and-subcutaneous-filariasis",
+      "masks": [
+        {
+          "exact": "皮下組織",
+          "prefix": "",
+          "suffix": "、",
+          "role": "answer"
+        },
+        {
+          "exact": "成蟲移行雖在皮下",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "104"
+      ],
+      "linkedQuestionIds": [
+        "104-2-醫學一-寄生蟲學-Q75"
+      ],
+      "kind": "llm",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "lymphatic-and-subcutaneous-filariasis#k9",
+      "anchorId": "寄生蟲學::lymphatic-and-subcutaneous-filariasis",
+      "masks": [
+        {
+          "exact": "皮下切片",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "skin snips",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "皮膚（真皮層）",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "皮下結節",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "106",
+        "107",
+        "110",
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-寄生蟲學-Q75",
+        "106-2-醫學二-寄生蟲學-Q29",
+        "107-2-醫學二-寄生蟲學-Q30",
+        "110-2-醫學二-寄生蟲學-Q29",
+        "111-2-醫學二-寄生蟲學-Q34"
+      ],
+      "kind": "llm",
+      "signalScore": 3,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "angiostrongyliasis-and-larva-migrans#k9",
+      "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+      "masks": [
+        {
+          "exact": "犬蛔蟲／貓蛔蟲",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "Toxocara canis/cati",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "終宿主為狗／貓",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "犬貓糞便",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "107",
+        "114"
+      ],
+      "linkedQuestionIds": [
+        "107-1-醫學二-寄生蟲學-Q30",
+        "107-2-醫學二-寄生蟲學-Q29",
+        "114-2-醫學二-寄生蟲學-Q30"
+      ],
+      "kind": "bold",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "liver-and-intestinal-flukes#k7",
+      "anchorId": "寄生蟲學::liver-and-intestinal-flukes",
+      "masks": [
+        {
+          "exact": "異形吸蟲",
+          "prefix": "",
+          "suffix": "（H",
+          "role": "answer"
+        },
+        {
+          "exact": "Heterophyes heterophyes",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "104-2",
+        "110-1"
+      ],
+      "linkedQuestionIds": [
+        "104-2-醫學一-寄生蟲學-Q77",
+        "110-1-醫學二-寄生蟲學-Q32"
+      ],
+      "kind": "llm",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "schistosomiasis#k7",
+      "anchorId": "寄生蟲學::schistosomiasis",
+      "masks": [
+        {
+          "exact": "直接經皮膚鑽入人體",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "不需要第二中間宿主形成囊幼",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "就是全部所需的中間宿主",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "111-2",
+        "113-2"
+      ],
+      "linkedQuestionIds": [
+        "111-2-醫學二-寄生蟲學-Q32",
+        "113-2-醫學二-藥理學-Q31"
+      ],
+      "kind": "llm",
+      "signalScore": 5,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "paragonimiasis-and-ectopic-lesions#k6",
+      "anchorId": "寄生蟲學::paragonimiasis-and-ectopic-lesions",
+      "masks": [
+        {
+          "exact": "克氏肺吸蟲",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "Paragonimus kellicotti",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "105-2"
+      ],
+      "linkedQuestionIds": [
+        "105-2-醫學一-寄生蟲學-Q78"
+      ],
+      "kind": "llm",
+      "signalScore": 1,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "echinococcosis-and-small-tapeworms#k5",
+      "anchorId": "寄生蟲學::echinococcosis-and-small-tapeworms",
+      "masks": [
+        {
+          "exact": "肝臟",
+          "prefix": "要在",
+          "suffix": "",
+          "role": "answer"
+        }
+      ],
+      "marks": [
+        "105",
+        "110",
+        "112"
+      ],
+      "linkedQuestionIds": [
+        "105-2-醫學一-寄生蟲學-Q77",
+        "110-1-醫學二-寄生蟲學-Q31",
+        "110-1-醫學二-寄生蟲學-Q34",
+        "110-2-醫學二-寄生蟲學-Q31",
+        "112-1-醫學二-寄生蟲學-Q31"
+      ],
+      "kind": "bold",
+      "signalScore": 6,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "taeniasis-and-cysticercosis#k4",
+      "anchorId": "寄生蟲學::taeniasis-and-cysticercosis",
+      "masks": [
+        {
+          "exact": "癲癇",
+          "prefix": "",
+          "suffix": "（",
+          "role": "answer"
+        },
+        {
+          "exact": "epilepsy",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "108",
+        "111",
+        "115"
+      ],
+      "linkedQuestionIds": [
+        "108-1-醫學二-寄生蟲學-Q32",
+        "111-1-醫學二-寄生蟲學-Q32",
+        "111-2-醫學二-寄生蟲學-Q31",
+        "115-1-醫學二-寄生蟲學-Q31"
+      ],
+      "kind": "llm",
+      "signalScore": 9,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "diphyllobothriasis-and-sparganosis#k9",
+      "anchorId": "寄生蟲學::diphyllobothriasis-and-sparganosis",
+      "masks": [
+        {
+          "exact": "卵蓋",
+          "prefix": "",
+          "suffix": " ",
+          "role": "answer"
+        },
+        {
+          "exact": "operculum",
+          "prefix": " ",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "105",
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "105-1-醫學一-寄生蟲學-Q78",
+        "111-1-醫學二-寄生蟲學-Q31"
+      ],
+      "kind": "llm",
+      "signalScore": 8,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "intestinal-luminal-amoebae#k4",
+      "anchorId": "寄生蟲學::intestinal-luminal-amoebae",
+      "masks": [
+        {
+          "exact": "metronidazole",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        }
+      ],
+      "marks": [
+        "106"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-寄生蟲學-Q81",
+        "106-1-醫學一-寄生蟲學-Q82",
+        "106-2-醫學二-寄生蟲學-Q34"
+      ],
+      "kind": "llm",
+      "signalScore": 3,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "intestinal-luminal-amoebae#k7",
+      "anchorId": "寄生蟲學::intestinal-luminal-amoebae",
+      "masks": [
+        {
+          "exact": "吞噬紅血球",
+          "prefix": "",
+          "suffix": "（e",
+          "role": "answer"
+        },
+        {
+          "exact": "erythrophagocytosis",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        },
+        {
+          "exact": "胞內容物是細菌，不含紅血球",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "106",
+        "108"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-寄生蟲學-Q81",
+        "106-1-醫學一-寄生蟲學-Q82",
+        "106-2-醫學二-寄生蟲學-Q34",
+        "108-1-醫學二-寄生蟲學-Q34"
+      ],
+      "kind": "llm",
+      "signalScore": 2,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "intestinal-luminal-amoebae#k9",
+      "anchorId": "寄生蟲學::intestinal-luminal-amoebae",
+      "masks": [
+        {
+          "exact": "惡性腫瘤",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "癌症",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "106"
+      ],
+      "linkedQuestionIds": [
+        "106-1-醫學一-寄生蟲學-Q81",
+        "106-1-醫學一-寄生蟲學-Q82",
+        "106-2-醫學二-寄生蟲學-Q34"
+      ],
+      "kind": "llm",
+      "signalScore": 1,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "malaria-plasmodium#k10",
+      "anchorId": "寄生蟲學::malaria-plasmodium",
+      "masks": [
+        {
+          "exact": "黑水熱",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "blackwater fever",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "110",
+        "115"
+      ],
+      "linkedQuestionIds": [
+        "110-1-醫學二-寄生蟲學-Q33",
+        "110-2-醫學二-寄生蟲學-Q32",
+        "115-1-醫學二-寄生蟲學-Q35"
+      ],
+      "kind": "llm",
+      "signalScore": 2,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "leishmaniasis#k5",
+      "anchorId": "寄生蟲學::leishmaniasis",
+      "masks": [
+        {
+          "exact": "黑熱病",
+          "prefix": "",
+          "suffix": "（k",
+          "role": "answer"
+        },
+        {
+          "exact": "kala-azar",
+          "prefix": "（",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "104",
+        "106",
+        "109",
+        "111"
+      ],
+      "linkedQuestionIds": [
+        "104-1-醫學一-寄生蟲學-Q81",
+        "104-2-醫學一-寄生蟲學-Q79",
+        "106-2-醫學二-寄生蟲學-Q33",
+        "109-1-醫學二-微生物暨免疫學-Q34",
+        "111-1-醫學二-寄生蟲學-Q34",
+        "111-2-醫學二-寄生蟲學-Q33"
+      ],
+      "kind": "llm",
+      "signalScore": 6,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "babesiosis#k8",
+      "anchorId": "寄生蟲學::babesiosis",
+      "masks": [
+        {
+          "exact": "血液抹片鏡檢配合免疫螢光抗體試驗",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "IFA",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "108",
+        "115"
+      ],
+      "linkedQuestionIds": [
+        "108-2-醫學二-寄生蟲學-Q35",
+        "115-1-醫學二-寄生蟲學-Q33"
+      ],
+      "kind": "trigger",
+      "signalScore": 4,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "toxoplasmosis#k4",
+      "anchorId": "寄生蟲學::toxoplasmosis",
+      "masks": [
+        {
+          "exact": "第四類法定傳染病",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        }
+      ],
+      "marks": [
+        "105"
+      ],
+      "linkedQuestionIds": [
+        "105-2-醫學一-寄生蟲學-Q80"
+      ],
+      "kind": "llm",
+      "signalScore": 1,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "low-yield"
+    },
+    {
+      "cardId": "louse-flea-mechanical-vectors#k8",
+      "anchorId": "寄生蟲學::louse-flea-mechanical-vectors",
+      "masks": [
+        {
+          "exact": "馬氏管",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "Malpighian tubules",
+          "prefix": "",
+          "suffix": "",
+          "role": "gloss"
+        }
+      ],
+      "marks": [
+        "114"
+      ],
+      "linkedQuestionIds": [
+        "114-1-醫學二-寄生蟲學-Q35"
+      ],
+      "kind": "bold",
+      "signalScore": 7,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    },
+    {
+      "cardId": "tick-borne-disease#k5",
+      "anchorId": "寄生蟲學::tick-borne-disease",
+      "masks": [
+        {
+          "exact": "紅血球內",
+          "prefix": "",
+          "suffix": "",
+          "role": "answer"
+        },
+        {
+          "exact": "類似瘧原蟲的環狀體",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        },
+        {
+          "exact": "低度寄生蟲血症",
+          "prefix": "",
+          "suffix": "",
+          "role": "hint"
+        }
+      ],
+      "marks": [
+        "105",
+        "108"
+      ],
+      "linkedQuestionIds": [
+        "105-1-醫學一-寄生蟲學-Q82",
+        "105-2-醫學一-寄生蟲學-Q79",
+        "105-2-醫學一-寄生蟲學-Q81",
+        "108-2-醫學二-寄生蟲學-Q35"
+      ],
+      "kind": "llm",
+      "signalScore": 7,
+      "signalVersion": "neurons-select-v2",
+      "tierAtAdmission": "穩定考點"
+    }
+  ]
+}

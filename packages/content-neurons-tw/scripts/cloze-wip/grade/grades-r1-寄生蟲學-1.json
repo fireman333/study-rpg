@@ -1,0 +1,343 @@
+{
+ "group": "r1-寄生蟲學-1",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r1",
+ "grades": {
+  "intestinal-nematodes-soil-transmitted#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "蟯蟲逆行致慢性骨盆腔腹膜炎，106-2 正面考過，答案唯一。"
+  },
+  "intestinal-nematodes-soil-transmitted#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "赤腳下田經皮感染＝十二指腸鉤蟲，115-2 原題答案，唯一。"
+  },
+  "intestinal-nematodes-soil-transmitted#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "鞭蟲重度感染兒童脫肛，111-1/114-1 考過，答案具體。"
+  },
+  "intestinal-nematodes-soil-transmitted#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "鉤蟲重度感染合併鐵攝取不足致缺鐵性貧血，108-2 正確敘述②，唯一。"
+  },
+  "intestinal-nematodes-soil-transmitted#k5": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "蟯蟲診斷＝肛門周圍黏紙法，105-1/113-2 反覆考，唯一。"
+  },
+  "foodborne-tissue-nematodes#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "菲律賓毛線蟲具自體感染能力，107-1/109-2 考過，答案唯一。"
+  },
+  "foodborne-tissue-nematodes#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "旋毛蟲最早出現局部症狀為眼眶周圍水腫，對應 106-1 誘答，答案具體。"
+  },
+  "foodborne-tissue-nematodes#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "麥地那線蟲經含劍水蚤生水感染，104-1/111-2 相關，答案唯一。"
+  },
+  "foodborne-tissue-nematodes#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "糞便見肝毛線蟲卵＝假性感染，113-2 原題答案，唯一。"
+  },
+  "foodborne-tissue-nematodes#k5": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "特異性抗體檢查是 110-2 正確選項之一，但三種診斷法並列、挖其一答案不唯一，重點其實是「不靠糞便蟲卵」。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "班氏絲蟲微絲蟲夜間週期性，108-1/106-2 相關，答案唯一。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "蚊體內發育為感染型 L3 才注入人體，對應 108-1 誘答的正確版，唯一。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "馬來絲蟲微絲蟲 2 個尾核，114-1 原題答案，招牌鑑別。"
+  },
+  "lymphatic-and-subcutaneous-filariasis#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "TPE 以 DEC 治療有效，105-1 正確選項，答案唯一。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "內臟幼蟲移行症最易侵犯肝臟（肝腫大），107-1/114-2 考過。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "廣東住血線蟲致嗜伊紅性腦膜炎，110-1 正確敘述，答案具體。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "農地皮膚延伸紅斑＝鉤蟲爬行疹，112-2 適當選項，情境足以推出答案。"
+  },
+  "angiostrongyliasis-and-larva-migrans#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "廣東住血線蟲終宿主為鼠，109-1 考「人非終宿主」，答案唯一。"
+  },
+  "liver-and-intestinal-flukes#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "中華肝吸蟲慢性感染致膽管癌，106-1 正確敘述，唯一。"
+  },
+  "liver-and-intestinal-flukes#k2": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "螞蟻為槍狀肝吸蟲的第二中間宿主，但卡面只寫「中間宿主」，第一中間宿主（陸生螺）亦可填，答案不夠唯一。"
+  },
+  "liver-and-intestinal-flukes#k3": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "答案為複合「香魚與鮭魚」，且同句後文「赴日生食鮭魚」已洩漏一半答案。"
+  },
+  "liver-and-intestinal-flukes#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "異形吸蟲生殖孔附近第三吸盤，104-2 原題題幹特徵，唯一。"
+  },
+  "schistosomiasis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "曼氏血吸蟲寄生下腸繫膜靜脈（引流大腸），與埃及血吸蟲膀胱靜脈叢區辨，高頻考點。"
+  },
+  "schistosomiasis#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "血吸蟲尾動幼蟲直接鑽皮，113-2 正確敘述 B，唯一。"
+  },
+  "schistosomiasis#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "片山熱，106-1/109-2 原題，唯一。"
+  },
+  "schistosomiasis#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "血吸蟲首選 praziquantel，112-2 誘答 metronidazole 的更正，唯一。"
+  },
+  "paragonimiasis-and-ectopic-lesions#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "衛氏肺吸蟲第二中間宿主為淡水蟹／螯蝦，106-2/108-1/115-1 反覆考。"
+  },
+  "paragonimiasis-and-ectopic-lesions#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "所有吸蟲第一中間宿主皆為螺類，111-2 原題答案，唯一。"
+  },
+  "paragonimiasis-and-ectopic-lesions#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "野豬為衛氏肺吸蟲保幼（待轉）宿主，是 105-2 否定題給分選項的正確更正版，答案具體。"
+  },
+  "echinococcosis-and-small-tapeworms#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "單胞包生絛蟲在肝形成單房性包生囊，110-1 原題答案。"
+  },
+  "echinococcosis-and-small-tapeworms#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "短小包膜絛蟲自體感染，114-1/107-1 原題，唯一。"
+  },
+  "echinococcosis-and-small-tapeworms#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "犬複殖器絛蟲中間宿主為貓狗蚤，110-1/104-1 考過，唯一。"
+  },
+  "echinococcosis-and-small-tapeworms#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "人為包生絛蟲意外中間宿主，105-2 否定「人為終宿主」，答案具體。"
+  },
+  "taeniasis-and-cysticercosis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "神經性囊尾幼蟲症病因＝豬肉絛蟲，111-1 原題，唯一。"
+  },
+  "taeniasis-and-cysticercosis#k2": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "「糞便驗不到蟲卵或蟲體」是 115-1 題幹線索，但長句答案難從卡面精確填出。"
+  },
+  "taeniasis-and-cysticercosis#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "誤食豬肉絛蟲卵→六鉤幼蟲穿腸壁形成囊尾幼蟲，108-1 核心機轉，唯一。"
+  },
+  "diphyllobothriasis-and-sparganosis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "廣節裂頭絛蟲第一中間宿主劍水蚤，105-1 兩中間宿主考點，唯一。"
+  },
+  "diphyllobothriasis-and-sparganosis#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "北歐醃魚＋空腸蟲體＝維生素 B12 缺乏貧血，111-1 題幹，105-1 誘答缺鐵性貧血。"
+  },
+  "diphyllobothriasis-and-sparganosis#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "曼森裂頭絛蟲可感染人為原尾幼蟲與長尾幼蟲，104-2 原題答案。"
+  },
+  "diphyllobothriasis-and-sparganosis#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "敷蛙肉致眼周裂頭蚴移行症＝曼森裂頭絛蟲，115-2 原題答案。"
+  },
+  "free-living-amoebae-and-flagellates#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "PAM 3～6 天內死亡為 112-2 正確答案且 105-1 考過，數字為考過的考點。"
+  },
+  "free-living-amoebae-and-flagellates#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "福氏內格里阿米巴典型病史為溫暖淡水游泳，106-2/105-1 反覆考。"
+  },
+  "free-living-amoebae-and-flagellates#k3": {
+   "grade": "bad",
+   "medicalError": false,
+   "reason": "考題只考「不是都需角膜移植」；「輕症僅需角膜刮除即可」非考點且不符治療主軸（局部抗阿米巴藥物為主），答案有誤導性。"
+  },
+  "intestinal-luminal-amoebae#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "齒齦阿米巴寄生口腔，106-1 否定題的正確更正，唯一。"
+  },
+  "intestinal-luminal-amoebae#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "阿米巴肝膿瘍好發右葉，106-2 誘答左葉的正確版，唯一。"
+  },
+  "intestinal-luminal-amoebae#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "肝膿瘍用已商品化 ELISA 抗體試劑，115-2 正確敘述 A，答案具體。"
+  },
+  "intestinal-luminal-amoebae#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "阿米巴首選 metronidazole，106-1/106-2 考過，唯一。"
+  },
+  "malaria-plasmodium#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "諾氏瘧裂殖體週期 24 小時，113-1 考過的數字，屬定義性鑑別點。"
+  },
+  "malaria-plasmodium#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "間日瘧受器 Duffy 血型抗原，113-2 考過，唯一。"
+  },
+  "malaria-plasmodium#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "惡性瘧 cytoadherence 致腦性瘧，109-2 考過，唯一。"
+  },
+  "malaria-plasmodium#k4": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "事實正確（惡性瘧、諾氏瘧不挑紅血球齡），但答案「老少通吃」為口語，學生難填出同一措辭。"
+  },
+  "leishmaniasis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "chiclero's ulcer＝墨西哥利什曼原蟲，109-1 誘答巴西利什曼的更正，唯一。"
+  },
+  "leishmaniasis#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "利什曼原蟲寄生巨噬細胞，109-1/112-1 考過，唯一。"
+  },
+  "leishmaniasis#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "黑熱病病原＝杜氏利什曼原蟲，多年反覆考，唯一。"
+  },
+  "leishmaniasis#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "黑熱病後皮膚利什曼症（PKDL），108-2/111-2 考過，唯一。"
+  },
+  "trypanosomiasis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "Winterbottom's sign＝非洲昏睡病（岡比亞錐蟲），108-2 考過，唯一。"
+  },
+  "trypanosomiasis#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "枯西氏錐蟲經錐鼻蟲糞便傳播，109-1/110-1 考過，唯一。"
+  },
+  "babesiosis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "巴貝氏原蟲四裂殖子十字排列（馬爾他十字），與瘧原蟲鑑別的經典形態。"
+  },
+  "babesiosis#k2": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "低寄生蟲血症是 108-2 誘答（高度寄生蟲血症）的反面，事實正確但價值普通、答案可由句尾否定直接反推。"
+  },
+  "babesiosis#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "脾臟切除者為重症高風險，108-2 正確敘述 C，唯一。"
+  }
+ },
+ "contradictions": [],
+ "handoutIssues": [
+  {
+   "anchorId": "foodborne-tissue-nematodes",
+   "cardId": "foodborne-tissue-nematodes#k2",
+   "sentence": "症狀依病程分三期——潛伏期腸胃症狀→移行期最早出現局部（尤其眼眶周圍）水腫→囊化期才出現高嗜伊紅性白血球症與肌肉痛",
+   "problem": "教科書分期中，肌肉痛、發燒、眼眶周圍水腫與嗜伊紅性白血球增多都屬肌肉侵犯（移行）期，嗜伊紅性白血球約在第 2–4 週達高峰；囊化期是恢復期、症狀消退。把嗜伊紅性白血球增多與肌肉痛歸到囊化期不正確。",
+   "suggestedFix": "改為「腸道期腸胃症狀→肌肉侵犯期出現眼眶周圍水腫、發燒、肌肉痛與高嗜伊紅性白血球症（眼眶水腫常早於明顯肌痛）→囊化期症狀漸退」",
+   "examRef": "106-1-醫學一-寄生蟲學-Q76"
+  },
+  {
+   "anchorId": "liver-and-intestinal-flukes",
+   "cardId": "liver-and-intestinal-flukes#k2",
+   "sentence": "槍狀肝吸蟲（Dicrocoelium dendriticum）終宿主同樣是牛、羊，但中間宿主是螞蟻",
+   "problem": "槍狀肝吸蟲有兩個中間宿主：第一中間宿主為陸生螺，第二中間宿主才是螞蟻；只寫「中間宿主是螞蟻」不完整。",
+   "suggestedFix": "「第一中間宿主為陸生螺、第二中間宿主為螞蟻」",
+   "examRef": "113-1-醫學二-寄生蟲學-Q32"
+  },
+  {
+   "anchorId": "free-living-amoebae-and-flagellates",
+   "cardId": "free-living-amoebae-and-flagellates#k3",
+   "sentence": "棘阿米巴性角膜炎（Acanthamoeba keratitis）病情輕微者僅需角膜刮除即可改善，並非所有患者都必須接受角膜移植才能恢復視力。",
+   "problem": "治療主軸是長期局部抗阿米巴藥物（biguanide 如 PHMB／chlorhexidine，合併 diamidine 如 propamidine），早期上皮病變可輔以上皮刮除；「僅需角膜刮除即可」會誤導。考題 112-2 只考「不是都需要角膜移植」。",
+   "suggestedFix": "「早期病例以局部抗阿米巴藥物（PHMB／chlorhexidine＋propamidine）治療，可合併上皮刮除；並非所有患者都需角膜移植」",
+   "examRef": "112-2-醫學二-寄生蟲學-Q33"
+  },
+  {
+   "anchorId": "foodborne-tissue-nematodes",
+   "cardId": "foodborne-tissue-nematodes#k3",
+   "sentence": "幼蟲寄生於下肢（尤其腳背）與陰囊皮下組織，成熟雌蟲可長達近 1 公尺",
+   "problem": "寄生於下肢皮下並造成水泡潰瘍的是成熟雌成蟲，不是幼蟲；幼蟲是從潰瘍處釋出到水中。",
+   "suggestedFix": "「雌成蟲移行至下肢（尤其足踝、腳背）皮下組織」",
+   "examRef": "111-2-醫學二-寄生蟲學-Q30"
+  }
+ ]
+}

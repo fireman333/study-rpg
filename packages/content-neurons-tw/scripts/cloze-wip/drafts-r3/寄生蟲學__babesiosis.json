@@ -1,0 +1,101 @@
+{
+ "anchorId": "寄生蟲學::babesiosis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "e72dd7343ece0a60",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "108-2-醫學二-寄生蟲學-Q35",
+     "stem": "有關蜱媒介人巴貝氏原蟲病（human babesiosis）之敘述，下列何者錯誤？",
+     "trueOption": "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "診斷以血液抹片鏡檢配合免疫螢光抗體試驗（IFA）為主；標準治療為克林達黴素（clindamycin）併用奎寧（quinine），另一常用方案是atovaquone併用azithromycin。108/115",
+   "citeText": [
+    "108/115"
+   ],
+   "marks": [
+    "108",
+    "115"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-寄生蟲學-Q35",
+    "115-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主",
+    "③④"
+   ],
+   "spans": [
+    {
+     "span": "血液抹片鏡檢配合免疫螢光抗體試驗",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "110-2-醫學二-寄生蟲學-Q35",
+     "stem": "下列何者為傳播人巴貝氏原蟲症（human babesiosis）之主要病媒？",
+     "trueOption": "硬蜱屬（Ixodes spp.）"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "硬蜱屬（Ixodes spp.）是傳播人巴貝氏原蟲病的主要病媒，同屬也傳播萊姆病與艾利希體症；革蜱屬（Dermacentor spp.）傳播落磯山斑疹熱，花蜱屬（Amblyomma spp.）與血蜱屬（Haemaphysalis spp.）則分別對應其他立克次體疾病，四屬蜱蟲各有偏好的傳播疾病組合。107/108/110",
+   "citeText": [
+    "107/108/110"
+   ],
+   "marks": [
+    "107",
+    "108",
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q34",
+    "107-2-醫學二-寄生蟲學-Q35",
+    "108-2-醫學二-寄生蟲學-Q35",
+    "110-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "萊姆病（Lyme disease）",
+    "巴貝氏原蟲症（babesiosis）",
+    "落磯山斑疹熱（Rocky Mountain spotted fever）",
+    "巴貝氏原蟲症（babesiosis）",
+    "巴貝氏原蟲（Babesia）感染宿主後主要寄生在紅血球內",
+    "感染致死之病例通常發生在脾臟切除（splenectomized）病人",
+    "臨床感染診斷則以血液抹片配合免疫螢光抗體試驗（IFA）為主",
+    "硬蜱屬（Ixodes spp.）"
+   ],
+   "spans": [],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "血液抹片鏡檢配合免疫螢光抗體試驗",
+   "why": "診斷方法為考點"
+  },
+  {
+   "n": 2,
+   "span": "硬蜱屬",
+   "why": "考題問主要病媒"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"血液抹片鏡檢配合免疫螢光抗體試驗\",\"why\":\"診斷方法為考點\"},{\"n\":2,\"span\":\"硬蜱屬\",\"why\":\"考題問主要病媒\"}]\n"
+}

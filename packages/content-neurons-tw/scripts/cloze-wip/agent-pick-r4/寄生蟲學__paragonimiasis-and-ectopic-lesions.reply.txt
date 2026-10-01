@@ -1,0 +1,2 @@
+[{"n":1,"span":"淡水蟹／螯蝦","hide":["蟹類與淡水螯蝦"],"why":"asked infection route"},
+{"n":2,"span":"克氏肺吸蟲","why":"asked organism"}]

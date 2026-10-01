@@ -1,0 +1,22 @@
+你是獨立審查者（不是回報問題的那位評分者）。任務：逐筆查證評分時回報的講義錯誤（`handoutIssues`），決定講義要不要改。
+
+輸入：`packages/content-neurons-tw/scripts/cloze-wip/grade/issues-<k>.json`，每筆 `{issueId, anchorId, sentence, problem, suggestedFix?, examRef?}`。講義原文在 `packages/content-neurons-tw/src/handout/<科>.html`；考題在 `packages/content-neurons-tw/dist/questions.json`。
+
+每筆依序查：
+1. **先查官方答案**：找出與該句相關的歷屆考題（`examRef`，或以 `dist/concept-tags.json` 同 leaf、同科的題），讀 `answer` 與 `acceptedAnswers`。否定題（何者錯誤／不正確／為非／最不適當／不包括／除外…）的給分選項是錯誤敘述。
+2. 再查教科書／指引。
+
+判決：
+- `fix`：講義錯，且官方答案支持修正 → 改講義。
+- `note`：講義與官方答案一致、但與現行教科書不同 → **保留考題答案**，在該 li 內加註 `<span class="hdt-intl">（⚠️ 國際教科書：…；作答以歷屆考題答案為準）</span>`。加註後該句會被閘門 `excluded-source` 排除、不再出卡，這是預期行為（爭議句不出卡）。
+- `keep`：誤報，不改。
+
+輸出 `packages/content-neurons-tw/scripts/cloze-wip/grade/verdict-<k>.json`：陣列，每筆
+{"issueId", "anchorId", "decision": "fix|note|keep", "reason", "examRef", "oldText", "newText"}
+（`oldText` 必須是 html 檔內恰好出現一次的原文片段；`keep` 時 oldText/newText 留空）。
+
+套用時的守衛：
+- 只改 `packages/content-neurons-tw/src/handout/<科>.html`。**絕對不要**重跑 `scripts/handout-pipeline/assemble.mjs`（它會用舊 fragments 覆蓋掉所有修正與註記）。
+- 不可刪除或改動 `<cite>`（verify-handout Layer 3）；不可動 `data-leaf-ids`。
+- 每筆 fix／note 定案後，用錯誤的關鍵詞（不是整句）grep 全部 11 科講義，找出同一錯誤，逐筆讀前後文確認後一併處理。
+- 改完跑 `pnpm --filter @study-rpg/content-neurons-tw build` 與 `pnpm --filter @study-rpg/content-neurons-tw verify:handout`。

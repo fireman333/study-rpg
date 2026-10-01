@@ -1,0 +1,470 @@
+{
+ "group": "r2-02",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r2",
+ "grades": {
+  "lymphatic-and-subcutaneous-filariasis#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-1-醫學一-寄生蟲學-Q76",
+   "medicalError": false,
+   "reason": "DEC 治療有效是否定題 Q76 的正確敘述 D（給分 C 為微絲蟲大量出現），卡點即考點"
+  },
+  "angiostrongyliasis-and-larva-migrans#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "VLM 最常侵犯肝臟：114-2 Q30 以肝腫大為線索、107-1 Q30 B 常見肝腫大為正確敘述"
+  },
+  "angiostrongyliasis-and-larva-migrans#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "107-2-醫學二-寄生蟲學-Q29",
+   "medicalError": false,
+   "reason": "107-2 Q29 以 CSF 嗜酸性白血球增多（嗜伊紅性腦膜炎）推廣東住血線蟲，卡答案即題幹核心"
+  },
+  "angiostrongyliasis-and-larva-migrans#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "112-2 Q30 否定題給分 C（東方毛線蟲），D 鉤蟲爬行疹為適當敘述，與卡一致"
+  },
+  "angiostrongyliasis-and-larva-migrans#k4": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "109-1-醫學二-微生物暨免疫學-Q30",
+   "medicalError": false,
+   "reason": "109-1 Q30 考「人體為終宿主」為錯，未直接考鼠為終宿主；經典宿主事實"
+  },
+  "liver-and-intestinal-flukes#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-寄生蟲學-Q78",
+   "medicalError": false,
+   "reason": "106-1 Q78 否定題給分 C，D 慢性重度感染引發膽管癌為正確敘述"
+  },
+  "liver-and-intestinal-flukes#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "113-1-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "連結題考 halzoun（Fasciola）與水生植物宿主，未考槍狀肝吸蟲以螞蟻為第二中間宿主"
+  },
+  "liver-and-intestinal-flukes#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "115-2 Q32 以生食鮭魚推橫川吸蟲，第二中間宿主即考點；答案為兩魚名組合稍長"
+  },
+  "liver-and-intestinal-flukes#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-寄生蟲學-Q77",
+   "medicalError": false,
+   "reason": "104-2 Q77 以生殖孔附近第三吸盤推異形吸蟲，卡答案即題幹鑑別特徵"
+  },
+  "schistosomiasis#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "107-2-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "107-2 Q31 考曼氏血吸蟲卵側刺/感染途徑，未考寄生靜脈位置；經典事實"
+  },
+  "schistosomiasis#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學二-藥理學-Q31",
+   "medicalError": false,
+   "reason": "113-2 Q31 否定題給分 A，B 尾動幼蟲穿透皮膚為正確敘述，與卡一致"
+  },
+  "schistosomiasis#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-2-醫學二-寄生蟲學-Q30",
+   "medicalError": false,
+   "reason": "106-1 Q79 與 109-2 Q30 皆直接考片山熱"
+  },
+  "schistosomiasis#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-2-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "112-2 Q31 D（首選 metronidazole）為錯誤誘答，卡答 praziquantel 對應該考點"
+  },
+  "paragonimiasis-and-ectopic-lesions#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "106-2 Q31 答 C 生食淡水螃蟹，卡答第二中間宿主一致"
+  },
+  "paragonimiasis-and-ectopic-lesions#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "111-2 Q32 答 D 均須經由螺類傳播，即卡答案"
+  },
+  "paragonimiasis-and-ectopic-lesions#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-寄生蟲學-Q78",
+   "medicalError": false,
+   "reason": "105-2 Q78 否定題給分 B（野豬為保蟲宿主為錯），卡說野豬是保幼宿主一致"
+  },
+  "echinococcosis-and-small-tapeworms#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "110-1 Q31 答 B 肝臟形成包生囊，卡答單房性包生囊一致"
+  },
+  "echinococcosis-and-small-tapeworms#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-1-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "114-1 Q31 直接考 H. nana 自體感染"
+  },
+  "echinococcosis-and-small-tapeworms#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "110-1-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "110-1 Q34 誤食貓狗蚤→犬複殖器絛蟲，卡答中間宿主一致"
+  },
+  "echinococcosis-and-small-tapeworms#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-寄生蟲學-Q77",
+   "medicalError": false,
+   "reason": "105-2 Q77 ①人為終宿主為錯（四項皆錯），卡答人為意外中間宿主一致"
+  },
+  "taeniasis-and-cysticercosis#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-1-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "111-1 Q32 答 C 豬肉絛蟲"
+  },
+  "taeniasis-and-cysticercosis#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "115-1-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "115-1 Q31 題幹線索之一，但考的是囊尾幼蟲症診斷；答案為長描述句、不易唯一填出"
+  },
+  "taeniasis-and-cysticercosis#k3": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "108-1-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "108-1 Q32 否定題給分 A（食豬肉致囊蟲症為錯）考感染途徑，未直接考六鉤幼蟲"
+  },
+  "diphyllobothriasis-and-sparganosis#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "105-1-醫學一-寄生蟲學-Q78",
+   "medicalError": false,
+   "reason": "105-1 Q78 D 需兩中間宿主為正確敘述，未直接考劍水蚤"
+  },
+  "diphyllobothriasis-and-sparganosis#k2": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "111-1-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "111-1 Q31 以 B12 缺乏為線索推蟲種；卡面後段「後兩者不致 B12 缺乏」洩題"
+  },
+  "diphyllobothriasis-and-sparganosis#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-寄生蟲學-Q78",
+   "medicalError": false,
+   "reason": "104-2 Q78 答 D ③④ 原尾與長尾幼蟲"
+  },
+  "diphyllobothriasis-and-sparganosis#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學二-寄生蟲學-Q31",
+   "medicalError": false,
+   "reason": "115-2 Q31 蛙肉敷眼→答 C 曼森裂頭絛蟲"
+  },
+  "free-living-amoebae-and-flagellates#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "112-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "112-2 Q33 答 C 3～6 天內死亡；105-1 Q80 B 亦為正確敘述，已考數字"
+  },
+  "free-living-amoebae-and-flagellates#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "106-2-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "106-2 Q32 以池塘游泳為線索、105-1 Q80 A 考非限老人；答案措辭不唯一（淡水/池塘/湖泊）"
+  },
+  "free-living-amoebae-and-flagellates#k3": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "112-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "112-2 Q33 D（都須角膜移植）為錯誤敘述，但「僅需角膜刮除」答案不唯一且過度簡化（主要治療為局部抗阿米巴藥物）"
+  },
+  "intestinal-luminal-amoebae#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-寄生蟲學-Q81",
+   "medicalError": false,
+   "reason": "106-1 Q81 給分 D（寄生部位均在大腸）為錯，齒齦阿米巴在口腔即考點"
+  },
+  "intestinal-luminal-amoebae#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "106-2-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "106-2 Q34 A（常發生左葉）為錯，卡答右葉正確；但卡面「並非左葉」使二選一洩題"
+  },
+  "intestinal-luminal-amoebae#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "115-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "115-2 Q33 否定題給分 B，A 肝膿瘍用商品化 ELISA 抗體試劑為正確敘述"
+  },
+  "intestinal-luminal-amoebae#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "106-1-醫學一-寄生蟲學-Q81",
+   "medicalError": false,
+   "reason": "106-1 Q81 否定題給分 D，B metronidazole 首選為正確敘述"
+  },
+  "malaria-plasmodium#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-1-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "113-1 Q34 否定題給分 D，C 裂殖體週期 24 小時為正確敘述"
+  },
+  "malaria-plasmodium#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "113-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "113-2 Q33 否定題給分 C，B Duffy 血型抗原為附著部位正確"
+  },
+  "malaria-plasmodium#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-2-醫學二-寄生蟲學-Q32",
+   "medicalError": false,
+   "reason": "109-2 Q32 否定題給分 C，A 細胞附著現象為正確敘述"
+  },
+  "malaria-plasmodium#k4": {
+   "grade": "bad",
+   "examAlignment": "related",
+   "examRef": "108-1-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "108-1 Q33 考三日瘧偏好成熟 RBC/帶狀滋養體；卡答「老少通吃」為口語、不具體不唯一"
+  },
+  "leishmaniasis#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-1-醫學二-微生物暨免疫學-Q34",
+   "medicalError": false,
+   "reason": "109-1 Q34 A 把 chiclero's ulcer 歸巴西利什曼為錯誤誘答，卡答墨西哥利什曼對應"
+  },
+  "leishmaniasis#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "109-1-醫學二-微生物暨免疫學-Q34",
+   "medicalError": false,
+   "reason": "109-1 Q34 B（侵入所有有核細胞）為錯，卡答巨噬細胞；112-1 Q32 A 亦涉巨噬細胞"
+  },
+  "leishmaniasis#k3": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-寄生蟲學-Q79",
+   "medicalError": false,
+   "reason": "104-2 Q79 答 A 杜氏利什曼原蟲；111-2 Q33 A 熱帶利什曼為錯"
+  },
+  "leishmaniasis#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學二-寄生蟲學-Q33",
+   "medicalError": false,
+   "reason": "111-2 Q33 答 D 後黑熱病皮膚病灶；108-2 Q33 B 亦為正確敘述"
+  },
+  "trypanosomiasis#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學二-病理學-Q34",
+   "medicalError": false,
+   "reason": "108-2 Q34 B Winterbottom's sign－岡比亞錐蟲為正確配對"
+  },
+  "trypanosomiasis#k2": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "109-1-醫學二-微生物暨免疫學-Q35",
+   "medicalError": false,
+   "reason": "109-1 Q35 考采采蠅不傳 Chagas，未直接考錐鼻蟲"
+  },
+  "babesiosis#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-寄生蟲學-Q79",
+   "medicalError": false,
+   "reason": "連結題考巴貝氏原蟲診斷與寄生蟲血症，未考馬爾他十字；經典形態特徵"
+  },
+  "babesiosis#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "108-2 Q35 給分 B（高度寄生蟲血症）為錯，卡答低寄生蟲血症正確；但卡面「並非高度寄生蟲血症」洩題"
+  },
+  "babesiosis#k3": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "108-2-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "108-2 Q35 C 脾臟切除者致死為正確敘述；卡面後句「脾切除者失去這道防線」洩題"
+  },
+  "babesiosis#k4": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "107-1-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "107-1 Q34 考西尼羅病毒非蜱媒，未考家蚊屬"
+  },
+  "toxoplasmosis#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-寄生蟲學-Q80",
+   "medicalError": false,
+   "reason": "105-2 Q80 否定題給分 A，B 愛滋病患弓蟲性腦炎為正確敘述"
+  },
+  "toxoplasmosis#k2": {
+   "grade": "bad",
+   "examAlignment": "tested",
+   "examRef": "105-2-醫學一-寄生蟲學-Q80",
+   "medicalError": false,
+   "reason": "105-2 Q80 A（人是終宿主、貓是中間宿主）為錯，卡答正確；但卡面「人類…僅為中間宿主」使答案可直接推出，洩題"
+  },
+  "louse-flea-mechanical-vectors#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "108-1-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "108-1 Q35 給分 D（人膚蠅常見於亞洲）為錯，卡答拉丁美洲熱帶地區對應"
+  },
+  "louse-flea-mechanical-vectors#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "114-1-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "114-1 Q35 答 C 馬氏管"
+  },
+  "louse-flea-mechanical-vectors#k3": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "106-2-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "106-2 Q35 考家蠅為機械性傳播，卡答其對照概念生物性傳播"
+  },
+  "tick-borne-disease#k1": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-寄生蟲學-Q79",
+   "medicalError": false,
+   "reason": "連結題考巴貝氏診斷/寄生蟲血症，未考馬爾他十字；與同節另一卡重複"
+  },
+  "tick-borne-disease#k2": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "107-1-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "107-1 Q34 考西尼羅病毒非蜱媒，未考 RMSF 病媒為革蜱屬"
+  },
+  "tick-borne-disease#k3": {
+   "grade": "good",
+   "examAlignment": "related",
+   "examRef": "105-2-醫學一-寄生蟲學-Q79",
+   "medicalError": false,
+   "reason": "105-2 Q79 題幹以「八隻腳蟲體」為線索，卡答蛛形綱為其背後概念"
+  },
+  "tick-borne-disease#k4": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-2-醫學一-寄生蟲學-Q82",
+   "medicalError": false,
+   "reason": "104-2 Q82 否定題給分 D，A 高度流行區共同感染巴貝氏原蟲為正確敘述"
+  },
+  "scrub-typhus-chigger-mite#k1": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "111-2-醫學二-寄生蟲學-Q35",
+   "medicalError": false,
+   "reason": "111-2 Q35 答 A 幼蟎、107-2 Q34 答 D 幼蟎"
+  },
+  "scrub-typhus-chigger-mite#k2": {
+   "grade": "good",
+   "examAlignment": "tested",
+   "examRef": "104-1-醫學一-寄生蟲學-Q82",
+   "medicalError": false,
+   "reason": "104-1 Q82 否定題給分 C，A 鼠類為主要儲菌宿主為正確敘述"
+  },
+  "dust-mite-allergy#k1": {
+   "grade": "ordinary",
+   "examAlignment": "related",
+   "examRef": "112-2-醫學二-寄生蟲學-Q34",
+   "medicalError": false,
+   "reason": "112-2 Q34/105-1 Q81 考塵蟎本身，未考 Der p1 過敏原名稱"
+  }
+ },
+ "handoutIssues": [
+  {
+   "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+   "cardId": "angiostrongyliasis-and-larva-migrans#k2",
+   "sentence": "廣東住血線蟲幼蟲以第五期（L5）之姿侵犯腦脊髓，並非只侵犯腦脊髓（感染途徑本身經消化道甚至皮膚），造成嗜伊紅性腦膜炎（腦膜腦炎）；確認診斷是在腦脊髓液中發現蟲體（L5）並伴隨嗜酸性白血球明顯增加；侵犯眼球時可見視力受損、角膜炎，甚至可在眼球內見到活蟲需手術移除（ocular angiostrongyliasis）。臺灣南部與東部曾因生食蝸牛等而有地方性流行，因此「臺灣本土流行＋眼部病變」的組合直接指向本蟲。107/109/114/115-2",
+   "problem": "「感染途徑本身經消化道甚至皮膚」：廣東住血線蟲感染途徑為經口食入 L3（中間/保幼宿主或污染蔬菜），並無經皮膚感染；句構「並非只侵犯腦脊髓」亦混亂",
+   "suggestedFix": "刪去「甚至皮膚」，改為「感染途徑為經口食入」",
+   "examRef": "110-1-醫學二-寄生蟲學-Q30"
+  },
+  {
+   "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+   "cardId": "angiostrongyliasis-and-larva-migrans#k4",
+   "sentence": "廣東住血線蟲（Angiostrongylus cantonensis）終宿主為老鼠（成蟲寄生其肺動脈），人並非終宿主；中間宿主為蝸牛、蛞蝓（經典例子是非洲大蝸牛），保幼蟲宿主包括淡水蝦、陸蟹、蛙類與受污染的生菜；人食入未熟帶蟲的中間／保幼蟲宿主，或食入被其黏液污染的生菜沙拉，皆可能感染（「吃生菜沙拉不會感染」是錯誤敘述）。109/110",
+   "problem": "保幼蟲宿主清單列入「受污染的生菜」，生菜是污染載體，不是宿主",
+   "suggestedFix": "改為「保幼蟲宿主包括淡水蝦、陸蟹、蛙類；受其黏液污染的生菜亦可傳播」",
+   "examRef": "110-1-醫學二-寄生蟲學-Q30"
+  },
+  {
+   "anchorId": "寄生蟲學::angiostrongyliasis-and-larva-migrans",
+   "cardId": "angiostrongyliasis-and-larva-migrans#k3",
+   "sentence": "東方毛線蟲（Trichostrongylus orientalis）雖與腸道及皮膚接觸病史（如農務、接觸泥土）相關，但其絲狀幼蟲不易鑽入皮膚，主要經食入受污染蔬菜或動物內臟感染，並不會造成皮膚延伸性紅疹（不是 CLM 病原）——農地工作者皮膚搔癢合併延伸紅斑，較可能是鉤蟲爬行疹或搔抓後細菌感染，而非東方毛線蟲。112",
+   "problem": "東方毛線蟲感染途徑寫「食入受污染蔬菜或動物內臟」，食入動物內臟並非其感染途徑（L3 附於蔬菜/水經口感染）",
+   "suggestedFix": "刪去「或動物內臟」",
+   "examRef": "112-2-醫學二-寄生蟲學-Q30"
+  },
+  {
+   "anchorId": "寄生蟲學::paragonimiasis-and-ectopic-lesions",
+   "cardId": "paragonimiasis-and-ectopic-lesions#k3",
+   "sentence": "野豬、野熊、猴子是衛氏肺吸蟲的保幼（待轉）宿主（paratenic host，可攜帶幼蟲但非其固有終宿主），不是保蟲宿主（reservoir host）——後者指人與野生貓科、犬科動物等能讓成蟲完成生活史的宿主；食入這些保幼宿主的生肉、內臟同樣可能感染。105-2",
+   "problem": "保蟲宿主定義寫「指人與野生貓科、犬科動物」：人為終宿主，保蟲宿主（reservoir host）指人以外可維持生活史的動物",
+   "suggestedFix": "改為「保蟲宿主指野生貓科、犬科等人以外能讓成蟲完成生活史的動物」",
+   "examRef": "105-2-醫學一-寄生蟲學-Q78"
+  },
+  {
+   "anchorId": "寄生蟲學::free-living-amoebae-and-flagellates",
+   "cardId": "free-living-amoebae-and-flagellates#k3",
+   "sentence": "棘阿米巴性角膜炎（Acanthamoeba keratitis）病情輕微者僅需角膜刮除即可改善，並非所有患者都必須接受角膜移植才能恢復視力。112",
+   "problem": "「病情輕微者僅需角膜刮除即可改善」過度簡化：棘阿米巴角膜炎主要治療為局部 biguanide（PHMB/chlorhexidine）± diamidine 藥物，刮除為輔助",
+   "suggestedFix": "改為「多數患者以局部抗阿米巴藥物（±角膜清創）治療即可改善，並非都須角膜移植」",
+   "examRef": "112-2-醫學二-寄生蟲學-Q33"
+  }
+ ]
+}

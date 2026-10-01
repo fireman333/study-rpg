@@ -1,0 +1,3 @@
+[{"n":1,"span":"diethylcarbamazine","why":"asked drug"},
+{"n":2,"span":"皮下組織","hide":["成蟲移行雖在皮下"],"why":"asked adult worm site"},
+{"n":3,"span":"皮下切片","why":"asked diagnostic method"}]

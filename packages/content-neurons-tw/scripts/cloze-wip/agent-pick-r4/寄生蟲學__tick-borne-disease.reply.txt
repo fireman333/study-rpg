@@ -1,0 +1,1 @@
+[{"n": 1, "span": "硬蜱屬", "why": "tested point"}, {"n": 2, "span": "紅血球內", "why": "tested point"}, {"n": 3, "skip": true, "why": "question data mismatched"}, {"n": 4, "span": "蜱媒回歸熱", "why": "tested point"}]

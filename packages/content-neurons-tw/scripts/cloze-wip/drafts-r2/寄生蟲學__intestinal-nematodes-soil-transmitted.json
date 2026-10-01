@@ -1,0 +1,527 @@
+{
+ "anchorId": "寄生蟲學::intestinal-nematodes-soil-transmitted",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "f90570c6ac13480a",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "蟯蟲（Enterobius vermicularis）雌蟲夜間爬到肛門周圍產卵，蟲卵可經空氣傳播、也會經手部污染造成全家群聚感染；蟲卵或蟲體經生殖道逆行進入腹腔，可引起慢性骨盆腔腹膜炎；夜間肛門搔癢干擾睡眠，但這不等於「睡眠病（sleeping sickness）」——後者是非洲錐蟲病的專有名詞，兩者常被拿來當誘答。105/106/113",
+   "citeText": [
+    "105/106/113"
+   ],
+   "marks": [
+    "105",
+    "106",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q75",
+    "105-2-醫學一-寄生蟲學-Q76",
+    "106-1-醫學一-寄生蟲學-Q77",
+    "106-2-醫學二-寄生蟲學-Q30",
+    "113-1-醫學二-寄生蟲學-Q29",
+    "113-1-醫學二-寄生蟲學-Q30",
+    "113-2-醫學二-微生物暨免疫學-Q30"
+   ],
+   "trueOptions": [
+    "蟲卵可藉空氣傳播感染人體",
+    "感染後易干擾夜間睡眠",
+    "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+    "僅②③",
+    "糞小桿線蟲（Strongyloides stercoralis）",
+    "蟯蟲（Enterobius vermicularis）",
+    "僅①②④",
+    "十二指腸鉤蟲（Ancylostoma duodenale）",
+    "蟲卵可藉空氣傳播感染人體",
+    "婦女感染後有可能引起慢性骨盆腔腹膜炎（pelvic peritonitis）",
+    "最正確的診斷方式為肛圍擦拭法（perianal swab）檢查是否有蟲卵"
+   ],
+   "spans": [
+    {
+     "span": "慢性骨盆腔腹膜炎",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    },
+    {
+     "span": "蟯蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 9
+  },
+  {
+   "bulletIndex": 9,
+   "sentence": "「赤腳下田／踩泥土」這條病史直指絲狀幼蟲（filariform larva）經皮膚鑽入，答案是十二指腸鉤蟲（Ancylostoma duodenale）（糞小桿線蟲也走這條路）。同題常見三個誘答走的都是經口：犬蛔蟲（Toxocara canis）食入含胚卵→內臟幼蟲移行症、肝毛線蟲（Capillaria hepatica）食入受泥土含胚卵污染的飲水食物→寄生肝臟、有棘頜口線蟲（Gnathostoma spinigerum）生食淡水魚蛙蛇→幼蟲移行症。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "十二指腸鉤蟲（Ancylostoma duodenale）"
+   ],
+   "spans": [
+    {
+     "span": "十二指腸鉤蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "經口",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "鞭蟲（Trichuris trichiura）蟲卵在小腸孵化、幼蟲直接於大腸（盲腸～直腸）發育為成蟲，不經肺臟移行、也不具自體感染能力（自體感染是糞小桿線蟲的特徵，勿混）；蟲體前端細長鑽入腸黏膜、後端粗大游離腸腔，蟲卵兩端具透明卵塞（酒桶型）；重度感染兒童可導致貧血與直腸脫垂（rectal prolapse）。105/111/114",
+   "citeText": [
+    "105/111/114"
+   ],
+   "marks": [
+    "105",
+    "111",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q75",
+    "105-2-醫學一-寄生蟲學-Q76",
+    "111-1-醫學二-寄生蟲學-Q30",
+    "111-2-醫學二-寄生蟲學-Q29",
+    "114-1-醫學二-寄生蟲學-Q30",
+    "114-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "蟲卵可藉空氣傳播感染人體",
+    "感染後易干擾夜間睡眠",
+    "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+    "僅②③",
+    "幼蟲直接在腸道發育為成蟲",
+    "成蟲主要寄生在大腸",
+    "幼童重度感染可能會引起脫肛（rectum prolapse）",
+    "蛔蟲（Ascaris lumbricoides）",
+    "①②③",
+    "②③④"
+   ],
+   "spans": [
+    {
+     "span": "鞭蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "不經肺臟移行、也不具自體感染能力",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "鉤蟲成蟲以牙齒／齒板咬附小腸黏膜吸血，重度感染且鐵質攝取不足時是缺鐵性貧血最典型的病因；十二指腸鉤蟲（A. duodenale）可經皮膚或經口感染，並非「僅」經皮膚（十二指腸鉤蟲也可經胎盤、母乳垂直感染）；感染後最早出現的症狀是皮膚著地癢（ground itch），不是嗜伊紅性白血球增多——後者是較晚期的表現。104/108/113",
+   "citeText": [
+    "104/108/113"
+   ],
+   "marks": [
+    "104",
+    "108",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-寄生蟲學-Q76",
+    "108-2-醫學二-寄生蟲學-Q29",
+    "113-1-醫學二-寄生蟲學-Q29",
+    "113-1-醫學二-寄生蟲學-Q30",
+    "113-2-醫學二-微生物暨免疫學-Q30"
+   ],
+   "trueOptions": [
+    "十二指腸鉤蟲（Ancylostoma duodenale）",
+    "僅①②",
+    "僅②③",
+    "①②③",
+    "僅①②④",
+    "十二指腸鉤蟲（Ancylostoma duodenale）",
+    "蟲卵可藉空氣傳播感染人體",
+    "婦女感染後有可能引起慢性骨盆腔腹膜炎（pelvic peritonitis）",
+    "最正確的診斷方式為肛圍擦拭法（perianal swab）檢查是否有蟲卵"
+   ],
+   "spans": [
+    {
+     "span": "缺鐵性貧血最典型的病因",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "蟯蟲的最正確診斷方式是肛門周圍黏紙法（perianal tape/Scotch-tape test），清晨排便前黏取肛門周圍蟲卵檢查；「檢查糞便中的蟲卵」是常見誘答，因為蟯蟲卵極少隨糞便排出。105/113",
+   "citeText": [
+    "105/113"
+   ],
+   "marks": [
+    "105",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q75",
+    "105-2-醫學一-寄生蟲學-Q76",
+    "113-1-醫學二-寄生蟲學-Q29",
+    "113-1-醫學二-寄生蟲學-Q30",
+    "113-2-醫學二-微生物暨免疫學-Q30"
+   ],
+   "trueOptions": [
+    "蟲卵可藉空氣傳播感染人體",
+    "感染後易干擾夜間睡眠",
+    "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+    "僅②③",
+    "僅①②④",
+    "十二指腸鉤蟲（Ancylostoma duodenale）",
+    "蟲卵可藉空氣傳播感染人體",
+    "婦女感染後有可能引起慢性骨盆腔腹膜炎（pelvic peritonitis）",
+    "最正確的診斷方式為肛圍擦拭法（perianal swab）檢查是否有蟲卵"
+   ],
+   "spans": [
+    {
+     "span": "最正確診斷方式是肛門周圍黏紙法",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "斷方式是肛門周圍黏紙法",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "鉤蟲、蛔蟲、糞小桿線蟲三者的幼蟲皆需心肺移行（→靜脈→心臟→肺臟→穿肺泡壁→氣管→會厭→小腸發育為成蟲），是需先經心肺循環才能到達小腸發育為成蟲的組合（口訣「小桿鉤回心肺腸」）；但三者的感染型不同——鉤蟲與糞小桿線蟲以絲狀幼蟲鑽皮感染，蛔蟲則經食入胚胎化蟲卵、孵化後幼蟲才進入心肺移行；蟯蟲、鞭蟲則直接在腸道孵化發育，不經肺臟。105/113",
+   "citeText": [
+    "105/113"
+   ],
+   "marks": [
+    "105",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q75",
+    "105-2-醫學一-寄生蟲學-Q76",
+    "113-1-醫學二-寄生蟲學-Q29",
+    "113-1-醫學二-寄生蟲學-Q30",
+    "113-2-醫學二-微生物暨免疫學-Q30"
+   ],
+   "trueOptions": [
+    "蟲卵可藉空氣傳播感染人體",
+    "感染後易干擾夜間睡眠",
+    "婦女感染後有可能引起骨盆腔腹膜炎（chronic pelvic peritonitis）",
+    "僅②③",
+    "僅①②④",
+    "十二指腸鉤蟲（Ancylostoma duodenale）",
+    "蟲卵可藉空氣傳播感染人體",
+    "婦女感染後有可能引起慢性骨盆腔腹膜炎（pelvic peritonitis）",
+    "最正確的診斷方式為肛圍擦拭法（perianal swab）檢查是否有蟲卵"
+   ],
+   "spans": [
+    {
+     "span": "感染型不同",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "絲狀幼蟲",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "食入胚胎化蟲卵",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "糞小桿線蟲（Strongyloides stercoralis）是最具臨床重要性、也最典型會自體感染的腸道線蟲（蟯蟲亦可經逆行感染 retroinfection 造成自體感染，故不宜稱「唯一」）：腸道內桿狀幼蟲可直接發育為絲狀幼蟲並鑽回腸黏膜或肛門周圍皮膚再感染宿主；免疫低下病人（如使用類固醇、HTLV-1 感染者）可發生瀰漫性感染（disseminated strongyloidiasis），蟲體不只侷限腸道與肺臟、可散布全身，且嗜伊紅性白血球增加往往不明顯，這個「該有卻沒有」的矛盾常延誤診斷、提高死亡率。109",
+   "citeText": [
+    "109"
+   ],
+   "marks": [
+    "109"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學二-微生物暨免疫學-Q29"
+   ],
+   "trueOptions": [
+    "僅②③"
+   ],
+   "spans": [
+    {
+     "span": "瀰漫性感染",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "嗜伊紅性白血球增加往往不明顯",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "糞小桿線蟲絲狀幼蟲無透明鞘（sheath），光學顯微鏡下尾端看似鈍平、電子顯微鏡下可見分叉狀（notched tail）；相對地，鉤蟲的絲狀幼蟲具透明鞘、尾端尖銳無分岔——這是兩者幼蟲型態辨異的關鍵。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q77",
+    "106-2-醫學二-寄生蟲學-Q30"
+   ],
+   "trueOptions": [
+    "糞小桿線蟲（Strongyloides stercoralis）",
+    "蟯蟲（Enterobius vermicularis）"
+   ],
+   "spans": [
+    {
+     "span": "分叉狀",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "無透明鞘",
+     "kind": "bold-polarity",
+     "base": 1,
+     "signals": [
+      "bold-polarity",
+      "marks×1"
+     ],
+     "score": 2
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 7,
+   "sentence": "蛔蟲（Ascaris lumbricoides）感染唯人類，好發於 5–9 歲兒童；蟲卵於小腸孵化後幼蟲循心肺移行路徑（鑽小腸壁→肝→心→肺→穿肺泡壁→氣管→會厭→小腸）發育為成蟲；重度感染幼童最容易出現異位性移行（ectopic migration）——蟲體鑽出正常路徑跑到膽道、胰管等處造成阻塞，是蛔蟲區別於其他腸道線蟲的招牌考點。111",
+   "citeText": [
+    "111"
+   ],
+   "marks": [
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "111-1-醫學二-寄生蟲學-Q30",
+    "111-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "幼蟲直接在腸道發育為成蟲",
+    "成蟲主要寄生在大腸",
+    "幼童重度感染可能會引起脫肛（rectum prolapse）",
+    "蛔蟲（Ascaris lumbricoides）"
+   ],
+   "spans": [
+    {
+     "span": "異位性移行",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "5–9 歲",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "擁有完整消化系統（口、咽、食道、腸、肛門）是線蟲類的共同特徵——蛔蟲、鉤蟲、糞小桿線蟲皆具備；絛蟲類（如短小包膜絛蟲、亞洲絛蟲）則完全沒有消化系統，靠體表直接吸收營養，這是分辨「線蟲 vs 絛蟲」大分類的基礎特徵題。114",
+   "citeText": [
+    "114"
+   ],
+   "marks": [
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "114-1-醫學二-寄生蟲學-Q30",
+    "114-2-醫學二-寄生蟲學-Q29"
+   ],
+   "trueOptions": [
+    "①②③",
+    "②③④"
+   ],
+   "spans": [
+    {
+     "span": "完整消化系統",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "慢性骨盆腔腹膜炎",
+   "why": "蟯蟲逆行併發症，考題考過"
+  },
+  {
+   "n": 2,
+   "span": "十二指腸鉤蟲",
+   "why": "赤腳下田經皮感染的答案"
+  },
+  {
+   "n": 3,
+   "span": "直腸脫垂",
+   "why": "鞭蟲重度感染兒童併發症"
+  },
+  {
+   "n": 4,
+   "span": "缺鐵性貧血",
+   "why": "鉤蟲最典型病因"
+  },
+  {
+   "n": 5,
+   "span": "肛門周圍黏紙法",
+   "why": "蟯蟲最正確診斷方式"
+  },
+  {
+   "n": 6,
+   "skip": true,
+   "why": "多蟲種並列，答案不唯一"
+  },
+  {
+   "n": 7,
+   "span": "瀰漫性感染",
+   "why": "免疫低下者糞小桿線蟲重症型"
+  },
+  {
+   "n": 8,
+   "span": "分叉狀",
+   "why": "糞小桿線蟲絲狀幼蟲尾端特徵"
+  },
+  {
+   "n": 9,
+   "span": "異位性移行",
+   "why": "蛔蟲招牌考點"
+  },
+  {
+   "n": 10,
+   "span": "完整消化系統",
+   "why": "線蟲共同特徵"
+  }
+ ],
+ "reply": "[\n{\"n\":1,\"span\":\"慢性骨盆腔腹膜炎\",\"why\":\"蟯蟲逆行併發症，考題考過\"},\n{\"n\":2,\"span\":\"十二指腸鉤蟲\",\"why\":\"赤腳下田經皮感染的答案\"},\n{\"n\":3,\"span\":\"直腸脫垂\",\"why\":\"鞭蟲重度感染兒童併發症\"},\n{\"n\":4,\"span\":\"缺鐵性貧血\",\"why\":\"鉤蟲最典型病因\"},\n{\"n\":5,\"span\":\"肛門周圍黏紙法\",\"why\":\"蟯蟲最正確診斷方式\"},\n{\"n\":6,\"skip\":true,\"why\":\"多蟲種並列，答案不唯一\"},\n{\"n\":7,\"span\":\"瀰漫性感染\",\"why\":\"免疫低下者糞小桿線蟲重症型\"},\n{\"n\":8,\"span\":\"分叉狀\",\"why\":\"糞小桿線蟲絲狀幼蟲尾端特徵\"},\n{\"n\":9,\"span\":\"異位性移行\",\"why\":\"蛔蟲招牌考點\"},\n{\"n\":10,\"span\":\"完整消化系統\",\"why\":\"線蟲共同特徵\"}\n]\n"
+}

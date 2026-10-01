@@ -22,10 +22,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { CONCEPT_VOCAB } from '../src/concept-vocab/index'
+import { PUSH_THRESHOLD, tierOf } from '../src/concept-tiers'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = join(__dirname, '..')
-const PUSH_THRESHOLD = 5
 
 interface Q {
   id: string; subject: string; answer: string; disputed?: boolean; acceptedAnswers?: string[]
@@ -82,28 +82,7 @@ const sittingIndex: Record<string, number> = {}
 allSittings.forEach((s, i) => (sittingIndex[s] = i))
 const N = allSittings.length
 
-/**
- * Recency-gap-aware tiering (revised per §3.4 二輪 panel — Codex+Fable consensus).
- * The old "近3=0 → 降溫" 3-sitting hard window had no statistical power (a b8 concept has
- * >20% chance of a coincidental 3-empty streak) and mislabeled staples (S.aureus/opioids/
- * thrombosis) whose last appearance was 113-2 — just one sitting outside the window.
- *   - `lastGap` = sittings since last tested (0 = tested in the most recent sitting).
- *   - 常青必掃: breadth ≥ 13 AND still active (lastGap ≤ 4) — catches permanent hot topics
- *     the old ≥15 cutoff missed (抗藥性/抗癲癇, b14 & recently tested).
- *   - 經典但降溫: breadth ≥ 8 AND genuinely absent (lastGap ≥ 5) — real decline only; a
- *     concept last seen at 113-2 (gap 3) is NOT cooling.
- *   - 近年新寵: genuinely new — first appearance within the last 6 sittings AND recurring
- *     (breadth ≥ 2). (Honest: very few concepts qualify; the old label over-claimed.)
- */
-function tierOf(breadth: number, lastGap: number, firstIdx: number): string {
-  if (firstIdx >= N - 6 && breadth >= 2) return '近年新寵'
-  if (breadth < PUSH_THRESHOLD) return 'low-yield'
-  if (breadth >= 13 && lastGap <= 4) return '常青必掃'
-  // Cooling requires a genuinely long absence (≥6 sittings ≈ 3 yr). A gap of 5 is too weak
-  // to call a historically-frequent flagship (e.g. S. aureus) "cooling" — those stay neutral.
-  if (breadth >= 8 && lastGap >= 6) return '經典但降溫'
-  return '穩定考點'
-}
+// Tiering lives in src/concept-tiers.ts (pure; shared with the handout cloze gate).
 
 const concepts = []
 const chapterSittings: Record<string, Set<string>> = {} // subject::chapter → union of tested sittings
@@ -121,7 +100,7 @@ for (const [sid, tree] of Object.entries(CONCEPT_VOCAB)) {
       subjectId: sid, leafId: l.id, zh: l.zh, en: l.en, chapterId: l.chapterId,
       breadth, questionCount: a.qcount, recencyWeightedBreadth: recencyWeighted,
       recent3Count, lastGap, disputedExcluded: a.disputed,
-      eligible: breadth >= PUSH_THRESHOLD, tier: tierOf(breadth, lastGap, firstIdx),
+      eligible: breadth >= PUSH_THRESHOLD, tier: tierOf(breadth, lastGap, firstIdx, N),
       testedSittings: tested,
     })
     const ck = `${sid}::${l.chapterId}`

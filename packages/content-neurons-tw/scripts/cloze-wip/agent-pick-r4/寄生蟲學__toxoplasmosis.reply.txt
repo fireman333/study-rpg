@@ -1,0 +1,1 @@
+[{"n": 1, "span": "第四類法定傳染病", "why": "tested point"}]

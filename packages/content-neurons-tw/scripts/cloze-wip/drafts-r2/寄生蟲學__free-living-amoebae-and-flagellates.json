@@ -1,0 +1,221 @@
+{
+ "anchorId": "寄生蟲學::free-living-amoebae-and-flagellates",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "7a9b1aceb9085309",
+ "candidates": [
+  {
+   "bulletIndex": 2,
+   "sentence": "原發性阿米巴腦膜腦炎（PAM）患者如未及時診治，通常在症狀出現後 3～6 天內死亡，病程進展極快，是與棘阿米巴的慢性 GAE 最重要的鑑別點之一。105/112",
+   "citeText": [
+    "105/112"
+   ],
+   "marks": [
+    "105",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q79",
+    "105-1-醫學一-寄生蟲學-Q80",
+    "112-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "雙核阿米巴（Dientamoeba fragilis）及腸道滴蟲［Trichomonas（Pentatrichomonas） hominis］",
+    "原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者，如未及時診治，通 常在症狀出現後3～6天內死亡",
+    "如在患者組織切片中同時發現滋養體（trophozoites）及囊體（cysts），患者最可能是感 染了棘阿米巴（Acanthamoeba spp.）",
+    "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍",
+    "如未及時診治，原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者通常會在症狀出現後3～6 天內死亡"
+   ],
+   "spans": [
+    {
+     "span": "3～6 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2",
+      "in-true-option"
+     ],
+     "score": 7
+    }
+   ],
+   "score": 7
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "福氏內格里阿米巴在患者的腦組織與腦脊髓液中只見滋養體，不會在腦部組織中形成囊體（雖然牠在環境中的生活史確實有囊體期）。105/112",
+   "citeText": [
+    "105/112"
+   ],
+   "marks": [
+    "105",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q79",
+    "105-1-醫學一-寄生蟲學-Q80",
+    "112-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "雙核阿米巴（Dientamoeba fragilis）及腸道滴蟲［Trichomonas（Pentatrichomonas） hominis］",
+    "原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者，如未及時診治，通 常在症狀出現後3～6天內死亡",
+    "如在患者組織切片中同時發現滋養體（trophozoites）及囊體（cysts），患者最可能是感 染了棘阿米巴（Acanthamoeba spp.）",
+    "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍",
+    "如未及時診治，原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者通常會在症狀出現後3～6 天內死亡"
+   ],
+   "spans": [
+    {
+     "span": "只見滋養體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 4,
+   "sentence": "若在患者組織切片中同時發現滋養體與囊體，最可能的病原是棘阿米巴（Acanthamoeba spp.）或巴氏阿米巴（Balamuthia mandrillaris）——兩者生活模式相近，皆經水環境感染，且都會在組織中形成囊體；福氏內格里阿米巴則不會。105/107",
+   "citeText": [
+    "105/107"
+   ],
+   "marks": [
+    "105",
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q79",
+    "105-1-醫學一-寄生蟲學-Q80",
+    "107-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "雙核阿米巴（Dientamoeba fragilis）及腸道滴蟲［Trichomonas（Pentatrichomonas） hominis］",
+    "原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者，如未及時診治，通 常在症狀出現後3～6天內死亡",
+    "如在患者組織切片中同時發現滋養體（trophozoites）及囊體（cysts），患者最可能是感 染了棘阿米巴（Acanthamoeba spp.）",
+    "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍",
+    "棘阿米巴（Acanthamoeba spp.）及巴氏阿米巴（Balamuthia mandrillaris）"
+   ],
+   "spans": [
+    {
+     "span": "同時",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "感染福氏內格里阿米巴者不限於身體虛弱的老人，任何人皆可能感染，典型情境是發病前一週曾在溫暖淡水（池塘、湖泊）中游泳。105/106/112",
+   "citeText": [
+    "105/106/112"
+   ],
+   "marks": [
+    "105",
+    "106",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-寄生蟲學-Q79",
+    "105-1-醫學一-寄生蟲學-Q80",
+    "106-1-醫學一-寄生蟲學-Q80",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q32",
+    "112-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "雙核阿米巴（Dientamoeba fragilis）及腸道滴蟲［Trichomonas（Pentatrichomonas） hominis］",
+    "原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者，如未及時診治，通 常在症狀出現後3～6天內死亡",
+    "如在患者組織切片中同時發現滋養體（trophozoites）及囊體（cysts），患者最可能是感 染了棘阿米巴（Acanthamoeba spp.）",
+    "棘阿米巴（Acanthamoeba spp.）也可能造成角膜炎及皮膚潰瘍",
+    "大腸纖毛蟲（Balantidium coli）及梨形鞭毛蟲（Giardia lamblia）之滋養體（trophozoites）都具有兩個細胞核",
+    "目前治療陰道滴蟲症（vaginal trichomoniasis）的首選用藥為metronidazole",
+    "野外露營如果無法煮沸飲水，可利用碘液處理方式殺死水中梨形鞭毛蟲（Giardia lamblia）的囊體",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "福氏內格里阿米巴（Naegleria fowleri）",
+    "如未及時診治，原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者通常會在症狀出現後3～6 天內死亡"
+   ],
+   "spans": [
+    {
+     "span": "不限於",
+     "kind": "bold-polarity",
+     "base": 1,
+     "signals": [
+      "bold-polarity",
+      "marks×3"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 6,
+   "sentence": "棘阿米巴性角膜炎（Acanthamoeba keratitis）以長期局部抗阿米巴藥物（如 PHMB／chlorhexidine 合併 propamidine）治療為主，早期病灶可輔以角膜上皮清創，並非所有患者都必須接受角膜移植才能恢復視力。112",
+   "citeText": [
+    "112"
+   ],
+   "marks": [
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "112-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "如未及時診治，原發性阿米巴腦膜腦炎（primary amebic meningoencephalitis）患者通常會在症狀出現後3～6 天內死亡"
+   ],
+   "spans": [
+    {
+     "span": "並非",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "number"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "negation leak"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "contrast leak"
+  },
+  {
+   "n": 4,
+   "span": "溫暖淡水",
+   "why": "exposure"
+  },
+  {
+   "n": 5,
+   "span": "角膜上皮清創",
+   "why": "early management"
+  }
+ ],
+ "reply": "[{\"n\":1,\"skip\":true,\"why\":\"number\"},{\"n\":2,\"skip\":true,\"why\":\"negation leak\"},{\"n\":3,\"skip\":true,\"why\":\"contrast leak\"},{\"n\":4,\"span\":\"溫暖淡水\",\"why\":\"exposure\"},{\"n\":5,\"span\":\"角膜上皮清創\",\"why\":\"early management\"}]\n"
+}

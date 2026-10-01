@@ -1,0 +1,1 @@
+[{"n":1,"skip":true,"why":"number"},{"n":2,"skip":true,"why":"negation leak"},{"n":3,"skip":true,"why":"contrast leak"},{"n":4,"span":"溫暖淡水","why":"exposure"},{"n":5,"span":"角膜上皮清創","why":"early management"}]

@@ -1,0 +1,92 @@
+{
+ "group": "r1-寄生蟲學-2",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r1",
+ "grades": {
+  "babesiosis#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "西尼羅病毒由家蚊屬（Culex）傳播，對應107-1 Q34 正答（不屬蜱媒），答案唯一具體。"
+  },
+  "toxoplasmosis#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "愛滋病患弓蟲潛伏囊體再活化致弓蟲性腦炎，為105-2 Q80 正確敘述，答案唯一。"
+  },
+  "toxoplasmosis#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "貓（貓科）為終宿主、人為中間宿主，正是105-2 Q80 的給分陷阱（宿主顛倒），卡面語境足以填出。"
+  },
+  "louse-flea-mechanical-vectors#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "人膚蠅分布於中南美熱帶，對應108-1 Q35 錯誤選項（亞洲）的正確版本，答案具體。"
+  },
+  "louse-flea-mechanical-vectors#k2": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "馬氏管為114-1 Q35 正答，但原句尾稱它與兩個錯誤誘答「都是」錯誤敘述，語意誤導學生以為此敘述為錯。"
+  },
+  "louse-flea-mechanical-vectors#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "蚊、蚤、蝨屬生物性傳播，與106-2 Q35 家蠅機械性傳播對照，答案唯一。"
+  },
+  "tick-borne-disease#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "Babesia 四分裂 merozoite 排成馬爾他十字為經典鑑別特徵，答案唯一具體。"
+  },
+  "tick-borne-disease#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "落磯山斑疹熱主要病媒為革蜱屬（Dermacentor），事實正確且答案具體，革蜱屬亦見於105-2 Q81 選項。"
+  },
+  "tick-borne-disease#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "蜱、蟎屬蛛形綱（成體8腳），與昆蟲綱對照，基本分類考點，答案唯一。"
+  },
+  "tick-borne-disease#k4": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "事實正確（104-2 Q82 選項A為正確敘述），但硬蜱共感染亦包括無形體症（anaplasmosis），答案不完全唯一。"
+  },
+  "scrub-typhus-chigger-mite#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "恙蟎僅幼蟲期叮咬傳病，107-2 Q34 與111-2 Q35 直接考過，答案唯一。"
+  },
+  "scrub-typhus-chigger-mite#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "鼠類為恙蟲病主要儲菌宿主，為104-1 Q82 選項A（正確敘述），答案具體。"
+  },
+  "dust-mite-allergy#k1": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "Der p 1 為塵蟎主要過敏原，事實正確，但歷屆題只考「塵蟎」本身，未考過 Der p 1 名稱。"
+  }
+ },
+ "contradictions": [],
+ "handoutIssues": [
+  {
+   "anchorId": "louse-flea-mechanical-vectors",
+   "cardId": "louse-flea-mechanical-vectors#k2",
+   "sentence": "節肢動物的馬氏管（Malpighian tubules）是主要排泄器官，負責移除含氮廢物並維持滲透壓平衡——與「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」都是同一題常見的錯誤誘答敘述。114",
+   "problem": "句尾「與…都是同一題常見的錯誤誘答敘述」字面上把馬氏管敘述也歸為錯誤誘答，但它是114-1 Q35 的正答（何者最為適當）。",
+   "suggestedFix": "改為「…維持滲透壓平衡，此為正確敘述；同題的「蒼蠅經卵傳播」「腮腺炎經昆蟲媒介」則是錯誤誘答。」",
+   "examRef": "114-1-醫學二-寄生蟲學-Q35"
+  },
+  {
+   "anchorId": "scrub-typhus-chigger-mite",
+   "cardId": "scrub-typhus-chigger-mite#k2",
+   "sentence": "恙蟲病分布侷限於亞洲地區（…），並非世界性分布；未經及時治療死亡率約1–60%，鼠類為主要儲菌宿主（reservoir host）。104",
+   "problem": "官方答案 vs 教科書：104-1 Q82 將「鼠類為主要儲菌宿主」視為正確敘述；但國際教科書多指 Orientia tsutsugamushi 的真正儲存宿主為恙蟎本身（經卵傳遞），鼠類主要是恙蟎幼蟲的宿主。",
+   "suggestedFix": "可考慮加 hdt-intl 註記說明恙蟎本身亦為儲存宿主。",
+   "examRef": "104-1-醫學一-寄生蟲學-Q82"
+  }
+ ]
+}

@@ -1,0 +1,2 @@
+[{"n":1,"skip":true,"why":"paired answer, elimination"},
+{"n":2,"span":"福氏內格里阿米巴","why":"asked organism"}]

@@ -1,0 +1,416 @@
+{
+ "anchorId": "胚胎學::pharyngeal-arches",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "91213b7eb18dda7a",
+ "candidates": [
+  {
+   "bulletIndex": 3,
+   "sentence": "第四及第六咽弓皆由CN X（迷走神經；第四走上喉神經、第六走喉返神經）支配，衍生環甲肌、腭帆提肌、咽縮肌、喉內在肌、食道骨骼肌；軟骨衍生甲狀軟骨、環狀軟骨、杓狀軟骨、小角軟骨、楔形軟骨——唯獨不含會厭軟骨（會厭軟骨由咽下隆起hypopharyngeal eminence形成）。105/109/112",
+   "citeText": [
+    "105/109/112"
+   ],
+   "marks": [
+    "105",
+    "109",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q31",
+    "109-1-醫學一-胚胎學-Q33",
+    "109-1-醫學一-胚胎學-Q36",
+    "109-2-醫學一-胚胎學-Q36",
+    "112-1-醫學一-胚胎學-Q33",
+    "112-2-醫學一-胚胎學-Q32",
+    "112-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "門齒窩（incisive fossa）",
+    "4",
+    "5",
+    "會厭軟骨（epiglottis）",
+    "第一",
+    "臟顱（viscerocranium）是大腦的主要保護結構",
+    "神經外胚層（neuroectoderm）",
+    "咽下隆起（hypopharyngeal eminence）",
+    "咽弓（pharyngeal arch）",
+    "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）"
+   ],
+   "spans": [
+    {
+     "span": "唯獨不含會厭軟骨",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  },
+  {
+   "bulletIndex": 13,
+   "sentence": "舌頭發育分前後兩部分：前2/3（body of tongue）由第一咽弓的中央舌芽（median tongue bud）與左右兩個遠端舌芽（distal tongue bud）融合而成；後1/3（咽喉部pharyngeal part）由第二咽弓形成的聯合部（copula）與第三、四咽弓形成的咽下隆起（hypopharyngeal eminence）共同構成，但聯合部會被逐漸長大的咽下隆起擠壓而消失；前2/3與後1/3則以terminal sulcus為界。112/114",
+   "citeText": [
+    "112/114"
+   ],
+   "marks": [
+    "112",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q33",
+    "112-2-醫學一-胚胎學-Q32",
+    "112-2-醫學一-胚胎學-Q33",
+    "114-1-醫學一-胚胎學-Q36",
+    "114-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "咽下隆起（hypopharyngeal eminence）",
+    "咽弓（pharyngeal arch）",
+    "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）",
+    "第一咽弓（first pharyngeal arch）",
+    "第二咽弓（second pharyngeal arch）"
+   ],
+   "spans": [
+    {
+     "span": "聯合部會被逐漸長大的咽下隆起擠壓而消失",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 15,
+   "sentence": "胚胎第三週（第15–21天）僅完成三胚層分化（原腸胚、脊索、神經溝形成），咽弓要到第四週（約第21–28天）才依序出現——「第三週結束時尚未出現的構造」考古常考陷阱就是咽弓。112/113",
+   "citeText": [
+    "112/113"
+   ],
+   "marks": [
+    "112",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q33",
+    "112-2-醫學一-胚胎學-Q32",
+    "112-2-醫學一-胚胎學-Q33",
+    "113-1-醫學一-胚胎學-Q33",
+    "113-2-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "咽下隆起（hypopharyngeal eminence）",
+    "咽弓（pharyngeal arch）",
+    "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）",
+    "顏面神經（facial nerve）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）",
+    "第一咽弓（first pharyngeal arch）"
+   ],
+   "spans": [
+    {
+     "span": "第四週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "15–21天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    },
+    {
+     "span": "21–28天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×2"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 9,
+   "sentence": "耳朵發育三部分各自獨立：外耳（第一咽溝→外耳道；六個耳廓隆起→耳廓，由CN V-3、VII、IX、X、C2、C3支配）、中耳（第一咽囊→鼓室與耳咽管；第一、二咽弓→三小聽骨）、內耳（體表外胚層→耳板→耳泡→橢圓部與球部，分別衍生半規管／橢圓囊與耳蝸管／球囊）；第一咽囊並非向下與第二咽囊相連形成耳咽管，耳咽管單獨由第一咽囊衍生並開口於鼻咽。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "外耳道（external acoustic meatus）源自第一對咽溝（pharyngeal groove）",
+    "鼓膜主要來自第一對咽膜（pharyngeal membrane）與咽囊（pharyngeal pouch）及間葉組織 （mesenchyme）",
+    "鼓室（tympanic cavity）源自第一對咽囊（pharyngeal pouch）"
+   ],
+   "spans": [
+    {
+     "span": "第一咽囊並非向下與第二咽囊相連形成耳咽管",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 0,
+   "sentence": "第一咽弓由CN V（三叉神經）支配，衍生咀嚼肌群（含嚼肌masseter、顳肌temporalis、翼內外肌）、下頷舌骨肌、二腹肌前腹、鼓膜張肌、腭帆張肌；經Meckel軟骨衍生錘骨（malleus）與砧骨（incus）。104/110/113/114",
+   "citeText": [
+    "104/110/113/114"
+   ],
+   "marks": [
+    "104",
+    "110",
+    "113",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "104-1-醫學一-胚胎學-Q30",
+    "104-2-醫學一-胚胎學-Q32",
+    "110-1-醫學一-胚胎學-Q34",
+    "110-2-醫學一-胚胎學-Q34",
+    "113-1-醫學一-胚胎學-Q33",
+    "113-2-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q36",
+    "114-1-醫學一-胚胎學-Q36",
+    "114-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "頸竇（cervical sinus）",
+    "第一咽弓",
+    "升主動脈（ascending aorta）",
+    "第1和第2咽弓（pharyngeal arch）",
+    "顏面神經（facial nerve）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）",
+    "第一咽弓（first pharyngeal arch）",
+    "第一咽弓（first pharyngeal arch）",
+    "第二咽弓（second pharyngeal arch）"
+   ],
+   "spans": [],
+   "score": 3
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "第二咽弓由CN VII（顏面神經）支配，衍生顏面表情肌、鐙骨肌、莖突舌骨肌、二腹肌後腹；經Reichert軟骨衍生鐙骨（stapes）、莖突、舌骨小角與體部上半，以及莖突舌骨韌帶。110/111/113",
+   "citeText": [
+    "110/111/113"
+   ],
+   "marks": [
+    "110",
+    "111",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "110-1-醫學一-胚胎學-Q34",
+    "110-2-醫學一-胚胎學-Q34",
+    "111-1-醫學一-胚胎學-Q35",
+    "111-2-醫學一-胚胎學-Q33",
+    "111-2-醫學一-胚胎學-Q36",
+    "113-1-醫學一-胚胎學-Q33",
+    "113-2-醫學一-胚胎學-Q32",
+    "113-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "升主動脈（ascending aorta）",
+    "第1和第2咽弓（pharyngeal arch）",
+    "左側第六動脈弓（aortic arch）",
+    "舌骨之大角（greater cornu of hyoid bone）",
+    "第二咽溝（pharyngeal groove）的外胚層（ectoderm）",
+    "顏面神經（facial nerve）",
+    "原腸胚（gastrula）",
+    "脊索（notochord）",
+    "神經溝（neural groove）",
+    "第一咽弓（first pharyngeal arch）"
+   ],
+   "spans": [],
+   "score": 3
+  },
+  {
+   "bulletIndex": 5,
+   "sentence": "咽囊衍生物依序為：第一咽囊→耳咽管與鼓室；第二咽囊→腭扁桃體；第三咽囊→胸腺與下副甲狀腺；第四咽囊→上副甲狀腺與後鰓體（ultimobranchial body，併入甲狀腺形成分泌降鈣素的濾泡旁細胞parafollicular cell／C cell）。107/110/112",
+   "citeText": [
+    "107/110/112"
+   ],
+   "marks": [
+    "107",
+    "110",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學一-胚胎學-Q32",
+    "110-1-醫學一-胚胎學-Q34",
+    "110-2-醫學一-胚胎學-Q34",
+    "112-1-醫學一-胚胎學-Q33",
+    "112-2-醫學一-胚胎學-Q32",
+    "112-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "第四咽囊（pharyngeal pouch）",
+    "升主動脈（ascending aorta）",
+    "第1和第2咽弓（pharyngeal arch）",
+    "咽下隆起（hypopharyngeal eminence）",
+    "咽弓（pharyngeal arch）",
+    "甲狀腺憩室（diverticulum）脫離咽原基（primordial pharynx）之處，即為門齒窩（incisive fossa）"
+   ],
+   "spans": [],
+   "score": 3
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "鼓膜（tympanic membrane）是人體少數由三個胚層共同組成的構造：外層來自第一咽溝的外胚層、中間層來自第一與第二咽弓的間葉組織（神經嵴細胞衍生）、內層來自第一咽囊的內胚層——神經外胚層與第二咽溝的外胚層都不參與鼓膜的形成。109/111",
+   "citeText": [
+    "109/111"
+   ],
+   "marks": [
+    "109",
+    "111"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學一-胚胎學-Q33",
+    "109-1-醫學一-胚胎學-Q36",
+    "109-2-醫學一-胚胎學-Q36",
+    "111-1-醫學一-胚胎學-Q35",
+    "111-2-醫學一-胚胎學-Q33",
+    "111-2-醫學一-胚胎學-Q36"
+   ],
+   "trueOptions": [
+    "第一",
+    "臟顱（viscerocranium）是大腦的主要保護結構",
+    "神經外胚層（neuroectoderm）",
+    "左側第六動脈弓（aortic arch）",
+    "舌骨之大角（greater cornu of hyoid bone）",
+    "第二咽溝（pharyngeal groove）的外胚層（ectoderm）"
+   ],
+   "spans": [
+    {
+     "span": "不參與",
+     "kind": "bold-polarity",
+     "base": 1,
+     "signals": [
+      "bold-polarity",
+      "marks×2"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 3
+  },
+  {
+   "bulletIndex": 12,
+   "sentence": "口咽膜（oropharyngeal membrane）約在受精後第26–27天（第四週）破裂，形成連接前腸的通道；破裂前由內胚層（口腔上皮）與外胚層（原口上皮）雙層構成。105",
+   "citeText": [
+    "105"
+   ],
+   "marks": [
+    "105"
+   ],
+   "linkedQuestionIds": [
+    "105-1-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q30",
+    "105-2-醫學一-胚胎學-Q31"
+   ],
+   "trueOptions": [
+    "門齒窩（incisive fossa）",
+    "4",
+    "5",
+    "會厭軟骨（epiglottis）"
+   ],
+   "spans": [
+    {
+     "span": "26–27天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "喉內在肌",
+   "why": "key fact"
+  },
+  {
+   "n": 2,
+   "span": "第二咽弓",
+   "why": "key fact"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "leak or ambiguous"
+  },
+  {
+   "n": 4,
+   "span": "第一咽溝",
+   "why": "key fact"
+  },
+  {
+   "n": 5,
+   "span": "二腹肌前腹",
+   "why": "key fact"
+  },
+  {
+   "n": 6,
+   "span": "顏面表情肌",
+   "why": "key fact"
+  },
+  {
+   "n": 7,
+   "span": "胸腺與下副甲狀腺",
+   "why": "key fact"
+  },
+  {
+   "n": 8,
+   "span": "第一與第二咽弓的間葉組織",
+   "why": "key fact"
+  },
+  {
+   "n": 9,
+   "skip": true,
+   "why": "leak or ambiguous"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"喉內在肌\", \"why\": \"key fact\"}, {\"n\": 2, \"span\": \"第二咽弓\", \"why\": \"key fact\"}, {\"n\": 3, \"skip\": true, \"why\": \"leak or ambiguous\"}, {\"n\": 4, \"span\": \"第一咽溝\", \"why\": \"key fact\"}, {\"n\": 5, \"span\": \"二腹肌前腹\", \"why\": \"key fact\"}, {\"n\": 6, \"span\": \"顏面表情肌\", \"why\": \"key fact\"}, {\"n\": 7, \"span\": \"胸腺與下副甲狀腺\", \"why\": \"key fact\"}, {\"n\": 8, \"span\": \"第一與第二咽弓的間葉組織\", \"why\": \"key fact\"}, {\"n\": 9, \"skip\": true, \"why\": \"leak or ambiguous\"}]"
+}

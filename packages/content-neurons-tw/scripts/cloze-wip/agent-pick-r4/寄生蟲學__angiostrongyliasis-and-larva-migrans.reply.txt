@@ -1,0 +1,5 @@
+[{"n":1,"span":"犬蛔蟲／貓蛔蟲","why":"asked pathogen of VLM"},
+{"n":2,"span":"廣東住血線蟲","hide":["本蟲"],"why":"asked organism"},
+{"n":3,"skip":true,"why":"negated statement"},
+{"n":4,"skip":true,"why":"multiple valid pathogens listed"},
+{"n":5,"skip":true,"why":"negation/elimination"}]

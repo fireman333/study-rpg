@@ -1,0 +1,213 @@
+{
+ "anchorId": "寄生蟲學::intestinal-luminal-amoebae",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v2",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "c6ba8378a0c5362d",
+ "candidates": [
+  {
+   "bulletIndex": 7,
+   "sentence": "齒齦阿米巴（Entamoeba gingivalis）的滋養體也會吞噬紅血球，但牠寄生於口腔（牙齦、齒垢），與腸道致病無關；人體寄生性阿米巴的寄生部位並非全部都在大腸。106/107",
+   "citeText": [
+    "106/107"
+   ],
+   "marks": [
+    "106",
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34",
+    "107-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤",
+    "齒齦阿米巴（Entamoeba gingivalis）的滋養體（trophozoites）會吞噬紅血球",
+    "大腸纖毛蟲（Balantidium coli）是體型最大的人體寄生性原蟲",
+    "大腸纖毛蟲（Balantidium coli）具有大核及小核"
+   ],
+   "spans": [
+    {
+     "span": "口腔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 8,
+   "sentence": "嗜碘阿米巴（Iodamoeba bütschlii）的特徵性肝醣泡（glycogen vacuole）位在囊體，而不是滋養體——這是常見的誘答陷阱，題目常故意把肝醣泡安在滋養體上。107/108",
+   "citeText": [
+    "107/108"
+   ],
+   "marks": [
+    "107",
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "107-1-醫學二-寄生蟲學-Q33",
+    "108-1-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "齒齦阿米巴（Entamoeba gingivalis）的滋養體（trophozoites）會吞噬紅血球",
+    "大腸纖毛蟲（Balantidium coli）是體型最大的人體寄生性原蟲",
+    "大腸纖毛蟲（Balantidium coli）具有大核及小核",
+    "痢疾阿米巴（Entamoeba histolytica）感染之⾼危險群包括男同性戀者及啟智、精神教養院⽣"
+   ],
+   "spans": [
+    {
+     "span": "囊體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 3,
+   "sentence": "阿米巴肝膿瘍（amebic liver abscess）較常發生於肝右葉，並非左葉。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+   ],
+   "spans": [
+    {
+     "span": "肝右葉",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 11,
+   "sentence": "痢疾阿米巴的檢體要看對「期」：急性下痢的稀便裡主要找到的是滋養體（trophozoite），具感染性的囊體（cyst）主要出現在慢性感染或無症狀帶原者的成形便——把兩者對調是這類「何者錯誤」題的標準陷阱。腸壁潰瘍周圍的組織切片同樣是滋養體（常見吞噬紅血球）；腸外感染（如肝膿瘍）則靠已商品化的 ELISA 抗體試劑輔助診斷，與 E. dispar 的區分仍須 PCR。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "針對肝膿瘍患者可選擇使用已商品化之 ELISA 抗體診斷試劑組合",
+    "利用 PCR 技術可鑑別該寄生蟲及迪斯帕阿米巴（E. dispar）",
+    "可於患者肛門潰瘍周圍組織切片發現活動體（trophozoites）"
+   ],
+   "spans": [
+    {
+     "span": "急性下痢的稀便裡主要找到的是滋養體",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    }
+   ],
+   "score": 4
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "痢疾阿米巴症（含阿米巴肝膿瘍）的首選治療藥物為 metronidazole；mebendazole 是用於治療腸道蠕蟲，並非治療阿米巴的藥物。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+   ],
+   "spans": [
+    {
+     "span": "藥物為 metronidazole",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 3
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "contrast"
+  },
+  {
+   "n": 2,
+   "skip": true,
+   "why": "contrast leak"
+  },
+  {
+   "n": 3,
+   "skip": true,
+   "why": "contrast leak"
+  },
+  {
+   "n": 4,
+   "span": "PCR",
+   "why": "distinguish E. dispar"
+  },
+  {
+   "n": 5,
+   "span": "metronidazole",
+   "why": "first-line drug"
+  }
+ ],
+ "reply": "[{\"n\":1,\"skip\":true,\"why\":\"contrast\"},{\"n\":2,\"skip\":true,\"why\":\"contrast leak\"},{\"n\":3,\"skip\":true,\"why\":\"contrast leak\"},{\"n\":4,\"span\":\"PCR\",\"why\":\"distinguish E. dispar\"},{\"n\":5,\"span\":\"metronidazole\",\"why\":\"first-line drug\"}]\n"
+}

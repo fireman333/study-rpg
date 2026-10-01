@@ -1,0 +1,223 @@
+{
+ "anchorId": "寄生蟲學::intestinal-luminal-amoebae",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "8a5bf9ce11296233",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "107-1-醫學二-寄生蟲學-Q33",
+     "stem": "下列敘述，何者錯誤？",
+     "trueOption": "齒齦阿米巴（Entamoeba gingivalis）的滋養體（trophozoites）會吞噬紅血球"
+    }
+   ],
+   "bulletIndex": 7,
+   "sentence": "齒齦阿米巴（Entamoeba gingivalis）的滋養體也會吞噬紅血球，但牠寄生於口腔（牙齦、齒垢），與腸道致病無關；人體寄生性阿米巴的寄生部位並非全部都在大腸。106/107",
+   "citeText": [
+    "106/107"
+   ],
+   "marks": [
+    "106",
+    "107"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34",
+    "107-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤",
+    "齒齦阿米巴（Entamoeba gingivalis）的滋養體（trophozoites）會吞噬紅血球",
+    "大腸纖毛蟲（Balantidium coli）是體型最大的人體寄生性原蟲",
+    "大腸纖毛蟲（Balantidium coli）具有大核及小核"
+   ],
+   "spans": [
+    {
+     "span": "口腔",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q81",
+     "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+     "trueOption": "Metronidazole為痢疾阿米巴症之首選治療藥物"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "痢疾阿米巴症（含阿米巴肝膿瘍）的首選治療藥物為 metronidazole；mebendazole 是用於治療腸道蠕蟲，並非治療阿米巴的藥物。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+   ],
+   "spans": [
+    {
+     "span": "藥物為 metronidazole",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 3
+  },
+  {
+   "tested": [
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q81",
+     "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+     "trueOption": "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "痢疾阿米巴（Entamoeba histolytica）的滋養體會吞噬紅血球（erythrophagocytosis），是牠與非致病性近親（如哈氏阿米巴）最重要的鑑別特徵；哈氏阿米巴滋養體的胞內容物是細菌，不含紅血球。106/108",
+   "citeText": [
+    "106/108"
+   ],
+   "marks": [
+    "106",
+    "108"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34",
+    "108-1-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤",
+    "痢疾阿米巴（Entamoeba histolytica）感染之⾼危險群包括男同性戀者及啟智、精神教養院⽣"
+   ],
+   "spans": [],
+   "score": 2
+  },
+  {
+   "tested": [
+    {
+     "id": "106-1-醫學一-寄生蟲學-Q81",
+     "stem": "下列有關阿米巴之敘述中，何者錯誤？",
+     "trueOption": "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）"
+    }
+   ],
+   "bulletIndex": 1,
+   "sentence": "痢疾阿米巴與型態完全相同的迪斯帕阿米巴（Entamoeba dispar，非致病性）無法單靠形態學區分，須利用 PCR 技術才能鑑別兩者。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+   ],
+   "spans": [],
+   "score": 1
+  },
+  {
+   "tested": [
+    {
+     "id": "106-2-醫學二-寄生蟲學-Q34",
+     "stem": "下列有關痢疾阿米巴（Entamoeba histolytica）的敘述中，何者正確？",
+     "trueOption": "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+    }
+   ],
+   "bulletIndex": 4,
+   "sentence": "阿米巴腫（ameboma）是慢性阿米巴感染在腸壁形成的肉芽腫性腫塊，外觀酷似惡性腫瘤，臨床上容易被誤診為癌症或發炎性腸病，需特別留意鑑別診斷。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-寄生蟲學-Q81",
+    "106-1-醫學一-寄生蟲學-Q82",
+    "106-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "利用PCR技術可鑑別痢疾阿米巴（Entamoeba histolytica）及迪斯帕阿米巴（Entamoeba dispar）",
+    "Metronidazole為痢疾阿米巴症之首選治療藥物",
+    "痢疾阿米巴（Entamoeba histolytica）的滋養體（trophozoites）會吞噬紅血球",
+    "梨形鞭毛蟲（Giardia lamblia）及痢疾阿米巴（Entamoeba histolytica）",
+    "阿米巴腫（ameboma）常易被誤診為惡性腫瘤"
+   ],
+   "spans": [],
+   "score": 1
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "齒齦阿米巴",
+   "why": "考題問此種滋養體吞噬紅血球"
+  },
+  {
+   "n": 2,
+   "span": "metronidazole",
+   "why": "首選藥物"
+  },
+  {
+   "n": 3,
+   "span": "吞噬紅血球",
+   "why": "考題正確敘述"
+  },
+  {
+   "n": 4,
+   "span": "PCR 技術",
+   "why": "考題正確敘述"
+  },
+  {
+   "n": 5,
+   "span": "阿米巴腫",
+   "why": "考題問易誤診為腫瘤者"
+  }
+ ],
+ "reply": "[{\"n\":1,\"span\":\"齒齦阿米巴\",\"why\":\"考題問此種滋養體吞噬紅血球\"},{\"n\":2,\"span\":\"metronidazole\",\"why\":\"首選藥物\"},{\"n\":3,\"span\":\"吞噬紅血球\",\"why\":\"考題正確敘述\"},{\"n\":4,\"span\":\"PCR 技術\",\"why\":\"考題正確敘述\"},{\"n\":5,\"span\":\"阿米巴腫\",\"why\":\"考題問易誤診為腫瘤者\"}]\n"
+}

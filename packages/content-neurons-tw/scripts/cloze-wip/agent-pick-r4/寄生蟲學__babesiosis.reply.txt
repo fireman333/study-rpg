@@ -1,0 +1,2 @@
+[{"n":1,"span":"血液抹片鏡檢配合免疫螢光抗體試驗","why":"asked diagnosis"},
+{"n":2,"skip":true,"why":"elimination among listed genera"}]

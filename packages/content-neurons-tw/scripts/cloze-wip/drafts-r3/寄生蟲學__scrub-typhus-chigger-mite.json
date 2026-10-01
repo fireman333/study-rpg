@@ -1,0 +1,70 @@
+{
+ "anchorId": "寄生蟲學::scrub-typhus-chigger-mite",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v3",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "a1278c89a4052155",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "107-2-醫學二-寄生蟲學-Q34",
+     "stem": "人類感染恙蟲病（scrub typhus）主要是經由下列何者之叮咬而感染？",
+     "trueOption": "感染性幼蟎（mite）"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "台灣本土病媒蟎種主要為地里恙蟎（Leptotrombidium deliense）；焦痂（eschar）是恙蟲病重要的臨床辨識徵象，常合併發燒與淋巴結腫大，與落磯山斑疹熱、流行性斑疹傷寒、地方性斑疹傷寒（皆非恙蟎傳播）互為鑑別誘答。臨床情境題只要出現蘭嶼、花東或離島旅遊史＋蟎（mite）叮咬就答恙蟲病——犬心絲蟲症靠蚊、瘧疾靠瘧蚊、黃熱病靠斑蚊，三者都不是蟎媒。107/109/115-2",
+   "citeText": [
+    "107/109/115-2"
+   ],
+   "marks": [
+    "107",
+    "109",
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "107-2-醫學二-寄生蟲學-Q34",
+    "109-2-醫學二-寄生蟲學-Q35",
+    "115-2-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "感染性幼蟎（mite）",
+    "叢林斑疹傷寒（scrub typhus）",
+    "恙蟲病（scrub typhus）"
+   ],
+   "spans": [
+    {
+     "span": "地里恙蟎",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    },
+    {
+     "span": "焦痂",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 6
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "skip": true,
+   "why": "考題答案幼蟎不在句中"
+  }
+ ],
+ "reply": "[{\"n\":1,\"skip\":true,\"why\":\"考題答案幼蟎不在句中\"}]\n"
+}

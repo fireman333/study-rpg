@@ -1,0 +1,1 @@
+[{"n": 1, "span": "囊胚腔", "why": "tested point"}, {"n": 2, "span": "初級卵黃囊", "why": "tested point"}, {"n": 3, "skip": true, "why": "list elimination"}]

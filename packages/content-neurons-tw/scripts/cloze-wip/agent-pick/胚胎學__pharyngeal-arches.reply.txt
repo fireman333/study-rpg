@@ -1,0 +1,47 @@
+[
+ {
+  "n": 1,
+  "span": "迷走神經",
+  "why": "key exam fact"
+ },
+ {
+  "n": 2,
+  "span": "terminal sulcus",
+  "why": "key exam fact"
+ },
+ {
+  "n": 3,
+  "span": "第四週",
+  "why": "key exam fact"
+ },
+ {
+  "n": 4,
+  "span": "耳板",
+  "why": "key exam fact"
+ },
+ {
+  "n": 5,
+  "span": "Meckel軟骨",
+  "why": "key exam fact"
+ },
+ {
+  "n": 6,
+  "span": "Reichert軟骨",
+  "why": "key exam fact"
+ },
+ {
+  "n": 7,
+  "span": "胸腺與下副甲狀腺",
+  "why": "key exam fact"
+ },
+ {
+  "n": 8,
+  "span": "三個胚層",
+  "why": "key exam fact"
+ },
+ {
+  "n": 9,
+  "span": "內胚層（口腔上皮）",
+  "why": "key exam fact"
+ }
+]

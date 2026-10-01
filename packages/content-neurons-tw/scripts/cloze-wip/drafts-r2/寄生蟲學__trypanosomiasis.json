@@ -1,0 +1,207 @@
+{
+ "anchorId": "寄生蟲學::trypanosomiasis",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v1",
+ "signalVersion": "neurons-select-v1",
+ "inputHash": "382ad80c3acc5f0f",
+ "candidates": [
+  {
+   "bulletIndex": 0,
+   "sentence": "枯西氏錐蟲（T. cruzi）急性期典型徵象是單側眼瞼水腫合併結膜腫大，稱為Romaña's sign（叮咬處在眼周時出現），或叮咬處皮膚結節chagoma；慢性期則因自律神經節（如Auerbach氏神經叢）受免疫反應與寄生蟲破壞，出現心肌病變（心悸、心衰）、巨食道症、巨結腸症——機轉是神經節受破壞，並非補體直接攻擊。108/112/114",
+   "citeText": [
+    "108/112/114"
+   ],
+   "marks": [
+    "108",
+    "112",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-病理學-Q33",
+    "108-2-醫學二-病理學-Q34",
+    "112-1-醫學二-寄生蟲學-Q33",
+    "114-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "有些黑熱病（kala-azar）患者如果治療不當，在一、兩年後同樣的病原蟲可能在皮膚產生病灶",
+    "美國境內也曾有本土性枯西氏錐蟲（Trypanosoma cruzi）人體感染的病例",
+    "歐美人士至東非野生動物保護區旅行，曾有因此感染羅得西亞錐蟲（Trypanosoma brucei rhodesiense）的病 例發生",
+    "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）",
+    "Winterbottom's sign－岡比亞錐蟲（Trypanosoma brucei gambiense）",
+    "Espundia－巴西利什曼原蟲（Leishmania braziliensis）",
+    "黑熱病（kala-azar）",
+    "性行為與輸血均可傳播本疾病"
+   ],
+   "spans": [
+    {
+     "span": "Romaña's sign",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×3",
+      "in-true-option"
+     ],
+     "score": 9
+    }
+   ],
+   "score": 9
+  },
+  {
+   "bulletIndex": 1,
+   "sentence": "Winterbottom's sign（後頸淋巴結腫大）是非洲昏睡病（岡比亞錐蟲／羅德西亞錐蟲）的徵象，與枯西氏錐蟲（Chagas病）無關；黑熱病（杜氏利什曼原蟲）的症狀也與枯西氏錐蟲不同，三者常互為誘答。108/112",
+   "citeText": [
+    "108/112"
+   ],
+   "marks": [
+    "108",
+    "112"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學二-病理學-Q33",
+    "108-2-醫學二-病理學-Q34",
+    "112-1-醫學二-寄生蟲學-Q33"
+   ],
+   "trueOptions": [
+    "有些黑熱病（kala-azar）患者如果治療不當，在一、兩年後同樣的病原蟲可能在皮膚產生病灶",
+    "美國境內也曾有本土性枯西氏錐蟲（Trypanosoma cruzi）人體感染的病例",
+    "歐美人士至東非野生動物保護區旅行，曾有因此感染羅得西亞錐蟲（Trypanosoma brucei rhodesiense）的病 例發生",
+    "Romaña's sign－枯西氏錐蟲（Trypanosoma cruzi）",
+    "Winterbottom's sign－岡比亞錐蟲（Trypanosoma brucei gambiense）",
+    "Espundia－巴西利什曼原蟲（Leishmania braziliensis）",
+    "黑熱病（kala-azar）"
+   ],
+   "spans": [
+    {
+     "span": "非洲昏睡病",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 2,
+   "sentence": "采采蠅傳播的是非洲昏睡病，不是Chagas病；枯西氏錐蟲是經由錐鼻蟲（kissing bug）的糞便傳播，而非唾液直接注入。109/110",
+   "citeText": [
+    "109/110"
+   ],
+   "marks": [
+    "109",
+    "110"
+   ],
+   "linkedQuestionIds": [
+    "109-1-醫學二-微生物暨免疫學-Q35",
+    "110-1-醫學二-寄生蟲學-Q35"
+   ],
+   "trueOptions": [
+    "埃及斑蚊（Aedes aegypti）傳播黃熱病（yellow fever）",
+    "蚋（Simulium spp.）傳播河川盲（river blindness）",
+    "白蛉（sandfly）傳播利什曼原蟲症（leishmaniasis）",
+    "岡比亞錐蟲（Trypanosoma brucei gambiense）"
+   ],
+   "spans": [
+    {
+     "span": "非洲昏睡病",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "bulletIndex": 7,
+   "sentence": "非洲錐蟲三個容易被寫反的點：① 表面蛋白的切換方向——蟲體被采采蠅吸入後脫掉 VSG（變異表面醣蛋白）改表現 procyclin（前環素蛋白），回到哺乳類宿主體內才重新表現 VSG 以逃避免疫，題目常故意寫成相反方向；② 羅德西亞錐蟲（T. b. rhodesiense）的毒力取決於蟲體 SRA 基因與人類 APOL1 基因型的交互作用，是「蟲—宿主基因型交互作用」的標準敘述；③ 侵犯中樞造成昏睡症屬第二期（腦膜腦炎期），不是感染初期。另外頸部淋巴結腫大是 Winterbottom's sign，Jericho boil（耶利哥癤）是利什曼原蟲的皮膚病灶，不是錐蟲症。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學二-寄生蟲學-Q34"
+   ],
+   "trueOptions": [
+    "有關布氏羅德西亞錐蟲（Trypanosoma brucei rhodesiense）的毒力（virulence）決定於寄生蟲與受感染 人類的基因型（genotype）之交互作用"
+   ],
+   "spans": [
+    {
+     "span": "表面蛋白的切換方向",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "被采采蠅吸入後",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "第二期",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "procyclin",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-distractor"
+     ],
+     "score": 1
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "單側眼瞼水腫",
+   "why": "key exam fact"
+  },
+  {
+   "n": 2,
+   "span": "非洲昏睡病",
+   "why": "key exam fact"
+  },
+  {
+   "n": 3,
+   "span": "錐鼻蟲",
+   "why": "key exam fact"
+  },
+  {
+   "n": 4,
+   "span": "procyclin",
+   "why": "key exam fact"
+  }
+ ],
+ "reply": "[\n {\n  \"n\": 1,\n  \"span\": \"單側眼瞼水腫\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 2,\n  \"span\": \"非洲昏睡病\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 3,\n  \"span\": \"錐鼻蟲\",\n  \"why\": \"key exam fact\"\n },\n {\n  \"n\": 4,\n  \"span\": \"procyclin\",\n  \"why\": \"key exam fact\"\n }\n]"
+}

@@ -1,0 +1,1 @@
+[{"n":1,"span":"熱帶家蚊","why":"vector"},{"n":2,"skip":true,"why":"restated"},{"n":3,"skip":true,"why":"restated"},{"n":4,"span":"DEC","why":"treatment response"},{"n":5,"span":"蟠尾絲蟲","why":"causes blindness"},{"n":6,"skip":true,"why":"english leak"}]

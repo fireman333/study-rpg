@@ -1,0 +1,1 @@
+[{"n":1,"span":"長期臥床","why":"risk group"},{"n":2,"span":"含氮廢物","why":"function"},{"n":3,"skip":true,"why":"contrast"},{"n":4,"span":"蝨的糞便","why":"transmission mode"}]

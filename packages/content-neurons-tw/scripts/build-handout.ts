@@ -12,17 +12,39 @@
  *
  *   pnpm --filter @study-rpg/content-neurons-tw build:handout
  */
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, basename } from 'node:path'
 import type { HandoutData, HandoutSubject, HandoutChapterQuiz } from '../src/handout/handout-types'
 import { buildRegionKeyedQuizzes, type RegionConfig } from '../src/handout/build-region-quizzes'
 import { injectLeafAnchors, type LeafAnchorResult } from '../src/handout/leaf-anchor-gate'
+import { extractTopics } from '../src/handout/topic-plain-text'
+import {
+  CLOZE_ARTIFACT_VERSION,
+  formatClozeCounts,
+  renderClozeReport,
+  shippedCardIntegrityErrors,
+  validateClozeCorpus,
+  withFileLevelErrors,
+  type ClozeArtifact,
+  type ClozeCardFile,
+  type ClozeGateError,
+  type ClozeQuestion,
+} from '../src/handout/cloze-gate'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PKG = join(__dirname, '..')
 const FRAG_DIR = join(PKG, 'src', 'handout')
 const DIST = join(PKG, 'dist')
+// Cloze cards (add-neurons-handout-cloze-corpus D1/D4): reviewed source, one file per subject, beside
+// the fragments (FRAG_DIR only lists `*.html`, so `_cloze/` is never mistaken for a subject). The
+// generator's `scripts/cloze-wip/` is a report DESTINATION only — the build never reads it.
+const CLOZE_SRC_DIR = join(FRAG_DIR, '_cloze')
+const CLOZE_WIP_DIR = join(PKG, 'scripts', 'cloze-wip')
+const CLOZE_OUT_PATH = join(DIST, 'handout-cloze.json')
+// Drop the previous run's cloze artifact before ANY handout gate runs: a failure in an earlier gate
+// (lint / leaf-anchor / region quiz) exits before runClozeStep and must not leave stale cards behind.
+rmSync(CLOZE_OUT_PATH, { force: true })
 
 // Display order + titles. Any fragment without an entry falls back to `${id} 考前講義`.
 const SUBJECT_META: Record<string, { order: number; title: string }> = {
@@ -64,7 +86,7 @@ const REGION_TO_CHAPTER: Record<string, Record<string, string>> = {
 
 interface ConceptRecurrence {
   chapters: { subjectId: string; chapterId: string; zh: string }[]
-  concepts: { subjectId: string; chapterId: string; leafId: string }[]
+  concepts: { subjectId: string; chapterId: string; leafId: string; tier?: string }[]
 }
 
 /** Load a required dist JSON, failing loudly (No Silent Errors) if the upstream build step is missing. */
@@ -232,7 +254,8 @@ for (const [qid, leaves] of Object.entries(conceptTags)) {
 // qid → home subject, so each subject's 區測驗 pool can be scoped to its own questions. A few leaves
 // straddle two subjects' domains (e.g. 細胞膜運輸 spans 生理學/生物化學); without this, the global
 // leafToQids would leak the other subject's questions into this handout's pool. Mirrors mine.mjs.
-const qSubject = new Map(loadDist<{ id: string; subject: string }[]>('questions.json').map((q) => [q.id, q.subject]))
+const questionList = loadDist<(ClozeQuestion & { id: string; subject: string })[]>('questions.json')
+const qSubject = new Map(questionList.map((q) => [q.id, q.subject]))
 
 const coverageReport: { subjectId: string; anchored: number; total: number }[] = []
 const subjects: HandoutSubject[] = fragFiles
@@ -278,4 +301,98 @@ console.log('  leaf-anchor coverage (anchored primary / region-bearing leaves):'
 for (const c of [...coverageReport].sort((a, b) => a.subjectId.localeCompare(b.subjectId))) {
   const pct = c.total > 0 ? Math.round((c.anchored / c.total) * 100) : 0
   console.log(`    ${c.subjectId}: ${c.anchored}/${c.total} (${pct}%)`)
+}
+
+// ── cloze cards (add-neurons-handout-cloze-corpus D4) ──
+// LAST, after handout.json is written: every existing handout gate above exits on failure before this
+// point, so a cloze failure can never hide their reports; it runs only on an otherwise-green build.
+runClozeStep(subjects)
+
+/**
+ * Validate `_cloze/*.json` against the SHIPPED handout html's plain text and write
+ * `dist/handout-cloze.json` — only if EVERY card passes. On any failure no `handout-cloze.json` is
+ * left behind from this run, and the process exits 1.
+ */
+function runClozeStep(shipped: readonly HandoutSubject[]): void {
+  // FIRST, before any input is read: a read or parse below can throw (an unsupported bullet shape in
+  // `extractTopics`, an unreadable card file), and a throw skips the failure branch's own delete.
+  rmSync(CLOZE_OUT_PATH, { force: true })
+  const cardFiles = existsSync(CLOZE_SRC_DIR)
+    ? readdirSync(CLOZE_SRC_DIR)
+        .filter((n) => n.endsWith('.json'))
+        .sort()
+        .map((name) => ({ rel: `src/handout/_cloze/${name}`, subjectId: basename(name, '.json'), path: join(CLOZE_SRC_DIR, name) }))
+    : []
+
+  if (cardFiles.length === 0) {
+    const empty: ClozeArtifact = { version: CLOZE_ARTIFACT_VERSION, cards: [] }
+    writeFileSync(CLOZE_OUT_PATH, JSON.stringify(empty, null, 2) + '\n')
+    console.log(`✓ 字卡：${existsSync(CLOZE_SRC_DIR) ? '_cloze/ 為空' : '_cloze/ 不存在'} → dist/handout-cloze.json (0 cards)`)
+    console.log('[handout] 字卡閘門 imported: 0, rejected: 0, total: 0')
+    return
+  }
+
+  const htmlBySubject = new Map(shipped.map((s) => [s.subjectId, s.html]))
+  const preErrors: ClozeGateError[] = []
+  const files: ClozeCardFile[] = []
+  for (const f of cardFiles) {
+    let source: unknown
+    try {
+      source = JSON.parse(readFileSync(f.path, 'utf8'))
+    } catch (err) {
+      preErrors.push({ reason: 'schema', file: f.rel, cardId: null, message: `not valid JSON — ${String(err)}` })
+      continue
+    }
+    // A card may only anchor into ITS subject's shipped html. A file that names no shipped subject
+    // gets no topics, so every card in it fails `unknown-anchor` — loudly, by name.
+    const html = htmlBySubject.get(f.subjectId)
+    if (html === undefined) console.error(`✗ 字卡：${f.rel} names no shipped handout subject "${f.subjectId}"`)
+    files.push({ file: f.rel, source, topics: html === undefined ? [] : extractTopics(html, f.subjectId) })
+  }
+
+  // Current tiers keyed by (subjectId, leafId) — a leafId is not unique across subjects.
+  const recurrence = new Map<string, string>()
+  for (const c of rec.concepts) if (c.tier) recurrence.set(`${c.subjectId}::${c.leafId}`, c.tier)
+  const questions = new Map<string, ClozeQuestion>(questionList.map((q) => [q.id, q]))
+
+  const result = validateClozeCorpus({ files, recurrence, questions })
+  const errors = [...preErrors, ...result.errors]
+  // `validateClozeCorpus` never saw the unparseable files; without folding them in, a failure that is
+  // ONLY a parse error would print `rejected: 0`.
+  const counts = withFileLevelErrors(result.counts, preErrors)
+
+  // The report never fails the build; it is written on success and failure alike.
+  mkdirSync(CLOZE_WIP_DIR, { recursive: true })
+  writeFileSync(join(CLOZE_WIP_DIR, '_report.md'), renderClozeReport(result.report))
+  writeFileSync(join(CLOZE_WIP_DIR, '_report.json'), JSON.stringify(result.report, null, 2) + '\n')
+  console.log(
+    `  字卡報告：數值矛盾 ${result.report.contradictions.length} 筆（啟發式）、跨考點重複 ${result.report.duplicates.length} 筆、` +
+      `tier 漂移 ${result.report.tierDrift.length} 筆 → scripts/cloze-wip/_report.md`,
+  )
+
+  if (errors.length > 0) {
+    rmSync(CLOZE_OUT_PATH, { force: true })
+    console.error()
+    for (const e of errors) console.error(`✗ [cloze:${e.reason}] ${e.file}${e.cardId ? ` ${e.cardId}` : ''} — ${e.message}`)
+    console.error()
+    console.error(`✗ BUILD FAILED: 字卡閘門 ${errors.length} 筆`)
+    console.error(formatClozeCounts(counts))
+    process.exit(1)
+  }
+
+  // Shipped text and hash must be one value in two forms before anything is written.
+  const integrity = shippedCardIntegrityErrors(result.cards)
+  if (integrity.length > 0) {
+    rmSync(CLOZE_OUT_PATH, { force: true })
+    console.error()
+    for (const e of integrity) console.error(`✗ [cloze:shipped-integrity] ${e}`)
+    console.error()
+    console.error(`✗ BUILD FAILED: 字卡出貨一致性 ${integrity.length} 筆`)
+    process.exit(1)
+  }
+
+  const artifact: ClozeArtifact = { version: CLOZE_ARTIFACT_VERSION, cards: result.cards }
+  writeFileSync(CLOZE_OUT_PATH, JSON.stringify(artifact, null, 2) + '\n')
+  console.log(`✓ 字卡：${result.cards.length} 張 → dist/handout-cloze.json`)
+  console.log(formatClozeCounts(counts))
 }

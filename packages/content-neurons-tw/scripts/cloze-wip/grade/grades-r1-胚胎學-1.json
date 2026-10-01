@@ -1,0 +1,309 @@
+{
+ "group": "r1-胚胎學-1",
+ "grader": "agent-pregrade",
+ "model": "claude-opus-5-5",
+ "round": "r1",
+ "grades": {
+  "gametogenesis-fertilization#k1": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "事實正確（排卵前動情素由優勢濾泡分泌），但考題考的是「哪個激素有兩次高峰」，來源細節價值普通。"
+  },
+  "gametogenesis-fertilization#k2": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "事實正確，但「負回饋抑制」答案籠統，考題未直接考此機轉。"
+  },
+  "gametogenesis-fertilization#k3": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "黃體酮於黃體期中期達高峰正確，但連結考題考的是動情素雙峰，此點為延伸細節。"
+  },
+  "early-cleavage-implantation#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "滋養層分化為內層細胞滋養層與外層融合滋養層，經典考點、答案唯一。"
+  },
+  "early-cleavage-implantation#k2": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "接合莖屬內細胞團衍生物正確，但考題重點是「滋養層非ICM衍生」，挖接合莖描述性填空價值普通。"
+  },
+  "early-cleavage-implantation#k3": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "三級絨毛的特徵是微血管長入，事實正確；但答案為描述性片語，措辭不唯一。"
+  },
+  "germ-layers-gastrulation#k1": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "豎毛肌屬中胚層正確，但「真皮層的間葉組織」措辭不唯一（亦可填中胚層／間葉組織）；豎毛肌本身另有卡。"
+  },
+  "germ-layers-gastrulation#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "胚內體腔最早出現於外側中胚層，與113-1 Q32官方答案一致，答案唯一。"
+  },
+  "germ-layers-gastrulation#k3": {
+   "grade": "bad",
+   "medicalError": false,
+   "reason": "卡面只剩時序箭頭且遮住第8天線索，空格可填囊胚腔、羊膜腔、初級卵黃囊等，答案不唯一；考題給分點是胚內中胚層而非羊膜腔。"
+  },
+  "germ-layers-gastrulation#k4": {
+   "grade": "bad",
+   "medicalError": true,
+   "reason": "原句稱上胚層「即體外胚層」有誤（epiblast≠surface ectoderm）；且「建立胚體兩側對稱」答案措辭不唯一（可填建立體軸／啟動原腸胚形成）。"
+  },
+  "pharyngeal-arches#k1": {
+   "grade": "bad",
+   "medicalError": false,
+   "reason": "卡面已寫CN X，空格只是其中文名稱「迷走神經」，等於洩題、無測驗價值。"
+  },
+  "pharyngeal-arches#k2": {
+   "grade": "bad",
+   "medicalError": false,
+   "reason": "把「聯合部消失處」等同terminal sulcus並不精確（terminal sulcus是第一咽弓部與咽下隆起的交界），且遮住gloss後答案難以判斷。"
+  },
+  "pharyngeal-arches#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "咽弓於第四週出現，112-2/113-2「第三週結束時尚未出現」考題的直接答案。"
+  },
+  "pharyngeal-arches#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "內耳由體表外胚層經耳板→耳窩→耳泡發育，事實正確、答案唯一。"
+  },
+  "pharyngeal-arches#k5": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "Meckel軟骨衍生錘骨與砧骨，經典高頻考點，答案唯一。"
+  },
+  "cardiovascular-development#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "出生後肺血流量上升，即113-1 Q35官方答案B，答案唯一。"
+  },
+  "cardiovascular-development#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "第二孔由第一中隔細胞凋亡穿孔形成，對應104-1 Q31陷阱選項，答案唯一。"
+  },
+  "cardiovascular-development#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "右喉返神經繞右鎖骨下動脈，對應104-2 Q31 D選項的考點，答案唯一。"
+  },
+  "cardiovascular-development#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "胎兒循環含氧量最高者為臍靜脈，經典考點，答案唯一。"
+  },
+  "cardiovascular-development#k5": {
+   "grade": "bad",
+   "medicalError": true,
+   "reason": "答案（左第七節間動脈）正確，但原句「只有右鎖骨下動脈才是第四咽弓的衍生物」有誤：主動脈弓一段亦源自左側第四咽弓動脈。"
+  },
+  "neural-tube-development#k1": {
+   "grade": "bad",
+   "medicalError": false,
+   "reason": "純數字體節高度（教科書為第4–6體節），考題考的是神經孔關閉時間差，此數字未被考過。"
+  },
+  "neural-tube-development#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "視囊源自間腦，對應115-1 Q36（給分選項為錯誤配對「視囊：髓腦」），卡教的是正確配對。"
+  },
+  "neural-tube-development#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "神經垂體源自間腦，114-2 Q36直接考過，答案唯一。"
+  },
+  "body-wall-diaphragm-development#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "先天性橫膈疝最常見於後外側Bochdalek孔，對應104-1 Q29。"
+  },
+  "body-wall-diaphragm-development#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "橫膈背部最終位置L1，109-1 Q32官方答案C，屬考過的數字。"
+  },
+  "body-wall-diaphragm-development#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "胸心包膜形成纖維性心包膜（非漿液心包臟層），對應111-2 Q32，答案唯一。"
+  },
+  "body-wall-diaphragm-development#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "胚內體腔最早出現於外側中胚層，113-1 Q32官方答案；與germ-layers#k2重複。"
+  },
+  "limb-axial-musculoskeletal-development#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "肢芽遠端外胚層增厚形成頂外胚層嵴（AER），111-1 Q36考點，答案唯一。"
+  },
+  "limb-axial-musculoskeletal-development#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "骨骼來源為中胚層與神經嵴，112-1 Q35官方答案①④，答案唯一。"
+  },
+  "limb-axial-musculoskeletal-development#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "矢狀縫提早閉合造成舟狀頭，112-2 Q36考點，答案唯一。"
+  },
+  "limb-axial-musculoskeletal-development#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "虹膜肌肉源自神經外胚層，106-1 Q32、115-2 Q36考點，答案唯一。"
+  },
+  "GI-development#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "中腸環以腸繫膜上動脈為軸旋轉，109-2 Q33官方答案，答案唯一。"
+  },
+  "GI-development#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "肝細胞第12週開始製造膽汁，106-1 Q29考過的數字。"
+  },
+  "GI-development#k3": {
+   "grade": "bad",
+   "medicalError": true,
+   "reason": "答案內胚層正確，但原句「背側胰芽遠端形成副胰管」有誤：副胰管來自背側胰管近端，背側胰管遠端併入主胰管。"
+  },
+  "GI-development#k4": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "十二指腸再通化機轉（細胞凋亡／空泡化）事實正確，但考題只考「一度閉鎖」，且答案可填空泡化，不唯一。"
+  },
+  "GI-development#k5": {
+   "grade": "bad",
+   "medicalError": true,
+   "reason": "原句稱咽下隆起由「第二、三、四咽弓」形成有誤（應為第三、四咽弓；第二咽弓形成的是聯合部）。"
+  },
+  "respiratory-development#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "出生後左房壓大於右房使卵圓孔功能性關閉，經典考點，答案唯一。"
+  },
+  "respiratory-development#k2": {
+   "grade": "bad",
+   "medicalError": false,
+   "reason": "空格後緊接英文「surfactant」，等於洩題。"
+  },
+  "respiratory-development#k3": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "會厭軟骨與第四、六咽弓軟骨無關，105-2 Q31官方答案，答案唯一。"
+  },
+  "respiratory-development#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "呼吸原基起源於第四咽囊尾端之前腸腹側，與107-1 Q32官方答案一致。"
+  },
+  "urogenital-development#k1": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "男性假陰陽人為46,XY正確，但空格亦可填5α-還原酶缺乏等其他機轉，答案不唯一。"
+  },
+  "urogenital-development#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "輸尿管源自後腎憩室，107-2 Q35官方答案D，答案唯一。"
+  },
+  "urogenital-development#k3": {
+   "grade": "bad",
+   "medicalError": true,
+   "reason": "原句「第六週進入大骨盆」有誤：膀胱約於六歲才進入大骨盆（108-1 Q34 C選項即為正確敘述「六歲」）。"
+  },
+  "urogenital-development#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "陰道由副中腎管與竇陰道球泡共同形成，114-2 Q34官方答案C。"
+  },
+  "urogenital-development#k5": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "SRY上調SOX9正確，但考題只考睪丸決定因子位於Y染色體，SOX9屬延伸細節。"
+  },
+  "special-sense-integument-development#k1": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "汗腺分泌部源自體表外胚層，110-2 Q36官方答案A。"
+  },
+  "special-sense-integument-development#k2": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "豎毛肌來自中胚層而非外胚層，115-1 Q35官方答案D。"
+  },
+  "special-sense-integument-development#k3": {
+   "grade": "ordinary",
+   "medicalError": false,
+   "reason": "事實正確，但考題考的是來源（神經外胚層），此卡挖肌肉名稱，價值普通。"
+  },
+  "special-sense-integument-development#k4": {
+   "grade": "good",
+   "medicalError": false,
+   "reason": "視神經由前腦衍生，104-1 Q32官方答案A。"
+  }
+ },
+ "contradictions": [],
+ "handoutIssues": [
+  {
+   "anchorId": "germ-layers-gastrulation",
+   "cardId": "germ-layers-gastrulation#k4",
+   "sentence": "原條……由胚盤尾端的上胚層細胞（即體外胚層）增殖形成",
+   "problem": "上胚層（epiblast）不是體外胚層（surface ectoderm）；體外胚層是原腸胚形成後的外胚層衍生物。",
+   "suggestedFix": "刪除「（即體外胚層）」。"
+  },
+  {
+   "anchorId": "cardiovascular-development",
+   "cardId": "cardiovascular-development#k5",
+   "sentence": "只有右鎖骨下動脈才是第四咽弓的衍生物。",
+   "problem": "主動脈弓（左頸總動脈與左鎖骨下動脈之間段）亦源自左側第四咽弓動脈，「只有」錯誤。",
+   "suggestedFix": "改為「左右鎖骨下動脈中，只有右鎖骨下動脈（近端）源自第四咽弓」。",
+   "examRef": "110-1-醫學一-胚胎學-Q34"
+  },
+  {
+   "anchorId": "pharyngeal-arches",
+   "cardId": "pharyngeal-arches#k2",
+   "sentence": "聯合部會被逐漸長大的咽下隆起擠壓而消失，消失處即 terminal sulcus",
+   "problem": "terminal sulcus 是第一咽弓部（前2/3）與咽下隆起部（後1/3）的交界，不等於聯合部消失處，敘述不精確。",
+   "suggestedFix": "改為「聯合部被咽下隆起覆蓋而消失；前2/3與後1/3以 terminal sulcus 為界」。"
+  },
+  {
+   "anchorId": "GI-development",
+   "cardId": "GI-development#k3",
+   "sentence": "腹側胰芽發育為胰臟頭端與鉤狀突（主胰管由此形成），背側胰芽遠端形成副胰管",
+   "problem": "主胰管由腹側胰管加背側胰管遠端組成；副胰管來自背側胰管近端，原句說反。",
+   "suggestedFix": "改為「主胰管由腹側胰管與背側胰管遠端合成，副胰管為背側胰管近端殘留」。",
+   "examRef": "114-1-醫學一-胚胎學-Q34"
+  },
+  {
+   "anchorId": "GI-development",
+   "cardId": "GI-development#k5",
+   "sentence": "後 1/3（pharyngeal part）則由第二、三、四咽弓形成的咽下隆起（hypopharyngeal eminence）形成",
+   "problem": "咽下隆起來自第三、四咽弓；第二咽弓形成的是聯合部（被覆蓋消失），與同講義咽弓節敘述不一致。",
+   "suggestedFix": "改為「由第三、四咽弓形成的咽下隆起」。",
+   "examRef": "114-2-醫學一-胚胎學-Q33"
+  },
+  {
+   "anchorId": "urogenital-development",
+   "cardId": "urogenital-development#k3",
+   "sentence": "膀胱內襯上皮源自內胚層（泌尿生殖竇），胚胎時期與尿囊相連，第六週進入大骨盆",
+   "problem": "膀胱約於「六歲」才進入大骨盆（青春期後進入小骨盆），不是第六週；108-1 Q34 C選項「六歲時進入大骨盆」為正確敘述。",
+   "suggestedFix": "「第六週」改為「約六歲」。",
+   "examRef": "108-1-醫學一-胚胎學-Q34"
+  },
+  {
+   "anchorId": "respiratory-development",
+   "cardId": "respiratory-development#k2",
+   "sentence": "肺泡期（出生後至 8–10 歲，約 95% 肺泡在出生後才真正長成）",
+   "problem": "教科書（Moore）肺泡期始於胎兒晚期（約32週）至約8歲，非出生後才開始；屬小瑕疵。",
+   "suggestedFix": "改為「肺泡期（約32週至8歲，多數肺泡於出生後形成）」。"
+  }
+ ]
+}

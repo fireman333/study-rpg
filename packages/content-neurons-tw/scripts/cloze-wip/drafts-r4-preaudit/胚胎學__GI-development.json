@@ -1,0 +1,312 @@
+{
+ "anchorId": "胚胎學::GI-development",
+ "status": "ok",
+ "model": "claude-sonnet-5-5 (subagent)",
+ "promptVersion": "neurons-pick-v4",
+ "signalVersion": "neurons-select-v2",
+ "inputHash": "cd5dffcfa777428d",
+ "candidates": [
+  {
+   "tested": [
+    {
+     "id": "106-1-醫學一-胚胎學-Q29",
+     "stem": "胚胎發育至第幾週時，肝細胞（hepatocyte）開始製造膽汁（bile）？",
+     "trueOption": "第12週"
+    }
+   ],
+   "bulletIndex": 2,
+   "sentence": "肝細胞於胚胎第 12 週開始製造膽汁；此時膽囊與膽管（含連接肝管形成的總膽管）已發育完成，膽汁得以進入腸道。106",
+   "citeText": [
+    "106"
+   ],
+   "marks": [
+    "106"
+   ],
+   "linkedQuestionIds": [
+    "106-1-醫學一-胚胎學-Q29",
+    "106-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "第12週",
+    "源自前腸（foregut）內胚層（endoderm）"
+   ],
+   "spans": [
+    {
+     "span": "第 12 週",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 7
+    },
+    {
+     "span": "12 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1",
+      "in-true-option"
+     ],
+     "score": 6
+    }
+   ],
+   "score": 7
+  },
+  {
+   "tested": [
+    {
+     "id": "108-2-醫學一-胚胎學-Q34",
+     "stem": "下列關於十二指腸（duodenum）發育之敘述，何者正確？",
+     "trueOption": "因上皮細胞增生而一度閉鎖（obliteration）"
+    }
+   ],
+   "bulletIndex": 6,
+   "sentence": "十二指腸並非全部由前腸衍生（膽道開口以下段來自中腸）；連接卵黃柄（yolk stalk）的是中腸形成的 U 型環（midgut loop），不是「十二指腸環」；隨胃順時鐘旋轉 90 度、大彎轉左小彎轉右，十二指腸被動轉至右側並貼附後腹壁；十二指腸於胚胎第二個月因上皮細胞增生而一度閉鎖成實心索，之後靠細胞凋亡再通化（recanalization），此過程失敗會造成十二指腸狹窄甚至閉鎖。108/113",
+   "citeText": [
+    "108/113"
+   ],
+   "marks": [
+    "108",
+    "113"
+   ],
+   "linkedQuestionIds": [
+    "108-2-醫學一-胚胎學-Q34",
+    "113-1-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "因上皮細胞增生而一度閉鎖（obliteration）",
+    "因胃（stomach）的旋轉使十二指腸旋轉至右側，並且大部分貼在後腹壁"
+   ],
+   "spans": [
+    {
+     "span": "並非",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    },
+    {
+     "span": "右側",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "112-1-醫學一-胚胎學-Q33",
+     "stem": "下列何者為舌頭咽喉部（pharyngeal part of tongue）的胚胎起源？",
+     "trueOption": "咽下隆起（hypopharyngeal eminence）"
+    },
+    {
+     "id": "114-2-醫學一-胚胎學-Q33",
+     "stem": "舌（tongue）的發育過程中，那一咽弓會形成聯合部（copula），且最後會被擠壓而消失？",
+     "trueOption": "第二咽弓（second pharyngeal arch）"
+    }
+   ],
+   "bulletIndex": 9,
+   "sentence": "舌頭前 2/3（body of tongue）由第一咽弓的中央舌芽與一對遠端舌芽（往中間生長使中央舌芽消失）形成；後 1/3（pharyngeal part）則由第三、四咽弓形成的咽下隆起（hypopharyngeal eminence）形成；第二咽弓先形成的聯合部（copula）會被隨後長大的咽下隆起擠壓而消失；盲孔（foramen cecum，甲狀腺發育殘跡）則位於舌前 2/3 與後 1/3 交界（terminal sulcus 的 V 型尖端）。112/114",
+   "citeText": [
+    "112/114"
+   ],
+   "marks": [
+    "112",
+    "114"
+   ],
+   "linkedQuestionIds": [
+    "112-1-醫學一-胚胎學-Q33",
+    "114-1-醫學一-胚胎學-Q34",
+    "114-2-醫學一-胚胎學-Q32",
+    "114-2-醫學一-胚胎學-Q33"
+   ],
+   "trueOptions": [
+    "咽下隆起（hypopharyngeal eminence）",
+    "腹胰芽（ventral pancreatic buds）主要發育為胰臟的鉤狀突（uncinate process）以及部分的頭端",
+    "黑色素細胞（melanocyte）",
+    "交感節後神經元（postganglionic sympathetic neuron）",
+    "腎上腺髓質之嗜鉻細胞（chromaffin cell of adrenal medulla）",
+    "第二咽弓（second pharyngeal arch）"
+   ],
+   "spans": [
+    {
+     "span": "聯合部",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×2"
+     ],
+     "score": 5
+    }
+   ],
+   "score": 5
+  },
+  {
+   "tested": [
+    {
+     "id": "104-2-醫學一-胚胎學-Q30",
+     "stem": "下列何者衍生成為肛管（anal canal）的下1/3段？",
+     "trueOption": "原肛（proctodeum）"
+    }
+   ],
+   "bulletIndex": 0,
+   "sentence": "肛管以齒狀線／肛門膜為界分兩段：上 2/3 來自後腸內胚層，內襯單層柱狀上皮；下 1/3 來自原肛（proctodeum）外胚層，內襯複層鱗狀上皮——第 26 天尿囊與後腸共同開口形成泄殖腔，被尿直腸中隔（urorectal septum）分隔後，肛門膜約於第 9 週破裂，開通肛管下 1/3（考選部 104-2）。104",
+   "citeText": [
+    "104"
+   ],
+   "marks": [
+    "104"
+   ],
+   "linkedQuestionIds": [
+    "104-2-醫學一-胚胎學-Q30"
+   ],
+   "trueOptions": [
+    "原肛（proctodeum）"
+   ],
+   "spans": [
+    {
+     "span": "後腸內胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "原肛（proctodeum）外胚層",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "26 天",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    },
+    {
+     "span": "9 週",
+     "kind": "number",
+     "base": 2,
+     "signals": [
+      "number",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  },
+  {
+   "tested": [
+    {
+     "id": "115-2-醫學一-胚胎學-Q34",
+     "stem": "下列關於胃（stomach）發育的敘述，何者正確？",
+     "trueOption": "原始背側胃繫膜（primordial dorsal mesogastrium）因胃旋轉被帶至左側，形成網膜囊（omental bursa）"
+    }
+   ],
+   "bulletIndex": 12,
+   "sentence": "胃的發育有三個常考點：① 胃原基背側生長快於腹側，因而形成胃大彎（greater curvature）；② 沿縱軸順時針旋轉 90 度，把胃大彎轉向左側、小彎轉向右側；③ 旋轉同時把原始背側胃繫膜（primordial dorsal mesogastrium）拉向左側，在胃後方圍出網膜囊（omental bursa）。另外，胃的先天畸形其實少見，臨床最常見的是肥厚性幽門狹窄（hypertrophic pyloric stenosis）、好發於男嬰，幽門閉鎖（pyloric atresia）極為罕見。115-2",
+   "citeText": [
+    "115-2"
+   ],
+   "marks": [
+    "115-2"
+   ],
+   "linkedQuestionIds": [
+    "115-2-醫學一-胚胎學-Q34"
+   ],
+   "trueOptions": [
+    "原始背側胃繫膜（primordial dorsal mesogastrium）因胃旋轉被帶至左側，形成網膜囊（omental bursa）"
+   ],
+   "spans": [
+    {
+     "span": "背側生長快於腹側",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "順時針旋轉 90 度",
+     "kind": "bold",
+     "base": 3,
+     "signals": [
+      "bold",
+      "marks×1"
+     ],
+     "score": 4
+    },
+    {
+     "span": "肥厚性幽門狹窄",
+     "kind": "trigger",
+     "base": 2,
+     "signals": [
+      "trigger",
+      "marks×1"
+     ],
+     "score": 3
+    }
+   ],
+   "score": 4
+  }
+ ],
+ "picks": [
+  {
+   "n": 1,
+   "span": "第 12 週",
+   "why": "tested point"
+  },
+  {
+   "n": 2,
+   "span": "因上皮細胞增生而一度閉鎖",
+   "why": "tested point"
+  },
+  {
+   "n": 3,
+   "span": "咽下隆起",
+   "why": "tested point",
+   "hide": [
+    "被隨後長大的咽下隆起擠壓"
+   ]
+  },
+  {
+   "n": 4,
+   "span": "原肛",
+   "why": "tested point"
+  },
+  {
+   "n": 5,
+   "span": "原始背側胃繫膜",
+   "why": "tested point"
+  }
+ ],
+ "reply": "[{\"n\": 1, \"span\": \"第 12 週\", \"why\": \"tested point\"}, {\"n\": 2, \"span\": \"因上皮細胞增生而一度閉鎖\", \"why\": \"tested point\"}, {\"n\": 3, \"span\": \"咽下隆起\", \"hide\": [\"被隨後長大的咽下隆起擠壓\"], \"why\": \"tested point\"}, {\"n\": 4, \"span\": \"原肛\", \"why\": \"tested point\"}, {\"n\": 5, \"span\": \"原始背側胃繫膜\", \"why\": \"tested point\"}]"
+}

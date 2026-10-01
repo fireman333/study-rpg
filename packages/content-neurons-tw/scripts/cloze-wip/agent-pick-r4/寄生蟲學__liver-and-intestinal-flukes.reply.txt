@@ -1,0 +1,4 @@
+[{"n":1,"span":"中華肝吸蟲","why":"asked organism"},
+{"n":2,"span":"槍狀肝吸蟲","why":"asked organism"},
+{"n":3,"span":"橫川吸蟲","why":"asked organism"},
+{"n":4,"span":"異形吸蟲","why":"asked organism"}]
