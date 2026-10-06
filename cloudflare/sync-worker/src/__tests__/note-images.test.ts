@@ -217,7 +217,7 @@ describe('POST /note-images — the write', () => {
     expect(init.headers.apikey).toBe('anon-key')
   })
 
-  it('writes under a key outside users/, so the backup cron does not copy it', async () => {
+  it('writes under a key outside users/, so save snapshots and per-user deletes never touch it', async () => {
     const { env, put, ctx, settle } = harness({ rpc: reserved() })
     await handleNoteImages(upload(simpleWebp()), env, H, ctx)
     await settle()

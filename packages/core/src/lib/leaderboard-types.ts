@@ -84,21 +84,39 @@ export function isValidNicknameLength(raw: string): boolean {
 // ─── Row + snapshot shapes ───────────────────────────────────────────────────
 
 /**
- * Row shape returned in leaderboard snapshots (KV payload). Mirrors the
- * `SELECT user_id, nickname, hospital_tier, reputation, doctor_count,
- *  total_study_min, updated_at` projection used by `runLeaderboardCron`.
+ * Row shape returned in the PUBLIC leaderboard snapshots (`GET /leaderboard/:filter`,
+ * login-free).
  *
  * `nickname_lower` + `is_public` are intentionally NOT exposed — those are
  * internal to the D1 schema.
+ *
+ * Identity (0.7.0, change hash-leaderboard-user-ids): a public row identifies
+ * its player by `player_key`, an opaque per-app keyed hash the Worker derives
+ * from the account id. It is stable for a player within one app and unrelated
+ * across apps. A client finds its own row by comparing against the key its own
+ * authenticated `GET /leaderboard/me` returns — never against the auth user id.
  */
 export interface LeaderboardRow {
-  user_id: string
+  /** Opaque public identity (`pk1_…`). Use as list key and for own-row matching. */
+  player_key: string
+  /**
+   * @deprecated The raw Supabase account id. Present ONLY while the Worker runs
+   * its rollout compat window; absent afterwards. Do not read it.
+   */
+  user_id?: string
   nickname: string
   hospital_tier: number
   reputation: number
   doctor_count: number
   total_study_min: number
-  updated_at: number
+  /**
+   * When the player's client last pushed. The public snapshot stopped carrying
+   * it (it published each player's activity pattern — change
+   * drop-sync-time-from-public-leaderboard), so it is optional here; the
+   * player's own row from the JWT-gated `GET /leaderboard/me` still has it.
+   * Optional since 0.7.0.
+   */
+  updated_at?: number
   /**
    * Achievement system (add-achievement-system, v15). Optional for back-
    * compat with snapshots written before migration 0002. Renderers MUST

@@ -29,6 +29,17 @@
 
 import type { Env } from "./index";
 import { extractBearer, verifyJWT } from "./auth";
+import { keyStoredRows, projectPublicSnapshot, type StoredSnapshot } from "./public-snapshot";
+import { NICKNAME_MASK, NICKNAME_MASKS_TABLE, nicknameMaskSql } from "./nickname-mask";
+import {
+  PLAYER_KEY_UNAVAILABLE_BODY,
+  PlayerKeyUnavailableError,
+  publicIdentity,
+  warnIfCompatRefused,
+} from "./player-key";
+
+/** The app id the player key is bound to (player-key.ts). Same id as the 留言 board's. */
+const PLAYER_KEY_APP = "m2";
 
 // === Constants ===
 
@@ -125,13 +136,18 @@ export const LEADERBOARD_UPSERT_SQL = `INSERT INTO leaderboard_m2
 // === Types ===
 
 interface LeaderboardRowInternal {
-  user_id: string;
+  // The keyed hash that identifies the row publicly (player-key.ts). ⚠️ Not the
+  // Supabase `user_id` — that never reaches KV or a public response, except as
+  // `user_id` below during the rollout compat window.
+  player_key: string;
+  user_id?: string;
   nickname: string;
   hospital_tier: number;
   reputation: number;
   doctor_count: number;
   total_study_min: number;
-  updated_at: number;
+  // ⚠️ No `updated_at`. It is when the player last pushed — their activity
+  // pattern — and the snapshot is public. See PUBLIC_SNAPSHOT_FIELDS.
   // Achievement system (v15). Optional in interface for back-compat with
   // pre-0002 snapshots; readers fall back to '' / 0 when undefined.
   badges_csv?: string;
@@ -139,12 +155,18 @@ interface LeaderboardRowInternal {
   // 5th filter (add-hospital-leaderboard-correct-count-filter, 0005). Optional
   // for back-compat with pre-0005 KV snapshots; readers fall back to 0.
   total_correct?: number;
+  // True when an owner mask applies and `nickname` is NICKNAME_MASK (0011,
+  // mask-moderated-leaderboard-nicknames). Absent from snapshots written before
+  // that change; the client reads absence as false.
+  nickname_masked?: boolean;
 }
 
 interface SnapshotPayload {
   rows: LeaderboardRowInternal[];
   last_updated_at: number;
   total_count: number;
+  /** PlayerKeyer.epoch the rows were keyed under (public-snapshot.ts). Never published. */
+  key_epoch: string;
 }
 
 interface UpsertBody {
@@ -219,8 +241,60 @@ function snapshotKvKey(filter: Filter): string {
 // the const array; adding a 5th tab only requires editing FILTERS.
 const FILTER_ROUTE_REGEX = new RegExp(`^/leaderboard/(${FILTERS.join("|")})$`);
 
-const SNAPSHOT_COLUMNS =
-  "user_id, nickname, hospital_tier, reputation, doctor_count, total_study_min, updated_at, badges_csv, subject_mastery_count, total_correct";
+/**
+ * The only fields a row of the public snapshot may carry — both what the cron
+ * SELECTs into KV and what `GET /leaderboard/:filter` sends (see
+ * public-snapshot.ts for why the read path projects again).
+ *
+ * ⚠️ A column added to the snapshot is NOT published until it is added here.
+ * That is the point: this list is the decision about what a public, login-free
+ * endpoint discloses about each player, and it should be made on purpose.
+ * `updated_at` is deliberately absent — it is stamped when the player's client
+ * pushes, so publishing it published each nickname's daily routine. The
+ * player's own row, with its `updated_at`, is served by the JWT-gated
+ * `GET /leaderboard/me`, which the row-staleness notice reads.
+ *
+ * Mirrored by the requirement "Public snapshot rows SHALL NOT disclose when a
+ * player last synced" (study-rpg-2nd, hospital-leaderboard) and pinned by
+ * __tests__/leaderboard-public-snapshot.test.ts.
+ *
+ * `player_key` (hash-leaderboard-user-ids) replaced `user_id`: the page needs
+ * a per-row identity for its list key and to find the signed-in player's own
+ * row, not the account identifier. `user_id` is added back only by
+ * publicIdentity() during the rollout window — never by this list.
+ *
+ * `nickname_masked` (mask-moderated-leaderboard-nicknames) says the row's
+ * `nickname` is the owner mask. It publishes nothing beyond the mask itself, and
+ * lets a client present the mask accessibly without comparing strings.
+ */
+export const PUBLIC_SNAPSHOT_FIELDS = [
+  "player_key",
+  "nickname",
+  "nickname_masked",
+  "hospital_tier",
+  "reputation",
+  "doctor_count",
+  "total_study_min",
+  "badges_csv",
+  "subject_mastery_count",
+  "total_correct",
+] as const satisfies readonly (keyof LeaderboardRowInternal)[];
+
+/** Owner masks for 二階 rows; the leaderboard table is aliased `l` wherever this is used. */
+const M2_MASK = nicknameMaskSql("m2", "l");
+
+/**
+ * The cron's SELECT list, derived from PUBLIC_SNAPSHOT_FIELDS. The two nickname
+ * fields come from the mask fragment; everything else is the stored column.
+ * ⚠️ `nickname` carries the fragment's one placeholder — bind NICKNAME_MASK.
+ */
+const SNAPSHOT_SELECT = PUBLIC_SNAPSHOT_FIELDS.map((field) => {
+  // The key is derived from `user_id` after the query (keyStoredRows); SQLite has no HMAC.
+  if (field === "player_key") return "l.user_id";
+  if (field === "nickname") return `${M2_MASK.displayName} AS nickname`;
+  if (field === "nickname_masked") return `${M2_MASK.masked} AS nickname_masked`;
+  return `l.${field}`;
+}).join(", ");
 
 const ORDER_BY: Record<Filter, string> = {
   composite: "hospital_tier DESC, reputation DESC, doctor_count DESC",
@@ -532,7 +606,7 @@ async function handleGetFilter(
   // Read from KV snapshot — cron writes it every hour. Client never hits D1
   // on read path. If cron has never run yet, return empty payload (the UI
   // surfaces "未加入排行" empty state for that case).
-  const cached = await env.LEADERBOARD_KV.get<SnapshotPayload>(snapshotKvKey(filter), {
+  const cached = await env.LEADERBOARD_KV.get<StoredSnapshot>(snapshotKvKey(filter), {
     type: "json",
   });
 
@@ -544,7 +618,22 @@ async function handleGetFilter(
     );
   }
 
-  return jsonResponse(cached, 200, headers);
+  try {
+    const identity = publicIdentity(env, Date.now());
+    const projected = await projectPublicSnapshot(cached, PUBLIC_SNAPSHOT_FIELDS, {
+      keyer: () => identity.keyer(PLAYER_KEY_APP),
+      compat: identity.compat,
+    });
+    return jsonResponse(projected, 200, headers);
+  } catch (err) {
+    if (err instanceof PlayerKeyUnavailableError) {
+      // A pre-change snapshot needs keying and the secret is missing. Refuse rather
+      // than serve the stored `user_id` — see player-key.ts.
+      console.error("[leaderboard] public read refused", { err: err.message });
+      return jsonResponse(PLAYER_KEY_UNAVAILABLE_BODY, 503, headers);
+    }
+    throw err;
+  }
 }
 
 async function handleNicknameCheck(
@@ -624,9 +713,15 @@ async function handleGetMe(
     return jsonResponse({ error: "unauthenticated" }, 401, headers);
   }
 
+  // ⚠️ The player's OWN row: `nickname` is the stored value, never the mask. The
+  // client seeds its local profile from this and pushes it back, so a masked
+  // value here would become the player's nickname. `nickname_masked` tells them
+  // (and a future settings surface) that the public sees the mask.
   const row = await env.LEADERBOARD_DB
     .prepare(
-      "SELECT user_id, nickname, hospital_tier, reputation, doctor_count, total_study_min, is_public, updated_at, badges_csv, subject_mastery_count, total_correct FROM leaderboard_m2 WHERE user_id = ?",
+      `SELECT l.user_id, l.nickname, l.hospital_tier, l.reputation, l.doctor_count, l.total_study_min, l.is_public, l.updated_at, l.badges_csv, l.subject_mastery_count, l.total_correct, ${M2_MASK.masked} AS nickname_masked
+       FROM leaderboard_m2 l ${M2_MASK.join}
+       WHERE l.user_id = ?`,
     )
     .bind(userSub)
     .first<{
@@ -641,14 +736,31 @@ async function handleGetMe(
       badges_csv: string | null;
       subject_mastery_count: number | null;
       total_correct: number | null;
+      nickname_masked: number;
     }>();
 
+  // The caller's own public key, so their client can find its row on the public
+  // snapshot and the 留言 board without the account id being published there.
+  // Top-level and present even with `row: null`: it depends only on the verified
+  // `sub`, and a player whose leaderboard row is gone may still own a 留言.
+  let playerKey: string;
+  try {
+    playerKey = await (await publicIdentity(env, Date.now()).keyer(PLAYER_KEY_APP))(userSub);
+  } catch (err) {
+    if (err instanceof PlayerKeyUnavailableError) {
+      console.error("[leaderboard] /me refused", { err: err.message });
+      return jsonResponse(PLAYER_KEY_UNAVAILABLE_BODY, 503, headers);
+    }
+    throw err;
+  }
+
   if (!row) {
-    return jsonResponse({ row: null }, 200, headers);
+    return jsonResponse({ row: null, player_key: playerKey }, 200, headers);
   }
 
   return jsonResponse(
     {
+      player_key: playerKey,
       row: {
         user_id: row.user_id,
         nickname: row.nickname,
@@ -661,6 +773,7 @@ async function handleGetMe(
         badges_csv: row.badges_csv ?? "",
         subject_mastery_count: row.subject_mastery_count ?? 0,
         total_correct: row.total_correct ?? 0,
+        nickname_masked: row.nickname_masked === 1,
       },
     },
     200,
@@ -754,13 +867,19 @@ async function handleDeleteMe(
 
   // Hard delete — invoked from the existing delete-account flow. Frees up
   // the nickname for reuse (case-insensitive UNIQUE constraint).
-  const result = await env.LEADERBOARD_DB
-    .prepare("DELETE FROM leaderboard_m2 WHERE user_id = ?")
-    .bind(userSub)
-    .run();
+  //
+  // The player's mask entry goes in the same batch (one D1 transaction): it
+  // holds a copy of their nickname, which is their personal data and has no
+  // purpose once the row it masks is gone.
+  const [result] = await env.LEADERBOARD_DB.batch([
+    env.LEADERBOARD_DB.prepare("DELETE FROM leaderboard_m2 WHERE user_id = ?").bind(userSub),
+    env.LEADERBOARD_DB
+      .prepare(`DELETE FROM ${NICKNAME_MASKS_TABLE} WHERE app_id = 'm2' AND user_id = ?`)
+      .bind(userSub),
+  ]);
 
   return jsonResponse(
-    { ok: true, deleted: result.meta?.changes ?? 0 },
+    { ok: true, deleted: result?.meta?.changes ?? 0 },
     200,
     headers,
   );
@@ -774,10 +893,25 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
   // directly. Partial indexes (WHERE is_public = 1) make these queries
   // cheap even as the table grows — index seek + LIMIT 100 ≈ < 5 ms each
   // at < 1k rows. Parallelising COUNT + 5 SELECTs cuts wall time ~3×.
+  //
+  // Owner masks are resolved inside each of these SELECTs (nickname-mask.ts). If
+  // any query fails — the masks table missing included — Promise.all rejects
+  // before a single `put`, and the previous snapshots stay: stale rather than
+  // unmasked. ⚠️ Keep the "all queries, then all puts" shape; a per-filter
+  // query-then-put would publish some snapshots from a half-failed run.
+  //
+  // The key derivation is obtained FIRST: with the secret missing it throws here,
+  // before any query or put, so the previous snapshots stay — stale rather than
+  // published with raw ids or without identities (player-key.ts, fails closed).
+  const now = Date.now();
+  const { compat, keyer } = publicIdentity(env, now);
+  const keyOf = await keyer(PLAYER_KEY_APP);
+  warnIfCompatRefused(env, now, "leaderboard cron");
+
   const buildQuery = (filter: Filter) =>
-    `SELECT ${SNAPSHOT_COLUMNS}
-     FROM leaderboard_m2
-     WHERE is_public = 1
+    `SELECT ${SNAPSHOT_SELECT}
+     FROM leaderboard_m2 l ${M2_MASK.join}
+     WHERE l.is_public = 1
      ORDER BY ${ORDER_BY[filter]}
      LIMIT 100`;
 
@@ -788,19 +922,34 @@ export async function runLeaderboardCron(env: Env): Promise<void> {
     ...FILTERS.map((filter) =>
       env.LEADERBOARD_DB
         .prepare(buildQuery(filter))
-        .all<LeaderboardRowInternal>(),
+        .bind(NICKNAME_MASK)
+        .all<
+          Omit<LeaderboardRowInternal, "nickname_masked" | "player_key" | "user_id"> & {
+            user_id: string;
+            nickname_masked: number;
+          }
+        >(),
     ),
   ]);
 
   const totalCount = totalRow?.c ?? 0;
-  const now = Date.now();
+
+  // Keyed before the first put, for the same all-or-nothing reason as the queries.
+  const keyedRows = await Promise.all(
+    FILTERS.map((_, i) => keyStoredRows(queryResults[i]?.results ?? [], keyOf, compat)),
+  );
 
   await Promise.all(
     FILTERS.map((filter, i) => {
       const payload: SnapshotPayload = {
-        rows: queryResults[i]?.results ?? [],
+        // SQLite has no boolean; the public field is one.
+        rows: keyedRows[i].map((row) => ({
+          ...row,
+          nickname_masked: row.nickname_masked === 1,
+        })),
         last_updated_at: now,
         total_count: totalCount,
+        key_epoch: keyOf.epoch,
       };
       return env.LEADERBOARD_KV.put(snapshotKvKey(filter), JSON.stringify(payload));
     }),

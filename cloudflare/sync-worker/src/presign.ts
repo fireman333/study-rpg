@@ -46,8 +46,8 @@ export function bundleKey(userSub: string, bundle: Bundle): string {
     case "bookmarks":
       return `users/${userSub}/bookmarks.json.gz`;
     case "neurons":
-      // M_3rd bundle. Added by add-neurons-deploy. delete.ts and backup.ts
-      // walk users/<sub>/* prefix so they auto-handle this bundle.
+      // M_3rd bundle. Added by add-neurons-deploy. delete.ts and the pre-deploy
+      // snapshot (scripts/r2-snapshot.sh) walk users/<sub>/* so they auto-handle it.
       return `users/${userSub}/neurons-snapshot.json.gz`;
   }
 }

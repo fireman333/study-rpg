@@ -18,12 +18,33 @@
  *
  * Identity is server-sourced (design Decision 1): the display name is joined from
  * leaderboard_<app> by author_key and is NEVER read from the request body, so a
- * client cannot forge a name or bypass the (already-moderated) nickname surface.
+ * client cannot forge a name. ⚠️ That name is NOT content-moderated: the
+ * leaderboard upsert checks only its length (2–12 codepoints) and case-insensitive
+ * uniqueness — there is no blocklist for nicknames as there is for messages here.
+ * Offensive names are masked on READ by the owner's list (nickname-mask.ts,
+ * change mask-moderated-leaderboard-nicknames), which is why every name this file
+ * shows goes through `authorDisplayName` / the board's masked join.
  * The message body is the only free-text UGC field.
+ *
+ * Public author identity (change hash-leaderboard-user-ids): the board and the
+ * post echo identify an author by their per-app player key (player-key.ts), the
+ * same key the app's public leaderboard rows carry — never by `author_key`,
+ * which is the raw Supabase `user_id` and stays internal to D1 (bans, reports,
+ * audit, the owner back-office). During the rollout compat window the old
+ * fields `id` / `authorKey` still carry the raw id and `playerKey` carries the
+ * key; afterwards all three carry the key.
  */
 
 import type { Env } from "./index";
 import { extractBearer, verifyJWT } from "./auth";
+import { NICKNAME_MASK, nicknameMaskSql } from "./nickname-mask";
+import {
+  PLAYER_KEY_PATTERN,
+  PLAYER_KEY_UNAVAILABLE_BODY,
+  PlayerKeyUnavailableError,
+  publicIdentity,
+  type PlayerKeyer,
+} from "./player-key";
 
 // === Per-app config ===
 // Only apps with a migrated shoutouts_<app> table + leaderboard_<app> table are
@@ -166,23 +187,75 @@ function parseAvatar(raw: unknown, cfg: AppConfig): AvatarPayload | null {
   };
 }
 
-async function topNSet(env: Env, cfg: AppConfig): Promise<Set<string>> {
-  const snap = await env.LEADERBOARD_KV.get<{ rows: { user_id: string }[] }>(cfg.compositeKvKey, {
-    type: "json",
-  });
+/**
+ * Player keys of the composite top-N, under the derivation the board is using.
+ *
+ * Same rule as projectPublicSnapshot (public-snapshot.ts): a row that still
+ * carries `user_id` — stored before hash-leaderboard-user-ids, or during the
+ * compat window — is keyed here with `keyOf` unless the snapshot records it was
+ * keyed under that same secret. Without that, the first board read after the
+ * window closes would compare permanent author keys against the window keys
+ * stored in KV, and the halo would vanish until the next refresh.
+ */
+async function topNSet(env: Env, cfg: AppConfig, keyOf: PlayerKeyer): Promise<Set<string>> {
+  const snap = await env.LEADERBOARD_KV.get<{
+    rows: { player_key?: string; user_id?: string }[];
+    key_epoch?: string;
+  }>(cfg.compositeKvKey, { type: "json" });
+  const sameSecret = snap?.key_epoch === keyOf.epoch;
   const set = new Set<string>();
-  if (snap?.rows) {
-    for (const r of snap.rows.slice(0, TOP_N_HALO)) set.add(r.user_id);
+  for (const r of snap?.rows?.slice(0, TOP_N_HALO) ?? []) {
+    if (typeof r.user_id === "string" && (!sameSecret || typeof r.player_key !== "string")) {
+      set.add(await keyOf(r.user_id));
+    } else if (typeof r.player_key === "string") {
+      set.add(r.player_key);
+    }
   }
   return set;
 }
 
-async function nicknameFor(env: Env, cfg: AppConfig, authorKey: string): Promise<string | null> {
+/** The three identity fields of a public message (see the header comment). */
+async function publicAuthor(
+  keyOf: PlayerKeyer,
+  compat: boolean,
+  authorKey: string,
+): Promise<{ id: string; authorKey: string; playerKey: string }> {
+  const playerKey = await keyOf(authorKey);
+  const shown = compat ? authorKey : playerKey;
+  return { id: shown, authorKey: shown, playerKey };
+}
+
+function playerKeyRefusal(err: unknown, where: string, headers: Record<string, string>): Response {
+  if (!(err instanceof PlayerKeyUnavailableError)) throw err;
+  console.error(`[shoutout] ${where} refused`, { err: err.message });
+  return jsonResponse(PLAYER_KEY_UNAVAILABLE_BODY, 503, headers);
+}
+
+/**
+ * The author's leaderboard identity, or null when they have no leaderboard row.
+ *
+ * Two answers from one read, and they must not be confused:
+ *   - `null` vs a value decides `nickname_required` — row EXISTENCE only. A masked
+ *     player still has a row and may still post.
+ *   - `displayName` is what the post's echo shows, i.e. what the public board will
+ *     show: the owner mask when an entry applies.
+ */
+async function authorIdentity(
+  env: Env,
+  app: string,
+  cfg: AppConfig,
+  authorKey: string,
+): Promise<{ displayName: string } | null> {
+  const mask = nicknameMaskSql(app, "l");
   const row = await env.LEADERBOARD_DB
-    .prepare(`SELECT nickname FROM ${cfg.leaderboardTable} WHERE user_id = ?`)
-    .bind(authorKey)
+    .prepare(
+      `SELECT ${mask.displayName} AS nickname
+       FROM ${cfg.leaderboardTable} l ${mask.join}
+       WHERE l.user_id = ?`,
+    )
+    .bind(NICKNAME_MASK, authorKey)
     .first<{ nickname: string }>();
-  return row?.nickname ?? null;
+  return row ? { displayName: row.nickname } : null;
 }
 
 async function isBanned(env: Env, app: string, authorKey: string, now: number): Promise<boolean> {
@@ -266,15 +339,30 @@ async function handleGetBoard(
 ): Promise<Response> {
   // Origin-independent cache key so all origins share one entry (CORS re-applied
   // per request). Edge cache (caches.default) — NOT KV — so no KV write budget burn.
+  //
+  // ⚠️ The key names the identity shape (hash-leaderboard-user-ids): `v1` bodies
+  // carry raw user ids, and flipping the compat var changes what a body carries.
+  // Without the version and the mode in the key, a deploy would keep serving the
+  // previous shape from cache for up to 90 s.
+  const identity = publicIdentity(env, Date.now());
+  const compat = identity.compat;
   const cache = (caches as unknown as { default: Cache }).default;
-  const cacheKey = new Request(`https://shoutout.cache/board/${app}/v1`);
+  const cacheKey = new Request(`https://shoutout.cache/board/${app}/v2-${compat ? "compat" : "keyed"}`);
   const hit = await cache.match(cacheKey);
   if (hit) {
+    // A cached body was built under this same key, i.e. with the secret present.
     const body = await hit.text();
     return new Response(body, {
       status: 200,
       headers: { ...headers, "Content-Type": "application/json", "X-Shoutout-Cache": "hit" },
     });
+  }
+
+  let keyOf: PlayerKeyer;
+  try {
+    keyOf = await identity.keyer(app);
+  } catch (err) {
+    return playerKeyRefusal(err, "board read", headers);
   }
 
   const rows = await env.LEADERBOARD_DB
@@ -298,24 +386,30 @@ async function handleGetBoard(
   const list = rows.results ?? [];
   const authorKeys = list.map((r) => r.author_key);
 
-  // Join nicknames in one query.
+  // Join display names in one query — owner-masked names resolved in the same
+  // SELECT (nickname-mask.ts). An app with no mask entries reads unchanged.
   const nameByKey = new Map<string, string>();
   if (authorKeys.length > 0) {
     const placeholders = authorKeys.map(() => "?").join(",");
+    const mask = nicknameMaskSql(app, "l");
     const nameRows = await env.LEADERBOARD_DB
-      .prepare(`SELECT user_id, nickname FROM ${cfg.leaderboardTable} WHERE user_id IN (${placeholders})`)
-      .bind(...authorKeys)
+      .prepare(
+        `SELECT l.user_id, ${mask.displayName} AS nickname
+         FROM ${cfg.leaderboardTable} l ${mask.join}
+         WHERE l.user_id IN (${placeholders})`,
+      )
+      .bind(NICKNAME_MASK, ...authorKeys)
       .all<{ user_id: string; nickname: string }>();
     for (const n of nameRows.results ?? []) nameByKey.set(n.user_id, n.nickname);
   }
 
-  const topN = await topNSet(env, cfg);
+  const topN = await topNSet(env, cfg, keyOf);
+  const authors = await Promise.all(list.map((r) => publicAuthor(keyOf, compat, r.author_key)));
 
-  const messages = list.map((r) => ({
-    id: r.author_key,
-    authorKey: r.author_key,
+  const messages = list.map((r, i) => ({
+    ...authors[i],
     nickname: nameByKey.get(r.author_key) ?? "匿名同學",
-    isTopN: topN.has(r.author_key),
+    isTopN: topN.has(authors[i].playerKey),
     avatar: {
       avatarType: r.avatar_type,
       assetId: r.asset_id,
@@ -358,6 +452,16 @@ async function handlePut(
     return jsonResponse({ error: "unauthenticated" }, 401, headers);
   }
 
+  // Before any write: a post whose echo could not be keyed is refused whole
+  // rather than stored and then answered with an error.
+  const mode = publicIdentity(env, Date.now());
+  let keyOf: PlayerKeyer;
+  try {
+    keyOf = await mode.keyer(app);
+  } catch (err) {
+    return playerKeyRefusal(err, "post", headers);
+  }
+
   const now = Date.now();
   if (await isBanned(env, app, sub, now)) {
     return jsonResponse({ error: "banned" }, 403, headers);
@@ -365,8 +469,9 @@ async function handlePut(
 
   // Nickname gate (doubles as established-account gate: a brand-new account has
   // no leaderboard_<app> row, so it cannot post until it has set a nickname).
-  const nickname = await nicknameFor(env, cfg, sub);
-  if (!nickname) {
+  // ⚠️ Existence only — a masked player has a row and posts normally.
+  const identity = await authorIdentity(env, app, cfg, sub);
+  if (identity === null) {
     return jsonResponse({ error: "nickname_required" }, 422, headers);
   }
 
@@ -489,15 +594,15 @@ async function handlePut(
     now,
   );
 
-  const topN = await topNSet(env, cfg);
+  const topN = await topNSet(env, cfg, keyOf);
+  const author = await publicAuthor(keyOf, mode.compat, sub);
   return jsonResponse(
     {
       ok: true,
       message: {
-        id: sub,
-        authorKey: sub,
-        nickname,
-        isTopN: topN.has(sub),
+        ...author,
+        nickname: identity.displayName,
+        isTopN: topN.has(author.playerKey),
         avatar,
         message: original,
         createdAt,
@@ -541,6 +646,42 @@ interface ReportBody {
   targetAuthorKey?: unknown;
 }
 
+/**
+ * The internal `author_key` a report names, from what the board published.
+ *
+ * The board publishes a player key (hash-leaderboard-user-ids), which cannot be
+ * inverted — so the key is matched against the keys of the authors who could have
+ * been shown: every message not deleted. Hidden ones are included on purpose: a
+ * board read up to 90 s ago (edge cache) can still show a message that has since
+ * been hidden, and reporting it should answer as it did before the key existed
+ * (`{ ok: true, hidden }`), not with an error. That population is one row per
+ * poster (the table is keyed by author), so the scan is bounded by the number of
+ * people who have ever posted in this app.
+ *
+ * In the compat window a raw id is also accepted, because a client bundle that
+ * predates the change reports with the `authorKey` it was shown, which was raw.
+ * Outside it, anything that is not a key is refused: accepting raw ids would let
+ * a reporter who knows an account id target it without it ever being published.
+ *
+ * @returns the author_key, or null when nothing matches.
+ */
+async function resolveReportTarget(
+  cfg: AppConfig,
+  env: Env,
+  target: string,
+  keyOf: PlayerKeyer,
+  compat: boolean,
+): Promise<string | null> {
+  if (!PLAYER_KEY_PATTERN.test(target)) return compat ? target : null;
+  const rows = await env.LEADERBOARD_DB
+    .prepare(`SELECT author_key FROM ${cfg.table} WHERE deleted = 0`)
+    .all<{ author_key: string }>();
+  for (const r of rows.results ?? []) {
+    if ((await keyOf(r.author_key)) === target) return r.author_key;
+  }
+  return null;
+}
+
 async function handleReport(
   request: Request,
   env: Env,
@@ -560,8 +701,20 @@ async function handleReport(
   } catch {
     return jsonResponse({ error: "invalid_body" }, 400, headers);
   }
-  const target = body.targetAuthorKey;
-  if (typeof target !== "string" || target.length === 0 || target.length > 128) {
+  const published = body.targetAuthorKey;
+  if (typeof published !== "string" || published.length === 0 || published.length > 128) {
+    return jsonResponse({ error: "invalid_target" }, 400, headers);
+  }
+
+  const identity = publicIdentity(env, Date.now());
+  let keyOf: PlayerKeyer;
+  try {
+    keyOf = await identity.keyer(app);
+  } catch (err) {
+    return playerKeyRefusal(err, "report", headers);
+  }
+  const target = await resolveReportTarget(cfg, env, published, keyOf, identity.compat);
+  if (target === null) {
     return jsonResponse({ error: "invalid_target" }, 400, headers);
   }
 

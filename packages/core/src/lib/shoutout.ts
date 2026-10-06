@@ -28,9 +28,21 @@ export interface ShoutoutAvatar {
 
 /** One board message as returned by `GET /shoutouts/:app`. */
 export interface ShoutoutMessage {
+  /** Same value as `authorKey`. */
   id: string;
-  /** Stable opaque author key (the app's user id); client matches its own for the own-halo. */
+  /**
+   * Opaque author key: the author's `playerKey` — or, while the Worker runs its
+   * rollout compat window, their raw account id. Echo it back unchanged as the
+   * report target; do not match your own messages on it (use `playerKey`).
+   */
   authorKey: string;
+  /**
+   * The author's per-app player key (0.7.0, hash-leaderboard-user-ids) — the same
+   * key the app's public leaderboard rows carry as `player_key`. A client finds
+   * its own message (own-halo) by comparing against the key its authenticated
+   * `GET /leaderboard/me` returns.
+   */
+  playerKey: string;
   /** Server-joined display name (from the app's leaderboard profile). */
   nickname: string;
   /** True when the author is within the leaderboard composite Top-N (special halo). */

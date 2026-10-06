@@ -24,7 +24,7 @@ The fastest read on usage:
    - **Storage** — total bytes stored (raw + replicated). Trigger alert at 5 GB (50% of free tier).
    - **Class A operations** — PUT/COPY/DELETE/LIST. Spikes during dual-write phases.
    - **Class B operations** — GET/HEAD. Spikes when migration banner fires bulk read probes.
-3. Same view available for `study-rpg-saves-backup` (should track ~30× primary because of 30-day backup retention).
+3. Same view available for `study-rpg-saves-backup` (one snapshot per deploy, 30-day lifecycle rule — so roughly deploys-per-month × primary).
 
 ### CLI sampling
 
@@ -84,7 +84,7 @@ Manual checks suffice at owner scale (no DAU yet). When dogfood broadens:
 
 | Threshold | Action |
 |---|---|
-| Storage > 5 GB | Reduce backup retention (30 day → 14 day in `src/backup.ts`); revisit per-user blob compression |
+| Storage > 5 GB | Reduce snapshot retention (lifecycle rule `backup-expire-30d` on `study-rpg-saves-backup`, 30 → 14 days); revisit per-user blob compression |
 | Class A > 750k/月 (75% of cap) | Audit push debouncing; current 3-sec window may be too short under heavy quiz sessions |
 | Class B > 7.5M/月 | Audit migration banner detection (every sign-in does 3× HEAD probes); consider caching |
 | One user blob > 2 MB | Trigger schema rollup (e.g. cap `hospital_question_history` at last N events per question) |

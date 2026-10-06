@@ -11,18 +11,16 @@
 	// migration bake. wrangler defaults this to `false` whenever a `routes`
 	// entry is added (since 4.x); explicit `true` preserves both URLs.
 	"workers_dev": true,
-	// R2 bindings — Worker uses these to LIST + DELETE under user prefixes
+	// R2 binding — Worker uses this to LIST + DELETE under user prefixes
 	// (delete-account / reset endpoints). Direct browser→R2 traffic for
-	// PUT/GET goes via presigned URLs, NOT through these bindings (preserves
-	// zero-egress benefit).
+	// PUT/GET goes via presigned URLs, NOT through this binding (preserves
+	// zero-egress benefit). The backup bucket is no longer bound: the daily
+	// R2→R2 backup cron is gone (fit-sync-worker-under-free-plan-cpu-limit);
+	// `scripts/r2-snapshot.sh` snapshots users/* before every deploy instead.
 	"r2_buckets": [
 		{
 			"binding": "R2_PRIMARY",
 			"bucket_name": "study-rpg-saves"
-		},
-		{
-			"binding": "R2_BACKUP",
-			"bucket_name": "study-rpg-saves-backup"
 		}
 	],
 	// D1 binding — hospital leaderboard (二階 M_2nd ranking).
@@ -51,12 +49,14 @@
 			"id": "f0afc16989654688b5c98d420d468e28"
 		}
 	],
-	// Cron triggers (dispatched in src/index.ts scheduled() by cron expression):
-	//   "0 0 * * *"     — daily R2-to-R2 backup                → runBackupCron
-	//   "0,30 * * * *"  — every-30-min leaderboard pre-compute → runLeaderboardCron
-	//   "20 3 * * *"    — nightly note-image reclamation       → runNoteImageSweepCron
+	// Cron triggers (dispatched in src/index.ts scheduled() by cron expression), ONE job each:
+	//   "0,30 * * * *"  — every-30-min 二階 leaderboard pre-compute   → runLeaderboardCron
+	//   "5,35 * * * *"  — every-30-min neurons leaderboard pre-compute → runNeuronsLeaderboardCron
+	//   "20 3 * * *"    — nightly note-image reclamation              → runNoteImageSweepCron
 	// Each string MUST stay byte-for-byte identical with the matching constant in
-	// src/index.ts, or dispatch falls to the default branch and logs an error.
+	// src/index.ts (guarded by __tests__/cron-dispatch.test.ts), or dispatch falls to the
+	// default branch and logs an error. Every job must fit the Free plan's 10 ms CPU per
+	// invocation — which is why the two leaderboard refreshes are two triggers, not one.
 	//
 	// ⚠️ The sweep depends on the NOTE_IMAGE_SWEEPER_HYPERDRIVE binding at the bottom of this file.
 	// Removing that binding does not disable this cron — the code falls back to the direct
@@ -64,8 +64,8 @@
 	// until the run's own 45s deadline. Take the trigger out too, or leave both alone.
 	"triggers": {
 		"crons": [
-			"0 0 * * *",
 			"0,30 * * * *",
+			"5,35 * * * *",
 			"20 3 * * *"
 		]
 	},
@@ -120,6 +120,13 @@
 	// failing in some less legible way. Set it before flipping `images_enabled`, with either
 	// `wrangler secret put SUPABASE_ANON_KEY` or a `vars` entry — it is publishable either
 	// way, so the choice is about tidiness, not exposure.
+	// This version's id / tag / upload timestamp (hash-leaderboard-user-ids). The player-key compat
+	// window's 14-day maximum is measured from `timestamp`, so a deadline refused as too far away
+	// stays refused for the life of the version instead of opening itself later. Missing → the
+	// window stays closed. Pinned by "the committed wrangler.jsonc …" in player-key.test.ts.
+	"version_metadata": {
+		"binding": "CF_VERSION_METADATA"
+	},
 	"vars": {
 		"R2_BUCKET_NAME": "study-rpg-saves",
 		"CORS_ALLOWED_ORIGINS": "https://fireman333.github.io,https://med-study-rpg.com,http://localhost:5173,http://localhost:4173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:5178,http://localhost:5179",
@@ -129,7 +136,18 @@
 		// whose clock runs ~30s+ behind still cached a 45s URL (expiresAt-60000 >
 		// its slow now) and reused it for ~277 failed (412) PUTs/min, bypassing the
 		// limiter. 10s defeats skew up to ~50s. add-presign-put-rate-limit.
-		"PRESIGN_PUT_TTL_SECONDS": "10"
+		"PRESIGN_PUT_TTL_SECONDS": "10",
+		// Rollout compat window of hash-leaderboard-user-ids (design D6) — its DEADLINE, not a switch.
+		// Before it, public leaderboard rows and 留言 messages ALSO carry the raw Supabase user_id in
+		// their old fields (for client bundles that predate the player key), and every key comes from
+		// the separate secret LEADERBOARD_PLAYER_KEY_WINDOW_SECRET, so the pairs published during the
+		// window stop meaning anything once it closes.
+		// Committed EMPTY = closed. For the rollout, fill in "deploy day + 3 days" as a timestamp with
+		// an offset (e.g. "2026-09-27T23:59:59+08:00") before `pnpm run deploy`. Empty, unparseable,
+		// past, or more than 14 days after this version's upload (version_metadata) → closed; it
+		// cannot be left open by forgetting it.
+		// Pinned by "the committed wrangler.jsonc cannot hold the window open" (player-key.test.ts).
+		"LEADERBOARD_RAW_ID_COMPAT_UNTIL": ""
 	},
 	// Rate Limiting binding (add-presign-put-rate-limit) — caps PUT presigns per
 	// (user, bundle) at 10 / 60s to bound R2 Class-A PutObject cost against a
