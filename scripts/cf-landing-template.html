@@ -47,6 +47,7 @@
       --a-sr: #6a9bc4;
       --a-ma: #e07a6a;
       --a-llm: #a06ac4;
+      --a-sci: #d4a04d;
     }
 
     * { box-sizing: border-box; }
@@ -295,6 +296,7 @@
     a.card--sr       { --accent: var(--a-sr); }
     a.card--ma       { --accent: var(--a-ma); }
     a.card--llm      { --accent: var(--a-llm); }
+    a.card--sci      { --accent: var(--a-sci); }
 
     /* ---------- footer ---------- */
     footer {
@@ -321,7 +323,7 @@
       <header>
         <div class="kicker">▶ SELECT YOUR GAME</div>
         <h1 class="logo">MED&#8209;STUDY&#8209;RPG</h1>
-        <p class="tagline">醫師國考養成像素 RPG、兩個 macOS 小工具，以及攝影、生統、醫學科普、機器學習、Systematic Review、Meta-analysis、本地 LLM 七個網站。挑一個開始。</p>
+        <p class="tagline">醫師國考養成像素 RPG、兩個 macOS 小工具，以及實證研究、AI、科普教育、攝影四大主題共八個網站。挑一個開始。</p>
       </header>
 
       <section class="group">
@@ -373,37 +375,13 @@
       </section>
 
       <section class="group">
-        <h2 class="group-title">▶ 網站</h2>
+        <h2 class="group-title">▶ 實證與研究</h2>
         <div class="apps apps--2">
-        <a class="card card--photo" href="/photography/">
-          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFjMWExNyIvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjguNSIgZmlsbD0iI2IwNTIyYSIvPgogIDxwYXRoIGQ9Ik0xNiA3LjVhOC41IDguNSAwIDAgMSAwIDE3eiIgZmlsbD0iI2YwZDhjOCIvPgo8L3N2Zz4K" alt="光的語法 圖示" width="80" height="80"></div>
-          <div class="card-title">光的語法</div>
-          <div class="card-sub">從構圖、光線、對比到色彩，學會看見照片裡發生的事 · 附富士 X-T5／X-E4 參數與膠片模擬實驗室</div>
-          <div class="meta"><span class="chip">網站 · 教材</span><span class="chip">攝影入門</span></div>
-          <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
-        </a>
-
         <a class="card card--biostats" href="/biostats/">
           <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzE0MjMyYyIvPgogIDxyZWN0IHg9IjYiIHk9IjE5IiB3aWR0aD0iNCIgaGVpZ2h0PSI2IiBmaWxsPSIjM2Y5ZDhmIi8+CiAgPHJlY3QgeD0iMTIiIHk9IjE0IiB3aWR0aD0iNCIgaGVpZ2h0PSIxMSIgZmlsbD0iIzU3YzNiMiIvPgogIDxyZWN0IHg9IjE4IiB5PSI5IiB3aWR0aD0iNCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzhmZTBkMSIvPgogIDxyZWN0IHg9IjI0IiB5PSIxNiIgd2lkdGg9IjMiIGhlaWdodD0iOSIgZmlsbD0iIzNmOWQ4ZiIvPgogIDxyZWN0IHg9IjUiIHk9IjI1IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI2NmZThlMyIvPgo8L3N2Zz4=" alt="進階生物統計學 圖示" width="80" height="80"></div>
           <div class="card-title">進階生物統計學</div>
           <div class="card-sub">給已修過基礎生統的醫學生 · 研究設計 × 統計方法雙軸交叉 · 頁面上每個數字都由可重跑的 R 腳本產生</div>
           <div class="meta"><span class="chip">網站 · 教材</span><span class="chip">臨床研究</span></div>
-          <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
-        </a>
-
-        <a class="card card--khe" href="/klaudehealthedu/">
-          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiNmYmY4ZjMiLz4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHJ4PSIxMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNmI4YTY0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIzMiIgeT0iNDQiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC1zaXplPSIzNCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzRhNjY0NCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5bq3PC90ZXh0Pgo8L3N2Zz4K" alt="康勞德醫普 圖示" width="80" height="80"></div>
-          <div class="card-title">康勞德醫普</div>
-          <div class="card-sub">繁體中文醫學科普文集 · 每篇標註實證來源 · 立場僅供參考，臨床決策仍以個別病人主治醫師判斷為準</div>
-          <div class="meta"><span class="chip">網站 · 科普</span><span class="chip">標註來源</span></div>
-          <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
-        </a>
-
-        <a class="card card--ml" href="/ml/">
-          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjMWYxYTJlIi8+CiAgPHJlY3QgeD0iNSIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iI2YyYzE0ZSIvPgogIDxyZWN0IHg9IjUiIHk9IjIwIiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZjJjMTRlIi8+CiAgPHJlY3QgeD0iMTQiIHk9IjUiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIxNCIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIxNCIgeT0iMjMiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIyMyIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmMmMxNGUiLz4KICA8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjOGE3YTU1Ii8+PHJlY3QgeD0iOSIgeT0iMTUiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KICA8cmVjdCB4PSI5IiB5PSIyMSIgd2lkdGg9IjUiIGhlaWdodD0iMSIgZmlsbD0iIzhhN2E1NSIvPjxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjOGE3YTU1Ii8+CiAgPHJlY3QgeD0iMTgiIHk9IjgiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz48cmVjdCB4PSIxOCIgeT0iMTYiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KICA8cmVjdCB4PSIxOCIgeT0iMjQiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KPC9zdmc+Cg==" alt="醫學生的機器學習入門 圖示" width="80" height="80"></div>
-          <div class="card-title">醫學生的機器學習入門</div>
-          <div class="card-sub">給醫學與生醫相關科系的 Machine Learning 入門 · 16 章從迴歸到神經網路，含深度學習篇 · 每章附醫學資料集與可在 Colab 執行的 notebook</div>
-          <div class="meta"><span class="chip">網站 · 教材</span><span class="chip">機器學習</span></div>
           <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
         </a>
 
@@ -423,11 +401,61 @@
           <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
         </a>
 
+        </div>
+      </section>
+
+      <section class="group">
+        <h2 class="group-title">▶ AI 與資料科學</h2>
+        <div class="apps apps--2">
+        <a class="card card--ml" href="/ml/">
+          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KICA8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjMWYxYTJlIi8+CiAgPHJlY3QgeD0iNSIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iI2YyYzE0ZSIvPgogIDxyZWN0IHg9IjUiIHk9IjIwIiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZjJjMTRlIi8+CiAgPHJlY3QgeD0iMTQiIHk9IjUiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIxNCIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIxNCIgeT0iMjMiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmUyOWEiLz4KICA8cmVjdCB4PSIyMyIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmMmMxNGUiLz4KICA8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjOGE3YTU1Ii8+PHJlY3QgeD0iOSIgeT0iMTUiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KICA8cmVjdCB4PSI5IiB5PSIyMSIgd2lkdGg9IjUiIGhlaWdodD0iMSIgZmlsbD0iIzhhN2E1NSIvPjxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjOGE3YTU1Ii8+CiAgPHJlY3QgeD0iMTgiIHk9IjgiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz48cmVjdCB4PSIxOCIgeT0iMTYiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KICA8cmVjdCB4PSIxOCIgeT0iMjQiIHdpZHRoPSI1IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YTdhNTUiLz4KPC9zdmc+Cg==" alt="醫學生的機器學習入門 圖示" width="80" height="80"></div>
+          <div class="card-title">醫學生的機器學習入門</div>
+          <div class="card-sub">給醫學與生醫相關科系的 Machine Learning 入門 · 16 章從迴歸到神經網路，含深度學習篇 · 每章附醫學資料集與可在 Colab 執行的 notebook</div>
+          <div class="meta"><span class="chip">網站 · 教材</span><span class="chip">機器學習</span></div>
+          <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
+        </a>
+
         <a class="card card--llm" href="/local-llm/">
           <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiMyZDFmMWEiLz48cmVjdCB4PSI0IiB5PSIxIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iNCIgeT0iMTMiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSIxIiB5PSI0IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iMTMiIHk9IjQiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSI3IiB5PSIxIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iNyIgeT0iMTMiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSIxIiB5PSI3IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iMTMiIHk9IjciIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSIxMCIgeT0iMSIgd2lkdGg9IjIiIGhlaWdodD0iMiIgZmlsbD0iI2Q0YTA0ZCIvPjxyZWN0IHg9IjEwIiB5PSIxMyIgd2lkdGg9IjIiIGhlaWdodD0iMiIgZmlsbD0iI2Q0YTA0ZCIvPjxyZWN0IHg9IjEiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iMTMiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjRlY2Q4Ii8+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEiIGZpbGw9IiM4YzZkNGEiLz48cmVjdCB4PSIzIiB5PSIxMiIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEiIGZpbGw9IiM4YzZkNGEiLz48cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxMCIgZmlsbD0iIzhjNmQ0YSIvPjxyZWN0IHg9IjEyIiB5PSIzIiB3aWR0aD0iMSIgaGVpZ2h0PSIxMCIgZmlsbD0iIzhjNmQ0YSIvPjxyZWN0IHg9IjciIHk9IjUiIHdpZHRoPSIyIiBoZWlnaHQ9IjYiIGZpbGw9IiNjNDRkNGQiLz48cmVjdCB4PSI1IiB5PSI3IiB3aWR0aD0iNiIgaGVpZ2h0PSIyIiBmaWxsPSIjYzQ0ZDRkIi8+PC9zdmc+" alt="" /></div>
           <div class="card-title">本地 LLM 冒險</div>
           <div class="card-sub">給醫學生的本地 LLM 與 fine-tuning 入門 · 19 關從 AI 家族譜到 LoRA 微調 · 16–32GB Mac 或 Colab 即可實作，全程只用合成病歷 · 內容由 AI 生成</div>
           <div class="meta"><span class="chip">網站 · 教材</span><span class="chip">醫療 AI</span></div>
+          <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
+        </a>
+
+        </div>
+      </section>
+
+      <section class="group">
+        <h2 class="group-title">▶ 科普與教育</h2>
+        <div class="apps apps--2">
+        <a class="card card--khe" href="/klaudehealthedu/">
+          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTIiIGZpbGw9IiNmYmY4ZjMiLz4KICA8cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHJ4PSIxMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNmI4YTY0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIzMiIgeT0iNDQiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC1zaXplPSIzNCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzRhNjY0NCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5bq3PC90ZXh0Pgo8L3N2Zz4K" alt="康勞德醫普 圖示" width="80" height="80"></div>
+          <div class="card-title">康勞德醫普</div>
+          <div class="card-sub">繁體中文醫學科普文集 · 每篇標註實證來源 · 立場僅供參考，臨床決策仍以個別病人主治醫師判斷為準</div>
+          <div class="meta"><span class="chip">網站 · 科普</span><span class="chip">標註來源</span></div>
+          <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
+        </a>
+
+        <a class="card card--sci" href="/sci-literacy/">
+          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiMyZDFmMWEiLz48cmVjdCB4PSI0IiB5PSIyIiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iI2Q0YTA0ZCIvPjxyZWN0IHg9IjkiIHk9IjMiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSIyIiB5PSI0IiB3aWR0aD0iMSIgaGVpZ2h0PSI1IiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iMTAiIHk9IjQiIHdpZHRoPSIxIiBoZWlnaHQ9IjUiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSIzIiB5PSI5IiB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iOSIgeT0iOSIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iI2Q0YTA0ZCIvPjxyZWN0IHg9IjQiIHk9IjEwIiB3aWR0aD0iNSIgaGVpZ2h0PSIxIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iMyIgeT0iNCIgd2lkdGg9IjciIGhlaWdodD0iNSIgZmlsbD0iIzZhOWJjNCIvPjxyZWN0IHg9IjQiIHk9IjMiIHdpZHRoPSI1IiBoZWlnaHQ9IjciIGZpbGw9IiM2YTliYzQiLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjZjRlY2Q4Ii8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjYzQ0ZDRkIi8+PHJlY3QgeD0iMTIiIHk9IjEyIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjYzQ0ZDRkIi8+PC9zdmc+Cg==" alt=""></div>
+          <div class="card-title">科學素養冒險</div>
+          <div class="card-sub">學測自然科閱讀素養題練功場 · 探究能力講義＋物化生地 23 關＋跨科綜合演練＋時事題 · 作答計時、成績卡分享 · 內容由 AI 生成</div>
+          <div class="meta"><span class="chip">網站 · 練習</span><span class="chip">學測自然</span></div>
+          <div class="cta"><span class="btn">▶ 開始挑戰</span></div>
+        </a>
+
+        </div>
+      </section>
+
+      <section class="group">
+        <h2 class="group-title">▶ 生活與興趣</h2>
+        <div class="apps apps--2">
+        <a class="card card--photo" href="/photography/">
+          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFjMWExNyIvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjguNSIgZmlsbD0iI2IwNTIyYSIvPgogIDxwYXRoIGQ9Ik0xNiA3LjVhOC41IDguNSAwIDAgMSAwIDE3eiIgZmlsbD0iI2YwZDhjOCIvPgo8L3N2Zz4K" alt="光的語法 圖示" width="80" height="80"></div>
+          <div class="card-title">光的語法</div>
+          <div class="card-sub">從構圖、光線、對比到色彩，學會看見照片裡發生的事 · 附富士 X-T5／X-E4 參數與膠片模擬實驗室</div>
+          <div class="meta"><span class="chip">網站 · 教材</span><span class="chip">攝影入門</span></div>
           <div class="cta"><span class="btn">▶ 開始閱讀</span></div>
         </a>
 
