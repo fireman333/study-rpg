@@ -50,6 +50,7 @@
       --a-sci: #d4a04d;
       --a-book2nd: #e0a9c4;
       --a-wt: #d9caa6;
+      --a-goose: #8ba6b8;
     }
 
     * { box-sizing: border-box; }
@@ -301,6 +302,7 @@
     a.card--sci      { --accent: var(--a-sci); }
     a.card--book2nd  { --accent: var(--a-book2nd); }
     a.card--wt       { --accent: var(--a-wt); }
+    a.card--goose    { --accent: var(--a-goose); }
 
     /* ---------- footer ---------- */
     footer {
@@ -327,7 +329,7 @@
       <header>
         <div class="kicker">▶ SELECT YOUR GAME</div>
         <h1 class="logo">MED&#8209;STUDY&#8209;RPG</h1>
-        <p class="tagline">醫師國考養成像素 RPG 與二階國考講義、兩個 macOS 小工具，以及實證研究、AI、科普教育、攝影四大主題共九個網站。挑一個開始。</p>
+        <p class="tagline">醫師國考養成像素 RPG、兩款歷史解謎遊戲與二階國考講義、兩個 macOS 小工具，以及實證研究、AI、科普教育、攝影四大主題共八個網站。挑一個開始。</p>
       </header>
 
       <section class="group">
@@ -348,6 +350,23 @@
           <div class="meta"><span class="chip">網頁 App</span><span class="chip">二階 · 14 科</span></div>
           <div class="cta"><span class="btn">▶ 開始遊戲</span></div>
         </a>
+
+        <a class="card card--wt" href="/white-terror/">
+          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiMxNDExMGYiLz48cmVjdCB4PSIxMSIgeT0iMiIgd2lkdGg9IjMiIGhlaWdodD0iMyIgZmlsbD0iI2Q5Y2FhNiIvPjxyZWN0IHg9IjEyIiB5PSIyIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMTQxMTBmIi8+PHJlY3QgeD0iMCIgeT0iMTEiIHdpZHRoPSIxNiIgaGVpZ2h0PSI1IiBmaWxsPSIjMmEyNTIwIi8+PHJlY3QgeD0iMiIgeT0iOSIgd2lkdGg9IjEyIiBoZWlnaHQ9IjMiIGZpbGw9IiM1YTNmMjkiLz48cmVjdCB4PSI0IiB5PSI3IiB3aWR0aD0iOCIgaGVpZ2h0PSIyIiBmaWxsPSIjNWEzZjI5Ii8+PHJlY3QgeD0iNSIgeT0iNSIgd2lkdGg9IjYiIGhlaWdodD0iMiIgZmlsbD0iIzNiMmExYyIvPjxyZWN0IHg9IjciIHk9IjYiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSIyIiB5PSIxMyIgd2lkdGg9IjMiIGhlaWdodD0iMSIgZmlsbD0iI2E4M2MzYyIvPjwvc3ZnPgo=" alt="無聲之島 圖示" width="80" height="80"></div>
+          <div class="card-title">無聲之島</div>
+          <div class="card-sub">白色恐怖時期像素解謎遊戲 · 三個虛構人物、一封沒寄到的信，改編自真實案例 · 結尾檔案室附史料出處 · 約 30–45 分鐘，內容由 AI 協助生成</div>
+          <div class="meta"><span class="chip">網站 · 遊戲</span><span class="chip">台灣史</span></div>
+          <div class="cta"><span class="btn">▶ 開始遊戲</span></div>
+        </a>
+
+        <a class="card card--goose" href="/goose-town/">
+          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiMyNjMzM2MiLz48cmVjdCB4PSIyIiB5PSIyIiB3aWR0aD0iMTIiIGhlaWdodD0iMiIgZmlsbD0iIzVhM2YyOSIvPjxyZWN0IHg9IjEiIHk9IjMiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxIiBmaWxsPSIjOGM2ZDRhIi8+PHJlY3QgeD0iMyIgeT0iNCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjgiIGZpbGw9IiM4YzZkNGEiLz48cmVjdCB4PSI2IiB5PSI2IiB3aWR0aD0iNCIgaGVpZ2h0PSI2IiBmaWxsPSIjMjYzMzNjIi8+PHJlY3QgeD0iNyIgeT0iNSIgd2lkdGg9IjIiIGhlaWdodD0iMSIgZmlsbD0iIzI2MzMzYyIvPjxyZWN0IHg9IjQiIHk9IjYiIHdpZHRoPSIyIiBoZWlnaHQ9IjMiIGZpbGw9IiNmMWU2Y2MiLz48cmVjdCB4PSI0IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSIxIiBmaWxsPSIjZDRhMDRkIi8+PHJlY3QgeD0iNCIgeT0iNyIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0iI2E4MzIyYSIvPjxyZWN0IHg9IjExIiB5PSI2IiB3aWR0aD0iMSIgaGVpZ2h0PSIyIiBmaWxsPSIjYTgzMjJhIi8+PHJlY3QgeD0iMTEiIHk9IjgiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB5PSIxMiIgd2lkdGg9IjE2IiBoZWlnaHQ9IjQiIGZpbGw9IiM1YTNmMjkiLz48cmVjdCB5PSIxMiIgd2lkdGg9IjE2IiBoZWlnaHQ9IjEiIGZpbGw9IiM4YzZkNGEiLz48cmVjdCB4PSIyIiB5PSIxNCIgd2lkdGg9IjIiIGhlaWdodD0iMSIgZmlsbD0iI2Q0YTA0ZCIvPjxyZWN0IHg9IjEyIiB5PSIxNCIgd2lkdGg9IjIiIGhlaWdodD0iMSIgZmlsbD0iI2Q0YTA0ZCIvPjwvc3ZnPgo=" alt="鵝城上任 像素圖示" width="80" height="80"></div>
+          <div class="card-title">鵝城上任</div>
+          <div class="card-sub">民國初年軍閥時期像素解謎遊戲 · 5 章、4+1 結局 · 檔案室與解讀室分開標註史實與電影虛構 · 電影《讓子彈飛》非官方同人作品，未使用電影素材 · 約 60–90 分鐘，內容由 AI 協助生成</div>
+          <div class="meta"><span class="chip">網站 · 遊戲</span><span class="chip">民初史</span></div>
+          <div class="cta"><span class="btn">▶ 開始遊戲</span></div>
+        </a>
+
         </div>
       </section>
 
@@ -460,14 +479,6 @@
           <div class="card-sub">學測自然科閱讀素養題練功場 · 探究能力講義＋物化生地 23 關＋跨科綜合演練＋時事題 · 作答計時、成績卡分享 · 內容由 AI 生成</div>
           <div class="meta"><span class="chip">網站 · 練習</span><span class="chip">學測自然</span></div>
           <div class="cta"><span class="btn">▶ 開始挑戰</span></div>
-        </a>
-
-        <a class="card card--wt" href="/white-terror/">
-          <div class="screen"><img class="flat" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IiMxNDExMGYiLz48cmVjdCB4PSIxMSIgeT0iMiIgd2lkdGg9IjMiIGhlaWdodD0iMyIgZmlsbD0iI2Q5Y2FhNiIvPjxyZWN0IHg9IjEyIiB5PSIyIiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjMTQxMTBmIi8+PHJlY3QgeD0iMCIgeT0iMTEiIHdpZHRoPSIxNiIgaGVpZ2h0PSI1IiBmaWxsPSIjMmEyNTIwIi8+PHJlY3QgeD0iMiIgeT0iOSIgd2lkdGg9IjEyIiBoZWlnaHQ9IjMiIGZpbGw9IiM1YTNmMjkiLz48cmVjdCB4PSI0IiB5PSI3IiB3aWR0aD0iOCIgaGVpZ2h0PSIyIiBmaWxsPSIjNWEzZjI5Ii8+PHJlY3QgeD0iNSIgeT0iNSIgd2lkdGg9IjYiIGhlaWdodD0iMiIgZmlsbD0iIzNiMmExYyIvPjxyZWN0IHg9IjciIHk9IjYiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNkNGEwNGQiLz48cmVjdCB4PSIyIiB5PSIxMyIgd2lkdGg9IjMiIGhlaWdodD0iMSIgZmlsbD0iI2E4M2MzYyIvPjwvc3ZnPgo=" alt="無聲之島 圖示" width="80" height="80"></div>
-          <div class="card-title">無聲之島</div>
-          <div class="card-sub">白色恐怖時期像素解謎遊戲 · 三個虛構人物、一封沒寄到的信，改編自真實案例 · 結尾檔案室附史料出處 · 約 30–45 分鐘，內容由 AI 協助生成</div>
-          <div class="meta"><span class="chip">網站 · 遊戲</span><span class="chip">台灣史</span></div>
-          <div class="cta"><span class="btn">▶ 開始遊戲</span></div>
         </a>
 
         </div>
