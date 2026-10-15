@@ -5494,12 +5494,13 @@
   "promptVersion": "full-v1",
   "generatedAt": "2026-06-28T14:45:27.018Z",
   "optionExplanations": {
-   "A": "詳解未明確說明此選項錯因",
-   "B": "SEB為常見導致食物中毒及腸胃炎的金黃色葡萄球菌毒素",
-   "C": "詳解未明確說明此選項錯因",
-   "D": "詳解未明確說明此選項錯因"
+   "A": "Enterotoxin A 是葡萄球菌食物中毒最常見的腸毒素，但與偽膜性腸炎的關聯不如 B。",
+   "B": "Enterotoxin B 與葡萄球菌性偽膜性腸炎最相關，故為本題答案；食物中毒最常見的則是 A。",
+   "C": "Enterotoxin C 可造成食物中毒，但不是偽膜性腸炎的代表毒素。",
+   "D": "Enterotoxin D 可造成食物中毒，但不是偽膜性腸炎的代表毒素。"
   },
-  "flags": []
+  "flags": [],
+  "source": "manual-bug-report-fix"
  },
  "105-1-醫學一-微生物暨免疫學-Q47": {
   "sourceHash": "d2aa5fb73676ff8929f38df0695c7e1a02825a3cc757361dc8f9d3ba2770b84f",
