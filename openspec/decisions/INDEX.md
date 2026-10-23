@@ -86,6 +86,7 @@
 - 快速複習按鈕收進出征隊列，隊伍編輯只在圖鑑卡上做、首頁只留唯讀入口 （refold-neurons-quick-review-into-expedition / redesign-neurons-homepage-squad-and-maze-focus, 2026-07-07）
 - 迷宮美術走可愛、多樣的神經元風格，使用者曾於 2026-06-05 要求整個重做 （redesign-neurons-maze-brain-tileset, 2026-06-06）
 - Lofi 電台音檔放雲端（R2），不放進 repo （add-neurons-lofi-radio, 2026-07-03）
+- 神經元版電台改播 Lofi像素電台（/lofi/）的 6 台曲庫，曲目清單執行時讀取、整首串流播放；收音機外觀與操作不變（swap-neurons-radio-to-lofi-pixel-radio, 2026-10-20，取代原 8 台本機曲庫）
 - 神經元版的 Threads 宣傳文案由使用者手寫，不自動產生 （add-neurons-dmn-fate-card, 2026-05-28）
 
 ## 工作流程（使用者選定）
