@@ -13,7 +13,7 @@
 - 「退休」按鈕顯示為 AAD、滑過顯示全稱「自願離院（退休）」，確認視窗仍寫「退休」 （rename-retire-to-aad, 2026-05-19）
 - 玩家可以替醫師改名，也可還原預設名；預設名依稀有度有不同頭銜 （add-doctor-rename / differentiate-default-name-by-tier, 2026-05-19）
 - 錯題清單以「最近一次作答結果」為準，答對就自動移出，和手動收藏分成兩個分頁 （add-wrong-answer-list-medexam2, 2026-05-19）
-- 連續簽到門檻為「5 分鐘唸書或 5 題」，斷簽只給輕提示不羞辱，加成最高 +50% （add-daily-streak, 2026-05-15）
+- 連續簽到門檻為「5 分鐘唸書或 5 題」，斷簽只給輕提示不羞辱，加成最高 +50% （add-daily-streak, 2026-05-15）（待確認）
 - 模擬考用碼表計時（非倒數）、結果頁所有詳解預設展開 （add-mock-exam-mode, 2026-05-15）
 - 帶圖題目缺圖時保留題目並顯示替代說明，圖片是靠兩輪深度稽核補到 394 題 （add-medexam2-question-images, 2026-05-18）
 - 二階獨立成自己的 repo，舊網址 /2nd/ 持續可用 （split-medexam2-standalone, 2026-06-03）
