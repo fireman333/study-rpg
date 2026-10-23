@@ -38,7 +38,7 @@
 - 收藏頁只顯示已收集的，不顯示總數與完成度，抽卡永不因集滿而停用 （rework-neurons-open-collection, 2026-06-02）
 - 迷宮節點是唯一的抽卡入口，能量依分支累積、到節點才消耗，不能隨時手動抽 （promote-maze-to-home, 2026-06-03）
 - 迷宮成為首頁主視覺，取代原本的連結樹 （promote-maze-to-home, 2026-06-03）
-- 靈感卡（DMN）每日上限 5 抽、抽到的卡不重複、集滿 20 張後淡出；獎勵改綁出征清錯題 （add-neurons-dmn-fate-card / add-neurons-expedition-rewards, 2026-06-04）
+- 靈感卡（DMN）每日上限 5 抽、集滿 20 張後淡出；獎勵改綁出征清錯題 （add-neurons-dmn-fate-card / add-neurons-expedition-rewards, 2026-06-04）
 - DMN 消耗品可重複抽到；裝備每件只能擁有一次，抽中機率固定 5%，不加保底 （2026-06-30-make-neurons-dmn-consumables-repeatable, 2026-06-30）
 - 出征抽卡門檻用「清掉目前錯題的 25%、50%」並設上下限，每天最多 2 抽 （2026-06-04-add-neurons-expedition-rewards, 2026-06-03）
 - 加速道具進背包由玩家手動啟動，永久夥伴只當跟隨小精靈、不穿在角色身上；移除會鼓勵偷懶的 streak-shield （add-neurons-acceleration-system, 2026-06-04）
