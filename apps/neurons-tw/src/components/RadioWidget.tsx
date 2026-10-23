@@ -1,4 +1,5 @@
 // Lofi radio widget — pixel-radio UI over the framework-agnostic `radio` engine.
+// Music comes from the Lofi像素電台 library (med-study-rpg.com/lofi/); see lib/radio/engine.ts.
 // Collapsible, OFF-by-default egg mounted at the bottom of OverviewPage (below the maze).
 import { useEffect, useRef, useState } from 'react'
 import { radio, type RadioState } from '../lib/radio/engine'
@@ -16,9 +17,10 @@ export default function RadioWidget(): JSX.Element {
   // subscribe to engine state
   useEffect(() => radio.subscribe(() => setState(radio.getState())), [])
 
-  // VU meter — poll analyser each frame while playing
+  // VU meter — poll analyser each frame while the widget is expanded
   const vuRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
+    if (!expanded) return
     let raf = 0
     const tick = (): void => {
       const bars = vuRef.current?.children
@@ -30,20 +32,20 @@ export default function RadioWidget(): JSX.Element {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [])
+  }, [expanded])
 
   const bump = (dir: 'l' | 'r'): void => setSpin({ dir, n: (spin?.n ?? 0) + 1 })
   const tuneL = (): void => { bump('l'); radio.prevMode() }
   const tuneR = (): void => { bump('r'); radio.nextMode() }
 
-  const { mode, label, zh, stat, playing, paused, trackId, volume, crossfadeOn, selectedStyles, styleIds } = state
+  const { mode, label, zh, stat, playing, paused, loading, error, trackId, volume, crossfadeOn, selectedStyles, styleIds, styleZh } = state
   const on = playing && !paused
 
   return (
     <div className="nradio">
       <div className={`radio${expanded ? '' : ' collapsed'}`}>
-        <div className={`handle${on ? ' on' : ''}`} onClick={() => setExpanded((e) => !e)}>
-          <span><span className="dot" />📻 lofi 電台 · {mode === 'RANDOM' ? 'RANDOM' : mode === 'OFF' ? 'OFF' : label}</span>
+        <div className={`handle${on ? ' on' : ''}`} onClick={() => { if (!expanded) radio.preload().catch(() => { /* retried on play */ }); setExpanded((e) => !e) }}>
+          <span><span className="dot" />📻 lofi 電台 · {label}</span>
           <span className="caret">{expanded ? '▾ 收起' : '▸ 展開'}</span>
         </div>
         {expanded && (
@@ -59,11 +61,11 @@ export default function RadioWidget(): JSX.Element {
               <div className="lcd">
                 <div className="lcd-top"><span>FM · LO-FI</span><span>{stat}</span></div>
                 <div className="lcd-mid">
-                  <span className={`mode${mode === 'OFF' ? ' off' : ''}`}>{mode === 'RANDOM' ? 'RANDOM' : mode === 'OFF' ? 'OFF' : label}</span>
+                  <span className={`mode${mode === 'OFF' ? ' off' : ''}`}>{label}</span>
                   <span className="zh">{mode === 'RANDOM' ? '混合' : zh}</span>
                   <div className="vu" ref={vuRef}>{Array.from({ length: VU_BARS }, (_, i) => <i key={i} />)}</div>
                 </div>
-                <div className="now">{mode === 'OFF' ? '轉左邊旋鈕選台 ►' : trackId ? `♪ ${trackId}` : '…'}</div>
+                <div className="now">{mode === 'OFF' ? '轉左邊旋鈕選台 ►' : error ? `⚠ ${error} · 按 ►| 重試` : loading ? '♪ 調頻中…' : trackId ? `♪ ${trackId}` : '…'}</div>
               </div>
               <div className="transport">
                 <div className="tbtns">
@@ -81,19 +83,19 @@ export default function RadioWidget(): JSX.Element {
             </div>
             {showChips && (
               <div className="panel">
-                <h4>▸ RANDOM 混合電台 — 點選要納入哪些風格</h4>
+                <h4>▸ RANDOM 混合電台 — 點選要納入哪些台</h4>
                 <div className="chiprow">
                   {styleIds.map((s) => {
                     const sel = selectedStyles.includes(s)
-                    return <div key={s} className={`chip${sel ? ' on' : ''}`} onClick={() => radio.setStyleSelected(s, !sel)}>{sel ? '☑' : '☐'} {s}</div>
+                    return <div key={s} className={`chip${sel ? ' on' : ''}`} onClick={() => radio.setStyleSelected(s, !sel)}>{sel ? '☑' : '☐'} {styleZh[s] ?? s}</div>
                   })}
                 </div>
               </div>
             )}
             {showHint && (
               <div className="panel">
-                左邊旋鈕 = 選台（RANDOM · 7 風格 · POP · Off）。右邊 = |◄ 上一首 / ► 播放暫停 / ►| 下一首。<br />
-                曲間可開 crossfade；每首約 3 分自動換。各風格音量已自動平衡。預設 OFF · 收合，塞在迷宮下方當彩蛋。
+                左邊旋鈕 = 選台（RANDOM · {styleIds.length} 台 · Off）。右邊 = |◄ 上一首 / ► 播放暫停 / ►| 下一首。<br />
+                曲目來自 Lofi像素電台，每首播完自動換下一首；可開 crossfade 讓曲尾交疊。各台音量已平衡。預設 OFF · 收合，塞在迷宮下方當彩蛋。
               </div>
             )}
           </div>
