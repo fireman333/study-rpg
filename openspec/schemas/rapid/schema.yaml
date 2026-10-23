@@ -1,0 +1,63 @@
+name: rapid
+version: 1
+description: Rapid workflow for /opsx-auto - proposal → tasks (no specs, no design; the user's grill.md carries the decisions)
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: Why and what, plus the user's decisions
+    template: proposal.md
+    instruction: |
+      Create a short proposal (aim for under one page) that says WHY this change is needed and WHAT changes.
+
+      Sections:
+      - **Why**: 1-3 sentences on the problem. Plain words; the user is not a software engineer.
+      - **What Changes**: bullets of observable behaviour that changes. Mark anything that changes stored user data or
+        file formats with **DATA**.
+      - **Decisions**: if the change folder has grill.md, copy every line of its "## Decisions" section here verbatim.
+        These are the user's decisions; plan within them. Otherwise leave "（無 grill 紀錄）".
+      - **Out of Scope**: what this change deliberately does not do.
+      - **Impact**: affected code areas, ending with one line "Scope paths: <comma-separated globs of the files this
+        change should touch, including tests>" (verify lists changed files outside them).
+
+      There are no spec or design artifacts in this schema. Do not create specs/ or design.md.
+    requires: []
+
+  - id: tasks
+    generates: tasks.md
+    description: Implementation checklist; every task says how it is verified
+    template: tasks.md
+    instruction: |
+      Create the task list. The apply phase parses checkboxes: `- [ ] X.Y Task description`; a box holding only `x`
+      counts as done.
+
+      Guidelines:
+      - Group related tasks under ## numbered headings, ordered by dependency; each task small enough for one session.
+      - Every task ends with exactly one 驗收 tag on the same checkbox line:
+        "驗收：測試 - <test name or command>" (automated);
+        "驗收：模擬器 - <steps in the iOS Simulator and what the screen must show>" (an agent drives the simulator);
+        "驗收：真機(<reason>) - <what to check>", reason one of pencil, hover, palm, haptic, perf, icloud, files,
+        voiceover, camera, other (only the user can do it on a real device).
+        Apple Pencil, touch gestures on content (pinch, drag, long-press, multi-finger), hand feel, timing, real
+        iCloud or Files/Drive, haptics, VoiceOver and camera are always 真機; when unsure, 真機.
+      - Each group lands its own tests; do not collect tests into a final group.
+      - If the change touches stored user data or file formats, task 1.1 is: add a sample of the current (old) format
+        as a test fixture plus tests that new code opens it and old code can still open what new code writes.
+      - Leave a final "## Autopilot notes" heading (empty is fine); only lines with the documented prefixes go there.
+
+      Example:
+      ```
+      ## 1. Export
+
+      - [ ] 1.1 Add CSV export of highlights 驗收：測試 - ExportTests.testCSVQuoting passes
+      - [ ] 1.2 Export menu shows 「匯出 CSV」 驗收：模擬器 - open a PDF with highlights, tap 匯出, the menu lists 匯出 CSV
+      - [ ] 1.3 Exported file opens in Numbers 驗收：真機(files) - tap 匯出 CSV, save to Files, open it in Numbers
+      ```
+    requires:
+      - proposal
+
+apply:
+  requires: [ tasks ]
+  tracks: tasks.md
+  instruction: |
+    Read proposal.md (and grill.md if present), work through pending tasks, check each off when its 驗收 passes.
+    Never contradict a line under "## Decisions" in proposal.md.
